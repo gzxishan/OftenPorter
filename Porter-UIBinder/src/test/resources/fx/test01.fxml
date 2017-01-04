@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/8.0.102" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu fx:id="hello_file_" mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem fx:id="hello_fileClose_" mnemonicParsing="false" text="Close" />
+            </items>
+          </Menu>
+          <Menu fx:id="hello_edit_" mnemonicParsing="false" text="Edit" />
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0">
+          <children>
+              <Label id="hello_nameLabel_temp" text="name:" />
+              <TextField id="hello_name_ok" fx:id="hello_name_ok" />
+              <ChoiceBox fx:id="hello_choice_ok" prefWidth="150.0" />
+              <ProgressBar fx:id="hello_progress_ok" prefWidth="200.0" progress="0.0" />
+              <Slider fx:id="hello_slider_ok" />
+              <ComboBox fx:id="hello_combox_ok" prefWidth="150.0" />
+              <ColorPicker fx:id="hello_color_ok" />
+              <DatePicker fx:id="hello_date_ok" showWeekNumbers="true" />
+              <RadioButton fx:id="hello_radio_ok" mnemonicParsing="false" text="RadioButton" />
+              <ToggleButton fx:id="hello_toggle_ok" mnemonicParsing="false" text="ToggleButton" />
+              <CheckBox fx:id="hello_checkbox_ok" mnemonicParsing="false" text="CheckBox" />
+              <Label text="text:" />
+              <TextArea id="hello_text_ok" fx:id="hello_text_ok" prefHeight="200.0" prefWidth="200.0" />
+              <Button id="hello_ok_" fx:id="hello_ok_" mnemonicParsing="false" text="确定" />
+          </children>
+      </VBox>
+   </children>
+</VBox>
