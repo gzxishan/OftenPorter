@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.bridge.http;
 
-import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
@@ -22,38 +21,28 @@ public class HMain extends LocalMain
             final String urlEncoding, final OkHttpClient okHttpClient, final String hostUrlPrefix)
     {
         super();
-        newLocalMain(responseWhenException, pName, urlEncoding, new PBridge()
-        {
-            @Override
-            public void request(PRequest request, final PCallback callback)
+        newLocalMain(responseWhenException, pName, urlEncoding, (request, callback) -> {
+            try
             {
-                try
+                String path = request.getPath();
+                if (path.startsWith("/="))
                 {
-                    String path = request.getPath();
-                    if (path.startsWith("/="))
-                    {
-                        path = ":" + path.substring(2);
-                    }
-                    HttpUtil.requestWPorter(request.getParameterMap(), HttpMethod.valueOf(request.getMethod().name()),
-                            okHttpClient, hostUrlPrefix + path,
-                            new JRCallback()
-                            {
-                                @Override
-                                public void onResult(JResponse jResponse)
-                                {
-                                    if (callback != null)
-                                    {
-                                        callback.onResponse(new PResponseImpl(jResponse));
-                                    }
-                                }
-                            });
-                } catch (Exception e)
+                    path = ":" + path.substring(2);
+                }
+                HttpUtil.requestWPorter(request.getParameterMap(), HttpMethod.valueOf(request.getMethod().name()),
+                        okHttpClient, hostUrlPrefix + path,
+                                        jResponse -> {
+                                            if (callback != null)
+                                            {
+                                                callback.onResponse(new PResponseImpl(jResponse));
+                                            }
+                                        });
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+                if (callback != null)
                 {
-                    LOGGER.error(e.getMessage(), e);
-                    if (callback != null)
-                    {
-                        callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
-                    }
+                    callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
                 }
             }
         });
