@@ -77,6 +77,16 @@ public class LogUtil
         System.out.println();
     }
 
+    public static void printPos(Object... objects)
+    {
+        System.out.print(getCodePos(2));
+        for (Object object : objects)
+        {
+            System.out.print(object);
+        }
+        System.out.println();
+    }
+
     /**
      * 打印当前位置
      */
@@ -90,8 +100,20 @@ public class LogUtil
         System.err.println();
     }
 
+    public static void printErrPos(Object... objects)
+    {
+        System.err.print(getCodePos(2));
+        for (Object object : objects)
+        {
+            System.err.print(object);
+        }
+        System.err.println();
+    }
+
     /**
      * 打印当前位置
+     * @param stack 0表示调用的地方，1表示上一个地方，依次类推。
+     * @param objects
      */
     public static void printErrPosLnS(int stack, Object... objects)
     {
@@ -104,7 +126,9 @@ public class LogUtil
     }
 
     /**
-     * 打印当前位置
+     * 见{@linkplain #printErrPosLnS(int, Object...)}
+     * @param stack
+     * @param objects
      */
     public static void printPosLnS(int stack, Object... objects)
     {

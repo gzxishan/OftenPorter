@@ -94,8 +94,8 @@ public class MyWMainServlet extends WMainServlet {
 
             @Override
             public void onResponse(PResponse lResponse) {
-                LogUtil.printPosLn(lResponse.getResponse());
-
+                Object obj = lResponse.getResponse();
+                LogUtil.printPos(obj);
             }
         });
 
@@ -103,8 +103,8 @@ public class MyWMainServlet extends WMainServlet {
 
             @Override
             public void onResponse(PResponse lResponse) {
-                LogUtil.printPosLn(lResponse.getResponse());
-
+                Object obj = lResponse.getResponse();
+                LogUtil.printPos(obj);
             }
         });
 
@@ -112,7 +112,8 @@ public class MyWMainServlet extends WMainServlet {
 
             @Override
             public void onResponse(PResponse lResponse) {
-                LogUtil.printPosLn(lResponse.getResponse());
+                Object obj = lResponse.getResponse();
+                LogUtil.printPos(obj);
 
             }
         });

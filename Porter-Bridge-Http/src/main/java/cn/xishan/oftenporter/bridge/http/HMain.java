@@ -32,8 +32,9 @@ public class HMain extends LocalMain {
 //                else if(path.startsWith("/:")){
 //                    path = (hostUrlPrefix.endsWith("/") ? "=" : "/=") + path.substring(2);
 //                }
+                String url = hostUrlPrefix + path;
                 HttpUtil.requestWPorter(request.getParameterMap(), HttpMethod.valueOf(request.getMethod().name()),
-                                        okHttpClient, hostUrlPrefix + path,
+                                        okHttpClient, url,
                                         jResponse -> {
                                             if (callback != null) {
                                                 callback.onResponse(new PResponseImpl(jResponse));
@@ -74,7 +75,7 @@ public class HMain extends LocalMain {
 
             @Override
             public void link(PLinker it, Direction direction) {
-                HMain.super.getPLinker().link(it,direction);
+                HMain.super.getPLinker().link(it, direction);
             }
 
             @Override
