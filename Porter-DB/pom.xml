@@ -6,6 +6,7 @@
         <groupId>cn.xishan.oftenporter</groupId>
         <artifactId>Parent</artifactId>
         <version>1.0.0</version>
+        <relativePath>../Parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>Porter-DB</artifactId>

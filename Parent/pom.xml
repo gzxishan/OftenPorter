@@ -20,6 +20,7 @@
         <module>../Porter-Bridge-Servlet</module>
         <module>../Porter-Bridge-Http</module>
         <module>../Porter-UIBinder</module>
+        <module>../Demo</module>
     </modules>
 
     <dependencies>
