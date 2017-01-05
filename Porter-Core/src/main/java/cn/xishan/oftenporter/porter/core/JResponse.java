@@ -191,9 +191,9 @@ public class JResponse
         return code;
     }
 
-    public Object getResult()
+    public <T> T getResult()
     {
-        return result;
+        return (T)result;
     }
 
     public boolean isSuccess()
