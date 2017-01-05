@@ -118,7 +118,7 @@ public class PortExecutor {
     }
 
 
-    public PreRequest forRequest(WRequest request, final WResponse response, PLinker pLinker) {
+    public PreRequest forRequest(WRequest request, final WResponse response) {
         String path = request.getPath();
 //        if (path.startsWith("/="))
 //        {
@@ -158,8 +158,6 @@ public class PortExecutor {
             Context context = req.context;
             UrlDecoder.Result result = req.result;
 
-            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
-
             Porter classPort = context.portContext.getClassPort(result.classTied());
 
             PorterOfFun funPort;
@@ -170,12 +168,11 @@ public class PortExecutor {
                 exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
                 return;
             } else if ((funPort = classPort.getChild(result, request.getMethod())) == null) {
-
-                exNotFoundFun(wObject, result, innerContextBridge.responseWhenException);
+                exNotFoundFun(response, result, innerContextBridge.responseWhenException);
                 return;
             }
 
-
+            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
             //全局通过检测
             dealtOfGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
         } catch (Exception e) {
@@ -184,17 +181,17 @@ public class PortExecutor {
         }
     }
 
-    private void exNotFoundFun(WObject wObject, UrlDecoder.Result result, boolean responseWhenException) {
+    private void exNotFoundFun(WResponse response, UrlDecoder.Result result, boolean responseWhenException) {
         if (responseWhenException) {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
             jResponse.setDescription("fun:" + result.toString());
             try {
-                wObject.getResponse().write(jResponse);
+                response.write(jResponse);
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
-        close(wObject);
+        close(response);
     }
 
     private void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException) {

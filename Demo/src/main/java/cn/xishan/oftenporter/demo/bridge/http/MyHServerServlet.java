@@ -1,14 +1,17 @@
 package cn.xishan.oftenporter.demo.bridge.http;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
+import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.servlet.WMainServlet;
 
 @WebServlet(urlPatterns = "/RemoteBridge/*", loadOnStartup = 10,
 	initParams = { @WebInitParam(name = "pname", value = "HServer"),
-		@WebInitParam(name = "contextName", value = "C"),
+		@WebInitParam(name = "urlEncoding", value = "utf-8"),
+            @WebInitParam(name = "responseWhenException", value = "true"),
 		@WebInitParam(name = "urlPatternPrefix", value = "/RemoteBridge") })
 public class MyHServerServlet extends WMainServlet
 {
@@ -25,6 +28,13 @@ public class MyHServerServlet extends WMainServlet
 
     }
 
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        PorterConf porterConf = newPorterConf();
+        porterConf.setContextName("C");
+        startOne(porterConf);
+    }
 
     @Override
     public PLinker getPLinker() {

@@ -15,6 +15,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>cn.xishan.oftenporter</groupId>
@@ -38,8 +39,25 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.21</version>
         </dependency>
+        <dependency>
+            <groupId>cn.xishan.oftenporter</groupId>
+            <artifactId>Porter-Bridge-Http</artifactId>
+            <version>${parent.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>Demo</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <port>8080</port>
+                    <path>/${project.artifactId}</path>
+                    <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

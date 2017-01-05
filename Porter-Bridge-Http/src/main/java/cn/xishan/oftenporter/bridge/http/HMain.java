@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.bridge.http;
 
+import cn.xishan.oftenporter.porter.core.PorterAttr;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
@@ -13,92 +14,148 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/7.
  */
-public class HMain extends LocalMain
-{
+public class HMain extends LocalMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(HMain.class);
+    private PLinker pLinker;
 
     public HMain(boolean responseWhenException, PName pName,
-            final String urlEncoding, final OkHttpClient okHttpClient, final String hostUrlPrefix)
-    {
+                 final String urlEncoding, final OkHttpClient okHttpClient, final String hostUrlPrefix) {
         super();
         newLocalMain(responseWhenException, pName, urlEncoding, (request, callback) -> {
-            try
-            {
+            try {
                 String path = request.getPath();
-                if (path.startsWith("/="))
-                {
-                    path = "/:" + path.substring(2);
+                if (path.startsWith(":")) {
+                    path = (hostUrlPrefix.endsWith("/") ? "=" : "/=") + path.substring(1);
+                } else if (path.startsWith("/") && hostUrlPrefix.endsWith("/")) {
+                    path = path.substring(1);
                 }
+//                else if(path.startsWith("/:")){
+//                    path = (hostUrlPrefix.endsWith("/") ? "=" : "/=") + path.substring(2);
+//                }
                 HttpUtil.requestWPorter(request.getParameterMap(), HttpMethod.valueOf(request.getMethod().name()),
-                        okHttpClient, hostUrlPrefix + path,
+                                        okHttpClient, hostUrlPrefix + path,
                                         jResponse -> {
-                                            if (callback != null)
-                                            {
+                                            if (callback != null) {
                                                 callback.onResponse(new PResponseImpl(jResponse));
                                             }
                                         });
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-                if (callback != null)
-                {
+                if (callback != null) {
                     callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
                 }
             }
         });
+        pLinker = new PLinker() {
+            @Override
+            public LinkListener sendLink() {
+                return HMain.super.getPLinker().sendLink();
+            }
+
+            @Override
+            public void receiveLink(PLinker init, LinkListener linkListener) {
+                HMain.super.getPLinker().receiveLink(init, linkListener);
+            }
+
+            @Override
+            public PLinker getLinkedPInit(String pName) {
+                return HMain.super.getPLinker().getLinkedPInit(pName);
+            }
+
+            @Override
+            public void setPorterAttr(PorterAttr porterAttr) {
+                HMain.super.getPLinker().setPorterAttr(porterAttr);
+            }
+
+            @Override
+            public PorterAttr getPorterAttr() {
+                return HMain.super.getPLinker().getPorterAttr();
+            }
+
+            @Override
+            public void link(PLinker it, Direction direction) {
+                HMain.super.getPLinker().link(it,direction);
+            }
+
+            @Override
+            public void close() {
+                HMain.super.getPLinker().close();
+            }
+
+            @Override
+            public boolean isClosed() {
+                return false;
+            }
+
+            @Override
+            public void setForAnyOtherPName(PLinker anyOther) {
+                HMain.super.getPLinker().setForAnyOtherPName(anyOther);
+            }
+
+            @Override
+            public PBridge currentBridge() {
+                return HMain.super.getPLinker().currentBridge();
+            }
+
+            @Override
+            public PBridge toAllBridge() {
+                return currentBridge();
+            }
+
+            @Override
+            public PName currentPName() {
+                return HMain.super.getPLinker().currentPName();
+            }
+
+            @Override
+            public boolean isForAnyOtherPName() {
+                return true;
+            }
+        };
     }
 
     @Override
-    public void addGlobalAutoSet(String name, Object object)
-    {
+    public void addGlobalAutoSet(String name, Object object) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addGlobalTypeParser(ITypeParser typeParser)
-    {
+    public void addGlobalTypeParser(ITypeParser typeParser) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException
-    {
+    public void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void startOne(PorterConf porterConf)
-    {
+    public void startOne(PorterConf porterConf) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public PLinker getPLinker()
-    {
-        return super.getPLinker();
+    public PLinker getPLinker() {
+        return pLinker;
     }
 
     @Override
-    public void destroyOne(String contextName)
-    {
+    public void destroyOne(String contextName) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void enableOne(String contextName, boolean enable)
-    {
+    public void enableOne(String contextName, boolean enable) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void destroyAll()
-    {
+    public void destroyAll() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public PorterConf newPorterConf()
-    {
+    public PorterConf newPorterConf() {
         throw new UnsupportedOperationException();
     }
 }

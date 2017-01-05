@@ -16,8 +16,7 @@ import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
  */
 public class LocalMain implements CommonMain
 {
-    private PorterMain porterMain;
-
+    protected PorterMain porterMain;
 
     public LocalMain(boolean responseWhenException, PName pName, String urlEncoding)
     {
