@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.simple.DefaultPInit;
+import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public final class PorterMain
     public PorterMain(PName pName, PBridge bridge)
     {
         this.innerBridge = new InnerBridge();
-        pLinker = new DefaultPInit(pName, bridge);
+        pLinker = new DefaultPLinker(pName, bridge);
         pLinker.setPorterAttr(contextName -> {
             Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
             ClassLoader classLoader = null;

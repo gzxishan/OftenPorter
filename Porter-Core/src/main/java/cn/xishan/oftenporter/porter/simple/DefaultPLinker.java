@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Created by https://github.com/CLovinr on 2016/9/18.
  */
-public class DefaultPInit implements PLinker
+public class DefaultPLinker implements PLinker
 {
     private PName pName;
     private PBridge current;
@@ -40,9 +40,9 @@ public class DefaultPInit implements PLinker
     }
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPInit.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPLinker.class);
 
-    public DefaultPInit(PName pName, PBridge bridge)
+    public DefaultPLinker(PName pName, PBridge bridge)
     {
         this.pName = pName;
         this.current = bridge;
@@ -52,30 +52,24 @@ public class DefaultPInit implements PLinker
         //自己可达自己
         pathMap.put(pName.getName(), new PPath(0, pName, this));
 
-        linkListener = new LinkListener()
-        {
-            @Override
-            public void onItCanGo(PLinker it, PPath pPath)
+        linkListener = (it, pPath) -> {
+            synchronized (LOCK)
             {
-                synchronized (LOCK)
-                {
-                    if (pPath.pName.equals(currentPName()))
-                    {//不用再添加自己。
-                        return;
-                    }
-                    PPath path = pathMap.get(pPath.pName.getName());
-                    if (path == null || path.step > pPath.step + 1)
-                    {//保存路径更短者
-                        PPath newPath = pPath.newPath(pPath.step + 1);
-                        putPath(newPath);
-                        //通知其他人我所达到的路径
-                        forAll().onItCanGo(DefaultPInit.this, newPath);
-                        //接收对方的。
-                        newPath.pLinker.receiveLink(DefaultPInit.this, linkListener);
-                    }
+                if (pPath.pName.equals(currentPName()))
+                {//不用再添加自己。
+                    return;
+                }
+                PPath path = pathMap.get(pPath.pName.getName());
+                if (path == null || path.step > pPath.step + 1)
+                {//保存路径更短者
+                    PPath newPath = pPath.newPath(pPath.step + 1);
+                    putPath(newPath);
+                    //通知其他人我所达到的路径
+                    forAll().onItCanGo(DefaultPLinker.this, newPath);
+                    //接收对方的。
+                    newPath.pLinker.receiveLink(DefaultPLinker.this, linkListener);
                 }
             }
-
         };
 
 

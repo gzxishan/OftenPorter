@@ -30,7 +30,7 @@ public class DefaultPLinkerTest
         for (int i = 0; i < pLinkers.length; i++)
         {
             char c = (char) ('A' + i);
-            pLinkers[i] = new DefaultPInit(new PName(c + ""), null);
+            pLinkers[i] = new DefaultPLinker(new PName(c + ""), null);
         }
         //exe(threads, n, pLinkers);
 

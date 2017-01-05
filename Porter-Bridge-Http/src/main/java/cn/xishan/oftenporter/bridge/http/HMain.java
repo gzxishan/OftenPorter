@@ -27,7 +27,7 @@ public class HMain extends LocalMain
                 String path = request.getPath();
                 if (path.startsWith("/="))
                 {
-                    path = ":" + path.substring(2);
+                    path = "/:" + path.substring(2);
                 }
                 HttpUtil.requestWPorter(request.getParameterMap(), HttpMethod.valueOf(request.getMethod().name()),
                         okHttpClient, hostUrlPrefix + path,
@@ -93,7 +93,7 @@ public class HMain extends LocalMain
     @Override
     public void destroyAll()
     {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override

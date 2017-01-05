@@ -88,9 +88,9 @@ public class TestLocalMain
             }
         });
 
-        porterConf.addContextCheck((wObject, type, aspect) -> {
+        porterConf.addContextCheck((wObject, type, handle) -> {
             //logger.debug("");
-            return null;
+            handle.next();
         });
 
         localMain.startOne(porterConf);
