@@ -43,6 +43,11 @@ class DefaultUrlResult implements UrlDecoder.Result
     }
 
     @Override
+    public void setParam(String name, Object value) {
+        params.put(name,value);
+    }
+
+    @Override
     public Object getParam(String name)
     {
         return params.get(name);

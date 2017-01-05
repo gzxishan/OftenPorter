@@ -10,8 +10,7 @@ import java.util.*;
 /**
  * 框架配置对象。非线程安全。
  */
-public class PorterConf
-{
+public class PorterConf {
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
     private Set<StateListener> stateListenerSet;
@@ -24,10 +23,10 @@ public class PorterConf
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
+    private CheckPassable forAllCheckPassable;
 
 
-    PorterConf()
-    {
+    PorterConf() {
         seekPackages = new SeekPackages();
         stateListenerSet = new HashSet<>();
         contextChecks = new ArrayList<>();
@@ -37,34 +36,41 @@ public class PorterConf
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
-    public String getContentEncoding()
-    {
+    public CheckPassable getForAllCheckPassable() {
+        return forAllCheckPassable;
+    }
+
+    /**
+     * 所有的时期都会调用它。
+     *
+     * @param forAllCheckPassable
+     */
+    public void setForAllCheckPassable(CheckPassable forAllCheckPassable) {
+        this.forAllCheckPassable = forAllCheckPassable;
+    }
+
+    public String getContentEncoding() {
         return contentEncoding;
     }
 
-    public void setContentEncoding(String contentEncoding)
-    {
+    public void setContentEncoding(String contentEncoding) {
         checkInited();
         this.contentEncoding = contentEncoding;
     }
 
-    public void setContextName(String contextName)
-    {
+    public void setContextName(String contextName) {
         checkInited();
         PortUtil.checkName(contextName);
         this.name = contextName;
     }
 
-    public String getContextName()
-    {
+    public String getContextName() {
         return name;
     }
 
 
-    private void checkInited()
-    {
-        if (isInited)
-        {
+    private void checkInited() {
+        if (isInited) {
             throw new RuntimeException("already init!");
         }
     }
@@ -74,8 +80,7 @@ public class PorterConf
      *
      * @param enablePortInTiedNameDefault
      */
-    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault)
-    {
+    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault) {
         checkInited();
         this.enablePortInTiedNameDefault = enablePortInTiedNameDefault;
     }
@@ -85,8 +90,7 @@ public class PorterConf
      *
      * @return
      */
-    public boolean isEnableTiedNameDefault()
-    {
+    public boolean isEnableTiedNameDefault() {
         checkInited();
         return enablePortInTiedNameDefault;
     }
@@ -97,8 +101,7 @@ public class PorterConf
      * @param name
      * @param object
      */
-    public void addContextAutoSet(String name, Object object)
-    {
+    public void addContextAutoSet(String name, Object object) {
         contextAutoSetMap.put(name, object);
     }
 
@@ -109,29 +112,24 @@ public class PorterConf
      * @param name      名称
      * @param implClass 实现类。
      */
-    public void addContextAutoGenImpl(String name, Class<?> implClass)
-    {
+    public void addContextAutoGenImpl(String name, Class<?> implClass) {
         contextAutoGenImplMap.put(name, implClass);
     }
 
-    public Map<String, Class<?>> getContextAutoGenImplMap()
-    {
+    public Map<String, Class<?>> getContextAutoGenImplMap() {
         return contextAutoGenImplMap;
     }
 
-    public boolean isResponseWhenException()
-    {
+    public boolean isResponseWhenException() {
         return responseWhenException;
     }
 
 
-    public SeekPackages getSeekPackages()
-    {
+    public SeekPackages getSeekPackages() {
         return seekPackages;
     }
 
-    public void addStateListener(StateListener stateListener)
-    {
+    public void addStateListener(StateListener stateListener) {
         checkInited();
         stateListenerSet.add(stateListener);
     }
@@ -141,46 +139,38 @@ public class PorterConf
      *
      * @param checkPassable
      */
-    public void addContextCheck(CheckPassable checkPassable)
-    {
+    public void addContextCheck(CheckPassable checkPassable) {
         contextChecks.add(checkPassable);
     }
 
-    public void setClassLoader(ClassLoader classLoader)
-    {
+    public void setClassLoader(ClassLoader classLoader) {
         checkInited();
         this.classLoader = classLoader;
     }
 
-    public ClassLoader getClassLoader()
-    {
+    public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public List<CheckPassable> getContextChecks()
-    {
+    public List<CheckPassable> getContextChecks() {
         return contextChecks;
     }
 
-    public Map<String, Object> getContextAutoSetMap()
-    {
+    public Map<String, Object> getContextAutoSetMap() {
         return contextAutoSetMap;
     }
 
-    public Set<StateListener> getStateListenerSet()
-    {
+    public Set<StateListener> getStateListenerSet() {
         checkInited();
         return stateListenerSet;
     }
 
-    public InitParamSource getUserInitParam()
-    {
+    public InitParamSource getUserInitParam() {
         checkInited();
         return userInitParam;
     }
 
-    void initOk()
-    {
+    void initOk() {
         isInited = true;
         seekPackages = null;
         userInitParam = null;
@@ -189,5 +179,6 @@ public class PorterConf
         contextAutoSetMap = null;
         contextAutoGenImplMap = null;
         stateListenerSet = null;
+        forAllCheckPassable = null;
     }
 }

@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
- * Created by cheyg on 2017/1/5.
+ * Created by chenyg on 2017/1/5.
  */
 class PortExecutorCheckers extends CheckHandle {
 
@@ -15,17 +15,21 @@ class PortExecutorCheckers extends CheckHandle {
     private DuringType duringType;
     private CheckPassable[] checkPassables;
     private CheckHandle handle;
+    private CheckPassable forAllCheckPassable;
 
-    public PortExecutorCheckers(WObject wObject, DuringType duringType, CheckPassable[] checkPassables, CheckHandle handle) {
-        currentIndex = 0;
+    public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType, CheckPassable[] checkPassables, CheckHandle handle) {
+        super(wObject.url());
+        currentIndex = -1;
         this.wObject = wObject;
         this.duringType = duringType;
         this.checkPassables = checkPassables;
+        this.forAllCheckPassable = context.forAllCheckPassable;
         this.handle = handle;
     }
 
-    public PortExecutorCheckers(Context context, WObject wObject, DuringType duringType, Class<? extends CheckPassable>[] cps, CheckHandle handle) {
-        this(wObject, duringType, toCheckPassables(context, cps), handle);
+    public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType, Class<? extends CheckPassable>[] cps,
+                                CheckHandle handle) {
+        this(context, wObject, duringType, toCheckPassables(context, cps), handle);
     }
 
     private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[] cps) {
@@ -40,6 +44,15 @@ class PortExecutorCheckers extends CheckHandle {
     }
 
     public void check() {
+        currentIndex++;
+        if (forAllCheckPassable != null) {
+            forAllCheckPassable.willPass(wObject, duringType, this);
+        } else {
+            checkOne();
+        }
+    }
+
+    private void checkOne() {
         if (currentIndex < checkPassables.length) {
             checkPassables[currentIndex++].willPass(wObject, duringType, this);
         } else {
@@ -52,7 +65,7 @@ class PortExecutorCheckers extends CheckHandle {
         if (failedObject != null) {
             handle.go(failedObject);
         } else {
-            check();
+            checkOne();
         }
     }
 }
