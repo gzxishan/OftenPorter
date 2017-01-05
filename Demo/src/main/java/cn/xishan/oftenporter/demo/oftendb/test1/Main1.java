@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.demo.oftendb.test1;
 
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,8 @@ public class Main1 {
 
             @Override
             public void onResponse(PResponse lResponse) {
-                logger.debug(lResponse.toString());
+                Object obj = lResponse.getResponse();
+                LogUtil.printPos(obj);
             }
         });
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/count")

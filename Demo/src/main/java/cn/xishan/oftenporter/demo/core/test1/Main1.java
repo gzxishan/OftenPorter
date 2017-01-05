@@ -25,7 +25,7 @@ public class Main1 {
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
         LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
-        LogUtil.printPosLn(PortMethod.valueOf("GET"));
+        LogUtil.printPos(PortMethod.valueOf("GET"));
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();
@@ -49,7 +49,8 @@ public class Main1 {
 
                            @Override
                            public void onResponse(PResponse lResponse) {
-                               logger.debug(String.valueOf(lResponse.getResponse()));
+                               Object obj = lResponse.getResponse();
+                               LogUtil.printPos(obj);
                            }
                        });
 
@@ -60,7 +61,8 @@ public class Main1 {
 
                     @Override
                     public void onResponse(PResponse lResponse) {
-                        logger.debug(String.valueOf(lResponse.getResponse()));
+                        Object obj = lResponse.getResponse();
+                        LogUtil.printPos(obj);
                     }
                 });
 
@@ -70,7 +72,8 @@ public class Main1 {
 
             @Override
             public void onResponse(PResponse lResponse) {
-                logger.debug(String.valueOf(lResponse.getResponse()));
+                Object obj = lResponse.getResponse();
+                LogUtil.printPos(obj);
             }
         });
 
@@ -80,7 +83,8 @@ public class Main1 {
 
                            @Override
                            public void onResponse(PResponse lResponse) {
-                               logger.debug(String.valueOf(lResponse.getResponse()));
+                               Object obj = lResponse.getResponse();
+                               LogUtil.printPos(obj);
                            }
                        });
         bridge.request(
@@ -90,7 +94,8 @@ public class Main1 {
 
                     @Override
                     public void onResponse(PResponse lResponse) {
-                        logger.debug(String.valueOf(lResponse.getResponse()));
+                        Object obj = lResponse.getResponse();
+                        LogUtil.printPos(obj);
                     }
                 });
         logger.debug("****************************************************");

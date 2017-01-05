@@ -31,9 +31,6 @@ public class MyHServerServlet extends WMainServlet
     @Override
     public void init() throws ServletException {
         super.init();
-        PorterConf porterConf = newPorterConf();
-        porterConf.setContextName("C");
-        startOne(porterConf);
     }
 
     @Override

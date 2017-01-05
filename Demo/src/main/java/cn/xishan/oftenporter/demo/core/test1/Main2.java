@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.demo.core.test1;
 
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,8 @@ public class Main2 {
 
                     @Override
                     public void onResponse(PResponse lResponse) {
-                        logger.debug(String.valueOf(lResponse.getResponse()));
+                        Object obj = lResponse.getResponse();
+                        LogUtil.printPos(obj);
                     }
                 });
         logger.debug("****************************************************");
