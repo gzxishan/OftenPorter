@@ -19,10 +19,11 @@ public class Context
 
     boolean isEnable = true;
     String name, contentEncoding;
+    CheckPassable forAllCheckPassable;
 
     public Context(DeliveryBuilder deliveryBuilder, PortContext portContext, CheckPassable[] contextChecks,
             ParamSourceHandleManager paramSourceHandleManager,
-            StateListener stateListenerForAll, InnerContextBridge innerContextBridge)
+            StateListener stateListenerForAll, InnerContextBridge innerContextBridge,CheckPassable forAllCheckPassable)
     {
         this.deliveryBuilder = deliveryBuilder;
         this.portContext = portContext;
@@ -30,6 +31,7 @@ public class Context
         this.paramSourceHandleManager = paramSourceHandleManager;
         this.stateListenerForAll = stateListenerForAll;
         this.innerContextBridge = innerContextBridge;
+        this.forAllCheckPassable=forAllCheckPassable;
         setEnable(true);
     }
 

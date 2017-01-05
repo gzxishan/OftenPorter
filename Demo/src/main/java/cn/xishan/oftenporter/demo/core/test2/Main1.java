@@ -1,5 +1,9 @@
 package cn.xishan.oftenporter.demo.core.test2;
 
+import cn.xishan.oftenporter.porter.core.base.CheckHandle;
+import cn.xishan.oftenporter.porter.core.base.CheckPassable;
+import cn.xishan.oftenporter.porter.core.base.DuringType;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +22,7 @@ public class Main1 {
 
         /**
          * 1.PortOut:用于标记输出类型
+         * 2.所有时期的{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
          */
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
@@ -25,6 +30,12 @@ public class Main1 {
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();
+
+        conf.setForAllCheckPassable((wObject, type, checkHandle) -> {
+            logger.debug(type.name());
+            checkHandle.next();
+        });
+
         conf.setContextName("Test2Main");
         conf.getSeekPackages()
             .addPorters(Main1.class.getPackage().getName() + ".porter");
@@ -39,7 +50,7 @@ public class Main1 {
                     @Override
                     public void onResponse(PResponse lResponse) {
                         Object obj = lResponse.getResponse();
-                        LogUtil.printPos(obj);
+                        logger.debug("{}",obj);
                     }
                 });
 
@@ -50,7 +61,7 @@ public class Main1 {
                     @Override
                     public void onResponse(PResponse lResponse) {
                         Object obj = lResponse.getResponse();
-                        LogUtil.printPos(obj);
+                        logger.debug("{}",obj);
                     }
                 });
         logger.debug("****************************************************");

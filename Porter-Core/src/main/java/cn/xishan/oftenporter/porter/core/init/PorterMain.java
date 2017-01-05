@@ -129,10 +129,9 @@ public final class PorterMain {
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
-        portExecutor.addContext(bridge, portContext, stateListenerForAll, innerContextBridge);
+        portExecutor.addContext(bridge, portContext, stateListenerForAll, innerContextBridge,porterConf.getForAllCheckPassable());
         porterConf.initOk();
         LOGGER.debug(":{}/{} started!", pLinker.currentPName(), porterConf.getContextName());
-
 
     }
 

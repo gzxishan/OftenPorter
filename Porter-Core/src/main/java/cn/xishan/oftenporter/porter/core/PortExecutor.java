@@ -49,11 +49,11 @@ public class PortExecutor {
     }
 
     public void addContext(PorterBridge bridge, PortContext portContext, StateListener stateListenerForAll,
-                           InnerContextBridge innerContextBridge) {
+                           InnerContextBridge innerContextBridge, CheckPassable forAllCheckPassable) {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, portContext,
                                       porterConf.getContextChecks().toArray(new CheckPassable[0]),
-                                      bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge);
+                                      bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassable);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
@@ -252,10 +252,10 @@ public class PortExecutor {
                                           UrlDecoder.Result result) {
         CheckPassable[] allGlobal = this.allGlobalChecks;
 
-        if (allGlobal.length == 0) {
+        if (allGlobal.length == 0&&context.forAllCheckPassable==null) {
             dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(wObject, DuringType.ON_GLOBAL, allGlobal, new CheckHandle() {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL, allGlobal, new CheckHandle(result) {
 
                 @Override
                 public void go(Object failedObject) {
@@ -274,10 +274,10 @@ public class PortExecutor {
     private final void dealtOfContextGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject, InnerContextBridge innerContextBridge,
                                                  UrlDecoder.Result result) {
         CheckPassable[] contextChecks = context.contextChecks;
-        if (contextChecks.length == 0) {
+        if (contextChecks.length == 0&&context.forAllCheckPassable==null) {
             dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(wObject, DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle() {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result) {
                 @Override
                 public void go(Object failedObject) {
                     if (failedObject != null) {
@@ -329,10 +329,10 @@ public class PortExecutor {
 
 
         //类通过检测
-        if (clazzPIn.getChecks().length == 0) {
+        if (clazzPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
             dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS, clazzPIn.getChecks(), new CheckHandle() {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS, clazzPIn.getChecks(), new CheckHandle(result) {
                 @Override
                 public void go(Object failedObject) {
                     if (failedObject != null) {
@@ -383,16 +383,16 @@ public class PortExecutor {
 
 
         //函数通过检测
-        if (funPIn.getChecks().length == 0) {
-            dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge);
+        if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
+            dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge,result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD, funPIn.getChecks(), new CheckHandle() {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD, funPIn.getChecks(), new CheckHandle(result) {
                 @Override
                 public void go(Object failedObject) {
                     if (failedObject != null) {
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else {
-                        dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge);
+                        dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge,result);
                     }
                 }
             });
@@ -401,7 +401,7 @@ public class PortExecutor {
 
     }
 
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, Porter classPort, PorterOfFun funPort, InnerContextBridge innerContextBridge) {
+    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, Porter classPort, PorterOfFun funPort, InnerContextBridge innerContextBridge,UrlDecoder.Result result) {
         Method javaMethod = funPort.getMethod();
         _PortIn funPIn = funPort.getPortIn();
         try {
@@ -412,10 +412,10 @@ public class PortExecutor {
                 rs = javaMethod.invoke(classPort.getObject(), wObject);
             }
 
-            if (funPIn.getChecks().length == 0) {
+            if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
                 dealtOfResponse(wObject, funPort, rs);
             } else {
-                CheckHandle checkHandle = new CheckHandle() {
+                CheckHandle checkHandle = new CheckHandle(result) {
                     @Override
                     public void go(Object failedObject) {
                         if (failedObject != null) {
@@ -431,10 +431,10 @@ public class PortExecutor {
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            if (funPIn.getChecks().length == 0) {
+            if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
                 ex(wObject.getResponse(), e, responseWhenException);
             } else {
-                CheckHandle checkHandle = new CheckHandle() {
+                CheckHandle checkHandle = new CheckHandle(result) {
                     @Override
                     public void go(Object failedObject) {
                         if (failedObject != null) {
