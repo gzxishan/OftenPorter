@@ -13,9 +13,9 @@ public class PResponse
         this.object = object;
     }
 
-    public Object getResponse()
+    public <T> T getResponse()
     {
-        return object;
+        return (T)object;
     }
 
 
