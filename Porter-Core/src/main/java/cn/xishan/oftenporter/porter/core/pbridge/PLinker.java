@@ -93,4 +93,16 @@ public interface PLinker extends Delivery
      * @return
      */
     boolean isClosed();
+
+    /**
+     * 当匹配不到pname时，将会使用此处设置的对象来访问。
+     */
+    void setForAnyOtherPName(PLinker anyOther);
+
+    /**
+     * 如果返回true，则会被设置到对应的{@linkplain #setForAnyOtherPName(PLinker)}
+     * @return
+     */
+    boolean isForAnyOtherPName();
+
 }

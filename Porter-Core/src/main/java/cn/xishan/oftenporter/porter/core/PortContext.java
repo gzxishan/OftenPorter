@@ -118,6 +118,7 @@ public class PortContext
 
     private void seekPackage(String packageStr, InnerContextBridge innerContextBridge, SthDeal sthDeal)
     {
+        LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
         List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
         for (int i = 0; i < classeses.size(); i++)
