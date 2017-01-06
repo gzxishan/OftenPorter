@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -233,9 +235,17 @@ public class PackageUtil
 
         int index = jarPath.indexOf('!');
 
-        String[] jarInfo = {jarPath.substring(0, index), jarPath.substring(index + 1)};
-        String jarFilePath = jarInfo[0].substring(jarInfo[0].indexOf("/"));
-        String packagePath = jarInfo[1].substring(1);
+        //String[] jarInfo = {jarPath.substring(0, index), jarPath.substring(index + 1)};
+        String jarFilePath;//jarInfo[0].substring(jarInfo[0].indexOf("/"));
+        try {
+            jarFilePath = new URL(jarPath.substring(0, index)).getFile();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        String packagePath =jarPath.substring(index + 1);// jarInfo[1].substring(1);
+        if(packagePath.startsWith("/")){
+            packagePath=packagePath.substring(1);
+        }
         JarFile jarFile = null;
         try
         {
@@ -247,11 +257,14 @@ public class PackageUtil
                 String entryName = jarEntry.getName();
                 if (entryName.endsWith(".class"))
                 {
+                    if(entryName.charAt(0)=='/'){
+                        entryName=entryName.substring(1);
+                    }
                     if (childPackage)
                     {
                         if (entryName.startsWith(packagePath))
                         {
-                            entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+                            entryName = entryName.replace("/", ".").substring(0, entryName.length()-6);
                             myClassName.add(entryName);
                         }
                     } else
@@ -267,7 +280,7 @@ public class PackageUtil
                         }
                         if (myPackagePath.equals(packagePath))
                         {
-                            entryName = entryName.replace("/", ".").substring(0, entryName.lastIndexOf("."));
+                            entryName = entryName.replace("/", ".").substring(0, entryName.length()-6);
                             myClassName.add(entryName);
                         }
                     }

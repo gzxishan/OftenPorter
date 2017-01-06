@@ -101,7 +101,7 @@ public class PortContext
     {
         if (classLoader != null)
         {
-            Thread.currentThread().setContextClassLoader(classLoader);
+            //Thread.currentThread().setContextClassLoader(classLoader);
             if (classLoader instanceof PackageUtil.IClassLoader)
             {
                 PackageUtil.IClassLoader iClassLoader = (PackageUtil.IClassLoader) classLoader;

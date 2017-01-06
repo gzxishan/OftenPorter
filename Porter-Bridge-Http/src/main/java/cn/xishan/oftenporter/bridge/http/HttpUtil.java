@@ -32,14 +32,7 @@ public class HttpUtil
     {
         public OkHttpClientImpl()
         {
-            setHostnameVerifier(new HostnameVerifier()
-            {
-                @Override
-                public boolean verify(String s, SSLSession sslSession)
-                {
-                    return true;
-                }
-            });
+            setHostnameVerifier((s, sslSession) -> true);
             try
             {
                 SSLContext sslContext = SSLContext.getInstance("TLS");

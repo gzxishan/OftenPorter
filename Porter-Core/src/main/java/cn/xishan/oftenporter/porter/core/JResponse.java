@@ -114,6 +114,9 @@ public class JResponse
         if (jsonObject.containsKey(RESULT_FILED))
         {
             result = jsonObject.get(RESULT_FILED);
+            if(result instanceof String &&("true".equals(result)||"false".equals(result))){
+                result=Boolean.parseBoolean(result.toString());
+            }
         }
         return result;
     }

@@ -41,7 +41,7 @@ public class PorterConf {
     }
 
     /**
-     * 所有的时期都会调用它。
+     * 所有的时期都会调用它,并且该检测最先被调用。
      *
      * @param forAllCheckPassable
      */
