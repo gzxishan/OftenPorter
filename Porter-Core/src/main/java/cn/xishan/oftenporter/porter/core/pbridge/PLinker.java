@@ -68,7 +68,7 @@ public interface PLinker extends Delivery
      * @param pName
      * @return
      */
-    PLinker getLinkedPInit(String pName);
+    PLinker getLinkedPLinker(String pName);
 
 
     void setPorterAttr(PorterAttr porterAttr);

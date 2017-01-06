@@ -140,7 +140,7 @@ public class DefaultPLinker implements PLinker {
     }
 
     @Override
-    public PLinker getLinkedPInit(String pName) {
+    public PLinker getLinkedPLinker(String pName) {
         PPath path = pathMap.get(pName);
         return path == null ? null : path.pLinker;
     }
