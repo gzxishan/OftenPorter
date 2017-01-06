@@ -10,42 +10,33 @@ import java.util.List;
  *
  * @author Created by https://github.com/CLovinr on 2016/9/9.
  */
-public class DataWrap extends DataDynamic
-{
+public class DataWrap extends DataDynamic {
     /**
-     * @param collectionName 集合或表的名称
-     * @param clazz          获取字段名的注解与{@linkplain DataUtil#getTiedName(Field)}相同
+     * @param clazz 获取字段名的注解与{@linkplain DataUtil#getTiedName(Field)}相同
      */
-    public DataWrap(String collectionName, Class<?> clazz) throws RuntimeException
-    {
-        this(collectionName, getNameAndTieds(clazz));
+    public DataWrap(Class<?> clazz) throws RuntimeException {
+        this(getNameAndTieds(clazz));
     }
 
-    private DataWrap(String collectionName, String[][] dbNameAndKeys) throws RuntimeException
-    {
-        super(collectionName, dbNameAndKeys[0], dbNameAndKeys[1]);
+    private DataWrap(String[][] dbNameAndKeys) throws RuntimeException {
+        super(dbNameAndKeys[0], dbNameAndKeys[1]);
     }
 
 
-    private static String[][] getNameAndTieds(Class<?> clazz)
-    {
+    private static String[][] getNameAndTieds(Class<?> clazz) {
 
         List<String> tiedList = new ArrayList<>(), nameList = new ArrayList<>();
-        try
-        {
+        try {
             Field[] fields = clazz.getFields();
-            for (Field field : fields)
-            {
+            for (Field field : fields) {
                 field.setAccessible(true);
                 String name = DataUtil.getTiedName(field);
-                if (name != null)
-                {
+                if (name != null) {
                     tiedList.add(name);
                     nameList.add(field.getName());
                 }
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

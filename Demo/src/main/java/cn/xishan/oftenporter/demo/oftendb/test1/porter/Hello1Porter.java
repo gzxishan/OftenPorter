@@ -5,8 +5,8 @@ import java.util.Date;
 import cn.xishan.oftenporter.demo.oftendb.base.SqlDBSource;
 import cn.xishan.oftenporter.oftendb.data.Common2;
 import cn.xishan.oftenporter.oftendb.data.DataDynamic;
-import cn.xishan.oftenporter.oftendb.data.SourceAndPGetter;
-import cn.xishan.oftenporter.oftendb.data.impl.SourceAndPGetterImpl;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
+import cn.xishan.oftenporter.oftendb.data.impl.DBSourceImpl;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.oftendb.db.Unit;
@@ -18,15 +18,15 @@ import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 
 @PortIn
 public class Hello1Porter {
-    private static class Source extends SourceAndPGetterImpl {
+    private static class Source extends DBSourceImpl {
 
         public Source() {
-            super(new DataDynamic("test1"), new SqlDBSource());
+            super(new DataDynamic(), (wObject, dataAble) -> dataAble.setCollectionName("test1"), new SqlDBSource());
         }
     }
 
     @AutoSet(classValue = Source.class)
-    private SourceAndPGetter source;
+    private DBSource source;
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
             method = PortMethod.POST)

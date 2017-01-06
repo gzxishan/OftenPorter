@@ -20,11 +20,9 @@ import java.io.IOException;
 /**
  * 简化一些数据库常用的操作（并不是全部）
  */
-public class Common
-{
+public class Common {
 
-    private interface Dealt
-    {
+    private interface Dealt {
         /**
          * 如果{@linkplain DataAble#forQuery()}为null，才会调用此函数。
          *
@@ -33,7 +31,7 @@ public class Common
         Condition getCondition();
 
         void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                Condition _condition, Object[] otherParams) throws Exception;
+                  Condition _condition, Object[] otherParams) throws Exception;
     }
 
     /**
@@ -43,87 +41,72 @@ public class Common
     private DBHandle _dbHandle;
     private static final Logger LOGGER = LoggerFactory.getLogger(Common.class);
 
-    private Common(DBHandle dbHandle)
-    {
+    private Common(DBHandle dbHandle) {
         this._dbHandle = dbHandle;
     }
 
 
     /**
-     * @param willSetParams
-     * 是否会调用{@linkplain DataAble#setParams(InNames.Name[], Object[], InNames.Name[], Object[], InNames.Name[], Object[])}
+     * @param willSetParams  是否会调用{@linkplain DataAble#setParams(InNames.Name[], Object[], InNames.Name[], Object[], InNames.Name[], Object[])}
      * @param dbHandleSource
      * @param setType        不为空，则会进行
      *                       {@linkplain #setDataFields(DataAble, boolean, WObject, SetType, int, DBHandleAccess)}
      */
     private JResponse commonDealt(Dealt dealt, boolean willSetParams, DBHandleSource dbHandleSource,
-            ParamsGetter paramsGetter,
-            WObject wObject, SetType setType, int optionCode, Object... otherParams)
-    {
+                                  ParamsGetter paramsGetter,
+                                  WObject wObject, SetType setType, int optionCode, Object... otherParams) {
         JResponse jResponse = new JResponse();
         DBHandle dbHandle = null;
-        try
-        {
+        try {
             DataAble data;
             Condition condition;
             String rs = null;
             Params params = paramsGetter.getParams();
 
-            {
-                data = params.newData();
-                if (setType != null)
-                {
 
-                    if (dbHandle == null)
-                    {
-                        dbHandle = dbHandleSource.getDbHandle(paramsGetter, this._dbHandle);
-                    }
-                    rs = setDataFields(data, willSetParams, wObject, setType, optionCode,
-                            new DBHandleAccess(dbHandleSource, dbHandle));
+            data = params.newData(wObject);
+            if (setType != null) {
+
+                if (dbHandle == null) {
+                    dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
                 }
-                condition = data.forQuery();
-                if (condition == null)
-                {
-                    condition = dealt.getCondition();
-                }
+                rs = setDataFields(data, willSetParams, wObject, setType, optionCode,
+                                   new DBHandleAccess(dbHandleSource, dbHandle));
+            }
+            condition = data.forQuery();
+            if (condition == null) {
+                condition = dealt.getCondition();
             }
 
-            if (rs == null)
-            {
-                if (dbHandle == null)
-                {
-                    dbHandle = dbHandleSource.getDbHandle(paramsGetter, this._dbHandle);
+
+            if (rs == null) {
+                if (dbHandle == null) {
+                    dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
                 }
 
-                if (condition != null)
-                {
+                if (condition != null) {
                     data.dealNames(condition);
                 }
                 dealt.deal(jResponse, dbHandle, data, condition, otherParams);
 
-            } else
-            {
+            } else {
                 jResponse.setCode(ResultCode.OK_BUT_FAILED);
                 jResponse.setDescription(rs);
             }
-        } catch (DBException e)
-        {
+        } catch (DBException e) {
             jResponse.setCode(ResultCode.DB_EXCEPTION);
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
 
             LOGGER.error(e.getMessage(), e);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
             LOGGER.error(e.getMessage(), e);
-        } finally
-        {
-            if (dbHandle != null && !dbHandle.isTransaction())
-            {
+        } finally {
+            if (dbHandle != null && !dbHandle.isTransaction()) {
                 WPTool.close(dbHandle);
                 dbHandleSource.afterClose(dbHandle);
             }
@@ -135,16 +118,13 @@ public class Common
 
 
     private Condition getQuery(DBHandleSource dbHandleSource, ParamsSelection paramsSelection, WObject wObject,
-            Params params) throws WCallException
-    {
-        try
-        {
+                               Params params) throws WCallException {
+        try {
 
             DataAble dataAble = params.getDataAble();
 
             return dataAble.getQuery(dbHandleSource, paramsSelection, wObject, params);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             JResponse jResponse = new JResponse();
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
@@ -161,54 +141,45 @@ public class Common
      * 得到事务操作
      */
     public static TransactionHandle<Common> getTransactionHandle(final DBHandleSource dbHandleSource,
-            final ParamsGetter paramsGetter)
-    {
-        TransactionHandle<Common> transactionHandle = new TransactionHandle<Common>()
-        {
+                                                                 final ParamsGetter paramsGetter) {
+        TransactionHandle<Common> transactionHandle = new TransactionHandle<Common>() {
             Common common = initCommon();
 
             @Override
-            public void startTransaction() throws DBException
-            {
+            public void startTransaction() throws DBException {
                 common._dbHandle.startTransaction();
             }
 
-            private Common initCommon()
-            {
-                DBHandle _dDbHandle_ = dbHandleSource.getDbHandle(paramsGetter, null);
+            private Common initCommon() {
+                DBHandle _dDbHandle_ = dbHandleSource.getDbHandle(paramsGetter,null, null);
                 Common common = new Common(_dDbHandle_);
 
-                if (!common._dbHandle.supportTransaction())
-                {
+                if (!common._dbHandle.supportTransaction()) {
                     throw new DBException("the dbhandle '" + common._dbHandle.getClass()
-                            + "' not support transaction");
+                                                  + "' not support transaction");
                 }
 
                 return common;
             }
 
             @Override
-            public void commitTransaction() throws DBException
-            {
+            public void commitTransaction() throws DBException {
                 common._dbHandle.commitTransaction();
             }
 
             @Override
-            public Common common()
-            {
+            public Common common() {
                 return common;
             }
 
             @Override
-            public void close() throws IOException
-            {
+            public void close() throws IOException {
                 common._dbHandle.close();
                 dbHandleSource.afterClose(common._dbHandle);
             }
 
             @Override
-            public void rollback() throws DBException
-            {
+            public void rollback() throws DBException {
                 common._dbHandle.rollback();
             }
         };
@@ -221,8 +192,7 @@ public class Common
      * @see #addData(DBHandleSource, ParamsGetter, boolean, WObject, int)
      */
     public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject)
-    {
+                             WObject wObject) {
         return _addData(dbHandleSource, paramsGetter, responseData, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -231,8 +201,7 @@ public class Common
      * @see #addData(DBHandleSource, ParamsGetter, boolean, NameValues, WObject, int)
      */
     public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            NameValues nameValues, WObject wObject)
-    {
+                             NameValues nameValues, WObject wObject) {
         return _addData(dbHandleSource, paramsGetter, responseData, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -247,33 +216,27 @@ public class Common
      */
 
     public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            final NameValues nameValues, WObject wObject, int optionCode)
-    {
+                             final NameValues nameValues, WObject wObject, int optionCode) {
         return _addData(dbHandleSource, paramsGetter, responseData, nameValues, wObject, optionCode);
     }
 
 
     private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            final NameValues nameValues, WObject wObject, int optionCode)
-    {
+                               final NameValues nameValues, WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
+                             Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException {
 
                 boolean success = dbHandle.add(nameValues);
-                if (success)
-                {
+                if (success) {
                     boolean responseData = (Boolean) otherParams[0];
                     jResponse.setCode(ResultCode.SUCCESS);
                     jResponse.setResult(responseData ? data.toJsonObject()
-                            : null);
-                } else
-                {
+                                                : null);
+                } else {
                     jResponse.setCode(ResultCode.OK_BUT_FAILED);
                     jResponse.setDescription("add to db failed!");
                 }
@@ -281,14 +244,13 @@ public class Common
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return null;
             }
         };
 
         return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.ADD, optionCode,
-                responseData);
+                           responseData);
 
     }
 
@@ -303,35 +265,29 @@ public class Common
      */
 
     public JResponse addData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject,
-            int optionCode)
-    {
+                             WObject wObject,
+                             int optionCode) {
         return _addData(dbHandleSource, paramsGetter, responseData, wObject, optionCode);
     }
 
     private JResponse _addData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject,
-            int optionCode)
-    {
+                               WObject wObject,
+                               int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition condition, Object[] otherParams) throws Exception
-            {
+                             Condition condition, Object[] otherParams) throws Exception {
 
                 NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
                 boolean success = dbHandle.add(nameValues);
-                if (success)
-                {
+                if (success) {
                     boolean responseData = (Boolean) otherParams[0];
                     jResponse.setCode(ResultCode.SUCCESS);
                     jResponse.setResult(responseData ? data.toJsonObject()
-                            : null);
-                } else
-                {
+                                                : null);
+                } else {
                     jResponse.setCode(ResultCode.OK_BUT_FAILED);
                     jResponse.setDescription("add to db failed!");
                 }
@@ -339,14 +295,13 @@ public class Common
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return null;
             }
         };
 
         return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.ADD, optionCode,
-                responseData);
+                           responseData);
 
     }
 
@@ -355,9 +310,8 @@ public class Common
      * @see #addData(DBHandleSource, ParamsGetter, MultiNameValues, WObject, int)
      */
     public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject)
-    {
+                             final MultiNameValues multiNameValues,
+                             WObject wObject) {
         return _addData(dbHandleSource, paramsGetter, multiNameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -370,38 +324,31 @@ public class Common
      * @return 操作结果
      */
     public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject, int optionCode)
-    {
+                             final MultiNameValues multiNameValues,
+                             WObject wObject, int optionCode) {
         return _addData(dbHandleSource, paramsGetter, multiNameValues, wObject, optionCode);
     }
 
     private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject, int optionCode)
-    {
+                               final MultiNameValues multiNameValues,
+                               WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
+                             Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException {
 
                 int[] rs = dbHandle.add(multiNameValues);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(toJArray(rs));
             }
 
-            private Object toJArray(int[] rs)
-            {
+            private Object toJArray(int[] rs) {
                 JSONArray array = null;
-                if (rs != null)
-                {
+                if (rs != null) {
                     array = new JSONArray(rs.length);
-                    for (int i : rs)
-                    {
+                    for (int i : rs) {
                         array.add(i);
                     }
                 }
@@ -409,8 +356,7 @@ public class Common
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return null;
             }
 
@@ -425,9 +371,8 @@ public class Common
      * @see #replaceData(DBHandleSource, ParamsGetter, Condition, WObject, int)
      */
     public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            Condition condition,
-            WObject wObject)
-    {
+                                 Condition condition,
+                                 WObject wObject) {
         return replaceData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -440,33 +385,27 @@ public class Common
      * @return
      */
     public JResponse replaceData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
-            final Condition condition,
-            WObject wObject, int optionCode)
-    {
+                                 final Condition condition,
+                                 WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
 
                 boolean success = dbHandle.replace(_condition, nameValues);
-                if (success)
-                {
+                if (success) {
                     jResponse.setCode(ResultCode.SUCCESS);
-                } else
-                {
+                } else {
                     jResponse.setCode(ResultCode.OK_BUT_FAILED);
                 }
 
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
         };
@@ -480,9 +419,8 @@ public class Common
      * @see #replaceData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject, int)
      */
     public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            NameValues nameValues,
-            WObject wObject)
-    {
+                                 NameValues nameValues,
+                                 WObject wObject) {
         return replaceData(dbHandleSource, paramsGetter, condition, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -495,32 +433,26 @@ public class Common
      * @return
      */
     public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            final NameValues nameValues,
-            WObject wObject, int optionCode)
-    {
+                                 final NameValues nameValues,
+                                 WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
+                             Condition _condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException {
 
                 boolean success = dbHandle.replace(_condition, nameValues);
-                if (success)
-                {
+                if (success) {
                     jResponse.setCode(ResultCode.SUCCESS);
-                } else
-                {
+                } else {
                     jResponse.setCode(ResultCode.OK_BUT_FAILED);
                 }
 
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
         };
@@ -539,16 +471,13 @@ public class Common
      * @return 操作结果
      */
     public JResponse deleteData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject, int optionCode)
-    {
+                                 ParamsSelection paramsSelection,
+                                 WObject wObject, int optionCode) {
         Condition condition;
-        try
-        {
+        try {
             condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
+                                 paramsGetter.getParams());
+        } catch (WCallException e) {
             return e.getJResponse();
         }
         return _deleteData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
@@ -561,8 +490,7 @@ public class Common
      * @see #deleteData(DBHandleSource, ParamsGetter, Condition, WObject, int)
      */
     public JResponse deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            WObject wObject)
-    {
+                                WObject wObject) {
         return _deleteData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -571,9 +499,8 @@ public class Common
      * int)
      */
     public JResponse deleteData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject)
-    {
+                                 ParamsSelection paramsSelection,
+                                 WObject wObject) {
         return deleteData2(dbHandleSource, paramsGetter, paramsSelection, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -586,8 +513,7 @@ public class Common
      * @return 操作结果
      */
     public JResponse deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            WObject wObject, int optionCode)
-    {
+                                WObject wObject, int optionCode) {
         return _deleteData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
     }
 
@@ -595,29 +521,25 @@ public class Common
     //////////////////////
 
     private JResponse _deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject, int optionCode)
-    {
+                                  WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 int n = dbHandle.del(_condition);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(n);
             }
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
         };
         return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.DELETE,
-                optionCode);
+                           optionCode);
     }
 
     /**
@@ -630,8 +552,7 @@ public class Common
      * @return
      */
     public JResponse queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
+                              KeysSelection keysSelection, WObject wObject, int optionCode) {
         return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject, optionCode);
     }
 
@@ -646,17 +567,14 @@ public class Common
      * @return
      */
     public JResponse queryOne2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
+                               ParamsSelection paramsSelection,
+                               KeysSelection keysSelection, WObject wObject, int optionCode) {
 
         Condition condition = null;
-        try
-        {
+        try {
             condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
+                                 paramsGetter.getParams());
+        } catch (WCallException e) {
             return e.getJResponse();
         }
 
@@ -665,31 +583,26 @@ public class Common
 
 
     private JResponse _queryOne(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
-            final Condition condition,
-            final KeysSelection _keysSelection, WObject wObject, int optionCode)
-    {
+                                final Condition condition,
+                                final KeysSelection _keysSelection, WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 Params params = paramsGetter.getParams();
                 KeysSelection keysSelection = data.keys();
-                if (keysSelection == null)
-                {
+                if (keysSelection == null) {
                     keysSelection = _keysSelection;
                 }
                 String[] keys = data.getFinalKeys(keysSelection,
-                        params);// getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
+                                                  params);// getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
                 // paramsGetter);
 
                 JSONObject jsonObject = dbHandle.getOne(_condition, keys);
@@ -700,7 +613,7 @@ public class Common
         };
 
         return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
+                           optionCode);
 
     }
 
@@ -712,10 +625,9 @@ public class Common
      * KeysSelection, WObject, int)
      */
     public JResponse queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
-    {
+                               QuerySettings querySettings, KeysSelection keysSelection, WObject wObject) {
         return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
+                          DataAble.OPTION_CODE_DEFAULT);
     }
 
     /**
@@ -723,11 +635,10 @@ public class Common
      * KeysSelection, WObject, int)
      */
     public JResponse queryData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
-    {
+                                ParamsSelection paramsSelection,
+                                QuerySettings querySettings, KeysSelection keysSelection, WObject wObject) {
         return queryData2(dbHandleSource, paramsGetter, paramsSelection, querySettings, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
+                          DataAble.OPTION_CODE_DEFAULT);
     }
 
 
@@ -736,10 +647,9 @@ public class Common
      * WObject, int)
      */
     public JResponse queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            KeysSelection keysSelection, WObject wObject)
-    {
+                              KeysSelection keysSelection, WObject wObject) {
         return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
+                         DataAble.OPTION_CODE_DEFAULT);
     }
 
 
@@ -748,11 +658,10 @@ public class Common
      * WObject, int)
      */
     public JResponse queryOne2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            KeysSelection keysSelection, WObject wObject)
-    {
+                               ParamsSelection paramsSelection,
+                               KeysSelection keysSelection, WObject wObject) {
         return queryOne2(dbHandleSource, paramsGetter, paramsSelection, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
+                         DataAble.OPTION_CODE_DEFAULT);
     }
 
     /**
@@ -766,8 +675,7 @@ public class Common
      * @return
      */
     public JResponse queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
+                               QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode) {
         return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
     }
 
@@ -783,51 +691,42 @@ public class Common
      * @return
      */
     public JResponse queryData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
+                                ParamsSelection paramsSelection,
+                                QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode) {
 
         Condition condition = null;
-        try
-        {
+        try {
             condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
+                                 paramsGetter.getParams());
+        } catch (WCallException e) {
             return e.getJResponse();
         }
         return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
     }
 
     private JResponse _queryData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
-            final Condition condition,
-            final QuerySettings querySettings, final KeysSelection _keysSelection, WObject wObject, int optionCode)
-    {
+                                 final Condition condition,
+                                 final QuerySettings querySettings, final KeysSelection _keysSelection, WObject wObject, int optionCode) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 Params params = paramsGetter.getParams();
                 KeysSelection keysSelection = data.keys();
-                if (keysSelection == null)
-                {
+                if (keysSelection == null) {
                     keysSelection = _keysSelection;
                 }
                 String[] keys = data.getFinalKeys(keysSelection,
-                        params);//getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
+                                                  params);//getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
                 // paramsGetter);
-                if (querySettings != null)
-                {
+                if (querySettings != null) {
                     data.dealNames(querySettings);
                 }
 
@@ -839,7 +738,7 @@ public class Common
         };
 
         return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
+                           optionCode);
 
     }
 
@@ -852,22 +751,18 @@ public class Common
      * @return 操作结果
      */
     public JResponse queryAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final AdvancedQuery advancedQuery, WObject wObject)
-    {
+                                   final AdvancedQuery advancedQuery, WObject wObject) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return null;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 JSONArray array = dbHandle.advancedQuery(advancedQuery);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(array);
@@ -890,23 +785,19 @@ public class Common
      */
 
     public JResponse advancedExecute(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final AdvancedExecutor advancedExecutor,
-            WObject wObject)
-    {
+                                     final AdvancedExecutor advancedExecutor,
+                                     WObject wObject) {
 
-        Dealt dealt = new Dealt()
-        {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return null;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 Object object = dbHandle.advancedExecute(advancedExecutor);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(object);
@@ -927,22 +818,18 @@ public class Common
      * @return 操作结果
      */
     public JResponse count(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject)
-    {
-        Dealt dealt = new Dealt()
-        {
+                           WObject wObject) {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
 
                 return condition;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 long n = dbHandle.exists(_condition);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(n);
@@ -950,7 +837,7 @@ public class Common
         };
 
         return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                DataAble.OPTION_CODE_EXISTS);
+                           DataAble.OPTION_CODE_EXISTS);
 
     }
 
@@ -964,22 +851,18 @@ public class Common
      * @return 操作结果
      */
     public JResponse exists(final DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, final String key,
-            final Object value, WObject wObject)
-    {
-        Dealt dealt = new Dealt()
-        {
+                            final Object value, WObject wObject) {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
 
                 return null;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 Condition condition = dbHandleSource.newCondition();
                 Params params = paramsGetter.getParams();
                 condition.put(Condition.EQ, new Unit(key, value));
@@ -990,7 +873,7 @@ public class Common
         };
 
         return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                DataAble.OPTION_CODE_EXISTS);
+                           DataAble.OPTION_CODE_EXISTS);
 
     }
 
@@ -1004,17 +887,14 @@ public class Common
      * @return
      */
     public JResponse updateData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject, int optionCode)
-    {
+                                 ParamsSelection paramsSelection,
+                                 WObject wObject, int optionCode) {
 
         Condition condition = null;
-        try
-        {
+        try {
             condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
+                                 paramsGetter.getParams());
+        } catch (WCallException e) {
             return e.getJResponse();
         }
         return updateData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
@@ -1025,8 +905,7 @@ public class Common
      * @see #updateData(DBHandleSource, ParamsGetter, Condition, WObject, int)
      */
     public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject)
-    {
+                                WObject wObject) {
         return updateData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -1035,9 +914,8 @@ public class Common
      * @see #updateData2(DBHandleSource, ParamsGetter, ParamsSelection, WObject, int)
      */
     public JResponse updateData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject)
-    {
+                                 ParamsSelection paramsSelection,
+                                 WObject wObject) {
         return updateData2(dbHandleSource, paramsGetter, paramsSelection, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -1051,22 +929,18 @@ public class Common
      * @return
      */
     public JResponse updateData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
-            final Condition condition,
-            WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
+                                final Condition condition,
+                                WObject wObject, int optionCode) {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
                 int n = dbHandle.update(_condition, nameValues);
                 jResponse.setCode(ResultCode.SUCCESS);
@@ -1075,7 +949,7 @@ public class Common
         };
 
         return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.UPDATE,
-                optionCode);
+                           optionCode);
 
     }
 
@@ -1083,8 +957,7 @@ public class Common
      * @see #updateData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject, int)
      */
     public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            NameValues nameValues, WObject wObject)
-    {
+                                NameValues nameValues, WObject wObject) {
         return updateData(dbHandleSource, paramsGetter, condition, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
     }
 
@@ -1098,21 +971,17 @@ public class Common
      * @return
      */
     public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            final NameValues nameValues, WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
+                                final NameValues nameValues, WObject wObject, int optionCode) {
+        Dealt dealt = new Dealt() {
 
             @Override
-            public Condition getCondition()
-            {
+            public Condition getCondition() {
                 return condition;
             }
 
             @Override
             public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
+                             Condition _condition, Object[] otherParams) throws Exception {
                 int n = dbHandle.update(_condition, nameValues);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(n);
@@ -1128,25 +997,21 @@ public class Common
      * 设置Data对象的类变量值
      */
     private String setDataFields(DataAble data, boolean willSetParams, WObject wObject, SetType setType,
-            int optionCode,
-            DBHandleAccess dbHandleAccess)
-    {
+                                 int optionCode,
+                                 DBHandleAccess dbHandleAccess) {
         String rs = null;
-        try
-        {
-            switch (setType)
-            {
+        try {
+            switch (setType) {
                 case ADD:
                 case REPLACE:
                 case UPDATE:
-                    if (wObject != null && willSetParams)
-                    {
+                    if (wObject != null && willSetParams) {
                         InNames inNames = wObject.cInNames;
                         data.setParams(inNames.nece, wObject.cn, inNames.unece, wObject.cu, inNames.inner,
-                                wObject.cinner);
+                                       wObject.cinner);
                         inNames = wObject.fInNames;
                         data.setParams(inNames.nece, wObject.fn, inNames.unece, wObject.fu, inNames.inner,
-                                wObject.finner);
+                                       wObject.finner);
                     }
                     break;
                 default:
@@ -1154,8 +1019,7 @@ public class Common
 
             }
             data.whenSetDataFinished(setType, optionCode, wObject, dbHandleAccess);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             rs = e.toString();
         }

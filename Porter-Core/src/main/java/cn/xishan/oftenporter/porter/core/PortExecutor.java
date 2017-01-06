@@ -49,11 +49,11 @@ public class PortExecutor {
     }
 
     public void addContext(PorterBridge bridge, PortContext portContext, StateListener stateListenerForAll,
-                           InnerContextBridge innerContextBridge, CheckPassable forAllCheckPassable) {
+                           InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables) {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, portContext,
                                       porterConf.getContextChecks().toArray(new CheckPassable[0]),
-                                      bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassable);
+                                      bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassables);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
@@ -252,7 +252,7 @@ public class PortExecutor {
                                           UrlDecoder.Result result) {
         CheckPassable[] allGlobal = this.allGlobalChecks;
 
-        if (allGlobal.length == 0&&context.forAllCheckPassable==null) {
+        if (allGlobal.length == 0&&context.forAllCheckPassables==null) {
             dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
         } else {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL, allGlobal, new CheckHandle(result) {
@@ -274,7 +274,7 @@ public class PortExecutor {
     private final void dealtOfContextGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject, InnerContextBridge innerContextBridge,
                                                  UrlDecoder.Result result) {
         CheckPassable[] contextChecks = context.contextChecks;
-        if (contextChecks.length == 0&&context.forAllCheckPassable==null) {
+        if (contextChecks.length == 0&&context.forAllCheckPassables==null) {
             dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
         } else {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result) {
@@ -329,7 +329,7 @@ public class PortExecutor {
 
 
         //类通过检测
-        if (clazzPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
+        if (clazzPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
             dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
         } else {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS, clazzPIn.getChecks(), new CheckHandle(result) {
@@ -383,7 +383,7 @@ public class PortExecutor {
 
 
         //函数通过检测
-        if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
+        if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
             dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge,result);
         } else {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD, funPIn.getChecks(), new CheckHandle(result) {
@@ -412,7 +412,7 @@ public class PortExecutor {
                 rs = javaMethod.invoke(classPort.getObject(), wObject);
             }
 
-            if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
+            if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
                 dealtOfResponse(wObject, funPort, rs);
             } else {
                 CheckHandle checkHandle = new CheckHandle(result) {
@@ -431,7 +431,7 @@ public class PortExecutor {
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
-            if (funPIn.getChecks().length == 0&&context.forAllCheckPassable==null) {
+            if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
                 ex(wObject.getResponse(), e, responseWhenException);
             } else {
                 CheckHandle checkHandle = new CheckHandle(result) {

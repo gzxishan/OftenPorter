@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 /**
  */
@@ -43,9 +44,9 @@ public class DBHandleAccess implements DBHandleSource
     }
 
     @Override
-    public DBHandle getDbHandle(ParamsGetter paramsGetter, DBHandle dbHandle) throws DBException
+    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble, DBHandle dbHandle) throws DBException
     {
-        return dbHandleSource.getDbHandle(paramsGetter, dbHandle);
+        return dbHandleSource.getDbHandle(paramsGetter,dataAble, dbHandle);
     }
 
     @Override

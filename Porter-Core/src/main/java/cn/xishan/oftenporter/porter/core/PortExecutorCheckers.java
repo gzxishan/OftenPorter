@@ -11,19 +11,20 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 class PortExecutorCheckers extends CheckHandle {
 
     private int currentIndex;
+    private boolean inAll;
     private WObject wObject;
     private DuringType duringType;
     private CheckPassable[] checkPassables;
     private CheckHandle handle;
-    private CheckPassable forAllCheckPassable;
+    private CheckPassable[] forAllCheckPassables;
 
     public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType, CheckPassable[] checkPassables, CheckHandle handle) {
         super(wObject.url());
-        currentIndex = -1;
+        currentIndex = 0;
         this.wObject = wObject;
         this.duringType = duringType;
         this.checkPassables = checkPassables;
-        this.forAllCheckPassable = context.forAllCheckPassable;
+        this.forAllCheckPassables = context.forAllCheckPassables;
         this.handle = handle;
     }
 
@@ -44,10 +45,22 @@ class PortExecutorCheckers extends CheckHandle {
     }
 
     public void check() {
-        currentIndex++;
-        if (forAllCheckPassable != null) {
-            forAllCheckPassable.willPass(wObject, duringType, this);
+        currentIndex=0;
+        if (forAllCheckPassables != null) {
+            inAll=true;
+            checkForAll();
         } else {
+            inAll=false;
+            checkOne();
+        }
+    }
+
+    private void checkForAll(){
+        if(currentIndex<forAllCheckPassables.length){
+            forAllCheckPassables[currentIndex++].willPass(wObject,duringType,this);
+        }else{
+            inAll=false;
+            currentIndex=0;
             checkOne();
         }
     }
@@ -64,7 +77,9 @@ class PortExecutorCheckers extends CheckHandle {
     public void go(Object failedObject) {
         if (failedObject != null) {
             handle.go(failedObject);
-        } else {
+        } else if(inAll){
+            checkForAll();
+        }else{
             checkOne();
         }
     }

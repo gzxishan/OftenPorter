@@ -5,12 +5,12 @@ import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 /**
  * 用于获取数据库操作
  */
-public interface DBHandleSource
-{
+public interface DBHandleSource {
     /**
      * 新建一个条件
      *
@@ -26,12 +26,13 @@ public interface DBHandleSource
     QuerySettings newQuerySettings();
 
     /**
-     * @param paramsGetter 用于获取一些参数
-     * @param dbHandle     使用已经有的操作
-     * @return DBHandle
+     * @param paramsGetter
+     * @param dataAble 事物初始化时，此为null。
+     * @param dbHandle
+     * @return
      * @throws DBException
      */
-    DBHandle getDbHandle(ParamsGetter paramsGetter, DBHandle dbHandle) throws DBException;
+    DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble, DBHandle dbHandle) throws DBException;
 
     void afterClose(DBHandle dbHandle);
 }
