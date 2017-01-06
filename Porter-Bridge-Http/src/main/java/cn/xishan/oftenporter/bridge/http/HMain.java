@@ -59,8 +59,8 @@ public class HMain extends LocalMain {
             }
 
             @Override
-            public PLinker getLinkedPInit(String pName) {
-                return HMain.super.getPLinker().getLinkedPInit(pName);
+            public PLinker getLinkedPLinker(String pName) {
+                return HMain.super.getPLinker().getLinkedPLinker(pName);
             }
 
             @Override
