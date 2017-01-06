@@ -86,15 +86,15 @@ private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
     }
 
 
-    public static ParamsGetter newParamsGetter(DataAble dataAble)
+    public static ParamsGetter newParamsGetter(DataAble dataAble, ParamsGetter.DataInitable dataInitable)
     {
-        ParamsGetter.Params params = new ParamsGetter.Params(dataAble);
+        ParamsGetter.Params params = new ParamsGetter.Params(dataAble,dataInitable);
         return newParamsGetter(params);
     }
 
-    public static ParamsGetter newParamsGetter(Class<? extends DataAble> c)
+    public static ParamsGetter newParamsGetter(Class<? extends DataAble> c, ParamsGetter.DataInitable dataInitable)
     {
-        ParamsGetter.Params params = new ParamsGetter.Params(c);
+        ParamsGetter.Params params = new ParamsGetter.Params(c,dataInitable);
         return newParamsGetter(params);
     }
 

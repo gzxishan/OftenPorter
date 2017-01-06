@@ -23,7 +23,7 @@ public class Common2
     }
 
 
-    public static TransactionHandle<Common2> getTransactionHandle(final SourceAndPGetter sourceAndPGeter)
+    public static TransactionHandle<Common2> getTransactionHandle(final DBSource sourceAndPGeter)
     {
         TransactionHandle<Common2> thandle = new TransactionHandle<Common2>()
         {
@@ -67,8 +67,8 @@ public class Common2
     /**
      * @see Common#addData(DBHandleSource, ParamsGetter, boolean, NameValues, WObject)
      */
-    public JResponse addData(SourceAndPGetter sourceAndPGeter, boolean responseData,
-            NameValues nameValues, WObject wObject)
+    public JResponse addData(DBSource sourceAndPGeter, boolean responseData,
+                             NameValues nameValues, WObject wObject)
     {
         return common.addData(sourceAndPGeter, sourceAndPGeter, responseData, nameValues, wObject);
     }
@@ -76,8 +76,8 @@ public class Common2
     /**
      * @see Common#addData(DBHandleSource, ParamsGetter, boolean, WObject)
      */
-    public JResponse addData(SourceAndPGetter sourceAndPGeter, boolean responseData,
-            WObject wObject)
+    public JResponse addData(DBSource sourceAndPGeter, boolean responseData,
+                             WObject wObject)
     {
         return common.addData(sourceAndPGeter, sourceAndPGeter, responseData, wObject);
     }
@@ -85,7 +85,7 @@ public class Common2
     /**
      * @see Common#addData(DBHandleSource, ParamsGetter, MultiNameValues, WObject)
      */
-    public JResponse addData(SourceAndPGetter sourceAndPGeter,
+    public JResponse addData(DBSource sourceAndPGeter,
             final MultiNameValues multiNameValues,
             WObject wObject)
     {
@@ -95,7 +95,7 @@ public class Common2
     /**
      * @see Common#advancedExecute(DBHandleSource, ParamsGetter, AdvancedExecutor, WObject)
      */
-    public JResponse advancedExecute(SourceAndPGetter sourceAndPGeter,
+    public JResponse advancedExecute(DBSource sourceAndPGeter,
             AdvancedExecutor advancedExecutor,
             WObject wObject)
     {
@@ -105,8 +105,8 @@ public class Common2
     /**
      * @see Common#count(DBHandleSource, ParamsGetter, Condition, WObject)
      */
-    public JResponse count(SourceAndPGetter sourceAndPGeter, Condition condition,
-            WObject wObject)
+    public JResponse count(DBSource sourceAndPGeter, Condition condition,
+                           WObject wObject)
     {
         return common.count(sourceAndPGeter, sourceAndPGeter, condition, wObject);
     }
@@ -114,8 +114,8 @@ public class Common2
     /**
      * @see Common#deleteData(DBHandleSource, ParamsGetter, Condition, WObject)
      */
-    public JResponse deleteData(SourceAndPGetter sourceAndPGeter, Condition condition,
-            WObject wObject)
+    public JResponse deleteData(DBSource sourceAndPGeter, Condition condition,
+                                WObject wObject)
     {
         return common.deleteData(sourceAndPGeter, sourceAndPGeter, condition, wObject);
     }
@@ -124,7 +124,7 @@ public class Common2
     /**
      * @see Common#deleteData2(DBHandleSource, ParamsGetter, ParamsSelection, WObject)
      */
-    public JResponse deleteData2(SourceAndPGetter sourceAndPGeter,
+    public JResponse deleteData2(DBSource sourceAndPGeter,
             ParamsSelection paramsSelection,
             WObject wObject)
     {
@@ -135,8 +135,8 @@ public class Common2
     /**
      * @see Common#exists(DBHandleSource, ParamsGetter, String, Object, WObject)
      */
-    public JResponse exists(SourceAndPGetter sourceAndPGeter, String key,
-            Object value, WObject wObject)
+    public JResponse exists(DBSource sourceAndPGeter, String key,
+                            Object value, WObject wObject)
     {
         return common.exists(sourceAndPGeter, sourceAndPGeter, key, value, wObject);
     }
@@ -144,7 +144,7 @@ public class Common2
     /**
      * @see Common#queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, WObject)
      */
-    public JResponse queryAdvanced(SourceAndPGetter sourceAndPGeter,
+    public JResponse queryAdvanced(DBSource sourceAndPGeter,
             AdvancedQuery advancedQuery, WObject wObject)
     {
         return common.queryAdvanced(sourceAndPGeter, sourceAndPGeter, advancedQuery, wObject);
@@ -153,8 +153,8 @@ public class Common2
     /**
      * @see Common#queryData(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject)
      */
-    public JResponse queryData(SourceAndPGetter sourceAndPGeter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
+    public JResponse queryData(DBSource sourceAndPGeter, Condition condition,
+                               QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
     {
         return common.queryData(sourceAndPGeter, sourceAndPGeter, condition, querySettings, keysSelection, wObject);
     }
@@ -162,7 +162,7 @@ public class Common2
     /**
      * @see Common#queryData2(DBHandleSource, ParamsGetter, ParamsSelection, QuerySettings, KeysSelection, WObject)
      */
-    public JResponse queryData2(SourceAndPGetter sourceAndPGeter,
+    public JResponse queryData2(DBSource sourceAndPGeter,
             ParamsSelection paramsSelection,
             QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
     {
@@ -173,8 +173,8 @@ public class Common2
     /**
      * @see Common#queryOne(DBHandleSource, ParamsGetter, Condition, KeysSelection, WObject)
      */
-    public JResponse queryOne(SourceAndPGetter sourceAndPGeter, Condition condition,
-            KeysSelection keysSelection, WObject wObject)
+    public JResponse queryOne(DBSource sourceAndPGeter, Condition condition,
+                              KeysSelection keysSelection, WObject wObject)
     {
         return common.queryOne(sourceAndPGeter, sourceAndPGeter, condition, keysSelection, wObject);
     }
@@ -182,7 +182,7 @@ public class Common2
     /**
      * @see Common#queryOne2(DBHandleSource, ParamsGetter, ParamsSelection, KeysSelection, WObject)
      */
-    public JResponse queryOne2(SourceAndPGetter sourceAndPGeter,
+    public JResponse queryOne2(DBSource sourceAndPGeter,
             ParamsSelection paramsSelection,
             KeysSelection keysSelection, WObject wObject)
     {
@@ -193,7 +193,7 @@ public class Common2
     /**
      * @see Common#replaceData(DBHandleSource, ParamsGetter, Condition, WObject)
      */
-    public JResponse replaceData(SourceAndPGetter sourceAndPGeter,
+    public JResponse replaceData(DBSource sourceAndPGeter,
             Condition condition,
             WObject wObject)
     {
@@ -203,8 +203,8 @@ public class Common2
     /**
      * @see Common#replaceData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject)
      */
-    public JResponse replaceData(SourceAndPGetter sourceAndPGeter, Condition condition, NameValues nameValues,
-            WObject wObject)
+    public JResponse replaceData(DBSource sourceAndPGeter, Condition condition, NameValues nameValues,
+                                 WObject wObject)
     {
         return common.replaceData(sourceAndPGeter, sourceAndPGeter, condition, nameValues, wObject);
     }
@@ -212,8 +212,8 @@ public class Common2
     /**
      * @see Common#updateData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject)
      */
-    public JResponse updateData(SourceAndPGetter sourceAndPGeter, Condition condition,
-            NameValues nameValues, WObject wObject)
+    public JResponse updateData(DBSource sourceAndPGeter, Condition condition,
+                                NameValues nameValues, WObject wObject)
     {
         return common.updateData(sourceAndPGeter, sourceAndPGeter, condition, nameValues, wObject);
     }
@@ -221,8 +221,8 @@ public class Common2
     /**
      * @see Common#updateData(DBHandleSource, ParamsGetter, Condition, WObject)
      */
-    public JResponse updateData(SourceAndPGetter sourceAndPGeter, Condition condition,
-            WObject wObject)
+    public JResponse updateData(DBSource sourceAndPGeter, Condition condition,
+                                WObject wObject)
     {
         return common.updateData(sourceAndPGeter, sourceAndPGeter, condition, wObject);
     }
@@ -231,7 +231,7 @@ public class Common2
     /**
      * @see Common#updateData2(DBHandleSource, ParamsGetter, ParamsSelection, WObject)
      */
-    public JResponse updateData2(SourceAndPGetter sourceAndPGeter,
+    public JResponse updateData2(DBSource sourceAndPGeter,
             ParamsSelection paramsSelection,
             WObject wObject)
     {

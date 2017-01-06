@@ -8,8 +8,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/3.
  */
-public class Context
-{
+public class Context {
     public final PortContext portContext;
     CheckPassable[] contextChecks;
     InnerContextBridge innerContextBridge;
@@ -19,40 +18,35 @@ public class Context
 
     boolean isEnable = true;
     String name, contentEncoding;
-    CheckPassable forAllCheckPassable;
+    CheckPassable[] forAllCheckPassables;
 
     public Context(DeliveryBuilder deliveryBuilder, PortContext portContext, CheckPassable[] contextChecks,
-            ParamSourceHandleManager paramSourceHandleManager,
-            StateListener stateListenerForAll, InnerContextBridge innerContextBridge,CheckPassable forAllCheckPassable)
-    {
+                   ParamSourceHandleManager paramSourceHandleManager,
+                   StateListener stateListenerForAll, InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables) {
         this.deliveryBuilder = deliveryBuilder;
         this.portContext = portContext;
         this.contextChecks = contextChecks;
         this.paramSourceHandleManager = paramSourceHandleManager;
         this.stateListenerForAll = stateListenerForAll;
         this.innerContextBridge = innerContextBridge;
-        this.forAllCheckPassable=forAllCheckPassable;
+        this.forAllCheckPassables = forAllCheckPassables != null && forAllCheckPassables.length > 0 ? forAllCheckPassables : null;
         setEnable(true);
     }
 
 
-    public String getContentEncoding()
-    {
+    public String getContentEncoding() {
         return contentEncoding;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setEnable(boolean enable)
-    {
+    public void setEnable(boolean enable) {
         isEnable = enable;
     }
 
-    public boolean isEnable()
-    {
+    public boolean isEnable() {
         return isEnable;
     }
 }

@@ -189,13 +189,6 @@ public abstract class Data extends DataAble
         return super.clone();
     }
 
-    /**
-     * 得到所属集合(或表)名称。
-     *
-     * @return
-     */
-    public abstract String getCollectionName();
-
 
     private Condition queryCondition;
     private KeysSelection keysSelection;

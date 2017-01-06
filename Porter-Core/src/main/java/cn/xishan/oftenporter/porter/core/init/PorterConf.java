@@ -23,30 +23,31 @@ public class PorterConf {
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
-    private CheckPassable forAllCheckPassable;
+    private List<CheckPassable> forAllCheckPassableList;
 
 
     PorterConf() {
         seekPackages = new SeekPackages();
         stateListenerSet = new HashSet<>();
         contextChecks = new ArrayList<>();
+        forAllCheckPassableList = new ArrayList<>();
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
         contextAutoGenImplMap = new HashMap<>();
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
-    public CheckPassable getForAllCheckPassable() {
-        return forAllCheckPassable;
+    public List<CheckPassable> getForAllCheckPassableList() {
+        return forAllCheckPassableList;
     }
 
     /**
-     * 所有的时期都会调用它。
+     * 所有的时期都会调用它,并且该检测最先被调用。
      *
      * @param forAllCheckPassable
      */
-    public void setForAllCheckPassable(CheckPassable forAllCheckPassable) {
-        this.forAllCheckPassable = forAllCheckPassable;
+    public void addForAllCheckPassable(CheckPassable forAllCheckPassable) {
+        forAllCheckPassableList.add(forAllCheckPassable);
     }
 
     public String getContentEncoding() {
@@ -179,6 +180,6 @@ public class PorterConf {
         contextAutoSetMap = null;
         contextAutoGenImplMap = null;
         stateListenerSet = null;
-        forAllCheckPassable = null;
+        forAllCheckPassableList = null;
     }
 }

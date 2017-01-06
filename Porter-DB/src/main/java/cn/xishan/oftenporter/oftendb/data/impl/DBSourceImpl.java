@@ -6,12 +6,13 @@ import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 
 /**
  * @author ZhuiFeng
  */
-public class SourceAndPGetterImpl implements SourceAndPGetter
+public class DBSourceImpl implements DBSource
 {
     protected DBHandleSource dbHandleSource;
     private Params params;
@@ -21,21 +22,21 @@ public class SourceAndPGetterImpl implements SourceAndPGetter
      * @param dataClass
      * @param dbHandleSource
      */
-    public SourceAndPGetterImpl(Class<? extends Data> dataClass,
-            DBHandleSource dbHandleSource)
+    public DBSourceImpl(Class<? extends Data> dataClass, ParamsGetter.DataInitable dataInitable,
+                        DBHandleSource dbHandleSource)
     {
-        this(dataClass == null ? null : new Params(dataClass),
+        this(dataClass == null ? null : new Params(dataClass,dataInitable),
                 dbHandleSource);
     }
 
-    public SourceAndPGetterImpl(DataAble dataAble,
-            DBHandleSource dbHandleSource)
+    public DBSourceImpl(DataAble dataAble, ParamsGetter.DataInitable dataInitable,
+                        DBHandleSource dbHandleSource)
     {
-        this(new Params(dataAble), dbHandleSource);
+        this(new Params(dataAble,dataInitable), dbHandleSource);
     }
 
-    public SourceAndPGetterImpl(Params params,
-            DBHandleSource dbHandleSource)
+    public DBSourceImpl(Params params,
+                        DBHandleSource dbHandleSource)
     {
         this.params = params;
         this.dbHandleSource = dbHandleSource;
@@ -57,9 +58,9 @@ public class SourceAndPGetterImpl implements SourceAndPGetter
     }
 
     @Override
-    public DBHandle getDbHandle(ParamsGetter paramsGetter, DBHandle dbHandle) throws DBException
+    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble, DBHandle dbHandle) throws DBException
     {
-        return dbHandleSource.getDbHandle(paramsGetter, dbHandle);
+        return dbHandleSource.getDbHandle(paramsGetter,dataAble, dbHandle);
     }
 
     @Override

@@ -6,15 +6,14 @@
 // * @author Created by https://github.com/CLovinr on 2016/10/2.
 // */
 //@PortIn("Hot")
-//public class HotPorter
-//{
-//    @PortIn("show")
-//    public String show(){
-//        return "Hot-1";
-//    }
+//public class HotPorter {
+////    @PortIn("show")
+////    public String show() {
+////        return "Hot-1";
+////    }
 //
 //    @PortIn("show")
-//    public String show(){
+//    public String show() {
 //        return "Hot-2";
 //    }
 //}
