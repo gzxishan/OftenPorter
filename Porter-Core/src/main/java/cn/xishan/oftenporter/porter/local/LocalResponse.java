@@ -9,32 +9,27 @@ import java.io.IOException;
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
-public class LocalResponse implements WResponse
-{
+public class LocalResponse implements WResponse {
     private Object object;
     private PCallback callback;
 
-    public LocalResponse(PCallback callback)
-    {
+    public LocalResponse(PCallback callback) {
         this.callback = callback;
     }
 
     @Override
-    public void write(@NotNull Object object) throws IOException
-    {
-        if (this.object != null)
-        {
+    public void write(@NotNull Object object) throws IOException {
+        if (this.object != null) {
             throw new IOException("already write before!");
         }
         this.object = object;
     }
 
     @Override
-    public void close() throws IOException
-    {
-        if (callback != null)
-        {
-            callback.onResponse(new LResponse(object));
+    public void close() throws IOException {
+        if (callback != null) {
+            callback.onResponse(object == null ? null : new LResponse(object));
         }
     }
+
 }
