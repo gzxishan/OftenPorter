@@ -41,7 +41,7 @@ public class HMain extends LocalMain {
                                             }
                                         });
             } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
                 if (callback != null) {
                     callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
                 }

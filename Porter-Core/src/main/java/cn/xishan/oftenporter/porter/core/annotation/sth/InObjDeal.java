@@ -172,7 +172,7 @@ public class InObjDeal
                         name = new Name(nameStr, typeId);
                     } catch (ClassNotFoundException e)
                     {
-                        LOGGER.error("auto get {} for field '{}' failed!", ITypeParser.class.getSimpleName(), field);
+                        LOGGER.warn("auto get {} for field '{}' failed!", ITypeParser.class.getSimpleName(), field);
                         throw e;
                     }
 

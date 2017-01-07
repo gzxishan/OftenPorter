@@ -8,6 +8,14 @@ import java.lang.annotation.*;
 
 /**
  * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量。
+ * <br>
+ * 从这些途径会触发AutoSet:
+ * <pre>
+ *     1.{@linkplain PortIn}
+ *     2.{@linkplain AutoSetSeek}
+ *     3.{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
+ *     4.{@linkplain cn.xishan.oftenporter.porter.core.base.StateListener}
+ * </pre>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */

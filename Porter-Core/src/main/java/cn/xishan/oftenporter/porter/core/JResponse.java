@@ -4,6 +4,8 @@ package cn.xishan.oftenporter.porter.core;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 响应结果的封装.
@@ -57,6 +59,8 @@ public class JResponse
     private String description;
     private Object result;
     private Throwable exCause;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JResponse.class);
 
     public JResponse(ResultCode code)
     {
@@ -114,8 +118,9 @@ public class JResponse
         if (jsonObject.containsKey(RESULT_FILED))
         {
             result = jsonObject.get(RESULT_FILED);
-            if(result instanceof String &&("true".equals(result)||"false".equals(result))){
-                result=Boolean.parseBoolean(result.toString());
+            if (result instanceof String && ("true".equals(result) || "false".equals(result)))
+            {
+                result = Boolean.parseBoolean(result.toString());
             }
         }
         return result;
@@ -196,12 +201,29 @@ public class JResponse
 
     public <T> T getResult()
     {
-        return (T)result;
+        return (T) result;
     }
 
     public boolean isSuccess()
     {
         return code == ResultCode.SUCCESS;
+    }
+
+    /**
+     * 如果异常信息不为空，则抛出。
+     */
+    public void throwExCause()
+    {
+        if (exCause != null)
+        {
+            try
+            {
+                throw exCause;
+            } catch (Throwable throwable)
+            {
+                LOGGER.debug(throwable.getMessage(), throwable);
+            }
+        }
     }
 
     /**

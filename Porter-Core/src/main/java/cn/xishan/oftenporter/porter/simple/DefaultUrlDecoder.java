@@ -60,7 +60,7 @@ public class DefaultUrlDecoder implements UrlDecoder
                 funTied = URLDecoder.decode(tiedPath.substring(forwardSlash + 1), encoding);
             } catch (UnsupportedEncodingException e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
                 return null;
             }
         }

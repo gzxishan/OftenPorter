@@ -58,9 +58,18 @@ public class AutoSetUtil
         for (int i = 0; i < classeses.size(); i++)
         {
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-            if(clazz.isAnnotationPresent(AutoSetSeek.class)){
+            if (clazz.isAnnotationPresent(AutoSetSeek.class))
+            {
                 doAutoSet(clazz.newInstance());
             }
+        }
+    }
+
+    public synchronized void doAutoSets(Object[] objects)
+    {
+        for (Object obj : objects)
+        {
+            doAutoSet(obj);
         }
     }
 
@@ -146,7 +155,7 @@ public class AutoSetUtil
                 doAutoSet(value);//设置被设置的变量。
             } catch (Exception e)
             {
-                LOGGER.error("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
+                LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
             }
 
         }

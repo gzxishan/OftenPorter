@@ -161,7 +161,7 @@ public class BytesTool
 
         } catch (IOException e)
         {
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.warn(e.getMessage(),e);
         }
         return bos.toByteArray();
     }

@@ -45,8 +45,7 @@ public class HelloPorter
     @PortIn(tiedType = TiedType.REST)
     public Object sayHello(WObject wObject)
     {
-	HttpServletRequest request =
-		((WServletRequest) wObject.getRequest()).getServletRequest();
+	HttpServletRequest request = (HttpServletRequest) wObject.getRequest().getOriginalRequest();
 	return "Hello World-REST!" + wObject.restValue
 		+ ":dt="
 		+ ((System.nanoTime() - (long) request.getAttribute("time"))

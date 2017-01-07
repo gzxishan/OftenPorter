@@ -24,7 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class PortExecutor {
+public class PortExecutor
+{
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PortExecutor.class);
@@ -37,29 +38,38 @@ public class PortExecutor {
     private DeliveryBuilder deliveryBuilder;
 
     public PortExecutor(PName pName, Delivery delivery, UrlDecoder urlDecoder,
-                        boolean responseWhenException) {
+            boolean responseWhenException)
+    {
         this.pName = pName;
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
         deliveryBuilder = DeliveryBuilder.getBuilder(true, delivery);
     }
 
-    public void initAllGlobalChecks(CheckPassable[] allGlobalChecks) {
+    public void initAllGlobalChecks(CheckPassable[] allGlobalChecks)
+    {
         this.allGlobalChecks = allGlobalChecks;
     }
 
+    public CheckPassable[] getAllGlobalChecks()
+    {
+        return allGlobalChecks;
+    }
+
     public void addContext(PorterBridge bridge, PortContext portContext, StateListener stateListenerForAll,
-                           InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables) {
+            InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables)
+    {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, portContext,
-                                      porterConf.getContextChecks().toArray(new CheckPassable[0]),
-                                      bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassables);
+                porterConf.getContextChecks().toArray(new CheckPassable[0]),
+                bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassables);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
     }
 
-    public UrlDecoder getUrlDecoder() {
+    public UrlDecoder getUrlDecoder()
+    {
         return urlDecoder;
     }
 
@@ -69,7 +79,8 @@ public class PortExecutor {
      * @param contextName context名称
      * @return 返回移除的Context，可能够为null。
      */
-    public Context removeContext(String contextName) {
+    public Context removeContext(String contextName)
+    {
         return contextMap.remove(contextName);
     }
 
@@ -79,7 +90,8 @@ public class PortExecutor {
      * @param contextName
      * @return
      */
-    public Context getContext(String contextName) {
+    public Context getContext(String contextName)
+    {
         return contextMap.get(contextName);
     }
 
@@ -89,7 +101,8 @@ public class PortExecutor {
      * @param contextName context名称
      * @return 存在返回true，不存在返回false。
      */
-    public boolean containsContext(String contextName) {
+    public boolean containsContext(String contextName)
+    {
         return contextMap.containsKey(contextName);
     }
 
@@ -100,25 +113,30 @@ public class PortExecutor {
      * @param enable      是否启用
      * @return 返回对应Context，可能为null。
      */
-    public Context enableContext(String contextName, boolean enable) {
+    public Context enableContext(String contextName, boolean enable)
+    {
         Context context = contextMap.get(contextName);
-        if (context != null) {
+        if (context != null)
+        {
             context.setEnable(enable);
         }
         return context;
     }
 
 
-    public void clear() {
+    public void clear()
+    {
         contextMap.clear();
     }
 
-    public Iterator<Context> contextIterator() {
+    public Iterator<Context> contextIterator()
+    {
         return contextMap.values().iterator();
     }
 
 
-    public PreRequest forRequest(WRequest request, final WResponse response) {
+    public PreRequest forRequest(WRequest request, final WResponse response)
+    {
         String path = request.getPath();
 //        if (path.startsWith("/="))
 //        {
@@ -133,7 +151,7 @@ public class PortExecutor {
 //                        response.write(lResponse.getResponse());
 //                    } catch (IOException e)
 //                    {
-//                        LOGGER.error(e.getMessage(), e);
+//                        LOGGER.warn(e.getMessage(), e);
 //                    } finally
 //                    {
 //                        WPTool.close(response);
@@ -145,16 +163,20 @@ public class PortExecutor {
 //        }
         UrlDecoder.Result result = urlDecoder.decode(path);
         Context context;
-        if (result == null || (context = contextMap.get(result.contextName())) == null || !context.isEnable) {
+        if (result == null || (context = contextMap.get(result.contextName())) == null || !context.isEnable)
+        {
             exNotFoundClassPort(request, response, responseWhenException);
             return null;
-        } else {
+        } else
+        {
             return new PreRequest(context, result);
         }
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response) {
-        try {
+    public void doRequest(PreRequest req, WRequest request, WResponse response)
+    {
+        try
+        {
             Context context = req.context;
             UrlDecoder.Result result = req.result;
 
@@ -164,10 +186,12 @@ public class PortExecutor {
 
             InnerContextBridge innerContextBridge = context.innerContextBridge;
 
-            if (classPort == null) {
+            if (classPort == null)
+            {
                 exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
                 return;
-            } else if ((funPort = classPort.getChild(result, request.getMethod())) == null) {
+            } else if ((funPort = classPort.getChild(result, request.getMethod())) == null)
+            {
                 exNotFoundFun(response, result, innerContextBridge.responseWhenException);
                 return;
             }
@@ -175,33 +199,42 @@ public class PortExecutor {
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
             //全局通过检测
             dealtOfGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+        } catch (Exception e)
+        {
+            LOGGER.warn(e.getMessage(), e);
             ex(response, e, responseWhenException);
         }
     }
 
-    private void exNotFoundFun(WResponse response, UrlDecoder.Result result, boolean responseWhenException) {
-        if (responseWhenException) {
+    private void exNotFoundFun(WResponse response, UrlDecoder.Result result, boolean responseWhenException)
+    {
+        if (responseWhenException)
+        {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
             jResponse.setDescription("fun:" + result.toString());
-            try {
+            try
+            {
                 response.write(jResponse);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(response);
     }
 
-    private void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException) {
-        if (responseWhenException) {
+    private void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException)
+    {
+        if (responseWhenException)
+        {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
             jResponse.setDescription("method:" + request.getMethod() + ",path:" + request.getPath());
-            try {
+            try
+            {
                 response.write(jResponse);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(response);
@@ -219,28 +252,35 @@ public class PortExecutor {
      * @return
      */
     private ParamDealt.FailedReason paramDealOfPortInObj(boolean ignoreTypeParser, Context context, InObj inObj,
-                                                         boolean isInClass,
-                                                         WObjectImpl wObjectImpl,
-                                                         ParamSource paramSource, TypeParserStore currentTypeParserStore) {
+            boolean isInClass,
+            WObjectImpl wObjectImpl,
+            ParamSource paramSource, TypeParserStore currentTypeParserStore)
+    {
         ParamDealt.FailedReason reason = null;
-        if (inObj == null) {
+        if (inObj == null)
+        {
             return null;
         }
         One[] ones = inObj.ones;
         Object[] inObjects = new Object[ones.length];
-        if (isInClass) {
+        if (isInClass)
+        {
             wObjectImpl.cinObjs = inObjects;
-        } else {
+        } else
+        {
             wObjectImpl.finObjs = inObjects;
         }
-        for (int i = 0; i < ones.length; i++) {
+        for (int i = 0; i < ones.length; i++)
+        {
             One one = ones[i];
             Object object = PortUtil
                     .paramDealOne(ignoreTypeParser, context.innerContextBridge.paramDealt, one, paramSource,
-                                  currentTypeParserStore);
-            if (object instanceof ParamDealt.FailedReason) {
+                            currentTypeParserStore);
+            if (object instanceof ParamDealt.FailedReason)
+            {
                 return (ParamDealt.FailedReason) object;
-            } else {
+            } else
+            {
                 inObjects[i] = object;
             }
         }
@@ -248,20 +288,29 @@ public class PortExecutor {
         return reason;
     }
 
-    private final void dealtOfGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject, InnerContextBridge innerContextBridge,
-                                          UrlDecoder.Result result) {
+    private final void dealtOfGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject,
+            InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
         CheckPassable[] allGlobal = this.allGlobalChecks;
 
-        if (allGlobal.length == 0&&context.forAllCheckPassables==null) {
+        if (allGlobal.length == 0 && context.forAllCheckPassables == null)
+        {
             dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
-        } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL, allGlobal, new CheckHandle(result) {
+        } else
+        {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL,
+                    allGlobal, new CheckHandle(result, classPort.getObject())
+            {
 
                 @Override
-                public void go(Object failedObject) {
-                    if (failedObject != null) {
+                public void go(Object failedObject)
+                {
+                    if (failedObject != null)
+                    {
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else {
+                    } else
+                    {
                         dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
                     }
                 }
@@ -271,18 +320,27 @@ public class PortExecutor {
 
     }
 
-    private final void dealtOfContextGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject, InnerContextBridge innerContextBridge,
-                                                 UrlDecoder.Result result) {
+    private final void dealtOfContextGlobalCheck(Context context, Porter classPort, PorterOfFun funPort,
+            WObjectImpl wObject, InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
         CheckPassable[] contextChecks = context.contextChecks;
-        if (contextChecks.length == 0&&context.forAllCheckPassables==null) {
+        if (contextChecks.length == 0 && context.forAllCheckPassables == null)
+        {
             dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
-        } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result) {
+        } else
+        {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                    DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result, classPort.getObject())
+            {
                 @Override
-                public void go(Object failedObject) {
-                    if (failedObject != null) {
+                public void go(Object failedObject)
+                {
+                    if (failedObject != null)
+                    {
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else {
+                    } else
+                    {
                         dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
                     }
                 }
@@ -292,8 +350,10 @@ public class PortExecutor {
 
     }
 
-    private final void dealtOfClassParam(Porter classPort, PorterOfFun funPort, WObjectImpl wObject, Context context, InnerContextBridge innerContextBridge,
-                                         UrlDecoder.Result result) {
+    private final void dealtOfClassParam(Porter classPort, PorterOfFun funPort, WObjectImpl wObject, Context context,
+            InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
         //类参数初始化
         _PortIn clazzPIn = classPort.getPortIn();
         InNames inNames = clazzPIn.getInNames();
@@ -310,9 +370,10 @@ public class PortExecutor {
         //类参数处理
         ParamDealt.FailedReason failedReason = PortUtil
                 .paramDeal(clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn, wObject.cu,
-                           paramSource,
-                           typeParserStore);
-        if (failedReason != null) {
+                        paramSource,
+                        typeParserStore);
+        if (failedReason != null)
+        {
             exParamDeal(wObject, failedReason, responseWhenException);
             return;
         }
@@ -320,8 +381,9 @@ public class PortExecutor {
         ///////////////////////////
         //转换成类或接口对象
         failedReason = paramDealOfPortInObj(clazzPIn.ignoreTypeParser(), context, classPort.getInObj(), true, wObject,
-                                            paramSource, typeParserStore);
-        if (failedReason != null) {
+                paramSource, typeParserStore);
+        if (failedReason != null)
+        {
             exParamDeal(wObject, failedReason, responseWhenException);
             return;
         }
@@ -329,15 +391,22 @@ public class PortExecutor {
 
 
         //类通过检测
-        if (clazzPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
+        if (clazzPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
+        {
             dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
-        } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS, clazzPIn.getChecks(), new CheckHandle(result) {
+        } else
+        {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
+                    clazzPIn.getChecks(), new CheckHandle(result, classPort.getObject())
+            {
                 @Override
-                public void go(Object failedObject) {
-                    if (failedObject != null) {
+                public void go(Object failedObject)
+                {
+                    if (failedObject != null)
+                    {
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else {
+                    } else
+                    {
                         dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
                     }
                 }
@@ -347,10 +416,13 @@ public class PortExecutor {
 
     }
 
-    private void dealtOfFunParam(Porter classPort, PorterOfFun funPort, ParamSource paramSource, WObjectImpl wObject, Context context, InnerContextBridge innerContextBridge,
-                                 UrlDecoder.Result result) {
+    private void dealtOfFunParam(Porter classPort, PorterOfFun funPort, ParamSource paramSource, WObjectImpl wObject,
+            Context context, InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
         _PortIn funPIn = funPort.getPortIn();
-        if (funPIn.getTiedType() == TiedType.REST) {
+        if (funPIn.getTiedType() == TiedType.REST)
+        {
             wObject.restValue = result.funTied();
         }
 
@@ -365,17 +437,19 @@ public class PortExecutor {
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
         ParamDealt.FailedReason failedReason = PortUtil
                 .paramDeal(funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn, wObject.fu,
-                           paramSource,
-                           typeParserStore);
-        if (failedReason != null) {
+                        paramSource,
+                        typeParserStore);
+        if (failedReason != null)
+        {
             exParamDeal(wObject, failedReason, responseWhenException);
             return;
         }
         ///////////////////////////
         //转换成类或接口对象
         failedReason = paramDealOfPortInObj(funPIn.ignoreTypeParser(), context, funPort.getInObj(), false, wObject,
-                                            paramSource, typeParserStore);
-        if (failedReason != null) {
+                paramSource, typeParserStore);
+        if (failedReason != null)
+        {
             exParamDeal(wObject, failedReason, responseWhenException);
             return;
         }
@@ -383,16 +457,23 @@ public class PortExecutor {
 
 
         //函数通过检测
-        if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
-            dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge,result);
-        } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD, funPIn.getChecks(), new CheckHandle(result) {
+        if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
+        {
+            dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge, result);
+        } else
+        {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
+                    funPIn.getChecks(), new CheckHandle(result, classPort.getObject(), funPort.getMethod())
+            {
                 @Override
-                public void go(Object failedObject) {
-                    if (failedObject != null) {
+                public void go(Object failedObject)
+                {
+                    if (failedObject != null)
+                    {
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else {
-                        dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge,result);
+                    } else
+                    {
+                        dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge, result);
                     }
                 }
             });
@@ -401,66 +482,88 @@ public class PortExecutor {
 
     }
 
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, Porter classPort, PorterOfFun funPort, InnerContextBridge innerContextBridge,UrlDecoder.Result result) {
+    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, Porter classPort, PorterOfFun funPort,
+            InnerContextBridge innerContextBridge, UrlDecoder.Result result)
+    {
         Method javaMethod = funPort.getMethod();
         _PortIn funPIn = funPort.getPortIn();
-        try {
+        try
+        {
             Object rs;
-            if (funPort.getArgCount() == 0) {
+            if (funPort.getArgCount() == 0)
+            {
                 rs = javaMethod.invoke(classPort.getObject());
-            } else {
+            } else
+            {
                 rs = javaMethod.invoke(classPort.getObject(), wObject);
             }
 
-            if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
+            if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
+            {
                 dealtOfResponse(wObject, funPort, rs);
-            } else {
-                CheckHandle checkHandle = new CheckHandle(result) {
+            } else
+            {
+                CheckHandle checkHandle = new CheckHandle(rs, result, classPort.getObject(), funPort.getMethod())
+                {
                     @Override
-                    public void go(Object failedObject) {
-                        if (failedObject != null) {
+                    public void go(Object failedObject)
+                    {
+                        if (failedObject != null)
+                        {
                             exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                        } else {
+                        } else
+                        {
                             dealtOfResponse(wObject, funPort, rs);
                         }
                     }
                 };
-                checkHandle.returnObj = rs;
-                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.AFTER_METHOD, funPIn.getChecks(), checkHandle);
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                        DuringType.AFTER_METHOD, funPIn.getChecks(), checkHandle);
                 portExecutorCheckers.check();
             }
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (funPIn.getChecks().length == 0&&context.forAllCheckPassables==null) {
+        } catch (Exception e)
+        {
+            if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
+            {
+                LOGGER.warn(e.getMessage(), e);
                 ex(wObject.getResponse(), e, responseWhenException);
-            } else {
-                CheckHandle checkHandle = new CheckHandle(result) {
+            } else
+            {
+                CheckHandle checkHandle = new CheckHandle(e.getCause(), result, classPort.getObject(),
+                        funPort.getMethod())
+                {
                     @Override
-                    public void go(Object failedObject) {
-                        if (failedObject != null) {
-                            if (!(failedObject instanceof JResponse)) {
+                    public void go(Object failedObject)
+                    {
+                        if (failedObject != null)
+                        {
+                            if (!(failedObject instanceof JResponse))
+                            {
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                                 jResponse.setResult(failedObject);
                                 failedObject = jResponse;
                             }
                             responseObject(wObject, failedObject);
-                        } else {
+                        } else
+                        {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setResult(e.getCause());
                             responseObject(wObject, jResponse);
                         }
                     }
                 };
-                checkHandle.exCause = e.getCause();
-                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD_EXCEPTION, funPIn.getChecks(), checkHandle);
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                        DuringType.ON_METHOD_EXCEPTION, funPIn.getChecks(), checkHandle);
                 portExecutorCheckers.check();
             }
 
         }
     }
 
-    private void dealtOfResponse(WObjectImpl wObject, PorterOfFun funPort, Object rs) {
-        switch (funPort.getPortOut().getOutType()) {
+    private void dealtOfResponse(WObjectImpl wObject, PorterOfFun funPort, Object rs)
+    {
+        switch (funPort.getPortOut().getOutType())
+        {
             case NoResponse:
                 break;
             case Object:
@@ -470,12 +573,16 @@ public class PortExecutor {
     }
 
 
-    private void responseObject(WObject wObject, Object object) {
-        if (object != null) {
-            try {
+    private void responseObject(WObject wObject, Object object)
+    {
+        if (object != null)
+        {
+            try
+            {
                 wObject.getResponse().write(object);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(wObject);
@@ -487,15 +594,19 @@ public class PortExecutor {
      *
      * @return
      */
-    private ParamSource getParamSource(Context context, final UrlDecoder.Result result, WRequest request) {
+    private ParamSource getParamSource(Context context, final UrlDecoder.Result result, WRequest request)
+    {
         ParamSourceHandle handle = context.paramSourceHandleManager.fromName(result.classTied());
-        if (handle == null) {
+        if (handle == null)
+        {
             handle = context.paramSourceHandleManager.fromMethod(request.getMethod());
         }
         ParamSource ps;
-        if (handle == null) {
+        if (handle == null)
+        {
             ps = new ParamsSourceDefault(result, request);
-        } else {
+        } else
+        {
             ps = handle.get(request, result);
         }
         return ps;
@@ -504,57 +615,74 @@ public class PortExecutor {
 ////////////////////////////////////////////////
     //////////////////////////////////////////
 
-    private final void close(WObject wObject) {
+    private final void close(WObject wObject)
+    {
         WPTool.close(wObject.getResponse());
     }
 
-    private void close(WResponse response) {
+    private void close(WResponse response)
+    {
         WPTool.close(response);
     }
 
-    private void ex(WResponse response, Throwable throwable, boolean responseWhenException) {
-        if (responseWhenException) {
+    private void ex(WResponse response, Throwable throwable, boolean responseWhenException)
+    {
+        if (responseWhenException)
+        {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(WPTool.getMessage(throwable));
-            try {
+            try
+            {
                 response.write(jResponse);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(response);
     }
 
 
-    private void exCheckPassable(WObject wObject, Object obj, boolean responseWhenException) {
-        if (obj instanceof JResponse) {
-            try {
+    private void exCheckPassable(WObject wObject, Object obj, boolean responseWhenException)
+    {
+        if (obj instanceof JResponse)
+        {
+            try
+            {
                 wObject.getResponse().write(obj);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
-        } else if (responseWhenException) {
+        } else if (responseWhenException)
+        {
             JResponse jResponse = new JResponse(ResultCode.ACCESS_DENIED);
             jResponse.setDescription(String.valueOf(obj));
-            try {
+            try
+            {
                 wObject.getResponse().write(jResponse);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(wObject);
     }
 
-    private void exParamDeal(WObject wObject, ParamDealt.FailedReason reason, boolean responseWhenException) {
-        if (responseWhenException) {
+    private void exParamDeal(WObject wObject, ParamDealt.FailedReason reason, boolean responseWhenException)
+    {
+        if (responseWhenException)
+        {
             JResponse jResponse = new JResponse();
             jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
             jResponse.setDescription(reason.desc());
             jResponse.setResult(reason.toJSON());
-            try {
+            try
+            {
                 wObject.getResponse().write(jResponse);
-            } catch (IOException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         close(wObject);

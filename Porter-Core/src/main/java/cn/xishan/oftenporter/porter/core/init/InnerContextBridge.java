@@ -20,7 +20,7 @@ public class InnerContextBridge
     /**
      * 存放类和函数上实例化的检测对象。
      */
-    public  Map<Class<?>, CheckPassable> checkPassableForCFTemp;
+    public  Map<Class<?>, CheckPassable> checkPassableForCFTemps;
     public final InnerBridge innerBridge;
     public final AnnotationDealt annotationDealt;
     public final ParamDealt paramDealt;
@@ -34,7 +34,7 @@ public class InnerContextBridge
         this.contextAutoSet = contextAutoSet;
         this.autoGenImplMap = autoGenImplMap;
         this.annotationDealt = new AnnotationDealt(enableDefaultValue);
-        this.checkPassableForCFTemp = new HashMap<>();
+        this.checkPassableForCFTemps = new HashMap<>();
         this.paramDealt=porterBridge.paramDealt();
         this.responseWhenException=responseWhenException;
     }
