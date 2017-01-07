@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetUtil;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
@@ -121,9 +122,13 @@ public final class PorterMain {
                                                                        porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                                                                        porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        portContext.initSeek(porterConf, innerContextBridge);
+        AutoSetUtil autoSetUtil = new AutoSetUtil(innerContextBridge);
+        portContext.initSeek(porterConf, autoSetUtil);
         LOGGER.debug(":{}/{} afterSeek...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
+
+        LOGGER.debug("do autoSetSeek...");
+        autoSetUtil.doAutoSetSeek(porterConf.getAutoSetSeekPackages(),porterConf.getClassLoader());
 
         portContext.start();
 

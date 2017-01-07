@@ -49,6 +49,11 @@ public class SqlHandle implements DBHandle
         this.tableName = tableName;
     }
 
+    public String getTableName()
+    {
+        return tableName;
+    }
+
     private static final SqlCondition TRUE = null;// new SqlCondition();
 
     public static SqlCondition checkCondition(Condition condition)

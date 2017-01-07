@@ -38,15 +38,16 @@ public class SthDeal
         return portStart != null || portDestroy != null;
     }
 
-    public Porter porter(Class<?> clazz, Object object, InnerContextBridge innerContextBridge)
+    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil)
     {
+        InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(clazz);
         if (portIn == null)
         {
             return null;
         }
-        Porter porter = new Porter(innerContextBridge);
+        Porter porter = new Porter(autoSetUtil);
         porter.clazz = clazz;
         porter.object = object;
         //自动设置
