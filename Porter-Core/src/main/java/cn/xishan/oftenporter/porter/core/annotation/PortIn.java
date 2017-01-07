@@ -78,4 +78,10 @@ public @interface PortIn
      * @return
      */
     boolean multiTiedType() default true;
+
+    /**
+     * 对类有效，默认false。当为true时，在加入该接口类时，可以保证构造对应的实例。
+     * @return
+     */
+    boolean newObjectWhenInit()default false;
 }

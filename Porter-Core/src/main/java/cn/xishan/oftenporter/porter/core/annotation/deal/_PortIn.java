@@ -15,6 +15,7 @@ public final class _PortIn
     TiedType tiedType;
     boolean isMultiTiedType;
     boolean ignoreTypeParser;
+    boolean newObjectWhenInit;
 
     public void setTiedType(TiedType tiedType)
     {
@@ -54,5 +55,9 @@ public final class _PortIn
     public boolean ignoreTypeParser()
     {
         return ignoreTypeParser;
+    }
+
+    public boolean newObjectWhenInit() {
+        return newObjectWhenInit;
     }
 }

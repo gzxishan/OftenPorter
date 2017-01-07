@@ -12,47 +12,43 @@ import java.util.*;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public class SthDeal
-{
+public class SthDeal {
     private static final Logger LOGGER = LoggerFactory.getLogger(SthUtil.class);
 
 
-    public SthDeal()
-    {
+    public SthDeal() {
     }
 
 
     private boolean mayAddStartOrDestroy(Method method, List<_PortStart> portStarts, List<_PortDestroy> portDestroys,
-            AnnotationDealt annotationDealt)
-    {
+                                         AnnotationDealt annotationDealt) {
         _PortStart portStart = annotationDealt.portStart(method);
-        if (portStart != null)
-        {
+        if (portStart != null) {
             portStarts.add(portStart);
         }
         _PortDestroy portDestroy = annotationDealt.portDestroy(method);
-        if (portDestroy != null)
-        {
+        if (portDestroy != null) {
             portDestroys.add(portDestroy);
         }
         return portStart != null || portDestroy != null;
     }
 
-    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil)
-    {
+    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil) {
         InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(clazz);
-        if (portIn == null)
-        {
+        if (portIn == null) {
             return null;
         }
         Porter porter = new Porter(autoSetUtil);
         porter.clazz = clazz;
         porter.object = object;
+        porter.portIn = portIn;
         //自动设置
         porter.doAutoSet();
-        porter.portIn = portIn;
+        if (porter.getPortIn().newObjectWhenInit()) {
+            porter.getObject();
+        }
         //实例化经检查对象并添加到map。
         SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemp, portIn.getChecks());
 
@@ -62,11 +58,9 @@ public class SthDeal
         //对Parser和Parser.parse的处理
         SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek);
 
-        try
-        {
+        try {
             porter.inObj = InObjDeal.dealPortInObj(clazz, innerContextBridge);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
 
@@ -76,33 +70,29 @@ public class SthDeal
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
         Method[] methods = clazz.getMethods();
-        for (Method method : methods)
-        {
+        for (Method method : methods) {
 
-            if (mayAddStartOrDestroy(method, portStarts, portDestroys, annotationDealt))
-            {
+            if (mayAddStartOrDestroy(method, portStarts, portDestroys, annotationDealt)) {
                 method.setAccessible(true);
                 continue;
             }
             backableSeek.push();
             PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek);
             backableSeek.pop();
-            if (porterOfFun != null)
-            {
+            if (porterOfFun != null) {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getPortIn().getTiedType());
                 porterOfFun.getPortIn().setTiedType(tiedType);
-                switch (tiedType)
-                {
+                switch (tiedType) {
 
                     case REST:
                         children.put(porterOfFun.getPortIn().getMethod().name(), porterOfFun);
                         LOGGER.debug("add-rest:{} (function={})", porterOfFun.getPortIn().getMethod(),
-                                method.getName());
+                                     method.getName());
                         break;
                     case Default:
                         children.put(porterOfFun.getPortIn().getTiedName(), porterOfFun);
                         LOGGER.debug("add:{},{} (function={})", porterOfFun.getPortIn().getTiedName(),
-                                porterOfFun.getPortIn().getMethod(), method.getName());
+                                     porterOfFun.getPortIn().getMethod(), method.getName());
                         break;
                 }
 
@@ -119,21 +109,17 @@ public class SthDeal
     }
 
     private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,
-            BackableSeek backableSeek)
-    {
+                                    BackableSeek backableSeek) {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
-        if (portIn == null)
-        {
+        if (portIn == null) {
             return null;
         }
-        try
-        {
+        try {
 
             method.setAccessible(true);
             Class<?>[] parameters = method.getParameterTypes();
-            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
-            {
+            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0])) {
                 throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
             }
             PorterOfFun porterOfFun = new PorterOfFun();
@@ -146,13 +132,12 @@ public class SthDeal
 
             TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
             boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),
-                    typeParserStore, backableSeek);
+                                                           typeParserStore, backableSeek);
 
-            if (!hasBinded)
-            {
+            if (!hasBinded) {
                 //当函数上没有转换注解、而类上有时，加上此句是确保类上的转换对函数有想
                 SthUtil.bindTypeParser(portIn.getInNames(), null, typeParserStore, backableSeek,
-                        BackableSeek.SeekType.NotAdd_Bind);
+                                       BackableSeek.SeekType.NotAdd_Bind);
             }
 
             porterOfFun.inObj = InObjDeal.dealPortInObj(method, innerContextBridge);
@@ -160,8 +145,7 @@ public class SthDeal
             porterOfFun.portOut = annotationDealt.portOut(method);
 
             return porterOfFun;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return null;
         }
