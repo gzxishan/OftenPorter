@@ -70,7 +70,7 @@ public class PackageUtil
                 c = Class.forName(className, false, classLoader);
             } catch (ClassNotFoundException e)
             {
-                //LOGGER.error(e.getMessage(), e);
+                //LOGGER.warn(e.getMessage(), e);
             }
         }
         if (c == null)
@@ -81,7 +81,7 @@ public class PackageUtil
                 c = Class.forName(className, false, classLoader);
             } catch (ClassNotFoundException e)
             {
-                //LOGGER.error(e.getMessage(), e);
+                //LOGGER.warn(e.getMessage(), e);
             }
         }
         if (c == null)
@@ -289,7 +289,7 @@ public class PackageUtil
 
         } catch (Exception e)
         {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         } finally
         {
             if (jarFile != null)

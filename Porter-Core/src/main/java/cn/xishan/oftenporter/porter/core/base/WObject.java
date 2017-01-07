@@ -45,6 +45,11 @@ public abstract class WObject
      */
     public String restValue;
 
+    /**
+     * 用于其他用处。
+     */
+    public Object _otherObject;
+
     public abstract WRequest getRequest();
 
     public abstract WResponse getResponse();
@@ -98,6 +103,7 @@ public abstract class WObject
 
     /**
      * 得到所属的接口框架名称。
+     *
      * @return
      */
     public abstract PName getPName();

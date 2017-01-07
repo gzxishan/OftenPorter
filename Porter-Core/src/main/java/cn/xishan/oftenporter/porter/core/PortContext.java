@@ -60,7 +60,7 @@ public class PortContext
         return classLoader;
     }
 
-    public void initSeek(PorterConf porterConf, AutoSetUtil autoSetUtil)
+    public Map<Class<?>, CheckPassable> initSeek(PorterConf porterConf, AutoSetUtil autoSetUtil)
     {
         SthDeal sthDeal = new SthDeal();
         seek(porterConf.getSeekPackages().getPackages(), autoSetUtil, sthDeal);
@@ -74,7 +74,7 @@ public class PortContext
                 mayAddPorter(clazz, autoSetUtil, sthDeal);
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
 
@@ -90,12 +90,13 @@ public class PortContext
                 }
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
 
-        this.checkPassableForCF = autoSetUtil.getInnerContextBridge().checkPassableForCFTemp;
-        autoSetUtil.getInnerContextBridge().checkPassableForCFTemp = null;
+        this.checkPassableForCF = autoSetUtil.getInnerContextBridge().checkPassableForCFTemps;
+        autoSetUtil.getInnerContextBridge().checkPassableForCFTemps = null;
+        return checkPassableForCF;
     }
 
     private void seek(@NotNull JSONArray packages, AutoSetUtil autoSetUtil, SthDeal sthDeal)
@@ -130,7 +131,7 @@ public class PortContext
                 mayAddPorter(clazz, autoSetUtil, sthDeal);
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -186,7 +187,7 @@ public class PortContext
                     starts[i].getMethod().invoke(porter.getObject());
                 } catch (Exception e)
                 {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         }
@@ -206,7 +207,7 @@ public class PortContext
                     ds[i].getMethod().invoke(porter.getObject());
                 } catch (Exception e)
                 {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         }

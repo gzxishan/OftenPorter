@@ -112,7 +112,7 @@ public class WPTool
                 ps.close();
             } catch (SQLException e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -169,7 +169,7 @@ public class WPTool
                 closeable.close();
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -183,7 +183,7 @@ public class WPTool
                 connection.close();
             } catch (SQLException e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -197,7 +197,7 @@ public class WPTool
                 statement.close();
             } catch (SQLException e)
             {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }

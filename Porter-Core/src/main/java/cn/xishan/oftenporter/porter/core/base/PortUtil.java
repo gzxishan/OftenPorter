@@ -194,7 +194,7 @@ public class PortUtil
             }
         } catch (Exception e)
         {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             obj = DefaultFailedReason.parsePortInObjException(WPTool.getMessage(e));
         }
         return obj;
@@ -236,7 +236,7 @@ public class PortUtil
             }
         } catch (Exception e)
         {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             reason = DefaultFailedReason.parsePortInObjException(WPTool.getMessage(e));
         }
         return reason;

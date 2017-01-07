@@ -179,7 +179,7 @@ class SthUtil
                     checkPassableMap.put(checks[i], WPTool.newObject(checks[i]));
                 } catch (Exception e)
                 {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         }

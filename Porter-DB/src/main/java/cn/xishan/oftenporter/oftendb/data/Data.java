@@ -132,7 +132,7 @@ public abstract class Data extends DataAble
             jsonObject = json;
         } catch (Exception e)
         {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         }
         return jsonObject;
     }

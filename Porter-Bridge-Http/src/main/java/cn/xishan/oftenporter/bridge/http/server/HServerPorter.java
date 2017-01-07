@@ -66,7 +66,7 @@ abstract class HServerPorter
                     wObject.getResponse().write(lResponse.getResponse());
                 } catch (IOException e)
                 {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 } finally
                 {
                     try
@@ -74,7 +74,7 @@ abstract class HServerPorter
                         wObject.getResponse().close();
                     } catch (IOException e)
                     {
-                        LOGGER.error(e.getMessage(), e);
+                        LOGGER.warn(e.getMessage(), e);
                     }
                 }
             }

@@ -50,7 +50,7 @@ public class SthDeal {
             porter.getObject();
         }
         //实例化经检查对象并添加到map。
-        SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemp, portIn.getChecks());
+        SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
@@ -61,7 +61,7 @@ public class SthDeal {
         try {
             porter.inObj = InObjDeal.dealPortInObj(clazz, innerContextBridge);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         }
 
         Map<String, PorterOfFun> children = new HashMap<>();
@@ -128,7 +128,7 @@ public class SthDeal {
             porterOfFun.argCount = parameters.length;
 
 
-            SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemp, portIn.getChecks());
+            SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
             TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
             boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),
@@ -146,7 +146,7 @@ public class SthDeal {
 
             return porterOfFun;
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             return null;
         }
 
