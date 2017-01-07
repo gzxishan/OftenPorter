@@ -34,11 +34,11 @@ public final class Porter
     Map<String, PorterOfFun> children;
 
     InObj inObj;
-    private InnerContextBridge innerContextBridge;
+    private AutoSetUtil autoSetUtil;
 
-    public Porter(InnerContextBridge innerContextBridge)
+    public Porter(AutoSetUtil autoSetUtil)
     {
-        this.innerContextBridge = innerContextBridge;
+        this.autoSetUtil = autoSetUtil;
     }
 
     public Map<String, PorterOfFun> getChildren()
@@ -66,115 +66,15 @@ public final class Porter
         return portIn;
     }
 
+
     void doAutoSet()
     {
-        if (object == null)
+        if (object != null)
         {
-            return;
-        }
-        Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-        Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
-        Field[] fields = WPTool.getAllFields(object.getClass());
-        RuntimeException thr = null;
-        for (int i = 0; i < fields.length; i++)
-        {
-
-            Field f = fields[i];
-            AutoSet autoSet = f.getAnnotation(AutoSet.class);
-            try
-            {
-                if (autoSet == null)
-                {
-                    continue;
-                }
-                f.setAccessible(true);
-                if (isDefaultAutoSetObject(f, object))
-                {
-                    continue;
-                }
-
-                String keyName;
-                Class<?> mayNew = null;
-                Class<?> classClass = autoSet.classValue();
-                if (classClass.equals(AutoSet.class))
-                {
-                    keyName = autoSet.value();
-                } else
-                {
-                    keyName = classClass.getName();
-                    mayNew = classClass;
-                }
-                if ("".equals(keyName))
-                {
-                    keyName = f.getType().getName();
-                }
-                if (mayNew == null)
-                {
-                    mayNew = f.getType();
-                }
-                Object value = null;
-                switch (autoSet.range())
-                {
-                    case Global:
-                    {
-                        value = globalAutoSet.get(keyName);
-                        if (value == null)
-                        {
-                            value = WPTool.newObject(mayNew);
-                            globalAutoSet.put(keyName, value);
-                        }
-                    }
-                    break;
-                    case Context:
-                    {
-                        value = contextAutoSet.get(keyName);
-                        if (value == null)
-                        {
-                            value = WPTool.newObject(mayNew);
-                            contextAutoSet.put(keyName, value);
-                        }
-                    }
-                    break;
-                    case New:
-                    {
-                        value = WPTool.newObject(mayNew);
-                    }
-                    break;
-                }
-                if (value == null)
-                {
-                    thr = new RuntimeException(String.format("AutoSet:could not set [%s]", f));
-                    break;
-                }
-                f.set(object, value);
-                LOGGER.debug("AutoSet [{}] with [{}]", f, value);
-            } catch (Exception e)
-            {
-                LOGGER.error("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
-            }
-
-        }
-        if (thr != null)
-        {
-            throw thr;
+            autoSetUtil.doAutoSet(object);
         }
     }
 
-    /**
-     * 是否是默认工具类。
-     */
-    private boolean isDefaultAutoSetObject(Field f, Object object) throws IllegalAccessException
-    {
-        if (!f.getType().getName().equals(TypeTo.class.getName()))
-        {
-            return false;
-        }
-
-        TypeTo typeTo = new TypeTo(innerContextBridge);
-        f.set(object, typeTo);
-        LOGGER.debug("AutoSet [{}] with default object [{}]", f, typeTo);
-        return true;
-    }
 
     public Class<?> getClazz()
     {

@@ -11,9 +11,9 @@ import java.io.IOException;
  *
  * @author ZhuiFeng
  */
-public abstract class TransactionHandle<T> implements Closeable
+public interface TransactionHandle<T> extends Closeable
 {
-    public abstract T common();
+    T common();
 
 
     /**
@@ -21,24 +21,24 @@ public abstract class TransactionHandle<T> implements Closeable
      *
      * @throws DBException
      */
-    public abstract void startTransaction() throws DBException;
+    void startTransaction() throws DBException;
 
     /**
      * 提交事务
      *
      * @throws DBException
      */
-    public abstract void commitTransaction() throws DBException;
+    void commitTransaction() throws DBException;
 
     /**
      * 回滚
      *
      * @throws DBException
      */
-    public abstract void rollback() throws DBException;
+    void rollback() throws DBException;
 
     /**
      * 关闭
      */
-    public abstract void close() throws IOException;
+    void close() throws IOException;
 }

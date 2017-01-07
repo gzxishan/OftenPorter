@@ -79,6 +79,11 @@ public class SqliteHandle implements DBHandle
         this.tableName = tableName;
     }
 
+    public String getTableName()
+    {
+        return tableName;
+    }
+
     private void bind(int index, Object value, SQLiteStatement sQLiteStatement)
     {
         if (value == null)

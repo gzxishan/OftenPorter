@@ -7,8 +7,9 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import java.lang.annotation.*;
 
 /**
- * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类（当前类必须含有{@linkplain PortIn}注解的）
+ * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量。
  * Created by https://github.com/CLovinr on 2016/9/8.
+ * //TODO 循环设置的考虑
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
@@ -36,7 +37,7 @@ public @interface AutoSet
     }
 
     /**
-     * 为""表示查找name为当前注解类的Class.getName,若不存在则会尝试反射创建.
+     * 为""表示查找name为当前注解类的Class.getName,若不存在则会尝试(必须含有无参构造函数)反射创建.
      *
      * @return
      */
