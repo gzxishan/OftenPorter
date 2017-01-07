@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.porter.core.base;
 
-import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -30,5 +29,17 @@ public interface WRequest
     String getPath();
 
     PortMethod getMethod();
+
+    /**
+     * 获得最原始的响应对象，例如在servlet中可能需要HttpServletResponse.
+     * @return
+     */
+    public Object getOriginalResponse();
+
+    /**
+     * 获得最原始的请求对象，例如在servlet中可能需要HttpServletRequest.
+     * @return
+     */
+    public Object getOriginalRequest();
 
 }

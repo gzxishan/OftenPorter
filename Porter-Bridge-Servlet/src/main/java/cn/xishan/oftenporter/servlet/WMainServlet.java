@@ -96,21 +96,23 @@ public class WMainServlet extends HttpServlet implements CommonMain {
     private void doRequest(HttpServletRequest request, HttpServletResponse response,
                            PortMethod method) throws IOException {
 
-        WServletRequest wreq = new WServletRequest(request, urlPatternPrefix, method);
-        final WResponse wresp = new WServletResponse(response);
+        WServletRequest wreq = new WServletRequest(request, response, urlPatternPrefix, method);
+        final WServletResponse wresp = new WServletResponse(response);
 
         if (wreq.getPath().startsWith("/=")) {
             wreq.setRequestPath(":" + wreq.getPath().substring(2));
             getPLinker().toAllBridge().request(wreq, lResponse -> {
-                Object obj = lResponse.getResponse();
-                if (obj != null) {
-                    try {
-                        wresp.write(obj);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                if (lResponse != null) {
+                    Object obj = lResponse.getResponse();
+                    if (obj != null) {
+                        try {
+                            wresp.write(obj);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
+                    WPTool.close(wresp);
                 }
-                WPTool.close(wresp);
             });
         } else {
             PreRequest req = porterMain.forRequest(wreq, wresp);

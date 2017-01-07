@@ -14,4 +14,5 @@ public interface WResponse extends Closeable
     void write(@NotNull Object object)throws IOException;
 
     void close() throws IOException;
+
 }
