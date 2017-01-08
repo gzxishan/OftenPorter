@@ -34,7 +34,6 @@ import cn.xishan.oftenporter.servlet.WMainServlet;
  */
 @WebServlet(name = "PorterServlet", urlPatterns = "/S/*", loadOnStartup = 5,
             initParams = {@WebInitParam(name = "pname", value = "Servlet1"),
-                    // @WebInitParam(name = "urlEncoding", value = "utf-8"),
                     @WebInitParam(name = "urlPatternPrefix", value = "/S")})
 public class MyWMainServlet extends WMainServlet {
     private static final long serialVersionUID = 1L;

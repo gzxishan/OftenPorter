@@ -8,8 +8,6 @@ import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by chenyg on 2017/1/5.
