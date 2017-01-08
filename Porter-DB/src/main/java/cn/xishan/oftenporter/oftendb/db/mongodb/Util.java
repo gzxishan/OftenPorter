@@ -47,4 +47,19 @@ class Util
         return basicDBList;
     }
 
+
+    public static String regexFilter(String content)
+    {
+        String labels = "*.?+$^[](){}|\\";
+        StringBuilder builder = new StringBuilder(content.length());
+        for (char c : content.toCharArray())
+        {
+            if (labels.indexOf(c) >= 0)
+            {
+                builder.append('\\');
+            }
+            builder.append(c);
+        }
+        return builder.toString();
+    }
 }

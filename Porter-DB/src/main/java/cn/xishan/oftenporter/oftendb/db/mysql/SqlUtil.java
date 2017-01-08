@@ -319,4 +319,11 @@ public class SqlUtil
         return whereSQL;
     }
 
+    public static String fileterLike(String content)
+    {
+        content = content.replaceAll("\\[", "[[]");
+        content = content.replaceAll("%", "[%]").replaceAll("\\^", "[^]").replaceAll("_", "[_]");
+        return content;
+    }
+
 }

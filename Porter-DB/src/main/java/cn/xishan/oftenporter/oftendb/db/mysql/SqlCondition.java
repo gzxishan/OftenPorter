@@ -306,7 +306,17 @@ public class SqlCondition extends Condition
         } else if (operator == SUBSTR)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + unit.getParam2() + "%");
+            args.add("%" + SqlUtil.fileterLike(unit.getParam2() + "") + "%");
+            return;
+        } else if (operator == STARTSWITH)
+        {
+            stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
+            args.add(SqlUtil.fileterLike(unit.getParam2() + "") + "%");
+            return;
+        } else if (operator == ENDSSWITH)
+        {
+            stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
+            args.add("%" + SqlUtil.fileterLike(unit.getParam2() + ""));
             return;
         } else
         {
