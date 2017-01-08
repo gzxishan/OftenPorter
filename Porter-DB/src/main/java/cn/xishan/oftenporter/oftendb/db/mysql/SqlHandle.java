@@ -7,6 +7,8 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class SqlHandle implements DBHandle
 
     private boolean isTransaction;
     private Boolean field2LowerCase = null;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SqlHandle.class);
 
     /**
      * 创建一个DbRwMysql
@@ -87,6 +90,26 @@ public class SqlHandle implements DBHandle
         return DataBase.addPS(conn, isTransaction, tableName, multiNameValues);
     }
 
+    private static void logArgs(Object[] args,StringBuilder builder){
+        for (int i = 0; i < args.length; i++)
+        {
+            Object value = args[i];
+            logArg(value,builder);
+        }
+    }
+
+    private static void logArg(Object value,StringBuilder builder){
+        builder.append(value).append("(").append(value==null?null:value.getClass().getSimpleName()).append("),");
+    }
+
+    private static void logArgs(NameValues nameValues,StringBuilder builder){
+        for (int i = 0; i < nameValues.size(); i++)
+        {
+            Object value = nameValues.value(i);
+           logArg(value,builder);
+        }
+    }
+
     /**
      * @param query 不会被使用
      */
@@ -101,6 +124,13 @@ public class SqlHandle implements DBHandle
         PreparedStatement ps = null;
         try
         {
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("{}",whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSQL.args;
+                logArgs(args,builder);
+                LOGGER.debug("{}",builder);
+            }
             ps = conn.prepareStatement(whereSQL.sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
@@ -160,7 +190,13 @@ public class SqlHandle implements DBHandle
 
         try
         {
-
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("{}",whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSQL.args;
+                logArgs(args,builder);
+                LOGGER.debug("{}",builder);
+            }
             ps = conn.prepareStatement(whereSQL.sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
@@ -230,7 +266,13 @@ public class SqlHandle implements DBHandle
 
         try
         {
-
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("{}",whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSQL.args;
+                logArgs(args,builder);
+                LOGGER.debug("{}",builder);
+            }
             ps = conn.prepareStatement(whereSQL.sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
@@ -278,6 +320,13 @@ public class SqlHandle implements DBHandle
         try
         {
             SqlUtil.WhereSQL whereSQL = SqlUtil.toUpdate(tableName, checkCondition(query), name, true);
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("{}",whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSQL.args;
+                logArgs(args,builder);
+                LOGGER.debug("{}",builder);
+            }
             ps = conn.prepareStatement(whereSQL.sql);
             ps.setBinaryStream(1, new ByteArrayInputStream(data, offset, length), length);
             Object[] args = whereSQL.args;
@@ -304,6 +353,13 @@ public class SqlHandle implements DBHandle
         PreparedStatement ps = null;
         try
         {
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("{}",ws.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = ws.args;
+                logArgs(args,builder);
+                LOGGER.debug("{}",builder);
+            }
             ps = conn.prepareStatement(ws.sql);
             for (int i = 0; i < ws.args.length; i++)
             {
@@ -340,6 +396,14 @@ public class SqlHandle implements DBHandle
                 SqlUtil.WhereSQL whereSQL = SqlUtil
                         .toSetValues(tableName, updateFields.names(), checkCondition(query), true);
                 ps = conn.prepareStatement(whereSQL.sql);
+
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("{}",whereSQL.sql);
+                    StringBuilder builder = new StringBuilder();
+                    logArgs(updateFields,builder);
+                    LOGGER.debug("{}",builder);
+                }
+
                 for (int i = 0; i < updateFields.size(); i++)
                 {
                     setObject(ps, i + 1, updateFields.value(i));
@@ -371,6 +435,12 @@ public class SqlHandle implements DBHandle
             try
             {
                 String sql = SqlUtil.toInsertOrReplace(isInsert, tableName, addFields.names(), true);
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("{}",sql);
+                    StringBuilder builder = new StringBuilder();
+                    logArgs(addFields,builder);
+                    LOGGER.debug("{}",builder);
+                }
                 ps = conn.prepareStatement(sql);
                 for (int i = 0; i < addFields.size(); i++)
                 {
@@ -403,6 +473,20 @@ public class SqlHandle implements DBHandle
             {
 
                 String sql = SqlUtil.toInsertOrReplace(true, tableName, names, true);
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("{}",sql);
+                    StringBuilder builder = new StringBuilder("[");
+
+                    int n = multiNameValues.count();
+                    for (int j = 0; j < n; j++)
+                    {
+                        Object[] values = multiNameValues.values(j);
+                        logArgs(values,builder);
+                        builder.append("\n");
+                    }
+                    builder.append("]");
+                    LOGGER.debug("{}",builder);
+                }
                 ps = conn.prepareStatement(sql);
                 if (!isTransaction)
                 {
@@ -481,6 +565,15 @@ public class SqlHandle implements DBHandle
             {
                 SqlUtil.WhereSQL whereSql = SqlUtil
                         .toCountSelect(tableName, "rscount", checkCondition(condition), true);
+
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("{}",whereSql.sql);
+                    StringBuilder builder = new StringBuilder();
+                    Object[] args = whereSql.args;
+                    logArgs(args,builder);
+                    LOGGER.debug("{}",builder);
+                }
+
                 ps = conn.prepareStatement(whereSql.sql);
 
                 Object[] args = whereSql.args;
