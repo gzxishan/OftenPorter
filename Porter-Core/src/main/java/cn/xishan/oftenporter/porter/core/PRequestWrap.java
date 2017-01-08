@@ -17,6 +17,7 @@ class PRequestWrap extends PRequest
     public PRequestWrap(WRequest wRequest, String path)
     {
         super(wRequest.getMethod(), path,false);
+        initOrigin(wRequest);
         this.wRequest = wRequest;
     }
 

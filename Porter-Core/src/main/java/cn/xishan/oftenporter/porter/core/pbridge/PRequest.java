@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.porter.core.pbridge;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WRequest;
-import cn.xishan.oftenporter.porter.core.base.WResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,10 +10,11 @@ import java.util.Map;
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
-public class PRequest implements WRequest, Cloneable {
+public  class PRequest implements WRequest, Cloneable {
     protected String requestPath;
     protected PortMethod method;
     protected HashMap<String, Object> params;
+    protected Object originRequest,originResponse;
 
     public PRequest(PortMethod method, String requestPath) {
         this(method, requestPath, true);
@@ -31,6 +31,12 @@ public class PRequest implements WRequest, Cloneable {
     public PRequest(WRequest request, String requestPath) {
         this(request.getMethod(), requestPath, true);
         params.putAll(request.getParameterMap());
+        initOrigin(request);
+    }
+
+    protected void initOrigin(WRequest request){
+        this.originRequest=request.getOriginalRequest();
+        this.originResponse=request.getOriginalResponse();
     }
 
     public PRequest(String requestPath) {
@@ -71,12 +77,12 @@ public class PRequest implements WRequest, Cloneable {
 
     @Override
     public Object getOriginalResponse() {
-        return null;
+        return originResponse;
     }
 
     @Override
     public Object getOriginalRequest() {
-        return null;
+        return originRequest;
     }
 
     public PRequest addParamAll(AppValues appValues) {

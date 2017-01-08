@@ -2,16 +2,13 @@ package cn.xishan.oftenporter.servlet;
 
 
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WResponse;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,23 +16,26 @@ import java.util.regex.Pattern;
 public final class WServletRequest extends PRequest
 {
     private HttpServletRequest request;
-   private HttpServletResponse response;
+    private HttpServletResponse response;
 
-    WServletRequest(HttpServletRequest request,HttpServletResponse response, String urlPatternPrefix, PortMethod method)
+    WServletRequest(HttpServletRequest request, HttpServletResponse response, PortMethod method)
     {
-        super(method, request.getRequestURI().substring(request.getContextPath().length() + urlPatternPrefix.length()),
+        super(method, request.getRequestURI()
+                        .substring(request.getContextPath().length() + request.getServletPath().length()),
                 false);
         this.request = request;
-        this.response=response;
+        this.response = response;
     }
 
     @Override
-    public Object getOriginalRequest() {
+    public Object getOriginalRequest()
+    {
         return request;
     }
 
     @Override
-    public HttpServletResponse getOriginalResponse() {
+    public HttpServletResponse getOriginalResponse()
+    {
         return response;
     }
 

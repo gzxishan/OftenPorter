@@ -23,7 +23,7 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  */
 public class PortUtil
 {
-    private static final String TIED_ACCEPTED = "^[a-zA-Z0-9%_.*$&=-]+$";
+    private static final String TIED_ACCEPTED = "^[a-zA-Z0-9%_.$&=-]+$";
     private static final Pattern TIED_NAME_PATTERN = Pattern.compile(TIED_ACCEPTED);
     private static final Logger LOGGER = LoggerFactory.getLogger(PortUtil.class);
 

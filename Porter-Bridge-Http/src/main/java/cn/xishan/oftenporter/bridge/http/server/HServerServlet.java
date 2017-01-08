@@ -23,9 +23,9 @@ public abstract class HServerServlet extends WMainServlet
         super();
     }
 
-    public HServerServlet(String urlPatternPrefix,String pname, String contextName, String urlEncoding, boolean responseWhenException)
+    public HServerServlet(String pname, String contextName, boolean responseWhenException)
     {
-        super(urlPatternPrefix,pname, urlEncoding, responseWhenException);
+        super(pname, responseWhenException);
         this.contextName = contextName;
     }
 

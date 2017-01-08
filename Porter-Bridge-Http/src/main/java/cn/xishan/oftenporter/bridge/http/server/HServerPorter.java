@@ -56,10 +56,9 @@ abstract class HServerPorter
 
     private void delivery(final WObject wObject)
     {
-        delivery.toAllBridge().request(new PRequest(wObject.getRequest(), wObject.restValue), new PCallback()
+        delivery.toAllBridge().request(new PRequest(wObject.getRequest(), wObject.restValue), lResponse ->
         {
-            @Override
-            public void onResponse(PResponse lResponse)
+            if (lResponse != null)
             {
                 try
                 {
