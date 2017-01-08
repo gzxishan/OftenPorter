@@ -169,8 +169,21 @@ public class MongoCondition extends Condition
         } else if (operator == SUBSTR && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject.put(unit.getParam1(), new BasicDBObject("$regex", c.isPrimitive() ? object2
-                    : object2 + ""));
+            baseObject.put(unit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+                    : object2) + "")));
+            return;
+        } else if (operator == STARTSWITH && object2 != null)
+        {
+            Class<?> c = object2.getClass();
+            baseObject
+                    .put(unit.getParam1(), new BasicDBObject("$regex", "^" + Util.regexFilter((c.isPrimitive() ? object2
+                            : object2) + "")));
+            return;
+        } else if (operator == ENDSSWITH && object2 != null)
+        {
+            Class<?> c = object2.getClass();
+            baseObject.put(unit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+                    : object2) + "") + "$"));
             return;
         } else if (operator == EQ)
         {

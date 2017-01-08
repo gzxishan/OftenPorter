@@ -52,6 +52,16 @@ public abstract class Condition implements ToFinal
     public static final Operator SUBSTR = new MyOperator("SUBSTR");
 
     /**
+     * 以内容开头
+     */
+    public static final Operator STARTSWITH = new MyOperator("STARTSWITH");
+
+    /**
+     * 以内容结尾
+     */
+    public static final Operator ENDSSWITH = new MyOperator("ENDSSWITH");
+
+    /**
      * 或者,对应于{@linkplain #put(Operator, Condition)},使得put变成逻辑或连接。
      */
     public static final Operator OR = new MyOperator("OR");
