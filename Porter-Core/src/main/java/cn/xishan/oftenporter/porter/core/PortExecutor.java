@@ -584,8 +584,8 @@ public class PortExecutor
             {
                 LOGGER.warn(e.getMessage(), e);
             }
+            close(wObject);
         }
-        close(wObject);
     }
 
 
