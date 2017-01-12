@@ -23,6 +23,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -53,6 +54,7 @@ public class TestLocalMain
         porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
         final Logger logger = LoggerFactory.getLogger(getClass());
+
         porterConf.addStateListener(new StateListener()
         {
             @Override
@@ -97,11 +99,14 @@ public class TestLocalMain
         int n = 100000;
         final int threads = Runtime.getRuntime().availableProcessors();
 
-        final ExecutorService executorService = Executors.newFixedThreadPool(threads, r -> {
+        ExecutorService executorService = Executors.newFixedThreadPool(threads, r ->
+        {
             Thread thread = new Thread(r);
             thread.setDaemon(false);
             return thread;
         });
+
+
 
         //多线程下测试
         // final long time = System.nanoTime();

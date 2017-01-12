@@ -110,20 +110,23 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
+            <!--
+            注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。
+            -->
 
-            <!--<plugin>-->
-                <!--<groupId>net.orfjackal.retrolambda</groupId>-->
-                <!--<artifactId>retrolambda-maven-plugin</artifactId>-->
-                <!--<version>2.3.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>process-main</goal>-->
-                            <!--<goal>process-test</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>net.orfjackal.retrolambda</groupId>
+                <artifactId>retrolambda-maven-plugin</artifactId>
+                <version>2.3.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process-main</goal>
+                            <goal>process-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 
             <!--
