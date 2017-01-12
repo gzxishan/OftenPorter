@@ -21,8 +21,10 @@
         <dependency>
             <groupId>com.google.android</groupId>
             <artifactId>android</artifactId>
-            <version>4.1.1.4</version>
+            <version>4.0.1.2</version>
+            <scope>provided</scope>
         </dependency>
+
 
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -34,7 +36,7 @@
         <dependency>
             <groupId>cn.xishan.oftenporter</groupId>
             <artifactId>Porter-Core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

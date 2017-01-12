@@ -12,7 +12,7 @@
 -ignorewarnings
 
 -dontwarn java*
--dontwarn cn.oftenporter.oftendb*
+-dontwarn cn.xishan.oftenporter.oftendb*
 
 #本地方法相关信息保留
 -keepclasseswithmembernames,includedescriptorclasses class * {
@@ -35,28 +35,28 @@
 -keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
 
 ######Porter-Core########
-#-keep  class cn.oftenporter.porter**
--keep public interface cn.oftenporter**{public protected *;}#保留所有接口
--keep public class cn.oftenporter**$*{public protected *;}#保留内部类
--keep public class cn.oftenporter**PorterProcessor{public protected *;}
--keep public class cn.oftenporter.porter.core.util**{public protected *;}
--keep public class cn.oftenporter**Util{public protected *;}
--keep public class cn.oftenporter**Adapter{public protected *;}
--keep public class cn.oftenporter**Exception{public protected *;}
--keep public class cn.oftenporter.porter**WObject{public protected *;}
--keep public class cn.oftenporter.porter**InNames{public protected *;}
--keep public class cn.oftenporter.porter**PRequest{public protected *;}
--keep public class cn.oftenporter.porter**PResponse{public protected *;}
--keep public class cn.oftenporter.porter**PName{public protected *;}
--keep public class cn.oftenporter.porter**PPath{public protected *;}
--keep public class cn.oftenporter.porter**JResponse{public protected *;}
--keep public class cn.oftenporter.porter**ParamSourceHandleManager{public protected *;}
--keep public class cn.oftenporter.porter**PreRequest{public protected *;}
--keep public class cn.oftenporter.porter**TypeTo{public protected *;}
--keep public class cn.oftenporter.porter**LocalMain{public protected *;}
--keep public class cn.oftenporter.porter.simple**{public protected *;}
--keep public class cn.oftenporter.porter.core.init**Porter*{public protected *;}
--keep public class cn.oftenporter.porter.core.init**SeekPackages{public protected *;}
+#-keep  class cn.xishan.oftenporter.porter**
+-keep public interface cn.xishan.oftenporter**{public protected *;}#保留所有接口
+-keep public class cn.xishan.oftenporter**$*{public protected *;}#保留内部类
+-keep public class cn.xishan.oftenporter**PorterProcessor{public protected *;}
+-keep public class cn.xishan.oftenporter.porter.core.util**{public protected *;}
+-keep public class cn.xishan.oftenporter**Util{public protected *;}
+-keep public class cn.xishan.oftenporter**Adapter{public protected *;}
+-keep public class cn.xishan.oftenporter**Exception{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**WObject{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**InNames{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**PRequest{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**PResponse{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**PName{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**PPath{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**JResponse{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**ParamSourceHandleManager{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**PreRequest{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**TypeTo{public protected *;}
+-keep public class cn.xishan.oftenporter.porter**LocalMain{public protected *;}
+-keep public class cn.xishan.oftenporter.porter.simple**{public protected *;}
+-keep public class cn.xishan.oftenporter.porter.core.init**Porter*{public protected *;}
+-keep public class cn.xishan.oftenporter.porter.core.init**SeekPackages{public protected *;}
 
 #json
 #-keep class com.alibaba.fastjson**{public *;}

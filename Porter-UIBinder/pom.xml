@@ -20,7 +20,7 @@
         <dependency>
             <groupId>cn.xishan.oftenporter</groupId>
             <artifactId>Porter-Core</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 
