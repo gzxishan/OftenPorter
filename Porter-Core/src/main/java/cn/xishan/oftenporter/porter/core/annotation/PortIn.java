@@ -18,6 +18,13 @@ import java.lang.annotation.*;
 @Documented
 public @interface PortIn
 {
+
+    /**
+     * 同{@linkplain #tied()},当不为""时，则覆盖{@linkplain #tied()}.
+     * @return
+     */
+    String value() default "";
+
     /**
      * 绑定的名字.
      * <pre>
@@ -28,7 +35,7 @@ public @interface PortIn
      *     2.如果注解的是函数，则绑定名是函数名。
      * </pre>
      */
-    String value() default "";
+    String tied() default "";
 
     /**
      * 必须参数列表.

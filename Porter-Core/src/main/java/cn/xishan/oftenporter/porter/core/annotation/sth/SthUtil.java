@@ -102,7 +102,7 @@ class SthUtil
         if (parse != null)
         {
             Class<? extends ITypeParser> parser = parse.getParserClass();
-            String varName = parse.getVarName();
+            String[] paramNames = parse.getParamNames();
             String parserName = parse.getParserName();
 
             if (!parser.equals(ITypeParser.class))
@@ -118,14 +118,21 @@ class SthUtil
                 }
                 if (typeId != null)
                 {
+
                     if (inNames != null)
                     {
-                        BackableSeek.bindVarNameWithTypeId(inNames, varName, typeId);
+                        for (String varName : paramNames)
+                        {
+                            BackableSeek.bindVarNameWithTypeId(inNames, varName, typeId);
+                        }
                     }
                     if (seekType == BackableSeek.SeekType.Add_Bind || seekType == BackableSeek.SeekType
                             .Add_NotBind)
                     {
-                        backableSeek.put(varName, typeId);
+                        for (String varName : paramNames)
+                        {
+                            backableSeek.put(varName, typeId);
+                        }
                     }
                 }
 
@@ -134,7 +141,10 @@ class SthUtil
                 ITypeParser iTypeParser = typeParserStore.byId(parserName);
                 if (iTypeParser != null)
                 {
-                    BackableSeek.bindVarNameWithTypeId(inNames, varName, iTypeParser.id());
+                    for (String varName : paramNames)
+                    {
+                        BackableSeek.bindVarNameWithTypeId(inNames, varName, iTypeParser.id());
+                    }
                 }
             }
 

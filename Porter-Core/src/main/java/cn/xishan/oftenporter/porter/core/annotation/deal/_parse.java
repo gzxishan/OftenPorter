@@ -7,13 +7,13 @@ import cn.xishan.oftenporter.porter.core.base.ITypeParser;
  */
 public final class _parse
 {
-    String varName;
+    String[] paramNames;
     String parserName;
     Class<? extends ITypeParser> parserClass;
 
-    public String getVarName()
+    public String[] getParamNames()
     {
-        return varName;
+        return paramNames;
     }
 
     public Class<? extends ITypeParser> getParserClass()
