@@ -139,7 +139,7 @@ public final class AnnotationDealt
             return null;
         }
         _parse _p = new _parse();
-        _p.varName = parse.varName();
+        _p.paramNames = parse.paramNames();
         _p.parserName = parse.parserName();
         _p.parserClass = parse.parser();
         return _p;

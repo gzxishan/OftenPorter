@@ -36,7 +36,7 @@ public class PortUtil
      */
     public static String tied(PortIn portIn, Method method, boolean enableDefaultValue)
     {
-        String name = portIn.value();
+        String name = tied(portIn);
         if (WPTool.isEmpty(name))
         {
             if (!enableDefaultValue)
@@ -46,6 +46,14 @@ public class PortUtil
             name = method.getName();
         }
         return checkTied(name);
+    }
+
+    private static String tied(PortIn portIn){
+        String name = portIn.value();
+        if(WPTool.isEmpty(name)){
+            name=portIn.tied();
+        }
+        return name;
     }
 
     public static String tied(PortInObj.UnNece unNece, Field field, boolean enableDefaultValue)
@@ -85,7 +93,7 @@ public class PortUtil
      */
     public static String tied(PortIn portIn, Class<?> clazz, boolean enableDefaultValue)
     {
-        String name = portIn.value();
+        String name = tied(portIn);
         if (WPTool.isEmpty(name))
         {
             if (!enableDefaultValue)

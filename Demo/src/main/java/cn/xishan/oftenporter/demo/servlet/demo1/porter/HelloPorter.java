@@ -19,8 +19,8 @@ import cn.xishan.oftenporter.servlet.WServletRequest;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-@Parser({ @Parser.parse(varName = "age", parser = IntParser.class) })
-@Parser.parse(varName = "sex", parser = StringParser.class)
+@Parser({ @Parser.parse(paramNames = "age", parser = IntParser.class) })
+@Parser.parse(paramNames = "sex", parser = StringParser.class)
 @PortIn(value = "", tiedType = TiedType.REST)
 public class HelloPorter
 {

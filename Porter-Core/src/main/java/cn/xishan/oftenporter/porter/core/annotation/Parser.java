@@ -32,7 +32,7 @@ public @interface Parser
         /**
          * 需要转换的参数的名称。
          */
-        String varName();
+        String[] paramNames();
 
         /**
          * 1)首先会使用Class.getName()获取，同{@linkplain #parserName()};2)转换的类(需要有无参构造函数)。优先于{@linkplain #parserName()}。

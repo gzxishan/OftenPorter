@@ -17,7 +17,7 @@ import java.util.Random;
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
 @Parser({
-        @Parser.parse(varName = "age", parser = IntParser.class)
+        @Parser.parse(paramNames = "age", parser = IntParser.class)
 })
 @PortIn(value = "Hello", tiedType = TiedType.REST)
 @PortInObj({User.class})
@@ -49,7 +49,7 @@ public class HelloPorter extends SuperSetPorter
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"}, method = PortMethod.POST)
-    @Parser.parse(varName = "sex", parser = IntParser.class)
+    @Parser.parse(paramNames = "sex", parser = IntParser.class)
     public Object sayHelloPost(WObject wObject)
     {
         int sex = (int) wObject.fn[0];
@@ -64,7 +64,7 @@ public class HelloPorter extends SuperSetPorter
     }
 
     @PortIn("parseObject")
-    @Parser.parse(varName = "myAge", parser = IntParser.class)
+    @Parser.parse(paramNames = "myAge", parser = IntParser.class)
     @PortInObj({Article.class})
     public Object parseObject(WObject wObject)
     {

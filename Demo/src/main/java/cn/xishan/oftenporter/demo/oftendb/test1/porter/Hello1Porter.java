@@ -79,7 +79,7 @@ public class Hello1Porter
     }
 
     @PortIn(nece = "names")
-    @Parser.parse(varName = "names", parser = JSONArrayParser.class)
+    @Parser.parse(paramNames = "names", parser = JSONArrayParser.class)
     public Object transactionOk(WObject wObject)
     {
         JSONArray names = wObject.fnOf(0);
@@ -100,7 +100,7 @@ public class Hello1Porter
 
 
     @PortIn(nece = "names")
-    @Parser.parse(varName = "names", parser = JSONArrayParser.class)
+    @Parser.parse(paramNames = "names", parser = JSONArrayParser.class)
     public Object transactionFailed(WObject wObject)
     {
         JSONArray names = wObject.fnOf(0);
