@@ -15,7 +15,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  *         2016年9月16日 下午4:57:02
  *
  */
-@PortIn(tiedType = TiedType.REST, multiTiedType = true)
+@PortIn(tiedType = TiedType.REST)
 public class Hello4RESTPorter
 {
 

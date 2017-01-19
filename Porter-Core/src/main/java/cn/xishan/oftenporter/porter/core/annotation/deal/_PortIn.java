@@ -13,19 +13,9 @@ public final class _PortIn
     PortMethod method;
     Class<? extends CheckPassable>[] checks;
     TiedType tiedType;
-    boolean isMultiTiedType;
     boolean ignoreTypeParser;
     boolean newObjectWhenInit;
 
-    public void setTiedType(TiedType tiedType)
-    {
-        this.tiedType = tiedType;
-    }
-
-    public boolean isMultiTiedType()
-    {
-        return isMultiTiedType;
-    }
 
     public TiedType getTiedType()
     {
@@ -59,5 +49,10 @@ public final class _PortIn
 
     public boolean newObjectWhenInit() {
         return newObjectWhenInit;
+    }
+
+    public void setTiedType(TiedType tiedType)
+    {
+        this.tiedType = tiedType;
     }
 }

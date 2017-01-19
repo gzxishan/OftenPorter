@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
@@ -50,9 +52,11 @@ public final class AnnotationDealt
             return null;
         }
         _Nece _nece = new _Nece();
-        if("".equals(nece.value())){
-            _nece.value=field.getName();
-        }else {
+        if ("".equals(nece.value()))
+        {
+            _nece.value = field.getName();
+        } else
+        {
             _nece.value = nece.value();
         }
         return _nece;
@@ -66,9 +70,11 @@ public final class AnnotationDealt
             return null;
         }
         _UnNece _unNece = new _UnNece();
-        if("".equals(unNece.value())){
-            _unNece.value=unNece.value();
-        }else{
+        if ("".equals(unNece.value()))
+        {
+            _unNece.value = unNece.value();
+        } else
+        {
             _unNece.value = unNece.value();
         }
         return _unNece;
@@ -150,7 +156,7 @@ public final class AnnotationDealt
         return to_parse(clazz.getAnnotation(Parser.parse.class));
     }
 
-    public _PortDestroy portDestroy(Method method)
+    public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter)
     {
         PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
         if (portDestroy == null)
@@ -158,12 +164,13 @@ public final class AnnotationDealt
             return null;
         }
         _PortDestroy _portDestroy = new _PortDestroy();
-        _portDestroy.method = method;
+
+        _portDestroy.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portDestroy.order = portDestroy.order();
         return _portDestroy;
     }
 
-    public _PortStart portStart(Method method)
+    public _PortStart portStart(Method method,ObjectGetter objectGetter)
     {
         PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
         if (portStart == null)
@@ -171,7 +178,7 @@ public final class AnnotationDealt
             return null;
         }
         _PortStart _portStart = new _PortStart();
-        _portStart.method = method;
+        _portStart.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portStart.order = portStart.order();
         return _portStart;
     }
@@ -190,7 +197,13 @@ public final class AnnotationDealt
         return _portOut;
     }
 
+
     public _PortIn portIn(Class<?> clazz)
+    {
+        return portIn(clazz,false);
+    }
+
+    public _PortIn portIn(Class<?> clazz,boolean isMixin)
     {
         PortIn portIn = clazz.getAnnotation(PortIn.class);
         if (portIn == null)
@@ -198,14 +211,13 @@ public final class AnnotationDealt
             return null;
         }
         _PortIn _portIn = new _PortIn();
-        _portIn.tiedName = PortUtil.tied(portIn, clazz, enableDefaultValue);
+        _portIn.tiedName = PortUtil.tied(portIn, clazz,isMixin|| enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
         _portIn.method = portIn.method();
         _portIn.checks = portIn.checks();
         _portIn.tiedType = portIn.tiedType();
-        _portIn.isMultiTiedType = portIn.multiTiedType();
-        _portIn.ignoreTypeParser=portIn.ignoreTypeParser();
-        _portIn.newObjectWhenInit=portIn.newObjectWhenInit();
+        _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
+        _portIn.newObjectWhenInit = portIn.newObjectWhenInit();
 
         LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
 
@@ -216,8 +228,7 @@ public final class AnnotationDealt
     {
         _PortIn _portIn = null;
         PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
-        if (portIn != null && (class_PortIn.isMultiTiedType() || class_PortIn.getTiedType() != TiedType.REST || portIn
-                .tiedType() == TiedType.REST))
+        if (portIn != null)
         {
 //            Class<?>[] parameters = method.getParameterTypes();
 //            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
@@ -232,8 +243,8 @@ public final class AnnotationDealt
             _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
             _portIn.checks = portIn.checks();
             _portIn.method = AnnoUtil.method(class_PortIn.getMethod(), portIn.method());
-            _portIn.ignoreTypeParser=portIn.ignoreTypeParser();
-            _portIn.newObjectWhenInit=portIn.newObjectWhenInit();
+            _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
+            _portIn.newObjectWhenInit = portIn.newObjectWhenInit();
 
         }
         return _portIn;
