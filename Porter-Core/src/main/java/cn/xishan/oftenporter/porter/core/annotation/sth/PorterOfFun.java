@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class PorterOfFun
+public abstract class PorterOfFun implements ObjectGetter
 {
     Method method;
     //函数的形参个数。
@@ -16,6 +16,29 @@ public final class PorterOfFun
     _PortOut portOut;
     _PortIn portIn;
     InObj inObj;
+    Porter porter;
+
+   public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
+    {
+        PorterOfFun porterOfFun = new PorterOfFun()
+        {
+            @Override
+            public Object getObject()
+            {
+                return objectGetter.getObject();
+            }
+        };
+        porterOfFun.method = method;
+        return porterOfFun;
+    }
+
+    public Porter getPorter()
+    {
+        return porter;
+    }
+
+    @Override
+    public abstract Object getObject();
 
     public _PortOut getPortOut()
     {
@@ -32,7 +55,7 @@ public final class PorterOfFun
         return method;
     }
 
-    public _PortIn getPortIn()
+    public _PortIn getMethodPortIn()
     {
         return portIn;
     }

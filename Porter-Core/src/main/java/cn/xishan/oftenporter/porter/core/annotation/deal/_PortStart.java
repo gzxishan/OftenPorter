@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+
 import java.lang.reflect.Method;
 
 /**
@@ -8,11 +10,12 @@ import java.lang.reflect.Method;
 public final class _PortStart implements Comparable<_PortStart>
 {
     int order;
-    Method method;
+    PorterOfFun porterOfFun;
 
-    public Method getMethod()
+
+    public PorterOfFun getPorterOfFun()
     {
-        return method;
+        return porterOfFun;
     }
 
     public int getOrder()

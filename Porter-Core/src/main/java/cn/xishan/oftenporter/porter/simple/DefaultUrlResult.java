@@ -23,6 +23,11 @@ class DefaultUrlResult implements UrlDecoder.Result
         this.funTied = funTied;
     }
 
+    @Override
+    public String toString()
+    {
+        return "/"+contextName+"/"+classTied+"/"+funTied;
+    }
 
     @Override
     public String contextName()

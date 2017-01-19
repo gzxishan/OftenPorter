@@ -71,20 +71,19 @@ public @interface PortIn
     Class<? extends CheckPassable>[] checks() default {};
 
     /**
-     * 只对类有效。
      * <pre>
-     *     如果类的取值为{@linkplain TiedType#REST},则子类的绑定名失效，请求分别被分发到对应的{@linkplain PortMethod}绑定的函数上。
+     *     如果最终取值为{@linkplain TiedType#REST},则函数的绑定名失效，请求分别被分发到对应的{@linkplain PortMethod}绑定的函数上。
      * </pre>
      */
     TiedType tiedType() default TiedType.Default;
 
-    /**
-     * 是否支持多个接口类型,对类有效,默认为true。
-     * 若为false，则当类的{@linkplain PortIn#tiedType()}为{@linkplain TiedType#REST}时，则非{@linkplain TiedType#REST}接口函数都将无效
-     *
-     * @return
-     */
-    boolean multiTiedType() default true;
+//    /**
+//     * 是否支持多个接口类型,对类有效,默认为true。
+//     * 若为false，则当类的{@linkplain PortIn#tiedType()}为{@linkplain TiedType#REST}时，则非{@linkplain TiedType#REST}接口函数都将无效
+//     *
+//     * @return
+//     */
+//    boolean multiTiedType() default true;
 
     /**
      * 对类有效，默认false。当为true时，在加入该接口类时，可以保证构造对应的实例。

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.Mixin;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Parser;
@@ -10,6 +11,7 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.RuntimeErrorException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -191,6 +193,38 @@ class SthUtil
                 {
                     LOGGER.warn(e.getMessage(), e);
                 }
+            }
+        }
+    }
+
+
+    static Class<?>[] getMixin(Class<?> clazz)
+    {
+        if (clazz.isAnnotationPresent(Mixin.class))
+        {
+            Mixin mixin = clazz.getAnnotation(Mixin.class);
+            return mixin.value().length > 0 ? mixin.value() : mixin.porters();
+        } else
+        {
+            return new Class[0];
+        }
+    }
+
+    /**
+     * 检查循环混入
+     * @param root
+     * @param clazz
+     */
+    static void checkLoopMixin(Class<?> root, Class<?> clazz)
+    {
+        Class<?>[] mixins = getMixin(clazz);
+        for(Class<?> c:mixins){
+            if(c.equals(root)){
+                String msg = String.format("Loop Dependency:top[%s],inner[%s]",root,clazz);
+                LOGGER.error(msg);
+                throw new Error(msg);
+            }else{
+                checkLoopMixin(root,c);
             }
         }
     }

@@ -2,14 +2,11 @@ package cn.xishan.oftenporter.porter.core;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -178,18 +175,7 @@ public class PortContext
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            Porter porter = iterator.next();
-            _PortStart[] starts = porter.getStarts();
-            for (int i = 0; i < starts.length; i++)
-            {
-                try
-                {
-                    starts[i].getMethod().invoke(porter.getObject());
-                } catch (Exception e)
-                {
-                    LOGGER.warn(e.getMessage(), e);
-                }
-            }
+            iterator.next().start();
         }
     }
 
@@ -198,18 +184,7 @@ public class PortContext
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            Porter porter = iterator.next();
-            _PortDestroy[] ds = porter.getDestroys();
-            for (int i = 0; i < ds.length; i++)
-            {
-                try
-                {
-                    ds[i].getMethod().invoke(porter.getObject());
-                } catch (Exception e)
-                {
-                    LOGGER.warn(e.getMessage(), e);
-                }
-            }
+            iterator.next().destroy();
         }
     }
 

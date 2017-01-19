@@ -1,19 +1,15 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.TypeTo;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 
@@ -22,7 +18,6 @@ import java.util.Map;
  */
 public final class Porter
 {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Porter.class);
 
     Object object;
@@ -32,6 +27,7 @@ public final class Porter
     _PortStart[] starts;
     _PortDestroy[] destroys;
     Map<String, PorterOfFun> children;
+    Porter[] mixins;
 
     InObj inObj;
     private AutoSetUtil autoSetUtil;
@@ -41,17 +37,17 @@ public final class Porter
         this.autoSetUtil = autoSetUtil;
     }
 
-    public Map<String, PorterOfFun> getChildren()
-    {
-        return children;
-    }
+//    public Map<String, PorterOfFun> getChildren()
+//    {
+//        return children;
+//    }
 
-    public _PortStart[] getStarts()
+    private _PortStart[] getStarts()
     {
         return starts;
     }
 
-    public _PortDestroy[] getDestroys()
+    private _PortDestroy[] getDestroys()
     {
         return destroys;
     }
@@ -81,7 +77,7 @@ public final class Porter
         return clazz;
     }
 
-    public Object getObject()
+    Object getObj()
     {
         if (object == null)
         {
@@ -113,14 +109,8 @@ public final class Porter
         {
 
             case REST:
-                if (portIn.isMultiTiedType())
-                {
-                    porterOfFun = children.get(result.funTied());
-                    if (porterOfFun == null)
-                    {
-                        porterOfFun = children.get(method.name());
-                    }
-                } else
+                porterOfFun = children.get(result.funTied());
+                if (porterOfFun == null)
                 {
                     porterOfFun = children.get(method.name());
                 }
@@ -129,10 +119,58 @@ public final class Porter
                 porterOfFun = children.get(result.funTied());
                 break;
         }
-        if (porterOfFun != null && porterOfFun.getPortIn().getMethod() != method)
+        if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)
         {
             porterOfFun = null;
         }
         return porterOfFun;
+    }
+
+    public void start()
+    {
+        if (mixins != null)
+        {
+            for (Porter porter : mixins)
+            {
+                porter.start();
+            }
+        }
+        _PortStart[] starts = getStarts();
+        for (int i = 0; i < starts.length; i++)
+        {
+            try
+            {
+                PorterOfFun porterOfFun = starts[i].getPorterOfFun();
+                porterOfFun.getMethod().invoke(porterOfFun.getObject());
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        }
+
+    }
+
+    public void destroy()
+    {
+        if (mixins != null)
+        {
+            for (Porter porter : mixins)
+            {
+                porter.destroy();
+            }
+        }
+        _PortDestroy[] ds = getDestroys();
+        for (int i = 0; i < ds.length; i++)
+        {
+            try
+            {
+                PorterOfFun porterOfFun = ds[i].getPorterOfFun();
+                porterOfFun.getMethod().invoke(porterOfFun.getObject());
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        }
+
     }
 }

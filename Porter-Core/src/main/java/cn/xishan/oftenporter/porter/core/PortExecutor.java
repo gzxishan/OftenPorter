@@ -198,7 +198,7 @@ public class PortExecutor
 
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
             //全局通过检测
-            dealtOfGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
+            dealtOfGlobalCheck(context,  funPort, wObject, innerContextBridge, result);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -288,7 +288,7 @@ public class PortExecutor
         return reason;
     }
 
-    private final void dealtOfGlobalCheck(Context context, Porter classPort, PorterOfFun funPort, WObjectImpl wObject,
+    private final void dealtOfGlobalCheck(Context context, PorterOfFun funPort, WObjectImpl wObject,
             InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -296,11 +296,11 @@ public class PortExecutor
 
         if (allGlobal.length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
+            dealtOfContextGlobalCheck(context, funPort, wObject, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL,
-                    allGlobal, new CheckHandle(result, classPort.getObject())
+                    allGlobal, new CheckHandle(result, funPort.getObject())
             {
 
                 @Override
@@ -311,7 +311,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfContextGlobalCheck(context, classPort, funPort, wObject, innerContextBridge, result);
+                        dealtOfContextGlobalCheck(context,funPort, wObject, innerContextBridge, result);
                     }
                 }
             });
@@ -320,18 +320,18 @@ public class PortExecutor
 
     }
 
-    private final void dealtOfContextGlobalCheck(Context context, Porter classPort, PorterOfFun funPort,
+    private final void dealtOfContextGlobalCheck(Context context,  PorterOfFun funPort,
             WObjectImpl wObject, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         CheckPassable[] contextChecks = context.contextChecks;
         if (contextChecks.length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
+            dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
-                    DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result, classPort.getObject())
+                    DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result, funPort.getObject())
             {
                 @Override
                 public void go(Object failedObject)
@@ -341,7 +341,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfClassParam(classPort, funPort, wObject, context, innerContextBridge, result);
+                        dealtOfClassParam( funPort, wObject, context, innerContextBridge, result);
                     }
                 }
             });
@@ -350,10 +350,11 @@ public class PortExecutor
 
     }
 
-    private final void dealtOfClassParam(Porter classPort, PorterOfFun funPort, WObjectImpl wObject, Context context,
+    private final void dealtOfClassParam( PorterOfFun funPort, WObjectImpl wObject, Context context,
             InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
+        Porter classPort = funPort.getPorter();
         //类参数初始化
         _PortIn clazzPIn = classPort.getPortIn();
         InNames inNames = clazzPIn.getInNames();
@@ -393,11 +394,11 @@ public class PortExecutor
         //类通过检测
         if (clazzPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
+            dealtOfFunParam( funPort, paramSource, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
-                    clazzPIn.getChecks(), new CheckHandle(result, classPort.getObject())
+                    clazzPIn.getChecks(), new CheckHandle(result, funPort.getObject())
             {
                 @Override
                 public void go(Object failedObject)
@@ -407,7 +408,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfFunParam(classPort, funPort, paramSource, wObject, context, innerContextBridge, result);
+                        dealtOfFunParam(funPort, paramSource, wObject, context, innerContextBridge, result);
                     }
                 }
             });
@@ -416,11 +417,11 @@ public class PortExecutor
 
     }
 
-    private void dealtOfFunParam(Porter classPort, PorterOfFun funPort, ParamSource paramSource, WObjectImpl wObject,
+    private void dealtOfFunParam(PorterOfFun funPort, ParamSource paramSource, WObjectImpl wObject,
             Context context, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
-        _PortIn funPIn = funPort.getPortIn();
+        _PortIn funPIn = funPort.getMethodPortIn();
         if (funPIn.getTiedType() == TiedType.REST)
         {
             wObject.restValue = result.funTied();
@@ -459,11 +460,11 @@ public class PortExecutor
         //函数通过检测
         if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge, result);
+            dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
-                    funPIn.getChecks(), new CheckHandle(result, classPort.getObject(), funPort.getMethod())
+                    funPIn.getChecks(), new CheckHandle(result, funPort.getObject(), funPort.getMethod())
             {
                 @Override
                 public void go(Object failedObject)
@@ -473,7 +474,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfInvokeMethod(context, wObject, classPort, funPort, innerContextBridge, result);
+                        dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
                     }
                 }
             });
@@ -482,20 +483,20 @@ public class PortExecutor
 
     }
 
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, Porter classPort, PorterOfFun funPort,
+    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject,  PorterOfFun funPort,
             InnerContextBridge innerContextBridge, UrlDecoder.Result result)
     {
         Method javaMethod = funPort.getMethod();
-        _PortIn funPIn = funPort.getPortIn();
+        _PortIn funPIn = funPort.getMethodPortIn();
         try
         {
             Object rs;
             if (funPort.getArgCount() == 0)
             {
-                rs = javaMethod.invoke(classPort.getObject());
+                rs = javaMethod.invoke(funPort.getObject());
             } else
             {
-                rs = javaMethod.invoke(classPort.getObject(), wObject);
+                rs = javaMethod.invoke(funPort.getObject(), wObject);
             }
 
             if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
@@ -503,7 +504,7 @@ public class PortExecutor
                 dealtOfResponse(wObject, funPort, rs);
             } else
             {
-                CheckHandle checkHandle = new CheckHandle(rs, result, classPort.getObject(), funPort.getMethod())
+                CheckHandle checkHandle = new CheckHandle(rs, result, funPort.getObject(), funPort.getMethod())
                 {
                     @Override
                     public void go(Object failedObject)
@@ -529,7 +530,7 @@ public class PortExecutor
                 ex(wObject.getResponse(), e, responseWhenException);
             } else
             {
-                CheckHandle checkHandle = new CheckHandle(e.getCause(), result, classPort.getObject(),
+                CheckHandle checkHandle = new CheckHandle(e.getCause(), result, funPort.getObject(),
                         funPort.getMethod())
                 {
                     @Override

@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -19,8 +20,9 @@ import java.util.Random;
 @Parser({
         @Parser.parse(paramNames = "age", parser = IntParser.class)
 })
-@PortIn(value = "Hello", tiedType = TiedType.REST)
+@PortIn(tied = "Hello", tiedType = TiedType.REST)
 @PortInObj({User.class})
+@Mixin({HelloMixinPorter.class})
 public class HelloPorter extends SuperSetPorter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);
