@@ -1,10 +1,5 @@
 package cn.xishan.oftenporter.demo.core.test2;
 
-import cn.xishan.oftenporter.porter.core.base.CheckHandle;
-import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.DuringType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

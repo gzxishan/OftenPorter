@@ -3,7 +3,9 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 
 /**
  * 接口中间对象。
@@ -130,6 +132,17 @@ public abstract class WObject
     {
         T t = (T) fu[index];
         return t;
+    }
+
+    public void currentRequest(String funTied, AppValues appValues, PCallback callback)
+    {
+        StringBuilder builder = new StringBuilder();
+        UrlDecoder.Result result = url();
+        builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
+        builder.append(funTied == null ? "" : funTied);
+        PRequest request = PRequest.withNewPath(builder.toString(), getRequest(), true);
+        request.addParamAll(appValues);
+        delivery().currentBridge().request(request, callback);
     }
 
 }
