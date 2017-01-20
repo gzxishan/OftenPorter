@@ -80,6 +80,7 @@ public final class WServletRequest extends PRequest
 //    }
 
 
+   private static final Pattern PATTERN_HOST_PORT = Pattern.compile("^(http|https)://([^/]+)");
     /**
      * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
      *
@@ -88,8 +89,8 @@ public final class WServletRequest extends PRequest
      */
     public static String getHostFromURL(CharSequence url)
     {
-        Pattern pattern = Pattern.compile("^(http|https)://([^/]+)");
-        Matcher matcher = pattern.matcher(url);
+
+        Matcher matcher = PATTERN_HOST_PORT.matcher(url);
         if (matcher.find())
         {
             return matcher.group();

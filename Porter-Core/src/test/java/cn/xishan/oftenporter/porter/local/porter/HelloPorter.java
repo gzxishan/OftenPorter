@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.TypeTo;
+import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;

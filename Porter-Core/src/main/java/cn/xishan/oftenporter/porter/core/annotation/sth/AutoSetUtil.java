@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.TypeTo;
+import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
@@ -170,14 +170,17 @@ public class AutoSetUtil
      */
     private boolean isDefaultAutoSetObject(Field f, Object object) throws IllegalAccessException
     {
+        Object sysset = null;
+        String typeName = f.getType().getName();
+        if(typeName.equals(TypeTo.class.getName())){
+            sysset = new TypeTo(innerContextBridge);
+        }
         if (!f.getType().getName().equals(TypeTo.class.getName()))
         {
             return false;
         }
-
-        TypeTo typeTo = new TypeTo(innerContextBridge);
-        f.set(object, typeTo);
-        LOGGER.debug("AutoSet [{}] with default object [{}]", f, typeTo);
-        return true;
+        f.set(object, sysset);
+        LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
+        return sysset!=null;
     }
 }
