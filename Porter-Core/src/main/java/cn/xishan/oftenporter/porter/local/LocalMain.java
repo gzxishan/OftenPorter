@@ -28,7 +28,7 @@ public class LocalMain implements CommonMain
                 porterMain.doRequest(req, request, resp);
             }
         };
-        porterMain = new PorterMain(pName, bridge);
+        porterMain = new PorterMain(pName,this, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
@@ -43,7 +43,7 @@ public class LocalMain implements CommonMain
 
     protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge)
     {
-        porterMain = new PorterMain(pName, bridge);
+        porterMain = new PorterMain(pName,this, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 

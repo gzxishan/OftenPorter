@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.init.PorterMain;
+import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
@@ -75,7 +78,6 @@ public class AutoSetUtil
 
     public synchronized void doAutoSet(Object object)
     {
-
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
         Field[] fields = WPTool.getAllFields(object.getClass());
@@ -92,7 +94,7 @@ public class AutoSetUtil
                     continue;
                 }
                 f.setAccessible(true);
-                if (isDefaultAutoSetObject(f, object))
+                if (isDefaultAutoSetObject(f, object, autoSet))
                 {
                     continue;
                 }
@@ -168,19 +170,32 @@ public class AutoSetUtil
     /**
      * 是否是默认工具类。
      */
-    private boolean isDefaultAutoSetObject(Field f, Object object) throws IllegalAccessException
+    private boolean isDefaultAutoSetObject(Field f, Object object, AutoSet autoSet) throws IllegalAccessException
     {
         Object sysset = null;
         String typeName = f.getType().getName();
-        if(typeName.equals(TypeTo.class.getName())){
-            sysset = new TypeTo(innerContextBridge);
-        }
-        if (!f.getType().getName().equals(TypeTo.class.getName()))
+        if (typeName.equals(TypeTo.class.getName()))
         {
-            return false;
+            sysset = new TypeTo(innerContextBridge);
+        } else if (typeName.equals(Delivery.class.getName()))
+        {
+            String pName = autoSet.value();
+            if (WPTool.isEmpty(pName))
+            {
+                throw new Error(
+                        String.format("%s.value() can not be empty when Annotated at %s!", AutoSet.class.getName(), f));
+            }
+            CommonMain commonMain = PorterMain.getMain(pName);
+            if(commonMain==null){
+                throw new Error(
+                        String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f,pName));
+            }
+            Delivery delivery=commonMain.getPLinker();
+            sysset=delivery;
         }
+
         f.set(object, sysset);
         LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
-        return sysset!=null;
+        return sysset != null;
     }
 }

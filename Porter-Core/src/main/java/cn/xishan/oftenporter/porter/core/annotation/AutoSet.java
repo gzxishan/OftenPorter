@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 
 import java.lang.annotation.*;
 
@@ -16,6 +17,7 @@ import java.lang.annotation.*;
  *     3.{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
  *     4.{@linkplain cn.xishan.oftenporter.porter.core.base.StateListener}
  * </pre>
+ * 当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}必须有，且为PName.
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */

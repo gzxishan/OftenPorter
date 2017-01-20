@@ -8,7 +8,8 @@ import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 /**
  * Created by https://github.com/CLovinr on 2016/9/3.
  */
-public interface CommonMain {
+public interface CommonMain
+{
     /**
      * 见{@linkplain AutoSet.Range#Global}
      *
@@ -61,7 +62,7 @@ public interface CommonMain {
     void enableOne(String contextName, boolean enable);
 
     /**
-     * 销毁所有的context
+     * 销毁所有的，以后不能再用。
      */
     void destroyAll();
 
