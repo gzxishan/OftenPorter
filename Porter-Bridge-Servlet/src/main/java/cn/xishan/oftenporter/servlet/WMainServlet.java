@@ -183,7 +183,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
                 porterMain.doRequest(req, request, resp);
             }
         };
-        porterMain = new PorterMain(new PName(pname), bridge);
+        porterMain = new PorterMain(new PName(pname),this, bridge);
         if (responseWhenException == null)
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));

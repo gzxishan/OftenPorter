@@ -7,7 +7,6 @@ import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.porter.Article;
 import cn.xishan.oftenporter.porter.local.porter.Demo;
 import cn.xishan.oftenporter.porter.local.porter.IDemo;

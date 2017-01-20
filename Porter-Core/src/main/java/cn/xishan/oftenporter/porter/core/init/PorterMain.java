@@ -30,24 +30,41 @@ public final class PorterMain
     private final InnerBridge innerBridge;
     private final PLinker pLinker;
 
+    private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
+
     /**
      * @param pName  框架名称。
      * @param bridge 只能访问当前实例的bridge。
      */
-    public PorterMain(PName pName, PBridge bridge)
+    public PorterMain(PName pName, CommonMain commonMain, PBridge bridge)
     {
-        this.innerBridge = new InnerBridge();
-        pLinker = new DefaultPLinker(pName, bridge);
-        pLinker.setPorterAttr(contextName ->
+        synchronized (PorterMain.class)
         {
-            Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
-            ClassLoader classLoader = null;
-            if (context != null)
+            this.innerBridge = new InnerBridge();
+            pLinker = new DefaultPLinker(pName, bridge);
+            pLinker.setPorterAttr(contextName ->
             {
-                classLoader = context.portContext.getClassLoader();
-            }
-            return classLoader;
-        });
+                Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
+                ClassLoader classLoader = null;
+                if (context != null)
+                {
+                    classLoader = context.portContext.getClassLoader();
+                }
+                return classLoader;
+            });
+            commonMainHashMap.put(pName.getName(), commonMain);
+        }
+    }
+
+    /**
+     * 根据名称获取。
+     *
+     * @param pName
+     * @return
+     */
+    public synchronized static CommonMain getMain(String pName)
+    {
+        return commonMainHashMap.get(pName);
     }
 
     public PorterConf newPorterConf()
@@ -190,19 +207,26 @@ public final class PorterMain
 
     }
 
-    public synchronized void destroyAll()
+    /**
+     * 销毁所有的，以后不能再用。
+     */
+    public void destroyAll()
     {
-        checkInit();
-        LOGGER.debug("[{}] destroyAll...", getPLinker().currentPName());
-        Iterator<Context> iterator = portExecutor.contextIterator();
-        while (iterator.hasNext())
+        synchronized (PorterMain.class)
         {
-            Context context = iterator.next();
-            context.setEnable(false);
-            destroyOne(context);
+            checkInit();
+            LOGGER.debug("[{}] destroyAll...", getPLinker().currentPName());
+            Iterator<Context> iterator = portExecutor.contextIterator();
+            while (iterator.hasNext())
+            {
+                Context context = iterator.next();
+                context.setEnable(false);
+                destroyOne(context);
+            }
+            portExecutor.clear();
+            LOGGER.debug("[{}] destroyAll end!", getPLinker().currentPName());
+            commonMainHashMap.remove(pLinker.currentPName().getName());
         }
-        portExecutor.clear();
-        LOGGER.debug("[{}] destroyAll end!", getPLinker().currentPName());
     }
 
 
