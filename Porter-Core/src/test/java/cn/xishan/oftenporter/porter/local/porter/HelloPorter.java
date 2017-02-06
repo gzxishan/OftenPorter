@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
+import cn.xishan.oftenporter.porter.local.mixin.MinxParserTest;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -17,12 +18,13 @@ import java.util.Random;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-@Parser({
-        @Parser.parse(paramNames = "age", parser = IntParser.class)
-})
+//@Parser({
+//        @Parser.parse(paramNames = "age", parser = IntParser.class)
+//})
 @PortIn(tied = "Hello", tiedType = TiedType.REST)
 @PortInObj({User.class})
 @Mixin({HelloMixinPorter.class})
+@MixinParser({MinxParserTest.class})
 public class HelloPorter extends SuperSetPorter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);

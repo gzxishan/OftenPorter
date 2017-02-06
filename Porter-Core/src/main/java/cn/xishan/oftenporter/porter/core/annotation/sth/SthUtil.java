@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.Mixin;
+import cn.xishan.oftenporter.porter.core.annotation.MixinParser;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Parser;
@@ -23,6 +24,27 @@ class SthUtil
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SthUtil.class);
 
+
+    /**
+     * 对MixinParser指定的类的{@linkplain Parser}和{@linkplain Parser.parse}的处理
+     */
+    static void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
+            BackableSeek backableSeek)
+    {
+        if (clazz.isAnnotationPresent(MixinParser.class))
+        {
+            MixinParser mixinParser = clazz.getAnnotation(MixinParser.class);
+            Class<?>[] cs = mixinParser.value();
+            cs = cs.length > 0 ? cs : mixinParser.porters();
+            for (Class<?> c : cs)
+            {
+                bindParserAndParse(innerContextBridge.annotationDealt.parser(c),
+                        innerContextBridge.annotationDealt.parse(c), inNames,
+                        innerContextBridge.innerBridge.globalParserStore,
+                        backableSeek, BackableSeek.SeekType.Add_NotBind);
+            }
+        }
+    }
 
     /**
      * 对{@linkplain Parser}和{@linkplain Parser.parse}的处理
@@ -212,19 +234,23 @@ class SthUtil
 
     /**
      * 检查循环混入
+     *
      * @param root
      * @param clazz
      */
     static void checkLoopMixin(Class<?> root, Class<?> clazz)
     {
         Class<?>[] mixins = getMixin(clazz);
-        for(Class<?> c:mixins){
-            if(c.equals(root)){
-                String msg = String.format("Loop Dependency:top[%s],inner[%s]",root,clazz);
+        for (Class<?> c : mixins)
+        {
+            if (c.equals(root))
+            {
+                String msg = String.format("Loop Dependency:top[%s],inner[%s]", root, clazz);
                 LOGGER.error(msg);
                 throw new Error(msg);
-            }else{
-                checkLoopMixin(root,c);
+            } else
+            {
+                checkLoopMixin(root, c);
             }
         }
     }
