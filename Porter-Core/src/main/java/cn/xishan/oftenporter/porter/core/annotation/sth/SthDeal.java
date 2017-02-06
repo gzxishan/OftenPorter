@@ -51,7 +51,8 @@ public class SthDeal
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
         }
-        SthUtil.checkLoopMixin(clazz, clazz);
+        SthUtil.checkLoopMixin(clazz, clazz);//防止循环混入
+
         InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(clazz,isMixin);
@@ -96,6 +97,8 @@ public class SthDeal
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
 
+        //对MixinParser指定的类的Parser和Parser.parse的处理
+        SthUtil.bindParserAndParseWithMixin(clazz,innerContextBridge,portIn.getInNames(),backableSeek);
         //对Parser和Parser.parse的处理
         SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek);
 
