@@ -7,14 +7,16 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Parser;
 import cn.xishan.oftenporter.porter.core.annotation.deal._parse;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.RuntimeErrorException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -29,22 +31,39 @@ class SthUtil
      * 对MixinParser指定的类的{@linkplain Parser}和{@linkplain Parser.parse}的处理
      */
     static void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
-            BackableSeek backableSeek)
+            BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
+    {
+        if (needCheckLoop)
+        {
+            checkLoopMixin(clazz, false);
+        }
+        Class<?>[] cs = getMixinParser(clazz);
+        for (Class<?> c : cs)
+        {
+            bindParserAndParse(innerContextBridge.annotationDealt.parser(c),
+                    innerContextBridge.annotationDealt.parse(c), inNames,
+                    innerContextBridge.innerBridge.globalParserStore,
+                    backableSeek, BackableSeek.SeekType.Add_NotBind);
+            //递归
+            bindParserAndParseWithMixin(c, innerContextBridge, inNames, backableSeek, needCheckLoop);
+        }
+
+    }
+
+    private static Class<?>[] getMixinParser(Class<?> clazz)
     {
         if (clazz.isAnnotationPresent(MixinParser.class))
         {
             MixinParser mixinParser = clazz.getAnnotation(MixinParser.class);
             Class<?>[] cs = mixinParser.value();
             cs = cs.length > 0 ? cs : mixinParser.porters();
-            for (Class<?> c : cs)
-            {
-                bindParserAndParse(innerContextBridge.annotationDealt.parser(c),
-                        innerContextBridge.annotationDealt.parse(c), inNames,
-                        innerContextBridge.innerBridge.globalParserStore,
-                        backableSeek, BackableSeek.SeekType.Add_NotBind);
-            }
+            return cs;
+        } else
+        {
+            return new Class[0];
         }
     }
+
 
     /**
      * 对{@linkplain Parser}和{@linkplain Parser.parse}的处理
@@ -52,8 +71,12 @@ class SthUtil
      * @return 有其中一个注解，返回true；否则返回false。
      */
     static boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
-            BackableSeek backableSeek)
+            BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
     {
+        if (needCheckLoop)
+        {
+            checkLoopMixin(clazz, true);//防止循环混入
+        }
         return bindParserAndParse(innerContextBridge.annotationDealt.parser(clazz),
                 innerContextBridge.annotationDealt.parse(clazz), inNames,
                 innerContextBridge.innerBridge.globalParserStore,
@@ -236,22 +259,78 @@ class SthUtil
      * 检查循环混入
      *
      * @param root
-     * @param clazz
      */
-    static void checkLoopMixin(Class<?> root, Class<?> clazz)
+    private static void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser) throws FatalInitException
     {
-        Class<?>[] mixins = getMixin(clazz);
-        for (Class<?> c : mixins)
+        Set<Walk> walkedSet = new HashSet<>();
+        String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser);
+        if (loopMsg != null)
         {
-            if (c.equals(root))
-            {
-                String msg = String.format("Loop Dependency:top[%s],inner[%s]", root, clazz);
-                LOGGER.error(msg);
-                throw new Error(msg);
-            } else
-            {
-                checkLoopMixin(root, c);
-            }
+            throw new FatalInitException(loopMsg);
         }
     }
+
+    /**
+     * 检查循环混入
+     * @param from
+     * @param walkedSet
+     * @param isMixinOrMixinParser
+     * @return
+     * @throws FatalInitException
+     */
+    private static String checkLoopMixin(Class<?> from, Set<Walk> walkedSet,
+            boolean isMixinOrMixinParser) throws FatalInitException
+    {
+        Class<?>[] mixins = isMixinOrMixinParser ? getMixin(from) : getMixinParser(from);
+        for (Class<?> to : mixins)
+        {
+            Walk walk = new Walk(from, to);
+            if (walkedSet.contains(walk))
+            {
+                String msg = String.format("Loop %s:[%s]->[%s]",
+                        isMixinOrMixinParser ? Mixin.class.getSimpleName() : MixinParser.class.getSimpleName(),
+                        from, to);
+                LOGGER.warn(msg);
+                return msg;
+            } else
+            {
+                walkedSet.add(walk);
+                String msg = checkLoopMixin(to, walkedSet, isMixinOrMixinParser);
+                if (msg != null)
+                {
+                    LOGGER.warn("Walk:[{}]->[{}]",from,to);
+                    return msg;
+                }
+            }
+        }
+        return null;
+    }
+
+//    private static void checkLoopMixinParser(Class<?> root) throws FatalInitException
+//    {
+//        Set<Walk> walkedSet = new HashSet<>();
+//        walkedSet.add(new Walk(root, root));
+//        checkLoopMixinParser(root,root,walkedSet);
+//    }
+//    private static void checkLoopMixinParser(Class<?> root, Class<?> clazz,Set<Walk> walkedSet) throws
+// FatalInitException
+//    {
+//        Class<?>[] mixinParsers = getMixinParser(clazz);
+//        for (Class<?> c : mixinParsers)
+//        {
+//            Walk walk = new Walk(root,c);
+//            if (walkedSet.contains(walk))
+//            {
+//                String msg = String.format("Loop MixinParser:top[%s],inner[%s]", root, clazz);
+//                LOGGER.error(msg);
+//                throw new FatalInitException(msg);
+//            } else
+//            {
+//                walkedSet.add(walk);
+//                walkedSet.add(new Walk(c,c));
+//                checkLoopMixinParser(c, c,walkedSet);
+//                checkLoopMixinParser(root, c,walkedSet);
+//            }
+//        }
+//    }
 }

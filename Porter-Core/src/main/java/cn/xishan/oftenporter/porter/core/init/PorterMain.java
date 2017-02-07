@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetUtil;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
@@ -136,7 +137,7 @@ public final class PorterMain
         autoSetUtil.doAutoSets(alls);
     }
 
-    public synchronized void startOne(PorterBridge bridge) throws RuntimeException
+    public synchronized void startOne(PorterBridge bridge)
     {
         checkInit();
         if (WPTool.isEmpty(bridge.contextName()))
@@ -179,7 +180,14 @@ public final class PorterMain
 
         doGlobalCheckAutoSet(autoSetUtil);
 
-        Map<Class<?>, CheckPassable> classCheckPassableMap = portContext.initSeek(porterConf, autoSetUtil);
+        Map<Class<?>, CheckPassable> classCheckPassableMap = null;
+        try
+        {
+            classCheckPassableMap = portContext.initSeek(porterConf, autoSetUtil);
+        } catch (FatalInitException e)
+        {
+            throw new Error(e);
+        }
 
         LOGGER.debug("do autoSet CheckPassable of Class and Method...");
         autoSetUtil.doAutoSets(classCheckPassableMap.values().toArray(new CheckPassable[0]));

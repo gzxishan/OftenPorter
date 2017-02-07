@@ -116,7 +116,8 @@ public class InObjDeal
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
-        SthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek);
+        //绑定类型转换。
+        SthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek,true);
 
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();

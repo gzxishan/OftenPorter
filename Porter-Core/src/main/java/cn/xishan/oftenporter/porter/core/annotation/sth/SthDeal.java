@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,18 +41,18 @@ public class SthDeal
     }
 
 
-    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil)
+    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil)throws FatalInitException
     {
         return porter(clazz, object, autoSetUtil, false);
     }
 
-    private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil, boolean isMixin)
+    private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil, boolean isMixin) throws FatalInitException
+
     {
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
         }
-        SthUtil.checkLoopMixin(clazz, clazz);//防止循环混入
 
         InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
@@ -63,24 +64,6 @@ public class SthDeal
         Porter porter = new Porter(autoSetUtil);
         Map<String, PorterOfFun> children = new HashMap<>();
         porter.children = children;
-        Class<?>[] mixins = SthUtil.getMixin(clazz);
-        List<Porter> mixinList = new ArrayList<>(mixins.length);
-        for (Class c : mixins)
-        {
-            if (!PortUtil.isPortClass(c))
-            {
-                continue;
-            }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true);
-            mixinList.add(mixinPorter);
-            Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
-            Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
-            while (mixinIt.hasNext()){
-                putFun(mixinIt.next(),children);
-            }
-            mixinPorter.children.clear();
-        }
-
 
         porter.clazz = clazz;
         porter.object = object;
@@ -98,9 +81,9 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParser指定的类的Parser和Parser.parse的处理
-        SthUtil.bindParserAndParseWithMixin(clazz,innerContextBridge,portIn.getInNames(),backableSeek);
+        SthUtil.bindParserAndParseWithMixin(clazz,innerContextBridge,portIn.getInNames(),backableSeek,!isMixin);
         //对Parser和Parser.parse的处理
-        SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek);
+        SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek,!isMixin);
 
         try
         {
@@ -134,10 +117,30 @@ public class SthDeal
                 putFun(porterOfFun,children);
             }
         }
+
+
+        Class<?>[] mixins = SthUtil.getMixin(clazz);
+        List<Porter> mixinList = new ArrayList<>(mixins.length);
+        for (Class c : mixins)
+        {
+            if (!PortUtil.isPortClass(c))
+            {
+                continue;
+            }
+            Porter mixinPorter = porter(c, null, autoSetUtil, true);
+            mixinList.add(mixinPorter);
+            Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
+            Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
+            while (mixinIt.hasNext()){
+                putFun(mixinIt.next(),children);
+            }
+            mixinPorter.children.clear();
+        }
         if (mixinList.size() > 0)
         {
             porter.mixins = mixinList.toArray(new Porter[0]);
         }
+
         _PortStart[] starts = portStarts.toArray(new _PortStart[0]);
         _PortDestroy[] destroys = portDestroys.toArray(new _PortDestroy[0]);
         Arrays.sort(starts);
