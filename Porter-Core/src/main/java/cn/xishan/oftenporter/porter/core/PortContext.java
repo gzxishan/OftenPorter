@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -57,7 +58,8 @@ public class PortContext
         return classLoader;
     }
 
-    public Map<Class<?>, CheckPassable> initSeek(PorterConf porterConf, AutoSetUtil autoSetUtil)
+    public Map<Class<?>, CheckPassable> initSeek(PorterConf porterConf,
+            AutoSetUtil autoSetUtil) throws FatalInitException
     {
         SthDeal sthDeal = new SthDeal();
         seek(porterConf.getSeekPackages().getPackages(), autoSetUtil, sthDeal);
@@ -69,6 +71,9 @@ public class PortContext
             try
             {
                 mayAddPorter(clazz, autoSetUtil, sthDeal);
+            } catch (FatalInitException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 LOGGER.warn(e.getMessage(), e);
@@ -85,6 +90,9 @@ public class PortContext
                 {
                     addPorter(object.getClass(), object, autoSetUtil, sthDeal);
                 }
+            } catch (FatalInitException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 LOGGER.warn(e.getMessage(), e);
@@ -96,7 +104,7 @@ public class PortContext
         return checkPassableForCF;
     }
 
-    private void seek(@NotNull JSONArray packages, AutoSetUtil autoSetUtil, SthDeal sthDeal)
+    private void seek(@NotNull JSONArray packages, AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -115,7 +123,7 @@ public class PortContext
     }
 
 
-    private void seekPackage(String packageStr, AutoSetUtil autoSetUtil, SthDeal sthDeal)
+    private void seekPackage(String packageStr, AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
     {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -126,6 +134,8 @@ public class PortContext
             {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
                 mayAddPorter(clazz, autoSetUtil, sthDeal);
+            }catch (FatalInitException e){
+                throw e;
             } catch (Exception e)
             {
                 LOGGER.warn(e.getMessage(), e);
@@ -133,7 +143,8 @@ public class PortContext
         }
     }
 
-    private void mayAddPorter(Class<?> clazz, AutoSetUtil autoSetUtil, SthDeal sthDeal) throws Exception
+    private void mayAddPorter(Class<?> clazz, AutoSetUtil autoSetUtil,
+            SthDeal sthDeal) throws FatalInitException, Exception
     {
         if (PortUtil.isPortClass(clazz))
         {
@@ -143,7 +154,7 @@ public class PortContext
 
 
     private void addPorter(Class<?> clazz, Object objectPorter, AutoSetUtil autoSetUtil,
-            SthDeal sthDeal) throws Exception
+            SthDeal sthDeal) throws FatalInitException, Exception
     {
         LOGGER.debug("添加接口：");
         LOGGER.debug("at " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
