@@ -2,9 +2,9 @@ package cn.xishan.oftenporter.oftendb.db.mysql;
 
 
 import cn.xishan.oftenporter.oftendb.db.BaseEasier;
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.Operator;
-import cn.xishan.oftenporter.oftendb.db.Unit;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
@@ -163,22 +163,22 @@ public class SqlCondition extends Condition
     }
 
     /**
-     * @param unit
+     * @param CUnit
      * @Key注解的处理
      */
-    private void dealNames(Unit unit)
+    private void dealNames(CUnit CUnit)
     {
         if (dealNamesClass == null)
         {
             return;
         }
-        if (!unit.isParam1Value())
+        if (!CUnit.isParam1Value())
         {
-            unit.setParam1(BaseEasier.dealWith_Key(dealNamesClass, unit.getParam1()));
+            CUnit.setParam1(BaseEasier.dealWith_Key(dealNamesClass, CUnit.getParam1()));
         }
-        if (!unit.isParam2Value())
+        if (!CUnit.isParam2Value())
         {
-            unit.setParam2(BaseEasier.dealWith_Key(dealNamesClass, (String) unit.getParam2()));
+            CUnit.setParam2(BaseEasier.dealWith_Key(dealNamesClass, (String) CUnit.getParam2()));
         }
     }
 
@@ -222,23 +222,23 @@ public class SqlCondition extends Condition
 
     private void dealNormal(Operator operator, Object object, StringBuilder stringBuilder, List<Object> args)
     {
-        if (!(object instanceof Unit))
+        if (!(object instanceof CUnit))
         {
-            throw new ConditionException(operator + "-Unit is accept!");
+            throw new ConditionException(operator + "-CUnit is accept!");
         }
-        Unit unit = (Unit) object;
+        CUnit CUnit = (CUnit) object;
 
-        dealNames(unit);// @Key注解的处理
+        dealNames(CUnit);// @Key注解的处理
 
         link(stringBuilder);//and或or
-        if (unit.isParam1Value())
+        if (CUnit.isParam1Value())
         {
             stringBuilder.append("{").append(args.size()).append("}");
-            args.add(unit.getParam1());
+            args.add(CUnit.getParam1());
         } else
         {
-            chekName(unit.getParam1());
-            stringBuilder.append("`").append(unit.getParam1()).append("`");
+            chekName(CUnit.getParam1());
+            stringBuilder.append("`").append(CUnit.getParam1()).append("`");
         }
         stringBuilder.append(" ");
 
@@ -255,9 +255,9 @@ public class SqlCondition extends Condition
         if (operator == IN || operator == NIN)
         {
             StringBuilder sBuilder = new StringBuilder("(");
-            if (unit.getParam2() instanceof Object[])
+            if (CUnit.getParam2() instanceof Object[])
             {
-                Object[] objects = (Object[]) unit.getParam2();
+                Object[] objects = (Object[]) CUnit.getParam2();
                 if (objects != null)
                 {
                     for (int i = 0; i < objects.length - 1; i++)
@@ -274,7 +274,7 @@ public class SqlCondition extends Condition
             } else
             {
                 sBuilder.append("{").append(args.size()).append("},");
-                args.add(unit.getParam2());
+                args.add(CUnit.getParam2());
             }
 
             sBuilder.append(") ");
@@ -306,31 +306,31 @@ public class SqlCondition extends Condition
         } else if (operator == SUBSTR)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(unit.getParam2() + "") + "%");
+            args.add("%" + SqlUtil.fileterLike(CUnit.getParam2() + "") + "%");
             return;
         } else if (operator == STARTSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add(SqlUtil.fileterLike(unit.getParam2() + "") + "%");
+            args.add(SqlUtil.fileterLike(CUnit.getParam2() + "") + "%");
             return;
         } else if (operator == ENDSSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(unit.getParam2() + ""));
+            args.add("%" + SqlUtil.fileterLike(CUnit.getParam2() + ""));
             return;
         } else
         {
             throw new ConditionException("unknown operator " + operator);
         }
         stringBuilder.append(" ");
-        if (unit.isParam2Value())
+        if (CUnit.isParam2Value())
         {
             stringBuilder.append("{").append(args.size()).append("}");
-            args.add(unit.getParam2());
+            args.add(CUnit.getParam2());
         } else
         {
-            chekName((String) unit.getParam2());
-            stringBuilder.append("`").append(unit.getParam2()).append("`");
+            chekName((String) CUnit.getParam2());
+            stringBuilder.append("`").append(CUnit.getParam2()).append("`");
         }
     }
 

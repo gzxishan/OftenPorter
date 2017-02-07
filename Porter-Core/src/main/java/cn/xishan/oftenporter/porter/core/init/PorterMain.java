@@ -134,7 +134,7 @@ public final class PorterMain
         LOGGER.debug("do doGlobalCheckAutoSet...");
         isGlobalAutoSet = true;
         CheckPassable[] alls = portExecutor.getAllGlobalChecks();
-        autoSetUtil.doAutoSets(alls);
+        autoSetUtil.doAutoSetsForNotPorter(alls);
     }
 
     public synchronized void startOne(PorterBridge bridge)
@@ -169,7 +169,7 @@ public final class PorterMain
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
-        autoSetUtil.doAutoSets(stateListenerSet.toArray(new StateListener[0]));
+        autoSetUtil.doAutoSetsForNotPorter(stateListenerSet.toArray(new StateListener[0]));
 
         LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerSet);
@@ -190,7 +190,7 @@ public final class PorterMain
         }
 
         LOGGER.debug("do autoSet CheckPassable of Class and Method...");
-        autoSetUtil.doAutoSets(classCheckPassableMap.values().toArray(new CheckPassable[0]));
+        autoSetUtil.doAutoSetsForNotPorter(classCheckPassableMap.values().toArray(new CheckPassable[0]));
 
         LOGGER.debug(":{}/{} afterSeek...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
@@ -206,7 +206,7 @@ public final class PorterMain
 
         CheckPassable[] checkPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
         LOGGER.debug("do autoSet ForAllCheckPassable...");
-        autoSetUtil.doAutoSets(checkPassables);
+        autoSetUtil.doAutoSetsForNotPorter(checkPassables);
 
         portExecutor.addContext(bridge, portContext, stateListenerForAll, innerContextBridge,
                 checkPassables);

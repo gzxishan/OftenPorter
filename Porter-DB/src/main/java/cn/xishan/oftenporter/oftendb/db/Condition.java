@@ -213,19 +213,19 @@ public abstract class Condition implements ToFinal
     /**
      * 默认为逻辑与。
      * @param operator
-     * @param unit
+     * @param CUnit
      * @return
      */
-    public Condition put(Operator operator, Unit unit)
+    public Condition put(Operator operator, CUnit CUnit)
     {
         isNull(operator);
-        isNull(unit);
+        isNull(CUnit);
         if (operator == NOT || operator == OR)
         {
             throw new IllegalArgumentException("the operator should not be " + operator);
         }
         operators.add(operator);
-        list.add(unit);
+        list.add(CUnit);
         return this;
     }
 

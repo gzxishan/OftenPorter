@@ -1,16 +1,15 @@
 package cn.xishan.oftenporter.oftendb.data;
 
 
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
-import cn.xishan.oftenporter.oftendb.db.Unit;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -215,7 +214,7 @@ public class DataDynamic extends DataAble {
                     if (cns[index] != null) {
                         String sname = fnNames[index].varName;
 
-                        condition.put(Condition.EQ, new Unit(sname, cns[index]));
+                        condition.put(Condition.EQ, new CUnit(sname, cns[index]));
                         if (toNull) {
                             cns[index] = null;
                         }
@@ -241,7 +240,7 @@ public class DataDynamic extends DataAble {
                     }
                     if (cus[index] != null) {
                         String sname = fnNames[index].varName;
-                        condition.put(Condition.EQ, new Unit(sname, cus[index]));
+                        condition.put(Condition.EQ, new CUnit(sname, cus[index]));
                         if (toNull) {
                             cus[index] = null;
                         }

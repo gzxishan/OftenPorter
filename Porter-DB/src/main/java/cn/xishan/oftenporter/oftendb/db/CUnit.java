@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.oftendb.db;
 
-public class Unit
+public class CUnit
 {
     protected String param1;
     protected Object param2;
@@ -13,7 +13,7 @@ public class Unit
      */
     private boolean isParam2Value = true;
 
-    public Unit(String param1, Object param2)
+    public CUnit(String param1, Object param2)
     {
         this.param1 = param1;
         this.param2 = param2;

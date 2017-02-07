@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetMixin;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +47,7 @@ public class AutoSetUtil
         {
             for (int i = 0; i < packages.length; i++)
             {
-                seekPackage(packages[i], classLoader);
+                doAutoSetSeek(packages[i], classLoader);
             }
         } catch (Exception e)
         {
@@ -53,7 +55,7 @@ public class AutoSetUtil
         }
     }
 
-    private void seekPackage(String packageStr, ClassLoader classLoader) throws Exception
+    private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
     {
         LOGGER.debug("*****autoSetSeek******");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -63,20 +65,25 @@ public class AutoSetUtil
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
             if (clazz.isAnnotationPresent(AutoSetSeek.class))
             {
-                doAutoSet(clazz.newInstance());
+                doAutoSet(clazz.newInstance(), null);
             }
         }
     }
 
-    public synchronized void doAutoSets(Object[] objects)
+    public synchronized void doAutoSetsForNotPorter(Object[] objects)
     {
         for (Object obj : objects)
         {
-            doAutoSet(obj);
+            doAutoSet(obj, null);
         }
     }
 
-    public synchronized void doAutoSet(Object object)
+    public synchronized void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
+    {
+        doAutoSet(object, autoSetMixinMap);
+    }
+
+    private void doAutoSet(Object object, Map<String, Object> autoSetMixinMap)
     {
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
@@ -86,75 +93,112 @@ public class AutoSetUtil
         {
 
             Field f = fields[i];
+
             AutoSet autoSet = f.getAnnotation(AutoSet.class);
             try
             {
-                if (autoSet == null)
+                Object value = null;
+                String autoSetMixinName = null;
+                boolean needPut = false;
+                if (autoSetMixinMap != null && f.isAnnotationPresent(AutoSetMixin.class))
                 {
-                    continue;
+                    AutoSetMixin autoSetMixin = f.getAnnotation(AutoSetMixin.class);
+                    autoSetMixinName = "".equals(autoSetMixin.value()) ? (autoSetMixin.classValue()
+                            .equals(AutoSetMixin.class) ? f.getType().getName() : autoSetMixin.classValue()
+                            .getName()) : autoSetMixin.value();
+
+                    if (autoSetMixin.waitingForSet())
+                    {
+                        value = autoSetMixinMap.get(autoSetMixinName);
+                    } else
+                    {
+                        needPut = true;
+                    }
                 }
                 f.setAccessible(true);
-                if (isDefaultAutoSetObject(f, object, autoSet))
+
+                if (autoSet == null)
+                {
+                    if (value == null || autoSetMixinMap == null)
+                    {
+                        continue;
+                    } else if (needPut)
+                    {
+                        autoSetMixinMap.put(autoSetMixinName, f.get(object));
+                        continue;
+                    }
+                } else if (isDefaultAutoSetObject(f, object, autoSet))
                 {
                     continue;
                 }
 
-                String keyName;
-                Class<?> mayNew = null;
-                Class<?> classClass = autoSet.classValue();
-                if (classClass.equals(AutoSet.class))
-                {
-                    keyName = autoSet.value();
-                } else
-                {
-                    keyName = classClass.getName();
-                    mayNew = classClass;
-                }
-                if ("".equals(keyName))
-                {
-                    keyName = f.getType().getName();
-                }
-                if (mayNew == null)
-                {
-                    mayNew = f.getType();
-                }
-                Object value = null;
-                switch (autoSet.range())
-                {
-                    case Global:
-                    {
-                        value = globalAutoSet.get(keyName);
-                        if (value == null)
-                        {
-                            value = WPTool.newObject(mayNew);
-                            globalAutoSet.put(keyName, value);
-                        }
-                    }
-                    break;
-                    case Context:
-                    {
-                        value = contextAutoSet.get(keyName);
-                        if (value == null)
-                        {
-                            value = WPTool.newObject(mayNew);
-                            contextAutoSet.put(keyName, value);
-                        }
-                    }
-                    break;
-                    case New:
-                    {
-                        value = WPTool.newObject(mayNew);
-                    }
-                    break;
-                }
                 if (value == null)
                 {
-                    thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
-                    break;
+                    String keyName;
+                    Class<?> mayNew = null;
+                    Class<?> classClass = autoSet.classValue();
+                    if (classClass.equals(AutoSet.class))
+                    {
+                        keyName = autoSet.value();
+                    } else
+                    {
+                        keyName = classClass.getName();
+                        mayNew = classClass;
+                    }
+                    if ("".equals(keyName))
+                    {
+                        keyName = f.getType().getName();
+                    }
+                    if (mayNew == null)
+                    {
+                        mayNew = f.getType();
+                    }
+
+                    switch (autoSet.range())
+                    {
+                        case Global:
+                        {
+                            value = globalAutoSet.get(keyName);
+                            if (value == null)
+                            {
+                                value = WPTool.newObject(mayNew);
+                                globalAutoSet.put(keyName, value);
+                            }
+                        }
+                        break;
+                        case Context:
+                        {
+                            value = contextAutoSet.get(keyName);
+                            if (value == null)
+                            {
+                                value = WPTool.newObject(mayNew);
+                                contextAutoSet.put(keyName, value);
+                            }
+                        }
+                        break;
+                        case New:
+                        {
+                            value = WPTool.newObject(mayNew);
+                        }
+                        break;
+                    }
+
+                    if (value == null)
+                    {
+                        thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
+                        break;
+                    } else if (needPut)
+                    {
+                        autoSetMixinMap.put(autoSetMixinName, value);
+                    }
                 }
                 f.set(object, value);
-                LOGGER.debug("AutoSet [{}] with [{}]", f, value);
-                doAutoSet(value);//设置被设置的变量。
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("AutoSet:({})[{}] with [{}]", autoSetMixinName == null ? "" : AutoSetMixin.class
+                            .getSimpleName() + " " + (needPut ? "get" : "set") + " " + autoSetMixinName, f, value);
+                }
+                doAutoSet(value, autoSetMixinMap);//设置被设置的变量。
             } catch (Exception e)
             {
                 LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
@@ -186,16 +230,19 @@ public class AutoSetUtil
                         String.format("%s.value() can not be empty when Annotated at %s!", AutoSet.class.getName(), f));
             }
             CommonMain commonMain = PorterMain.getMain(pName);
-            if(commonMain==null){
+            if (commonMain == null)
+            {
                 throw new Error(
-                        String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f,pName));
+                        String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f, pName));
             }
-            Delivery delivery=commonMain.getPLinker();
-            sysset=delivery;
+            Delivery delivery = commonMain.getPLinker();
+            sysset = delivery;
         }
-
-        f.set(object, sysset);
-        LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
+        if (sysset != null)
+        {
+            f.set(object, sysset);
+            LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
+        }
         return sysset != null;
     }
 }

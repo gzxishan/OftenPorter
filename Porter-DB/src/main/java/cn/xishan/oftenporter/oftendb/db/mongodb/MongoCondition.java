@@ -2,9 +2,9 @@ package cn.xishan.oftenporter.oftendb.db.mongodb;
 
 
 import cn.xishan.oftenporter.oftendb.db.BaseEasier;
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.Operator;
-import cn.xishan.oftenporter.oftendb.db.Unit;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -109,36 +109,36 @@ public class MongoCondition extends Condition
     }
 
     /**
-     * @param unit
+     * @param CUnit
      * @Key注解的处理
      */
-    private void dealNames(Unit unit)
+    private void dealNames(CUnit CUnit)
     {
         if (dealNamesClass == null)
         {
             return;
         }
-        if (!unit.isParam1Value())
+        if (!CUnit.isParam1Value())
         {
-            unit.setParam1(BaseEasier.dealWith_Key(dealNamesClass, unit.getParam1()));
+            CUnit.setParam1(BaseEasier.dealWith_Key(dealNamesClass, CUnit.getParam1()));
         }
-        if (!unit.isParam2Value())
+        if (!CUnit.isParam2Value())
         {
-            unit.setParam2(BaseEasier.dealWith_Key(dealNamesClass, (String) unit.getParam2()));
+            CUnit.setParam2(BaseEasier.dealWith_Key(dealNamesClass, (String) CUnit.getParam2()));
         }
     }
 
     private void dealNormal(Operator operator, Object object, DBObject baseObject)
     {
-        if (!(object instanceof Unit))
+        if (!(object instanceof CUnit))
         {
-            throw new ConditionException(operator + "-Unit is accept!");
+            throw new ConditionException(operator + "-CUnit is accept!");
         }
-        Unit unit = (Unit) object;
+        CUnit CUnit = (CUnit) object;
 
-        dealNames(unit);// @Key注解的处理
+        dealNames(CUnit);// @Key注解的处理
 
-        Object object2 = unit.getParam2();
+        Object object2 = CUnit.getParam2();
         if (object2 != null && (object2 instanceof MongoCondition))
         {
             object2 = ((MongoCondition) object2).toFinalObject();
@@ -163,35 +163,35 @@ public class MongoCondition extends Condition
             {
                 dbList.add(object2);
             }
-            baseObject.put(unit.getParam1(), new BasicDBObject(operator == IN ? "$in" : "$nin", dbList));
+            baseObject.put(CUnit.getParam1(), new BasicDBObject(operator == IN ? "$in" : "$nin", dbList));
             return;
 
         } else if (operator == SUBSTR && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject.put(unit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+            baseObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
                     : object2) + "")));
             return;
         } else if (operator == STARTSWITH && object2 != null)
         {
             Class<?> c = object2.getClass();
             baseObject
-                    .put(unit.getParam1(), new BasicDBObject("$regex", "^" + Util.regexFilter((c.isPrimitive() ? object2
+                    .put(CUnit.getParam1(), new BasicDBObject("$regex", "^" + Util.regexFilter((c.isPrimitive() ? object2
                             : object2) + "")));
             return;
         } else if (operator == ENDSSWITH && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject.put(unit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+            baseObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
                     : object2) + "") + "$"));
             return;
         } else if (operator == EQ)
         {
-            baseObject.put(unit.getParam1(), object2);
+            baseObject.put(CUnit.getParam1(), object2);
             return;
         }
 
-        //BasicDBObject basicDBObject = new BasicDBObject(unit.getParam1(), object2);
+        //BasicDBObject basicDBObject = new BasicDBObject(CUnit.getParam1(), object2);
         String op;
         if (operator == GT)
         {
@@ -221,12 +221,12 @@ public class MongoCondition extends Condition
         {
             throw new ConditionException("unknown operator " + operator);
         }
-        if (baseObject.containsField(unit.getParam1()))
+        if (baseObject.containsField(CUnit.getParam1()))
         {
-            ((DBObject) baseObject.get(unit.getParam1())).put(op, object2);
+            ((DBObject) baseObject.get(CUnit.getParam1())).put(op, object2);
         } else
         {
-            baseObject.put(unit.getParam1(), new BasicDBObject(op, object2));
+            baseObject.put(CUnit.getParam1(), new BasicDBObject(op, object2));
         }
 
 

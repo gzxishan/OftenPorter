@@ -6,10 +6,12 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -63,11 +65,21 @@ public final class Porter
     }
 
 
-    void doAutoSet()
+    void doAutoSet(Map<String, Object> autoSetMixinMap)
     {
+        if (object == null)
+        {
+            try
+            {
+                object = WPTool.newObject(clazz);
+            } catch (Exception e)
+            {
+                throw new InitException(e);
+            }
+        }
         if (object != null)
         {
-            autoSetUtil.doAutoSet(object);
+            autoSetUtil.doAutoSetForPorter(object,autoSetMixinMap);
         }
     }
 
@@ -79,17 +91,6 @@ public final class Porter
 
     Object getObj()
     {
-        if (object == null)
-        {
-            try
-            {
-                object = WPTool.newObject(clazz);
-                doAutoSet();
-            } catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
         return object;
     }
 

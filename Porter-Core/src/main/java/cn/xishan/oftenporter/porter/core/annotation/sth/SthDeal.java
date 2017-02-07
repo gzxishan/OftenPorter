@@ -41,14 +41,18 @@ public class SthDeal
     }
 
 
-    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil)throws FatalInitException
+    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil) throws FatalInitException
     {
-        return porter(clazz, object, autoSetUtil, false);
+        return porter(clazz, object, autoSetUtil, false,null);
     }
 
-    private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil, boolean isMixin) throws FatalInitException
+    private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil,
+            boolean isMixin,Map<String, Object> autoSetMixinMap) throws FatalInitException
 
     {
+        if(autoSetMixinMap==null){
+          autoSetMixinMap =  new HashMap<>();
+        }
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
@@ -56,7 +60,7 @@ public class SthDeal
 
         InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(clazz,isMixin);
+        _PortIn portIn = annotationDealt.portIn(clazz, isMixin);
         if (portIn == null)
         {
             return null;
@@ -69,11 +73,8 @@ public class SthDeal
         porter.object = object;
         porter.portIn = portIn;
         //自动设置
-        porter.doAutoSet();
-        if (porter.getPortIn().newObjectWhenInit())
-        {
-            porter.getObj();
-        }
+        porter.doAutoSet(autoSetMixinMap);
+
         //实例化经检查对象并添加到map。
         SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
@@ -81,9 +82,9 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParser指定的类的Parser和Parser.parse的处理
-        SthUtil.bindParserAndParseWithMixin(clazz,innerContextBridge,portIn.getInNames(),backableSeek,!isMixin);
+        SthUtil.bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
         //对Parser和Parser.parse的处理
-        SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek,!isMixin);
+        SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
 
         try
         {
@@ -114,10 +115,9 @@ public class SthDeal
             {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
                 porterOfFun.getMethodPortIn().setTiedType(tiedType);
-                putFun(porterOfFun,children);
+                putFun(porterOfFun, children);
             }
         }
-
 
         Class<?>[] mixins = SthUtil.getMixin(clazz);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
@@ -127,12 +127,13 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true);
+            Porter mixinPorter = porter(c, null, autoSetUtil, true,autoSetMixinMap);
             mixinList.add(mixinPorter);
             Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
-            while (mixinIt.hasNext()){
-                putFun(mixinIt.next(),children);
+            while (mixinIt.hasNext())
+            {
+                putFun(mixinIt.next(), children);
             }
             mixinPorter.children.clear();
         }
