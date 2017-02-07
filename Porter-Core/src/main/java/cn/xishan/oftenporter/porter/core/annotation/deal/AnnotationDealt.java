@@ -217,7 +217,6 @@ public final class AnnotationDealt
         _portIn.checks = portIn.checks();
         _portIn.tiedType = portIn.tiedType();
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
-        _portIn.newObjectWhenInit = portIn.newObjectWhenInit();
 
         LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
 
@@ -244,7 +243,6 @@ public final class AnnotationDealt
             _portIn.checks = portIn.checks();
             _portIn.method = AnnoUtil.method(class_PortIn.getMethod(), portIn.method());
             _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
-            _portIn.newObjectWhenInit = portIn.newObjectWhenInit();
 
         }
         return _portIn;

@@ -9,6 +9,10 @@ import java.util.UUID;
 public class KeyUtil
 {
 
+    /**
+     * 长度为32位的uuid字符串（没有“-”连接符）。
+     * @return
+     */
     public static String randomUUID()
     {
         UUID uuid = UUID.randomUUID();

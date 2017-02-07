@@ -1054,7 +1054,7 @@ public class Common
             {
                 Condition condition = dbHandleSource.newCondition();
                 Params params = paramsGetter.getParams();
-                condition.put(Condition.EQ, new Unit(key, value));
+                condition.put(Condition.EQ, new CUnit(key, value));
                 long n = dbHandle.exists(condition);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(n);

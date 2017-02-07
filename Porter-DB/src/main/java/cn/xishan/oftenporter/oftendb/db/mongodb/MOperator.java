@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.oftendb.db.mongodb;
 
 
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Operator;
-import cn.xishan.oftenporter.oftendb.db.Unit;
 
 public class MOperator
 {
@@ -33,7 +33,7 @@ public class MOperator
 
     /**
      * @param value
-     * @param forUnit 是否是用于{@linkplain Unit}
+     * @param forUnit 是否是用于{@linkplain CUnit}
      * @return
      */
     public static Operator newOperator(String value, boolean forUnit)

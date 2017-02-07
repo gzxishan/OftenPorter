@@ -6,12 +6,11 @@ import cn.xishan.oftenporter.demo.oftendb.base.ParamsGetterImpl;
 import cn.xishan.oftenporter.demo.oftendb.base.SqlDBSource;
 import cn.xishan.oftenporter.oftendb.data.Common2;
 import cn.xishan.oftenporter.oftendb.data.Common3;
-import cn.xishan.oftenporter.oftendb.data.DataDynamic;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.impl.DBSourceImpl;
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
-import cn.xishan.oftenporter.oftendb.db.Unit;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
@@ -52,7 +51,7 @@ public class Hello1Porter
     public Object del(WObject wObject)
     {
         Condition condition = source.newCondition();
-        condition.put(Condition.EQ, new Unit("name", wObject.fn[0]));
+        condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
         return Common2.C.deleteData(source, condition, wObject);
     }
 
@@ -60,7 +59,7 @@ public class Hello1Porter
     public Object update(WObject wObject)
     {
         Condition condition = source.newCondition();
-        condition.put(Condition.EQ, new Unit("name", wObject.fn[0]));
+        condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
         NameValues nameValues = new NameValues();
         nameValues.put("time", new Date());
         return Common2.C.updateData(source, condition, nameValues, wObject);
@@ -86,7 +85,7 @@ public class Hello1Porter
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
-            condition.put(Condition.EQ, new Unit("name", names.get(i)));
+            condition.put(Condition.EQ, new CUnit("name", names.get(i)));
             JResponse jResponse = Common3.deleteData(condition, wObject);
             jResponse.throwExCause();
         }
@@ -107,7 +106,7 @@ public class Hello1Porter
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
-            condition.put(Condition.EQ, new Unit("name", names.get(i)));
+            condition.put(Condition.EQ, new CUnit("name", names.get(i)));
             JResponse jResponse = Common3.deleteData(condition, wObject);
             jResponse.throwExCause();
         }

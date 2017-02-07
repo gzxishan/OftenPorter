@@ -21,6 +21,7 @@ public @interface PortIn
 
     /**
      * 同{@linkplain #tied()},当不为""时，则覆盖{@linkplain #tied()}.
+     *
      * @return
      */
     String value() default "";
@@ -61,9 +62,10 @@ public @interface PortIn
 
     /**
      * 是否忽略类型转换。默认为false。当为true时，将跳过{@linkplain cn.xishan.oftenporter.porter.core.base.ITypeParser}转换。
+     *
      * @return
      */
-    boolean ignoreTypeParser()default false;
+    boolean ignoreTypeParser() default false;
 
     /**
      * 设置检测类型。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
@@ -77,17 +79,4 @@ public @interface PortIn
      */
     TiedType tiedType() default TiedType.Default;
 
-//    /**
-//     * 是否支持多个接口类型,对类有效,默认为true。
-//     * 若为false，则当类的{@linkplain PortIn#tiedType()}为{@linkplain TiedType#REST}时，则非{@linkplain TiedType#REST}接口函数都将无效
-//     *
-//     * @return
-//     */
-//    boolean multiTiedType() default true;
-
-    /**
-     * 对类有效，默认false。当为true时，在加入该接口类时，可以保证构造对应的实例。
-     * @return
-     */
-    boolean newObjectWhenInit()default false;
 }

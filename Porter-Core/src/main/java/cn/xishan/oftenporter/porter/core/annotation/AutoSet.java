@@ -54,7 +54,7 @@ public @interface AutoSet
     String value() default "";
 
     /**
-     * 做为{@linkplain #value()}的补充，当其不为默认值时，则使用classValue().getName()作为查找的name。
+     * 做为{@linkplain #value()}的补充，当{@linkplain #value()}不为""且其值不为默认值时，则使用classValue().getName()作为查找的name。
      *
      * @return
      */

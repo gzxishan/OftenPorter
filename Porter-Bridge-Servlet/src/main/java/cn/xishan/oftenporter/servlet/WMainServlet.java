@@ -145,6 +145,10 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
 
+    /**
+     * 先调用。
+     * @throws ServletException
+     */
     @Override
     public void init() throws ServletException
     {
@@ -250,6 +254,10 @@ public class WMainServlet extends HttpServlet implements CommonMain
     @Override
     public PorterConf newPorterConf()
     {
+        if(porterMain==null){
+            LOGGER.error("Not init!");
+            throw new RuntimeException("Not init!");
+        }
         return porterMain.newPorterConf();
     }
 

@@ -1,11 +1,9 @@
 package cn.xishan.oftenporter.oftendb.db.mysql;
 
 import cn.xishan.oftenporter.oftendb.db.Condition;
-import cn.xishan.oftenporter.oftendb.db.Unit;
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.junit.Test;
-import org.junit.Before;
-import org.junit.After;
 
 /**
  * SqlCondition Tester.
@@ -20,8 +18,8 @@ public class SqlConditionTest
     public void test()
     {
         SqlCondition sqlCondition = new SqlCondition();
-        sqlCondition.put(Condition.ENDSSWITH,new Unit("type","%.jpg"));
-        sqlCondition.put(Condition.STARTSWITH,new Unit("name","[chen]"));
+        sqlCondition.put(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
+        sqlCondition.put(Condition.STARTSWITH,new CUnit("name","[chen]"));
         Object[] as = (Object[]) sqlCondition.toFinalObject();
         LogUtil.printErrPos(as[0]);
         LogUtil.printErrPos((Object[])as[1]);

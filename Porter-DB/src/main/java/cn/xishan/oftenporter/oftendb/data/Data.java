@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.oftendb.data;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
-import cn.xishan.oftenporter.oftendb.db.Unit;
+import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONObject;
@@ -333,7 +333,7 @@ public abstract class Data extends DataAble
                     {
                         String sname = cf.tiedName(fnNames[index].varName);
 
-                        condition.put(Condition.EQ, new Unit(sname, fn[index]));
+                        condition.put(Condition.EQ, new CUnit(sname, fn[index]));
                         if (toNull)
                         {
                             fn[index] = null;
@@ -365,7 +365,7 @@ public abstract class Data extends DataAble
                     if (fu[index] != null)
                     {
                         String sname = cf.tiedName(fuNames[index].varName);
-                        condition.put(Condition.EQ, new Unit(sname, fu[index]));
+                        condition.put(Condition.EQ, new CUnit(sname, fu[index]));
                         if (toNull)
                         {
                             fu[index] = null;

@@ -14,7 +14,6 @@ public final class _PortIn
     Class<? extends CheckPassable>[] checks;
     TiedType tiedType;
     boolean ignoreTypeParser;
-    boolean newObjectWhenInit;
 
 
     public TiedType getTiedType()
@@ -45,10 +44,6 @@ public final class _PortIn
     public boolean ignoreTypeParser()
     {
         return ignoreTypeParser;
-    }
-
-    public boolean newObjectWhenInit() {
-        return newObjectWhenInit;
     }
 
     public void setTiedType(TiedType tiedType)
