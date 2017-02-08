@@ -14,6 +14,16 @@ public class SqlUtil
     {
         public String sql;
         public Object[] args;
+
+        public WhereSQL()
+        {
+        }
+
+        public WhereSQL(String sql, Object... args)
+        {
+            this.sql = sql;
+            this.args = args;
+        }
     }
 
 //    /**

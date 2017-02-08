@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.oftendb.data;
 
-import cn.xishan.oftenporter.oftendb.data.*;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -20,6 +19,20 @@ public class Common3
                     "you should use " + Common.class.getName() + ".startTransaction(...) or " + Common2.class
                             .getName() + ".startTransaction(...)!");
         }
+    }
+
+    public static DBHandleSource getDBHandleSource(WObject wObject)
+    {
+        checkTransactionHandle(wObject);
+        CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
+        return handle.getDBHandleSource();
+    }
+
+    public static ParamsGetter getParamsGetter(WObject wObject)
+    {
+        checkTransactionHandle(wObject);
+        CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
+        return handle.getParamsGetter();
     }
 
     /**

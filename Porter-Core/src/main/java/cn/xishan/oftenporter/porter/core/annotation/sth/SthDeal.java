@@ -95,6 +95,37 @@ public class SthDeal
         }
 
 
+        /////处理混入接口------开始：
+        //先处理混入接口，这样当前接口类的接口方法优先
+        Class<?>[] mixins = SthUtil.getMixin(clazz);
+        List<Porter> mixinList = new ArrayList<>(mixins.length);
+        for (Class c : mixins)
+        {
+            if (!PortUtil.isPortClass(c))
+            {
+                continue;
+            }
+            Porter mixinPorter = porter(c, null, autoSetUtil, true,autoSetMixinMap);
+            mixinList.add(mixinPorter);
+            Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
+            Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
+            while (mixinIt.hasNext())
+            {
+                putFun(mixinIt.next(), children,true,true);
+            }
+            mixinPorter.children.clear();
+        }
+        if (mixinList.size() > 0)
+        {
+            porter.mixins = mixinList.toArray(new Porter[0]);
+        }
+
+        if (isMixin)
+        {
+            LOGGER.debug("***********For mixin:{}***********end!", clazz);
+        }
+        ////////处理混入接口------结束
+
         List<_PortStart> portStarts = new ArrayList<>();
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
@@ -115,31 +146,8 @@ public class SthDeal
             {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
                 porterOfFun.getMethodPortIn().setTiedType(tiedType);
-                putFun(porterOfFun, children);
+                putFun(porterOfFun, children,!isMixin,isMixin);
             }
-        }
-
-        Class<?>[] mixins = SthUtil.getMixin(clazz);
-        List<Porter> mixinList = new ArrayList<>(mixins.length);
-        for (Class c : mixins)
-        {
-            if (!PortUtil.isPortClass(c))
-            {
-                continue;
-            }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true,autoSetMixinMap);
-            mixinList.add(mixinPorter);
-            Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
-            Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
-            while (mixinIt.hasNext())
-            {
-                putFun(mixinIt.next(), children);
-            }
-            mixinPorter.children.clear();
-        }
-        if (mixinList.size() > 0)
-        {
-            porter.mixins = mixinList.toArray(new Porter[0]);
         }
 
         _PortStart[] starts = portStarts.toArray(new _PortStart[0]);
@@ -148,14 +156,11 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-        if (isMixin)
-        {
-            LOGGER.debug("***********For mixin:{}***********end!", clazz);
-        }
+
         return porter;
     }
 
-    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> children)
+    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> children,boolean willLog,boolean isMixin)
     {
         PorterOfFun lastFun = null;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
@@ -165,19 +170,23 @@ public class SthDeal
 
             case REST:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
-                LOGGER.debug("add-rest:{} (function={})", porterOfFun.getMethodPortIn().getMethod(),
-                        method.getName());
+                if(LOGGER.isDebugEnabled()&&willLog){
+                    LOGGER.debug("add-rest:{} (function={}{})", porterOfFun.getMethodPortIn().getMethod(),
+                            method.getName(),isMixin?",from "+method.getDeclaringClass():"");
+                }
                 break;
             case Default:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getTiedName(), porterOfFun);
-                LOGGER.debug("add:{},{} (function={})", porterOfFun.getMethodPortIn().getTiedName(),
-                        porterOfFun.getMethodPortIn().getMethod(), method.getName());
+                if(LOGGER.isDebugEnabled()&&willLog){
+                    LOGGER.debug("add:{},{} (function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
+                            porterOfFun.getMethodPortIn().getMethod(), method.getName(),isMixin?",from "+method.getDeclaringClass():"");
+                }
                 break;
         }
 
-        if (lastFun != null)
+        if (lastFun != null&&LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("removed PorterFun:{}", lastFun.getMethod());
+            LOGGER.debug("overrided:{}", lastFun.getMethod());
         }
     }
 

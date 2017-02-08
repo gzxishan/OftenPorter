@@ -218,7 +218,9 @@ public final class AnnotationDealt
         _portIn.tiedType = portIn.tiedType();
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 
-        LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
+        if(LOGGER.isDebugEnabled()&&!isMixin){
+            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
+        }
 
         return _portIn;
     }
