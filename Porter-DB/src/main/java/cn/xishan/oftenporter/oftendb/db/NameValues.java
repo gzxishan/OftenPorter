@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db;
 
+import cn.xishan.oftenporter.porter.core.util.WPTool;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class NameValues
     // private Map<String, Object> map;
     private List<String> names;
     private List<Object> values;
+    private boolean filterNullAndEmpty=false;
 
     public NameValues()
     {
@@ -37,10 +40,23 @@ public class NameValues
         values = new ArrayList<Object>(capacity);
     }
 
+    /**
+     * 是否过滤掉值为null或""的元素,默认为false,请在{@linkplain #put(String, Object)}之前调用。
+     * @param filterNullAndEmpty
+     * @return
+     */
+    public NameValues filterNullAndEmpty(boolean filterNullAndEmpty)
+    {
+        this.filterNullAndEmpty = filterNullAndEmpty;
+        return this;
+    }
+
     public NameValues put(String name, Object value)
     {
-        names.add(name);
-        values.add(value);
+        if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){
+            names.add(name);
+            values.add(value);
+        }
         return this;
     }
 

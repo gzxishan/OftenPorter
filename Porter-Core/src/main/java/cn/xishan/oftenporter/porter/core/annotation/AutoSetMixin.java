@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * 只对接口类变量有效,从被混入的接口中获取已经设置的对象。，优先于{@linkplain AutoSet}注解。
+ * 用于在混入接口类间传递变量，只对接口类变量有效,优先于{@linkplain AutoSet}注解。
  *
  * @author Created by https://github.com/CLovinr on 2017/2/7.
  */
@@ -20,7 +20,7 @@ public @interface AutoSetMixin
     String value() default "";
 
     /**
-     * 做为{@linkplain #value()}的补充，当{@linkplain #value()}不为""且其值不为默认值时，则使用classValue().getName()作为匹配名称。
+     * 作为{@linkplain #value()}的补充，当{@linkplain #value()}不为""且其值不为默认值时，则使用classValue().getName()作为匹配名称。
      *
      * @return
      */
