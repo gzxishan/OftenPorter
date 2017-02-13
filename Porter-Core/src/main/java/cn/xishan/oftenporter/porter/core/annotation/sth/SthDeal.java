@@ -43,15 +43,16 @@ public class SthDeal
 
     public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil) throws FatalInitException
     {
-        return porter(clazz, object, autoSetUtil, false,null);
+        return porter(clazz, object, autoSetUtil, false, null);
     }
 
     private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil,
-            boolean isMixin,Map<String, Object> autoSetMixinMap) throws FatalInitException
+            boolean isMixin, Map<String, Object> autoSetMixinMap) throws FatalInitException
 
     {
-        if(autoSetMixinMap==null){
-          autoSetMixinMap =  new HashMap<>();
+        if (autoSetMixinMap == null)
+        {
+            autoSetMixinMap = new HashMap<>();
         }
         if (isMixin)
         {
@@ -74,6 +75,11 @@ public class SthDeal
         porter.portIn = portIn;
         //自动设置
         porter.doAutoSet(autoSetMixinMap);
+        if (porter.object instanceof IPorter)
+        {
+            IPorter iPorter = (IPorter) porter.object;
+            porter.getPortIn().setTiedName(iPorter.classTied());
+        }
 
         //实例化经检查对象并添加到map。
         SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
@@ -105,13 +111,13 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true,autoSetMixinMap);
+            Porter mixinPorter = porter(c, null, autoSetUtil, true, autoSetMixinMap);
             mixinList.add(mixinPorter);
             Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
             while (mixinIt.hasNext())
             {
-                putFun(mixinIt.next(), children,true,true);
+                putFun(mixinIt.next(), children, true, true);
             }
             mixinPorter.children.clear();
         }
@@ -146,7 +152,7 @@ public class SthDeal
             {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
                 porterOfFun.getMethodPortIn().setTiedType(tiedType);
-                putFun(porterOfFun, children,!isMixin,isMixin);
+                putFun(porterOfFun, children, !isMixin, isMixin);
             }
         }
 
@@ -160,7 +166,7 @@ public class SthDeal
         return porter;
     }
 
-    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> children,boolean willLog,boolean isMixin)
+    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> children, boolean willLog, boolean isMixin)
     {
         PorterOfFun lastFun = null;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
@@ -170,21 +176,24 @@ public class SthDeal
 
             case REST:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
-                if(LOGGER.isDebugEnabled()&&willLog){
+                if (LOGGER.isDebugEnabled() && willLog)
+                {
                     LOGGER.debug("add-rest:{} (function={}{})", porterOfFun.getMethodPortIn().getMethod(),
-                            method.getName(),isMixin?",from "+method.getDeclaringClass():"");
+                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
             case Default:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getTiedName(), porterOfFun);
-                if(LOGGER.isDebugEnabled()&&willLog){
+                if (LOGGER.isDebugEnabled() && willLog)
+                {
                     LOGGER.debug("add:{},{} (function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
-                            porterOfFun.getMethodPortIn().getMethod(), method.getName(),isMixin?",from "+method.getDeclaringClass():"");
+                            porterOfFun.getMethodPortIn().getMethod(), method.getName(),
+                            isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
         }
 
-        if (lastFun != null&&LOGGER.isDebugEnabled())
+        if (lastFun != null && LOGGER.isDebugEnabled())
         {
             LOGGER.debug("overrided:{}", lastFun.getMethod());
         }
