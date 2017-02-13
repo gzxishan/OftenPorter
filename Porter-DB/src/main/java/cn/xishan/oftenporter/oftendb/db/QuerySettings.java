@@ -31,7 +31,7 @@ public abstract class QuerySettings implements ToFinal
     /**
      * 
      * @param name
-     * @param n 1 为升序排列，而-1是用于降序排列
+     * @param n 其中1为升序排列，而-1是用于降序排列
      * @return
      */
     public abstract QuerySettings putOrder(String name, int n);

@@ -20,6 +20,7 @@ public class SqlConditionTest
         SqlCondition sqlCondition = new SqlCondition();
         sqlCondition.put(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
         sqlCondition.put(Condition.STARTSWITH,new CUnit("name","[chen]"));
+        sqlCondition.put(Condition.EQ,new CUnit("pid",null));
         Object[] as = (Object[]) sqlCondition.toFinalObject();
         LogUtil.printErrPos(as[0]);
         LogUtil.printErrPos((Object[])as[1]);

@@ -32,7 +32,7 @@ public class Common
          */
         Condition getCondition();
 
-        void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+        void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                 Condition _condition, Object[] otherParams) throws Exception;
     }
 
@@ -64,7 +64,7 @@ public class Common
             }
             common = (Common) comm;
             dbHandleSource = handle.getDBHandleSource();
-            paramsGetter = handle.getParamsGetter()!=null?handle.getParamsGetter():paramsGetter;
+            paramsGetter = handle.getParamsGetter() != null ? handle.getParamsGetter() : paramsGetter;
         } else
         {
             common = this;
@@ -125,7 +125,7 @@ public class Common
                 {
                     data.dealNames(condition);
                 }
-                dealt.deal(jResponse, dbHandle, data, condition, otherParams);
+                dealt.deal(jResponse, dbHandle, paramsGetter, data, condition, otherParams);
 
             } else
             {
@@ -231,7 +231,8 @@ public class Common
     public static TransactionHandle<Common> getTransactionHandle(DBHandleSource dbHandleSource,
             ParamsGetter paramsGetter)
     {
-        if(dbHandleSource==null||paramsGetter==null){
+        if (dbHandleSource == null || paramsGetter == null)
+        {
             throw new NullPointerException();
         }
         CommonTransactionHandle<Common> transactionHandle = new CommonTransactionHandle<Common>(dbHandleSource,
@@ -333,7 +334,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
             {
 
@@ -374,14 +375,14 @@ public class Common
      * @return 操作结果
      */
 
-    public JResponse addData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, boolean responseData,
+    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
             WObject wObject,
             int optionCode)
     {
         return _addData(dbHandleSource, paramsGetter, responseData, wObject, optionCode);
     }
 
-    private JResponse _addData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, boolean responseData,
+    private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
             WObject wObject,
             int optionCode)
     {
@@ -390,7 +391,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition condition, Object[] otherParams) throws Exception
             {
 
@@ -457,7 +458,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
             {
 
@@ -511,7 +512,7 @@ public class Common
      * @param optionCode
      * @return
      */
-    public JResponse replaceData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
+    public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
             final Condition condition,
             WObject wObject, int optionCode)
     {
@@ -520,7 +521,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
@@ -575,7 +576,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
             {
 
@@ -674,7 +675,7 @@ public class Common
         {
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 int n = dbHandle.del(_condition);
@@ -736,7 +737,7 @@ public class Common
     }
 
 
-    private JResponse _queryOne(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
+    private JResponse _queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
             final Condition condition,
             final KeysSelection _keysSelection, WObject wObject, int optionCode)
     {
@@ -751,7 +752,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 Params params = paramsGetter.getParams();
@@ -871,7 +872,7 @@ public class Common
         return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
     }
 
-    private JResponse _queryData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
+    private JResponse _queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
             final Condition condition,
             final QuerySettings querySettings, final KeysSelection _keysSelection, WObject wObject, int optionCode)
     {
@@ -886,7 +887,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 Params params = paramsGetter.getParams();
@@ -937,7 +938,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 JSONArray array = dbHandle.advancedQuery(advancedQuery);
@@ -976,7 +977,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 Object object = dbHandle.advancedExecute(advancedExecutor);
@@ -998,7 +999,7 @@ public class Common
      * @param wObject
      * @return 操作结果
      */
-    public JResponse count(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, final Condition condition,
+    public JResponse count(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
             WObject wObject)
     {
         Dealt dealt = new Dealt()
@@ -1012,7 +1013,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 long n = dbHandle.exists(_condition);
@@ -1035,7 +1036,7 @@ public class Common
      * @param wObject
      * @return 操作结果
      */
-    public JResponse exists(final DBHandleSource dbHandleSource, final ParamsGetter paramsGetter, final String key,
+    public JResponse exists(final DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final String key,
             final Object value, WObject wObject)
     {
         Dealt dealt = new Dealt()
@@ -1049,7 +1050,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 Condition condition = dbHandleSource.newCondition();
@@ -1122,7 +1123,7 @@ public class Common
      * @param optionCode
      * @return
      */
-    public JResponse updateData(DBHandleSource dbHandleSource, final ParamsGetter paramsGetter,
+    public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
             final Condition condition,
             WObject wObject, int optionCode)
     {
@@ -1136,7 +1137,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
@@ -1182,7 +1183,7 @@ public class Common
             }
 
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DataAble data,
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
                 int n = dbHandle.update(_condition, nameValues);

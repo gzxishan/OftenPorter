@@ -94,19 +94,35 @@ public class WMainServlet extends HttpServlet implements CommonMain
         doRequest(request, response, PortMethod.GET);
     }
 
+    private void doRequest(HttpServletRequest request, HttpServletResponse response,
+            PortMethod method) throws IOException
+    {
+        doRequest(request, null, response, method);
+    }
+
+    protected static String getPath(HttpServletRequest request)
+    {
+        String path = request.getRequestURI()
+                .substring(request.getContextPath().length() + request.getServletPath().length());
+        return path;
+    }
+
     /**
      * 处理请求
      *
      * @param request
+     * @param path     @param path     当为null时，使用request.getRequestURI().substring(request.getContextPath().length()
+     *                 + request
+     *                 .getServletPath().length())
      * @param response
      * @param method
      * @throws IOException
      */
-    private void doRequest(HttpServletRequest request, HttpServletResponse response,
+    protected void doRequest(HttpServletRequest request, String path, HttpServletResponse response,
             PortMethod method) throws IOException
     {
 
-        WServletRequest wreq = new WServletRequest(request, response, method);
+        WServletRequest wreq = new WServletRequest(request, path, response, method);
         final WServletResponse wresp = new WServletResponse(response);
 
         if (wreq.getPath().startsWith("/="))
@@ -147,6 +163,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
     /**
      * 先调用。
+     *
      * @throws ServletException
      */
     @Override
@@ -187,7 +204,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
                 porterMain.doRequest(req, request, resp);
             }
         };
-        porterMain = new PorterMain(new PName(pname),this, bridge);
+        porterMain = new PorterMain(new PName(pname), this, bridge);
         if (responseWhenException == null)
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
@@ -254,7 +271,8 @@ public class WMainServlet extends HttpServlet implements CommonMain
     @Override
     public PorterConf newPorterConf()
     {
-        if(porterMain==null){
+        if (porterMain == null)
+        {
             LOGGER.error("Not init!");
             throw new RuntimeException("Not init!");
         }

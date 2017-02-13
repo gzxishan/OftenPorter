@@ -18,10 +18,16 @@ public final class WServletRequest extends PRequest
     private HttpServletRequest request;
     private HttpServletResponse response;
 
-    WServletRequest(HttpServletRequest request, HttpServletResponse response, PortMethod method)
+    /**
+     * @param request
+     * @param path     当为null时，使用request.getRequestURI().substring(request.getContextPath().length() + request
+     *                 .getServletPath().length())
+     * @param response
+     * @param method
+     */
+    WServletRequest(HttpServletRequest request, String path, HttpServletResponse response, PortMethod method)
     {
-        super(method, request.getRequestURI()
-                        .substring(request.getContextPath().length() + request.getServletPath().length()),
+        super(method, path != null ? path : WMainServlet.getPath(request),
                 false);
         this.request = request;
         this.response = response;
@@ -80,7 +86,8 @@ public final class WServletRequest extends PRequest
 //    }
 
 
-   private static final Pattern PATTERN_HOST_PORT = Pattern.compile("^(http|https)://([^/]+)");
+    private static final Pattern PATTERN_HOST_PORT = Pattern.compile("^(http|https)://([^/]+)");
+
     /**
      * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
      *
