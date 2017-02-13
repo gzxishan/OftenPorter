@@ -226,19 +226,19 @@ public class SqlCondition extends Condition
         {
             throw new ConditionException(operator + "-CUnit is accept!");
         }
-        CUnit CUnit = (CUnit) object;
+        CUnit cUnit = (CUnit) object;
 
-        dealNames(CUnit);// @Key注解的处理
+        dealNames(cUnit);// @Key注解的处理
 
         link(stringBuilder);//and或or
-        if (CUnit.isParam1Value())
+        if (cUnit.isParam1Value())
         {
             stringBuilder.append("{").append(args.size()).append("}");
-            args.add(CUnit.getParam1());
+            args.add(cUnit.getParam1());
         } else
         {
-            chekName(CUnit.getParam1());
-            stringBuilder.append("`").append(CUnit.getParam1()).append("`");
+            chekName(cUnit.getParam1());
+            stringBuilder.append("`").append(cUnit.getParam1()).append("`");
         }
         stringBuilder.append(" ");
 
@@ -246,8 +246,10 @@ public class SqlCondition extends Condition
         {
             stringBuilder.append("is not NULL ");
             return;
-        } else if (operator == IS_NULL)
+        } else if (operator == IS_NULL//添加旁边的或者使得当查询条件的value为null时，使用is NULL
+                || (cUnit.getParam2() == null && operator == EQ && !cUnit.isParam1Value() && cUnit.isParam2Value()))
         {
+            operator = IS_NULL;
             stringBuilder.append("is NULL ");
             return;
         }
@@ -255,9 +257,9 @@ public class SqlCondition extends Condition
         if (operator == IN || operator == NIN)
         {
             StringBuilder sBuilder = new StringBuilder("(");
-            if (CUnit.getParam2() instanceof Object[])
+            if (cUnit.getParam2() instanceof Object[])
             {
-                Object[] objects = (Object[]) CUnit.getParam2();
+                Object[] objects = (Object[]) cUnit.getParam2();
                 if (objects != null)
                 {
                     for (int i = 0; i < objects.length - 1; i++)
@@ -274,7 +276,7 @@ public class SqlCondition extends Condition
             } else
             {
                 sBuilder.append("{").append(args.size()).append("},");
-                args.add(CUnit.getParam2());
+                args.add(cUnit.getParam2());
             }
 
             sBuilder.append(") ");
@@ -306,31 +308,31 @@ public class SqlCondition extends Condition
         } else if (operator == SUBSTR)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(CUnit.getParam2() + "") + "%");
+            args.add("%" + SqlUtil.fileterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == STARTSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add(SqlUtil.fileterLike(CUnit.getParam2() + "") + "%");
+            args.add(SqlUtil.fileterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == ENDSSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(CUnit.getParam2() + ""));
+            args.add("%" + SqlUtil.fileterLike(cUnit.getParam2() + ""));
             return;
         } else
         {
             throw new ConditionException("unknown operator " + operator);
         }
         stringBuilder.append(" ");
-        if (CUnit.isParam2Value())
+        if (cUnit.isParam2Value())
         {
             stringBuilder.append("{").append(args.size()).append("}");
-            args.add(CUnit.getParam2());
+            args.add(cUnit.getParam2());
         } else
         {
-            chekName((String) CUnit.getParam2());
-            stringBuilder.append("`").append(CUnit.getParam2()).append("`");
+            chekName((String) cUnit.getParam2());
+            stringBuilder.append("`").append(cUnit.getParam2()).append("`");
         }
     }
 
