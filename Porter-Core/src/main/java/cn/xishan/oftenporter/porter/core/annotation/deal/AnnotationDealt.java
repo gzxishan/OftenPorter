@@ -72,7 +72,7 @@ public final class AnnotationDealt
         _UnNece _unNece = new _UnNece();
         if ("".equals(unNece.value()))
         {
-            _unNece.value = unNece.value();
+            _unNece.value = field.getName();
         } else
         {
             _unNece.value = unNece.value();
