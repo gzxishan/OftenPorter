@@ -37,13 +37,13 @@ public class PortExecutor
     private PName pName;
     private DeliveryBuilder deliveryBuilder;
 
-    public PortExecutor(PName pName, Delivery delivery, UrlDecoder urlDecoder,
+    public PortExecutor(PName pName, PLinker pLinker, UrlDecoder urlDecoder,
             boolean responseWhenException)
     {
         this.pName = pName;
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
-        deliveryBuilder = DeliveryBuilder.getBuilder(true, delivery);
+        deliveryBuilder = DeliveryBuilder.getBuilder(true, pLinker);
     }
 
     public void initAllGlobalChecks(CheckPassable[] allGlobalChecks)
