@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.*;
  */
 class DeliveryImpl implements Delivery
 {
-    private Delivery delivery;
+    private PLinker pLinker;
     private WObject wObject;
     private PBridgeImpl toAll, current;
 
@@ -30,9 +30,9 @@ class DeliveryImpl implements Delivery
     }
 
 
-    public DeliveryImpl(Delivery delivery, WObject wObject)
+    public DeliveryImpl(PLinker pLinker, WObject wObject)
     {
-        this.delivery = delivery;
+        this.pLinker = pLinker;
         this.wObject = wObject;
     }
 
@@ -45,7 +45,7 @@ class DeliveryImpl implements Delivery
             {
                 if (current == null)
                 {
-                    current = new PBridgeImpl(delivery.currentBridge());
+                    current = new PBridgeImpl(pLinker.currentBridge());
                 }
             }
         }
@@ -61,16 +61,16 @@ class DeliveryImpl implements Delivery
             {
                 if (toAll == null)
                 {
-                    toAll = new PBridgeImpl(delivery.toAllBridge());
+                    toAll = new PBridgeImpl(pLinker.toAllBridge());
                 }
             }
         }
-        return current;
+        return toAll;
     }
 
     @Override
     public PName currentPName()
     {
-        return delivery.currentPName();
+        return pLinker.currentPName();
     }
 }
