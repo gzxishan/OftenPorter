@@ -513,34 +513,7 @@ public class SqlHandle implements DBHandle
             } catch (BatchUpdateException e)
             {
 
-                try
-                {
-                    if (!isTransaction)
-                    {
-                        conn.commit();
-                    }
-                    int[] rs = e.getUpdateCounts();
-                    if (rs.length < multiNameValues.count())
-                    {
-                        int[] rs2 = new int[multiNameValues.count()];// 初始值为0
-                        System.arraycopy(rs, 0, rs2, 0, rs.length);
-                        return rs2;
-                    } else
-                    {
-                        return rs;
-                    }
-                } catch (SQLException e1)
-                {
-                    // try
-                    // {
-                    // conn.rollback();
-                    // }
-                    // catch (SQLException e2)
-                    // {
-                    //
-                    // }
-                    throw new DBException(e1);
-                }
+                throw new DBException(e);
 
             } catch (Exception e)
             {
