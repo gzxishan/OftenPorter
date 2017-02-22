@@ -14,6 +14,13 @@ public interface UrlDecoder
         String funTied();
 
         /**
+         * 重新设置绑定名。
+         * @param classTied
+         * @param funTied
+         */
+        void setTied(String classTied,String funTied);
+
+        /**
          * 框架内部处理参数时，获取参数值，优是先从地址参数获取。
          * @param name 设置的参数名称
          * @param value 参数值
