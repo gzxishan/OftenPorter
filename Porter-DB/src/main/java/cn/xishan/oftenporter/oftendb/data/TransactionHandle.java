@@ -24,7 +24,7 @@ public interface TransactionHandle<T> extends Closeable
     void startTransaction() throws DBException;
 
     /**
-     * 提交事务
+     * 提交事务,注意：若之前出现异常，则会回滚。
      *
      * @throws DBException
      */
