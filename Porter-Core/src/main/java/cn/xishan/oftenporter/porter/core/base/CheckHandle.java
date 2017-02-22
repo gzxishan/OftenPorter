@@ -1,6 +1,9 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 /**
+ * <pre>
+ *     注意：失败的对象可以是{@linkplain cn.xishan.oftenporter.porter.core.JResponse}
+ * </pre>
  * Created by chenyg on 2017/1/5.
  */
 public abstract class CheckHandle
@@ -78,6 +81,10 @@ public abstract class CheckHandle
 
     public void failed(Object failedObject)
     {
+        if (failedObject == null)
+        {
+            throw new NullPointerException("the failedObject is null!");
+        }
         go(failedObject);
     }
 
