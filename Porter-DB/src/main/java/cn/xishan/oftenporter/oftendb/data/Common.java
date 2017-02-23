@@ -49,6 +49,15 @@ public class Common
     }
 
 
+    private void mayTransactionEx(WObject wObject, Exception e)
+    {
+        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
+        {
+            CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
+            handle.ex = e;
+        }
+    }
+
     private JResponse commonDealt(Dealt dealt, boolean willSetParams, DBHandleSource dbHandleSource,
             ParamsGetter paramsGetter,
             WObject wObject, SetType setType, int optionCode, Object... otherParams)
@@ -57,6 +66,7 @@ public class Common
         if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
         {
             CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
+            handle.check();
             Object comm = handle.common();
             if (comm instanceof Common2)
             {
@@ -134,6 +144,7 @@ public class Common
             }
         } catch (DBException e)
         {
+            mayTransactionEx(wObject, e);
             jResponse.setCode(ResultCode.DB_EXCEPTION);
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
@@ -142,6 +153,7 @@ public class Common
 
         } catch (Exception e)
         {
+            mayTransactionEx(wObject, e);
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
@@ -153,7 +165,6 @@ public class Common
                 WPTool.close(dbHandle);
                 dbHandleSource.afterClose(dbHandle);
             }
-
         }
 
         return jResponse;
@@ -198,7 +209,7 @@ public class Common
     }
 
     /**
-     * 提交事务.
+     * 提交事务.<strong>注意见：</strong>{@linkplain TransactionHandle#commitTransaction()}
      *
      * @param wObject
      * @throws IOException
@@ -263,7 +274,7 @@ public class Common
             @Override
             public void commitTransaction() throws DBException
             {
-                common._dbHandle.commitTransaction();
+                commitTransaction(common._dbHandle);
             }
 
             @Override

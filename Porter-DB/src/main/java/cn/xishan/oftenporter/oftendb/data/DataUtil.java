@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 
 import cn.xishan.oftenporter.oftendb.annotation.Key;
+import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
@@ -9,16 +10,19 @@ import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 public class DataUtil
 {
-private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
+
     /**
      * 得到字段的绑定名称。
      *
@@ -88,13 +92,13 @@ private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
 
     public static ParamsGetter newParamsGetter(DataAble dataAble, ParamsGetter.DataInitable dataInitable)
     {
-        ParamsGetter.Params params = new ParamsGetter.Params(dataAble,dataInitable);
+        ParamsGetter.Params params = new ParamsGetter.Params(dataAble, dataInitable);
         return newParamsGetter(params);
     }
 
     public static ParamsGetter newParamsGetter(Class<? extends DataAble> c, ParamsGetter.DataInitable dataInitable)
     {
-        ParamsGetter.Params params = new ParamsGetter.Params(c,dataInitable);
+        ParamsGetter.Params params = new ParamsGetter.Params(c, dataInitable);
         return newParamsGetter(params);
     }
 
@@ -132,6 +136,36 @@ private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
             DataAble dataAble) throws Exception
     {
         return dataAble.toNameValues(params);
+    }
+
+    public static NameValues toNameValues(JSONObject jsonObject)
+    {
+        NameValues nameValues = new NameValues(jsonObject.size());
+        for (Map.Entry<String, Object> entry : jsonObject.entrySet())
+        {
+            nameValues.put(entry.getKey(), entry.getValue());
+        }
+        return nameValues;
+    }
+
+    public static MultiNameValues toMultiNameValues(JSONArray jsonArray)
+    {
+        JSONObject jsonObject = jsonArray.getJSONObject(0);
+        String[] names = jsonObject.keySet().toArray(new String[0]);
+        MultiNameValues multiNameValues = new MultiNameValues();
+        multiNameValues.names(names);
+
+        for (int i = 0; i < jsonArray.size(); i++)
+        {
+            jsonObject = jsonArray.getJSONObject(i);
+            Object[] values = new Object[names.length];
+            multiNameValues.addValues(values);
+            for (int k = 0; k < names.length; k++)
+            {
+                values[k] = jsonObject.get(names[k]);
+            }
+        }
+        return multiNameValues;
     }
 
     /**
@@ -295,7 +329,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
             }
         } catch (JSONException e)
         {
-            LOGGER.warn(e.getMessage(),e);
+            LOGGER.warn(e.getMessage(), e);
         }
 
         return jsonObject;

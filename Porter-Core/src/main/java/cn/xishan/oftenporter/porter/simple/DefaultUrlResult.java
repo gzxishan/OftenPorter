@@ -48,6 +48,17 @@ class DefaultUrlResult implements UrlDecoder.Result
     }
 
     @Override
+    public void setTied(String classTied, String funTied)
+    {
+        if(classTied!=null){
+            this.classTied=classTied;
+        }
+        if(funTied!=null){
+            this.funTied=funTied;
+        }
+    }
+
+    @Override
     public void setParam(String name, Object value) {
         params.put(name,value);
     }
