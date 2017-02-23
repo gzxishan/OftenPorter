@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
@@ -14,6 +15,7 @@ class DefaultUrlResult implements UrlDecoder.Result
 {
     private Map<String, Object> params;
     private String contextName, classTied, funTied;
+    private Stack<UrlDecoder.TiedValue> tiedValueStack;
 
     public DefaultUrlResult(Map<String, Object> params, String contextName, String classTied, String funTied)
     {
@@ -26,7 +28,7 @@ class DefaultUrlResult implements UrlDecoder.Result
     @Override
     public String toString()
     {
-        return "/"+contextName+"/"+classTied+"/"+funTied;
+        return "/" + contextName + "/" + classTied + "/" + funTied;
     }
 
     @Override
@@ -38,29 +40,52 @@ class DefaultUrlResult implements UrlDecoder.Result
     @Override
     public String classTied()
     {
-        return classTied;
+        String tied = tiedValueStack == null || tiedValueStack.empty() ? classTied : tiedValueStack.peek().classTied;
+        if (tied == null)
+        {
+            tied = classTied;
+        }
+        return tied;
     }
 
     @Override
     public String funTied()
     {
-        return funTied;
+        String tied = tiedValueStack == null || tiedValueStack.empty() ? funTied : tiedValueStack.peek().funTied;
+        if (tied == null)
+        {
+            tied = funTied;
+        }
+        return tied;
     }
 
     @Override
-    public void setTied(String classTied, String funTied)
+    public void push(UrlDecoder.TiedValue tiedValue)
     {
-        if(classTied!=null){
-            this.classTied=classTied;
+        if (tiedValueStack == null)
+        {
+            tiedValueStack = new Stack<>();
         }
-        if(funTied!=null){
-            this.funTied=funTied;
-        }
+        tiedValueStack.push(tiedValue);
     }
 
     @Override
-    public void setParam(String name, Object value) {
-        params.put(name,value);
+    public UrlDecoder.TiedValue pop()
+    {
+        if (tiedValueStack != null && !tiedValueStack.isEmpty())
+        {
+            return tiedValueStack.pop();
+        } else
+        {
+            return null;
+        }
+    }
+
+
+    @Override
+    public void setParam(String name, Object value)
+    {
+        params.put(name, value);
     }
 
     @Override

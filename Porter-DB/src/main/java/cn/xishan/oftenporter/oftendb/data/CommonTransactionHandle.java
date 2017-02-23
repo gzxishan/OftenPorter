@@ -42,6 +42,7 @@ abstract class CommonTransactionHandle<T> implements TransactionHandle<T>
             dbHandle.commitTransaction();
         }else{
             rollback();
+            throw new DBException(ex);
         }
     }
 }
