@@ -7,25 +7,43 @@ package cn.xishan.oftenporter.porter.core.base;
  */
 public interface UrlDecoder
 {
+    public static class TiedValue
+    {
+        public String classTied;
+        public String funTied;
+
+        public TiedValue(String classTied, String funTied)
+        {
+            if(classTied!=null){
+                PortUtil.checkName(classTied);
+            }
+           if(funTied!=null){
+               PortUtil.checkName(funTied);
+           }
+            this.classTied = classTied;
+            this.funTied = funTied;
+        }
+    }
+
     public interface Result extends ParamSource
     {
         String contextName();
+
         String classTied();
+
         String funTied();
 
-        /**
-         * 重新设置绑定名。
-         * @param classTied
-         * @param funTied
-         */
-        void setTied(String classTied,String funTied);
+        void push(TiedValue tiedValue);
+
+        TiedValue pop();
 
         /**
          * 框架内部处理参数时，获取参数值，优是先从地址参数获取。
-         * @param name 设置的参数名称
+         *
+         * @param name  设置的参数名称
          * @param value 参数值
          */
-        void setParam(String name,Object value);
+        void setParam(String name, Object value);
     }
 
     Result decode(String path);
