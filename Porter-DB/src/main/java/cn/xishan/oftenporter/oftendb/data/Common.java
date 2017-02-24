@@ -627,14 +627,10 @@ public class Common
             WObject wObject, int optionCode)
     {
         Condition condition;
-        try
-        {
-            condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
-            return e.getJResponse();
-        }
+
+        condition = getQuery(dbHandleSource, paramsSelection, wObject,
+                paramsGetter.getParams());
+
         return _deleteData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
     }
 
@@ -735,14 +731,10 @@ public class Common
     {
 
         Condition condition = null;
-        try
-        {
-            condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
-            return e.getJResponse();
-        }
+
+        condition = getQuery(dbHandleSource, paramsSelection, wObject,
+                paramsGetter.getParams());
+
 
         return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject, optionCode);
     }
@@ -872,14 +864,10 @@ public class Common
     {
 
         Condition condition = null;
-        try
-        {
-            condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
-            return e.getJResponse();
-        }
+
+        condition = getQuery(dbHandleSource, paramsSelection, wObject,
+                paramsGetter.getParams());
+
         return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
     }
 
@@ -1093,14 +1081,10 @@ public class Common
     {
 
         Condition condition = null;
-        try
-        {
-            condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                    paramsGetter.getParams());
-        } catch (WCallException e)
-        {
-            return e.getJResponse();
-        }
+
+        condition = getQuery(dbHandleSource, paramsSelection, wObject,
+                paramsGetter.getParams());
+
         return updateData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
     }
 

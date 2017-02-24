@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.base.CheckHandle;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 
 /**
  * Created by chenyg on 2017/1/5.
@@ -94,6 +95,10 @@ class PortExecutorCheckers extends CheckHandle
     {
         if (failedObject != null)
         {
+            if(failedObject instanceof WCallException){
+                WCallException callException = (WCallException) failedObject;
+                failedObject=callException.theJResponse();
+            }
             handle.go(failedObject);
         } else if (inAll)
         {

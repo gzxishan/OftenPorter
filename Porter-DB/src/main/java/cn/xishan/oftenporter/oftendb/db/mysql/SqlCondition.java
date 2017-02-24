@@ -269,13 +269,13 @@ public class SqlCondition extends Condition
                     }
                     if (objects.length > 0)
                     {
-                        sBuilder.append("{").append(args.size()).append("},");
+                        sBuilder.append("{").append(args.size()).append("}");
                         args.add(objects[objects.length - 1]);
                     }
                 }
             } else
             {
-                sBuilder.append("{").append(args.size()).append("},");
+                sBuilder.append("{").append(args.size()).append("}");
                 args.add(cUnit.getParam2());
             }
 
