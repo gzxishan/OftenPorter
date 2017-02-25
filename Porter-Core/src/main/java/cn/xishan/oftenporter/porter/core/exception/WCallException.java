@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 /**
  * Created by 刚帅 on 2015/10/23.
  *
- * @see #getJResponse()
+ * @see #theJResponse()
  */
 public class WCallException extends RuntimeException
 {
@@ -43,7 +43,7 @@ public class WCallException extends RuntimeException
      *
      * @return
      */
-    public JResponse getJResponse()
+    public JResponse theJResponse()
     {
         return jResponse;
     }
