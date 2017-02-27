@@ -113,4 +113,9 @@ public class DefaultUrlDecoder implements UrlDecoder
         return params;
     }
 
+    public static Result newResult(Map<String, Object> params, String contextName, String classTied, String funTied)
+    {
+        return new DefaultUrlResult(params, contextName, classTied, funTied);
+    }
+
 }
