@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * 响应结果的封装.
  * <pre>
  * 1.结果为一个json对象，含有的属性为下面的某几个:
- *   {@linkplain #CODE_FILED},{@linkplain #RESULT_FILED},{@linkplain #DESCRIPTION_FILED}
+ *   {@linkplain #CODE_FIELD},{@linkplain #RESULT_FIELD},{@linkplain #DESCRIPTION_FIELD}
  * 2.结果码(code)为0表示成功，其他表示不成功（不同值对应不同意思）
  * 3.desc属性表示描述；rs表示返回的结果数据；uri表示请求的uri，当发生异常，会自动设置该值。
  *
@@ -47,10 +47,10 @@ public class JResponse
 
     }
 
-    public static final String CODE_FILED = "code";
-    public static final String RESULT_FILED = "rs";
-    public static final String DESCRIPTION_FILED = "desc";
-    //public static final String REQUEST_URI_FILED = "uri";
+    public static final String CODE_FIELD = "code", CODE_NAME_FIELD = "cname";
+    public static final String RESULT_FIELD = "rs";
+    public static final String DESCRIPTION_FIELD = "desc";
+    //public static final String REQUEST_URI_FIELD = "uri";
 
 
     public static final JResponse SUCCESS_RESPONSE = new JResponse(ResultCode.SUCCESS);
@@ -115,9 +115,9 @@ public class JResponse
     private static Object getResult(JSONObject jsonObject)
     {
         Object result = null;
-        if (jsonObject.containsKey(RESULT_FILED))
+        if (jsonObject.containsKey(RESULT_FIELD))
         {
-            result = jsonObject.get(RESULT_FILED);
+            result = jsonObject.get(RESULT_FIELD);
             if (result instanceof String && ("true".equals(result) || "false".equals(result)))
             {
                 result = Boolean.parseBoolean(result.toString());
@@ -138,8 +138,8 @@ public class JResponse
         try
         {
             JSONObject jsonObject = JSON.parseObject(json);
-            int code = jsonObject.getIntValue(CODE_FILED);
-            String desc = getString(jsonObject, DESCRIPTION_FILED);
+            int code = jsonObject.getIntValue(CODE_FIELD);
+            String desc = getString(jsonObject, DESCRIPTION_FIELD);
 
             Object result = getResult(jsonObject);
 
@@ -209,6 +209,11 @@ public class JResponse
         return code == ResultCode.SUCCESS;
     }
 
+    public boolean isNotSuccess()
+    {
+        return code != ResultCode.SUCCESS;
+    }
+
     /**
      * 如果异常信息不为空，则抛出。
      */
@@ -233,17 +238,18 @@ public class JResponse
     public String toString()
     {
         JSONObject json = new JSONObject(3);
-        json.put(CODE_FILED, code != null ? code.toCode()
-                : ResultCode.Other.toCode());
-        json.put(DESCRIPTION_FILED, description);
+        ResultCode resultCode = code != null ? code : ResultCode.Other;
+        json.put(CODE_FIELD, resultCode.toCode());
+        json.put(CODE_NAME_FIELD,resultCode.name());
+        json.put(DESCRIPTION_FIELD, description);
         if (result != null)
         {
             if (result instanceof JSONObject || result instanceof JSONArray)
             {
-                json.put(RESULT_FILED, result);
+                json.put(RESULT_FIELD, result);
             } else
             {
-                json.put(RESULT_FILED, String.valueOf(result));
+                json.put(RESULT_FIELD, String.valueOf(result));
             }
         }
 

@@ -1,11 +1,11 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.ResultCode;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.pbridge.*;
 
 /**
  * 接口中间对象。
@@ -134,15 +134,67 @@ public abstract class WObject
         return t;
     }
 
+    /**
+     * 使用当前请求的接口方法。
+     *
+     * @param funTied
+     * @param appValues
+     * @param callback
+     */
     public void currentRequest(String funTied, AppValues appValues, PCallback callback)
+    {
+        currentRequest(funTied, getRequest().getMethod(), appValues, callback, true);
+    }
+
+
+    private static class Temp
+    {
+        WCallException exception;
+    }
+
+    /**
+     * @param funTied
+     * @param method
+     * @param appValues
+     * @param callback
+     * @param throwWCallException 是否在返回码不为成功时抛出异常。
+     */
+    public void currentRequest(String funTied, PortMethod method, AppValues appValues, PCallback callback,
+            boolean throwWCallException)
     {
         StringBuilder builder = new StringBuilder();
         UrlDecoder.Result result = url();
         builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
         builder.append(funTied == null ? "" : funTied);
-        PRequest request = PRequest.withNewPath(builder.toString(), getRequest(), true);
+        PRequest request = PRequest.withNewPath(builder.toString(), method, getRequest(), true);
         request.addParamAll(appValues);
-        delivery().currentBridge().request(request, callback);
+        if (throwWCallException)
+        {
+            Temp temp = new Temp();
+            delivery().currentBridge().request(request, lResponse ->
+            {
+                Object rs = lResponse.getResponse();
+                if (rs != null && rs instanceof JResponse)
+                {
+                    JResponse jResponse = (JResponse) rs;
+                    if (jResponse.isNotSuccess())
+                    {
+                        temp.exception = new WCallException(jResponse);
+                        return;
+                    }
+                }
+                if(callback!=null){
+                    callback.onResponse(lResponse);
+                }
+            });
+            if (temp.exception != null)
+            {
+                throw temp.exception;
+            }
+        } else
+        {
+            delivery().currentBridge().request(request, callback);
+        }
     }
 
 }

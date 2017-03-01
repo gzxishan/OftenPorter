@@ -119,7 +119,9 @@ public class DataDynamic extends DataAble {
     @Override
     protected void setParams(InNames.Name[] neceFields, Object[] nvalues, InNames.Name[] unneceFields,
                              Object[] uvalues, InNames.Name[] innerNames, Object[] inners) throws Exception {
-        jsonObject = new JSONObject();
+        if(jsonObject==null){
+            jsonObject = new JSONObject();
+        }
         setValue(jsonObject, neceFields, nvalues);
         setValue(jsonObject, unneceFields, uvalues);
         setValue(jsonObject, innerNames, inners);

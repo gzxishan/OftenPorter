@@ -107,6 +107,13 @@ public class WMainServlet extends HttpServlet implements CommonMain
         return path;
     }
 
+    static String getUriPrefix(HttpServletRequest request)
+    {
+        String prefix = request.getRequestURI()
+                .substring(0, request.getContextPath().length() + request.getServletPath().length());
+        return prefix;
+    }
+
     /**
      * 处理请求
      *

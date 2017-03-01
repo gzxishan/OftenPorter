@@ -104,7 +104,7 @@ public class SqlHandle implements DBHandle
         builder.append(value).append("(").append(value == null ? null : value.getClass().getSimpleName()).append("),");
     }
 
-    private static void logArgs(NameValues nameValues, StringBuilder builder)
+    private static void logArgs(NameValues nameValues,StringBuilder builder)
     {
         for (int i = 0; i < nameValues.size(); i++)
         {
@@ -413,6 +413,7 @@ public class SqlHandle implements DBHandle
                     LOGGER.debug("{}", whereSQL.sql);
                     StringBuilder builder = new StringBuilder();
                     logArgs(updateFields, builder);
+                    logArgs(whereSQL.args,builder);
                     LOGGER.debug("{}", builder);
                 }
 
@@ -451,7 +452,7 @@ public class SqlHandle implements DBHandle
                 {
                     LOGGER.debug("{}", sql);
                     StringBuilder builder = new StringBuilder();
-                    logArgs(addFields, builder);
+                    logArgs(addFields,builder);
                     LOGGER.debug("{}", builder);
                 }
                 ps = conn.prepareStatement(sql);

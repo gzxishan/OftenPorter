@@ -615,7 +615,7 @@ public class Common
 
 
     /**
-     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（可能为0）.
+     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（int,可能为0）.
      *
      * @param paramsSelection 用于生成查询条件,不为null才会设置查询条件.
      * @param wObject
@@ -658,7 +658,7 @@ public class Common
     }
 
     /**
-     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（可能为0）.
+     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（int,可能为0）.
      *
      * @param condition
      * @param wObject
@@ -1068,7 +1068,7 @@ public class Common
 
 
     /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数。
+     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      *
      * @param paramsSelection
      * @param wObject
@@ -1111,7 +1111,7 @@ public class Common
 
 
     /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数。
+     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      *
      * @param condition
      * @param wObject
@@ -1157,7 +1157,7 @@ public class Common
     }
 
     /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数。
+     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      *
      * @param condition
      * @param nameValues

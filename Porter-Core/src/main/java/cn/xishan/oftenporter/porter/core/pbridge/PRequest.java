@@ -53,12 +53,12 @@ public class PRequest implements WRequest, Cloneable
 
     public PRequest withNewPath(String newPath)
     {
-        return withNewPath(newPath, this, false);
+        return withNewPath(newPath,getMethod(), this, false);
     }
 
-    public static PRequest withNewPath(String newPath, WRequest wRequest, boolean willCloneParamsMap)
+    public static PRequest withNewPath(String newPath,PortMethod method, WRequest wRequest, boolean willCloneParamsMap)
     {
-        PRequest request = new PRequest(wRequest.getMethod(), newPath, willCloneParamsMap);
+        PRequest request = new PRequest(method, newPath, willCloneParamsMap);
         request.originRequest = wRequest.getOriginalRequest();
         request.originResponse = wRequest.getOriginalResponse();
         if (willCloneParamsMap)
