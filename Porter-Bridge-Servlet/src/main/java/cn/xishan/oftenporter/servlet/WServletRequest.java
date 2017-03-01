@@ -2,6 +2,8 @@ package cn.xishan.oftenporter.servlet;
 
 
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
+import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -85,6 +87,44 @@ public final class WServletRequest extends PRequest
 //        return request;
 //    }
 
+
+    /**
+     * 获得接口地址。
+     *
+     * @param wObject
+     * @param funTied 若为null，则使用当前的。
+     * @return
+     */
+    public String getPortUrl(WObject wObject, String funTied)
+    {
+        return getPortUrl(wObject, null, null, null, funTied);
+    }
+
+    /**
+     * 获得接口地址。
+     *
+     * @param wObject
+     * @param pname       若为null，则不含pname部分。
+     * @param contextName 若为null，则使用当前的。
+     * @param classTied   若为null，则使用当前的。
+     * @param funTied     若为null，则使用当前的。
+     * @return
+     */
+    public String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(getHostFromURL(request.getRequestURL()));
+        stringBuilder.append(WMainServlet.getUriPrefix(request));
+        if (pname != null)
+        {
+            stringBuilder.append("/=").append(pname);
+        }
+        UrlDecoder.Result result = wObject.url();
+        stringBuilder.append('/').append(contextName == null ? result.contextName() : contextName);
+        stringBuilder.append('/').append(classTied == null ? result.classTied() : classTied);
+        stringBuilder.append('/').append(funTied == null ? result.funTied() : funTied);
+        return stringBuilder.toString();
+    }
 
     private static final Pattern PATTERN_HOST_PORT = Pattern.compile("^(http|https)://([^/]+)");
 

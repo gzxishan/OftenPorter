@@ -229,6 +229,11 @@ public abstract class Condition implements ToFinal
         return this;
     }
 
+    public void clear(){
+        operators.clear();
+        list.clear();
+    }
+
     /**
      * @param operator  使用{@linkplain #OR}、{@linkplain #NOT}等.
      * @param condition
