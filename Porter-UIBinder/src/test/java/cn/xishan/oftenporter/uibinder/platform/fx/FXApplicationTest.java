@@ -14,8 +14,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.log4j.PropertyConfigurator;
 import org.junit.Before;
 import org.junit.After;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -211,9 +213,10 @@ public class FXApplicationTest
     {
     }
 
-   // @Test
+    //@Test
     public void main()
     {
+        PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j.properties"));
         Main.main();
     }
 
