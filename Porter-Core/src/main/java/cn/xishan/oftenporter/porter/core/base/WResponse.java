@@ -15,4 +15,5 @@ public interface WResponse extends Closeable
 
     void close() throws IOException;
 
+    void setCloseListener(CloseListener closeListener);
 }
