@@ -14,18 +14,20 @@ public interface UrlDecoder
 
         public TiedValue(String classTied, String funTied)
         {
-            if(classTied!=null){
+            if (classTied != null)
+            {
                 PortUtil.checkName(classTied);
             }
-           if(funTied!=null){
-               PortUtil.checkName(funTied);
-           }
+            if (funTied != null)
+            {
+                PortUtil.checkName(funTied);
+            }
             this.classTied = classTied;
             this.funTied = funTied;
         }
     }
 
-    public interface Result extends ParamSource
+    interface Result extends ParamSource
     {
         String contextName();
 

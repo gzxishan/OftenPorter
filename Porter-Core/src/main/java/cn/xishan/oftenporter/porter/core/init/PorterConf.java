@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.init;
 
+import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
@@ -26,6 +27,7 @@ public class PorterConf
     private String contentEncoding = "utf-8";
     private List<CheckPassable> forAllCheckPassableList;
     private String[] autoSetSeekPackages;
+    private ParamSourceHandleManager paramSourceHandleManager;
 
 
     PorterConf()
@@ -37,6 +39,7 @@ public class PorterConf
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
         contextAutoGenImplMap = new HashMap<>();
+        paramSourceHandleManager=new ParamSourceHandleManager();
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
@@ -212,6 +215,11 @@ public class PorterConf
         return userInitParam;
     }
 
+    public ParamSourceHandleManager getParamSourceHandleManager()
+    {
+        return paramSourceHandleManager;
+    }
+
     void initOk()
     {
         isInited = true;
@@ -224,5 +232,6 @@ public class PorterConf
         stateListenerSet = null;
         forAllCheckPassableList = null;
         autoSetSeekPackages = null;
+        paramSourceHandleManager=null;
     }
 }

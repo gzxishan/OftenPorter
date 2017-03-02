@@ -11,6 +11,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -194,10 +195,11 @@ public class PortExecutor
                 exNotFoundFun(response, result, innerContextBridge.responseWhenException);
                 return;
             }
-
-            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+            WObjectImpl wObject = new WObjectImpl( pName, result, request, response, context);
+            ParamSource paramSource = getParamSource(wObject,classPort,funPort);
+            wObject.setParamSource(paramSource);
             //全局通过检测
-            dealtOfGlobalCheck(context,  funPort, wObject, innerContextBridge, result);
+            dealtOfGlobalCheck(context, funPort, wObject, innerContextBridge, result);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -246,14 +248,12 @@ public class PortExecutor
      * @param inObj
      * @param isInClass
      * @param wObjectImpl
-     * @param paramSource
      * @param currentTypeParserStore
      * @return
      */
     private ParamDealt.FailedReason paramDealOfPortInObj(boolean ignoreTypeParser, Context context, InObj inObj,
             boolean isInClass,
-            WObjectImpl wObjectImpl,
-            ParamSource paramSource, TypeParserStore currentTypeParserStore)
+            WObjectImpl wObjectImpl, TypeParserStore currentTypeParserStore)
     {
         ParamDealt.FailedReason reason = null;
         if (inObj == null)
@@ -273,7 +273,8 @@ public class PortExecutor
         {
             One one = ones[i];
             Object object = PortUtil
-                    .paramDealOne(ignoreTypeParser, context.innerContextBridge.paramDealt, one, paramSource,
+                    .paramDealOne(ignoreTypeParser, context.innerContextBridge.paramDealt, one,
+                            wObjectImpl.getParamSource(),
                             currentTypeParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {
@@ -310,7 +311,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfContextGlobalCheck(context,funPort, wObject, innerContextBridge, result);
+                        dealtOfContextGlobalCheck(context, funPort, wObject, innerContextBridge, result);
                     }
                 }
             });
@@ -319,7 +320,7 @@ public class PortExecutor
 
     }
 
-    private final void dealtOfContextGlobalCheck(Context context,  PorterOfFun funPort,
+    private final void dealtOfContextGlobalCheck(Context context, PorterOfFun funPort,
             WObjectImpl wObject, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -340,7 +341,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfClassParam( funPort, wObject, context, innerContextBridge, result);
+                        dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
                     }
                 }
             });
@@ -349,7 +350,7 @@ public class PortExecutor
 
     }
 
-    private final void dealtOfClassParam( PorterOfFun funPort, WObjectImpl wObject, Context context,
+    private final void dealtOfClassParam(PorterOfFun funPort, WObjectImpl wObject, Context context,
             InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -362,7 +363,6 @@ public class PortExecutor
         wObject.cinner = PortUtil.newArray(inNames.inner);
         wObject.cInNames = inNames;
 
-        ParamSource paramSource = getParamSource(context, result, wObject.getRequest());
 
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
 
@@ -370,7 +370,7 @@ public class PortExecutor
         //类参数处理
         ParamDealt.FailedReason failedReason = PortUtil
                 .paramDeal(clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn, wObject.cu,
-                        paramSource,
+                        wObject.getParamSource(),
                         typeParserStore);
         if (failedReason != null)
         {
@@ -381,7 +381,7 @@ public class PortExecutor
         ///////////////////////////
         //转换成类或接口对象
         failedReason = paramDealOfPortInObj(clazzPIn.ignoreTypeParser(), context, classPort.getInObj(), true, wObject,
-                paramSource, typeParserStore);
+                typeParserStore);
         if (failedReason != null)
         {
             exParamDeal(wObject, failedReason, responseWhenException);
@@ -393,7 +393,7 @@ public class PortExecutor
         //类通过检测
         if (clazzPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfFunParam( funPort, paramSource, wObject, context, innerContextBridge, result);
+            dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
@@ -407,7 +407,7 @@ public class PortExecutor
                         exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                     } else
                     {
-                        dealtOfFunParam(funPort, paramSource, wObject, context, innerContextBridge, result);
+                        dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
                     }
                 }
             });
@@ -416,7 +416,7 @@ public class PortExecutor
 
     }
 
-    private void dealtOfFunParam(PorterOfFun funPort, ParamSource paramSource, WObjectImpl wObject,
+    private void dealtOfFunParam(PorterOfFun funPort, WObjectImpl wObject,
             Context context, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -437,7 +437,7 @@ public class PortExecutor
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
         ParamDealt.FailedReason failedReason = PortUtil
                 .paramDeal(funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn, wObject.fu,
-                        paramSource,
+                        wObject.getParamSource(),
                         typeParserStore);
         if (failedReason != null)
         {
@@ -447,7 +447,7 @@ public class PortExecutor
         ///////////////////////////
         //转换成类或接口对象
         failedReason = paramDealOfPortInObj(funPIn.ignoreTypeParser(), context, funPort.getInObj(), false, wObject,
-                paramSource, typeParserStore);
+                typeParserStore);
         if (failedReason != null)
         {
             exParamDeal(wObject, failedReason, responseWhenException);
@@ -482,7 +482,7 @@ public class PortExecutor
 
     }
 
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject,  PorterOfFun funPort,
+    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
             InnerContextBridge innerContextBridge, UrlDecoder.Result result)
     {
         Method javaMethod = funPort.getMethod();
@@ -594,20 +594,26 @@ public class PortExecutor
      *
      * @return
      */
-    private ParamSource getParamSource(Context context, final UrlDecoder.Result result, WRequest request)
+    private ParamSource getParamSource(WObjectImpl wObject, Porter classPort, PorterOfFun funPort) throws Exception
     {
+        UrlDecoder.Result result = wObject.url();
+        Context context=wObject.context;
         ParamSourceHandle handle = context.paramSourceHandleManager.fromName(result.classTied());
         if (handle == null)
         {
-            handle = context.paramSourceHandleManager.fromMethod(request.getMethod());
+            handle = context.paramSourceHandleManager.fromMethod(wObject.getRequest().getMethod());
         }
         ParamSource ps;
         if (handle == null)
         {
-            ps = new ParamsSourceDefault(result, request);
+            ps = new DefaultParamsSource(result, wObject.getRequest());
         } else
         {
-            ps = handle.get(request, result);
+            ps = handle.get(wObject,classPort.getClazz(),funPort.getMethod());
+            if (ps == null)
+            {
+                ps = new DefaultParamsSource(result, wObject.getRequest());
+            }
         }
         return ps;
     }

@@ -114,26 +114,35 @@ public class TypeTo
         {
 
             CacheOne cache = getCache(clazz);
-            Object object = PortUtil.paramDealOne(false,innerContextBridge.paramDealt, cache.getOne(), new ParamSource()
-            {
-                @Override
-                public Object getParam(String name)
-                {
-                    return jsonObject.get(name);
-                }
+            Object object = PortUtil
+                    .paramDealOne(false, innerContextBridge.paramDealt, cache.getOne(), new ParamSource()
+                    {
+                        @Override
+                        public Object getParam(String name)
+                        {
+                            return jsonObject.get(name);
+                        }
 
-                @Override
-                public void putNewParams(Map<String, ?> newParams)
-                {
-                    jsonObject.fluentPutAll(newParams);
-                }
+                        @Override
+                        public void putNewParams(Map<String, ?> newParams)
+                        {
+                            jsonObject.fluentPutAll(newParams);
+                        }
 
-                @Override
-                public Enumeration<String> paramNames()
-                {
-                    return new EnumerationImpl<String>(jsonObject.keySet());
-                }
-            }, innerContextBridge.innerBridge.globalParserStore);
+                        @Override
+                        public Enumeration<String> paramNames()
+                        {
+                            return new EnumerationImpl<String>(jsonObject.keySet());
+                        }
+
+                        @Override
+                        public Enumeration<Map.Entry<String, Object>> params()
+                        {
+                            EnumerationImpl<Map.Entry<String, Object>> enumeration = new EnumerationImpl(
+                                    jsonObject.entrySet());
+                            return enumeration;
+                        }
+                    }, innerContextBridge.innerBridge.globalParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason reason = (ParamDealt.FailedReason) object;

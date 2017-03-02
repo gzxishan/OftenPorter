@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.base.WRequest;
-import cn.xishan.oftenporter.porter.core.base.WResponse;
+import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 
@@ -18,9 +15,10 @@ class WObjectImpl extends WObject
     private UrlDecoder.Result result;
     Object[] finObjs, cinObjs;
 
-    private Context context;
+    Context context;
     private PName pName;
     private Delivery delivery;
+    private ParamSource paramSource;
 
     WObjectImpl(PName pName, UrlDecoder.Result result, WRequest request, WResponse response, Context context)
     {
@@ -29,6 +27,11 @@ class WObjectImpl extends WObject
         this.request = request;
         this.response = response;
         this.context = context;
+    }
+
+    void setParamSource(ParamSource paramSource)
+    {
+        this.paramSource = paramSource;
     }
 
     @Override
@@ -41,6 +44,12 @@ class WObjectImpl extends WObject
     public WResponse getResponse()
     {
         return response;
+    }
+
+    @Override
+    public ParamSource getParamSource()
+    {
+        return paramSource;
     }
 
     @Override

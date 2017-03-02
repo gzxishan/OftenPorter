@@ -9,22 +9,19 @@ import java.util.Map;
 public interface WRequest
 {
     /**
-     * 得到参数，例如地址参数和表单参数等。
+     * 得到参数(路径参数优先)，例如地址参数和表单参数等。
      *
      * @param name 参数名称
      */
     Object getParameter(String name);
 
-//    /**
-//     * 得到所有参数的名称。
-//     */
-//    Enumeration<String> getParameterNames();
 
     /**
      * 得到所有参数的map。
+     *
      * @return
      */
-    Map<String,Object> getParameterMap();
+    Map<String, Object> getParameterMap();
 
     String getPath();
 
@@ -32,14 +29,16 @@ public interface WRequest
 
     /**
      * 获得最原始的响应对象，例如在servlet中可能需要HttpServletResponse.
+     *
      * @return
      */
-    public Object getOriginalResponse();
+    <T> T getOriginalResponse();
 
     /**
      * 获得最原始的请求对象，例如在servlet中可能需要HttpServletRequest.
+     *
      * @return
      */
-    public Object getOriginalRequest();
+    <T> T getOriginalRequest();
 
 }
