@@ -463,7 +463,7 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
-                    funPIn.getChecks(), new CheckHandle(result, funPort.getObject(), funPort.getMethod())
+                    funPIn.getChecks(), new CheckHandle(result, funPort.getObject(), funPort.getMethod(),funPort.getPortOut().getOutType())
             {
                 @Override
                 public void go(Object failedObject)
@@ -503,7 +503,7 @@ public class PortExecutor
                 dealtOfResponse(wObject, funPort.getPortOut().getOutType(), rs);
             } else
             {
-                CheckHandle checkHandle = new CheckHandle(rs, result, funPort.getObject(), funPort.getMethod())
+                CheckHandle checkHandle = new CheckHandle(rs, result, funPort.getObject(), funPort.getMethod(),funPort.getPortOut().getOutType())
                 {
                     @Override
                     public void go(Object failedObject)
@@ -530,7 +530,7 @@ public class PortExecutor
             } else
             {
                 CheckHandle checkHandle = new CheckHandle(e.getCause(), result, funPort.getObject(),
-                        funPort.getMethod())
+                        funPort.getMethod(),funPort.getPortOut().getOutType())
                 {
                     @Override
                     public void go(Object failedObject)

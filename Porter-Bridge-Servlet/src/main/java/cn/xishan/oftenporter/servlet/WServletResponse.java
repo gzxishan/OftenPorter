@@ -2,9 +2,8 @@ package cn.xishan.oftenporter.servlet;
 
 
 import cn.xishan.oftenporter.porter.core.JResponse;
-import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.WResponse;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.local.LocalResponse;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -12,31 +11,26 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class WServletResponse implements WResponse
+public class WServletResponse extends LocalResponse
 {
 
     private HttpServletResponse response;
 
     WServletResponse(HttpServletResponse response)
     {
+        super(null);
         this.response = response;
     }
 
 
     @Override
-    public void write(@NotNull Object object) throws IOException
+    public void doClose(Object writeObject) throws IOException
     {
-
-        setContentType(object);
+        setContentType(writeObject);
         PrintWriter printWriter = response.getWriter();
-        printWriter.print(object);
+        printWriter.print(writeObject);
         printWriter.flush();
-    }
-
-    @Override
-    public void close() throws IOException
-    {
-        response.getWriter().close();
+        printWriter.close();
     }
 
     public void setContentType(Object object)
