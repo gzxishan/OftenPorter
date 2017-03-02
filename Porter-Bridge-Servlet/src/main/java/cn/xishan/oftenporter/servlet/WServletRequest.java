@@ -36,7 +36,7 @@ public final class WServletRequest extends PRequest
     }
 
     @Override
-    public Object getOriginalRequest()
+    public HttpServletRequest getOriginalRequest()
     {
         return request;
     }
@@ -58,7 +58,7 @@ public final class WServletRequest extends PRequest
             while (e.hasMoreElements())
             {
                 String name = e.nextElement();
-                String value = request.getParameter(name);
+                String value = getParameter(name);
                 if (WPTool.notNullAndEmpty(value))
                 {
                     params.put(name, value);
@@ -71,7 +71,8 @@ public final class WServletRequest extends PRequest
     @Override
     public String getParameter(String name)
     {
-        return request.getParameter(name);
+        String[] values = request.getParameterValues(name);
+        return values == null || values.length == 0 ? null : values[0];
     }
 
 
@@ -80,12 +81,6 @@ public final class WServletRequest extends PRequest
     {
         return method;
     }
-
-
-//    public HttpServletRequest getServletRequest()
-//    {
-//        return request;
-//    }
 
 
     /**
@@ -147,6 +142,11 @@ public final class WServletRequest extends PRequest
         }
     }
 
+    /**
+     * 见{@linkplain #getHostFromURL(CharSequence)}
+     *
+     * @return
+     */
     public String getHost()
     {
         return getHostFromURL(request.getRequestURL());

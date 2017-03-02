@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.exception;
 
 
 import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 /**
@@ -11,9 +12,15 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
  */
 public class WCallException extends RuntimeException
 {
+    /**
+     * 内部构建一个JResponse
+     * @param msg
+     */
     public WCallException(String msg)
     {
-        super(msg);
+        JResponse jResponse = new JResponse(ResultCode.OK_BUT_FAILED);
+        jResponse.setDescription(msg);
+        this.jResponse = jResponse;
     }
 
     public WCallException(String msg, Throwable throwable)
@@ -53,6 +60,6 @@ public class WCallException extends RuntimeException
     {
         String str = getMessage();
 
-        return WPTool.isEmpty(str) ? super.toString() : str;
+        return WPTool.isEmpty(str) ? (jResponse != null ? jResponse.toString() : super.toString()) : str;
     }
 }

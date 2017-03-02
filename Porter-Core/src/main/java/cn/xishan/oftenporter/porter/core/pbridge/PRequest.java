@@ -97,15 +97,15 @@ public class PRequest implements WRequest, Cloneable
     }
 
     @Override
-    public Object getOriginalResponse()
+    public <T>T getOriginalResponse()
     {
-        return originResponse;
+        return (T) originResponse;
     }
 
     @Override
-    public Object getOriginalRequest()
+    public <T>T getOriginalRequest()
     {
-        return originRequest;
+        return (T) originRequest;
     }
 
     public synchronized PRequest addParamAll(AppValues appValues)

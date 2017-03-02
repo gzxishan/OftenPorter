@@ -14,7 +14,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
 
@@ -212,7 +211,7 @@ public class FXApplicationTest
     {
     }
 
-    @Test
+   // @Test
     public void main()
     {
         Main.main();

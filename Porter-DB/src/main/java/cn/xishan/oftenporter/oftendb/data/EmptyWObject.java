@@ -28,6 +28,12 @@ public class EmptyWObject extends WObject
     }
 
     @Override
+    public ParamSource getParamSource()
+    {
+        throw new RuntimeException("not allowed");
+    }
+
+    @Override
     public WRequest getRequest()
     {
         throw new RuntimeException("not allowed");

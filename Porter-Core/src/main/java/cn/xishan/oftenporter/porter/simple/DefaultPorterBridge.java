@@ -14,7 +14,6 @@ public class DefaultPorterBridge
     {
         PorterBridge bridge = new PorterBridge()
         {
-            private ParamSourceHandleManager paramSourceHandleManager = new ParamSourceHandleManager();
 
             @Override
             public String contextName()
@@ -37,7 +36,7 @@ public class DefaultPorterBridge
             @Override
             public ParamSourceHandleManager paramSourceHandleManager()
             {
-                return paramSourceHandleManager;
+                return porterConf.getParamSourceHandleManager();
             }
         };
         return bridge;

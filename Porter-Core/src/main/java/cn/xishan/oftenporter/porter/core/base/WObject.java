@@ -57,6 +57,12 @@ public abstract class WObject
     public abstract WResponse getResponse();
 
     /**
+     * 获取参数源，此参数源包含所有的参数（路径参数优先）。
+     * @return
+     */
+    public abstract ParamSource getParamSource();
+
+    /**
      * 获取函数上绑定的对象。
      */
     public abstract <T> T finObject(int index);

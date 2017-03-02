@@ -104,6 +104,13 @@ class DefaultUrlResult implements UrlDecoder.Result
     public Enumeration<String> paramNames()
     {
         Iterator<String> iterator = params.keySet().iterator();
-        return new EnumerationImpl<String>(iterator);
+        return new EnumerationImpl<>(iterator);
+    }
+
+    @Override
+    public Enumeration<Map.Entry<String, Object>> params()
+    {
+        Enumeration<Map.Entry<String, Object>> e = new EnumerationImpl(params.entrySet());
+        return e;
     }
 }
