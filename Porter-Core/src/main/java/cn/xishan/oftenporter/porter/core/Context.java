@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.porter.core;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/3.

@@ -187,7 +187,10 @@ public final class AnnotationDealt
     {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (portOut != null)
+        if(method.getReturnType().equals(Void.TYPE)){
+            _portOut.outType=OutType.NoResponse;
+        }
+        else if (portOut != null)
         {
             _portOut.outType = portOut.value();
         } else

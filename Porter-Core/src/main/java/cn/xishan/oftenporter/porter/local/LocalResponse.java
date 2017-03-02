@@ -13,6 +13,8 @@ public class LocalResponse implements WResponse {
     private Object object;
     private PCallback callback;
 
+    private static final LResponse L_RESPONSE = new LResponse(null);
+
     public LocalResponse(PCallback callback) {
         this.callback = callback;
     }
@@ -28,7 +30,7 @@ public class LocalResponse implements WResponse {
     @Override
     public void close() throws IOException {
         if (callback != null) {
-            callback.onResponse(object == null ? null : new LResponse(object));
+            callback.onResponse(object == null ? L_RESPONSE : new LResponse(object));
         }
     }
 

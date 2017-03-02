@@ -195,8 +195,8 @@ public class PortExecutor
                 exNotFoundFun(response, result, innerContextBridge.responseWhenException);
                 return;
             }
-            WObjectImpl wObject = new WObjectImpl( pName, result, request, response, context);
-            ParamSource paramSource = getParamSource(wObject,classPort,funPort);
+            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+            ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
             //全局通过检测
             dealtOfGlobalCheck(context, funPort, wObject, innerContextBridge, result);
@@ -500,7 +500,7 @@ public class PortExecutor
 
             if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
             {
-                dealtOfResponse(wObject, funPort, rs);
+                dealtOfResponse(wObject, funPort.getPortOut().getOutType(), rs);
             } else
             {
                 CheckHandle checkHandle = new CheckHandle(rs, result, funPort.getObject(), funPort.getMethod())
@@ -513,7 +513,7 @@ public class PortExecutor
                             exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                         } else
                         {
-                            dealtOfResponse(wObject, funPort, rs);
+                            dealtOfResponse(wObject, funPort.getPortOut().getOutType(), rs);
                         }
                     }
                 };
@@ -543,12 +543,12 @@ public class PortExecutor
                                 jResponse.setResult(failedObject);
                                 failedObject = jResponse;
                             }
-                            responseObject(wObject, failedObject);
+                            dealtOfResponse(wObject, OutType.Object, failedObject);
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setResult(e.getCause());
-                            responseObject(wObject, jResponse);
+                            dealtOfResponse(wObject, OutType.Object, jResponse);
                         }
                     }
                 };
@@ -557,34 +557,6 @@ public class PortExecutor
                 portExecutorCheckers.check();
             }
 
-        }
-    }
-
-    private void dealtOfResponse(WObjectImpl wObject, PorterOfFun funPort, Object rs)
-    {
-        switch (funPort.getPortOut().getOutType())
-        {
-            case NoResponse:
-                break;
-            case Object:
-                responseObject(wObject, rs);
-                break;
-        }
-    }
-
-
-    private void responseObject(WObject wObject, Object object)
-    {
-        if (object != null)
-        {
-            try
-            {
-                wObject.getResponse().write(object);
-            } catch (IOException e)
-            {
-                LOGGER.warn(e.getMessage(), e);
-            }
-            close(wObject);
         }
     }
 
@@ -597,7 +569,7 @@ public class PortExecutor
     private ParamSource getParamSource(WObjectImpl wObject, Porter classPort, PorterOfFun funPort) throws Exception
     {
         UrlDecoder.Result result = wObject.url();
-        Context context=wObject.context;
+        Context context = wObject.context;
         ParamSourceHandle handle = context.paramSourceHandleManager.fromName(result.classTied());
         if (handle == null)
         {
@@ -609,7 +581,7 @@ public class PortExecutor
             ps = new DefaultParamsSource(result, wObject.getRequest());
         } else
         {
-            ps = handle.get(wObject,classPort.getClazz(),funPort.getMethod());
+            ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
             if (ps == null)
             {
                 ps = new DefaultParamsSource(result, wObject.getRequest());
@@ -620,6 +592,47 @@ public class PortExecutor
 
 ////////////////////////////////////////////////
     //////////////////////////////////////////
+
+    private void dealtOfResponse(WObjectImpl wObject, OutType outType, Object rs)
+    {
+        switch (outType)
+        {
+            case NoResponse:
+                break;
+            case Object:
+                responseObject(wObject, rs, true);
+                break;
+            case Auto:
+                responseObject(wObject, rs, false);
+                break;
+        }
+    }
+
+
+    private void responseObject(WObject wObject, Object object, boolean nullClose)
+    {
+        if (object != null)
+        {
+            try
+            {
+                if (LOGGER.isDebugEnabled() && object instanceof JResponse && ((JResponse) object).isNotSuccess())
+                {
+                    LOGGER.debug("{}", object);
+                } else if (LOGGER.isInfoEnabled())
+                {
+                    LOGGER.info("{}", object);
+                }
+                wObject.getResponse().write(object);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+            close(wObject);
+        } else if (nullClose)
+        {
+            close(wObject);
+        }
+    }
 
     private final void close(WObject wObject)
     {
@@ -633,6 +646,10 @@ public class PortExecutor
 
     private void ex(WResponse response, Throwable throwable, boolean responseWhenException)
     {
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug(throwable.getMessage(), throwable);
+        }
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
@@ -651,6 +668,10 @@ public class PortExecutor
 
     private void exCheckPassable(WObject wObject, Object obj, boolean responseWhenException)
     {
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("{}", obj);
+        }
         if (obj instanceof JResponse)
         {
             try
@@ -675,14 +696,29 @@ public class PortExecutor
         close(wObject);
     }
 
+    private JResponse toJResponse(ParamDealt.FailedReason reason)
+    {
+        JResponse jResponse = new JResponse();
+        jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
+        jResponse.setDescription(reason.desc());
+        jResponse.setResult(reason.toJSON());
+        return jResponse;
+    }
+
     private void exParamDeal(WObject wObject, ParamDealt.FailedReason reason, boolean responseWhenException)
     {
+        JResponse jResponse = null;
+        if (LOGGER.isDebugEnabled() || responseWhenException)
+        {
+            jResponse = toJResponse(reason);
+            LOGGER.debug("{}", jResponse);
+        }
         if (responseWhenException)
         {
-            JResponse jResponse = new JResponse();
-            jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
-            jResponse.setDescription(reason.desc());
-            jResponse.setResult(reason.toJSON());
+            if (jResponse == null)
+            {
+                jResponse = toJResponse(reason);
+            }
             try
             {
                 wObject.getResponse().write(jResponse);

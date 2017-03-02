@@ -178,17 +178,18 @@ public class SthDeal
                 lastFun = children.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
-                    LOGGER.debug("add-rest:{} (function={}{})", porterOfFun.getMethodPortIn().getMethod(),
-                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                    LOGGER.debug("add-rest:{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getMethod(),
+                            porterOfFun.getPortOut().getOutType(), method.getName(),
+                            isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
             case Default:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getTiedName(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
-                    LOGGER.debug("add:{},{} (function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
-                            porterOfFun.getMethodPortIn().getMethod(), method.getName(),
-                            isMixin ? ",from " + method.getDeclaringClass() : "");
+                    LOGGER.debug("add:{},{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
+                            porterOfFun.getMethodPortIn().getMethod(), porterOfFun.getPortOut().getOutType(),
+                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
         }

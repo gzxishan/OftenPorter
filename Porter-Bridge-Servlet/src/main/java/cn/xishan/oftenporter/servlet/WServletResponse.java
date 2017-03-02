@@ -23,17 +23,6 @@ public class WServletResponse implements WResponse
     }
 
 
-//    public HttpServletResponse getServletResponse()
-//    {
-//        return response;
-//    }
-//
-//
-//    public void sendRedirect(String redirect) throws IOException
-//    {
-//        response.sendRedirect(redirect);
-//    }
-
     @Override
     public void write(@NotNull Object object) throws IOException
     {
