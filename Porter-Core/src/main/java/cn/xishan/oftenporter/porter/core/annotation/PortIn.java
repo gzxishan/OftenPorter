@@ -21,6 +21,55 @@ public @interface PortIn
 {
 
     /**
+     * 加在接口类上，表示只用于混入。
+     *
+     * @author Created by https://github.com/CLovinr on 2017/3/4.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Inherited
+    @Documented
+    @interface MinxinOnly
+    {
+    }
+
+
+    /**
+     * 用于标记函数(public)，在销毁时调用。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface PortDestroy
+    {
+        /**
+         * 在接口类中被调用的顺序。
+         *
+         * @return
+         */
+        int order() default 0;
+    }
+
+
+    /**
+     * 用于标记函数(public)，启动时调用。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface PortStart
+    {
+        /**
+         * 在接口类中被调用的顺序。
+         *
+         * @return
+         */
+        int order() default 0;
+    }
+
+    /**
      * 同{@linkplain #tied()},当不为""时，则覆盖{@linkplain #tied()}.
      *
      * @return

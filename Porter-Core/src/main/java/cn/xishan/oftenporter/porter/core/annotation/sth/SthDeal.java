@@ -112,6 +112,9 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(c, null, autoSetUtil, true, autoSetMixinMap);
+            if(mixinPorter==null){
+                continue;
+            }
             mixinList.add(mixinPorter);
             Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();

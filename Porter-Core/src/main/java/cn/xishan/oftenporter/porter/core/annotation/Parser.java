@@ -20,6 +20,39 @@ import java.lang.annotation.*;
 public @interface Parser
 {
 
+
+    /**
+     * 用于混入类型绑定{@linkplain Parser.parse}。
+     * <pre>
+     * 1.支持递归扫描。
+     * 2.被混入的接口类的绑定优先于混入的类的类型绑定。
+     * 3.后加入的绑定覆盖之前的。
+     * </pre>
+     *
+     * @author Created by https://github.com/CLovinr on 2017/2/6.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Inherited
+    @Documented
+    @interface MixinParser
+    {
+        /**
+         * 将混入这些类的类型绑定。
+         *
+         * @return
+         */
+        Class<?>[] porters() default {};
+
+        /**
+         * 优先于{@linkplain #porters()}。
+         *
+         * @return
+         */
+        Class<?>[] value() default {};
+    }
+
+
     /**
      * 用于转换绑定。
      */
@@ -27,7 +60,7 @@ public @interface Parser
     @Target({ElementType.TYPE, ElementType.METHOD})
     @Inherited
     @Documented
-    public @interface parse
+    @interface parse
     {
         /**
          * 需要转换的参数的名称。
