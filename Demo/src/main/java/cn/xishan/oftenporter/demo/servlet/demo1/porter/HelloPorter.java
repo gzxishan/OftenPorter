@@ -6,15 +6,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
-import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
-import cn.xishan.oftenporter.servlet.WServletRequest;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.

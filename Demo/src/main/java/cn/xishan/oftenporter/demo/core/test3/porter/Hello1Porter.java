@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.demo.core.test3.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 
 @PortIn
 class Hello1Porter

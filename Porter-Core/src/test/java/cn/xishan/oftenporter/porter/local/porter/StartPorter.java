@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
