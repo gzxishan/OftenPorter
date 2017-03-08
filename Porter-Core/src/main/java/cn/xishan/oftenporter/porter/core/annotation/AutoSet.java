@@ -41,6 +41,16 @@ public @interface AutoSet
     }
 
     /**
+     * 注解在public的函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Documented
+    @interface SetOk{
+
+    }
+
+    /**
      * 用于在混入接口类间传递变量，只对接口类变量有效,优先于{@linkplain AutoSet}注解。
      *
      * @author Created by https://github.com/CLovinr on 2017/2/7.

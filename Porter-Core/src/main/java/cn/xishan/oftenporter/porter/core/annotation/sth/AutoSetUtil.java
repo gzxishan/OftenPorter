@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -207,6 +208,22 @@ public class AutoSetUtil
         if (thr != null)
         {
             throw thr;
+        } else
+        {
+            Method[] methods = WPTool.getAllPublicMethods(object.getClass());
+            try
+            {
+                for (Method method : methods)
+                {
+                    if (method.isAnnotationPresent(AutoSet.SetOk.class))
+                    {
+                        method.invoke(object);
+                    }
+                }
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 

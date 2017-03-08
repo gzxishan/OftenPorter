@@ -84,19 +84,19 @@ public final class WServletRequest extends PRequest
 
 
     /**
-     * 获得接口地址。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
      * @return
      */
-    public String getPortUrl(WObject wObject, String funTied)
+    public static String getPortUrl(WObject wObject, String funTied)
     {
         return getPortUrl(wObject, null, null, null, funTied);
     }
 
     /**
-     * 获得接口地址。
+     * 获得接口地址。<strong>注意：</strong>Servlet转接会出错。
      *
      * @param wObject
      * @param pname       若为null，则不含pname部分。
@@ -105,8 +105,9 @@ public final class WServletRequest extends PRequest
      * @param funTied     若为null，则使用当前的。
      * @return
      */
-    public String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied)
+    public static String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied)
     {
+        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(getHostFromURL(request.getRequestURL()));
         stringBuilder.append(WMainServlet.getUriPrefix(request));

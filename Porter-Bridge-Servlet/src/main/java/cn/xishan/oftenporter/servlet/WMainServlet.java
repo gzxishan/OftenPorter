@@ -25,7 +25,7 @@ import java.io.IOException;
  * =value1
  * &name2=value2...]
  * <pre>
- *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符)的形式
+ *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符,x可含"/")的形式
  *     初始参数有：
  *     pname:框架实例名称，默认为"WMainServlet".
  *     responseWhenException:默认为true。
@@ -100,11 +100,24 @@ public class WMainServlet extends HttpServlet implements CommonMain
         doRequest(request, null, response, method);
     }
 
-    protected static String getPath(HttpServletRequest request)
+    /**
+     * 得到路径：
+     * 1.当urlPattern="/Test/*",uri="/ServletContext/Test/porter/User/"时，返回/porter/User/
+     * 2.当urlPattern="*.html",uri="/ServletContext/index.html"(或"/ServletContext/")时，返回"/index.html"
+     * @param request
+     * @return
+     */
+    public static String getPath(HttpServletRequest request)
     {
-        String path = request.getRequestURI()
-                .substring(request.getContextPath().length() + request.getServletPath().length());
-        return path;
+        String uri = request.getRequestURI();
+        int length = request.getContextPath().length() + request.getServletPath().length();
+        if (length > uri.length())
+        {
+            return request.getServletPath();
+        } else
+        {
+            return uri.substring(length);
+        }
     }
 
     static String getUriPrefix(HttpServletRequest request)
