@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +139,7 @@ public class SthDeal
         List<_PortStart> portStarts = new ArrayList<>();
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
-        Method[] methods = clazz.getMethods();
+        Method[] methods = WPTool.getAllPublicMethods(clazz);
         ObjectGetter objectGetter = () -> porter.getObj();
         for (Method method : methods)
         {

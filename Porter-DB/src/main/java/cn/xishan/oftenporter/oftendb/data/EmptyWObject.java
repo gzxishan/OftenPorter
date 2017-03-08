@@ -78,7 +78,7 @@ public class EmptyWObject extends WObject
     @Override
     public UrlDecoder.Result url()
     {
-        return url();
+        return result;
     }
 
     @Override

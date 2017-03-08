@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -272,6 +269,18 @@ public class WPTool
             getAllFields(clazz, list);
         }
         return list.toArray(new Field[0]);
+    }
+
+    /**
+     * 得到所有公共的函数（包括父类的）。
+     *
+     * @param clazz
+     * @return
+     */
+    public static Method[] getAllPublicMethods(Class<?> clazz)
+    {
+        Method[] methods = clazz.getMethods();
+        return methods;
     }
 
     private static void getAllFields(Class<?> clazz, List<Field> list)
