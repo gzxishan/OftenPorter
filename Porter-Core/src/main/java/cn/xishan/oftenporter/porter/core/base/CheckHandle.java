@@ -31,6 +31,11 @@ public abstract class CheckHandle
      */
     public final Object handleMethod;
 
+    /**
+     * 存在时期同{@linkplain #handleMethod}
+     */
+    public final OutType outType;
+
     public CheckHandle(CheckHandle checkHandle)
     {
         this.returnObj = checkHandle.returnObj;
@@ -38,37 +43,39 @@ public abstract class CheckHandle
         this.urlResult = checkHandle.urlResult;
         this.handleObject = checkHandle.handleObject;
         this.handleMethod = checkHandle.handleMethod;
+        this.outType=checkHandle.outType;
     }
 
 
     public CheckHandle(UrlDecoder.Result urlResult, Object handleObject)
     {
-        this(null, null, urlResult, handleObject, null);
+        this(null, null, urlResult, handleObject, null,null);
     }
 
     private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object handleObject,
-            Object handleMethod)
+            Object handleMethod,OutType outType)
     {
         this.returnObj = returnObj;
         this.exCause = exCause;
         this.urlResult = urlResult;
         this.handleObject = handleObject;
         this.handleMethod = handleMethod;
+        this.outType=outType;
     }
 
-    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject, Object handleMethod)
+    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
     {
-        this(null, null, urlResult, handleObject, handleMethod);
+        this(null, null, urlResult, handleObject, handleMethod,outType);
     }
 
-    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod)
+    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
     {
-        this(returnObj, null, urlResult, handleObject, handleMethod);
+        this(returnObj, null, urlResult, handleObject, handleMethod,outType);
     }
 
-    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod)
+    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
     {
-        this(null, exCause, urlResult, handleObject, handleMethod);
+        this(null, exCause, urlResult, handleObject, handleMethod,outType);
     }
 
 

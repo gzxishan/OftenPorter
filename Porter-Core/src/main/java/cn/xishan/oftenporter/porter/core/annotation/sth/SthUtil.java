@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.Mixin;
-import cn.xishan.oftenporter.porter.core.annotation.MixinParser;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Parser;
@@ -52,9 +51,9 @@ class SthUtil
 
     private static Class<?>[] getMixinParser(Class<?> clazz)
     {
-        if (clazz.isAnnotationPresent(MixinParser.class))
+        if (clazz.isAnnotationPresent(Parser.MixinParser.class))
         {
-            MixinParser mixinParser = clazz.getAnnotation(MixinParser.class);
+            Parser.MixinParser mixinParser = clazz.getAnnotation(Parser.MixinParser.class);
             Class<?>[] cs = mixinParser.value();
             cs = cs.length > 0 ? cs : mixinParser.porters();
             return cs;
@@ -272,6 +271,7 @@ class SthUtil
 
     /**
      * 检查循环混入
+     *
      * @param from
      * @param walkedSet
      * @param isMixinOrMixinParser
@@ -288,7 +288,7 @@ class SthUtil
             if (walkedSet.contains(walk))
             {
                 String msg = String.format("Loop %s:[%s]->[%s]",
-                        isMixinOrMixinParser ? Mixin.class.getSimpleName() : MixinParser.class.getSimpleName(),
+                        isMixinOrMixinParser ? Mixin.class.getSimpleName() : Parser.MixinParser.class.getSimpleName(),
                         from, to);
                 LOGGER.warn(msg);
                 return msg;
@@ -298,7 +298,7 @@ class SthUtil
                 String msg = checkLoopMixin(to, walkedSet, isMixinOrMixinParser);
                 if (msg != null)
                 {
-                    LOGGER.warn("Walk:[{}]->[{}]",from,to);
+                    LOGGER.warn("Walk:[{}]->[{}]", from, to);
                     return msg;
                 }
             }

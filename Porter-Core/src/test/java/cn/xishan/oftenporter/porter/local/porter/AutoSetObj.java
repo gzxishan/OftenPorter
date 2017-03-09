@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,6 +21,16 @@ public class AutoSetObj
     public int getId()
     {
         return id;
+    }
+
+    @AutoSet.SetOk
+    public void setOk(){
+        LogUtil.printErrPos();
+    }
+
+    @AutoSet.SetOk
+    public static void setOkStatic(){
+        LogUtil.printErrPos();
     }
 
     @Override

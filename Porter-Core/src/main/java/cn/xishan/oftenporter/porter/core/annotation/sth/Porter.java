@@ -11,7 +11,6 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -39,10 +38,6 @@ public final class Porter
         this.autoSetUtil = autoSetUtil;
     }
 
-//    public Map<String, PorterOfFun> getChildren()
-//    {
-//        return children;
-//    }
 
     private _PortStart[] getStarts()
     {

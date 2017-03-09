@@ -8,8 +8,9 @@ import cn.xishan.oftenporter.porter.core.base.TiedType;
 import java.lang.annotation.*;
 
 /**
- * 用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
+ * 1.用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
  * <br>
+ * 2.返回值见{@linkplain PortOut}
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -18,6 +19,55 @@ import java.lang.annotation.*;
 @Documented
 public @interface PortIn
 {
+
+    /**
+     * 加在接口类上，表示只用于混入。
+     *
+     * @author Created by https://github.com/CLovinr on 2017/3/4.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Inherited
+    @Documented
+    @interface MinxinOnly
+    {
+    }
+
+
+    /**
+     * 用于标记函数(public)，在销毁时调用。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface PortDestroy
+    {
+        /**
+         * 在接口类中被调用的顺序。
+         *
+         * @return
+         */
+        int order() default 0;
+    }
+
+
+    /**
+     * 用于标记函数(public)，启动时调用。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface PortStart
+    {
+        /**
+         * 在接口类中被调用的顺序。
+         *
+         * @return
+         */
+        int order() default 0;
+    }
 
     /**
      * 同{@linkplain #tied()},当不为""时，则覆盖{@linkplain #tied()}.

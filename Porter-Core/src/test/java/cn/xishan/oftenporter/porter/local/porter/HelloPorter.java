@@ -2,6 +2,8 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -24,7 +26,7 @@ import java.util.Random;
 @PortIn(tied = "Hello", tiedType = TiedType.REST)
 @PortInObj({User.class})
 @Mixin({HelloMixinPorter.class})
-@MixinParser({MinxParserTest.class})
+@Parser.MixinParser({MinxParserTest.class})
 public class HelloPorter extends SuperSetPorter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);

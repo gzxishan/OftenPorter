@@ -18,5 +18,5 @@ public @interface PortOut
     /**
      * 输出类型。
      */
-    OutType value() default OutType.Object;
+    OutType value() default OutType.Auto;
 }

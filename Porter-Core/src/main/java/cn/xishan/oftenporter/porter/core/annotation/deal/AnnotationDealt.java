@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.InNames;
@@ -170,7 +172,7 @@ public final class AnnotationDealt
         return _portDestroy;
     }
 
-    public _PortStart portStart(Method method,ObjectGetter objectGetter)
+    public _PortStart portStart(Method method, ObjectGetter objectGetter)
     {
         PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
         if (portStart == null)
@@ -187,7 +189,10 @@ public final class AnnotationDealt
     {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (portOut != null)
+        if (method.getReturnType().equals(Void.TYPE))
+        {
+            _portOut.outType = OutType.NoResponse;
+        } else if (portOut != null)
         {
             _portOut.outType = portOut.value();
         } else
@@ -200,25 +205,26 @@ public final class AnnotationDealt
 
     public _PortIn portIn(Class<?> clazz)
     {
-        return portIn(clazz,false);
+        return portIn(clazz, false);
     }
 
-    public _PortIn portIn(Class<?> clazz,boolean isMixin)
+    public _PortIn portIn(Class<?> clazz, boolean isMixin)
     {
         PortIn portIn = clazz.getAnnotation(PortIn.class);
-        if (portIn == null)
+        if (portIn == null || (!isMixin && clazz.isAnnotationPresent(PortIn.MinxinOnly.class)))
         {
             return null;
         }
         _PortIn _portIn = new _PortIn();
-        _portIn.tiedName = PortUtil.tied(portIn, clazz,isMixin|| enableDefaultValue);
+        _portIn.tiedName = PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
         _portIn.method = portIn.method();
         _portIn.checks = portIn.checks();
         _portIn.tiedType = portIn.tiedType();
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 
-        if(LOGGER.isDebugEnabled()&&!isMixin){
+        if (LOGGER.isDebugEnabled() && !isMixin)
+        {
             LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
         }
 

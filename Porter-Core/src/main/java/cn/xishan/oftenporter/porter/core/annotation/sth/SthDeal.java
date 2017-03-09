@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +113,9 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(c, null, autoSetUtil, true, autoSetMixinMap);
+            if(mixinPorter==null){
+                continue;
+            }
             mixinList.add(mixinPorter);
             Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
@@ -135,7 +139,7 @@ public class SthDeal
         List<_PortStart> portStarts = new ArrayList<>();
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
-        Method[] methods = clazz.getMethods();
+        Method[] methods = WPTool.getAllPublicMethods(clazz);
         ObjectGetter objectGetter = () -> porter.getObj();
         for (Method method : methods)
         {
@@ -178,17 +182,18 @@ public class SthDeal
                 lastFun = children.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
-                    LOGGER.debug("add-rest:{} (function={}{})", porterOfFun.getMethodPortIn().getMethod(),
-                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                    LOGGER.debug("add-rest:{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getMethod(),
+                            porterOfFun.getPortOut().getOutType(), method.getName(),
+                            isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
             case Default:
                 lastFun = children.put(porterOfFun.getMethodPortIn().getTiedName(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
-                    LOGGER.debug("add:{},{} (function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
-                            porterOfFun.getMethodPortIn().getMethod(), method.getName(),
-                            isMixin ? ",from " + method.getDeclaringClass() : "");
+                    LOGGER.debug("add:{},{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
+                            porterOfFun.getMethodPortIn().getMethod(), porterOfFun.getPortOut().getOutType(),
+                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
         }

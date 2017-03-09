@@ -1,12 +1,12 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetMixin;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -208,6 +208,22 @@ public class AutoSetUtil
         if (thr != null)
         {
             throw thr;
+        } else
+        {
+            Method[] methods = WPTool.getAllPublicMethods(object.getClass());
+            try
+            {
+                for (Method method : methods)
+                {
+                    if (method.isAnnotationPresent(AutoSet.SetOk.class))
+                    {
+                        method.invoke(object);
+                    }
+                }
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
         }
     }
 

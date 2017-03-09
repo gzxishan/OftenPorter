@@ -6,7 +6,7 @@ package cn.xishan.oftenporter.porter.core.apt;
  */
 class GenException extends RuntimeException
 {
-    public GenException(String message)
+     GenException(String message)
     {
         super(message);
     }

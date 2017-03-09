@@ -33,34 +33,39 @@ import cn.xishan.oftenporter.servlet.WMainServlet;
  *         2016年9月6日 下午11:55:04
  */
 @WebServlet(name = "PorterServlet", urlPatterns = "/S/*", loadOnStartup = 5,
-            initParams = {@WebInitParam(name = "pname", value = "Servlet1"),
-                    @WebInitParam(name = "urlPatternPrefix", value = "/S")})
-public class MyWMainServlet extends WMainServlet {
+        initParams = {@WebInitParam(name = "pname", value = "Servlet1")})
+public class MyWMainServlet extends WMainServlet
+{
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER =
             LoggerFactory.getLogger(MyWMainServlet.class);
 
-    public MyWMainServlet() {
+    public MyWMainServlet()
+    {
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+            throws ServletException, IOException
+    {
         req.setAttribute("time", System.nanoTime());
         super.doGet(req, resp);
     }
 
     @Override
-    public void init() throws ServletException {
+    public void init() throws ServletException
+    {
         super.init();
         PropertyConfigurator
                 .configure(getClass().getResource("/log4j.properties"));
         PorterConf porterConf = newPorterConf();
 
-        porterConf.addContextCheck(new CheckPassable() {
+        porterConf.addContextCheck(new CheckPassable()
+        {
 
             @Override
-            public void willPass(WObject wObject, DuringType type, CheckHandle checkHandle) {
+            public void willPass(WObject wObject, DuringType type, CheckHandle checkHandle)
+            {
                 //LOGGER.debug("");
                 checkHandle.next();
             }
@@ -68,7 +73,7 @@ public class MyWMainServlet extends WMainServlet {
         });
 
         porterConf.getSeekPackages()
-                  .addPorters(getClass().getPackage().getName() + ".porter");
+                .addPorters(getClass().getPackage().getName() + ".porter");
         porterConf.setContextName("T1");
 
         startOne(porterConf);
@@ -79,7 +84,7 @@ public class MyWMainServlet extends WMainServlet {
         PorterConf porterConf2 = localMain.newPorterConf();
         porterConf2.setContextName("T2");
         porterConf2.getSeekPackages()
-                   .addPorters(getClass().getPackage().getName() + ".lporter");
+                .addPorters(getClass().getPackage().getName() + ".lporter");
         localMain.startOne(porterConf2);
 
         localMain.getPLinker().link(servletInit, Direction.BothAll);
@@ -89,28 +94,34 @@ public class MyWMainServlet extends WMainServlet {
                 .addParam("name", "xiaoming").addParam("age", 15)
                 .addParam("sex", "男");
 
-        servletInit.currentBridge().request(request, new PCallback() {
+        servletInit.currentBridge().request(request, new PCallback()
+        {
 
             @Override
-            public void onResponse(PResponse lResponse) {
+            public void onResponse(PResponse lResponse)
+            {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
             }
         });
 
-        servletInit.toAllBridge().request(request, new PCallback() {
+        servletInit.toAllBridge().request(request, new PCallback()
+        {
 
             @Override
-            public void onResponse(PResponse lResponse) {
+            public void onResponse(PResponse lResponse)
+            {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
             }
         });
 
-        localMain.getPLinker().toAllBridge().request(request, new PCallback() {
+        localMain.getPLinker().toAllBridge().request(request, new PCallback()
+        {
 
             @Override
-            public void onResponse(PResponse lResponse) {
+            public void onResponse(PResponse lResponse)
+            {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
 
