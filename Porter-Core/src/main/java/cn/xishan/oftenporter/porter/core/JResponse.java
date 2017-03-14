@@ -240,7 +240,7 @@ public class JResponse
         JSONObject json = new JSONObject(3);
         ResultCode resultCode = code != null ? code : ResultCode.Other;
         json.put(CODE_FIELD, resultCode.toCode());
-        json.put(CODE_NAME_FIELD,resultCode.name());
+        json.put(CODE_NAME_FIELD, resultCode.name());
         json.put(DESCRIPTION_FIELD, description);
         if (result != null)
         {
@@ -255,6 +255,20 @@ public class JResponse
 
 
         return json.toString();
+    }
+
+    public static JResponse success(Object result)
+    {
+        JResponse jResponse = new JResponse(ResultCode.SUCCESS);
+        jResponse.setResult(result);
+        return jResponse;
+    }
+
+    public static JResponse failed(String desc)
+    {
+        JResponse jResponse = new JResponse(ResultCode.OK_BUT_FAILED);
+        jResponse.setDescription(desc);
+        return jResponse;
     }
 
 }

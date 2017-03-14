@@ -143,24 +143,24 @@ public class DataDynamic extends DataAble {
     protected String[] getFinalKeys(KeysSelection keysSelection, ParamsGetter.Params params) {
         String[] keys = null;
         if (keysSelection != null) {
-            if (keysSelection.isSelect) {
+//            if (keysSelection.isSelect) {
                 keys = keysSelection.keys;
                 // 转换成数据库的名称
                 for (int i = 0; i < keys.length; i++) {
                     keys[i] = dbName(keys[i]);
                 }
 
-            } else {
-                String[] unKeys = keysSelection.keys;
-                List<String> list = new ArrayList<String>();
-                String[] names = keyNames;
-                for (int i = 0; i < names.length; i++) {
-                    if (DataUtil.indexOf(unKeys, names[i]) == -1) {
-                        list.add(dbName(i));
-                    }
-                }
-                keys = list.toArray(new String[0]);
-            }
+//            } else {
+//                String[] unKeys = keysSelection.keys;
+//                List<String> list = new ArrayList<String>();
+//                String[] names = keyNames;
+//                for (int i = 0; i < names.length; i++) {
+//                    if (DataUtil.indexOf(unKeys, names[i]) == -1) {
+//                        list.add(dbName(i));
+//                    }
+//                }
+//                keys = list.toArray(new String[0]);
+//            }
         }
         return keys;
     }

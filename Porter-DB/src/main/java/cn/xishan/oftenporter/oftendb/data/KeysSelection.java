@@ -6,12 +6,12 @@ package cn.xishan.oftenporter.oftendb.data;
 public class KeysSelection
 {
     String[] keys;
-    boolean isSelect;
+    //boolean isSelect;
 
 
-    public KeysSelection(boolean isSelect)
+    public KeysSelection()
     {
-        select(isSelect);
+        //select(isSelect);
     }
 
     /**
@@ -27,15 +27,15 @@ public class KeysSelection
         return this;
     }
 
-    /**
-     * 是否选择
-     *
-     * @param isSelect
-     * @return
-     */
-    public KeysSelection select(boolean isSelect)
-    {
-        this.isSelect = isSelect;
-        return this;
-    }
+//    /**
+//     * 是否选择
+//     *
+//     * @param isSelect
+//     * @return
+//     */
+//    public KeysSelection select(boolean isSelect)
+//    {
+//        this.isSelect = isSelect;
+//        return this;
+//    }
 }

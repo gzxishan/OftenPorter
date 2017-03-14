@@ -260,8 +260,8 @@ public abstract class Data extends DataAble
         if (keysSelection != null)
         {
             ClassAndField cf = getClassAndField();
-            if (keysSelection.isSelect)
-            {
+//            if (keysSelection.isSelect)
+//            {
                 keys = keysSelection.keys;
                 // 转换成数据库的名称
                 for (int i = 0; i < keys.length; i++)
@@ -269,22 +269,22 @@ public abstract class Data extends DataAble
                     keys[i] = cf.tiedName(keys[i]);
                 }
 
-            } else
-            {
-                String[] unKeys = keysSelection.keys;
-                List<String> list = new ArrayList<String>();
-                Field[] fields = cf.getFields();
-                String[] names = cf.getNames();
-                for (int i = 0; i < fields.length; i++)
-                {
-                    String name = names[i];
-                    if (DataUtil.indexOf(unKeys, name) == -1)
-                    {
-                        list.add(cf.tiedName(i));
-                    }
-                }
-                keys = list.toArray(new String[0]);
-            }
+//            } else
+//            {
+//                String[] unKeys = keysSelection.keys;
+//                List<String> list = new ArrayList<String>();
+//                Field[] fields = cf.getFields();
+//                String[] names = cf.getNames();
+//                for (int i = 0; i < fields.length; i++)
+//                {
+//                    String name = names[i];
+//                    if (DataUtil.indexOf(unKeys, name) == -1)
+//                    {
+//                        list.add(cf.tiedName(i));
+//                    }
+//                }
+//                keys = list.toArray(new String[0]);
+//            }
         }
         return keys;
     }
