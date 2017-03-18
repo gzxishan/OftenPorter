@@ -41,7 +41,7 @@ public final class _PortIn
         return tiedName;
     }
 
-    public void setTiedName(String tiedName)
+    void setTiedName(String tiedName)
     {
         PortUtil.checkName(tiedName);
         this.tiedName = tiedName;
@@ -52,7 +52,7 @@ public final class _PortIn
         return ignoreTypeParser;
     }
 
-    public void setTiedType(TiedType tiedType)
+    void setTiedType(TiedType tiedType)
     {
         this.tiedType = tiedType;
     }

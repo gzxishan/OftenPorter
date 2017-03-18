@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.demo.core.test1;
 
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +28,22 @@ public class Main1 {
 
         LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
         LogUtil.printPos(PortMethod.valueOf("GET"));
+
+        localMain.getOnPorterAddListenerAdder().add("name1", new OnPorterAddListener()
+        {
+            @Override
+            public boolean onAdding(String contextName, Porter porter)
+            {
+                logger.warn(":{}  {}",contextName,porter.getClazz());
+                return false;
+            }
+
+            @Override
+            public boolean onSeeking(String contextName, Class<?> clazz)
+            {
+                return false;
+            }
+        });
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();

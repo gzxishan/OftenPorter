@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.demo.core.test1.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
@@ -15,6 +16,12 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 @PortIn(nece={"sth"})
 public class Hello1Porter
 {
+
+	@PortIn(tied = "say",method = PortMethod.POST)
+	public void sayPost(WObject wObject){
+
+	}
+
     /**
      * <pre>
      * 1.nece表示必需参数，如果没有提供则会返回错误信息。

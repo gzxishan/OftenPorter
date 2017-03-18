@@ -1,9 +1,7 @@
 package cn.xishan.oftenporter.porter.local;
 
 import cn.xishan.oftenporter.porter.core.PreRequest;
-import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
@@ -62,6 +60,12 @@ public class LocalMain implements CommonMain
     public void addGlobalTypeParser(ITypeParser typeParser)
     {
         porterMain.addGlobalTypeParser(typeParser);
+    }
+
+    @Override
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    {
+        return porterMain.getOnPorterAddListenerAdder();
     }
 
     @Override

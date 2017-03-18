@@ -283,6 +283,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
     @Override
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    {
+        return porterMain.getOnPorterAddListenerAdder();
+    }
+
+    @Override
     public void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException
     {
         porterMain.addGlobalCheck(checkPassable);
