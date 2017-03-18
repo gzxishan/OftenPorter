@@ -255,4 +255,12 @@ public final class AnnotationDealt
         }
         return _portIn;
     }
+
+    public void setTiedName(_PortIn portIn,String tiedName){
+        portIn.setTiedName(tiedName);
+    }
+
+    public void setTiedType(_PortIn portIn,TiedType tiedType){
+        portIn.setTiedType(tiedType);
+    }
 }

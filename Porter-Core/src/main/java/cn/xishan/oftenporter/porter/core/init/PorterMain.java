@@ -30,7 +30,7 @@ public final class PorterMain
     private static final Logger LOGGER = LoggerFactory.getLogger(PorterMain.class);
     private final InnerBridge innerBridge;
     private final PLinker pLinker;
-
+    private ListenerAdderImpl listenerAdder;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
     /**
@@ -42,6 +42,7 @@ public final class PorterMain
         synchronized (PorterMain.class)
         {
             this.innerBridge = new InnerBridge();
+            listenerAdder = new ListenerAdderImpl();
             pLinker = new DefaultPLinker(pName, bridge);
             pLinker.setPorterAttr(contextName ->
             {
@@ -55,6 +56,10 @@ public final class PorterMain
             });
             commonMainHashMap.put(pName.getName(), commonMain);
         }
+    }
+
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder(){
+        return listenerAdder;
     }
 
     /**
@@ -183,7 +188,7 @@ public final class PorterMain
         Map<Class<?>, CheckPassable> classCheckPassableMap = null;
         try
         {
-            classCheckPassableMap = portContext.initSeek(porterConf, autoSetUtil);
+            classCheckPassableMap = portContext.initSeek(listenerAdder,porterConf, autoSetUtil);
         } catch (FatalInitException e)
         {
             throw new Error(e);

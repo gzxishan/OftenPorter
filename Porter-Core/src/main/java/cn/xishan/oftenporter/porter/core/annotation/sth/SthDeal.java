@@ -68,8 +68,8 @@ public class SthDeal
             return null;
         }
         Porter porter = new Porter(autoSetUtil);
-        Map<String, PorterOfFun> children = new HashMap<>();
-        porter.children = children;
+        Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
+        porter.childrenWithMethod = childrenWithMethod;
 
         porter.clazz = clazz;
         porter.object = object;
@@ -79,7 +79,7 @@ public class SthDeal
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
-            porter.getPortIn().setTiedName(iPorter.classTied());
+            annotationDealt.setTiedName(porter.getPortIn(), iPorter.classTied());
         }
 
         //实例化经检查对象并添加到map。
@@ -113,17 +113,18 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(c, null, autoSetUtil, true, autoSetMixinMap);
-            if(mixinPorter==null){
+            if (mixinPorter == null)
+            {
                 continue;
             }
             mixinList.add(mixinPorter);
-            Map<String, PorterOfFun> mixinChildren = mixinPorter.children;
+            Map<String, PorterOfFun> mixinChildren = mixinPorter.childrenWithMethod;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
             while (mixinIt.hasNext())
             {
-                putFun(mixinIt.next(), children, true, true);
+                putFun(mixinIt.next(), childrenWithMethod, true, true);
             }
-            mixinPorter.children.clear();
+            mixinPorter.childrenWithMethod.clear();
         }
         if (mixinList.size() > 0)
         {
@@ -135,6 +136,7 @@ public class SthDeal
             LOGGER.debug("***********For mixin:{}***********end!", clazz);
         }
         ////////处理混入接口------结束
+
 
         List<_PortStart> portStarts = new ArrayList<>();
         List<_PortDestroy> portDestroys = new ArrayList<>();
@@ -155,8 +157,8 @@ public class SthDeal
             if (porterOfFun != null)
             {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
-                porterOfFun.getMethodPortIn().setTiedType(tiedType);
-                putFun(porterOfFun, children, !isMixin, isMixin);
+                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
+                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
             }
         }
 
@@ -170,7 +172,8 @@ public class SthDeal
         return porter;
     }
 
-    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> children, boolean willLog, boolean isMixin)
+    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
+            boolean isMixin)
     {
         PorterOfFun lastFun = null;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
@@ -179,7 +182,7 @@ public class SthDeal
         {
 
             case REST:
-                lastFun = children.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
+                lastFun = childrenWithMethod.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
                     LOGGER.debug("add-rest:{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getMethod(),
@@ -188,7 +191,9 @@ public class SthDeal
                 }
                 break;
             case Default:
-                lastFun = children.put(porterOfFun.getMethodPortIn().getTiedName(), porterOfFun);
+                lastFun = childrenWithMethod
+                        .put(porterOfFun.getMethodPortIn().getTiedName() + "/" + porterOfFun.getMethodPortIn()
+                                .getMethod().name(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
                     LOGGER.debug("add:{},{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getTiedName(),

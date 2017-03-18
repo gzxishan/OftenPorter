@@ -44,7 +44,7 @@ public class PorterConf
     }
 
     /**
-     * 用于扫描包中含有{@linkplain cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek}注解的类，进而注入里面的变量。
+     * 用于扫描包中含有{@linkplain AutoSet.AutoSetSeek}注解的类，进而注入里面的变量。
      *
      * @param autoSetSeekPackages
      */
