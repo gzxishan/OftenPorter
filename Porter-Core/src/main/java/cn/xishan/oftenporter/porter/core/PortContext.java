@@ -58,9 +58,16 @@ public class PortContext
         return classLoader;
     }
 
-    public Map<Class<?>, CheckPassable> initSeek(PorterConf porterConf,
+    private PorterConf porterConf;
+    private ListenerAdder<OnPorterAddListener> listenerAdder;
+
+    public Map<Class<?>, CheckPassable> initSeek(ListenerAdder<OnPorterAddListener> listenerAdder,
+            PorterConf porterConf,
             AutoSetUtil autoSetUtil) throws FatalInitException
     {
+        this.porterConf = porterConf;
+        this.listenerAdder = listenerAdder;
+
         SthDeal sthDeal = new SthDeal();
         seek(porterConf.getSeekPackages().getPackages(), autoSetUtil, sthDeal);
 
@@ -86,7 +93,7 @@ public class PortContext
             LOGGER.debug("may add porter:{}:{}", object.getClass(), object);
             try
             {
-                if (PortUtil.isPortClass(object.getClass()))
+                if (PortUtil.isPortClass(object.getClass())&&willSeek(object.getClass()))
                 {
                     addPorter(object.getClass(), object, autoSetUtil, sthDeal);
                 }
@@ -101,10 +108,15 @@ public class PortContext
 
         this.checkPassableForCF = autoSetUtil.getInnerContextBridge().checkPassableForCFTemps;
         autoSetUtil.getInnerContextBridge().checkPassableForCFTemps = null;
+
+        this.porterConf = null;
+        this.listenerAdder = null;
+
         return checkPassableForCF;
     }
 
-    private void seek(@NotNull JSONArray packages, AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
+    private void seek(@NotNull JSONArray packages,
+            AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -123,7 +135,8 @@ public class PortContext
     }
 
 
-    private void seekPackage(String packageStr, AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
+    private void seekPackage(String packageStr,
+            AutoSetUtil autoSetUtil, SthDeal sthDeal) throws FatalInitException
     {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -134,7 +147,8 @@ public class PortContext
             {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
                 mayAddPorter(clazz, autoSetUtil, sthDeal);
-            }catch (FatalInitException e){
+            } catch (FatalInitException e)
+            {
                 throw e;
             } catch (Exception e)
             {
@@ -143,36 +157,80 @@ public class PortContext
         }
     }
 
+    private boolean willSeek(Class<?> clazz)
+    {
+        boolean willSeek = true;
+        Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
+        while (enumeration.hasMoreElements())
+        {
+            OnPorterAddListener onPorterAddListener = enumeration.nextElement();
+            if (onPorterAddListener.onSeeking(porterConf.getContextName(), clazz))
+            {
+                willSeek = false;
+                break;
+            }
+        }
+        if(!willSeek){
+            LOGGER.debug("seek canceled!![{}]",clazz);
+        }
+        return willSeek;
+    }
+
     private void mayAddPorter(Class<?> clazz, AutoSetUtil autoSetUtil,
             SthDeal sthDeal) throws FatalInitException, Exception
     {
-        if (PortUtil.isPortClass(clazz))
+        if (PortUtil.isPortClass(clazz)&&willSeek(clazz))
         {
             addPorter(clazz, null, autoSetUtil, sthDeal);
         }
     }
 
 
-    private void addPorter(Class<?> clazz, Object objectPorter, AutoSetUtil autoSetUtil,
+    /**
+     * 添加接口！！！！！
+     *
+     * @param clazz
+     * @param objectPorter
+     * @param autoSetUtil
+     * @param sthDeal
+     * @throws FatalInitException
+     * @throws Exception
+     */
+    private void addPorter(Class<?> clazz, Object objectPorter,
+            AutoSetUtil autoSetUtil,
             SthDeal sthDeal) throws FatalInitException, Exception
     {
         LOGGER.debug("添加接口：");
         LOGGER.debug("at " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
-
         Porter porter = sthDeal.porter(clazz, objectPorter, autoSetUtil);
         if (porter != null)
         {
-            _PortIn port = porter.getPortIn();
-            if (portMap.containsKey(port.getTiedName()))
+            boolean willAdd = true;
+            Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
+            while (enumeration.hasMoreElements())
             {
-                LOGGER.warn("the class tiedName '{}' added before.(current:{},last:{})", port.getTiedName(),
-                        clazz, portMap.get(port.getTiedName()).getClazz());
+                OnPorterAddListener onPorterAddListener = enumeration.nextElement();
+                if (onPorterAddListener.onAdding(porterConf.getContextName(), porter))
+                {
+                    willAdd = false;
+                    break;
+                }
             }
-            portMap.put(port.getTiedName(), porter);
+            _PortIn port = porter.getPortIn();
+            if (willAdd)
+            {
+                if (portMap.containsKey(port.getTiedName()))
+                {
+                    LOGGER.warn("class tiedName '{}' added before.(current:{},last:{})", port.getTiedName(),
+                            clazz, portMap.get(port.getTiedName()).getClazz());
+                }
+                portMap.put(port.getTiedName(), porter);
+            } else
+            {
+                LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedName(), clazz);
+            }
         }
-
-
     }
 
     Porter getClassPort(String classTied)

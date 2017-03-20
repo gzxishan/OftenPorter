@@ -27,7 +27,10 @@ public final class Porter
 
     _PortStart[] starts;
     _PortDestroy[] destroys;
-    Map<String, PorterOfFun> children;
+    /**
+     * {"funTied/method"或者"method":PorterOfFun}
+     */
+    Map<String, PorterOfFun> childrenWithMethod;
     Porter[] mixins;
 
     InObj inObj;
@@ -36,6 +39,14 @@ public final class Porter
     public Porter(AutoSetUtil autoSetUtil)
     {
         this.autoSetUtil = autoSetUtil;
+    }
+
+    /**
+     * 获取绑定的函数：{"funTied/method"或者"method":PorterOfFun}
+     * @return
+     */
+    public Map<String, PorterOfFun> getFuns(){
+        return childrenWithMethod;
     }
 
 
@@ -74,7 +85,7 @@ public final class Porter
         }
         if (object != null)
         {
-            autoSetUtil.doAutoSetForPorter(object,autoSetMixinMap);
+            autoSetUtil.doAutoSetForPorter(object, autoSetMixinMap);
         }
     }
 
@@ -105,14 +116,14 @@ public final class Porter
         {
 
             case REST:
-                porterOfFun = children.get(result.funTied());
+                porterOfFun = childrenWithMethod.get(result.funTied() + "/" + method.name());
                 if (porterOfFun == null)
                 {
-                    porterOfFun = children.get(method.name());
+                    porterOfFun = childrenWithMethod.get(method.name());
                 }
                 break;
             case Default:
-                porterOfFun = children.get(result.funTied());
+                porterOfFun = childrenWithMethod.get(result.funTied() + "/" + method.name());
                 break;
         }
         if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)
@@ -167,6 +178,15 @@ public final class Porter
                 LOGGER.warn(e.getMessage(), e);
             }
         }
-
+//        childrenWithMethod.clear();
+//        childrenWithMethod=null;
+//        mixins = null;
+//        destroys = null;
+//        starts = null;
+//        object = null;
+//        clazz = null;
+//        portIn = null;
+//        inObj=null;
+//        autoSetUtil=null;
     }
 }

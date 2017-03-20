@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
+import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 
 /**
@@ -19,6 +21,12 @@ public interface CommonMain
     void addGlobalAutoSet(String name, Object object);
 
     void addGlobalTypeParser(ITypeParser typeParser);
+
+    /**
+     * 如果有一个返回false，则不会添加接口。
+     * @return
+     */
+    ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder();
 
 
     /**
