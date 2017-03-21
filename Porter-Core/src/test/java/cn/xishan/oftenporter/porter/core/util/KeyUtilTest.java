@@ -35,6 +35,14 @@ public class KeyUtilTest
         Assert.assertEquals(32, KeyUtil.randomUUID().length());
     }
 
+    @Test
+    public void testRandom48Key()
+    {
+        String key = KeyUtil.random48Key();
+        LogUtil.printPosLn(key);
+        Assert.assertEquals(48,key.length());
+    }
+
     /**
      * Method: secureRandomKey(int length)
      */
