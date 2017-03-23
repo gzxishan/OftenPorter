@@ -525,10 +525,10 @@ public class PortExecutor
         {
             if (funPIn.getChecks().length == 0 && context.forAllCheckPassables == null)
             {
-                LOGGER.warn(e.getMessage(), e);
                 ex(wObject.getResponse(), e, responseWhenException);
             } else
             {
+                LOGGER.warn(e.getMessage(), e);
                 CheckHandle checkHandle = new CheckHandle(e.getCause(), result, funPort.getObject(),
                         funPort.getMethod(),funPort.getPortOut().getOutType())
                 {
@@ -646,9 +646,9 @@ public class PortExecutor
 
     private void ex(WResponse response, Throwable throwable, boolean responseWhenException)
     {
-        if (LOGGER.isDebugEnabled())
+        if (LOGGER.isWarnEnabled())
         {
-            LOGGER.debug(throwable.getMessage(), throwable);
+            LOGGER.warn(throwable.getMessage(), throwable);
         }
         if (responseWhenException)
         {
