@@ -220,6 +220,7 @@ public final class AnnotationDealt
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
         _portIn.method = portIn.method();
         _portIn.checks = portIn.checks();
+        _portIn.checksForWholeClass=portIn.checksForWholeClass();
         _portIn.tiedType = portIn.tiedType();
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 

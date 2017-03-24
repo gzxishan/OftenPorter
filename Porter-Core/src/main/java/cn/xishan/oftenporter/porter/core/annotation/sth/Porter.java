@@ -25,6 +25,8 @@ public final class Porter
     Class<?> clazz;
     _PortIn portIn;
 
+    WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
+
     _PortStart[] starts;
     _PortDestroy[] destroys;
     /**
@@ -36,9 +38,15 @@ public final class Porter
     InObj inObj;
     private AutoSetUtil autoSetUtil;
 
-    public Porter(AutoSetUtil autoSetUtil)
+    public Porter(AutoSetUtil autoSetUtil,WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
         this.autoSetUtil = autoSetUtil;
+        this.wholeClassCheckPassableGetter=wholeClassCheckPassableGetter;
+    }
+
+    public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
+    {
+        return wholeClassCheckPassableGetter;
     }
 
     /**

@@ -118,9 +118,16 @@ public @interface PortIn
     boolean ignoreTypeParser() default false;
 
     /**
-     * 设置检测类型。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
+     * 设置检测类型(对类或函数阶段有效，但对混入接口无效。)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
      */
     Class<? extends CheckPassable>[] checks() default {};
+
+    /**
+     * 设置检测类型(对类和函数阶段有效，且对混入接口也有效)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
+     * <br>
+     * <strong>注意：</strong>只对类有效，且在{@linkplain #checks()}之前被调用。
+     */
+    Class<? extends CheckPassable>[] checksForWholeClass() default {};
 
     /**
      * <pre>

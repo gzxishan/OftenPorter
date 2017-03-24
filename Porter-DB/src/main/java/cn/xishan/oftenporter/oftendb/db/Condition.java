@@ -210,8 +210,14 @@ public abstract class Condition implements ToFinal
         }
     }
 
+    public Condition put(Operator operator, String cunitName, Object cunitValue)
+    {
+        return put(operator, new CUnit(cunitName, cunitValue));
+    }
+
     /**
      * 默认为逻辑与。
+     *
      * @param operator
      * @param CUnit
      * @return
@@ -229,7 +235,8 @@ public abstract class Condition implements ToFinal
         return this;
     }
 
-    public void clear(){
+    public void clear()
+    {
         operators.clear();
         list.clear();
     }

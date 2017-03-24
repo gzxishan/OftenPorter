@@ -51,6 +51,28 @@ public class NameValues
         return this;
     }
 
+    /**
+     * 添加键值对。
+     * @param name
+     * @param value
+     * @return
+     */
+    public  NameValues append(String name, Object value)
+    {
+        if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){
+            names.add(name);
+            values.add(value);
+        }
+        return this;
+    }
+
+    /**
+     * 请使用{@linkplain #append(String, Object)}.
+     * @param name
+     * @param value
+     * @return
+     */
+    @Deprecated
     public NameValues put(String name, Object value)
     {
         if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){

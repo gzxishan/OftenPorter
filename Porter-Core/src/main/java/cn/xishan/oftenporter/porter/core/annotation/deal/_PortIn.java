@@ -11,7 +11,7 @@ public final class _PortIn
     String tiedName;
     InNames inNames;
     PortMethod method;
-    Class<? extends CheckPassable>[] checks;
+    Class<? extends CheckPassable>[] checks,checksForWholeClass;
     TiedType tiedType;
     boolean ignoreTypeParser;
 
@@ -25,6 +25,12 @@ public final class _PortIn
     {
         return checks;
     }
+
+    public Class<? extends CheckPassable>[] getCheckPassablesForWholeClass()
+    {
+        return checksForWholeClass;
+    }
+
 
     public PortMethod getMethod()
     {
