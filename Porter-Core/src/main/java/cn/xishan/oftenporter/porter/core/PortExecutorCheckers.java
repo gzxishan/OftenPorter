@@ -33,21 +33,30 @@ class PortExecutorCheckers extends CheckHandle
     }
 
     public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType,
-            Class<? extends CheckPassable>[] cps,
-            CheckHandle handle)
+            CheckHandle handle,
+            Class<? extends CheckPassable>[] ... cpss)
     {
-        this(context, wObject, duringType, toCheckPassables(context, cps), handle);
+        this(context, wObject, duringType, toCheckPassables(context, cpss), handle);
     }
 
-    private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[] cps)
+    private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[] ... cpss)
     {
         PortContext portContext = context.portContext;
-        CheckPassable[] checkPassables = new CheckPassable[cps.length];
-        for (int i = 0; i < cps.length; i++)
+        int totalLength=0;
+        for (int i = 0; i < cpss.length; i++)
         {
-            CheckPassable cp = portContext.getCheckPassable(cps[i]);
-            checkPassables[i] = cp;
-
+            totalLength+=cpss[i].length;
+        }
+        CheckPassable[] checkPassables = new CheckPassable[totalLength];
+        int k=0;
+        for (int i = 0; i < cpss.length; i++)
+        {
+            Class<? extends CheckPassable>[] cps = cpss[i];
+            for (int j = 0; j <cps.length ; j++)
+            {
+                CheckPassable cp = portContext.getCheckPassable(cps[j]);
+                checkPassables[k++] = cp;
+            }
         }
         return checkPassables;
     }

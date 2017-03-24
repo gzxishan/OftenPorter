@@ -44,11 +44,13 @@ public class SthDeal
 
     public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil) throws FatalInitException
     {
-        return porter(clazz, object, autoSetUtil, false, null);
+        return porter(clazz, object, autoSetUtil, false, null, null);
     }
 
+
     private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil,
-            boolean isMixin, Map<String, Object> autoSetMixinMap) throws FatalInitException
+            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
+            Map<String, Object> autoSetMixinMap) throws FatalInitException
 
     {
         if (autoSetMixinMap == null)
@@ -58,6 +60,9 @@ public class SthDeal
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
+        } else
+        {
+            wholeClassCheckPassableGetter = new WholeClassCheckPassableGetterImpl();
         }
 
         InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
@@ -67,7 +72,7 @@ public class SthDeal
         {
             return null;
         }
-        Porter porter = new Porter(autoSetUtil);
+        Porter porter = new Porter(autoSetUtil, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
@@ -82,8 +87,6 @@ public class SthDeal
             annotationDealt.setTiedName(porter.getPortIn(), iPorter.classTied());
         }
 
-        //实例化经检查对象并添加到map。
-        SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
@@ -101,18 +104,20 @@ public class SthDeal
             LOGGER.warn(e.getMessage(), e);
         }
 
+        wholeClassCheckPassableGetter.addAll(portIn.getCheckPassablesForWholeClass());
 
         /////处理混入接口------开始：
         //先处理混入接口，这样当前接口类的接口方法优先
         Class<?>[] mixins = SthUtil.getMixin(clazz);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
+        List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
         for (Class c : mixins)
         {
             if (!PortUtil.isPortClass(c))
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true, autoSetMixinMap);
+            Porter mixinPorter = porter(c, null, autoSetUtil, true, wholeClassCheckPassableGetter, autoSetMixinMap);
             if (mixinPorter == null)
             {
                 continue;
@@ -125,15 +130,24 @@ public class SthDeal
                 putFun(mixinIt.next(), childrenWithMethod, true, true);
             }
             mixinPorter.childrenWithMethod.clear();
+            wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
         }
         if (mixinList.size() > 0)
         {
             porter.mixins = mixinList.toArray(new Porter[0]);
         }
 
+        //实例化经检查对象并添加到map。
+        SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********end!", clazz);
+        } else
+        {
+            wholeClassCheckPassableGetter.done();
+            SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
+                    wholeClassCheckPassableGetter.getChecksForWholeClass());
         }
         ////////处理混入接口------结束
 
