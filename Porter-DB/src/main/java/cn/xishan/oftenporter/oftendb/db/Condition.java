@@ -210,28 +210,55 @@ public abstract class Condition implements ToFinal
         }
     }
 
+    public Condition append(Operator operator, String cunitName, Object cunitValue)
+    {
+        return put(operator, new CUnit(cunitName, cunitValue));
+    }
+
+    /**
+     * 请使用{@linkplain #append(Operator, String, Object)}
+     *
+     * @param operator
+     * @param cunitName
+     * @param cunitValue
+     * @return
+     */
+    @Deprecated
     public Condition put(Operator operator, String cunitName, Object cunitValue)
     {
         return put(operator, new CUnit(cunitName, cunitValue));
     }
 
     /**
+     * 请使用{@linkplain #put(Operator, CUnit)}
+     *
+     * @param operator
+     * @param cUnit
+     * @return
+     */
+    @Deprecated
+    public Condition put(Operator operator, CUnit cUnit)
+    {
+        return append(operator, cUnit);
+    }
+
+    /**
      * 默认为逻辑与。
      *
      * @param operator
-     * @param CUnit
+     * @param cUnit
      * @return
      */
-    public Condition put(Operator operator, CUnit CUnit)
+    public Condition append(Operator operator, CUnit cUnit)
     {
         isNull(operator);
-        isNull(CUnit);
+        isNull(cUnit);
         if (operator == NOT || operator == OR)
         {
             throw new IllegalArgumentException("the operator should not be " + operator);
         }
         operators.add(operator);
-        list.add(CUnit);
+        list.add(cUnit);
         return this;
     }
 
@@ -241,11 +268,25 @@ public abstract class Condition implements ToFinal
         list.clear();
     }
 
+
+    /**
+     * 请使用{@linkplain #append(Operator, Condition)}
+     *
+     * @param operator
+     * @param condition
+     * @return
+     */
+    @Deprecated
+    public Condition put(Operator operator, Condition condition)
+    {
+        return append(operator, condition);
+    }
+
     /**
      * @param operator  使用{@linkplain #OR}、{@linkplain #NOT}等.
      * @param condition
      */
-    public Condition put(Operator operator, Condition condition)
+    public Condition append(Operator operator, Condition condition)
     {
         isNull(operator);
         isNull(condition);
