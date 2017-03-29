@@ -212,7 +212,7 @@ public class SqlCondition extends Condition
         return operator;
     }
 
-    private void chekName(String name)
+    private void checkName(String name)
     {
         if (WPTool.isEmpty(name) || name.indexOf('{') >= 0 || name.indexOf('}') >= 0)
         {
@@ -237,7 +237,7 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam1());
         } else
         {
-            chekName(cUnit.getParam1());
+            checkName(cUnit.getParam1());
             stringBuilder.append("`").append(cUnit.getParam1()).append("`");
         }
         stringBuilder.append(" ");
@@ -257,9 +257,17 @@ public class SqlCondition extends Condition
         if (operator == IN || operator == NIN)
         {
             StringBuilder sBuilder = new StringBuilder("(");
-            if (cUnit.getParam2() instanceof Object[])
+            if (cUnit.getParam2() instanceof Object[] || cUnit.getParam2() instanceof List)
             {
-                Object[] objects = (Object[]) cUnit.getParam2();
+                Object[] objects;
+                if (cUnit.getParam2() instanceof List)
+                {
+                    List list = (List) cUnit.getParam2();
+                    objects = list.toArray(new Object[0]);
+                } else
+                {
+                    objects = (Object[]) cUnit.getParam2();
+                }
                 if (objects != null)
                 {
                     for (int i = 0; i < objects.length - 1; i++)
@@ -331,7 +339,7 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam2());
         } else
         {
-            chekName((String) cUnit.getParam2());
+            checkName((String) cUnit.getParam2());
             stringBuilder.append("`").append(cUnit.getParam2()).append("`");
         }
     }

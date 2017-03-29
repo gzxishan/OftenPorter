@@ -9,6 +9,8 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
+import java.util.List;
+
 public class MongoCondition extends Condition
 {
 
@@ -147,9 +149,18 @@ public class MongoCondition extends Condition
         if (operator == IN || operator == NIN)
         {
             BasicDBList dbList = new BasicDBList();
-            if (object2 instanceof Object[])
+            if (object2 instanceof Object[] || object2 instanceof List)
             {
-                Object[] objects = (Object[]) object2;
+                Object[] objects;
+                if (object2 instanceof List)
+                {
+                    List list = (List) object2;
+                    objects = list.toArray(new Object[0]);
+                } else
+                {
+                    objects = (Object[]) object2;
+                }
+
 
                 if (objects != null)
                 {

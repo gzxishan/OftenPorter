@@ -37,12 +37,12 @@ public abstract class Condition implements ToFinal
     public static final Operator EQ = new MyOperator("EQ");
 
     /**
-     * in:值为Object[]或Object
+     * in:值为Object[],List或Object
      */
     public static final Operator IN = new MyOperator("IN");
 
     /**
-     * not in:值为Object[]或Object
+     * not in:值为Object[],List或Object
      */
     public static final Operator NIN = new MyOperator("NIN");
 
