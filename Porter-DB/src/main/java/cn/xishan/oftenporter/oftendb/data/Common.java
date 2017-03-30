@@ -8,11 +8,10 @@ import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.oftendb.data.ParamsGetter.Params;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -41,7 +40,7 @@ public class Common
      */
     public static final Common C = new Common(null);
     private DBHandle _dbHandle;
-    private static final Logger LOGGER = LoggerFactory.getLogger(Common.class);
+    //private static final Logger LOGGER = LoggerFactory.getLogger(Common.class);
 
     private Common(DBHandle dbHandle)
     {
@@ -114,6 +113,7 @@ public class Common
                 {
                     dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
                 }
+                dbHandle.setLogger(LogUtil.logger(wObject, dbHandle.getClass()));
                 rs = setDataFields(data, willSetParams, wObject, setType, optionCode,
                         new DBHandleAccess(dbHandleSource, dbHandle));
             }
@@ -149,7 +149,7 @@ public class Common
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
 
-            LOGGER.warn(e.getMessage(), e);
+            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
 
         } catch (Exception e)
         {
@@ -157,7 +157,7 @@ public class Common
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
-            LOGGER.warn(e.getMessage(), e);
+            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
         } finally
         {
             if (dbHandle != null && !dbHandle.isTransaction())
@@ -186,7 +186,7 @@ public class Common
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
-            LOGGER.warn(e.getMessage(), e);
+            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
             WCallException callException = new WCallException(jResponse);
 
             throw callException;

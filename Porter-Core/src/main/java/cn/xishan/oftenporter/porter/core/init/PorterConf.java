@@ -39,7 +39,7 @@ public class PorterConf
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
         contextAutoGenImplMap = new HashMap<>();
-        paramSourceHandleManager=new ParamSourceHandleManager();
+        paramSourceHandleManager = new ParamSourceHandleManager();
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
@@ -138,6 +138,25 @@ public class PorterConf
         contextAutoSetMap.put(name, object);
     }
 
+    /**
+     * 效果同{@linkplain #addContextAutoSet(String, Object) addContextAutoSet(object.getClass().getName(), Object)}
+     *
+     * @param object
+     */
+    public void addContextAutoSet(Object object)
+    {
+        addContextAutoSet(object.getClass().getName(), object);
+    }
+
+    /**
+     * 效果同{@linkplain #addContextAutoSet(String, Object) addContextAutoSet(clazz.getName(), Object)}
+     *
+     * @param object
+     */
+    public void addContextAutoSet(Class<?> clazz, Object object)
+    {
+        addContextAutoSet(clazz.getName(), object);
+    }
 
     /**
      * 用于添加接口实现.
@@ -148,6 +167,17 @@ public class PorterConf
     public void addContextAutoGenImpl(String name, Class<?> implClass)
     {
         contextAutoGenImplMap.put(name, implClass);
+    }
+
+    /**
+     * 效果同{@linkplain #addContextAutoGenImpl(String, Class) addContextAutoGenImpl(clazz.getName(), Class)}
+     *
+     * @param clazz
+     * @param implClass
+     */
+    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass)
+    {
+        contextAutoGenImplMap.put(clazz.getName(), implClass);
     }
 
     public Map<String, Class<?>> getContextAutoGenImplMap()
@@ -232,6 +262,6 @@ public class PorterConf
         stateListenerSet = null;
         forAllCheckPassableList = null;
         autoSetSeekPackages = null;
-        paramSourceHandleManager=null;
+        paramSourceHandleManager = null;
     }
 }

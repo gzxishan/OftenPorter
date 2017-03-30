@@ -7,10 +7,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.*;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -23,6 +23,13 @@ public class MongoHandle implements DBHandle
     {
 
         this.collection = db.getCollection(collectionName);
+    }
+
+
+    @Override
+    public void setLogger(Logger logger)
+    {
+
     }
 
     /**

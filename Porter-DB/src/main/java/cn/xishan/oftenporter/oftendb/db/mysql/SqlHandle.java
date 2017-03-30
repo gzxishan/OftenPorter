@@ -22,7 +22,8 @@ public class SqlHandle implements DBHandle
 
     private boolean isTransaction;
     private Boolean field2LowerCase = null;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SqlHandle.class);
+    private static final Logger _LOGGER = LoggerFactory.getLogger(SqlHandle.class);
+    private Logger LOGGER = _LOGGER;
 
     /**
      * 创建一个DbRwMysql
@@ -34,6 +35,12 @@ public class SqlHandle implements DBHandle
     {
         this.conn = conn;
         this.tableName = tableName;
+    }
+
+    @Override
+    public void setLogger(Logger Logger)
+    {
+        LOGGER = Logger;
     }
 
     /**
@@ -81,13 +88,13 @@ public class SqlHandle implements DBHandle
     @Override
     public boolean add(NameValues addFields) throws DBException
     {
-        return DataBase.executePS(conn, true, tableName, addFields) == 1;
+        return executePS(conn, true, tableName, addFields) == 1;
     }
 
     @Override
     public int[] add(MultiNameValues multiNameValues) throws DBException
     {
-        return DataBase.addPS(conn, isTransaction, tableName, multiNameValues);
+        return addPS(conn, isTransaction, tableName, multiNameValues);
     }
 
     private static void logArgs(Object[] args, StringBuilder builder)
@@ -104,7 +111,7 @@ public class SqlHandle implements DBHandle
         builder.append(value).append("(").append(value == null ? null : value.getClass().getSimpleName()).append("),");
     }
 
-    private static void logArgs(NameValues nameValues,StringBuilder builder)
+    private static void logArgs(NameValues nameValues, StringBuilder builder)
     {
         for (int i = 0; i < nameValues.size(); i++)
         {
@@ -119,7 +126,7 @@ public class SqlHandle implements DBHandle
     @Override
     public boolean replace(Condition query, NameValues updateFields) throws DBException
     {
-        return DataBase.executePS(conn, false, tableName, updateFields) > 0;
+        return executePS(conn, false, tableName, updateFields) > 0;
     }
 
     private int execute(SqlUtil.WhereSQL whereSQL)
@@ -243,7 +250,7 @@ public class SqlHandle implements DBHandle
             }
         } else
         {
-            jsonObject  = new JSONObject(keys.length);
+            jsonObject = new JSONObject(keys.length);
             for (String string : keys)
             {
                 jsonObject.put(string, rs.getObject(string));
@@ -315,13 +322,13 @@ public class SqlHandle implements DBHandle
             return 0;
         }
 
-        return DataBase.executeSet(conn, tableName, query, updateFields);
+        return executeSet(conn, tableName, query, updateFields);
     }
 
     @Override
     public long exists(Condition query) throws DBException
     {
-        return DataBase.exists(conn, checkCondition(query), tableName);
+        return exists(conn, checkCondition(query), tableName);
     }
 
     @Override
@@ -393,203 +400,6 @@ public class SqlHandle implements DBHandle
         {
             WPTool.close(ps);
         }
-    }
-
-    private static class DataBase
-    {
-
-
-        private static int executeSet(Connection conn, String tableName, Condition query,
-                NameValues updateFields) throws DBException
-        {
-            int n = 0;
-            PreparedStatement ps = null;
-            try
-            {
-                SqlUtil.WhereSQL whereSQL = SqlUtil
-                        .toSetValues(tableName, updateFields.names(), checkCondition(query), true);
-                ps = conn.prepareStatement(whereSQL.sql);
-
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("{}", whereSQL.sql);
-                    StringBuilder builder = new StringBuilder();
-                    logArgs(updateFields, builder);
-                    logArgs(whereSQL.args,builder);
-                    LOGGER.debug("{}", builder);
-                }
-
-                for (int i = 0; i < updateFields.size(); i++)
-                {
-                    setObject(ps, i + 1, updateFields.value(i));
-                }
-
-                Object[] args = whereSQL.args;
-                for (int i = 0, k = updateFields.size() + 1; i < args.length; i++, k++)
-                {
-                    setObject(ps, k, args[i]);
-                }
-
-                n = ps.executeUpdate();
-
-            } catch (Exception e)
-            {
-                throw new DBException(e);
-            } finally
-            {
-                WPTool.close(ps);
-            }
-
-            return n;
-        }
-
-        private static int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields)
-        {
-            int n = 0;
-            PreparedStatement ps = null;
-            try
-            {
-                String sql = SqlUtil.toInsertOrReplace(isInsert, tableName, addFields.names(), true);
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("{}", sql);
-                    StringBuilder builder = new StringBuilder();
-                    logArgs(addFields,builder);
-                    LOGGER.debug("{}", builder);
-                }
-                ps = conn.prepareStatement(sql);
-                for (int i = 0; i < addFields.size(); i++)
-                {
-                    setObject(ps, i + 1, addFields.value(i));
-                }
-                n = ps.executeUpdate();
-
-            } catch (Exception e)
-            {
-                throw new DBException(e);
-            } finally
-            {
-                WPTool.close(ps);
-            }
-
-            return n;
-        }
-
-        private static void setObject(PreparedStatement ps, int column, Object object) throws SQLException
-        {
-            ps.setObject(column, object);
-        }
-
-        private static int[] addPS(Connection conn, boolean isTransaction, String tableName,
-                MultiNameValues multiNameValues)
-        {
-            String[] names = multiNameValues.getNames();
-            PreparedStatement ps = null;
-            try
-            {
-
-                String sql = SqlUtil.toInsertOrReplace(true, tableName, names, true);
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("{}", sql);
-                    StringBuilder builder = new StringBuilder("[");
-
-                    int n = multiNameValues.count();
-                    for (int j = 0; j < n; j++)
-                    {
-                        Object[] values = multiNameValues.values(j);
-                        logArgs(values, builder);
-                        builder.append("\n");
-                    }
-                    builder.append("]");
-                    LOGGER.debug("{}", builder);
-                }
-                ps = conn.prepareStatement(sql);
-                if (!isTransaction)
-                {
-                    conn.setAutoCommit(false);
-                }
-
-                int n = multiNameValues.count();
-                for (int j = 0; j < n; j++)
-                {
-                    Object[] values = multiNameValues.values(j);
-                    for (int k = 0; k < values.length; k++)
-                    {
-                        setObject(ps, k + 1, values[k]);
-                    }
-                    ps.addBatch();
-                }
-                int[] rs = ps.executeBatch();
-                if (!isTransaction)
-                {
-                    conn.commit();
-                }
-
-                return rs;
-            } catch (BatchUpdateException e)
-            {
-
-                throw new DBException(e);
-
-            } catch (Exception e)
-            {
-                throw new DBException(e);
-            } finally
-            {
-                WPTool.close(ps);
-            }
-
-        }
-
-        /**
-         * count某个条件
-         */
-        public static long exists(Connection conn, Condition condition, String tableName) throws DBException
-        {
-
-            long n = 0;
-
-            PreparedStatement ps = null;
-            try
-            {
-                SqlUtil.WhereSQL whereSql = SqlUtil
-                        .toCountSelect(tableName, "rscount", checkCondition(condition), true);
-
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("{}", whereSql.sql);
-                    StringBuilder builder = new StringBuilder();
-                    Object[] args = whereSql.args;
-                    logArgs(args, builder);
-                    LOGGER.debug("{}", builder);
-                }
-
-                ps = conn.prepareStatement(whereSql.sql);
-
-                Object[] args = whereSql.args;
-                for (int i = 0; i < args.length; i++)
-                {
-                    ps.setObject(i + 1, args[i]);
-                }
-
-                ResultSet rs = ps.executeQuery();
-                if (rs.next())
-                {
-                    n = rs.getLong("rscount");
-                }
-                ps.close();
-            } catch (Exception e)
-            {
-                throw new DBException(e);
-            } finally
-            {
-                WPTool.close(ps);
-            }
-
-            return n;
-        }
-
     }
 
     @Override
@@ -685,6 +495,199 @@ public class SqlHandle implements DBHandle
         Object obj = this.tempObject;
         this.tempObject = tempObject;
         return obj;
+    }
+
+    //////////////////////////////////////
+
+    private  int executeSet(Connection conn, String tableName, Condition query,
+            NameValues updateFields) throws DBException
+    {
+        int n = 0;
+        PreparedStatement ps = null;
+        try
+        {
+            SqlUtil.WhereSQL whereSQL = SqlUtil
+                    .toSetValues(tableName, updateFields.names(), checkCondition(query), true);
+            ps = conn.prepareStatement(whereSQL.sql);
+
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("{}", whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                logArgs(updateFields, builder);
+                logArgs(whereSQL.args, builder);
+                LOGGER.debug("{}", builder);
+            }
+
+            for (int i = 0; i < updateFields.size(); i++)
+            {
+                setObject(ps, i + 1, updateFields.value(i));
+            }
+
+            Object[] args = whereSQL.args;
+            for (int i = 0, k = updateFields.size() + 1; i < args.length; i++, k++)
+            {
+                setObject(ps, k, args[i]);
+            }
+
+            n = ps.executeUpdate();
+
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        } finally
+        {
+            WPTool.close(ps);
+        }
+
+        return n;
+    }
+
+    private  int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields)
+    {
+        int n = 0;
+        PreparedStatement ps = null;
+        try
+        {
+            String sql = SqlUtil.toInsertOrReplace(isInsert, tableName, addFields.names(), true);
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("{}", sql);
+                StringBuilder builder = new StringBuilder();
+                logArgs(addFields, builder);
+                LOGGER.debug("{}", builder);
+            }
+            ps = conn.prepareStatement(sql);
+            for (int i = 0; i < addFields.size(); i++)
+            {
+                setObject(ps, i + 1, addFields.value(i));
+            }
+            n = ps.executeUpdate();
+
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        } finally
+        {
+            WPTool.close(ps);
+        }
+
+        return n;
+    }
+
+    private  void setObject(PreparedStatement ps, int column, Object object) throws SQLException
+    {
+        ps.setObject(column, object);
+    }
+
+    private  int[] addPS(Connection conn, boolean isTransaction, String tableName,
+            MultiNameValues multiNameValues)
+    {
+        String[] names = multiNameValues.getNames();
+        PreparedStatement ps = null;
+        try
+        {
+
+            String sql = SqlUtil.toInsertOrReplace(true, tableName, names, true);
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("{}", sql);
+                StringBuilder builder = new StringBuilder("[");
+
+                int n = multiNameValues.count();
+                for (int j = 0; j < n; j++)
+                {
+                    Object[] values = multiNameValues.values(j);
+                    logArgs(values, builder);
+                    builder.append("\n");
+                }
+                builder.append("]");
+                LOGGER.debug("{}", builder);
+            }
+            ps = conn.prepareStatement(sql);
+            if (!isTransaction)
+            {
+                conn.setAutoCommit(false);
+            }
+
+            int n = multiNameValues.count();
+            for (int j = 0; j < n; j++)
+            {
+                Object[] values = multiNameValues.values(j);
+                for (int k = 0; k < values.length; k++)
+                {
+                    setObject(ps, k + 1, values[k]);
+                }
+                ps.addBatch();
+            }
+            int[] rs = ps.executeBatch();
+            if (!isTransaction)
+            {
+                conn.commit();
+            }
+
+            return rs;
+        } catch (BatchUpdateException e)
+        {
+
+            throw new DBException(e);
+
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        } finally
+        {
+            WPTool.close(ps);
+        }
+
+    }
+
+    /**
+     * count某个条件
+     */
+    public  long exists(Connection conn, Condition condition, String tableName) throws DBException
+    {
+
+        long n = 0;
+
+        PreparedStatement ps = null;
+        try
+        {
+            SqlUtil.WhereSQL whereSql = SqlUtil
+                    .toCountSelect(tableName, "rscount", checkCondition(condition), true);
+
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("{}", whereSql.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSql.args;
+                logArgs(args, builder);
+                LOGGER.debug("{}", builder);
+            }
+
+            ps = conn.prepareStatement(whereSql.sql);
+
+            Object[] args = whereSql.args;
+            for (int i = 0; i < args.length; i++)
+            {
+                ps.setObject(i + 1, args[i]);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next())
+            {
+                n = rs.getLong("rscount");
+            }
+            ps.close();
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        } finally
+        {
+            WPTool.close(ps);
+        }
+
+        return n;
     }
 
 }

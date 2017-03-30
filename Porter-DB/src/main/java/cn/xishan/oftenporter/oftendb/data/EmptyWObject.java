@@ -81,9 +81,13 @@ public class EmptyWObject extends WObject
         return result;
     }
 
+    /**
+     * 返回空.
+     * @return
+     */
     @Override
     public PName getPName()
     {
-        throw new RuntimeException("not allowed");
+        return null;
     }
 }

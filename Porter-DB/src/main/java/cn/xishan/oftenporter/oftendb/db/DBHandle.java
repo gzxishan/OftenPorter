@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.db;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -17,6 +18,8 @@ public interface DBHandle extends Closeable
      * @throws DBException 操作异常
      */
     boolean add(NameValues nameValues) throws DBException;
+
+    void setLogger(Logger logger);
 
     /**
      * 批量添加.

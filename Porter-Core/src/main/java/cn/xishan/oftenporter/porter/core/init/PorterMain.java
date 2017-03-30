@@ -39,7 +39,7 @@ public final class PorterMain
 
     static
     {
-        LogUtil.setDefaultOngetLoggerListener(new LogUtil.OnGetLoggerListener()
+        LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
         {
             @Override
             public Logger getLogger(String name)
@@ -118,7 +118,7 @@ public final class PorterMain
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
         portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
-        currentPNameForLogger=null;
+        currentPNameForLogger = null;
     }
 
     public UrlDecoder getUrlDecoder()
@@ -183,7 +183,8 @@ public final class PorterMain
                 throw new RuntimeException("Context named '" + bridge.contextName() + "' already exist!");
             }
             LogUtil.setOrRemoveOnGetLoggerListener(logKey,
-                    name -> LoggerFactory.getLogger(bridge.contextName() + "." + name));
+                    name -> LoggerFactory.getLogger(
+                            getPLinker().currentPName().getName() + "." + bridge.contextName() + "." + name));
             checkInit();
             currentPNameForLogger = getPLinker().currentPName().getName();
             _startOne(bridge);
@@ -216,7 +217,7 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetUtil autoSetUtil =  AutoSetUtil.newInstance(innerContextBridge);
+        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge);
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();

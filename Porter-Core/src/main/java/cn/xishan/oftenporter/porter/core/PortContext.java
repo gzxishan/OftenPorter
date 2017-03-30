@@ -201,7 +201,7 @@ public class PortContext
             SthDeal sthDeal) throws FatalInitException, Exception
     {
         LOGGER.debug("添加接口：");
-        LOGGER.debug("\nat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
+        LOGGER.debug("\n\tat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
         Porter porter = sthDeal.porter(clazz, objectPorter, autoSetUtil);
         if (porter != null)
