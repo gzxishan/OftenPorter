@@ -227,11 +227,12 @@ public class SqlHandle implements DBHandle
 
     private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException
     {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject;
         if (keys == null || keys.length == 0)
         {
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
+            jsonObject = new JSONObject(columnCount);
             for (int i = 1; i <= columnCount; i++)
             {
 //                jsonObject.put(field2LowerCase == null ? metaData.getColumnName(i) : (field2LowerCase ? metaData
@@ -242,6 +243,7 @@ public class SqlHandle implements DBHandle
             }
         } else
         {
+            jsonObject  = new JSONObject(keys.length);
             for (String string : keys)
             {
                 jsonObject.put(string, rs.getObject(string));

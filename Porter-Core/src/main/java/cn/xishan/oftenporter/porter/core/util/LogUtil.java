@@ -1,14 +1,119 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
 public class LogUtil
 {
+
+    public final static class LogKey
+    {
+        private Thread thread;
+        private String key;
+
+        private LogKey()
+        {
+            this.thread = Thread.currentThread();
+        }
+
+        /**
+         * 当前线程。
+         */
+        public LogKey(String key)
+        {
+            this.key = key;
+            this.thread = Thread.currentThread();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return thread.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == null || !(obj instanceof LogKey))
+            {
+                return false;
+            }
+            LogKey logKey = (LogKey) obj;
+
+            return this.thread == logKey.thread;
+        }
+    }
+
+    public interface OnGetLoggerListener
+    {
+        Logger getLogger(String name);
+    }
+
+    private static Map<LogKey, OnGetLoggerListener> onGetLoggerMap = new HashMap<>();
+    private static OnGetLoggerListener defaultOnGetLoggerListener = name -> LoggerFactory.getLogger(name);
+
+    public synchronized static void setDefaultOngetLoggerListener(
+            OnGetLoggerListener defaultOnGetLoggerListener)
+    {
+        LogUtil.defaultOnGetLoggerListener = defaultOnGetLoggerListener;
+    }
+
+    public synchronized static Logger logger(Class<?> clazz)
+    {
+        Logger logger = logger(clazz.getName());
+        return logger;
+    }
+
+    public synchronized static Logger logger(String name)
+    {
+        LogKey logKey = new LogKey();
+
+        OnGetLoggerListener onGetLogger = onGetLoggerMap.get(logKey);
+        if (onGetLogger == null)
+        {
+            onGetLogger = defaultOnGetLoggerListener;
+        }
+        if (onGetLogger == null)
+        {
+            throw new RuntimeException(OnGetLoggerListener.class.getName() + " is null!");
+        }
+        Logger logger = onGetLogger.getLogger(name);
+
+        return logger;
+    }
+
+    public synchronized static void setOrRemoveOnGetLoggerListener(LogKey logKey,
+            OnGetLoggerListener onGetLoggerListener)
+    {
+        if (onGetLoggerMap.containsKey(logKey))
+        {
+            for (LogKey key : onGetLoggerMap.keySet())
+            {
+                if (key.equals(logKey))
+                {
+                    if (!logKey.key.equals(key.key))
+                    {
+                        throw new RuntimeException("can not set " + OnGetLoggerListener.class + "!");
+                    }
+                    break;
+                }
+            }
+        }
+        if (onGetLoggerListener == null)
+        {
+            onGetLoggerMap.remove(logKey);
+        } else
+        {
+            onGetLoggerMap.put(logKey, onGetLoggerListener);
+        }
+    }
+
     /**
      * 得到当前代码执行的位置。
      *
@@ -28,9 +133,10 @@ public class LogUtil
     public static String getCodePos(int n)
     {
         StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
-        StackTraceElement stackTraceElement = stacks[n+1];
-        if(stackTraceElement.getClassName().equals(LogUtil.class.getName())){
-            stackTraceElement=stacks[n+2];
+        StackTraceElement stackTraceElement = stacks[n + 1];
+        if (stackTraceElement.getClassName().equals(LogUtil.class.getName()))
+        {
+            stackTraceElement = stacks[n + 2];
         }
         return toString(stackTraceElement);
     }
@@ -112,7 +218,8 @@ public class LogUtil
 
     /**
      * 打印当前位置
-     * @param stack 0表示调用的地方，1表示上一个地方，依次类推。
+     *
+     * @param stack   0表示调用的地方，1表示上一个地方，依次类推。
      * @param objects
      */
     public static void printErrPosLnS(int stack, Object... objects)
@@ -127,6 +234,7 @@ public class LogUtil
 
     /**
      * 见{@linkplain #printErrPosLnS(int, Object...)}
+     *
      * @param stack
      * @param objects
      */

@@ -1,8 +1,11 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * LogUtil Tester.
@@ -49,6 +52,32 @@ public class LogUtilTest
     public void testToString() throws Exception
     {
 //TODO: Test goes here... 
+    }
+
+
+    @Test()
+    public void testSetOrRemoveOnGetLoggerListener()
+    {
+        LogUtil.LogKey logKey = new LogUtil.LogKey("123456");
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey, name -> LoggerFactory.getLogger(name));
+        Assert.assertNotNull(LogUtil.logger("hello"));
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey, name -> LoggerFactory.getLogger(name));
+
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testSetOrRemoveOnGetLoggerListenerEx()
+    {
+        LogUtil.LogKey logKey = new LogUtil.LogKey("123456");
+        LogUtil.LogKey logKey2 = new LogUtil.LogKey("1234562");
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey, name -> LoggerFactory.getLogger(name));
+
+        Assert.assertNotNull(LogUtil.logger("hello"));
+
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey, name -> LoggerFactory.getLogger(name));
+
+        LogUtil.setOrRemoveOnGetLoggerListener(logKey2, null);
     }
 
     /**

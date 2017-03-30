@@ -11,8 +11,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CacheTool
 {
 
+    private InObjDeal inObjDeal;
+
     public CacheTool()
     {
+        inObjDeal = new InObjDeal();
     }
 
     private final Map<Class<?>, CacheOne> CACHES = new ConcurrentHashMap<>();
@@ -33,7 +36,7 @@ public class CacheTool
         CacheOne cacheOne = CACHES.get(clazz);
         if (cacheOne == null)// && portInObjConf != null)
         {
-            One one = InObjDeal.bindOne(clazz, innerContextBridge);
+            One one = inObjDeal.bindOne(clazz, innerContextBridge);
             cacheOne = new CacheOne(one);
             put(clazz, cacheOne);
         }

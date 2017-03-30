@@ -5,11 +5,11 @@ import cn.xishan.oftenporter.porter.core.apt.AutoGen;
 import cn.xishan.oftenporter.porter.core.apt.PorterProcessor;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.parsers.ParserUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,13 +26,20 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  */
 public class InObjDeal
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(InObjDeal.class);
+    private  final Logger LOGGER;
+     SthUtil sthUtil;
 
+
+    public InObjDeal()
+    {
+        LOGGER = LogUtil.logger(InObjDeal.class);
+        sthUtil = new SthUtil();
+    }
 
     /**
      * 处理接口函数上的对象绑定。
      */
-    static InObj dealPortInObj(Method method, InnerContextBridge innerContextBridge) throws Exception
+     InObj dealPortInObj(Method method, InnerContextBridge innerContextBridge) throws Exception
     {
         InObj inObj = null;
         _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(method);
@@ -44,13 +51,13 @@ public class InObjDeal
         return inObj;
     }
 
-    static InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+     InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
     {
         _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(clazz);
         return dealPortInObj(portInObj, innerContextBridge);
     }
 
-    static InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge) throws Exception
+     InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
         InObj inObj = null;
@@ -71,7 +78,7 @@ public class InObjDeal
     }
 
 
-    static One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+     One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
     {
 
         One one;
@@ -117,7 +124,7 @@ public class InObjDeal
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
         //绑定类型转换。
-        SthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek,true);
+        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek,true);
 
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();

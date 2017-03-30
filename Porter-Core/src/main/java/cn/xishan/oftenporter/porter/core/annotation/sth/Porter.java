@@ -7,9 +7,9 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import java.util.Map;
  */
 public final class Porter
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Porter.class);
+    private final Logger LOGGER;
 
     Object object;
     Class<?> clazz;
@@ -38,10 +38,11 @@ public final class Porter
     InObj inObj;
     private AutoSetUtil autoSetUtil;
 
-    public Porter(AutoSetUtil autoSetUtil,WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
+    public Porter(AutoSetUtil autoSetUtil, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
+        LOGGER = LogUtil.logger(Porter.class);
         this.autoSetUtil = autoSetUtil;
-        this.wholeClassCheckPassableGetter=wholeClassCheckPassableGetter;
+        this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
     }
 
     public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
@@ -51,9 +52,11 @@ public final class Porter
 
     /**
      * 获取绑定的函数：{"funTied/method"或者"method":PorterOfFun}
+     *
      * @return
      */
-    public Map<String, PorterOfFun> getFuns(){
+    public Map<String, PorterOfFun> getFuns()
+    {
         return childrenWithMethod;
     }
 

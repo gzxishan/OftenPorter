@@ -7,6 +7,8 @@ import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
@@ -27,11 +29,26 @@ public final class PorterMain
     private PortExecutor portExecutor;
 
     private boolean isInit, isGlobalAutoSet = false;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PorterMain.class);
     private final InnerBridge innerBridge;
     private final PLinker pLinker;
     private ListenerAdderImpl listenerAdder;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
+
+    private final Logger LOGGER;
+    private static String currentPNameForLogger;
+
+    static
+    {
+        LogUtil.setDefaultOngetLoggerListener(new LogUtil.OnGetLoggerListener()
+        {
+            @Override
+            public Logger getLogger(String name)
+            {
+                return LoggerFactory
+                        .getLogger(currentPNameForLogger == null ? name : currentPNameForLogger + "." + name);
+            }
+        });
+    }
 
     /**
      * @param pName  框架名称。
@@ -55,10 +72,14 @@ public final class PorterMain
                 return classLoader;
             });
             commonMainHashMap.put(pName.getName(), commonMain);
+            currentPNameForLogger = pName.getName();
+            LOGGER = LogUtil.logger(PorterMain.class);
+            currentPNameForLogger = null;
         }
     }
 
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder(){
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    {
         return listenerAdder;
     }
 
@@ -95,7 +116,9 @@ public final class PorterMain
             throw new RuntimeException("already init!");
         }
         isInit = true;
+        currentPNameForLogger = getPLinker().currentPName().getName();
         portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
+        currentPNameForLogger=null;
     }
 
     public UrlDecoder getUrlDecoder()
@@ -142,17 +165,40 @@ public final class PorterMain
         autoSetUtil.doAutoSetsForNotPorter(alls);
     }
 
+    /**
+     * 注意：
+     *
+     * @param bridge
+     */
     public synchronized void startOne(PorterBridge bridge)
     {
-        checkInit();
-        if (WPTool.isEmpty(bridge.contextName()))
+        LogUtil.LogKey logKey = new LogUtil.LogKey(KeyUtil.random48Key());
+        try
         {
-            throw new RuntimeException("Context name is empty!");
-        } else if (portExecutor.containsContext(bridge.contextName()))
+            if (WPTool.isEmpty(bridge.contextName()))
+            {
+                throw new RuntimeException("Context name is empty!");
+            } else if (portExecutor.containsContext(bridge.contextName()))
+            {
+                throw new RuntimeException("Context named '" + bridge.contextName() + "' already exist!");
+            }
+            LogUtil.setOrRemoveOnGetLoggerListener(logKey,
+                    name -> LoggerFactory.getLogger(bridge.contextName() + "." + name));
+            checkInit();
+            currentPNameForLogger = getPLinker().currentPName().getName();
+            _startOne(bridge);
+            currentPNameForLogger = null;
+        } catch (Exception e)
         {
-            throw new RuntimeException("Context named '" + bridge.contextName() + "' already exist!");
+            throw e;
+        } finally
+        {
+            LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
         }
+    }
 
+    private void _startOne(PorterBridge bridge)
+    {
 
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
@@ -160,7 +206,7 @@ public final class PorterMain
             innerBridge.allGlobalChecksTemp = null;
             portExecutor.initAllGlobalChecks(alls);
         }
-
+        Logger LOGGER = LogUtil.logger(PorterMain.class);
 
         PorterConf porterConf = bridge.porterConf();
         PortContext portContext = new PortContext();
@@ -170,7 +216,7 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetUtil autoSetUtil = new AutoSetUtil(innerContextBridge);
+        AutoSetUtil autoSetUtil =  AutoSetUtil.newInstance(innerContextBridge);
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
@@ -188,7 +234,7 @@ public final class PorterMain
         Map<Class<?>, CheckPassable> classCheckPassableMap = null;
         try
         {
-            classCheckPassableMap = portContext.initSeek(listenerAdder,porterConf, autoSetUtil);
+            classCheckPassableMap = portContext.initSeek(listenerAdder, porterConf, autoSetUtil);
         } catch (FatalInitException e)
         {
             throw new Error(e);

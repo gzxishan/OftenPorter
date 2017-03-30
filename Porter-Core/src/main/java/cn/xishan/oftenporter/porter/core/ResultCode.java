@@ -13,6 +13,11 @@ public enum ResultCode
     SUCCESS(0),
 
     /**
+     * 同{@linkplain #SUCCESS}
+     */
+    OK(0),
+
+    /**
      * 无访问权限。
      */
     ACCESS_DENIED(HttpStatusCode.UNAUTHORIZED),
@@ -31,6 +36,11 @@ public enum ResultCode
      * 响应成功，但是操作失败
      */
     OK_BUT_FAILED(-4),
+
+    /**
+     * 同{@linkplain #OK_BUT_FAILED}
+     */
+    FAILED(-4),
 
     /**
      * 处理参数错误

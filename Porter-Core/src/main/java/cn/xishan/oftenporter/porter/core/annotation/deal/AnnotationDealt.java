@@ -9,8 +9,8 @@ import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -22,15 +22,22 @@ public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
 
+
+    private final Logger LOGGER;
+
+    private AnnotationDealt(boolean enableDefaultValue)
+    {
+        this.enableDefaultValue = enableDefaultValue;
+        LOGGER = LogUtil.logger(AnnotationDealt.class);
+    }
+
     /**
      * @param enableDefaultValue 是否允许{@linkplain PortIn#value()}取默认值。
      */
-    public AnnotationDealt(boolean enableDefaultValue)
+    public static AnnotationDealt newInstance(boolean enableDefaultValue)
     {
-        this.enableDefaultValue = enableDefaultValue;
+        return new AnnotationDealt(enableDefaultValue);
     }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AnnotationDealt.class);
 
     public _AutoSet autoSet(Field field)
     {
@@ -220,7 +227,7 @@ public final class AnnotationDealt
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
         _portIn.method = portIn.method();
         _portIn.checks = portIn.checks();
-        _portIn.checksForWholeClass=portIn.checksForWholeClass();
+        _portIn.checksForWholeClass = portIn.checksForWholeClass();
         _portIn.tiedType = portIn.tiedType();
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 
@@ -257,11 +264,13 @@ public final class AnnotationDealt
         return _portIn;
     }
 
-    public void setTiedName(_PortIn portIn,String tiedName){
+    public void setTiedName(_PortIn portIn, String tiedName)
+    {
         portIn.setTiedName(tiedName);
     }
 
-    public void setTiedType(_PortIn portIn,TiedType tiedType){
+    public void setTiedType(_PortIn portIn, TiedType tiedType)
+    {
         portIn.setTiedType(tiedType);
     }
 }

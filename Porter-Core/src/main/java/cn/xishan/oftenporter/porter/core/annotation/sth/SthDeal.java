@@ -4,9 +4,9 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -16,11 +16,13 @@ import java.util.*;
  */
 public class SthDeal
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SthUtil.class);
-
+    private final Logger LOGGER;
+    private InObjDeal inObjDeal;
 
     public SthDeal()
     {
+        LOGGER = LogUtil.logger(SthDeal.class);
+        inObjDeal = new InObjDeal();
     }
 
 
@@ -92,13 +94,13 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParser指定的类的Parser和Parser.parse的处理
-        SthUtil.bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
+        inObjDeal.sthUtil.bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
         //对Parser和Parser.parse的处理
-        SthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
+        inObjDeal.sthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
 
         try
         {
-            porter.inObj = InObjDeal.dealPortInObj(clazz, innerContextBridge);
+            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -138,7 +140,7 @@ public class SthDeal
         }
 
         //实例化经检查对象并添加到map。
-        SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+        inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
         if (isMixin)
         {
@@ -146,7 +148,7 @@ public class SthDeal
         } else
         {
             wholeClassCheckPassableGetter.done();
-            SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
+            inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
                     wholeClassCheckPassableGetter.getChecksForWholeClass());
         }
         ////////处理混入接口------结束
@@ -255,7 +257,7 @@ public class SthDeal
             porterOfFun.argCount = parameters.length;
 
 
-            SthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+            inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
             TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
             boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),
@@ -268,7 +270,7 @@ public class SthDeal
                         BackableSeek.SeekType.NotAdd_Bind);
             }
 
-            porterOfFun.inObj = InObjDeal.dealPortInObj(method, innerContextBridge);
+            porterOfFun.inObj = inObjDeal.dealPortInObj(method, innerContextBridge);
 
             porterOfFun.portOut = annotationDealt.portOut(method);
 

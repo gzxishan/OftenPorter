@@ -11,6 +11,8 @@ import com.mongodb.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 public class MongoHandle implements DBHandle
 {
@@ -193,18 +195,18 @@ public class MongoHandle implements DBHandle
     private JSONObject getJSONObject(DBObject dbObject, String[] keys) throws JSONException
     {
 
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject;
         if (keys == null || keys.length == 0)
         {
-            Iterator<String> names = dbObject.keySet().iterator();
-            while (names.hasNext())
+            Set<Map.Entry<String, Object>> set = dbObject.toMap().entrySet();
+            jsonObject = new JSONObject(set.size());
+            for (Map.Entry<String, Object> entry : set)
             {
-                String name = names.next();
-                jsonObject.put(name, dbObject.get(name));
-
+                jsonObject.put(entry.getKey(), entry.getValue());
             }
         } else
         {
+            jsonObject = new JSONObject(keys.length);
             for (String string : keys)
             {
                 jsonObject.put(string, dbObject.get(string));

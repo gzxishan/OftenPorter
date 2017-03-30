@@ -10,10 +10,10 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -28,7 +28,7 @@ public class PortExecutor
 {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PortExecutor.class);
+    private final Logger LOGGER;
     private Map<String, Context> contextMap = new ConcurrentHashMap<>();
 
     private CheckPassable[] allGlobalChecks;
@@ -36,10 +36,13 @@ public class PortExecutor
     private boolean responseWhenException;
     private PName pName;
     private DeliveryBuilder deliveryBuilder;
+    private PortUtil portUtil;
 
     public PortExecutor(PName pName, PLinker pLinker, UrlDecoder urlDecoder,
             boolean responseWhenException)
     {
+        LOGGER = LogUtil.logger(PortExecutor.class);
+        portUtil = new PortUtil();
         this.pName = pName;
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
@@ -272,7 +275,7 @@ public class PortExecutor
         for (int i = 0; i < ones.length; i++)
         {
             One one = ones[i];
-            Object object = PortUtil
+            Object object = portUtil
                     .paramDealOne(ignoreTypeParser, context.innerContextBridge.paramDealt, one,
                             wObjectImpl.getParamSource(),
                             currentTypeParserStore);
@@ -368,7 +371,7 @@ public class PortExecutor
 
 
         //类参数处理
-        ParamDealt.FailedReason failedReason = PortUtil
+        ParamDealt.FailedReason failedReason = portUtil
                 .paramDeal(clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn, wObject.cu,
                         wObject.getParamSource(),
                         typeParserStore);
@@ -436,7 +439,7 @@ public class PortExecutor
 
         //函数参数处理
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
-        ParamDealt.FailedReason failedReason = PortUtil
+        ParamDealt.FailedReason failedReason = portUtil
                 .paramDeal(funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn, wObject.fu,
                         wObject.getParamSource(),
                         typeParserStore);

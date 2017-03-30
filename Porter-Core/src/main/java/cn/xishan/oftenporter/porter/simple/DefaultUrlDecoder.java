@@ -1,9 +1,9 @@
 package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class DefaultUrlDecoder implements UrlDecoder
 {
     private String encoding;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultUrlDecoder.class);
+    private  final Logger LOGGER = LogUtil.logger(DefaultUrlDecoder.class);
 
     public DefaultUrlDecoder(String encoding)
     {
@@ -90,7 +90,7 @@ public class DefaultUrlDecoder implements UrlDecoder
      * @param urlEncoding 编码那个是
      * @return 解析的map。
      */
-    public static Map<String, Object> decodeParam(String content, String urlEncoding)
+    public  Map<String, Object> decodeParam(String content, String urlEncoding)
     {
         Map<String, Object> params;
         params = new HashMap<>();
