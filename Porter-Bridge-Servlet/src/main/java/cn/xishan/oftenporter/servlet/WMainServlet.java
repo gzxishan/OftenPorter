@@ -38,7 +38,6 @@ public class WMainServlet extends HttpServlet implements CommonMain
     private String pname, urlEncoding;
     private Boolean responseWhenException;
     //private String urlPatternPrefix;
-    private static final Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
 
     public WMainServlet()
     {
@@ -104,6 +103,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * 得到路径：
      * 1.当urlPattern="/Test/*",uri="/ServletContext/Test/porter/User/"时，返回/porter/User/
      * 2.当urlPattern="*.html",uri="/ServletContext/index.html"(或"/ServletContext/")时，返回"/index.html"
+     *
      * @param request
      * @return
      */
@@ -189,9 +189,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
     @Override
     public void init() throws ServletException
     {
-        LOGGER.debug("******Porter-Bridge-Servlet init******");
         super.init();
-
         if (this.pname == null)
         {
             pname = getInitParameter("pname");
@@ -200,6 +198,9 @@ public class WMainServlet extends HttpServlet implements CommonMain
                 pname = WMainServlet.class.getSimpleName();
             }
         }
+
+        Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
+        LOGGER.debug("******Porter-Bridge-Servlet init******");
 
         if (this.urlEncoding == null)
         {
@@ -299,7 +300,6 @@ public class WMainServlet extends HttpServlet implements CommonMain
     {
         if (porterMain == null)
         {
-            LOGGER.error("Not init!");
             throw new RuntimeException("Not init!");
         }
         return porterMain.newPorterConf();

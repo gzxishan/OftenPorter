@@ -8,9 +8,9 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -23,13 +23,17 @@ import java.util.Set;
  */
 class SthUtil
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SthUtil.class);
+    private final Logger LOGGER;
 
+    public SthUtil()
+    {
+        LOGGER = LogUtil.logger(SthUtil.class);
+    }
 
     /**
      * 对MixinParser指定的类的{@linkplain Parser}和{@linkplain Parser.parse}的处理
      */
-    static void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
+    void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
     {
         if (needCheckLoop)
@@ -69,7 +73,7 @@ class SthUtil
      *
      * @return 有其中一个注解，返回true；否则返回false。
      */
-    static boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
+    boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
     {
         if (needCheckLoop)
@@ -223,7 +227,7 @@ class SthUtil
         return id;
     }
 
-    static void addCheckPassable(Map<Class<?>, CheckPassable> checkPassableMap,
+    void addCheckPassable(Map<Class<?>, CheckPassable> checkPassableMap,
             Class<? extends CheckPassable>[] checks)
     {
         for (int i = 0; i < checks.length; i++)
@@ -259,7 +263,7 @@ class SthUtil
      *
      * @param root
      */
-    private static void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser) throws FatalInitException
+    private void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser) throws FatalInitException
     {
         Set<Walk> walkedSet = new HashSet<>();
         String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser);
@@ -278,7 +282,7 @@ class SthUtil
      * @return
      * @throws FatalInitException
      */
-    private static String checkLoopMixin(Class<?> from, Set<Walk> walkedSet,
+    private String checkLoopMixin(Class<?> from, Set<Walk> walkedSet,
             boolean isMixinOrMixinParser) throws FatalInitException
     {
         Class<?>[] mixins = isMixinOrMixinParser ? getMixin(from) : getMixinParser(from);

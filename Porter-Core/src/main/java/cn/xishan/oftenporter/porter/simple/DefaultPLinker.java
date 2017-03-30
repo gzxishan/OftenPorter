@@ -4,8 +4,8 @@ import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.PorterAttr;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -39,9 +39,10 @@ public class DefaultPLinker implements PLinker {
     }
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPLinker.class);
+    private  final Logger LOGGER;
 
     public DefaultPLinker(PName pName, PBridge bridge) {
+        LOGGER = LogUtil.logger(DefaultPLinker.class);
         this.pName = pName;
         this.current = bridge;
         pathMap = new ConcurrentHashMap<>();

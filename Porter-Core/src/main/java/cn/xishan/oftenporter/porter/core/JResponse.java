@@ -53,6 +53,7 @@ public class JResponse
     //public static final String REQUEST_URI_FIELD = "uri";
 
 
+    @Deprecated
     public static final JResponse SUCCESS_RESPONSE = new JResponse(ResultCode.SUCCESS);
 
     private ResultCode code = ResultCode.Other;
@@ -199,25 +200,38 @@ public class JResponse
         return code;
     }
 
+    /**
+     * 如果异常不为空则，抛出异常。
+     *
+     * @param <T>
+     * @return
+     */
     public <T> T getResult()
     {
+        _throwExCause();
         return (T) result;
     }
 
     public boolean isSuccess()
     {
-        return code == ResultCode.SUCCESS;
+        return code == ResultCode.SUCCESS || code == ResultCode.OK;
     }
 
     public boolean isNotSuccess()
     {
-        return code != ResultCode.SUCCESS;
+        return code != ResultCode.SUCCESS && code != ResultCode.OK;
     }
 
     /**
      * 如果异常信息不为空，则抛出。
      */
     public void throwExCause()
+    {
+        _throwExCause();
+    }
+
+
+    private final void _throwExCause()
     {
         if (exCause != null)
         {

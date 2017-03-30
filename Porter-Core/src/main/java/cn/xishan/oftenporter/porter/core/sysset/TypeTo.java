@@ -4,10 +4,10 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.CacheOne;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -23,9 +23,9 @@ import java.util.*;
 public class TypeTo
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TypeTo.class);
-
+    private final Logger LOGGER;
     private InnerContextBridge innerContextBridge;
+    private PortUtil portUtil;
 
     /**
      * @param innerContextBridge
@@ -33,6 +33,8 @@ public class TypeTo
     public TypeTo(InnerContextBridge innerContextBridge)
     {
         this.innerContextBridge = innerContextBridge;
+        LOGGER = LogUtil.logger(TypeTo.class);
+        portUtil = new PortUtil();
     }
 
     private CacheOne getCache(Class<?> clazz) throws Exception
@@ -114,7 +116,7 @@ public class TypeTo
         {
 
             CacheOne cache = getCache(clazz);
-            Object object = PortUtil
+            Object object = portUtil
                     .paramDealOne(false, innerContextBridge.paramDealt, cache.getOne(), new ParamSource()
                     {
                         @Override

@@ -5,10 +5,10 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -25,7 +25,12 @@ public class PortUtil
 {
     private static final String TIED_ACCEPTED = "^[a-zA-Z0-9%_.$&=-]+$";
     private static final Pattern TIED_NAME_PATTERN = Pattern.compile(TIED_ACCEPTED);
-    private static final Logger LOGGER = LoggerFactory.getLogger(PortUtil.class);
+    private  final Logger LOGGER;
+
+    public PortUtil()
+    {
+        LOGGER = LogUtil.logger(PortUtil.class);
+    }
 
     /**
      * 得到函数的绑定名。
@@ -167,7 +172,7 @@ public class PortUtil
      * 返回结果不为null。
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
-    public static Object paramDealOne(boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+    public  Object paramDealOne(boolean ignoreTypeParser, ParamDealt paramDealt, One one,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
@@ -213,7 +218,7 @@ public class PortUtil
      *
      * @return 返回null表示转换成功，否则表示失败。
      */
-    public static ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
+    public  ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
             Object[] nece,
             Object[] unnece,
             ParamSource paramSource,

@@ -33,7 +33,7 @@ public class InnerContextBridge
         this.innerBridge = innerBridge;
         this.contextAutoSet = contextAutoSet;
         this.autoGenImplMap = autoGenImplMap;
-        this.annotationDealt = new AnnotationDealt(enableDefaultValue);
+        this.annotationDealt =  AnnotationDealt.newInstance(enableDefaultValue);
         this.checkPassableForCFTemps = new HashMap<>();
         this.paramDealt=porterBridge.paramDealt();
         this.responseWhenException=responseWhenException;

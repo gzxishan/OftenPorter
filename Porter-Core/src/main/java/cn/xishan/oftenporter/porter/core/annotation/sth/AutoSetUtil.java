@@ -8,10 +8,10 @@ import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -23,13 +23,19 @@ import java.util.Map;
  */
 public class AutoSetUtil
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AutoSetUtil.class);
+    private final Logger LOGGER;
 
     private InnerContextBridge innerContextBridge;
 
-    public AutoSetUtil(InnerContextBridge innerContextBridge)
+    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge)
+    {
+        return new AutoSetUtil(innerContextBridge);
+    }
+
+    private AutoSetUtil(InnerContextBridge innerContextBridge)
     {
         this.innerContextBridge = innerContextBridge;
+        LOGGER = LogUtil.logger(AutoSetUtil.class);
     }
 
     public InnerContextBridge getInnerContextBridge()

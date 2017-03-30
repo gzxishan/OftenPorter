@@ -8,11 +8,9 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -22,7 +20,7 @@ import java.io.IOException;
 @PortIn(value = "HServer", tiedType = TiedType.REST)
 abstract class HServerPorter
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HServerPorter.class);
+    private static final Logger LOGGER = LogUtil.logger(HServerPorter.class);
     @AutoSet("hServerDelivery")
     Delivery delivery;
 

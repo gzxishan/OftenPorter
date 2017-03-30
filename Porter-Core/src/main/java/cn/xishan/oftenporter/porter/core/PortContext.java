@@ -9,10 +9,10 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -22,7 +22,7 @@ import java.util.*;
 public class PortContext
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PortContext.class);
+    private static final Logger LOGGER = LogUtil.logger(PortContext.class);
     private ClassLoader classLoader;
     //接口
     private Map<String, Porter> portMap;
@@ -201,7 +201,7 @@ public class PortContext
             SthDeal sthDeal) throws FatalInitException, Exception
     {
         LOGGER.debug("添加接口：");
-        LOGGER.debug("at " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
+        LOGGER.debug("\nat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
         Porter porter = sthDeal.porter(clazz, objectPorter, autoSetUtil);
         if (porter != null)

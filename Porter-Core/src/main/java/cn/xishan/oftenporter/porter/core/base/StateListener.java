@@ -3,8 +3,8 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 状态监听接口。
@@ -29,7 +29,7 @@ public interface StateListener
     public class Adapter implements StateListener
     {
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(Adapter.class);
+        private  final Logger LOGGER = LogUtil.logger(Adapter.class);
 
         @Override
         public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
