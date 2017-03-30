@@ -11,6 +11,7 @@ import cn.xishan.oftenporter.oftendb.db.mysql.SqlQuerySettings;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
 
 
 import java.io.IOException;
@@ -39,6 +40,12 @@ public class SqliteHandle implements DBHandle
     {
         this.db = db;
         this.tableName = tableName;
+    }
+
+    @Override
+    public void setLogger(Logger logger)
+    {
+
     }
 
     void close(SQLiteStatement sqLiteStatement)

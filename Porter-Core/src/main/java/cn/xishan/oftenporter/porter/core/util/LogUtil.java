@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +61,7 @@ public class LogUtil
     private static Map<LogKey, OnGetLoggerListener> onGetLoggerMap = new HashMap<>();
     private static OnGetLoggerListener defaultOnGetLoggerListener = name -> LoggerFactory.getLogger(name);
 
-    public synchronized static void setDefaultOngetLoggerListener(
-            OnGetLoggerListener defaultOnGetLoggerListener)
+    public synchronized static void setDefaultOnGetLoggerListener(OnGetLoggerListener defaultOnGetLoggerListener)
     {
         LogUtil.defaultOnGetLoggerListener = defaultOnGetLoggerListener;
     }
@@ -113,6 +115,33 @@ public class LogUtil
             onGetLoggerMap.put(logKey, onGetLoggerListener);
         }
     }
+
+    private static Map<String, Logger> loggerMap = new HashMap<>();
+
+    public static synchronized Logger logger(WObject wObject, Class<?> clazz)
+    {
+        StringBuilder builder = new StringBuilder();
+        PName pName = wObject.getPName();
+        if (pName != null)
+        {
+            builder.append(pName.getName()).append(".");
+        }
+        UrlDecoder.Result result = wObject.url();
+        if (WPTool.notNullAndEmpty(result.contextName()))
+        {
+            builder.append(result.contextName()).append(".");
+        }
+        builder.append(clazz.getName());
+        String key = builder.toString();
+        Logger logger = loggerMap.get(key);
+        if (logger == null)
+        {
+            logger = LoggerFactory.getLogger(key);
+            loggerMap.put(key, logger);
+        }
+        return logger;
+    }
+
 
     /**
      * 得到当前代码执行的位置。

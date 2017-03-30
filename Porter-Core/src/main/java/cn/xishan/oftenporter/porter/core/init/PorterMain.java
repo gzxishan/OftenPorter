@@ -39,7 +39,7 @@ public final class PorterMain
 
     static
     {
-        LogUtil.setDefaultOngetLoggerListener(new LogUtil.OnGetLoggerListener()
+        LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
         {
             @Override
             public Logger getLogger(String name)
