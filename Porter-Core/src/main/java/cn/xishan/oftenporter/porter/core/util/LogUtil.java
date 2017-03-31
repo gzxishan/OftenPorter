@@ -121,17 +121,26 @@ public class LogUtil
     public static synchronized Logger logger(WObject wObject, Class<?> clazz)
     {
         StringBuilder builder = new StringBuilder();
+        builder.append(clazz.getName());
         PName pName = wObject.getPName();
         if (pName != null)
         {
-            builder.append(pName.getName()).append(".");
+            builder.append(".").append(pName.getName());
         }
         UrlDecoder.Result result = wObject.url();
         if (WPTool.notNullAndEmpty(result.contextName()))
         {
-            builder.append(result.contextName()).append(".");
+            builder.append(".").append(result.contextName());
         }
-        builder.append(clazz.getName());
+        if (WPTool.notNullAndEmpty(result.classTied()))
+        {
+            builder.append(".").append(result.classTied());
+        }
+        if (WPTool.notNullAndEmpty(result.funTied()))
+        {
+            builder.append(".").append(result.funTied());
+        }
+
         String key = builder.toString();
         Logger logger = loggerMap.get(key);
         if (logger == null)
