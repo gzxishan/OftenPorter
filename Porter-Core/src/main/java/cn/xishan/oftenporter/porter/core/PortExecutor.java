@@ -405,7 +405,7 @@ public class PortExecutor
         if (clazzPIn.getChecks().length == 0 && classPort.getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
+            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
@@ -419,10 +419,48 @@ public class PortExecutor
                                 exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
                             }
                         }
                     }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
+            portExecutorCheckers.check();
+        }
+
+    }
+
+    private void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
+            Context context, InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
+        _PortIn funPIn = funPort.getMethodPortIn();
+        if (funPIn.getTiedType() == TiedType.REST)
+        {
+            wObject.restValue = result.funTied();
+        }
+
+        //函数通过检测,参数没有准备好
+        if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
+                .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
+        {
+            dealtOfFunParam(funPort,wObject,context,innerContextBridge,result);
+        } else
+        {
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.BEFORE_METHOD,
+                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
+                        {
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfFunParam(funPort,wObject,context,innerContextBridge,result);
+                            }
+                        }
+                    }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                    funPIn.getChecks());
             portExecutorCheckers.check();
         }
 
@@ -433,17 +471,13 @@ public class PortExecutor
             UrlDecoder.Result result)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
-        if (funPIn.getTiedType() == TiedType.REST)
-        {
-            wObject.restValue = result.funTied();
-        }
-
         //函数参数初始化
         InNames inNames = funPIn.getInNames();
         wObject.fn = PortUtil.newArray(inNames.nece);
         wObject.fu = PortUtil.newArray(inNames.unece);
         wObject.finner = PortUtil.newArray(inNames.inner);
         wObject.fInNames = inNames;
+
 
         //函数参数处理
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
@@ -468,7 +502,7 @@ public class PortExecutor
         //////////////////////////////
 
 
-        //函数通过检测
+        //函数通过检测,参数已经准备好
         if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
         {
