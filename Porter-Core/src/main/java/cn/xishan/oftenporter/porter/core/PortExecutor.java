@@ -205,8 +205,8 @@ public class PortExecutor
             dealtOfGlobalCheck(context, funPort, wObject, innerContextBridge, result);
         } catch (Exception e)
         {
-            LOGGER.warn(e.getMessage(), e);
-            ex(response, e, responseWhenException);
+            Throwable ex=getCause(e);
+            ex(response, ex, responseWhenException);
         }
     }
 
@@ -221,7 +221,8 @@ public class PortExecutor
                 response.write(jResponse);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         }
         close(response);
@@ -238,7 +239,8 @@ public class PortExecutor
                 response.write(jResponse);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         }
         close(response);
@@ -533,14 +535,15 @@ public class PortExecutor
             }
         } catch (Exception e)
         {
+            Throwable ex=getCause(e);
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
             {
-                ex(wObject.getResponse(), e, responseWhenException);
+                ex(wObject.getResponse(), ex, responseWhenException);
             } else
             {
-                LOGGER.warn(e.getMessage(), e);
-                CheckHandle checkHandle = new CheckHandle(e.getCause(), result, funPort.getObject(),
+                LOGGER.warn(ex.getMessage(), ex);
+                CheckHandle checkHandle = new CheckHandle(ex, result, funPort.getObject(),
                         funPort.getMethod(), funPort.getPortOut().getOutType())
                 {
                     @Override
@@ -558,7 +561,7 @@ public class PortExecutor
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                            jResponse.setResult(e.getCause());
+                            jResponse.setResult(ex);
                             dealtOfResponse(wObject, OutType.Object, jResponse);
                         }
                     }
@@ -637,7 +640,8 @@ public class PortExecutor
                 wObject.getResponse().write(object);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
             close(wObject);
         } else if (nullClose)
@@ -671,7 +675,8 @@ public class PortExecutor
                 response.write(jResponse);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         }
         close(response);
@@ -691,7 +696,8 @@ public class PortExecutor
                 wObject.getResponse().write(obj);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         } else if (responseWhenException)
         {
@@ -702,7 +708,8 @@ public class PortExecutor
                 wObject.getResponse().write(jResponse);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         }
         close(wObject);
@@ -736,11 +743,19 @@ public class PortExecutor
                 wObject.getResponse().write(jResponse);
             } catch (IOException e)
             {
-                LOGGER.warn(e.getMessage(), e);
+               Throwable ex=getCause(e);
+                LOGGER.warn(ex.getMessage(), ex);
             }
         }
         close(wObject);
     }
 
+    private final Throwable getCause(Throwable e){
+        Throwable cause = e.getCause();
+        if(cause==null){
+            cause=e;
+        }
+        return cause;
+    }
 
 }
