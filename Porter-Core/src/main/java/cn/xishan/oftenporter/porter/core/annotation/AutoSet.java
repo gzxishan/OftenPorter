@@ -17,7 +17,7 @@ import java.lang.annotation.*;
  *     3.{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
  *     4.{@linkplain cn.xishan.oftenporter.porter.core.base.StateListener}
  * </pre>
- * 当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}必须有，且为PName.
+ * 当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */

@@ -217,7 +217,7 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge);
+        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge, getPLinker());
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
