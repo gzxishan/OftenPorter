@@ -26,15 +26,17 @@ public class AutoSetUtil
     private final Logger LOGGER;
 
     private InnerContextBridge innerContextBridge;
+    private Delivery thisDelivery;
 
-    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge)
+    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery)
     {
-        return new AutoSetUtil(innerContextBridge);
+        return new AutoSetUtil(innerContextBridge, thisDelivery);
     }
 
-    private AutoSetUtil(InnerContextBridge innerContextBridge)
+    private AutoSetUtil(InnerContextBridge innerContextBridge, Delivery thisDelivery)
     {
         this.innerContextBridge = innerContextBridge;
+        this.thisDelivery = thisDelivery;
         LOGGER = LogUtil.logger(AutoSetUtil.class);
     }
 
@@ -246,18 +248,21 @@ public class AutoSetUtil
         } else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();
+            Delivery delivery;
             if (WPTool.isEmpty(pName))
             {
-                throw new Error(
-                        String.format("%s.value() can not be empty when Annotated at %s!", AutoSet.class.getName(), f));
-            }
-            CommonMain commonMain = PorterMain.getMain(pName);
-            if (commonMain == null)
+                delivery = thisDelivery;
+            } else
             {
-                throw new Error(
-                        String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f, pName));
+                CommonMain commonMain = PorterMain.getMain(pName);
+                if (commonMain == null)
+                {
+                    throw new Error(
+                            String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f, pName));
+                }
+                delivery = commonMain.getPLinker();
             }
-            Delivery delivery = commonMain.getPLinker();
+
             sysset = delivery;
         }
         if (sysset != null)

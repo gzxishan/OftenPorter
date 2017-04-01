@@ -371,13 +371,21 @@ public class HttpUtil
                 case PUT:
                 {
                     RequestBody requestBody = dealBodyParams(wObject);
-                    request = builder.url(url).put(requestBody).build();
+                    if (requestBody != null)
+                    {
+                        builder.put(requestBody);
+                    }
+                    request = builder.url(url).build();
                 }
                 break;
                 case POST:
                 {
                     RequestBody requestBody = dealBodyParams(wObject);
-                    request = builder.url(url).post(requestBody).build();
+                    if (requestBody != null)
+                    {
+                        builder.post(requestBody);
+                    }
+                    request = builder.url(url).build();
                 }
                 break;
                 case GET:
@@ -438,13 +446,21 @@ public class HttpUtil
                 case PUT:
                 {
                     RequestBody requestBody = dealBodyParams(params);
-                    request = builder.url(url).put(requestBody).build();
+                    if (requestBody != null)
+                    {
+                        builder.put(requestBody);
+                    }
+                    request = builder.url(url).build();
                 }
                 break;
                 case POST:
                 {
                     RequestBody requestBody = dealBodyParams(params);
-                    request = builder.url(url).post(requestBody).build();
+                    if (requestBody != null)
+                    {
+                        builder.post(requestBody);
+                    }
+                    request = builder.url(url).build();
                 }
                 break;
                 case GET:
