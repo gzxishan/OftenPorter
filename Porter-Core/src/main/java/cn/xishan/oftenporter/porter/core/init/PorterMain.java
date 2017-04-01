@@ -45,7 +45,7 @@ public final class PorterMain
             public Logger getLogger(String name)
             {
                 return LoggerFactory
-                        .getLogger(currentPNameForLogger == null ? name : currentPNameForLogger + "." + name);
+                        .getLogger(currentPNameForLogger == null ? name : name + "." + currentPNameForLogger);
             }
         });
     }
@@ -184,7 +184,7 @@ public final class PorterMain
             }
             LogUtil.setOrRemoveOnGetLoggerListener(logKey,
                     name -> LoggerFactory.getLogger(
-                            getPLinker().currentPName().getName() + "." + bridge.contextName() + "." + name));
+                            name + "." + getPLinker().currentPName().getName() + "." + bridge.contextName()));
             checkInit();
             currentPNameForLogger = getPLinker().currentPName().getName();
             _startOne(bridge);

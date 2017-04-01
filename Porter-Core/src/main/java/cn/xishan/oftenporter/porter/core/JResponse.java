@@ -48,7 +48,7 @@ public class JResponse
     }
 
     public static final String CODE_FIELD = "code", CODE_NAME_FIELD = "cname";
-    public static final String RESULT_FIELD = "rs";
+    public static final String RESULT_FIELD = "rs", EXTRA_FIELD = "extra";
     public static final String DESCRIPTION_FIELD = "desc";
     //public static final String REQUEST_URI_FIELD = "uri";
 
@@ -58,7 +58,7 @@ public class JResponse
 
     private ResultCode code = ResultCode.Other;
     private String description;
-    private Object result;
+    private Object result, extra;
     private Throwable exCause;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JResponse.class);
@@ -127,6 +127,30 @@ public class JResponse
         return result;
     }
 
+    private static Object getExtra(JSONObject jsonObject)
+    {
+        Object result = null;
+        if (jsonObject.containsKey(EXTRA_FIELD))
+        {
+            result = jsonObject.get(EXTRA_FIELD);
+            if (result instanceof String && ("true".equals(result) || "false".equals(result)))
+            {
+                result = Boolean.parseBoolean(result.toString());
+            }
+        }
+        return result;
+    }
+
+    public Object getExtra()
+    {
+        return extra;
+    }
+
+    public void setExtra(Object extra)
+    {
+        this.extra = extra;
+    }
+
     /**
      * 从对应的json字符转换成JResponse
      *
@@ -143,11 +167,13 @@ public class JResponse
             String desc = getString(jsonObject, DESCRIPTION_FIELD);
 
             Object result = getResult(jsonObject);
+            Object extra = getExtra(jsonObject);
 
             JResponse jsonResponse = new JResponse();
             jsonResponse.setCode(ResultCode.toResponseCode(code));
             jsonResponse.setDescription(desc);
             jsonResponse.setResult(result);
+            jsonResponse.setExtra(extra);
             return jsonResponse;
         } catch (Exception e)
         {
@@ -264,6 +290,17 @@ public class JResponse
             } else
             {
                 json.put(RESULT_FIELD, String.valueOf(result));
+            }
+        }
+
+        if (extra != null)
+        {
+            if (extra instanceof JSONObject || extra instanceof JSONArray)
+            {
+                json.put(EXTRA_FIELD, extra);
+            } else
+            {
+                json.put(EXTRA_FIELD, String.valueOf(extra));
             }
         }
 

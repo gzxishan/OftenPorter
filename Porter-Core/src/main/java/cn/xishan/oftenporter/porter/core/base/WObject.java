@@ -57,6 +57,7 @@ public abstract class WObject
 
     /**
      * 获取参数源，此参数源包含所有的参数（路径参数优先）。
+     *
      * @return
      */
     public abstract ParamSource getParamSource();
@@ -127,6 +128,16 @@ public abstract class WObject
         return t;
     }
 
+    public <T> T cuOf(int index, T defaultValue)
+    {
+        T t = (T) cu[index];
+        if (t == null)
+        {
+            t = defaultValue;
+        }
+        return t;
+    }
+
     public <T> T fnOf(int index)
     {
         T t = (T) fn[index];
@@ -136,6 +147,16 @@ public abstract class WObject
     public <T> T fuOf(int index)
     {
         T t = (T) fu[index];
+        return t;
+    }
+
+    public <T> T fuOf(int index, T defaultValue)
+    {
+        T t = (T) fu[index];
+        if (t == null)
+        {
+            t = defaultValue;
+        }
         return t;
     }
 
@@ -188,7 +209,8 @@ public abstract class WObject
                         return;
                     }
                 }
-                if(callback!=null){
+                if (callback != null)
+                {
                     callback.onResponse(lResponse);
                 }
             });
