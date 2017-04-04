@@ -15,7 +15,7 @@ public class Common2
 
     public static final Common2 C = new Common2(Common.C);
 
-     Common common;
+    Common common;
 
     private Common2(Common common)
     {
@@ -23,7 +23,6 @@ public class Common2
     }
 
 
-    
     public static void startTransaction(WObject wObject, DBSource dbSource)
     {
         TransactionHandle<Common2> handle = getTransactionHandle(dbSource);
@@ -49,11 +48,12 @@ public class Common2
         wObject._otherObject = null;
     }
 
-    public static TransactionHandle<Common2> getTransactionHandle( DBSource dbSource)
+    public static TransactionHandle<Common2> getTransactionHandle(DBSource dbSource)
     {
-        CommonTransactionHandle<Common2> thandle = new CommonTransactionHandle<Common2>(dbSource,dbSource)
+        CommonTransactionHandle<Common2> thandle = new CommonTransactionHandle<Common2>(dbSource, dbSource)
         {
-            TransactionHandle<Common> transactionHandle = Common.getTransactionHandle(getDBHandleSource(), getParamsGetter());
+            TransactionHandle<Common> transactionHandle = Common
+                    .getTransactionHandle(getDBHandleSource(), getParamsGetter());
             Common2 common2 = new Common2(transactionHandle.common());
 
             @Override
@@ -94,7 +94,7 @@ public class Common2
      * @see Common#addData(DBHandleSource, ParamsGetter, boolean, NameValues, WObject)
      */
     public JResponse addData(DBSource dbSource, boolean responseData,
-                             NameValues nameValues, WObject wObject)
+            NameValues nameValues, WObject wObject)
     {
         return common.addData(dbSource, dbSource, responseData, nameValues, wObject);
     }
@@ -103,7 +103,7 @@ public class Common2
      * @see Common#addData(DBHandleSource, ParamsGetter, boolean, WObject)
      */
     public JResponse addData(DBSource dbSource, boolean responseData,
-                             WObject wObject)
+            WObject wObject)
     {
         return common.addData(dbSource, dbSource, responseData, wObject);
     }
@@ -132,7 +132,7 @@ public class Common2
      * @see Common#count(DBHandleSource, ParamsGetter, Condition, WObject)
      */
     public JResponse count(DBSource dbSource, Condition condition,
-                           WObject wObject)
+            WObject wObject)
     {
         return common.count(dbSource, dbSource, condition, wObject);
     }
@@ -141,7 +141,7 @@ public class Common2
      * @see Common#deleteData(DBHandleSource, ParamsGetter, Condition, WObject)
      */
     public JResponse deleteData(DBSource dbSource, Condition condition,
-                                WObject wObject)
+            WObject wObject)
     {
         return common.deleteData(dbSource, dbSource, condition, wObject);
     }
@@ -162,7 +162,7 @@ public class Common2
      * @see Common#exists(DBHandleSource, ParamsGetter, String, Object, WObject)
      */
     public JResponse exists(DBSource dbSource, String key,
-                            Object value, WObject wObject)
+            Object value, WObject wObject)
     {
         return common.exists(dbSource, dbSource, key, value, wObject);
     }
@@ -180,9 +180,25 @@ public class Common2
      * @see Common#queryData(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject)
      */
     public JResponse queryData(DBSource dbSource, Condition condition,
-                               QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
+            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
     {
         return common.queryData(dbSource, dbSource, condition, querySettings, keysSelection, wObject);
+    }
+
+    /**
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param condition
+     * @param querySettings
+     * @param keysSelection
+     * @param wObject
+     * @return
+     * @see Common#queryEnumeration(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject)
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
+            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
+    {
+        return common.queryEnumeration(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject);
     }
 
     /**
@@ -200,7 +216,7 @@ public class Common2
      * @see Common#queryOne(DBHandleSource, ParamsGetter, Condition, KeysSelection, WObject)
      */
     public JResponse queryOne(DBSource dbSource, Condition condition,
-                              KeysSelection keysSelection, WObject wObject)
+            KeysSelection keysSelection, WObject wObject)
     {
         return common.queryOne(dbSource, dbSource, condition, keysSelection, wObject);
     }
@@ -230,7 +246,7 @@ public class Common2
      * @see Common#replaceData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject)
      */
     public JResponse replaceData(DBSource dbSource, Condition condition, NameValues nameValues,
-                                 WObject wObject)
+            WObject wObject)
     {
         return common.replaceData(dbSource, dbSource, condition, nameValues, wObject);
     }
@@ -239,7 +255,7 @@ public class Common2
      * @see Common#updateData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject)
      */
     public JResponse updateData(DBSource dbSource, Condition condition,
-                                NameValues nameValues, WObject wObject)
+            NameValues nameValues, WObject wObject)
     {
         return common.updateData(dbSource, dbSource, condition, nameValues, wObject);
     }
@@ -248,7 +264,7 @@ public class Common2
      * @see Common#updateData(DBHandleSource, ParamsGetter, Condition, WObject)
      */
     public JResponse updateData(DBSource dbSource, Condition condition,
-                                WObject wObject)
+            WObject wObject)
     {
         return common.updateData(dbSource, dbSource, condition, wObject);
     }

@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 
@@ -18,7 +19,8 @@ public class LocalMain implements CommonMain
 
     public LocalMain(boolean responseWhenException, PName pName, String urlEncoding)
     {
-        PBridge bridge = (request, callback) -> {
+        PBridge bridge = (request, callback) ->
+        {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = porterMain.forRequest(request, resp);
             if (req != null)
@@ -26,7 +28,7 @@ public class LocalMain implements CommonMain
                 porterMain.doRequest(req, request, resp);
             }
         };
-        porterMain = new PorterMain(pName,this, bridge);
+        porterMain = new PorterMain(pName, this, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
@@ -41,7 +43,7 @@ public class LocalMain implements CommonMain
 
     protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge)
     {
-        porterMain = new PorterMain(pName,this, bridge);
+        porterMain = new PorterMain(pName, this, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
@@ -102,6 +104,12 @@ public class LocalMain implements CommonMain
     public void destroyAll()
     {
         porterMain.destroyAll();
+    }
+
+    @Override
+    public PorterData getPorterData()
+    {
+        return porterMain.getPorterData();
     }
 
     @Override

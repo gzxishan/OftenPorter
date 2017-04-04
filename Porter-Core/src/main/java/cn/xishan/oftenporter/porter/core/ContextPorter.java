@@ -19,10 +19,10 @@ import java.util.*;
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class PortContext
+public class ContextPorter
 {
 
-    private static final Logger LOGGER = LogUtil.logger(PortContext.class);
+    private static final Logger LOGGER = LogUtil.logger(ContextPorter.class);
     private ClassLoader classLoader;
     //接口
     private Map<String, Porter> portMap;
@@ -30,7 +30,7 @@ public class PortContext
 
     //private SthDeal sthDeal;
 
-    public PortContext()
+    public ContextPorter()
     {
         init();
     }
@@ -41,13 +41,18 @@ public class PortContext
     }
 
 
+    public Map<String, Porter> getPortMap()
+    {
+        return portMap;
+    }
+
     /**
      * 设置当前的类加载器。
      *
      * @param classLoader
      * @return
      */
-    public PortContext setClassLoader(ClassLoader classLoader)
+    public ContextPorter setClassLoader(ClassLoader classLoader)
     {
         this.classLoader = classLoader;
         return this;

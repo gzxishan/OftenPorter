@@ -41,7 +41,7 @@ class PortExecutorCheckers extends CheckHandle
 
     private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[] ... cpss)
     {
-        PortContext portContext = context.portContext;
+        ContextPorter contextPorter = context.contextPorter;
         int totalLength=0;
         for (int i = 0; i < cpss.length; i++)
         {
@@ -54,7 +54,7 @@ class PortExecutorCheckers extends CheckHandle
             Class<? extends CheckPassable>[] cps = cpss[i];
             for (int j = 0; j <cps.length ; j++)
             {
-                CheckPassable cp = portContext.getCheckPassable(cps[j]);
+                CheckPassable cp = contextPorter.getCheckPassable(cps[j]);
                 checkPassables[k++] = cp;
             }
         }

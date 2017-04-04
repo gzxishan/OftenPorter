@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
@@ -333,6 +334,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
     public void destroyAll()
     {
         porterMain.destroyAll();
+    }
+
+    @Override
+    public PorterData getPorterData()
+    {
+        return porterMain.getPorterData();
     }
 
 

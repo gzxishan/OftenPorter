@@ -794,6 +794,76 @@ public class Common
                 DataAble.OPTION_CODE_DEFAULT);
     }
 
+
+    /**
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param condition
+     * @param querySettings
+     * @param keysSelection
+     * @param wObject
+     * @return
+     * @see #queryEnumeration(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject, int)
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
+            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
+    {
+        return queryEnumeration(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject,
+                DataAble.OPTION_CODE_DEFAULT);
+    }
+
+    /**
+     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration<JSONObject>}.
+     *
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param condition
+     * @param querySettings
+     * @param _keysSelection
+     * @param wObject
+     * @return
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
+            QuerySettings querySettings, KeysSelection _keysSelection, WObject wObject, int optionCode)
+    {
+        Dealt dealt = new Dealt()
+        {
+
+            @Override
+            public Condition getCondition()
+            {
+                return condition;
+            }
+
+            @Override
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
+                    Condition _condition, Object[] otherParams) throws Exception
+            {
+                Params params = paramsGetter.getParams();
+                KeysSelection keysSelection = data.keys();
+                if (keysSelection == null)
+                {
+                    keysSelection = _keysSelection;
+                }
+                String[] keys = data.getFinalKeys(keysSelection,
+                        params);//getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
+                // paramsGetter);
+                if (querySettings != null)
+                {
+                    data.dealNames(querySettings);
+                }
+
+                DBEnumeration<JSONObject> enumeration = dbHandle.getDBEnumerations(_condition, querySettings, keys);
+                jResponse.setCode(ResultCode.SUCCESS);
+                jResponse.setResult(enumeration);
+            }
+
+        };
+
+        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
+                optionCode);
+    }
+
     /**
      * @see #queryData2(DBHandleSource, ParamsGetter, ParamsSelection, QuerySettings,
      * KeysSelection, WObject, int)

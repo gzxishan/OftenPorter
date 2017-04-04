@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Enumeration;
 
 public interface DBHandle extends Closeable
 {
@@ -76,6 +77,17 @@ public interface DBHandle extends Closeable
      * @throws DBException 操作异常
      */
     JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException;
+
+    /**
+     * 简单查询
+     *
+     * @param query         查询条件
+     * @param querySettings 查询选项
+     * @param keys          为空表示选择所有
+     * @return 查询结果
+     * @throws DBException 操作异常
+     */
+    DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings, String... keys) throws DBException;
 
 
     /**

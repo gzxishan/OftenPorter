@@ -142,6 +142,23 @@ public class Common3
     }
 
     /**
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param condition
+     * @param querySettings
+     * @param keysSelection
+     * @param wObject
+     * @return
+     * @see Common#queryEnumeration(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject)
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
+            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
+    {
+        checkTransactionHandle(wObject);
+        return Common.C.queryEnumeration(null, null, condition, querySettings, keysSelection, wObject);
+    }
+
+    /**
      * @see Common#queryData2(DBHandleSource, ParamsGetter, ParamsSelection, QuerySettings, KeysSelection, WObject)
      */
     public static JResponse queryData2(

@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
 import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/3.
@@ -24,6 +25,7 @@ public interface CommonMain
 
     /**
      * 如果有一个返回false，则不会添加接口。
+     *
      * @return
      */
     ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder();
@@ -73,5 +75,7 @@ public interface CommonMain
      * 销毁所有的，以后不能再用。
      */
     void destroyAll();
+
+    PorterData getPorterData();
 
 }

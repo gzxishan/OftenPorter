@@ -4,6 +4,8 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 
 import java.lang.annotation.*;
 
@@ -17,7 +19,12 @@ import java.lang.annotation.*;
  *     3.{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
  *     4.{@linkplain cn.xishan.oftenporter.porter.core.base.StateListener}
  * </pre>
- * 当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
+ * <pre>
+ * 内置对象:
+ * 1.当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
+ * 2.{@linkplain TypeTo}
+ * 3.{@linkplain PorterData}
+ * </pre>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */
@@ -46,7 +53,8 @@ public @interface AutoSet
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     @Documented
-    @interface SetOk{
+    @interface SetOk
+    {
 
     }
 

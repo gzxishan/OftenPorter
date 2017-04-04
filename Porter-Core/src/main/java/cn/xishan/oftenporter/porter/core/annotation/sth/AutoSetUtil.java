@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetSeek;
@@ -27,16 +28,19 @@ public class AutoSetUtil
 
     private InnerContextBridge innerContextBridge;
     private Delivery thisDelivery;
+    private PorterData porterData;
 
-    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery)
+    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery,
+            PorterData porterData)
     {
-        return new AutoSetUtil(innerContextBridge, thisDelivery);
+        return new AutoSetUtil(innerContextBridge, thisDelivery, porterData);
     }
 
-    private AutoSetUtil(InnerContextBridge innerContextBridge, Delivery thisDelivery)
+    private AutoSetUtil(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData)
     {
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
+        this.porterData = porterData;
         LOGGER = LogUtil.logger(AutoSetUtil.class);
     }
 
@@ -245,6 +249,9 @@ public class AutoSetUtil
         if (typeName.equals(TypeTo.class.getName()))
         {
             sysset = new TypeTo(innerContextBridge);
+        } else if (typeName.equals(PorterData.class.getName()))
+        {
+            sysset = porterData;
         } else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();

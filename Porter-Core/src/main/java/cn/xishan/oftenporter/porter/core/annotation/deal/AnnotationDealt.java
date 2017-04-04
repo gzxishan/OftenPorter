@@ -228,12 +228,12 @@ public final class AnnotationDealt
         _portIn.method = portIn.method();
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
-        _portIn.tiedType = portIn.tiedType();
+        _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 
         if (LOGGER.isDebugEnabled() && !isMixin)
         {
-            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.tiedType, _portIn.method);
+            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.getTiedType(), _portIn.method);
         }
 
         return _portIn;
@@ -251,10 +251,9 @@ public final class AnnotationDealt
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
             _portIn = new _PortIn();
-            _portIn.tiedType = portIn.tiedType();
-            _portIn.tiedName = PortUtil.tied(portIn, method,
-                    TiedType.type(class_PortIn.getTiedType(),
-                            _portIn.getTiedType()) == TiedType.REST || enableDefaultValue);
+            _portIn.setTiedType(TiedType.type(class_PortIn.getTiedType(), portIn.tiedType()));
+            _portIn.tiedName = PortUtil
+                    .tied(portIn, method, _portIn.getTiedType() == TiedType.REST || enableDefaultValue);
             _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
             _portIn.checks = portIn.checks();
             _portIn.method = AnnoUtil.method(class_PortIn.getMethod(), portIn.method());

@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
 import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 import com.squareup.okhttp.OkHttpClient;
 import org.slf4j.Logger;
@@ -191,6 +192,12 @@ public class HMain extends LocalMain
 
     @Override
     public void destroyAll()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public PorterData getPorterData()
     {
         throw new UnsupportedOperationException();
     }

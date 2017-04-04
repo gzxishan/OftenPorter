@@ -199,6 +199,70 @@ public class MongoHandle implements DBHandle
         }
     }
 
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
+            String... keys) throws DBException
+    {
+        try
+        {
+            BasicDBObject fields = null;
+            if (keys != null && keys.length != 0)
+            {
+                fields = new BasicDBObject();
+                for (int i = 0; i < keys.length; i++)
+                {
+                    fields.put(keys[i], 1);
+                }
+            }
+
+            DBCursor cursor = dealQuerySettings(collection.find(checkToFinal(query), fields), querySettings);
+
+            DBEnumeration<JSONObject> enumeration = new DBEnumeration<JSONObject>()
+            {
+                @Override
+                public boolean hasMoreElements() throws DBException
+                {
+
+                    try
+                    {
+                        return cursor.hasNext();
+                    } catch (Exception e)
+                    {
+                        throw new DBException(e);
+                    }
+                }
+
+                @Override
+                public JSONObject nextElement() throws DBException
+                {
+                    if (!hasMoreElements())
+                    {
+                        throw new DBException("no more elements!");
+                    }
+                    try
+                    {
+                        JSONObject jsonObject = getJSONObject(cursor.next(), keys);
+                        return jsonObject;
+                    } catch (Exception e)
+                    {
+                        throw new DBException(e);
+                    }
+                }
+
+                @Override
+                public void close() throws DBException
+                {
+                    WPTool.close(cursor);
+                }
+            };
+
+            return enumeration;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
+
     private JSONObject getJSONObject(DBObject dbObject, String[] keys) throws JSONException
     {
 

@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
  * @author Created by https://github.com/CLovinr on 2016/10/3.
  */
 public class Context {
-    public final PortContext portContext;
+    public final ContextPorter contextPorter;
     CheckPassable[] contextChecks;
     InnerContextBridge innerContextBridge;
     DeliveryBuilder deliveryBuilder;
@@ -19,11 +19,11 @@ public class Context {
     String name, contentEncoding;
     CheckPassable[] forAllCheckPassables;
 
-    public Context(DeliveryBuilder deliveryBuilder, PortContext portContext, CheckPassable[] contextChecks,
+    public Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
                    ParamSourceHandleManager paramSourceHandleManager,
                    StateListener stateListenerForAll, InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables) {
         this.deliveryBuilder = deliveryBuilder;
-        this.portContext = portContext;
+        this.contextPorter = contextPorter;
         this.contextChecks = contextChecks;
         this.paramSourceHandleManager = paramSourceHandleManager;
         this.stateListenerForAll = stateListenerForAll;
