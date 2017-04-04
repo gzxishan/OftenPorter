@@ -193,6 +193,85 @@ public class SqlHandle implements DBHandle
         return _getJSONS(whereSQL, keys);
     }
 
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
+            String... keys) throws DBException
+    {
+        SqlUtil.WhereSQL whereSQL = SqlUtil
+                .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
+
+
+        try
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("{}", whereSQL.sql);
+                StringBuilder builder = new StringBuilder();
+                Object[] args = whereSQL.args;
+                logArgs(args, builder);
+                LOGGER.debug("{}", builder);
+            }
+            PreparedStatement ps = conn.prepareStatement(whereSQL.sql);
+            Object[] args = whereSQL.args;
+            for (int i = 0; i < args.length; i++)
+            {
+                Object obj = args[i];
+                ps.setObject(i + 1, obj);
+            }
+            ResultSet rs = ps.executeQuery();
+
+            DBEnumeration<JSONObject> dbEnumeration = new DBEnumeration<JSONObject>()
+            {
+                int hasNext = -1;
+
+                @Override
+                public void close() throws DBException
+                {
+                    WPTool.close(ps);
+                }
+
+                @Override
+                public boolean hasMoreElements() throws DBException
+                {
+                    if (hasNext == -1)
+                    {
+                        try
+                        {
+                            hasNext = rs.next() ? 1 : 0;
+                        } catch (SQLException e)
+                        {
+                            throw new DBException(e);
+                        }
+                    }
+                    return hasNext == 1;
+                }
+
+                @Override
+                public JSONObject nextElement()
+                {
+                    if (!hasMoreElements())
+                    {
+                        throw new DBException("no more elements!");
+                    }
+                    try
+                    {
+                        JSONObject jsonObject = getJSONObject(rs, keys);
+                        hasNext = -1;
+                        return jsonObject;
+                    } catch (SQLException e)
+                    {
+                        throw new DBException(e);
+                    }
+                }
+            };
+            return dbEnumeration;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+
+
+    }
 
     private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, String[] keys)
     {
@@ -499,7 +578,7 @@ public class SqlHandle implements DBHandle
 
     //////////////////////////////////////
 
-    private  int executeSet(Connection conn, String tableName, Condition query,
+    private int executeSet(Connection conn, String tableName, Condition query,
             NameValues updateFields) throws DBException
     {
         int n = 0;
@@ -543,7 +622,7 @@ public class SqlHandle implements DBHandle
         return n;
     }
 
-    private  int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields)
+    private int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields)
     {
         int n = 0;
         PreparedStatement ps = null;
@@ -575,12 +654,12 @@ public class SqlHandle implements DBHandle
         return n;
     }
 
-    private  void setObject(PreparedStatement ps, int column, Object object) throws SQLException
+    private void setObject(PreparedStatement ps, int column, Object object) throws SQLException
     {
         ps.setObject(column, object);
     }
 
-    private  int[] addPS(Connection conn, boolean isTransaction, String tableName,
+    private int[] addPS(Connection conn, boolean isTransaction, String tableName,
             MultiNameValues multiNameValues)
     {
         String[] names = multiNameValues.getNames();
@@ -645,7 +724,7 @@ public class SqlHandle implements DBHandle
     /**
      * count某个条件
      */
-    public  long exists(Connection conn, Condition condition, String tableName) throws DBException
+    public long exists(Connection conn, Condition condition, String tableName) throws DBException
     {
 
         long n = 0;

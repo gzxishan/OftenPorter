@@ -67,7 +67,7 @@ public class SqliteHandle implements DBHandle
         return SqlHandle.checkCondition(condition);
     }
 
-    void close(Cursor cursor)
+    static void close(Cursor cursor)
     {
         if (cursor != null)
         {
@@ -351,6 +351,67 @@ public class SqliteHandle implements DBHandle
         return _getJSONS(whereSQL, keys);
     }
 
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
+            String... keys) throws DBException
+    {
+        SqlUtil.WhereSQL whereSQL = SqlUtil
+                .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
+                        false, keys);
+
+        try
+        {
+            Cursor cursor = rawQuery(whereSQL);
+            DBEnumeration<JSONObject> enumeration = new DBEnumeration<JSONObject>()
+            {
+                int hasNext = -1;
+
+                @Override
+                public boolean hasMoreElements() throws DBException
+                {
+                    if (hasNext == -1)
+                    {
+                        try
+                        {
+                            hasNext = cursor.moveToNext() ? 1 : 0;
+                        } catch (Exception e)
+                        {
+                            throw new DBException(e);
+                        }
+                    }
+                    return hasNext == 1;
+                }
+
+                @Override
+                public JSONObject nextElement() throws DBException
+                {
+                    if (!hasMoreElements())
+                    {
+                        throw new DBException("no more elements!");
+                    }
+                    try
+                    {
+                        JSONObject jsonObject = getJSONObject(cursor, keys);
+                        hasNext = -1;
+                        return jsonObject;
+                    } catch (Exception e)
+                    {
+                        throw new DBException(e);
+                    }
+                }
+
+                @Override
+                public void close() throws DBException
+                {
+                    SqliteHandle.close(cursor);
+                }
+            };
+            return enumeration;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
 
     @Override
     public JSONArray get(Condition query, QuerySettings querySettings, String key) throws DBException

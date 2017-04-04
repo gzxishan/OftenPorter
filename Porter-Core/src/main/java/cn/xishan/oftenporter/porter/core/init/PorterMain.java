@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -32,6 +33,7 @@ public final class PorterMain
     private final InnerBridge innerBridge;
     private final PLinker pLinker;
     private ListenerAdderImpl listenerAdder;
+    private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
     private final Logger LOGGER;
@@ -67,7 +69,7 @@ public final class PorterMain
                 ClassLoader classLoader = null;
                 if (context != null)
                 {
-                    classLoader = context.portContext.getClassLoader();
+                    classLoader = context.contextPorter.getClassLoader();
                 }
                 return classLoader;
             });
@@ -118,6 +120,7 @@ public final class PorterMain
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
         portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
+        porterData  = new PorterDataImpl(portExecutor);
         currentPNameForLogger = null;
     }
 
@@ -198,6 +201,11 @@ public final class PorterMain
         }
     }
 
+    public PorterData getPorterData()
+    {
+        return porterData;
+    }
+
     private void _startOne(PorterBridge bridge)
     {
 
@@ -210,14 +218,14 @@ public final class PorterMain
         Logger LOGGER = LogUtil.logger(PorterMain.class);
 
         PorterConf porterConf = bridge.porterConf();
-        PortContext portContext = new PortContext();
-        portContext.setClassLoader(porterConf.getClassLoader());
+        ContextPorter contextPorter = new ContextPorter();
+        contextPorter.setClassLoader(porterConf.getClassLoader());
 
         InnerContextBridge innerContextBridge = new InnerContextBridge(porterConf.getClassLoader(), innerBridge,
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge, getPLinker());
+        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge, getPLinker(), porterData);
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
@@ -235,7 +243,7 @@ public final class PorterMain
         Map<Class<?>, CheckPassable> classCheckPassableMap = null;
         try
         {
-            classCheckPassableMap = portContext.initSeek(listenerAdder, porterConf, autoSetUtil);
+            classCheckPassableMap = contextPorter.initSeek(listenerAdder, porterConf, autoSetUtil);
         } catch (FatalInitException e)
         {
             throw new Error(e);
@@ -250,7 +258,7 @@ public final class PorterMain
         LOGGER.debug("do autoSetSeek...");
         autoSetUtil.doAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
 
-        portContext.start();
+        contextPorter.start();
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
@@ -260,7 +268,7 @@ public final class PorterMain
         LOGGER.debug("do autoSet ForAllCheckPassable...");
         autoSetUtil.doAutoSetsForNotPorter(checkPassables);
 
-        portExecutor.addContext(bridge, portContext, stateListenerForAll, innerContextBridge,
+        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,
                 checkPassables);
         porterConf.initOk();
         LOGGER.debug(":{}/{} started!", pLinker.currentPName(), porterConf.getContextName());
@@ -299,7 +307,7 @@ public final class PorterMain
             StateListener stateListenerForAll = context.stateListenerForAll;
             LOGGER.debug("Context [{}] beforeDestroy...", contextName);
             stateListenerForAll.beforeDestroy();
-            context.portContext.destroy();
+            context.contextPorter.destroy();
             LOGGER.debug("Context [{}] destroyed!", contextName);
             stateListenerForAll.afterDestroy();
         }
