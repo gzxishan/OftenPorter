@@ -5,5 +5,5 @@ package cn.xishan.oftenporter.oftendb.data;
  */
 public interface DBSource extends DBHandleSource, ParamsGetter
 {
-
+    DBSource withAnotherData(Class<? extends Data> clazz);
 }

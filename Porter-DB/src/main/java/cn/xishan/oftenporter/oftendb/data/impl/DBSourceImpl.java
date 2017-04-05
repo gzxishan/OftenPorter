@@ -23,20 +23,20 @@ public class DBSourceImpl implements DBSource
      * @param dbHandleSource
      */
     public DBSourceImpl(Class<? extends Data> dataClass, ParamsGetter.DataInitable dataInitable,
-                        DBHandleSource dbHandleSource)
+            DBHandleSource dbHandleSource)
     {
-        this(dataClass == null ? null : new Params(dataClass,dataInitable),
+        this(dataClass == null ? null : new Params(dataClass, dataInitable),
                 dbHandleSource);
     }
 
     public DBSourceImpl(DataAble dataAble, ParamsGetter.DataInitable dataInitable,
-                        DBHandleSource dbHandleSource)
+            DBHandleSource dbHandleSource)
     {
-        this(new Params(dataAble,dataInitable), dbHandleSource);
+        this(new Params(dataAble, dataInitable), dbHandleSource);
     }
 
     public DBSourceImpl(Params params,
-                        DBHandleSource dbHandleSource)
+            DBHandleSource dbHandleSource)
     {
         this.params = params;
         this.dbHandleSource = dbHandleSource;
@@ -58,9 +58,10 @@ public class DBSourceImpl implements DBSource
     }
 
     @Override
-    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble, DBHandle dbHandle) throws DBException
+    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble,
+            DBHandle dbHandle) throws DBException
     {
-        return dbHandleSource.getDbHandle(paramsGetter,dataAble, dbHandle);
+        return dbHandleSource.getDbHandle(paramsGetter, dataAble, dbHandle);
     }
 
     @Override
@@ -75,4 +76,10 @@ public class DBSourceImpl implements DBSource
         return params;
     }
 
+    @Override
+    public DBSource withAnotherData(Class<? extends Data> clazz)
+    {
+        DBSource dbSource = new DBSourceImpl(clazz, params.getDataInitable(), dbHandleSource);
+        return dbSource;
+    }
 }
