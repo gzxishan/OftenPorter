@@ -23,7 +23,7 @@ public class SqlConditionTest
         sqlCondition.put(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
         sqlCondition.put(Condition.STARTSWITH,new CUnit("name","[chen]"));
         sqlCondition.put(Condition.EQ,new CUnit("pid",null));
-        sqlCondition.put(Condition.IN,new CUnit("age",new String[]{"12","23","26"}));
+        sqlCondition.put(Condition.IN,new CUnit("t1.age",new String[]{"12","23","26"}));
         sqlCondition.put(Condition.IN,new CUnit("agex", Arrays.asList(new String[]{"12","23","26"})));
         sqlCondition.put(Condition.IN,new CUnit("age2","19"));
 

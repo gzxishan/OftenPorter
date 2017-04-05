@@ -237,8 +237,7 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam1());
         } else
         {
-            checkName(cUnit.getParam1());
-            stringBuilder.append("`").append(cUnit.getParam1()).append("`");
+            appendName(cUnit.getParam1(),stringBuilder);
         }
         stringBuilder.append(" ");
 
@@ -339,9 +338,19 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam2());
         } else
         {
-            checkName((String) cUnit.getParam2());
-            stringBuilder.append("`").append(cUnit.getParam2()).append("`");
+            appendName(cUnit.getParam2(),stringBuilder);
         }
+    }
+
+    private void appendName(Object name,StringBuilder builder){
+        String nameStr= (String) name;
+        checkName(nameStr);
+        int dotIndex = nameStr.lastIndexOf('.');
+        if(dotIndex>=0){
+            builder.append(nameStr.substring(0,dotIndex+1));
+            nameStr=nameStr.substring(dotIndex+1);
+        }
+        builder.append("`").append(nameStr).append("`");
     }
 
     @Override
