@@ -90,6 +90,8 @@ public interface DBHandle extends Closeable
     DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings, String... keys) throws DBException;
 
 
+    boolean canOpenOrClose();
+
     /**
      * 查询一条记录
      *

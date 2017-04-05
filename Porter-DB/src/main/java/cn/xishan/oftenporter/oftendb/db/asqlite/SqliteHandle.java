@@ -29,6 +29,7 @@ public class SqliteHandle implements DBHandle
     private static final TypeUtil.Type<ContentValues>[] TYPES_ADD;
     private static final TypeUtil.Type<TypeUtil.StatementObj>[] TYPES_MULTI_ADD;
     private boolean isTransaction = false;
+    private boolean canOpenOrClose = true;
 
     static
     {
@@ -404,13 +405,21 @@ public class SqliteHandle implements DBHandle
                 public void close() throws DBException
                 {
                     SqliteHandle.close(cursor);
+                    canOpenOrClose=true;
                 }
             };
+            canOpenOrClose = false;
             return enumeration;
         } catch (Exception e)
         {
             throw new DBException(e);
         }
+    }
+
+    @Override
+    public boolean canOpenOrClose()
+    {
+        return canOpenOrClose;
     }
 
     @Override

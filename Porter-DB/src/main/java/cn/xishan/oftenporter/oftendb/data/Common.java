@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 
 import cn.xishan.oftenporter.oftendb.db.*;
+import cn.xishan.oftenporter.oftendb.db.exception.CannotOpenOrCloseException;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.InNames;
@@ -131,6 +132,10 @@ public class Common
                     dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
                 }
 
+                if(!dbHandle.canOpenOrClose()){
+                    throw new CannotOpenOrCloseException();
+                }
+
                 if (condition != null)
                 {
                     data.dealNames(condition);
@@ -160,7 +165,7 @@ public class Common
             LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
         } finally
         {
-            if (dbHandle != null && !dbHandle.isTransaction())
+            if (dbHandle != null && !dbHandle.isTransaction()&&dbHandle.canOpenOrClose())
             {
                 WPTool.close(dbHandle);
                 dbHandleSource.afterClose(dbHandle);

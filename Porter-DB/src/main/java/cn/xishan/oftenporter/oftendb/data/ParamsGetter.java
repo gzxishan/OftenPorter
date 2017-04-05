@@ -62,6 +62,11 @@ public interface ParamsGetter
             return dataAbleClone;
         }
 
+        public DataInitable getDataInitable()
+        {
+            return dataInitable;
+        }
+
         public DataAble getDataAble()
         {
             return dataAble;

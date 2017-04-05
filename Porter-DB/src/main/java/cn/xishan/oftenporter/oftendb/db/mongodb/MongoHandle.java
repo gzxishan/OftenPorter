@@ -18,6 +18,7 @@ public class MongoHandle implements DBHandle
 {
 
     private DBCollection collection;
+    private boolean canOpenOrClose = true;
 
     public MongoHandle(DB db, String collectionName)
     {
@@ -200,6 +201,12 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
+    public boolean canOpenOrClose()
+    {
+        return canOpenOrClose;
+    }
+
+    @Override
     public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
             String... keys) throws DBException
     {
@@ -253,9 +260,10 @@ public class MongoHandle implements DBHandle
                 public void close() throws DBException
                 {
                     WPTool.close(cursor);
+                    canOpenOrClose=true;
                 }
             };
-
+            canOpenOrClose = false;
             return enumeration;
         } catch (Exception e)
         {

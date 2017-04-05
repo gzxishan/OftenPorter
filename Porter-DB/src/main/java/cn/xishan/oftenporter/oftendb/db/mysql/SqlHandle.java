@@ -24,6 +24,7 @@ public class SqlHandle implements DBHandle
     private Boolean field2LowerCase = null;
     private static final Logger _LOGGER = LoggerFactory.getLogger(SqlHandle.class);
     private Logger LOGGER = _LOGGER;
+    private boolean canOpenOrClose = true;
 
     /**
      * 创建一个DbRwMysql
@@ -228,6 +229,7 @@ public class SqlHandle implements DBHandle
                 public void close() throws DBException
                 {
                     WPTool.close(ps);
+                    canOpenOrClose = true;
                 }
 
                 @Override
@@ -264,6 +266,7 @@ public class SqlHandle implements DBHandle
                     }
                 }
             };
+            canOpenOrClose = false;
             return dbEnumeration;
         } catch (Exception e)
         {
@@ -271,6 +274,12 @@ public class SqlHandle implements DBHandle
         }
 
 
+    }
+
+    @Override
+    public boolean canOpenOrClose()
+    {
+        return canOpenOrClose;
     }
 
     private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, String[] keys)
