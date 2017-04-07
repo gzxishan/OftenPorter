@@ -84,15 +84,15 @@ public final class WServletRequest extends PRequest
 
 
     /**
-     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String)}。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, boolean)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
      * @return
      */
-    public static String getPortUrl(WObject wObject, String funTied)
+    public static String getPortUrl(WObject wObject, String funTied, boolean http2Https)
     {
-        return getPortUrl(wObject, null, null, null, funTied);
+        return getPortUrl(wObject, null, null, null, funTied, http2Https);
     }
 
     /**
@@ -103,13 +103,20 @@ public final class WServletRequest extends PRequest
      * @param contextName 若为null，则使用当前的。
      * @param classTied   若为null，则使用当前的。
      * @param funTied     若为null，则使用当前的。
+     * @param http2Https  是否http变成成https
      * @return
      */
-    public static String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied)
+    public static String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied,
+            boolean http2Https)
     {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getHostFromURL(request.getRequestURL()));
+        String host = getHostFromURL(request.getRequestURL());
+        if (http2Https && host.startsWith("http:"))
+        {
+            host = "https:" + host.substring("http:".length());
+        }
+        stringBuilder.append(host);
         stringBuilder.append(WMainServlet.getUriPrefix(request));
         if (pname != null)
         {
