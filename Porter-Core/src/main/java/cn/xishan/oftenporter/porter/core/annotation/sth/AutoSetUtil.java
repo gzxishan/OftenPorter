@@ -252,7 +252,11 @@ public class AutoSetUtil
         } else if (typeName.equals(PorterData.class.getName()))
         {
             sysset = porterData;
-        } else if (typeName.equals(Delivery.class.getName()))
+        }
+        else if(typeName.equals(Logger.class.getName())){
+            sysset = LogUtil.logger(object.getClass());
+        }
+        else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();
             Delivery delivery;
