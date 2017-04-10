@@ -82,7 +82,7 @@ public class FXApplicationTest
             Prefix prefix = Prefix.buildPrefix("C0", HelloPorter.class,false);
             UIProvider uiProvider = new FXUIProvider(prefix,
                     root);
-            uiBinderManager.bind(uiProvider);
+            uiBinderManager.bind(null,uiProvider);
             BinderData binderData = new BinderData();
             List<BinderSet> list = binderData
                     .addSetTask(new BinderSet("ok", "name", AttrEnum.ATTR_VALUE_CHANGE_LISTENER,

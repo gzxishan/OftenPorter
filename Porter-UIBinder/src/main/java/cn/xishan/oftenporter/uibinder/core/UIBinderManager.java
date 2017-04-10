@@ -3,7 +3,9 @@ package cn.xishan.oftenporter.uibinder.core;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.*;
 
@@ -96,8 +98,15 @@ public class UIBinderManager implements BinderDataSender
      *
      * @param uiProvider
      */
-    public synchronized void bind(UIProvider uiProvider)
+    public synchronized void bind(String pName,UIProvider uiProvider)
     {
+        CommonMain commonMain = getCommonMain();
+        if(WPTool.notNullAndEmpty(pName)){
+            commonMain=PorterMain.getMain(pName);
+            if(commonMain==null){
+                throw new RuntimeException(CommonMain.class.getSimpleName()+" with pName '"+pName+"' not found");
+            }
+        }
         if (uiProvider.getErrListener() == null)
         {
             uiProvider.setErrListener(errListener);
