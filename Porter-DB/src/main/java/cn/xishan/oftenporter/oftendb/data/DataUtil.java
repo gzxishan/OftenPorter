@@ -171,9 +171,9 @@ public class DataUtil
     /**
      * 若结果码为成功，且结果为JSONObject(不为null)时返回true.
      */
-    public static boolean isResultJSON(JResponse jResponse)
+    public static boolean resultJSON(JResponse jResponse)
     {
-        if (jResponse.getCode() == ResultCode.SUCCESS)
+        if (jResponse.isSuccess())
         {
             Object object = jResponse.getResult();
             if (object != null && (object instanceof JSONObject))
@@ -193,7 +193,7 @@ public class DataUtil
      */
     public static int checkResult(JResponse jResponse)
     {
-        if (jResponse.getCode() == ResultCode.SUCCESS)
+        if (jResponse.isSuccess())
         {
             if (jResponse.getResult() == null)
             {
@@ -209,7 +209,7 @@ public class DataUtil
     }
 
     /**
-     * 当且仅当结果码为成功，且结果为true时返回真；若结果码为成功而结果不为Boolean型，会出现异常。
+     * 当且仅当结果码为成功，且结果为true时返回真；否则返回false。
      *
      * @param jResponse JSONResponse
      * @return 判断结果
@@ -217,9 +217,41 @@ public class DataUtil
     public static boolean resultTrue(JResponse jResponse)
     {
         Object rs = jResponse.getResult();
-        if (jResponse.getCode() == ResultCode.SUCCESS && (Boolean) rs)
+
+        if (jResponse.isSuccess() && rs != null && (rs instanceof Boolean) && (Boolean) rs)
         {
             return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * 当且仅当结果码为成功、且结果为int或long、且值大于0返回true
+     *
+     * @param jResponse
+     * @return
+     */
+    public static boolean resultIntOrLongGtZero(JResponse jResponse)
+    {
+        if (jResponse.isNotSuccess())
+        {
+            return false;
+        }
+        Object rs = jResponse.getResult();
+        if (rs == null)
+        {
+            return false;
+        }
+        if (rs instanceof Integer)
+        {
+            int n = (int) rs;
+            return n > 0;
+        } else if (rs instanceof Long)
+        {
+            long n = (long) rs;
+            return n > 0;
         } else
         {
             return false;
@@ -232,9 +264,9 @@ public class DataUtil
      * @param jResponse JSONResponse
      * @return 判断结果
      */
-    public static boolean notNull(JResponse jResponse)
+    public static boolean resultNotNull(JResponse jResponse)
     {
-        if (jResponse.getCode() == ResultCode.SUCCESS && jResponse.getResult() != null)
+        if (jResponse.isSuccess() && jResponse.getResult() != null)
         {
             return true;
         } else
@@ -243,39 +275,6 @@ public class DataUtil
         }
     }
 
-    /**
-     * 当且仅当结果码不为成功时返回true
-     *
-     * @param jResponse JSONResponse
-     * @return 判断结果
-     */
-    public static boolean notSuccess(JResponse jResponse)
-    {
-        if (jResponse.getCode() != ResultCode.SUCCESS)
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * 当且仅当结果码为成功时返回true
-     *
-     * @param jResponse JSONResponse
-     * @return 判断结果
-     */
-    public static boolean success(JResponse jResponse)
-    {
-        if (jResponse.getCode() == ResultCode.SUCCESS)
-        {
-            return true;
-        } else
-        {
-            return false;
-        }
-    }
 
     /**
      * 通过扫描@key注解，结合KeysSelection，得到选择的字段。
