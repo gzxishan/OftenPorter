@@ -62,7 +62,7 @@ public class SqlQuerySettings extends QuerySettings
         for (int i = 0; i < list.size(); i++)
         {
             Temp temp = list.get(i);
-            sbuilder.append('`').append(temp.name).append('`');
+            SqlCondition.appendName(temp.name,sbuilder);
             if (temp.n == 1)
             {
                 sbuilder.append(" ASC");
