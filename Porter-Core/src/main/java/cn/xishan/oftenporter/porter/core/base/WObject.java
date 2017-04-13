@@ -224,4 +224,15 @@ public abstract class WObject
         }
     }
 
+    public void pushClassTied(String classTied)
+    {
+        url().push(new UrlDecoder.TiedValue(classTied, null));
+    }
+
+    public String popClassTied()
+    {
+        UrlDecoder.TiedValue tiedValue = url().pop();
+        return tiedValue == null ? null : tiedValue.classTied;
+    }
+
 }
