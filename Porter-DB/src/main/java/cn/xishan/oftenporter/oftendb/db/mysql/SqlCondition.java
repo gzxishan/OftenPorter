@@ -212,7 +212,7 @@ public class SqlCondition extends Condition
         return operator;
     }
 
-    private void checkName(String name)
+    private static void checkName(String name)
     {
         if (WPTool.isEmpty(name) || name.indexOf('{') >= 0 || name.indexOf('}') >= 0)
         {
@@ -342,7 +342,7 @@ public class SqlCondition extends Condition
         }
     }
 
-    private void appendName(Object name,StringBuilder builder){
+    static void appendName(Object name,StringBuilder builder){
         String nameStr= (String) name;
         checkName(nameStr);
         int dotIndex = nameStr.lastIndexOf('.');
