@@ -92,6 +92,17 @@ public @interface AutoSet
         boolean waitingForSet() default true;
     }
 
+    /**
+     * 用于传递混入对象,只包含声明的变量。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD})
+    @Documented
+    @interface AutoSetThatOfMixin
+    {
+
+    }
+
     enum Range
     {
         /**

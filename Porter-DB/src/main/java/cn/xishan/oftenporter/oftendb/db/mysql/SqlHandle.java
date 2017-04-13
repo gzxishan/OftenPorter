@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 
 public class SqlHandle implements DBHandle
@@ -109,6 +110,13 @@ public class SqlHandle implements DBHandle
 
     private static void logArg(Object value, StringBuilder builder)
     {
+        value = value != null && (value instanceof InputStream) ? value.getClass() : value;
+        String str = String.valueOf(value);
+        if (str.length() > 256)
+        {
+            str = str.substring(0, 256) + "...";
+            value = str;
+        }
         builder.append(value).append("(").append(value == null ? null : value.getClass().getSimpleName()).append("),");
     }
 

@@ -81,7 +81,7 @@ public class SthDeal
         porter.clazz = clazz;
         porter.object = object;
         porter.portIn = portIn;
-        //自动设置
+        //自动设置,会确保接口对象已经实例化
         porter.doAutoSet(autoSetMixinMap);
         if (porter.object instanceof IPorter)
         {
@@ -112,7 +112,7 @@ public class SthDeal
         //先处理混入接口，这样当前接口类的接口方法优先
         Class<?>[] mixins = SthUtil.getMixin(clazz);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
-        List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
+        //List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
         for (Class c : mixins)
         {
             if (!PortUtil.isPortClass(c))
@@ -133,6 +133,7 @@ public class SthDeal
             }
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
+            autoSetUtil.doAutoSetThatOfMixin(porter.getObj(),mixinPorter.getObj());
         }
         if (mixinList.size() > 0)
         {

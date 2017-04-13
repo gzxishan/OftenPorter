@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -95,6 +96,33 @@ public class AutoSetUtil
         doAutoSet(object, autoSetMixinMap);
     }
 
+    public void doAutoSetThatOfMixin(Object obj1, Object obj2) throws FatalInitException
+    {
+        try
+        {
+            _doAutoSetThatOfMixin(obj1, obj2);
+            _doAutoSetThatOfMixin(obj2, obj1);
+        } catch (Exception e)
+        {
+            throw new FatalInitException(e);
+        }
+    }
+
+    private void _doAutoSetThatOfMixin(Object obj1, Object objectForSet) throws Exception
+    {
+        Field[] fields = obj1.getClass().getDeclaredFields();
+        for (Field field : fields)
+        {
+            if (field.isAnnotationPresent(AutoSet.AutoSetThatOfMixin.class) && WPTool
+                    .isAssignable(objectForSet, field.getType()))
+            {
+                field.setAccessible(true);
+                field.set(obj1, objectForSet);
+                LOGGER.debug("AutoSet.AutoSetThatOfMixin:[{}] with [{}]",field,objectForSet);
+            }
+        }
+    }
+
     private void doAutoSet(Object object, Map<String, Object> autoSetMixinMap)
     {
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
@@ -112,9 +140,10 @@ public class AutoSetUtil
                 Object value = null;
                 String autoSetMixinName = null;
                 boolean needPut = false;
+                AutoSetMixin autoSetMixin=null;
                 if (autoSetMixinMap != null && f.isAnnotationPresent(AutoSetMixin.class))
                 {
-                    AutoSetMixin autoSetMixin = f.getAnnotation(AutoSetMixin.class);
+                     autoSetMixin = f.getAnnotation(AutoSetMixin.class);
                     autoSetMixinName = "".equals(autoSetMixin.value()) ? (autoSetMixin.classValue()
                             .equals(AutoSetMixin.class) ? f.getType().getName() : autoSetMixin.classValue()
                             .getName()) : autoSetMixin.value();
@@ -252,11 +281,10 @@ public class AutoSetUtil
         } else if (typeName.equals(PorterData.class.getName()))
         {
             sysset = porterData;
-        }
-        else if(typeName.equals(Logger.class.getName())){
+        } else if (typeName.equals(Logger.class.getName()))
+        {
             sysset = LogUtil.logger(object.getClass());
-        }
-        else if (typeName.equals(Delivery.class.getName()))
+        } else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();
             Delivery delivery;
