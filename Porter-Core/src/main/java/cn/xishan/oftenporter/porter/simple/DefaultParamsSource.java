@@ -25,6 +25,11 @@ public class DefaultParamsSource implements ParamSource
         this.request = request;
     }
 
+    public DefaultParamsSource(Map<String, Object> map, WRequest request)
+    {
+        this(DefaultUrlDecoder.newResult(map, null, null, null), request);
+    }
+
     @Override
     public <T> T getParam(String name)
     {

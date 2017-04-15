@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -131,7 +134,8 @@ class TypeUtil
                 contentValues.put(name, (Boolean) value);
             }
         }));
-        list.add(new Type<>(byte[].class, new PutDeal<ContentValues>()
+
+        list.add(new Type<>(File.class, new PutDeal<ContentValues>()
         {
             @Override
             public void put(String name, Object value, ContentValues contentValues)

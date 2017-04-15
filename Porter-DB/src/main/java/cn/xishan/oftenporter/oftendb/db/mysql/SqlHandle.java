@@ -10,9 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 
 public class SqlHandle implements DBHandle
@@ -156,7 +154,7 @@ public class SqlHandle implements DBHandle
             for (int i = 0; i < args.length; i++)
             {
                 Object obj = args[i];
-                ps.setObject(i + 1, obj);
+                setObject(ps, i + 1, obj);
             }
             int n = ps.executeUpdate();
             return n;
@@ -225,7 +223,7 @@ public class SqlHandle implements DBHandle
             for (int i = 0; i < args.length; i++)
             {
                 Object obj = args[i];
-                ps.setObject(i + 1, obj);
+                setObject(ps, i + 1, obj);
             }
             ResultSet rs = ps.executeQuery();
 
@@ -310,7 +308,7 @@ public class SqlHandle implements DBHandle
             for (int i = 0; i < args.length; i++)
             {
                 Object obj = args[i];
-                ps.setObject(i + 1, obj);
+                setObject(ps, i + 1, obj);
             }
             ResultSet rs = ps.executeQuery();
 
@@ -391,7 +389,7 @@ public class SqlHandle implements DBHandle
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
             {
-                ps.setObject(i + 1, args[i]);
+                setObject(ps, i + 1, args[i]);
             }
             ResultSet rs = ps.executeQuery();
 
@@ -399,7 +397,7 @@ public class SqlHandle implements DBHandle
             {
                 list.add(rs.getObject(key));
             }
-        } catch (SQLException e)
+        } catch (Exception e)
         {
             throw new DBException(e);
         } finally
@@ -447,7 +445,7 @@ public class SqlHandle implements DBHandle
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
             {
-                ps.setObject(i + 2, args[i]);
+                setObject(ps, i + 2, args[i]);
             }
             ps.executeUpdate();
             return true;
@@ -479,7 +477,7 @@ public class SqlHandle implements DBHandle
             ps = conn.prepareStatement(ws.sql);
             for (int i = 0; i < ws.args.length; i++)
             {
-                ps.setObject(i + 1, ws.args[i]);
+                setObject(ps, i + 1, ws.args[i]);
             }
 
             ResultSet rs = ps.executeQuery();
@@ -671,9 +669,16 @@ public class SqlHandle implements DBHandle
         return n;
     }
 
-    private void setObject(PreparedStatement ps, int column, Object object) throws SQLException
+    private void setObject(PreparedStatement ps, int column, Object object) throws SQLException, FileNotFoundException
     {
-        ps.setObject(column, object);
+        if (object != null && object instanceof File)
+        {
+            File file = (File) object;
+            ps.setBlob(column, new FileInputStream(file), file.length());
+        } else
+        {
+            ps.setObject(column, object);
+        }
     }
 
     private int[] addPS(Connection conn, boolean isTransaction, String tableName,
@@ -766,7 +771,7 @@ public class SqlHandle implements DBHandle
             Object[] args = whereSql.args;
             for (int i = 0; i < args.length; i++)
             {
-                ps.setObject(i + 1, args[i]);
+                setObject(ps, i + 1, args[i]);
             }
 
             ResultSet rs = ps.executeQuery();
