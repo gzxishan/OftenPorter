@@ -38,11 +38,26 @@ public class WMainServlet extends HttpServlet implements CommonMain
     private PorterMain porterMain;
     private String pname, urlEncoding;
     private Boolean responseWhenException;
-    //private String urlPatternPrefix;
+    protected boolean supportMultiPart = false;
+    protected MultiPartOption multiPartOption = null;
 
     public WMainServlet()
     {
 
+    }
+
+    /**
+     * 会添加POST与PUT的{@linkplain ParamSourceHandle},用于处理数据。
+     *
+     * @param multiPartOption
+     */
+    public WMainServlet(MultiPartOption multiPartOption)
+    {
+        this.multiPartOption = multiPartOption;
+        if (multiPartOption != null)
+        {
+            supportMultiPart = true;
+        }
     }
 
     public WMainServlet(String pname, boolean responseWhenException)
@@ -213,9 +228,6 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
         }
 
-//        if (urlPatternPrefix == null) {
-//            urlPatternPrefix = getInitParameter("urlPatternPrefix");
-//        }
 
         PBridge bridge = (request, callback) ->
         {
@@ -309,6 +321,11 @@ public class WMainServlet extends HttpServlet implements CommonMain
     @Override
     public void startOne(PorterConf porterConf)
     {
+        if (supportMultiPart)
+        {
+            porterConf.getParamSourceHandleManager()
+                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption), PortMethod.POST, PortMethod.PUT);
+        }
         porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
     }
 
