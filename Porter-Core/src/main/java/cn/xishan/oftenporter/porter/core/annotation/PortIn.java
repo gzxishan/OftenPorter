@@ -29,24 +29,23 @@ public @interface PortIn
     @Documented
     @interface After
     {
+        /**
+         * 默认为当前的context。
+         *
+         * @return
+         */
         String context() default "";
 
         /**
-         * 应只到类和函数,如/User/login
+         * 默认为当前的。
          *
          * @return
          */
-        String path() default "";
+        String classTied() default "";
 
+        String funTied();
 
-        /**
-         * 优先于{@linkplain #path()}。
-         *
-         * @return
-         */
-        Class<?> porter() default Object.class;
-
-        PortMethod method()default PortMethod.GET;
+        PortMethod method() default PortMethod.GET;
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -61,7 +60,7 @@ public @interface PortIn
     }
 
     /**
-     * 用于接口类或接口函数。
+     * 用于接口类或接口函数。在对应的函数检测{@linkplain DuringType#BEFORE_METHOD}之前。
      * <br/>
      * 调用顺序：1)类Before---当前方法Before---当前方法---方法After---类After；2)同类型的按照顺序依次调用.
      */
@@ -71,24 +70,23 @@ public @interface PortIn
     @Documented
     @interface Before
     {
+        /**
+         * 默认为当前的context。
+         *
+         * @return
+         */
         String context() default "";
 
         /**
-         * 应只到类和函数,如/User/login
+         * 默认为当前的。
          *
          * @return
          */
-        String path() default "";
+        String classTied() default "";
 
+        String funTied();
 
-        /**
-         * 优先于{@linkplain #path()}。
-         *
-         * @return
-         */
-        Class<?> porter() default Object.class;
-
-        PortMethod method()default PortMethod.GET;
+        PortMethod method() default PortMethod.GET;
 
     }
 

@@ -192,7 +192,7 @@ public abstract class WObject
         UrlDecoder.Result result = url();
         builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
         builder.append(funTied == null ? "" : funTied);
-        PRequest request = PRequest.withNewPath(builder.toString(), method, getRequest(), true);
+        PRequest request = PRequest.withNewPath(builder.toString(), method, getRequest(), true,false);
         request.addParamAll(appValues);
         if (throwWCallException)
         {
