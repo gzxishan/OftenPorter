@@ -48,7 +48,7 @@ public class HMain extends LocalMain
                         {
                             if (callback != null)
                             {
-                                callback.onResponse(new PResponseImpl(jResponse));
+                                callback.onResponse(new PResponseImpl(jResponse.isSuccess(),jResponse));
                             }
                         });
             } catch (Exception e)

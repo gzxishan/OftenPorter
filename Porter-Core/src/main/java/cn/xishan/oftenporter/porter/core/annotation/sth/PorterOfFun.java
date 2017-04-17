@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.deal._PortAfter;
+import cn.xishan.oftenporter.porter.core.annotation.deal._PortBefore;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 
@@ -17,6 +19,20 @@ public abstract class PorterOfFun implements ObjectGetter
     _PortIn portIn;
     InObj inObj;
     Porter porter;
+
+
+    _PortBefore[] portBefores;
+    _PortAfter[] portAfters;
+
+    public _PortBefore[] getPortBefores()
+    {
+        return portBefores;
+    }
+
+    public _PortAfter[] getPortAfters()
+    {
+        return portAfters;
+    }
 
    public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
     {

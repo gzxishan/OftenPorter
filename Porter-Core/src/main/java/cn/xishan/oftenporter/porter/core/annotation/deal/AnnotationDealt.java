@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
@@ -38,6 +40,99 @@ public final class AnnotationDealt
     {
         return new AnnotationDealt(enableDefaultValue);
     }
+
+    public List<_PortAfter> portAfters(Class<?> clazz, String currentContext)
+    {
+        List<_PortAfter> list = new ArrayList<>();
+        if (clazz.isAnnotationPresent(PortIn.After.class))
+        {
+            PortIn.After after = clazz.getAnnotation(PortIn.After.class);
+            list.add(portAfter(after, currentContext));
+        }
+        if (clazz.isAnnotationPresent(PortIn.Filter.class))
+        {
+            PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
+            for (PortIn.After after : filter.after())
+            {
+                list.add(portAfter(after, currentContext));
+            }
+        }
+        return list;
+    }
+
+    public List<_PortAfter> portAfters(Method method, String currentContext)
+    {
+        List<_PortAfter> list = new ArrayList<>();
+        if (method.isAnnotationPresent(PortIn.After.class))
+        {
+            PortIn.After after = method.getAnnotation(PortIn.After.class);
+            list.add(portAfter(after, currentContext));
+        }
+        if (method.isAnnotationPresent(PortIn.Filter.class))
+        {
+            PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
+            for (PortIn.After after : filter.after())
+            {
+                list.add(portAfter(after, currentContext));
+            }
+        }
+        return list;
+    }
+
+    private _PortAfter portAfter(PortIn.After after, String currentContext)
+    {
+        String context = after.context().equals("") ? currentContext : after.context();
+        _PortAfter portAfter = new _PortAfter(after.method());
+        portAfter.pathWithContext = "/" + context + after.path();
+        return portAfter;
+    }
+
+    public List<_PortBefore> portBefores(Class<?> clazz, String currentContext)
+    {
+        List<_PortBefore> list = new ArrayList<>();
+        if (clazz.isAnnotationPresent(PortIn.Before.class))
+        {
+            PortIn.Before before = clazz.getAnnotation(PortIn.Before.class);
+            list.add(portBefore(before, currentContext));
+        }
+        if (clazz.isAnnotationPresent(PortIn.Filter.class))
+        {
+            PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
+            for (PortIn.Before before : filter.before())
+            {
+                list.add(portBefore(before, currentContext));
+            }
+        }
+        return list;
+    }
+
+    public List<_PortBefore> portBefores(Method method, String currentContext)
+    {
+        List<_PortBefore> list = new ArrayList<>();
+        if (method.isAnnotationPresent(PortIn.Before.class))
+        {
+            PortIn.Before before = method.getAnnotation(PortIn.Before.class);
+            list.add(portBefore(before, currentContext));
+        }
+        if (method.isAnnotationPresent(PortIn.Filter.class))
+        {
+            PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
+            for (PortIn.Before before : filter.before())
+            {
+                list.add(portBefore(before, currentContext));
+            }
+        }
+        return list;
+    }
+
+    private _PortBefore portBefore(PortIn.Before before, String currentContext)
+    {
+        String context = before.context().equals("") ? currentContext : before.context();
+        _PortBefore portBefore = new _PortBefore(before.method());
+        portBefore.pathWithContext = "/" + context + before.path();
+        return portBefore;
+    }
+
 
     public _AutoSet autoSet(Field field)
     {
@@ -222,7 +317,7 @@ public final class AnnotationDealt
         {
             return null;
         }
-        _PortIn _portIn = new _PortIn();
+        _PortIn _portIn = new _PortIn(portIn.portFunType());
         _portIn.tiedName = PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
         _portIn.method = portIn.method();
@@ -250,7 +345,7 @@ public final class AnnotationDealt
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-            _portIn = new _PortIn();
+            _portIn = new _PortIn(portIn.portFunType());
             _portIn.setTiedType(TiedType.type(class_PortIn.getTiedType(), portIn.tiedType()));
             _portIn.tiedName = PortUtil
                     .tied(portIn, method, _portIn.getTiedType() == TiedType.REST || enableDefaultValue);

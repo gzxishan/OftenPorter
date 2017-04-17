@@ -14,12 +14,17 @@ public class LocalResponse implements WResponse, CloseListener.CloseHandle
     protected Object object;
     private PCallback callback;
     private CloseListener closeListener;
-
-    private static final LResponse L_RESPONSE = new LResponse(null);
+    private boolean isErr = false;
 
     public LocalResponse(PCallback callback)
     {
         this.callback = callback;
+    }
+
+    @Override
+    public void toErr()
+    {
+        isErr = true;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class LocalResponse implements WResponse, CloseListener.CloseHandle
     {
         if (callback != null)
         {
-            callback.onResponse(writeObject == null ? L_RESPONSE : new LResponse(writeObject));
+            callback.onResponse(new LResponse(isErr, writeObject));
         }
     }
 }

@@ -8,8 +8,8 @@ import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
 class LResponse extends PResponse
 {
 
-    protected LResponse(Object object)
+    protected LResponse(boolean isOk, Object object)
     {
-        super(object);
+        super(isOk, object);
     }
 }

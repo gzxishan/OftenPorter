@@ -33,8 +33,8 @@ public class DefaultPLinker implements PLinker {
 
     private static class Response extends PResponse {
 
-        protected Response(Object object) {
-            super(object);
+        protected Response(boolean isOk,Object object) {
+            super(isOk,object);
         }
     }
 
@@ -86,7 +86,7 @@ public class DefaultPLinker implements PLinker {
                         }
                         JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
                         jResponse.setDescription(":" + (result == null ? "" : result.pName()) + request.getPath());
-                        PResponse response = new Response(jResponse);
+                        PResponse response = new Response(false,jResponse);
                         callback.onResponse(response);
                     }
                 } else {

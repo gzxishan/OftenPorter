@@ -11,6 +11,8 @@ import java.io.IOException;
  */
 public interface WResponse extends Closeable
 {
+    void toErr();
+
     void write(@NotNull Object object)throws IOException;
 
     void close() throws IOException;

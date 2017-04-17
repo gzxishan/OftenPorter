@@ -223,6 +223,7 @@ public class PortExecutor
 
     private void exNotFoundFun(WResponse response, UrlDecoder.Result result, boolean responseWhenException)
     {
+        response.toErr();
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
@@ -241,6 +242,7 @@ public class PortExecutor
 
     private void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException)
     {
+        response.toErr();
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
@@ -539,46 +541,108 @@ public class PortExecutor
     private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
             InnerContextBridge innerContextBridge, UrlDecoder.Result result)
     {
+        dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
+                PortBeforeAfterDealt.DoState.DoBefore, true, null);
+    }
+
+
+    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
+            InnerContextBridge innerContextBridge, UrlDecoder.Result result, PortBeforeAfterDealt.DoState doState,
+            boolean isOk, Object returnObject)
+    {
         Method javaMethod = funPort.getMethod();
         _PortIn funPIn = funPort.getMethodPortIn();
         try
         {
-            Object rs;
-            if (funPort.getArgCount() == 0)
+            if (!isOk)
             {
-                rs = javaMethod.invoke(funPort.getObject());
+                wObject.getResponse().toErr();
+                responseObject(wObject, returnObject, true);
+                return;
+            }
+            PortBeforeAfterDealt portBeforeAfterDealt = null;
+            if (doState == PortBeforeAfterDealt.DoState.DoBefore && funPort.getPortBefores().length > 0)
+            {
+                portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
+                portBeforeAfterDealt.doBefore((isOked, object) ->
+                {
+                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
+                            isOked ? PortBeforeAfterDealt.DoState.DoInvoke : null, isOked,
+                            object);
+                });
+                return;
             } else
             {
-                rs = javaMethod.invoke(funPort.getObject(), wObject);
+                doState = PortBeforeAfterDealt.DoState.DoInvoke;
             }
 
-            if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
-                    .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
+            if (doState == PortBeforeAfterDealt.DoState.DoInvoke)
             {
-                dealtOfResponse(wObject, funPort.getPortOut().getOutType(), rs);
+                if (funPort.getArgCount() == 0)
+                {
+                    returnObject = javaMethod.invoke(funPort.getObject());
+                } else
+                {
+                    returnObject = javaMethod.invoke(funPort.getObject(), wObject);
+                }
+                doState = PortBeforeAfterDealt.DoState.DoMethodCheck;
+            }
+
+            if (doState == PortBeforeAfterDealt.DoState.DoMethodCheck)
+            {
+                if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
+                        .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
+                {
+                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
+                            PortBeforeAfterDealt.DoState.DoAfter, true, returnObject);
+                } else
+                {
+                    Object finalReturnObject = returnObject;
+                    CheckHandle checkHandle = new CheckHandle(finalReturnObject, result, funPort.getObject(),
+                            funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
+                        {
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
+                                        PortBeforeAfterDealt.DoState.DoAfter, true, finalReturnObject);
+                            }
+                        }
+                    };
+                    PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                            DuringType.AFTER_METHOD, checkHandle,
+                            funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                            funPIn.getChecks());
+                    portExecutorCheckers.check();
+                }
+                return;
+            }
+
+            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort.getPortAfters().length > 0)
+            {
+                portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
+                portBeforeAfterDealt.doAfter((isOked, object) ->
+                {
+                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
+                            isOked ? PortBeforeAfterDealt.DoState.DoResponse : null, isOked, object);
+                });
+                return;
             } else
             {
-                CheckHandle checkHandle = new CheckHandle(rs, result, funPort.getObject(), funPort.getMethod(),
-                        funPort.getPortOut().getOutType())
-                {
-                    @Override
-                    public void go(Object failedObject)
-                    {
-                        if (failedObject != null)
-                        {
-                            exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfResponse(wObject, funPort.getPortOut().getOutType(), rs);
-                        }
-                    }
-                };
-                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
-                        DuringType.AFTER_METHOD, checkHandle,
-                        funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
-                        funPIn.getChecks());
-                portExecutorCheckers.check();
+                doState = PortBeforeAfterDealt.DoState.DoResponse;
             }
+
+            if (doState == PortBeforeAfterDealt.DoState.DoResponse)
+            {
+                dealtOfResponse(wObject, funPort.getPortOut().getOutType(), returnObject);
+            }
+
         } catch (Exception e)
         {
             Throwable ex = getCause(e);
@@ -679,6 +743,7 @@ public class PortExecutor
             {
                 if (LOGGER.isDebugEnabled() && object instanceof JResponse && ((JResponse) object).isNotSuccess())
                 {
+                    wObject.getResponse().toErr();
                     LOGGER.debug("{}", object);
                 } else if (LOGGER.isInfoEnabled())
                 {
@@ -687,6 +752,7 @@ public class PortExecutor
                 wObject.getResponse().write(object);
             } catch (IOException e)
             {
+                wObject.getResponse().toErr();
                 Throwable ex = getCause(e);
                 LOGGER.warn(ex.getMessage(), ex);
             }
@@ -709,6 +775,7 @@ public class PortExecutor
 
     private void ex(@MayNull WObject wObject, WResponse response, Throwable throwable, boolean responseWhenException)
     {
+        response.toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isWarnEnabled())
         {
@@ -733,6 +800,7 @@ public class PortExecutor
 
     private void exCheckPassable(WObject wObject, Object obj, boolean responseWhenException)
     {
+        wObject.getResponse().toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isDebugEnabled())
         {
