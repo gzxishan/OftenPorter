@@ -43,14 +43,40 @@ public class SthDeal
         return portStart != null || portDestroy != null;
     }
 
-
-    public Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil) throws FatalInitException
+    private void dealPortAfterBefore(Porter porter, String contextName, AutoSetUtil autoSetUtil)
     {
-        return porter(clazz, object, autoSetUtil, false, null, null);
+        List<_PortBefore> portBeforesAll = autoSetUtil.getInnerContextBridge().annotationDealt
+                .portBefores(porter.getClazz(), contextName);
+        List<_PortAfter> portAftersAll = autoSetUtil.getInnerContextBridge().annotationDealt
+                .portAfters(porter.getClazz(), contextName);
+        for (PorterOfFun porterOfFun : porter.getFuns().values())
+        {
+            Method method = porterOfFun.method;
+            List<_PortBefore> portBefores = autoSetUtil.getInnerContextBridge().annotationDealt
+                    .portBefores(method, contextName);
+            List<_PortAfter> portAfters = autoSetUtil.getInnerContextBridge().annotationDealt
+                    .portAfters(method, contextName);
+
+            for (int i = portBeforesAll.size()-1; i >=0; i--)
+            {
+                portBefores.add(0,portBeforesAll.get(i));
+            }
+            portAfters.addAll(portAfters);
+
+            porterOfFun.portBefores = portBefores.toArray(new _PortBefore[0]);
+            porterOfFun.portAfters = portAfters.toArray(new _PortAfter[0]);
+        }
     }
 
 
-    private Porter porter(Class<?> clazz, Object object, AutoSetUtil autoSetUtil,
+    public Porter porter(Class<?> clazz, Object object, String contextName,
+            AutoSetUtil autoSetUtil) throws FatalInitException
+    {
+        return porter(clazz, object, contextName, autoSetUtil, false, null, null);
+    }
+
+
+    private Porter porter(Class<?> clazz, Object object, String contextName, AutoSetUtil autoSetUtil,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
             Map<String, Object> autoSetMixinMap) throws FatalInitException
 
@@ -94,7 +120,8 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParser指定的类的Parser和Parser.parse的处理
-        inObjDeal.sthUtil.bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
+        inObjDeal.sthUtil
+                .bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
         //对Parser和Parser.parse的处理
         inObjDeal.sthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
 
@@ -119,7 +146,8 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, autoSetUtil, true, wholeClassCheckPassableGetter, autoSetMixinMap);
+            Porter mixinPorter = porter(c, null, contextName, autoSetUtil, true, wholeClassCheckPassableGetter,
+                    autoSetMixinMap);
             if (mixinPorter == null)
             {
                 continue;
@@ -133,7 +161,7 @@ public class SthDeal
             }
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
-            autoSetUtil.doAutoSetThatOfMixin(porter.getObj(),mixinPorter.getObj());
+            autoSetUtil.doAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
         }
         if (mixinList.size() > 0)
         {
@@ -185,7 +213,7 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-
+        dealPortAfterBefore(porter,contextName,autoSetUtil);
         return porter;
     }
 

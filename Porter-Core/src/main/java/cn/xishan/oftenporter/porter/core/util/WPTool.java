@@ -81,6 +81,13 @@ public class WPTool
         }
     }
 
+    /**
+     * 将ts的所有元素添加到list中。
+     *
+     * @param list
+     * @param ts
+     * @param <T>
+     */
     public static <T> void addAll(List<T> list, T... ts)
     {
         for (T t : ts)

@@ -10,15 +10,15 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
  */
 class PResponseImpl extends PResponse
 {
-    protected PResponseImpl(Object object)
+    protected PResponseImpl(boolean isOk,Object object)
     {
-        super(object);
+        super(isOk,object);
     }
 
     static PResponse exception(ResultCode code, Throwable e)
     {
         JResponse jResponse = new JResponse(code);
         jResponse.setDescription(WPTool.getMessage(e));
-        return new PResponseImpl(jResponse);
+        return new PResponseImpl(false,jResponse);
     }
 }

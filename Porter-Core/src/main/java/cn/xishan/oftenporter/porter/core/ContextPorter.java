@@ -98,7 +98,7 @@ public class ContextPorter
             LOGGER.debug("may add porter:{}:{}", object.getClass(), object);
             try
             {
-                if (PortUtil.isPortClass(object.getClass())&&willSeek(object.getClass()))
+                if (PortUtil.isPortClass(object.getClass()) && willSeek(object.getClass()))
                 {
                     addPorter(object.getClass(), object, autoSetUtil, sthDeal);
                 }
@@ -175,8 +175,9 @@ public class ContextPorter
                 break;
             }
         }
-        if(!willSeek){
-            LOGGER.debug("seek canceled!![{}]",clazz);
+        if (!willSeek)
+        {
+            LOGGER.debug("seek canceled!![{}]", clazz);
         }
         return willSeek;
     }
@@ -184,7 +185,7 @@ public class ContextPorter
     private void mayAddPorter(Class<?> clazz, AutoSetUtil autoSetUtil,
             SthDeal sthDeal) throws FatalInitException, Exception
     {
-        if (PortUtil.isPortClass(clazz)&&willSeek(clazz))
+        if (PortUtil.isPortClass(clazz) && willSeek(clazz))
         {
             addPorter(clazz, null, autoSetUtil, sthDeal);
         }
@@ -208,7 +209,7 @@ public class ContextPorter
         LOGGER.debug("添加接口：");
         LOGGER.debug("\n\tat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
-        Porter porter = sthDeal.porter(clazz, objectPorter, autoSetUtil);
+        Porter porter = sthDeal.porter(clazz, objectPorter, porterConf.getContextName(), autoSetUtil);
         if (porter != null)
         {
             boolean willAdd = true;

@@ -7,10 +7,17 @@ package cn.xishan.oftenporter.porter.core.pbridge;
 public class PResponse
 {
     private Object object;
+    private boolean isOk;
 
-    protected PResponse(Object object)
+    protected PResponse(boolean isOk,Object object)
     {
+        this.isOk=isOk;
         this.object = object;
+    }
+
+    public boolean isOk()
+    {
+        return isOk;
     }
 
     public <T> T getResponse()

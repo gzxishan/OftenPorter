@@ -56,7 +56,10 @@ class MultiPartParamSourceHandle implements ParamSourceHandle
         {
             String name = fileItem.getFieldName();
             Object value;
-            if (!fileItem.isFormField() && fileItem.isInMemory())
+            if (fileItem.isFormField())
+            {
+                value = fileItem.getString();
+            } else
             {
                 File tempFile;
                 if (fileItem.isInMemory())
@@ -75,9 +78,7 @@ class MultiPartParamSourceHandle implements ParamSourceHandle
                     origin = name;
                 }
                 value = new FilePart(origin, tempFile);
-            } else
-            {
-                value = fileItem.getString();
+
             }
             map.put(name, value);
         }

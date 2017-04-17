@@ -1,9 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
-import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.TiedType;
+import cn.xishan.oftenporter.porter.core.base.*;
 
 import java.lang.annotation.*;
 
@@ -19,6 +17,81 @@ import java.lang.annotation.*;
 @Documented
 public @interface PortIn
 {
+
+    /**
+     * 用于接口类或接口函数。处于之前的返回值可以是{@linkplain PortFunReturn PortFunReturn}。当注解的函数被抛出异常后则后面的不会被执行。
+     * <br/>
+     * 调用顺序：1)类Before---当前方法Before---当前方法---方法After---类After；2)同类型的按照顺序依次调用.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface After
+    {
+        String context() default "";
+
+        /**
+         * 应只到类和函数,如/User/login
+         *
+         * @return
+         */
+        String path() default "";
+
+
+        /**
+         * 优先于{@linkplain #path()}。
+         *
+         * @return
+         */
+        Class<?> porter() default Object.class;
+
+        PortMethod method()default PortMethod.GET;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface Filter
+    {
+        Before[] before() default {};
+
+        After[] after() default {};
+    }
+
+    /**
+     * 用于接口类或接口函数。
+     * <br/>
+     * 调用顺序：1)类Before---当前方法Before---当前方法---方法After---类After；2)同类型的按照顺序依次调用.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface Before
+    {
+        String context() default "";
+
+        /**
+         * 应只到类和函数,如/User/login
+         *
+         * @return
+         */
+        String path() default "";
+
+
+        /**
+         * 优先于{@linkplain #path()}。
+         *
+         * @return
+         */
+        Class<?> porter() default Object.class;
+
+        PortMethod method()default PortMethod.GET;
+
+    }
+
 
     /**
      * 加在接口类上，表示只用于混入。
@@ -135,5 +208,7 @@ public @interface PortIn
      * </pre>
      */
     TiedType tiedType() default TiedType.Default;
+
+    PortFunType portFunType() default PortFunType.DEFAULT;
 
 }

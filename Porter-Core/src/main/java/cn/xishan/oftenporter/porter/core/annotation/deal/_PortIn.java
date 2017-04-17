@@ -15,6 +15,17 @@ public final class _PortIn
     private TiedType tiedType;
     boolean ignoreTypeParser;
 
+    PortFunType portFunType;
+
+    public _PortIn(PortFunType portFunType)
+    {
+        this.portFunType = portFunType;
+    }
+
+    public PortFunType getPortFunType()
+    {
+        return portFunType;
+    }
 
     public TiedType getTiedType()
     {
