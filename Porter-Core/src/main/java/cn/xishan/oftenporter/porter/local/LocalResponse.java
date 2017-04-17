@@ -62,7 +62,7 @@ public class LocalResponse implements WResponse, CloseListener.CloseHandle
     {
         if (callback != null)
         {
-            callback.onResponse(new LResponse(isErr, writeObject));
+            callback.onResponse(new LResponse(!isErr, writeObject));
         }
     }
 }

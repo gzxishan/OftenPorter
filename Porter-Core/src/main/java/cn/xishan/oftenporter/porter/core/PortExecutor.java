@@ -209,6 +209,16 @@ public class PortExecutor
                 exNotFoundFun(response, result, innerContextBridge.responseWhenException);
                 return;
             }
+
+            if (funPort.getMethodPortIn()
+                    .getPortFunType() == PortFunType.PORT_AFTER_BEFORE && request instanceof PRequest && !((PRequest)
+                    request)
+                    .enablePorterAfterOrBefore())
+            {
+                exNotFoundClassPort(request,response,innerContextBridge.responseWhenException);
+                return;
+            }
+
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
@@ -246,7 +256,7 @@ public class PortExecutor
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
-            jResponse.setDescription("method:" + request.getMethod() + ",path:" + request.getPath());
+            jResponse.setDescription("method=" + request.getMethod().name() + ",path=" + request.getPath());
             try
             {
                 response.write(jResponse);
@@ -412,7 +422,7 @@ public class PortExecutor
         if (clazzPIn.getChecks().length == 0 && classPort.getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
         {
-            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+            doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
@@ -426,13 +436,37 @@ public class PortExecutor
                                 exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+                                doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
                             }
                         }
                     }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
             portExecutorCheckers.check();
         }
 
+    }
+
+    private void doBefore_beforeFunParamsDealt(PorterOfFun funPort, WObjectImpl wObject,
+            Context context, InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result)
+    {
+        if (funPort.getPortBefores().length > 0)
+        {
+            PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
+            portBeforeAfterDealt.doBefore((isOked, object) ->
+            {
+                if (isOked)
+                {
+                    dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+                } else
+                {
+                    responseObject(wObject, object, true);
+                }
+            });
+            return;
+        } else
+        {
+            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+        }
     }
 
     private void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
@@ -473,6 +507,7 @@ public class PortExecutor
         }
 
     }
+
 
     private void dealtOfFunParam(PorterOfFun funPort, WObjectImpl wObject,
             Context context, InnerContextBridge innerContextBridge,
@@ -542,7 +577,7 @@ public class PortExecutor
             InnerContextBridge innerContextBridge, UrlDecoder.Result result)
     {
         dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                PortBeforeAfterDealt.DoState.DoBefore, true, null);
+                PortBeforeAfterDealt.DoState.DoInvoke, true, null);
     }
 
 
@@ -560,21 +595,7 @@ public class PortExecutor
                 responseObject(wObject, returnObject, true);
                 return;
             }
-            PortBeforeAfterDealt portBeforeAfterDealt = null;
-            if (doState == PortBeforeAfterDealt.DoState.DoBefore && funPort.getPortBefores().length > 0)
-            {
-                portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
-                portBeforeAfterDealt.doBefore((isOked, object) ->
-                {
-                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                            isOked ? PortBeforeAfterDealt.DoState.DoInvoke : null, isOked,
-                            object);
-                });
-                return;
-            } else
-            {
-                doState = PortBeforeAfterDealt.DoState.DoInvoke;
-            }
+
 
             if (doState == PortBeforeAfterDealt.DoState.DoInvoke)
             {
@@ -593,8 +614,7 @@ public class PortExecutor
                 if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                         .getChecksForWholeClass().length == 0 && context.forAllCheckPassables == null)
                 {
-                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                            PortBeforeAfterDealt.DoState.DoAfter, true, returnObject);
+                    doState = PortBeforeAfterDealt.DoState.DoAfter;
                 } else
                 {
                     Object finalReturnObject = returnObject;
@@ -620,13 +640,13 @@ public class PortExecutor
                             funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
                             funPIn.getChecks());
                     portExecutorCheckers.check();
+                    return;
                 }
-                return;
             }
 
             if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort.getPortAfters().length > 0)
             {
-                portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
+                PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
                 portBeforeAfterDealt.doAfter((isOked, object) ->
                 {
                     dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,

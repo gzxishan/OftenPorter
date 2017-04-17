@@ -13,7 +13,7 @@ class PortBeforeAfterDealt
 {
 
     enum DoState{
-        DoBefore,DoInvoke,DoMethodCheck,DoAfter,DoResponse
+        DoInvoke,DoMethodCheck,DoAfter,DoResponse
     }
 
     interface Callback<T>
@@ -69,7 +69,7 @@ class PortBeforeAfterDealt
 
         _PortBefore portBefore = portBefores[index];
         PRequest request = PRequest
-                .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false);
+                .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false,true);
         wObject.delivery().currentBridge().request(request, lResponse ->
         {
             object = lResponse.getResponse();
@@ -121,7 +121,7 @@ class PortBeforeAfterDealt
 
         _PortAfter portAfter = portAfters[index];
         PRequest request = PRequest
-                .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false);
+                .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false,true);
         wObject.delivery().currentBridge().request(request, lResponse ->
         {
             object = lResponse.getResponse();

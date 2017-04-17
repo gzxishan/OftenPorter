@@ -43,25 +43,26 @@ public class SthDeal
         return portStart != null || portDestroy != null;
     }
 
-    private void dealPortAfterBefore(Porter porter, String contextName, AutoSetUtil autoSetUtil)
+    private void dealPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
+            AutoSetUtil autoSetUtil)
     {
         List<_PortBefore> portBeforesAll = autoSetUtil.getInnerContextBridge().annotationDealt
-                .portBefores(porter.getClazz(), contextName);
+                .portBefores(porter.getClazz(), currentContextName, currentClassTied);
         List<_PortAfter> portAftersAll = autoSetUtil.getInnerContextBridge().annotationDealt
-                .portAfters(porter.getClazz(), contextName);
+                .portAfters(porter.getClazz(), currentContextName, currentClassTied);
         for (PorterOfFun porterOfFun : porter.getFuns().values())
         {
             Method method = porterOfFun.method;
             List<_PortBefore> portBefores = autoSetUtil.getInnerContextBridge().annotationDealt
-                    .portBefores(method, contextName);
+                    .portBefores(method, currentContextName, currentClassTied);
             List<_PortAfter> portAfters = autoSetUtil.getInnerContextBridge().annotationDealt
-                    .portAfters(method, contextName);
+                    .portAfters(method, currentContextName, currentClassTied);
 
-            for (int i = portBeforesAll.size()-1; i >=0; i--)
+            for (int i = portBeforesAll.size() - 1; i >= 0; i--)
             {
-                portBefores.add(0,portBeforesAll.get(i));
+                portBefores.add(0, portBeforesAll.get(i));
             }
-            portAfters.addAll(portAfters);
+            portAfters.addAll(portAftersAll);
 
             porterOfFun.portBefores = portBefores.toArray(new _PortBefore[0]);
             porterOfFun.portAfters = portAfters.toArray(new _PortAfter[0]);
@@ -69,14 +70,15 @@ public class SthDeal
     }
 
 
-    public Porter porter(Class<?> clazz, Object object, String contextName,
+    public Porter porter(Class<?> clazz, Object object, String currentContextName,
             AutoSetUtil autoSetUtil) throws FatalInitException
     {
-        return porter(clazz, object, contextName, autoSetUtil, false, null, null);
+        return porter(clazz, object, currentContextName, null, autoSetUtil, false, null, null);
     }
 
 
-    private Porter porter(Class<?> clazz, Object object, String contextName, AutoSetUtil autoSetUtil,
+    private Porter porter(Class<?> clazz, Object object, String currentContextName, String currentClassTied,
+            AutoSetUtil autoSetUtil,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
             Map<String, Object> autoSetMixinMap) throws FatalInitException
 
@@ -100,6 +102,11 @@ public class SthDeal
         {
             return null;
         }
+        if (currentClassTied == null)
+        {
+            currentClassTied = portIn.getTiedName();
+        }
+
         Porter porter = new Porter(autoSetUtil, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
@@ -146,7 +153,8 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, contextName, autoSetUtil, true, wholeClassCheckPassableGetter,
+            Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetUtil, true,
+                    wholeClassCheckPassableGetter,
                     autoSetMixinMap);
             if (mixinPorter == null)
             {
@@ -213,7 +221,7 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-        dealPortAfterBefore(porter,contextName,autoSetUtil);
+        dealPortAfterBefore(porter, currentContextName, currentClassTied, autoSetUtil);
         return porter;
     }
 

@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.local.porter.User;
 import cn.xishan.oftenporter.porter.local.porter2.My2Porter;
 import cn.xishan.oftenporter.porter.local.porter2.MyPorter;
 import org.apache.log4j.PropertyConfigurator;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -48,6 +50,7 @@ public class TestLocalMain
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("Local-1");
         porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".porter");
+        porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".porter3");
         porterConf.getSeekPackages().addClassPorter(My2Porter.class)
                 .addObjectPorter(new MyPorter("Hello MyPorter!"));
         porterConf.addContextAutoGenImpl(IDemo.class.getName(), Demo.class);
@@ -97,7 +100,7 @@ public class TestLocalMain
         });
 
         localMain.startOne(porterConf);
-        int n = 1;//00000 ;
+        int n = 100000 ;
         final int threads = Runtime.getRuntime().availableProcessors();
 
         ExecutorService executorService = Executors.newFixedThreadPool(threads, r ->
@@ -206,6 +209,16 @@ public class TestLocalMain
                             lResponse ->{
                             assertEquals("Mixin!",lResponse.getResponse());
                     });
+
+                    bridge.request(new PRequest("/Local-1/TestAB/main"),
+                            lResponse ->{
+                                Assert.assertTrue(lResponse.getResponse() instanceof Date);
+                            });
+
+                    bridge.request(new PRequest("/Local-1/TestAB/genData"),
+                            lResponse ->{
+
+                            });
 
                     bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
                                     .addParam("myAge", 22),
