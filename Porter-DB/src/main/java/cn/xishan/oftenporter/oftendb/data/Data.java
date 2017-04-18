@@ -236,6 +236,11 @@ public abstract class Data extends DataAble
             DBHandleAccess dbHandleAccess) throws DataException;
 
 
+    protected NameValues toNameValues() throws Exception
+    {
+        return toNameValues(null);
+    }
+    
     @Override
     protected final NameValues toNameValues(ParamsGetter.Params params) throws Exception
     {
