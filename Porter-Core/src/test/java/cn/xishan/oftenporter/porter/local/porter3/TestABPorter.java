@@ -22,7 +22,7 @@ public class TestABPorter
         return time;
     }
 
-    @PortIn(tied = "genData", portFunType = PortFunType.PORT_AFTER_BEFORE)
+    @PortIn(tied = "genData", portFunType = PortFunType.JUST_BEFORE_AFTER)
     public Object genData()
     {
         PortFunReturn funReturn = new PortFunReturn();

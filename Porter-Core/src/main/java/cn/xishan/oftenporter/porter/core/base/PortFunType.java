@@ -15,7 +15,7 @@ public enum PortFunType
      */
     DEFAULT,
     /**
-     * 只能在{@linkplain After After}或{@linkplain Before Before}中调用。
+     * 只能在{@linkplain Before Before}或{@linkplain After After}中调用。
      */
-    PORT_AFTER_BEFORE
+    JUST_BEFORE_AFTER
 }

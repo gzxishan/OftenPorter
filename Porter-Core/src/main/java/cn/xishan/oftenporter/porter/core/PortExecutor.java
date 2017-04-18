@@ -211,9 +211,9 @@ public class PortExecutor
             }
 
             if (funPort.getMethodPortIn()
-                    .getPortFunType() == PortFunType.PORT_AFTER_BEFORE && request instanceof PRequest && !((PRequest)
+                    .getPortFunType() == PortFunType.JUST_BEFORE_AFTER && request instanceof PRequest && !((PRequest)
                     request)
-                    .enablePorterAfterOrBefore())
+                    .fromPortBeforeAfter())
             {
                 exNotFoundClassPort(request,response,innerContextBridge.responseWhenException);
                 return;
@@ -687,12 +687,12 @@ public class PortExecutor
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
-                            dealtOfResponse(wObject, OutType.Object, failedObject);
+                            dealtOfResponse(wObject, OutType.OBJECT, failedObject);
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setExtra(ex);
-                            dealtOfResponse(wObject, OutType.Object, jResponse);
+                            dealtOfResponse(wObject, OutType.OBJECT, jResponse);
                         }
                     }
                 };
@@ -742,12 +742,12 @@ public class PortExecutor
     {
         switch (outType)
         {
-            case NoResponse:
+            case NO_RESPONSE:
                 break;
-            case Object:
+            case OBJECT:
                 responseObject(wObject, rs, true);
                 break;
-            case Auto:
+            case AUTO:
                 responseObject(wObject, rs, false);
                 break;
         }

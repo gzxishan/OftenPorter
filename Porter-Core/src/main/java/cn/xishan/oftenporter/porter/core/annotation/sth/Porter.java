@@ -133,7 +133,7 @@ public final class Porter
                     porterOfFun = childrenWithMethod.get(method.name());
                 }
                 break;
-            case Default:
+            case DEFAULT:
                 porterOfFun = childrenWithMethod.get(result.funTied() + "/" + method.name());
                 break;
         }

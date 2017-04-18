@@ -30,7 +30,7 @@ class Hello1Porter
     }
 
     @PortIn(nece = { "name" })
-    @PortOut(OutType.NoResponse)
+    @PortOut(OutType.NO_RESPONSE)
     public void say2(WObject wObject)
     {
 	String name = (String) wObject.fn[0];

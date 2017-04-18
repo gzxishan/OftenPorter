@@ -205,7 +205,7 @@ public @interface PortIn
      *     如果最终取值为{@linkplain TiedType#REST},则函数的绑定名失效，请求分别被分发到对应的{@linkplain PortMethod}绑定的函数上。
      * </pre>
      */
-    TiedType tiedType() default TiedType.Default;
+    TiedType tiedType() default TiedType.DEFAULT;
 
     PortFunType portFunType() default PortFunType.DEFAULT;
 

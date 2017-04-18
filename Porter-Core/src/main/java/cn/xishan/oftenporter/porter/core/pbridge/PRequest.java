@@ -16,7 +16,7 @@ public class PRequest implements WRequest, Cloneable
     protected PortMethod method;
     protected Map<String, Object> params;
     protected Object originRequest, originResponse;
-    protected boolean enablePorterAfterOrBefore=false;
+    protected boolean fromPortBeforeAfter=false;
 
     public PRequest(PortMethod method, String requestPath)
     {
@@ -41,9 +41,9 @@ public class PRequest implements WRequest, Cloneable
         initOrigin(request);
     }
 
-    public boolean enablePorterAfterOrBefore()
+    public boolean fromPortBeforeAfter()
     {
-        return enablePorterAfterOrBefore;
+        return fromPortBeforeAfter;
     }
 
     protected void initOrigin(WRequest request)
@@ -63,12 +63,12 @@ public class PRequest implements WRequest, Cloneable
         return withNewPath(newPath,getMethod(), this, false,false);
     }
 
-    public static PRequest withNewPath(String newPath,PortMethod method, WRequest wRequest, boolean willCloneParamsMap,boolean enablePorterAfterOrBefore)
+    public static PRequest withNewPath(String newPath,PortMethod method, WRequest wRequest, boolean willCloneParamsMap,boolean fromPortBeforeAfter)
     {
         PRequest request = new PRequest(method, newPath, willCloneParamsMap);
         request.originRequest = wRequest.getOriginalRequest();
         request.originResponse = wRequest.getOriginalResponse();
-        request.enablePorterAfterOrBefore=enablePorterAfterOrBefore;
+        request.fromPortBeforeAfter=fromPortBeforeAfter;
         if (willCloneParamsMap)
         {
             request.addParamAll(wRequest.getParameterMap());

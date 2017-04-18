@@ -243,7 +243,7 @@ public class SthDeal
                             isMixin ? ",from " + method.getDeclaringClass() : "");
                 }
                 break;
-            case Default:
+            case DEFAULT:
                 lastFun = childrenWithMethod
                         .put(porterOfFun.getMethodPortIn().getTiedName() + "/" + porterOfFun.getMethodPortIn()
                                 .getMethod().name(), porterOfFun);

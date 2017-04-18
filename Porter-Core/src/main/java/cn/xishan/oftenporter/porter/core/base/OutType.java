@@ -9,10 +9,10 @@ public enum OutType
     /**
      * <pre>
      * 无错误情况下，框架不会输出,而且不会调用{@linkplain WResponse#close()}。
-     * <strong>注意：</strong>当返回类型为void时，输出类型{@linkplain #NoResponse}。
+     * <strong>注意：</strong>当返回类型为void时，输出类型{@linkplain #NO_RESPONSE}。
      * </pre>
      */
-    NoResponse,
+    NO_RESPONSE,
 
     /**
      * <pre>
@@ -20,9 +20,9 @@ public enum OutType
      * <strong>注意：</strong>当接口出现异常时，输出类型{@linkplain #Object}。
      * </pre>
      */
-    Object,
+    OBJECT,
     /**
-     * 返回结果为null时效果同{@linkplain #NoResponse},不为null时效果同Object.
+     * 返回结果为null时效果同{@linkplain #NO_RESPONSE},不为null时效果同Object.
      */
-    Auto
+    AUTO
 }

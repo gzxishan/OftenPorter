@@ -12,6 +12,7 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -88,6 +89,52 @@ public class PackageUtil
             c = Class.forName(className);
         }
         return c;
+    }
+
+    /**
+     * 根据类和相对包名获取最终的包名。
+     *
+     * @param clazz
+     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前
+     * @param separator 最终的分隔符
+     * @return
+     */
+    public static String getPackageWithRelative(Class<?> clazz, String relative, String separator)
+    {
+        String[] origins = clazz.getPackage().getName().split("\\.");
+        Stack<String> stack = new Stack<>();
+        for (String s : origins)
+        {
+            stack.push(s);
+        }
+        String[] relatives = relative.split("/");
+        for (int i = 0; i < relatives.length; i++)
+        {
+            String str = relatives[i];
+            if ("..".equals(str))
+            {
+                if (stack.empty())
+                {
+                    throw new RuntimeException("no more upper path!");
+                }
+                stack.pop();
+            } else if (!".".equals(str))
+            {
+                stack.push(str);
+            }
+        }
+        if (stack.empty())
+        {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        int len = stack.size() - 1;
+        for (int i = 0; i < len; i++)
+        {
+            builder.append(stack.get(i)).append(separator);
+        }
+        builder.append(stack.get(len));
+        return builder.toString();
     }
 
     /**
@@ -236,14 +283,17 @@ public class PackageUtil
 
         //String[] jarInfo = {jarPath.substring(0, index), jarPath.substring(index + 1)};
         String jarFilePath;//jarInfo[0].substring(jarInfo[0].indexOf("/"));
-        try {
+        try
+        {
             jarFilePath = new URL(jarPath.substring(0, index)).getFile();
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException e)
+        {
             throw new RuntimeException(e);
         }
-        String packagePath =jarPath.substring(index + 1);// jarInfo[1].substring(1);
-        if(packagePath.startsWith("/")){
-            packagePath=packagePath.substring(1);
+        String packagePath = jarPath.substring(index + 1);// jarInfo[1].substring(1);
+        if (packagePath.startsWith("/"))
+        {
+            packagePath = packagePath.substring(1);
         }
         JarFile jarFile = null;
         try
@@ -256,14 +306,15 @@ public class PackageUtil
                 String entryName = jarEntry.getName();
                 if (entryName.endsWith(".class"))
                 {
-                    if(entryName.charAt(0)=='/'){
-                        entryName=entryName.substring(1);
+                    if (entryName.charAt(0) == '/')
+                    {
+                        entryName = entryName.substring(1);
                     }
                     if (childPackage)
                     {
                         if (entryName.startsWith(packagePath))
                         {
-                            entryName = entryName.replace("/", ".").substring(0, entryName.length()-6);
+                            entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6);
                             myClassName.add(entryName);
                         }
                     } else
@@ -279,7 +330,7 @@ public class PackageUtil
                         }
                         if (myPackagePath.equals(packagePath))
                         {
-                            entryName = entryName.replace("/", ".").substring(0, entryName.length()-6);
+                            entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6);
                             myClassName.add(entryName);
                         }
                     }
