@@ -7,7 +7,7 @@ package cn.xishan.oftenporter.porter.core.base;
 public enum TiedType
 {
     REST,
-    Default;
+    DEFAULT;
 
     /**
      * 当且仅当类和方法的类型都是{@linkplain #REST}时，结果才为{@linkplain #REST}。
@@ -22,7 +22,7 @@ public enum TiedType
             return REST;
         } else
         {
-            return Default;
+            return DEFAULT;
         }
     }
 }

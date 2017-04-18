@@ -25,28 +25,28 @@ abstract class HServerPorter
     Delivery delivery;
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.GET)
-    @PortOut(OutType.NoResponse)
+    @PortOut(OutType.NO_RESPONSE)
     public void get(WObject wObject)
     {
         delivery(wObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.POST)
-    @PortOut(OutType.NoResponse)
+    @PortOut(OutType.NO_RESPONSE)
     public void post(WObject wObject)
     {
         delivery(wObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.PUT)
-    @PortOut(OutType.NoResponse)
+    @PortOut(OutType.NO_RESPONSE)
     public void put(WObject wObject)
     {
         delivery(wObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.DELETE)
-    @PortOut(OutType.NoResponse)
+    @PortOut(OutType.NO_RESPONSE)
     public void delete(WObject wObject)
     {
         delivery(wObject);

@@ -302,13 +302,13 @@ public final class AnnotationDealt
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
         if (method.getReturnType().equals(Void.TYPE))
         {
-            _portOut.outType = OutType.NoResponse;
+            _portOut.outType = OutType.NO_RESPONSE;
         } else if (portOut != null)
         {
             _portOut.outType = portOut.value();
         } else
         {
-            _portOut.outType = OutType.Object;
+            _portOut.outType = OutType.OBJECT;
         }
         return _portOut;
     }
