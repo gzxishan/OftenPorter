@@ -28,6 +28,11 @@ public interface ParamsGetter
             this.dataInitable = dataInitable;
         }
 
+        public void setDataAble(DataAble dataAble)
+        {
+            this.dataAble = dataAble;
+        }
+
         public Params(DataAble dataAble, DataInitable dataInitable)
         {
             this.set(dataAble);
