@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -80,6 +81,8 @@ public class ParserUtil
             } else if (type == File.class)
             {
                 clazz = FileParser.class;
+            }else if(type== Date.class){
+                clazz = DateParser.class;
             }
             //////////
             else if (type == Character.class)

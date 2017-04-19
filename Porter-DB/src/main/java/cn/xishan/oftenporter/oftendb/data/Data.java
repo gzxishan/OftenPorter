@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 父类的相关注解变量(public)在子类中仍然有效。
+ * 父类的相关注解变量在子类中仍然有效,当前类的所有变量都有效。
  *
  * @author ZhuiFeng
  */
@@ -24,37 +25,65 @@ public abstract class Data extends DataAble
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Data.class);
 
+    private static class VarNameAndField implements Comparable<VarNameAndField>
+    {
+
+        private String varName;
+        private Field field;
+
+        public VarNameAndField(String varName, Field field)
+        {
+            this.varName = varName;
+            this.field = field;
+        }
+
+        @Override
+        public int compareTo(VarNameAndField varNameAndField)
+        {
+            return varName.compareTo(varNameAndField.varName);
+        }
+    }
+
     private static class ClassAndField
     {
-        private String[] names;
+        private String[] varNames;
         private Field[] fields;
         private String[] tiedNames;
 
         public ClassAndField(Class<?> clazz) throws NoSuchFieldException
         {
-            Field[] fields = clazz.getFields();
-            String[] names = new String[fields.length];
-            for (int i = 0; i < names.length; i++)
+
+            Field[] fields = WPTool.getAllFields(clazz);
+            List<VarNameAndField> varNameAndFieldList = new ArrayList<>();
+
+
+            for (int i = 0; i < fields.length; i++)
             {
-                names[i] = fields[i].getName();
-            }
-            Arrays.sort(names);
-            List<String> nameList = new ArrayList<>();
-            List<Field> fieldList = new ArrayList<>();
-            List<String> tiedNameList = new ArrayList<>();
-            for (int i = 0; i < names.length; i++)
-            {
-                Field f = clazz.getField(names[i]);
-                String tiedName = DataUtil.getTiedName(f);
-                if (tiedName!=null)
+                Field f = fields[i];
+                String varName = DataUtil.getTiedName(f, false);
+                if (varName != null)
                 {
                     f.setAccessible(true);
-                    nameList.add(names[i]);
-                    fieldList.add(f);
-                    tiedNameList.add(tiedName);
+                    varNameAndFieldList.add(new VarNameAndField(varName, f));
                 }
+
             }
-            this.names = nameList.toArray(new String[0]);
+            VarNameAndField[] varNameAndFields = varNameAndFieldList.toArray(new VarNameAndField[0]);
+            Arrays.sort(varNameAndFields);
+
+            List<Field> fieldList = new ArrayList<>(varNameAndFields.length);
+            List<String> tiedNameList = new ArrayList<>(varNameAndFields.length);
+            List<String> varNameList = new ArrayList<>(varNameAndFields.length);
+
+            for (int i = 0; i < varNameAndFields.length; i++)
+            {
+                VarNameAndField varNameAndField = varNameAndFields[i];
+                varNameList.add(varNameAndField.varName);
+                fieldList.add(varNameAndField.field);
+                tiedNameList.add(DataUtil.getTiedName(varNameAndField.field, true));
+
+            }
+            this.varNames = varNameList.toArray(new String[0]);
             this.fields = fieldList.toArray(new Field[0]);
             this.tiedNames = tiedNameList.toArray(new String[0]);
         }
@@ -64,14 +93,14 @@ public abstract class Data extends DataAble
             return fields;
         }
 
-        public String[] getNames()
+        public String[] getVarNames()
         {
-            return names;
+            return varNames;
         }
 
-        public String tiedName(String fieldName)
+        public String tiedName(String varName)
         {
-            int index = Arrays.binarySearch(names, fieldName);
+            int index = Arrays.binarySearch(varNames, varName);
             return index >= 0 ? tiedNames[index] : null;
         }
 
@@ -80,14 +109,19 @@ public abstract class Data extends DataAble
             return tiedNames[index];
         }
 
+        public String varNameAt(int index)
+        {
+            return varNames[index];
+        }
+
         public Field byIndex(int index)
         {
             return fields[index];
         }
 
-        public Field byName(String fieldName)
+        public Field byVarName(String varName)
         {
-            int index = Arrays.binarySearch(names, fieldName);
+            int index = Arrays.binarySearch(varNames, varName);
             Field f = index >= 0 ? fields[index] : null;
             return f;
         }
@@ -99,7 +133,10 @@ public abstract class Data extends DataAble
     {
         try
         {
-            classFields.put(getClass(), new ClassAndField(getClass()));
+            if (!classFields.containsKey(getClass()))
+            {
+                classFields.put(getClass(), new ClassAndField(getClass()));
+            }
         } catch (NoSuchFieldException e)
         {
             throw new RuntimeException(e);
@@ -120,7 +157,7 @@ public abstract class Data extends DataAble
         {
             ClassAndField cf = getClassAndField();
             Field[] fs = cf.getFields();
-            String[] names = cf.names;
+            String[] names = cf.varNames;
 
             JSONObject json = new JSONObject(fs.length);
 
@@ -147,7 +184,7 @@ public abstract class Data extends DataAble
             {
                 if (values[i] != null)
                 {
-                    Field field = cf.byName(names[i].varName);
+                    Field field = cf.byVarName(names[i].varName);
                     if (field != null)
                     {
                         field.set(this, values[i]);
@@ -232,12 +269,19 @@ public abstract class Data extends DataAble
      * @param dbHandleAccess
      * @throws DataException 若抛出异常，则向客户端响应失败。
      */
-    public abstract void whenSetDataFinished(SetType setType, int optionCode, WObject wObject,
-            DBHandleAccess dbHandleAccess) throws DataException;
+    public void whenSetDataFinished(SetType setType, int optionCode, WObject wObject,
+            DBHandleAccess dbHandleAccess) throws DataException
+    {
 
+    }
+
+    protected NameValues toNameValues(String... excepts) throws Exception
+    {
+        return toNameValues(null, excepts);
+    }
 
     @Override
-    protected final NameValues toNameValues(ParamsGetter.Params params) throws Exception
+    protected final NameValues toNameValues(ParamsGetter.Params params, String... excepts) throws Exception
     {
 
         ClassAndField cf = getClassAndField();
@@ -245,7 +289,19 @@ public abstract class Data extends DataAble
         NameValues nameValues = new NameValues(fields.length);
         for (int i = 0; i < fields.length; i++)
         {
-            nameValues.put(cf.tiedName(i), fields[i].get(this));
+            String name = cf.tiedName(i);
+            for (String e : excepts)
+            {
+                if (e.equals(name))
+                {
+                    name = null;
+                    break;
+                }
+            }
+            if (name != null)
+            {
+                nameValues.append(name, fields[i].get(this));
+            }
         }
 
         return nameValues;
@@ -262,12 +318,12 @@ public abstract class Data extends DataAble
             ClassAndField cf = getClassAndField();
 //            if (keysSelection.isSelect)
 //            {
-                keys = keysSelection.keys;
-                // 转换成数据库的名称
-                for (int i = 0; i < keys.length; i++)
-                {
-                    keys[i] = cf.tiedName(keys[i]);
-                }
+            keys = keysSelection.keys;
+            // 转换成数据库的名称
+            for (int i = 0; i < keys.length; i++)
+            {
+                keys[i] = cf.tiedName(keys[i]);
+            }
 
 //            } else
 //            {
@@ -393,4 +449,5 @@ public abstract class Data extends DataAble
             throw new RuntimeException(e);
         }
     }
+
 }

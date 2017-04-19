@@ -26,23 +26,25 @@ public class DataUtil
     /**
      * 得到字段的绑定名称。
      *
-     * @param field 使用{@linkplain Key}、{@linkplain PortInObj.Nece}或{@linkplain PortInObj.UnNece}注解标注键。
+     * @param field 使用{@linkplain PortInObj.Nece}或{@linkplain PortInObj.UnNece}注解标注字段（外面科技），使用{@linkplain Key}来映射数据库字段名。
      */
-    public static String getTiedName(Field field)
+    public static String getTiedName(Field field,boolean withKey)
     {
         field.setAccessible(true);
         String name = null;
-        if (field.isAnnotationPresent(Key.class))
-        {
-            Key key = field.getAnnotation(Key.class);
-            name = key.value().equals("") ? field.getName()
-                    : key.value();
-        } else if (field.isAnnotationPresent(PortInObj.Nece.class))
+        if (field.isAnnotationPresent(PortInObj.Nece.class))
         {
             name = PortUtil.tied(field.getAnnotation(PortInObj.Nece.class), field, true);
         } else if (field.isAnnotationPresent(PortInObj.UnNece.class))
         {
             name = PortUtil.tied(field.getAnnotation(PortInObj.UnNece.class), field, true);
+        }
+
+        if (withKey&&name!=null&&field.isAnnotationPresent(Key.class))
+        {
+            Key key = field.getAnnotation(Key.class);
+            name = key.value().equals("") ? (name == null ? field.getName() : name)
+                    : key.value();
         }
         return name;
     }

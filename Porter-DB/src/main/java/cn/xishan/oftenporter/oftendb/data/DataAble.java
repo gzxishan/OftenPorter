@@ -12,7 +12,8 @@ import java.lang.reflect.Field;
 /**
  * Created by https://github.com/CLovinr on 2016/9/9.
  */
-public abstract class DataAble implements Cloneable {
+public abstract class DataAble implements Cloneable
+{
     public static final int OPTION_CODE_DEFAULT = -1;
     public static final int OPTION_CODE_EXISTS = -2;
     public static final int OPTION_CODE_LOGIN = -3;
@@ -24,11 +25,13 @@ public abstract class DataAble implements Cloneable {
      *
      * @return
      */
-    public final void setCollectionName(String collName) {
+    public final void setCollectionName(String collName)
+    {
         this.collectionName = collName;
     }
 
-    public final String getCollectionName() {
+    public final String getCollectionName()
+    {
         return collectionName;
     }
 
@@ -40,14 +43,20 @@ public abstract class DataAble implements Cloneable {
 
     // public abstract Field getField(String fieldName)throws NoSuchFieldException;
 
-    protected abstract NameValues toNameValues(ParamsGetter.Params params) throws Exception;
+    /**
+     * @param params
+     * @param excepts 排除的名称。
+     * @return
+     * @throws Exception
+     */
+    protected abstract NameValues toNameValues(ParamsGetter.Params params, String... excepts) throws Exception;
 
     public abstract void whenSetDataFinished(SetType setType, int optionCode, WObject wObject,
-                                             DBHandleAccess dbHandleAccess) throws DataException;
+            DBHandleAccess dbHandleAccess) throws DataException;
 
     protected abstract void setParams(InNames.Name[] neceFields, Object[] nvalues, InNames.Name[] unneceFields,
-                                      Object[] uvalues, InNames.Name
-                                              [] innerNames, Object[] innerValues) throws Exception;
+            Object[] uvalues, InNames.Name
+            [] innerNames, Object[] innerValues) throws Exception;
 
     /**
      * 得到数据库选择的键。
@@ -72,5 +81,5 @@ public abstract class DataAble implements Cloneable {
      * @return
      */
     protected abstract Condition getQuery(DBHandleSource dbHandleSource, ParamsSelection selection, WObject wObject,
-                                          ParamsGetter.Params params);
+            ParamsGetter.Params params);
 }

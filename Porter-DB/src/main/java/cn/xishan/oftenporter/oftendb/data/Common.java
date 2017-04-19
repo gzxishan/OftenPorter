@@ -74,7 +74,15 @@ public class Common
             }
             common = (Common) comm;
             dbHandleSource = handle.getDBHandleSource();
-            paramsGetter = handle.getParamsGetter() != null ? handle.getParamsGetter() : paramsGetter;
+            if (handle.getParamsGetter() != null)
+            {
+                ParamsGetter getter = handle.getParamsGetter();
+                if (paramsGetter != null && paramsGetter.getParams() != null)
+                {
+                    getter.getParams().set(paramsGetter.getParams().getDataAble());
+                }
+                paramsGetter=getter;
+            }
         } else
         {
             common = this;
@@ -132,7 +140,8 @@ public class Common
                     dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
                 }
 
-                if(!dbHandle.canOpenOrClose()){
+                if (!dbHandle.canOpenOrClose())
+                {
                     throw new CannotOpenOrCloseException();
                 }
 
@@ -165,7 +174,7 @@ public class Common
             LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
         } finally
         {
-            if (dbHandle != null && !dbHandle.isTransaction()&&dbHandle.canOpenOrClose())
+            if (dbHandle != null && !dbHandle.isTransaction() && dbHandle.canOpenOrClose())
             {
                 WPTool.close(dbHandle);
                 dbHandleSource.afterClose(dbHandle);

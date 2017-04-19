@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class DataWrap extends DataDynamic {
     /**
-     * @param clazz 获取字段名的注解与{@linkplain DataUtil#getTiedName(Field)}相同
+     * @param clazz 获取字段名的注解与{@linkplain DataUtil#getTiedName(Field,boolean)}相同
      */
     public DataWrap(Class<?> clazz) throws RuntimeException {
         this(getNameAndTieds(clazz));
@@ -30,7 +30,7 @@ public class DataWrap extends DataDynamic {
             Field[] fields = clazz.getFields();
             for (Field field : fields) {
                 field.setAccessible(true);
-                String name = DataUtil.getTiedName(field);
+                String name = DataUtil.getTiedName(field,true);
                 if (name != null) {
                     tiedList.add(name);
                     nameList.add(field.getName());
