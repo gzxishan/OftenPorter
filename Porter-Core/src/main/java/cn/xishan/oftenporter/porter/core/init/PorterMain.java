@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
-import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetUtil;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
@@ -120,7 +120,7 @@ public final class PorterMain
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
         portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
-        porterData  = new PorterDataImpl(portExecutor);
+        porterData = new PorterDataImpl(portExecutor);
         currentPNameForLogger = null;
     }
 
@@ -156,7 +156,7 @@ public final class PorterMain
         }
     }
 
-    private void doGlobalCheckAutoSet(AutoSetUtil autoSetUtil)
+    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle)
     {
         if (isGlobalAutoSet)
         {
@@ -165,7 +165,7 @@ public final class PorterMain
         LOGGER.debug("do doGlobalCheckAutoSet...");
         isGlobalAutoSet = true;
         CheckPassable[] alls = portExecutor.getAllGlobalChecks();
-        autoSetUtil.doAutoSetsForNotPorter(alls);
+        autoSetHandle.addAutoSetsForNotPorter(alls);
     }
 
     /**
@@ -225,11 +225,11 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetUtil autoSetUtil = AutoSetUtil.newInstance(innerContextBridge, getPLinker(), porterData);
+        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(innerContextBridge, getPLinker(), porterData);
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
-        autoSetUtil.doAutoSetsForNotPorter(stateListenerSet.toArray(new StateListener[0]));
+        autoSetHandle.addAutoSetsForNotPorter(stateListenerSet.toArray(new StateListener[0]));
 
         LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerSet);
@@ -238,38 +238,47 @@ public final class PorterMain
         stateListenerForAll.beforeSeek(porterConf.getUserInitParam(), porterConf, paramSourceHandleManager);
 
 
-        doGlobalCheckAutoSet(autoSetUtil);
+        doGlobalCheckAutoSet(autoSetHandle);
 
         Map<Class<?>, CheckPassable> classCheckPassableMap = null;
         try
         {
-            classCheckPassableMap = contextPorter.initSeek(listenerAdder, porterConf, autoSetUtil);
+            classCheckPassableMap = contextPorter.initSeek(listenerAdder, porterConf, autoSetHandle);
         } catch (FatalInitException e)
         {
             throw new Error(e);
         }
 
-        LOGGER.debug("do autoSet CheckPassable of Class and Method...");
-        autoSetUtil.doAutoSetsForNotPorter(classCheckPassableMap.values().toArray(new CheckPassable[0]));
+        LOGGER.debug("add autoSet CheckPassable of Class and Method...");
+        autoSetHandle.addAutoSetsForNotPorter(classCheckPassableMap.values().toArray(new CheckPassable[0]));
 
         LOGGER.debug(":{}/{} afterSeek...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
 
-        LOGGER.debug("do autoSetSeek...");
-        autoSetUtil.doAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
+        LOGGER.debug("add autoSetSeek...");
+        autoSetHandle.addAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
+
+
+        CheckPassable[] checkPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
+        LOGGER.debug("do autoSet ForAllCheckPassable...");
+        autoSetHandle.addAutoSetsForNotPorter(checkPassables);
+
+        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,
+                checkPassables);
+
+        try
+        {
+            autoSetHandle.doAutoSet();
+        } catch (FatalInitException e)
+        {
+            throw new Error(e);
+        }
 
         contextPorter.start();
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
-
-        CheckPassable[] checkPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
-        LOGGER.debug("do autoSet ForAllCheckPassable...");
-        autoSetUtil.doAutoSetsForNotPorter(checkPassables);
-
-        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,
-                checkPassables);
         porterConf.initOk();
         LOGGER.debug(":{}/{} started!", pLinker.currentPName(), porterConf.getContextName());
 
