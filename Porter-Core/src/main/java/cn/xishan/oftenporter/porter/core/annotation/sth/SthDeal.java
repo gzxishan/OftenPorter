@@ -44,18 +44,18 @@ public class SthDeal
     }
 
     private void dealPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
-            AutoSetUtil autoSetUtil)
+            AutoSetHandle autoSetHandle)
     {
-        List<_PortBefore> portBeforesAll = autoSetUtil.getInnerContextBridge().annotationDealt
+        List<_PortBefore> portBeforesAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portBefores(porter.getClazz(), currentContextName, currentClassTied);
-        List<_PortAfter> portAftersAll = autoSetUtil.getInnerContextBridge().annotationDealt
+        List<_PortAfter> portAftersAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portAfters(porter.getClazz(), currentContextName, currentClassTied);
         for (PorterOfFun porterOfFun : porter.getFuns().values())
         {
             Method method = porterOfFun.method;
-            List<_PortBefore> portBefores = autoSetUtil.getInnerContextBridge().annotationDealt
+            List<_PortBefore> portBefores = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portBefores(method, currentContextName, currentClassTied);
-            List<_PortAfter> portAfters = autoSetUtil.getInnerContextBridge().annotationDealt
+            List<_PortAfter> portAfters = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portAfters(method, currentContextName, currentClassTied);
 
             for (int i = portBeforesAll.size() - 1; i >= 0; i--)
@@ -71,14 +71,14 @@ public class SthDeal
 
 
     public Porter porter(Class<?> clazz, Object object, String currentContextName,
-            AutoSetUtil autoSetUtil) throws FatalInitException
+            AutoSetHandle autoSetHandle) throws FatalInitException
     {
-        return porter(clazz, object, currentContextName, null, autoSetUtil, false, null, null);
+        return porter(clazz, object, currentContextName, null, autoSetHandle, false, null, null);
     }
 
 
     private Porter porter(Class<?> clazz, Object object, String currentContextName, String currentClassTied,
-            AutoSetUtil autoSetUtil,
+            AutoSetHandle autoSetHandle,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
             Map<String, Object> autoSetMixinMap) throws FatalInitException
 
@@ -95,7 +95,7 @@ public class SthDeal
             wholeClassCheckPassableGetter = new WholeClassCheckPassableGetterImpl();
         }
 
-        InnerContextBridge innerContextBridge = autoSetUtil.getInnerContextBridge();
+        InnerContextBridge innerContextBridge = autoSetHandle.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(clazz, isMixin);
         if (portIn == null)
@@ -107,7 +107,7 @@ public class SthDeal
             currentClassTied = portIn.getTiedName();
         }
 
-        Porter porter = new Porter(autoSetUtil, wholeClassCheckPassableGetter);
+        Porter porter = new Porter(autoSetHandle, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
@@ -153,7 +153,7 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetUtil, true,
+            Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetHandle, true,
                     wholeClassCheckPassableGetter,
                     autoSetMixinMap);
             if (mixinPorter == null)
@@ -169,7 +169,7 @@ public class SthDeal
             }
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
-            autoSetUtil.doAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
+            autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
         }
         if (mixinList.size() > 0)
         {
@@ -221,7 +221,7 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-        dealPortAfterBefore(porter, currentContextName, currentClassTied, autoSetUtil);
+        dealPortAfterBefore(porter, currentContextName, currentClassTied, autoSetHandle);
         return porter;
     }
 

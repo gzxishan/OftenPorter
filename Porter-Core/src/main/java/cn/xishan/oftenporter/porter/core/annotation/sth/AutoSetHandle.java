@@ -17,32 +17,150 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/1/7.
  */
-public class AutoSetUtil
+public class AutoSetHandle
 {
     private final Logger LOGGER;
 
     private InnerContextBridge innerContextBridge;
     private Delivery thisDelivery;
     private PorterData porterData;
+    private List<IHandle> iHandles = new ArrayList<>();
 
-    public static AutoSetUtil newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery,
-            PorterData porterData)
+
+    private interface IHandle
     {
-        return new AutoSetUtil(innerContextBridge, thisDelivery, porterData);
+        void handle() throws FatalInitException;
     }
 
-    private AutoSetUtil(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData)
+    private class Handle_doAutoSetThatOfMixin implements IHandle
+    {
+        Object[] args;
+
+        public Handle_doAutoSetThatOfMixin(Object... args)
+        {
+            this.args = args;
+        }
+
+        private void doAutoSetThatOfMixin(Object obj1, Object obj2) throws FatalInitException
+        {
+            try
+            {
+                _doAutoSetThatOfMixin(obj1, obj2);
+                _doAutoSetThatOfMixin(obj2, obj1);
+            } catch (Exception e)
+            {
+                throw new FatalInitException(e);
+            }
+        }
+
+        @Override
+        public void handle() throws FatalInitException
+        {
+            this.doAutoSetThatOfMixin(args[0], args[1]);
+        }
+    }
+
+    private class Handle_doAutoSetsForNotPorter implements IHandle
+    {
+
+        private Object[] objects;
+
+        public Handle_doAutoSetsForNotPorter(Object[] objects)
+        {
+            this.objects = objects;
+        }
+
+        private void doAutoSetsForNotPorter(Object[] objects)
+        {
+            for (Object obj : objects)
+            {
+                doAutoSet(obj, null);
+            }
+        }
+
+        @Override
+        public void handle()
+        {
+            this.doAutoSetsForNotPorter(objects);
+        }
+    }
+
+    private class Handle_doAutoSetSeek implements IHandle
+    {
+
+        Object[] args;
+
+        public Handle_doAutoSetSeek(Object... args)
+        {
+            this.args = args;
+        }
+
+        private void doAutoSetSeek(String[] packages, ClassLoader classLoader)
+        {
+            if (packages == null)
+            {
+                return;
+            }
+            try
+            {
+                for (int i = 0; i < packages.length; i++)
+                {
+                    AutoSetHandle.this.doAutoSetSeek(packages[i], classLoader);
+                }
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void handle()
+        {
+            this.doAutoSetSeek((String[]) args[0], (ClassLoader) args[1]);
+        }
+    }
+
+    private class Handle_doAutoSetForPorter implements IHandle
+    {
+        Object[] args;
+
+        public Handle_doAutoSetForPorter(Object... args)
+        {
+            this.args = args;
+        }
+
+        private void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
+        {
+            doAutoSet(object, autoSetMixinMap);
+        }
+
+        @Override
+        public void handle()
+        {
+            this.doAutoSetForPorter(args[0], (Map<String, Object>) args[1]);
+        }
+    }
+
+    public static AutoSetHandle newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery,
+            PorterData porterData)
+    {
+        return new AutoSetHandle(innerContextBridge, thisDelivery, porterData);
+    }
+
+    private AutoSetHandle(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData)
     {
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
-        LOGGER = LogUtil.logger(AutoSetUtil.class);
+        LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
     public InnerContextBridge getInnerContextBridge()
@@ -50,22 +168,9 @@ public class AutoSetUtil
         return innerContextBridge;
     }
 
-    public synchronized void doAutoSetSeek(String[] packages, ClassLoader classLoader)
+    public synchronized void addAutoSetSeek(String[] packages, ClassLoader classLoader)
     {
-        if (packages == null)
-        {
-            return;
-        }
-        try
-        {
-            for (int i = 0; i < packages.length; i++)
-            {
-                doAutoSetSeek(packages[i], classLoader);
-            }
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
+        iHandles.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
     private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
@@ -83,28 +188,41 @@ public class AutoSetUtil
         }
     }
 
-    public synchronized void doAutoSetsForNotPorter(Object[] objects)
+    public synchronized void addAutoSetsForNotPorter(Object[] objects)
     {
-        for (Object obj : objects)
-        {
-            doAutoSet(obj, null);
-        }
+        iHandles.add(new Handle_doAutoSetsForNotPorter(objects));
     }
 
-    public synchronized void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
+    public synchronized void addAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
     {
-        doAutoSet(object, autoSetMixinMap);
+        iHandles.add(new Handle_doAutoSetForPorter(object, autoSetMixinMap));
+        //doAutoSet(object, autoSetMixinMap);
     }
 
-    public void doAutoSetThatOfMixin(Object obj1, Object obj2) throws FatalInitException
+    public synchronized void addAutoSetThatOfMixin(Object obj1, Object obj2)
+    {
+        iHandles.add(new Handle_doAutoSetThatOfMixin(obj1, obj2));
+    }
+
+    public synchronized void doAutoSet() throws FatalInitException
     {
         try
         {
-            _doAutoSetThatOfMixin(obj1, obj2);
-            _doAutoSetThatOfMixin(obj2, obj1);
+            for (int i = 0; i < iHandles.size(); i++)
+            {
+
+                iHandles.get(i).handle();
+
+            }
+        } catch (FatalInitException e)
+        {
+            throw e;
         } catch (Exception e)
         {
             throw new FatalInitException(e);
+        } finally
+        {
+            iHandles.clear();
         }
     }
 
@@ -118,7 +236,7 @@ public class AutoSetUtil
             {
                 field.setAccessible(true);
                 field.set(obj1, objectForSet);
-                LOGGER.debug("AutoSet.AutoSetThatOfMixin:[{}] with [{}]",field,objectForSet);
+                LOGGER.debug("AutoSet.AutoSetThatOfMixin:[{}] with [{}]", field, objectForSet);
             }
         }
     }
@@ -140,10 +258,10 @@ public class AutoSetUtil
                 Object value = null;
                 String autoSetMixinName = null;
                 boolean needPut = false;
-                AutoSetMixin autoSetMixin=null;
+                AutoSetMixin autoSetMixin = null;
                 if (autoSetMixinMap != null && f.isAnnotationPresent(AutoSetMixin.class))
                 {
-                     autoSetMixin = f.getAnnotation(AutoSetMixin.class);
+                    autoSetMixin = f.getAnnotation(AutoSetMixin.class);
                     autoSetMixinName = "".equals(autoSetMixin.value()) ? (autoSetMixin.classValue()
                             .equals(AutoSetMixin.class) ? f.getType().getName() : autoSetMixin.classValue()
                             .getName()) : autoSetMixin.value();

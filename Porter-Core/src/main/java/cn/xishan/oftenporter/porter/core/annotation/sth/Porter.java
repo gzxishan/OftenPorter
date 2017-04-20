@@ -36,12 +36,12 @@ public final class Porter
     Porter[] mixins;
 
     InObj inObj;
-    private AutoSetUtil autoSetUtil;
+    private AutoSetHandle autoSetHandle;
 
-    public Porter(AutoSetUtil autoSetUtil, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
+    public Porter(AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
         LOGGER = LogUtil.logger(Porter.class);
-        this.autoSetUtil = autoSetUtil;
+        this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
     }
 
@@ -96,7 +96,7 @@ public final class Porter
         }
         if (object != null)
         {
-            autoSetUtil.doAutoSetForPorter(object, autoSetMixinMap);
+            autoSetHandle.addAutoSetForPorter(object, autoSetMixinMap);
         }
     }
 
@@ -106,7 +106,7 @@ public final class Porter
         return clazz;
     }
 
-    Object getObj()
+    public Object getObj()
     {
         return object;
     }
