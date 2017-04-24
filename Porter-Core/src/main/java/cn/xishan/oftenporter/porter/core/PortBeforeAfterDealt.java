@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortAfter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortBefore;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+import cn.xishan.oftenporter.porter.core.base.ABOption;
+import cn.xishan.oftenporter.porter.core.base.ABType;
 import cn.xishan.oftenporter.porter.core.base.PortFunReturn;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 
@@ -43,7 +45,7 @@ class PortBeforeAfterDealt
     public void doAfter(Callback<Object> callbackForReturn)
     {
         this.callbackForReturn = callbackForReturn;
-        doBefore(0);
+        doAfter(0);
     }
 
     private void doBefore(int index)
@@ -69,7 +71,10 @@ class PortBeforeAfterDealt
 
         _PortBefore portBefore = portBefores[index];
         PRequest request = PRequest
-                .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false,true);
+                .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false);
+        ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_BEFORE,portBefores.length,index+1);
+        request.setABOption(abOption);
+
         wObject.delivery().currentBridge().request(request, lResponse ->
         {
             object = lResponse.getResponse();
@@ -121,7 +126,10 @@ class PortBeforeAfterDealt
 
         _PortAfter portAfter = portAfters[index];
         PRequest request = PRequest
-                .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false,true);
+                .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false);
+        ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_AFTER,portAfters.length,index+1);
+        request.setABOption(abOption);
+
         wObject.delivery().currentBridge().request(request, lResponse ->
         {
             object = lResponse.getResponse();

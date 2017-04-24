@@ -96,6 +96,9 @@ public class TestLocalMain
         porterConf.addContextCheck((wObject, type, handle) ->
         {
             //logger.debug("");
+            if(handle.abOption!=null){
+                //logger.debug("{}",handle.abOption);
+            }
             handle.next();
         });
 

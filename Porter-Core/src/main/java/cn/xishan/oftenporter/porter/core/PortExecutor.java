@@ -152,29 +152,6 @@ public class PortExecutor
     public PreRequest forRequest(WRequest request, final WResponse response)
     {
         String path = request.getPath();
-//        if (path.startsWith("/="))
-//        {
-//
-//            pLinker.toAllBridge().request(new PRequestWrap(request, ':' + path.substring(2)), new PCallback()
-//            {
-//                @Override
-//                public void onResponse(PResponse lResponse)
-//                {
-//                    try
-//                    {
-//                        response.write(lResponse.getResponse());
-//                    } catch (IOException e)
-//                    {
-//                        LOGGER.warn(e.getMessage(), e);
-//                    } finally
-//                    {
-//                        WPTool.close(response);
-//                    }
-//                }
-//            });
-//
-//            return null;
-//        }
         UrlDecoder.Result result = urlDecoder.decode(path);
         Context context;
         if (result == null || (context = contextMap.get(result.contextName())) == null || !context.isEnable)
@@ -210,16 +187,31 @@ public class PortExecutor
                 return;
             }
 
-            if (funPort.getMethodPortIn()
-                    .getPortFunType() == PortFunType.JUST_BEFORE_AFTER && request instanceof PRequest && !((PRequest)
-                    request)
-                    .fromPortBeforeAfter())
+            ABOption abOption = null;
+            if (request instanceof PRequest)
             {
-                exNotFoundClassPort(request,response,innerContextBridge.responseWhenException);
-                return;
+                PRequest pRequest = (PRequest) request;
+                abOption = pRequest.getABOption();
+                if (funPort.getMethodPortIn().getPortFunType() == PortFunType.JUST_BEFORE_AFTER && abOption == null)
+                {
+                    exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
+                    return;
+                }
             }
 
+
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+            wObject.abOption = abOption;
+            if (abOption != null)
+            {
+                wObject._otherObject = abOption._otherObject;
+            } else
+            {
+                wObject.abOption = new ABOption(null, ABType.METHOD_OF_CURRENT,
+                        funPort.getPortBefores().length + 1 + funPort.getPortAfters().length,
+                        funPort.getPortBefores().length + 1);
+            }
+
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
             //全局通过检测
@@ -328,7 +320,7 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL,
-                    allGlobal, new CheckHandle(result, funPort.getObject())
+                    allGlobal, new CheckHandle(result, funPort.getObject(), wObject.abOption)
             {
 
                 @Override
@@ -359,20 +351,21 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
-                    DuringType.ON_CONTEXT_GLOBAL, contextChecks, new CheckHandle(result, funPort.getObject())
-            {
-                @Override
-                public void go(Object failedObject)
-                {
-                    if (failedObject != null)
+                    DuringType.ON_CONTEXT_GLOBAL, contextChecks,
+                    new CheckHandle(result, funPort.getObject(), wObject.abOption)
                     {
-                        exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else
-                    {
-                        dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
-                    }
-                }
-            });
+                        @Override
+                        public void go(Object failedObject)
+                        {
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
+                            }
+                        }
+                    });
             portExecutorCheckers.check();
         }
 
@@ -426,7 +419,7 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
-                    new CheckHandle(result, funPort.getObject())
+                    new CheckHandle(result, funPort.getObject(), wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -488,7 +481,8 @@ public class PortExecutor
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
                     DuringType.BEFORE_METHOD,
-                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType())
+                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType(),
+                            wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -553,7 +547,8 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
-                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType())
+                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType(),
+                            wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -620,7 +615,7 @@ public class PortExecutor
                     Object finalReturnObject = returnObject;
                     CheckHandle checkHandle = new CheckHandle(finalReturnObject, result, funPort.getObject(),
                             funPort.getMethod(),
-                            funPort.getPortOut().getOutType())
+                            funPort.getPortOut().getOutType(), wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -674,7 +669,7 @@ public class PortExecutor
             {
                 logger(wObject).warn(ex.getMessage(), ex);
                 CheckHandle checkHandle = new CheckHandle(ex, result, funPort.getObject(),
-                        funPort.getMethod(), funPort.getPortOut().getOutType())
+                        funPort.getMethod(), funPort.getPortOut().getOutType(), wObject.abOption)
                 {
                     @Override
                     public void go(Object failedObject)
@@ -761,13 +756,17 @@ public class PortExecutor
             Logger LOGGER = logger(wObject);
             try
             {
-                if (LOGGER.isDebugEnabled() && object instanceof JResponse && ((JResponse) object).isNotSuccess())
+                if (object != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
                 {
                     wObject.getResponse().toErr();
-                    LOGGER.debug("{}", object);
-                } else if (LOGGER.isInfoEnabled())
-                {
-                    LOGGER.info("{}", object);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("{}", object);
+
+                    } else if (LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info("{}", object);
+                    }
                 }
                 wObject.getResponse().write(object);
             } catch (IOException e)

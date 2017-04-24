@@ -5,8 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.exception.CannotOpenOrCloseException;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.base.InNames;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.oftendb.data.ParamsGetter.Params;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -15,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 
 /**
@@ -81,7 +81,7 @@ public class Common
                 {
                     getter.getParams().set(paramsGetter.getParams().getDataAble());
                 }
-                paramsGetter=getter;
+                paramsGetter = getter;
             }
         } else
         {
@@ -208,6 +208,12 @@ public class Common
     }
 
 
+    public static CheckPassable autoTransaction(TransactionConfirm confirm)
+    {
+        AutoTransactionCheckPassable checkPassable = new AutoTransactionCheckPassable(confirm);
+        return checkPassable;
+    }
+
     /**
      * 开启事务，操作对象被保存在{@linkplain WObject#_otherObject}
      *
@@ -230,6 +236,10 @@ public class Common
      */
     public static void commitTransaction(WObject wObject) throws IOException
     {
+        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
+        {
+            return;
+        }
         TransactionHandle handle = (TransactionHandle) wObject._otherObject;
         handle.commitTransaction();
         handle.close();
@@ -244,6 +254,10 @@ public class Common
      */
     public static void rollbackTransaction(WObject wObject) throws IOException
     {
+        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
+        {
+            return;
+        }
         TransactionHandle handle = (TransactionHandle) wObject._otherObject;
         handle.rollback();
         handle.close();

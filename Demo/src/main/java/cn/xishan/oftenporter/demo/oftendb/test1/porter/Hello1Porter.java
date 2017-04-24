@@ -40,8 +40,32 @@ public class Hello1Porter
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
             method = PortMethod.POST)
+    @PortIn.Filter(
+            before = @PortIn.Before(funTied = "addBefore",method = PortMethod.POST),
+            after = @PortIn.After(funTied = "addAfter",method = PortMethod.POST)
+    )
     public Object add(WObject wObject)
     {
+        wObject.finner[0] = new Date();
+        wObject.finner[1] = KeyUtil.randomUUID();
+        return Common2.C.addData(source, false, wObject);
+    }
+
+    @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
+            method = PortMethod.POST)
+    public Object addBefore(WObject wObject)
+    {
+        wObject.fn[0] += "-before";
+        wObject.finner[0] = new Date();
+        wObject.finner[1] = KeyUtil.randomUUID();
+        return Common2.C.addData(source, false, wObject);
+    }
+
+    @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
+            method = PortMethod.POST)
+    public Object addAfter(WObject wObject)
+    {
+        wObject.fn[0] += "-after";
         wObject.finner[0] = new Date();
         wObject.finner[1] = KeyUtil.randomUUID();
         return Common2.C.addData(source, false, wObject);
@@ -93,8 +117,9 @@ public class Hello1Porter
     }
 
     @PortIn
-    public Object clear(WObject wObject){
-        return Common2.C.deleteData(source,null,wObject);
+    public Object clear(WObject wObject)
+    {
+        return Common2.C.deleteData(source, null, wObject);
     }
 
 
@@ -110,7 +135,7 @@ public class Hello1Porter
             JResponse jResponse = Common3.deleteData(condition, wObject);
             jResponse.throwExCause();
         }
-        throw new RuntimeException("failed!");
+        throw new RuntimeException("test transaction failed!");
     }
 
 
