@@ -3,20 +3,20 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 /**
  * @author Created by https://github.com/CLovinr on 2017/2/7.
  */
-class Walk
+class Walk<T>
 {
-    Class<?> clazz1, clazz2;
+    T t1, t2;
 
-    public Walk(Class<?> clazz1, Class<?> clazz2)
+    public Walk(T t1, T t2)
     {
-        this.clazz1 = clazz1;
-        this.clazz2 = clazz2;
+        this.t1 = t1;
+        this.t2 = t2;
     }
 
     @Override
     public int hashCode()
     {
-        return clazz1.hashCode() + clazz2.hashCode();
+        return t1.hashCode() + t2.hashCode();
     }
 
     @Override
@@ -28,6 +28,6 @@ class Walk
         }
         Walk walk = (Walk) obj;
 
-        return walk.clazz1.equals(clazz1) && walk.clazz2.equals(clazz2);
+        return walk.t1.equals(t1) && walk.t2.equals(t2);
     }
 }

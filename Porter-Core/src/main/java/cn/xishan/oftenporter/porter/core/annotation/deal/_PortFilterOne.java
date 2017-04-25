@@ -6,13 +6,13 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 /**
  * Created by chenyg on 2017-04-17.
  */
-public class _PortAfter
+public class _PortFilterOne
 {
     String pathWithContext;
 
     PortMethod method;
 
-    public _PortAfter(PortMethod method)
+    public _PortFilterOne(PortMethod method)
     {
         this.method = method;
     }

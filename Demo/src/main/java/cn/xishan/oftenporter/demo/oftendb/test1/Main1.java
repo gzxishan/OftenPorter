@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.demo.oftendb.test1;
 import cn.xishan.oftenporter.demo.oftendb.base.ParamsGetterImpl;
 import cn.xishan.oftenporter.demo.oftendb.base.SqlDBSource;
 import cn.xishan.oftenporter.oftendb.data.*;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
@@ -11,13 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
-import java.io.IOException;
 import java.util.Random;
 
 public class Main1

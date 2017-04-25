@@ -7,19 +7,13 @@ public class ABOption
 {
     public final Object _otherObject;
     public final ABType abType;
-    public final int total;
+    public final ABPortType abPortType;
 
-    /**
-     * 从1开始。
-     */
-    public final int currentIndex;
-
-    public ABOption(Object _otherObject, ABType abType, int total, int currentIndex)
+    public ABOption(Object _otherObject, ABType abType, ABPortType abPortType)
     {
         this._otherObject = _otherObject;
         this.abType = abType;
-        this.total = total;
-        this.currentIndex = currentIndex;
+        this.abPortType = abPortType;
     }
 
 }

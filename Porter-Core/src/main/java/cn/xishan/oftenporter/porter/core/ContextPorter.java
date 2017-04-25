@@ -66,14 +66,13 @@ public class ContextPorter
     private PorterConf porterConf;
     private ListenerAdder<OnPorterAddListener> listenerAdder;
 
-    public Map<Class<?>, CheckPassable> initSeek(ListenerAdder<OnPorterAddListener> listenerAdder,
+    public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal,ListenerAdder<OnPorterAddListener> listenerAdder,
             PorterConf porterConf,
             AutoSetHandle autoSetHandle) throws FatalInitException
     {
         this.porterConf = porterConf;
         this.listenerAdder = listenerAdder;
 
-        SthDeal sthDeal = new SthDeal();
         seek(porterConf.getSeekPackages().getPackages(), autoSetHandle, sthDeal);
 
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();

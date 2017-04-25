@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortAfter;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortBefore;
+import cn.xishan.oftenporter.porter.core.annotation.deal._PortFilterOne;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 
@@ -21,20 +20,26 @@ public abstract class PorterOfFun implements ObjectGetter
     Porter porter;
 
 
-    _PortBefore[] portBefores;
-    _PortAfter[] portAfters;
+    /**
+     * 第一个先调用
+     */
+    _PortFilterOne[] portBefores;
+    /**
+     * 第一个先调用
+     */
+    _PortFilterOne[] portAfters;
 
-    public _PortBefore[] getPortBefores()
+    public _PortFilterOne[] getPortBefores()
     {
         return portBefores;
     }
 
-    public _PortAfter[] getPortAfters()
+    public _PortFilterOne[] getPortAfters()
     {
         return portAfters;
     }
 
-   public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
+    public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
     {
         PorterOfFun porterOfFun = new PorterOfFun()
         {
@@ -84,5 +89,22 @@ public abstract class PorterOfFun implements ObjectGetter
     public int getArgCount()
     {
         return argCount;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return method.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || !(obj instanceof PorterOfFun))
+        {
+            return false;
+        }
+        PorterOfFun fun = (PorterOfFun) obj;
+        return method.equals(fun.method);
     }
 }
