@@ -104,6 +104,22 @@ public class PortExecutor
         return contextMap.get(contextName);
     }
 
+    public PorterOfFun getPorterOfFun(String pathWithContextName, PortMethod method)
+    {
+        UrlDecoder.Result result = urlDecoder.decode(pathWithContextName);
+        Context context = contextMap.get(result.contextName());
+        PorterOfFun porterOfFun = null;
+        if (context != null)
+        {
+            Porter classPort = context.contextPorter.getClassPort(result.classTied());
+            if (classPort != null)
+            {
+                porterOfFun = classPort.getChild(result.funTied(), TiedType.DEFAULT, method);
+            }
+        }
+        return porterOfFun;
+    }
+
     /**
      * 是否包含指定的context
      *
@@ -207,9 +223,21 @@ public class PortExecutor
                 wObject._otherObject = abOption._otherObject;
             } else
             {
-                wObject.abOption = new ABOption(null, ABType.METHOD_OF_CURRENT,
-                        funPort.getPortBefores().length + 1 + funPort.getPortAfters().length,
-                        funPort.getPortBefores().length + 1);
+                //*********
+                //**初始情况***
+                //*********
+                ABType abType = ABType.METHOD_OF_CURRENT;
+                ABPortType abPortType;
+                if (funPort.getPortBefores().length == 0 && funPort.getPortAfters().length == 0)
+                {
+                    abPortType = ABPortType.BOTH_FIRST_LAST;
+                } else if(funPort.getPortBefores().length ==0)
+                {
+                    abPortType = ABPortType.ORIGIN_FIRST;
+                }else{
+                    abPortType = ABPortType.OTHER;
+                }
+                wObject.abOption = new ABOption(null, abType, abPortType);
             }
 
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
@@ -442,10 +470,10 @@ public class PortExecutor
             Context context, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
-        if (funPort.getPortBefores().length > 0)
+        if (funPort.getPortBefores().length > 0 && wObject.abOption.abType == ABType.METHOD_OF_CURRENT)
         {
             PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
-            portBeforeAfterDealt.doBefore((isOked, object) ->
+            portBeforeAfterDealt.startBefore((isOked, object) ->
             {
                 if (isOked)
                 {
@@ -639,10 +667,11 @@ public class PortExecutor
                 }
             }
 
-            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort.getPortAfters().length > 0)
+            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort
+                    .getPortAfters().length > 0 && wObject.abOption.abType == ABType.METHOD_OF_CURRENT)
             {
                 PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
-                portBeforeAfterDealt.doAfter((isOked, object) ->
+                portBeforeAfterDealt.startAfter((isOked, object) ->
                 {
                     dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
                             isOked ? PortBeforeAfterDealt.DoState.DoResponse : null, isOked, object);

@@ -120,21 +120,25 @@ public final class Porter
      */
     public PorterOfFun getChild(UrlDecoder.Result result, PortMethod method)
     {
-        PorterOfFun porterOfFun = null;
+        PorterOfFun porterOfFun = getChild(result.funTied(), getPortIn().getTiedType(), method);
+        return porterOfFun;
+    }
 
-        _PortIn portIn = getPortIn();
-        switch (portIn.getTiedType())
+    public PorterOfFun getChild(String funTied, TiedType tiedType, PortMethod method)
+    {
+        PorterOfFun porterOfFun = null;
+        switch (tiedType)
         {
 
             case REST:
-                porterOfFun = childrenWithMethod.get(result.funTied() + "/" + method.name());
+                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
                 if (porterOfFun == null)
                 {
                     porterOfFun = childrenWithMethod.get(method.name());
                 }
                 break;
             case DEFAULT:
-                porterOfFun = childrenWithMethod.get(result.funTied() + "/" + method.name());
+                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
                 break;
         }
         if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)

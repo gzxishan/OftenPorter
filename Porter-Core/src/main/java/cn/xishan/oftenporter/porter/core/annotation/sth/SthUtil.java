@@ -1,10 +1,10 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.Context;
+import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.Mixin;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
-import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
-import cn.xishan.oftenporter.porter.core.annotation.deal._Parser;
-import cn.xishan.oftenporter.porter.core.annotation.deal._parse;
+import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
@@ -13,9 +13,7 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -258,6 +256,7 @@ class SthUtil
         }
     }
 
+
     /**
      * 检查循环混入
      *
@@ -265,7 +264,7 @@ class SthUtil
      */
     private void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser) throws FatalInitException
     {
-        Set<Walk> walkedSet = new HashSet<>();
+        Set<Walk<Class>> walkedSet = new HashSet<>();
         String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser);
         if (loopMsg != null)
         {
@@ -282,13 +281,13 @@ class SthUtil
      * @return
      * @throws FatalInitException
      */
-    private String checkLoopMixin(Class<?> from, Set<Walk> walkedSet,
+    private String checkLoopMixin(Class<?> from, Set<Walk<Class>> walkedSet,
             boolean isMixinOrMixinParser) throws FatalInitException
     {
         Class<?>[] mixins = isMixinOrMixinParser ? getMixin(from) : getMixinParser(from);
         for (Class<?> to : mixins)
         {
-            Walk walk = new Walk(from, to);
+            Walk<Class> walk = new Walk<>(from, to);
             if (walkedSet.contains(walk))
             {
                 String msg = String.format("Loop %s:[%s]->[%s]",
@@ -309,6 +308,71 @@ class SthUtil
         }
         return null;
     }
+
+    private void addBeforeOrAfters(List<_PortFilterOne> portFilterOneList, Set<Walk<String>> walkSet,
+            PortExecutor portExecutor, _PortFilterOne from,
+            _PortFilterOne current, boolean isBefore) throws FatalInitException
+    {
+        if (from != null)
+        {
+            Walk<String> walk = new Walk<>(from.getPathWithContext() + ":" + from.getMethod().name(),
+                    current.getPathWithContext() + ":" + current.getMethod().name());
+            if (walkSet.contains(walk))
+            {
+                String msg = String
+                        .format("loop=[%s--->%s] exits!", walk.t1, walk.t2);
+                throw new FatalInitException(msg);
+            }
+            walkSet.add(walk);
+        }
+
+        PorterOfFun porterOfFun = portExecutor.getPorterOfFun(current.getPathWithContext(), current.getMethod());
+        if (porterOfFun == null)
+        {
+            String msg = String
+                    .format("Porter '%s:%s' not exist!", current.getPathWithContext(), current.getMethod().name());
+            throw new FatalInitException(msg);
+        }
+
+
+        _PortFilterOne[] portBefores = isBefore ? porterOfFun.getPortBefores() : porterOfFun.getPortAfters();
+        for (int i = 0; i < portBefores.length; i++)
+        {
+            _PortFilterOne before = portBefores[i];
+            addBeforeOrAfters(portFilterOneList, walkSet, portExecutor, current, before, true);
+            portFilterOneList.add(before);
+            addBeforeOrAfters(portFilterOneList, walkSet, portExecutor, current, before, false);
+        }
+
+    }
+
+    void expandPortAB(Context context, PortExecutor portExecutor) throws FatalInitException
+    {
+        for (Porter porter : context.contextPorter.getPortMap().values())
+        {
+            for (PorterOfFun porterOfFun : porter.getFuns().values())
+            {
+                List<_PortFilterOne> portFilterOneListOfBefore = new ArrayList<>();
+                _PortFilterOne[] portBefores = porterOfFun.getPortBefores();
+                Set<Walk<String>> walkSet = new HashSet<>();
+                for (int i = 0; i < portBefores.length; i++)
+                {
+                    _PortFilterOne before = portBefores[i];
+                    addBeforeOrAfters(portFilterOneListOfBefore, walkSet, portExecutor, null, before, true);
+                }
+                porterOfFun.portBefores = portFilterOneListOfBefore.toArray(new _PortFilterOne[0]);
+
+                List<_PortFilterOne> portFilterOneListOfAfter = new ArrayList<>();
+                walkSet.clear();
+                for (_PortFilterOne after : porterOfFun.getPortAfters())
+                {
+                    addBeforeOrAfters(portFilterOneListOfAfter, walkSet, portExecutor, null, after, false);
+                }
+                porterOfFun.portAfters = portFilterOneListOfAfter.toArray(new _PortFilterOne[0]);
+            }
+        }
+    }
+
 
 //    private static void checkLoopMixinParser(Class<?> root) throws FatalInitException
 //    {

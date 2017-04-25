@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
+import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
@@ -241,9 +242,11 @@ public final class PorterMain
         doGlobalCheckAutoSet(autoSetHandle);
 
         Map<Class<?>, CheckPassable> classCheckPassableMap = null;
+        SthDeal sthDeal = new SthDeal();
+
         try
         {
-            classCheckPassableMap = contextPorter.initSeek(listenerAdder, porterConf, autoSetHandle);
+            classCheckPassableMap = contextPorter.initSeek(sthDeal,listenerAdder, porterConf, autoSetHandle);
         } catch (FatalInitException e)
         {
             throw new Error(e);
@@ -268,7 +271,8 @@ public final class PorterMain
 
         try
         {
-            autoSetHandle.doAutoSet();
+            autoSetHandle.doAutoSet();//变量设置处理
+            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()),portExecutor);//处理After和Before
         } catch (FatalInitException e)
         {
             throw new Error(e);

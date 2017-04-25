@@ -103,7 +103,7 @@ public class TestLocalMain
         });
 
         localMain.startOne(porterConf);
-        int n = 100000 ;
+        int n = 1;//00000 ;
         final int threads = Runtime.getRuntime().availableProcessors();
 
         ExecutorService executorService = Executors.newFixedThreadPool(threads, r ->

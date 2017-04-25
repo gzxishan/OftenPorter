@@ -25,9 +25,8 @@ class AutoTransactionCheckPassable implements CheckPassable
             {
                 if (type == DuringType.ON_METHOD)
                 {
-                    if ((checkHandle.abOption.abType == ABType.METHOD_OF_BEFORE || checkHandle.abOption.abType ==
-                            ABType.METHOD_OF_CURRENT) &&
-                            checkHandle.abOption.currentIndex == 1)
+                    if (checkHandle.abOption.abPortType == ABPortType.ORIGIN_FIRST || checkHandle.abOption.abPortType
+                            == ABPortType.BOTH_FIRST_LAST)
                     {
                         if (transactionConfirm.needTransaction(wObject, type, checkHandle))
                         {
@@ -36,10 +35,8 @@ class AutoTransactionCheckPassable implements CheckPassable
                                     transactionConfirm.getParamsGetter(wObject, type, checkHandle));
                         }
                     }
-                } else if (type == DuringType.AFTER_METHOD && ((checkHandle.abOption
-                        .abType == ABType.METHOD_OF_AFTER || checkHandle.abOption
-                        .abType == ABType.METHOD_OF_CURRENT) &&
-                        checkHandle.abOption.currentIndex == checkHandle.abOption.total))
+                } else if (type == DuringType.AFTER_METHOD && (checkHandle.abOption.abPortType == ABPortType
+                        .FINAL_LAST || checkHandle.abOption.abPortType == ABPortType.BOTH_FIRST_LAST))
                 {
                     Common.commitTransaction(wObject);
                 } else if (type == DuringType.ON_METHOD_EXCEPTION)

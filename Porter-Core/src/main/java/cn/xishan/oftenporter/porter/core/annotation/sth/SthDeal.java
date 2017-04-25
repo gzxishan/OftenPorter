@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.Context;
+import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -43,19 +45,27 @@ public class SthDeal
         return portStart != null || portDestroy != null;
     }
 
-    private void dealPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
+
+    public void dealPortAB(Context context, PortExecutor portExecutor) throws FatalInitException
+    {
+        SthUtil sthUtil = new SthUtil();
+        sthUtil.expandPortAB(context, portExecutor);
+    }
+
+
+    private void addPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
             AutoSetHandle autoSetHandle)
     {
-        List<_PortBefore> portBeforesAll = autoSetHandle.getInnerContextBridge().annotationDealt
+        List<_PortFilterOne> portBeforesAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portBefores(porter.getClazz(), currentContextName, currentClassTied);
-        List<_PortAfter> portAftersAll = autoSetHandle.getInnerContextBridge().annotationDealt
+        List<_PortFilterOne> portAftersAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portAfters(porter.getClazz(), currentContextName, currentClassTied);
         for (PorterOfFun porterOfFun : porter.getFuns().values())
         {
             Method method = porterOfFun.method;
-            List<_PortBefore> portBefores = autoSetHandle.getInnerContextBridge().annotationDealt
+            List<_PortFilterOne> portBefores = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portBefores(method, currentContextName, currentClassTied);
-            List<_PortAfter> portAfters = autoSetHandle.getInnerContextBridge().annotationDealt
+            List<_PortFilterOne> portAfters = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portAfters(method, currentContextName, currentClassTied);
 
             for (int i = portBeforesAll.size() - 1; i >= 0; i--)
@@ -64,8 +74,8 @@ public class SthDeal
             }
             portAfters.addAll(portAftersAll);
 
-            porterOfFun.portBefores = portBefores.toArray(new _PortBefore[0]);
-            porterOfFun.portAfters = portAfters.toArray(new _PortAfter[0]);
+            porterOfFun.portBefores = portBefores.toArray(new _PortFilterOne[0]);
+            porterOfFun.portAfters = portAfters.toArray(new _PortFilterOne[0]);
         }
     }
 
@@ -221,7 +231,7 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-        dealPortAfterBefore(porter, currentContextName, currentClassTied, autoSetHandle);
+        addPortAfterBefore(porter, currentContextName, currentClassTied, autoSetHandle);
         return porter;
     }
 

@@ -41,9 +41,9 @@ public final class AnnotationDealt
         return new AnnotationDealt(enableDefaultValue);
     }
 
-    public List<_PortAfter> portAfters(Class<?> clazz, String currentContext, String currentClassTied)
+    public List<_PortFilterOne> portAfters(Class<?> clazz, String currentContext, String currentClassTied)
     {
-        List<_PortAfter> list = new ArrayList<>();
+        List<_PortFilterOne> list = new ArrayList<>();
         if (clazz.isAnnotationPresent(PortIn.After.class))
         {
             PortIn.After after = clazz.getAnnotation(PortIn.After.class);
@@ -60,9 +60,9 @@ public final class AnnotationDealt
         return list;
     }
 
-    public List<_PortAfter> portAfters(Method method, String currentContext, String currentClassTied)
+    public List<_PortFilterOne> portAfters(Method method, String currentContext, String currentClassTied)
     {
-        List<_PortAfter> list = new ArrayList<>();
+        List<_PortFilterOne> list = new ArrayList<>();
         if (method.isAnnotationPresent(PortIn.After.class))
         {
             PortIn.After after = method.getAnnotation(PortIn.After.class);
@@ -79,21 +79,21 @@ public final class AnnotationDealt
         return list;
     }
 
-    private _PortAfter portAfter(PortIn.After after, String currentContext, String currentClassTied)
+    private _PortFilterOne portAfter(PortIn.After after, String currentContext, String currentClassTied)
     {
         String context = after.context().equals("") ? currentContext : after.context();
         String classTied = after.classTied().equals("") ? currentClassTied : after.classTied();
         PortUtil.checkName(context);
         PortUtil.checkName(classTied);
         PortUtil.checkName(after.funTied());
-        _PortAfter portAfter = new _PortAfter(after.method());
+        _PortFilterOne portAfter = new _PortFilterOne(after.method());
         portAfter.pathWithContext = "/" + context + "/" + classTied + "/" + after.funTied();
         return portAfter;
     }
 
-    public List<_PortBefore> portBefores(Class<?> clazz, String currentContext, String currentClassTied)
+    public List<_PortFilterOne> portBefores(Class<?> clazz, String currentContext, String currentClassTied)
     {
-        List<_PortBefore> list = new ArrayList<>();
+        List<_PortFilterOne> list = new ArrayList<>();
         if (clazz.isAnnotationPresent(PortIn.Before.class))
         {
             PortIn.Before before = clazz.getAnnotation(PortIn.Before.class);
@@ -110,9 +110,9 @@ public final class AnnotationDealt
         return list;
     }
 
-    public List<_PortBefore> portBefores(Method method, String currentContext, String currentClassTied)
+    public List<_PortFilterOne> portBefores(Method method, String currentContext, String currentClassTied)
     {
-        List<_PortBefore> list = new ArrayList<>();
+        List<_PortFilterOne> list = new ArrayList<>();
         if (method.isAnnotationPresent(PortIn.Before.class))
         {
             PortIn.Before before = method.getAnnotation(PortIn.Before.class);
@@ -129,7 +129,7 @@ public final class AnnotationDealt
         return list;
     }
 
-    private _PortBefore portBefore(PortIn.Before before, String currentContext, String currentClassTied)
+    private _PortFilterOne portBefore(PortIn.Before before, String currentContext, String currentClassTied)
     {
         String context = before.context().equals("") ? currentContext : before.context();
         String classTied = before.classTied().equals("") ? currentClassTied : before.classTied();
@@ -137,7 +137,7 @@ public final class AnnotationDealt
         PortUtil.checkName(classTied);
         PortUtil.checkName(before.funTied());
 
-        _PortBefore portBefore = new _PortBefore(before.method());
+        _PortFilterOne portBefore = new _PortFilterOne(before.method());
         portBefore.pathWithContext = "/" + context + "/" + classTied + "/" + before.funTied();
         return portBefore;
     }
