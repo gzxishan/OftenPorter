@@ -2,8 +2,7 @@ package cn.xishan.oftenporter.demo.oftendb.test1;
 
 import cn.xishan.oftenporter.demo.oftendb.base.ParamsGetterImpl;
 import cn.xishan.oftenporter.demo.oftendb.base.SqlDBSource;
-import cn.xishan.oftenporter.oftendb.data.Common;
-import cn.xishan.oftenporter.oftendb.data.Common2;
+import cn.xishan.oftenporter.oftendb.data.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -18,6 +17,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
+import java.io.IOException;
 import java.util.Random;
 
 public class Main1
@@ -30,48 +30,33 @@ public class Main1
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()
                 .addPorters(Main1.class.getPackage().getName() + ".porter");
-        porterConf.addForAllCheckPassable(new CheckPassable()
+        porterConf.addForAllCheckPassable(Common.autoTransaction(new TransactionConfirm()
         {
-            @AutoSet
-            ParamsGetterImpl paramsGetter;
+            @Override
+            public boolean needTransaction(WObject wObject, DuringType type, CheckHandle checkHandle)
+            {
+                return true;
+            }
 
             @Override
-            public void willPass(WObject wObject, DuringType type, CheckHandle checkHandle)
+            public DBHandleSource getDBHandleSource(WObject wObject, DuringType type, CheckHandle checkHandle)
             {
-                UrlDecoder.Result result = checkHandle.urlResult;
-
-                if (checkHandle.handleMethod != null && result.classTied().equals("Hello1") && result.funTied()
-                        .startsWith("transaction"))
-                {
-                    try
-                    {
-                        if (type == DuringType.ON_METHOD)
-                        {
-                            Common.startTransaction(wObject, new SqlDBSource(), paramsGetter);
-                        } else if (type == DuringType.AFTER_METHOD)
-                        {
-                            Common.commitTransaction(wObject);
-                        } else if (type == DuringType.ON_METHOD_EXCEPTION)
-                        {
-                            Common.rollbackTransaction(wObject);
-                        }
-                    } catch (Exception e)
-                    {
-                        checkHandle.failed(e);
-                        return;
-                    }
-
-                }
-                checkHandle.next();
+                return new SqlDBSource();
             }
-        });
+
+            @Override
+            public ParamsGetter getParamsGetter(WObject wObject, DuringType type, CheckHandle checkHandle)
+            {
+                return new ParamsGetterImpl();
+            }
+        }));
 
         localMain.startOne(porterConf);
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
         PBridge bridge = localMain.getPLinker().currentBridge();
 
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 1; i++)
         {
             bridge.request(new PRequest(PortMethod.POST, "/T1/Hello1/add")
                     .addParam("name", "小明-" + (new Random().nextInt(3))).addParam("age", "21")

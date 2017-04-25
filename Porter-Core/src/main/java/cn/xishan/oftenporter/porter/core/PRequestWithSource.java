@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/28.
  */
-public class PRequestWithSource extends PRequest
+class PRequestWithSource extends PRequest
 {
 
 
@@ -35,7 +35,7 @@ public class PRequestWithSource extends PRequest
     PRequestWithSource(PRequest request, WObject wObject)
     {
         super(request.getMethod(), request.getPath(), false);
-        fromPortBeforeAfter=request.fromPortBeforeAfter();
+        setABOption(request.getABOption());
         initOrigin(request);
         this.request = request;
         this.invokeSource = new InvokeSource(wObject.getPName(), wObject.url().contextName(),

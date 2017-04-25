@@ -36,6 +36,8 @@ public abstract class CheckHandle
      */
     public final OutType outType;
 
+    public final ABOption abOption;
+
     public CheckHandle(CheckHandle checkHandle)
     {
         this.returnObj = checkHandle.returnObj;
@@ -44,16 +46,17 @@ public abstract class CheckHandle
         this.handleObject = checkHandle.handleObject;
         this.handleMethod = checkHandle.handleMethod;
         this.outType=checkHandle.outType;
+        this.abOption=checkHandle.abOption;
     }
 
 
-    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject)
+    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject,ABOption abOption)
     {
-        this(null, null, urlResult, handleObject, null,null);
+        this(null, null, urlResult, handleObject, null,null,abOption);
     }
 
     private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object handleObject,
-            Object handleMethod,OutType outType)
+            Object handleMethod,OutType outType,ABOption abOption)
     {
         this.returnObj = returnObj;
         this.exCause = exCause;
@@ -61,21 +64,22 @@ public abstract class CheckHandle
         this.handleObject = handleObject;
         this.handleMethod = handleMethod;
         this.outType=outType;
+        this.abOption=abOption;
     }
 
-    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
+    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
     {
-        this(null, null, urlResult, handleObject, handleMethod,outType);
+        this(null, null, urlResult, handleObject, handleMethod,outType,abOption);
     }
 
-    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
+    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
     {
-        this(returnObj, null, urlResult, handleObject, handleMethod,outType);
+        this(returnObj, null, urlResult, handleObject, handleMethod,outType,abOption);
     }
 
-    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType)
+    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
     {
-        this(null, exCause, urlResult, handleObject, handleMethod,outType);
+        this(null, exCause, urlResult, handleObject, handleMethod,outType,abOption);
     }
 
 

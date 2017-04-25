@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.pbridge;
 
+import cn.xishan.oftenporter.porter.core.base.ABOption;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WRequest;
@@ -16,7 +17,7 @@ public class PRequest implements WRequest, Cloneable
     protected PortMethod method;
     protected Map<String, Object> params;
     protected Object originRequest, originResponse;
-    protected boolean fromPortBeforeAfter=false;
+    private ABOption abOption;
 
     public PRequest(PortMethod method, String requestPath)
     {
@@ -41,9 +42,14 @@ public class PRequest implements WRequest, Cloneable
         initOrigin(request);
     }
 
-    public boolean fromPortBeforeAfter()
+    public void setABOption(ABOption abOption)
     {
-        return fromPortBeforeAfter;
+        this.abOption = abOption;
+    }
+
+    public ABOption getABOption()
+    {
+        return abOption;
     }
 
     protected void initOrigin(WRequest request)
@@ -60,15 +66,14 @@ public class PRequest implements WRequest, Cloneable
 
     public PRequest withNewPath(String newPath)
     {
-        return withNewPath(newPath,getMethod(), this, false,false);
+        return withNewPath(newPath, getMethod(), this, false);
     }
 
-    public static PRequest withNewPath(String newPath,PortMethod method, WRequest wRequest, boolean willCloneParamsMap,boolean fromPortBeforeAfter)
+    public static PRequest withNewPath(String newPath, PortMethod method, WRequest wRequest, boolean willCloneParamsMap)
     {
         PRequest request = new PRequest(method, newPath, willCloneParamsMap);
         request.originRequest = wRequest.getOriginalRequest();
         request.originResponse = wRequest.getOriginalResponse();
-        request.fromPortBeforeAfter=fromPortBeforeAfter;
         if (willCloneParamsMap)
         {
             request.addParamAll(wRequest.getParameterMap());
@@ -105,20 +110,21 @@ public class PRequest implements WRequest, Cloneable
     }
 
     @Override
-    public <T>T getOriginalResponse()
+    public <T> T getOriginalResponse()
     {
         return (T) originResponse;
     }
 
     @Override
-    public <T>T getOriginalRequest()
+    public <T> T getOriginalRequest()
     {
         return (T) originRequest;
     }
 
     public synchronized PRequest addParamAll(AppValues appValues)
     {
-        if(appValues!=null){
+        if (appValues != null)
+        {
             String[] names = appValues.getNames();
             Object[] values = appValues.getValues();
             for (int i = 0; i < names.length; i++)

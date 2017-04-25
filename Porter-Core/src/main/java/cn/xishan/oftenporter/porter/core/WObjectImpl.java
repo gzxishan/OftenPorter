@@ -16,6 +16,7 @@ class WObjectImpl extends WObject
     Object[] finObjs, cinObjs;
 
     Context context;
+    ABOption abOption;
     private PName pName;
     private Delivery delivery;
     private ParamSource paramSource;
