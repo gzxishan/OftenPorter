@@ -21,6 +21,8 @@ public abstract class CheckHandle
      */
     public final UrlDecoder.Result urlResult;
 
+    public final Object finalPorterObject;
+
     /**
      * 当前接口对象,整个时期都存在。
      */
@@ -43,43 +45,49 @@ public abstract class CheckHandle
         this.returnObj = checkHandle.returnObj;
         this.exCause = checkHandle.exCause;
         this.urlResult = checkHandle.urlResult;
+        this.finalPorterObject = checkHandle.finalPorterObject;
         this.handleObject = checkHandle.handleObject;
         this.handleMethod = checkHandle.handleMethod;
-        this.outType=checkHandle.outType;
-        this.abOption=checkHandle.abOption;
+        this.outType = checkHandle.outType;
+        this.abOption = checkHandle.abOption;
     }
 
 
-    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject,ABOption abOption)
+    public CheckHandle(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, ABOption abOption)
     {
-        this(null, null, urlResult, handleObject, null,null,abOption);
+        this(null, null, urlResult, finalPorterObject, handleObject, null, null, abOption);
     }
 
-    private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object handleObject,
-            Object handleMethod,OutType outType,ABOption abOption)
+    private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject,
+            Object handleObject,
+            Object handleMethod, OutType outType, ABOption abOption)
     {
         this.returnObj = returnObj;
         this.exCause = exCause;
         this.urlResult = urlResult;
+        this.finalPorterObject = finalPorterObject;
         this.handleObject = handleObject;
         this.handleMethod = handleMethod;
-        this.outType=outType;
-        this.abOption=abOption;
+        this.outType = outType;
+        this.abOption = abOption;
     }
 
-    public CheckHandle(UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
+    public CheckHandle(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod,
+            OutType outType, ABOption abOption)
     {
-        this(null, null, urlResult, handleObject, handleMethod,outType,abOption);
+        this(null, null, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
     }
 
-    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
+    public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject,
+            Object handleMethod, OutType outType, ABOption abOption)
     {
-        this(returnObj, null, urlResult, handleObject, handleMethod,outType,abOption);
+        this(returnObj, null, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
     }
 
-    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object handleObject, Object handleMethod,OutType outType,ABOption abOption)
+    public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject,
+            Object handleMethod, OutType outType, ABOption abOption)
     {
-        this(null, exCause, urlResult, handleObject, handleMethod,outType,abOption);
+        this(null, exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
     }
 
 

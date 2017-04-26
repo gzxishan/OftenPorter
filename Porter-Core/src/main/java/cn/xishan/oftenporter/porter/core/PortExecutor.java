@@ -231,10 +231,11 @@ public class PortExecutor
                 if (funPort.getPortBefores().length == 0 && funPort.getPortAfters().length == 0)
                 {
                     abPortType = ABPortType.BOTH_FIRST_LAST;
-                } else if(funPort.getPortBefores().length ==0)
+                } else if (funPort.getPortBefores().length == 0)
                 {
                     abPortType = ABPortType.ORIGIN_FIRST;
-                }else{
+                } else
+                {
                     abPortType = ABPortType.OTHER;
                 }
                 wObject.abOption = new ABOption(null, abType, abPortType);
@@ -348,21 +349,22 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_GLOBAL,
-                    allGlobal, new CheckHandle(result, funPort.getObject(), wObject.abOption)
-            {
+                    allGlobal,
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
+                    {
 
-                @Override
-                public void go(Object failedObject)
-                {
-                    if (failedObject != null)
-                    {
-                        exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
-                    } else
-                    {
-                        dealtOfContextGlobalCheck(context, funPort, wObject, innerContextBridge, result);
-                    }
-                }
-            });
+                        @Override
+                        public void go(Object failedObject)
+                        {
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(wObject, failedObject, innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfContextGlobalCheck(context, funPort, wObject, innerContextBridge, result);
+                            }
+                        }
+                    });
             portExecutorCheckers.check();
         }
 
@@ -380,7 +382,7 @@ public class PortExecutor
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
                     DuringType.ON_CONTEXT_GLOBAL, contextChecks,
-                    new CheckHandle(result, funPort.getObject(), wObject.abOption)
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -447,7 +449,7 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
-                    new CheckHandle(result, funPort.getObject(), wObject.abOption)
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -509,7 +511,8 @@ public class PortExecutor
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
                     DuringType.BEFORE_METHOD,
-                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType(),
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType(),
                             wObject.abOption)
                     {
                         @Override
@@ -575,7 +578,8 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
-                    new CheckHandle(result, funPort.getObject(), funPort.getMethod(), funPort.getPortOut().getOutType(),
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType(),
                             wObject.abOption)
                     {
                         @Override
@@ -641,7 +645,8 @@ public class PortExecutor
                 } else
                 {
                     Object finalReturnObject = returnObject;
-                    CheckHandle checkHandle = new CheckHandle(finalReturnObject, result, funPort.getObject(),
+                    CheckHandle checkHandle = new CheckHandle(finalReturnObject, result, funPort.getFinalPorterObject(),
+                            funPort.getObject(),
                             funPort.getMethod(),
                             funPort.getPortOut().getOutType(), wObject.abOption)
                     {
@@ -697,7 +702,8 @@ public class PortExecutor
             } else
             {
                 logger(wObject).warn(ex.getMessage(), ex);
-                CheckHandle checkHandle = new CheckHandle(ex, result, funPort.getObject(),
+                CheckHandle checkHandle = new CheckHandle(ex, result, funPort.getFinalPorterObject(),
+                        funPort.getObject(),
                         funPort.getMethod(), funPort.getPortOut().getOutType(), wObject.abOption)
                 {
                     @Override

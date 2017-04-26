@@ -18,6 +18,7 @@ public abstract class PorterOfFun implements ObjectGetter
     _PortIn portIn;
     InObj inObj;
     Porter porter;
+    Object finalObject;
 
 
     /**
@@ -56,6 +57,10 @@ public abstract class PorterOfFun implements ObjectGetter
     public Porter getPorter()
     {
         return porter;
+    }
+
+    public Object getFinalPorterObject(){
+        return finalObject;
     }
 
     @Override
