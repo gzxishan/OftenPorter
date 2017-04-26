@@ -359,6 +359,7 @@ class SthUtil
                 {
                     _PortFilterOne before = portBefores[i];
                     addBeforeOrAfters(portFilterOneListOfBefore, walkSet, portExecutor, null, before, true);
+                    portFilterOneListOfBefore.add(before);
                 }
                 porterOfFun.portBefores = portFilterOneListOfBefore.toArray(new _PortFilterOne[0]);
 
@@ -366,6 +367,7 @@ class SthUtil
                 walkSet.clear();
                 for (_PortFilterOne after : porterOfFun.getPortAfters())
                 {
+                    portFilterOneListOfAfter.add(after);
                     addBeforeOrAfters(portFilterOneListOfAfter, walkSet, portExecutor, null, after, false);
                 }
                 porterOfFun.portAfters = portFilterOneListOfAfter.toArray(new _PortFilterOne[0]);

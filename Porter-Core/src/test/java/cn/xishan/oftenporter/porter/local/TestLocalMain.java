@@ -42,6 +42,10 @@ public class TestLocalMain
         void onEnd(long totalDTime, int n);
     }
 
+    public static void main(String[] args){
+        new TestLocalMain().main();
+    }
+
     @Test
     public void main()
     {
