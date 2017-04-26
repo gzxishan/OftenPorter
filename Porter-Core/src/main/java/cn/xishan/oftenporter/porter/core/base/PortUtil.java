@@ -25,7 +25,7 @@ public class PortUtil
 {
     private static final String TIED_ACCEPTED = "^[a-zA-Z0-9%_.$&=-]+$";
     private static final Pattern TIED_NAME_PATTERN = Pattern.compile(TIED_ACCEPTED);
-    private  final Logger LOGGER;
+    private final Logger LOGGER;
 
     public PortUtil()
     {
@@ -53,10 +53,12 @@ public class PortUtil
         return checkTied(name);
     }
 
-    private static String tied(PortIn portIn){
+    private static String tied(PortIn portIn)
+    {
         String name = portIn.value();
-        if(WPTool.isEmpty(name)){
-            name=portIn.tied();
+        if (WPTool.isEmpty(name))
+        {
+            name = portIn.tied();
         }
         return name;
     }
@@ -105,22 +107,30 @@ public class PortUtil
             {
                 throw new InitException("default value is not enable for " + clazz);
             }
-            String className = clazz.getSimpleName();
-            if (className.endsWith("WPort"))
-            {
-                className = className.substring(0, className.length() - 4);
-            } else if (className.endsWith("Porter"))
-            {
-                className = className.substring(0, className.length() - 6);
-            }
-            if (className.equals(""))
-            {
-                className = clazz.getSimpleName();
-            }
-            name = className;
+            return tied(clazz);
+        } else
+        {
+            return checkTied(name);
         }
-        return checkTied(name);
     }
+
+    public static String tied(Class<?> clazz)
+    {
+        String className = clazz.getSimpleName();
+        if (className.endsWith("WPort"))
+        {
+            className = className.substring(0, className.length() - 4);
+        } else if (className.endsWith("Porter"))
+        {
+            className = className.substring(0, className.length() - 6);
+        }
+        if (className.equals(""))
+        {
+            className = clazz.getSimpleName();
+        }
+        return checkTied(className);
+    }
+
 
     /**
      * 判断是否是接口类。
@@ -172,7 +182,7 @@ public class PortUtil
      * 返回结果不为null。
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
-    public  Object paramDealOne(boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+    public Object paramDealOne(boolean ignoreTypeParser, ParamDealt paramDealt, One one,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
@@ -218,13 +228,13 @@ public class PortUtil
      *
      * @return 返回null表示转换成功，否则表示失败。
      */
-    public  ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
+    public ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
             Object[] nece,
             Object[] unnece,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
-        ParamDealt.FailedReason reason=null;
+        ParamDealt.FailedReason reason = null;
         try
         {
             if (ignoreTypeParser)

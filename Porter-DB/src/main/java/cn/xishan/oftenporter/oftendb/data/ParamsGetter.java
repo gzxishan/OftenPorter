@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -11,13 +12,14 @@ public interface ParamsGetter
 
     interface DataInitable
     {
-        void atLeastCollectionName(WObject wObject, DataAble dataAble);
+        void atLeastCollectionName(WObject wObject, DataAble dataAble, @MayNull Object unit);
     }
 
     class Params
     {
         private DataAble dataAble;
         private DataInitable dataInitable;
+        private Object unit;
 
         /**
          * @param dataClass
@@ -26,6 +28,11 @@ public interface ParamsGetter
         {
             this.set(dataClass);
             this.dataInitable = dataInitable;
+        }
+
+        public void setUnit(Object unit)
+        {
+            this.unit = unit;
         }
 
         public void setDataAble(DataAble dataAble)
@@ -63,7 +70,7 @@ public interface ParamsGetter
         DataAble newData(WObject wObject)
         {
             DataAble dataAbleClone = dataAble.cloneData();
-            dataInitable.atLeastCollectionName(wObject, dataAbleClone);
+            dataInitable.atLeastCollectionName(wObject, dataAbleClone, unit);
             return dataAbleClone;
         }
 
@@ -78,7 +85,7 @@ public interface ParamsGetter
         }
 
         /**
-         * 会触发{@linkplain DataInitable#atLeastCollectionName(WObject, DataAble)}
+         * 会触发{@linkplain DataInitable#atLeastCollectionName(WObject, DataAble, Object)}
          *
          * @param wObject
          * @return

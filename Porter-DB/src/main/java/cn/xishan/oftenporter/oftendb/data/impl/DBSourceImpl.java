@@ -82,4 +82,11 @@ public class DBSourceImpl implements DBSource
         DBSource dbSource = new DBSourceImpl(clazz, params.getDataInitable(), dbHandleSource);
         return dbSource;
     }
+
+    @Override
+    public DBSource newInstance()
+    {
+        DBSource dbSource = new DBSourceImpl(params.getDataAble(),params.getDataInitable(),dbHandleSource);
+        return dbSource;
+    }
 }

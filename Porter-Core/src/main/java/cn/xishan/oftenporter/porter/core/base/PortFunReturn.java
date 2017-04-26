@@ -39,4 +39,10 @@ public class PortFunReturn
         params.put(name, value);
         return this;
     }
+
+    @Override
+    public String toString()
+    {
+        return params == null ? "null" : params.toString();
+    }
 }

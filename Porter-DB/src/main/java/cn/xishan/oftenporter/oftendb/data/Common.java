@@ -74,15 +74,15 @@ public class Common
             }
             common = (Common) comm;
             dbHandleSource = handle.getDBHandleSource();
-            if (handle.getParamsGetter() != null)
-            {
-                ParamsGetter getter = handle.getParamsGetter();
-                if (paramsGetter != null && paramsGetter.getParams() != null)
-                {
-                    getter.getParams().set(paramsGetter.getParams().getDataAble());
-                }
-                paramsGetter = getter;
-            }
+//            if (handle.getParamsGetter() != null)
+//            {
+//                ParamsGetter getter = handle.getParamsGetter();
+//                if (paramsGetter != null && paramsGetter.getParams() != null)
+//                {
+//                    getter.getParams().set(paramsGetter.getParams().getDataAble());
+//                }
+//                paramsGetter = getter;
+//            }
         } else
         {
             common = this;
