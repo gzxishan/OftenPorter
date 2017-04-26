@@ -5,10 +5,8 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.InNames;
-import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
-import cn.xishan.oftenporter.porter.core.base.TiedType;
+import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -77,6 +75,31 @@ public final class AnnotationDealt
             }
         }
         return list;
+    }
+
+    public _SyncPorterOption syncPorterOption(Field field, String currentContext) throws FatalInitException
+
+    {
+        if (field.isAnnotationPresent(SyncPorterOption.class))
+        {
+            _SyncPorterOption syncPorterOption = new _SyncPorterOption();
+
+            SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
+            String context = option.context().equals("") ? currentContext : option.context();
+            String classTied = option.classTied();
+            PortUtil.checkName(context);
+            PortUtil.checkName(classTied);
+            PortUtil.checkName(option.funTied());
+            syncPorterOption.method = option.method();
+            syncPorterOption.pathWithContext = "/" + context + "/" + classTied + "/" + option.funTied();
+            return syncPorterOption;
+
+        } else
+        {
+            throw new FatalInitException(
+                    String.format("Field[%s] not annotate with %s", field, SyncPorterOption.class.getName()));
+        }
+
     }
 
     private _PortFilterOne portAfter(PortIn.After after, String currentContext, String currentClassTied)

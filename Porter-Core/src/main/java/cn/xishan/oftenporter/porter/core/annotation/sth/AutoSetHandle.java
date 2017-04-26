@@ -1,11 +1,13 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
+import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetSeek;
@@ -16,9 +18,9 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public class AutoSetHandle
     private Delivery thisDelivery;
     private PorterData porterData;
     private List<IHandle> iHandles = new ArrayList<>();
+    private String currentContextName;
 
 
     private interface IHandle
@@ -78,7 +81,7 @@ public class AutoSetHandle
             this.objects = objects;
         }
 
-        private void doAutoSetsForNotPorter(Object[] objects)
+        private void doAutoSetsForNotPorter(Object[] objects) throws FatalInitException
         {
             for (Object obj : objects)
             {
@@ -87,7 +90,7 @@ public class AutoSetHandle
         }
 
         @Override
-        public void handle()
+        public void handle() throws FatalInitException
         {
             this.doAutoSetsForNotPorter(objects);
         }
@@ -137,29 +140,32 @@ public class AutoSetHandle
             this.args = args;
         }
 
-        private void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
+        private void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap) throws FatalInitException
         {
             doAutoSet(object, autoSetMixinMap);
         }
 
         @Override
-        public void handle()
+        public void handle() throws FatalInitException
         {
             this.doAutoSetForPorter(args[0], (Map<String, Object>) args[1]);
         }
     }
 
     public static AutoSetHandle newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery,
-            PorterData porterData)
+            PorterData porterData, String currentContextName)
     {
-        return new AutoSetHandle(innerContextBridge, thisDelivery, porterData);
+        return new AutoSetHandle(innerContextBridge, thisDelivery, porterData, currentContextName);
     }
 
-    private AutoSetHandle(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData)
+
+    private AutoSetHandle(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData,
+            String currentContextName)
     {
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
+        this.currentContextName = currentContextName;
         LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
@@ -187,6 +193,7 @@ public class AutoSetHandle
             }
         }
     }
+
 
     public synchronized void addAutoSetsForNotPorter(Object[] objects)
     {
@@ -241,7 +248,7 @@ public class AutoSetHandle
         }
     }
 
-    private void doAutoSet(Object object, Map<String, Object> autoSetMixinMap)
+    private void doAutoSet(Object object, Map<String, Object> autoSetMixinMap) throws FatalInitException
     {
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
@@ -286,7 +293,7 @@ public class AutoSetHandle
                         autoSetMixinMap.put(autoSetMixinName, f.get(object));
                         continue;
                     }
-                } else if (isDefaultAutoSetObject(f, object, autoSet))
+                } else if (isDefaultAutoSetObject(f, object, autoSet, autoSetMixinMap))
                 {
                     continue;
                 }
@@ -341,7 +348,7 @@ public class AutoSetHandle
                         }
                         break;
                     }
-
+                    value = dealtAutoSet(autoSet, object, f, value);
                     if (value == null)
                     {
                         thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
@@ -351,13 +358,18 @@ public class AutoSetHandle
                         autoSetMixinMap.put(autoSetMixinName, value);
                     }
                 }
+                doAutoSet(value, autoSetMixinMap);//递归：设置被设置的变量。
                 f.set(object, value);
+
+
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("AutoSet:({})[{}] with [{}]", autoSetMixinName == null ? "" : AutoSetMixin.class
                             .getSimpleName() + " " + (needPut ? "get" : "set") + " " + autoSetMixinName, f, value);
                 }
-                doAutoSet(value, autoSetMixinMap);//设置被设置的变量。
+            } catch (FatalInitException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
@@ -386,10 +398,39 @@ public class AutoSetHandle
         }
     }
 
+    private Object dealtAutoSet(AutoSet autoSet, Object object, Field field,
+            Object value) throws InvocationTargetException, NoSuchMethodException,
+            InstantiationException, IllegalAccessException
+    {
+        Class<? extends AutoSetDealt> autoSetDealtClass = autoSet.dealt();
+        String option = autoSet.option();
+        if (autoSetDealtClass.equals(AutoSetDealt.class))
+        {
+            Class<?> objClazz = field.getType();
+            if (objClazz.isAnnotationPresent(AutoSet.AutoSetDefaultDealt.class))
+            {
+                AutoSet.AutoSetDefaultDealt autoSetDefaultDealt = objClazz
+                        .getAnnotation(AutoSet.AutoSetDefaultDealt.class);
+                autoSetDealtClass = autoSetDefaultDealt.dealt();
+                option = autoSetDefaultDealt.option();
+            }
+        }
+        if (autoSetDealtClass.equals(AutoSetDealt.class))
+        {
+            return value;
+        }
+        AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
+        Object finalValue = autoSetDealt.deal(object, field, value, option);
+        return finalValue;
+    }
+
     /**
      * 是否是默认工具类。
      */
-    private boolean isDefaultAutoSetObject(Field f, Object object, AutoSet autoSet) throws IllegalAccessException
+    private boolean isDefaultAutoSetObject(Field f, Object object,
+            AutoSet autoSet, Map<String, Object> autoSetMixinMap) throws IllegalAccessException, FatalInitException,
+            NoSuchMethodException, InstantiationException, InvocationTargetException
+
     {
         Object sysset = null;
         String typeName = f.getType().getName();
@@ -402,6 +443,11 @@ public class AutoSetHandle
         } else if (typeName.equals(Logger.class.getName()))
         {
             sysset = LogUtil.logger(object.getClass());
+        } else if (typeName.equals(SyncPorter.class.getName()))
+        {
+            _SyncPorterOption syncPorterOption = innerContextBridge.annotationDealt
+                    .syncPorterOption(f, currentContextName);
+            sysset = new SyncPorterImpl(syncPorterOption);
         } else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();
@@ -422,10 +468,12 @@ public class AutoSetHandle
 
             sysset = delivery;
         }
+        //sysset = dealtAutoSet(autoSet, object, f, sysset);
         if (sysset != null)
         {
             f.set(object, sysset);
             LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
+            doAutoSet(sysset, autoSetMixinMap);//递归：设置被设置的变量。
         }
         return sysset != null;
     }

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -144,4 +145,29 @@ public @interface AutoSet
      * @return
      */
     Range range() default Range.Context;
+
+    String option() default "";
+
+    /**
+     * 对应的AutoSetDealt必须含有无参构造函数。
+     * @return
+     */
+    Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
+
+    /**
+     *
+     * @author Created by https://github.com/CLovinr on 2017/1/7.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Documented
+    @interface AutoSetDefaultDealt
+    {
+        String option() default "";
+        /**
+         * 对应的AutoSetDealt必须含有无参构造函数。
+         * @return
+         */
+        Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
+    }
 }

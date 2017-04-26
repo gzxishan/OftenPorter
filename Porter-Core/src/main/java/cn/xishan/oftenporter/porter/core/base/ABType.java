@@ -5,5 +5,20 @@ package cn.xishan.oftenporter.porter.core.base;
  */
 public enum ABType
 {
-    METHOD_OF_BEFORE, METHOD_OF_AFTER,METHOD_OF_CURRENT
+    /**
+     * 在接口方法之前调用。
+     */
+    METHOD_OF_BEFORE,
+    /**
+     * 在接口方法后调用。
+     */
+    METHOD_OF_AFTER,
+    /**
+     * 正在调用当前接口方法。
+     */
+    METHOD_OF_CURRENT,
+    /**
+     * 接口方法内部调用。
+     */
+    METHOD_OF_INNER
 }

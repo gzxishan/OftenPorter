@@ -227,6 +227,11 @@ public class TestLocalMain
 
                             });
 
+                    bridge.request(new PRequest("/Local-1/TestAB/syncData"),
+                            lResponse ->{
+
+                            });
+
                     bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
                                     .addParam("myAge", 22),
                             lResponse -> assertEquals("小明+22", lResponse.getResponse()));
