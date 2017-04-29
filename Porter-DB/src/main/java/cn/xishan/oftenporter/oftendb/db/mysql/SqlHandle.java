@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db.mysql;
 
 
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.sql.*;
 
-public class SqlHandle implements DBHandle
+public class SqlHandle implements DBHandle, SqlSource
 {
 
     private Connection conn;
@@ -35,6 +36,12 @@ public class SqlHandle implements DBHandle
     {
         this.conn = conn;
         this.tableName = tableName;
+    }
+
+    @Override
+    public Connection getConnection()
+    {
+        return conn;
     }
 
     @Override

@@ -44,6 +44,12 @@ public class SqlDBSource extends MysqlSource {
         }
     }
 
+    @Override
+    public Connection getConnection()
+    {
+        return getConn();
+    }
+
     private Connection getConn() {
 
         try {

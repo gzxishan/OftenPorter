@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  *
  * @author Created by https://github.com/CLovinr on 2017/1/7.
  */
+@Deprecated
 public class Common3
 {
     private static void checkTransactionHandle(WObject wObject)

@@ -59,6 +59,16 @@ public class WPTool
     }
 
     /**
+     * 判断类是否为接口或抽象类。
+     * @param clazz
+     * @return
+     */
+    public static boolean isInterfaceOrAbstract(Class<?> clazz){
+        boolean is = clazz.isInterface()||Modifier.isAbstract(clazz.getModifiers());
+        return is;
+    }
+
+    /**
      * 返回c1是c2的第几代子类。
      * -1表示不是子类，0表示是本身，1表示是第一代子类...
      *

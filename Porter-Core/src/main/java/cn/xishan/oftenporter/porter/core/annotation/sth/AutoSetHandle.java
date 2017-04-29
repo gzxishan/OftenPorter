@@ -320,12 +320,13 @@ public class AutoSetHandle
                         mayNew = f.getType();
                     }
 
+
                     switch (autoSet.range())
                     {
                         case Global:
                         {
                             value = globalAutoSet.get(keyName);
-                            if (value == null)
+                            if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObject(mayNew);
                                 globalAutoSet.put(keyName, value);
@@ -335,7 +336,7 @@ public class AutoSetHandle
                         case Context:
                         {
                             value = contextAutoSet.get(keyName);
-                            if (value == null)
+                            if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObject(mayNew);
                                 contextAutoSet.put(keyName, value);
@@ -348,20 +349,28 @@ public class AutoSetHandle
                         }
                         break;
                     }
+                    if (value == null)
+                    {
+                        value = genObjectOfAutoSet(autoSet, object, f);
+                    }
                     value = dealtAutoSet(autoSet, object, f, value);
                     if (value == null)
                     {
-                        thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
-                        break;
+                        if (!autoSet.nullAble())
+                        {
+                            thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
+                            break;
+                        }
                     } else if (needPut)
                     {
                         autoSetMixinMap.put(autoSetMixinName, value);
                     }
                 }
-                doAutoSet(value, autoSetMixinMap);//递归：设置被设置的变量。
+                if (value != null)
+                {
+                    doAutoSet(value, autoSetMixinMap);//递归：设置被设置的变量。
+                }
                 f.set(object, value);
-
-
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("AutoSet:({})[{}] with [{}]", autoSetMixinName == null ? "" : AutoSetMixin.class
@@ -373,6 +382,7 @@ public class AutoSetHandle
             } catch (Exception e)
             {
                 LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
+                LOGGER.error(e.getMessage(),e);
             }
 
         }
@@ -398,9 +408,48 @@ public class AutoSetHandle
         }
     }
 
+    /**
+     * 用于生成注入对象。
+     *
+     * @param autoSet
+     * @param object
+     * @param field
+     * @return
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     */
+    private Object genObjectOfAutoSet(AutoSet autoSet, Object object, Field field) throws InvocationTargetException,
+            NoSuchMethodException, InstantiationException, IllegalAccessException, FatalInitException
+    {
+        Class<? extends AutoSetGen> genClass = autoSet.gen();
+        String option = autoSet.option();
+        if (genClass.equals(AutoSetGen.class))
+        {
+            Class<?> objClazz = field.getType();
+            if (objClazz.isAnnotationPresent(AutoSet.AutoSetDefaultDealt.class))
+            {
+                AutoSet.AutoSetDefaultDealt autoSetDefaultDealt = objClazz
+                        .getAnnotation(AutoSet.AutoSetDefaultDealt.class);
+                genClass = autoSetDefaultDealt.gen();
+                option = autoSetDefaultDealt.option();
+            }
+        }
+        if (genClass.equals(AutoSetGen.class))
+        {
+            return null;
+        }
+
+        AutoSetGen autoSetGen = WPTool.newObject(genClass);
+        doAutoSet(autoSetGen,null);
+        Object value = autoSetGen.genObject(object, field, option);
+        return value;
+    }
+
     private Object dealtAutoSet(AutoSet autoSet, Object object, Field field,
             Object value) throws InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException
+            InstantiationException, IllegalAccessException, FatalInitException
     {
         Class<? extends AutoSetDealt> autoSetDealtClass = autoSet.dealt();
         String option = autoSet.option();
@@ -420,6 +469,7 @@ public class AutoSetHandle
             return value;
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
+        doAutoSet(autoSetDealt,null);
         Object finalValue = autoSetDealt.deal(object, field, value, option);
         return finalValue;
     }

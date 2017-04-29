@@ -23,6 +23,7 @@ public class Main1
     {
         LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
+        porterConf.addContextAutoSet(DBSource.class,new Source());
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()
                 .addPorters(Main1.class.getPackage().getName() + ".porter");
@@ -68,6 +69,10 @@ public class Main1
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/del")
                 .addParam("name", "小明-10"), lResponse -> logger.debug(lResponse.toString()));
+
+        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/testJBatis"),null);
+
+
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/list"),
                 lResponse -> logger.debug(lResponse.toString()));
 
