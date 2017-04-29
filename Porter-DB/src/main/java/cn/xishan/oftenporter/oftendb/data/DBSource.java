@@ -10,4 +10,5 @@ public interface DBSource extends DBHandleSource, ParamsGetter
 {
     DBSource withAnotherData(Class<? extends Data> clazz);
     DBSource newInstance();
+    DBHandleSource getDBHandleSource();
 }

@@ -58,6 +58,24 @@ public class Common
         }
     }
 
+    public static SqlSource getSqlSource(WObject wObject)
+    {
+        SqlSource sqlSource = null;
+        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
+        {
+            CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
+            handle.check();
+            Object comm = handle.common();
+            if (comm instanceof Common2)
+            {
+                comm = ((Common2) comm).common;
+            }
+            Common common = (Common) comm;
+            sqlSource = (SqlSource) common._dbHandle;
+        }
+        return sqlSource;
+    }
+
     private JResponse commonDealt(Dealt dealt, boolean willSetParams, DBHandleSource dbHandleSource,
             ParamsGetter paramsGetter,
             WObject wObject, SetType setType, int optionCode, Object... otherParams)

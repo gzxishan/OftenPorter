@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data.impl;
 
 import cn.xishan.oftenporter.oftendb.data.DBHandleSource;
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;

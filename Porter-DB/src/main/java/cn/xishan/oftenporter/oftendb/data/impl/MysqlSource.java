@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data.impl;
 
 import cn.xishan.oftenporter.oftendb.data.DBHandleSource;
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
@@ -10,7 +11,7 @@ import cn.xishan.oftenporter.oftendb.db.mysql.SqlQuerySettings;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/16.
  */
-public abstract class MysqlSource implements DBHandleSource
+public abstract class MysqlSource implements DBHandleSource ,SqlSource
 {
     @Override
     public Condition newCondition()

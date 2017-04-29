@@ -19,6 +19,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.simple.parsers.JSONArrayParser;
 import com.alibaba.fastjson.JSONArray;
 
@@ -26,23 +27,18 @@ import com.alibaba.fastjson.JSONArray;
 @PortIn
 public class Hello1Porter
 {
-    private static class Source extends DBSourceImpl
-    {
 
-        public Source()
-        {
-            super(new ParamsGetterImpl().getParams(), new SqlDBSource());
-        }
-    }
+    @AutoSet
+    DBUnit dbUnit;
 
-    @AutoSet(classValue = Source.class)
+    @AutoSet
     private DBSource source;
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
             method = PortMethod.POST)
     @PortIn.Filter(
-            before = @PortIn.Before(funTied = "addBefore",method = PortMethod.POST),
-            after = @PortIn.After(funTied = "addAfter",method = PortMethod.POST)
+            before = @PortIn.Before(funTied = "addBefore", method = PortMethod.POST),
+            after = @PortIn.After(funTied = "addAfter", method = PortMethod.POST)
     )
     public Object add(WObject wObject)
     {
@@ -96,8 +92,16 @@ public class Hello1Porter
     }
 
     @PortIn
+    public void testJBatis(WObject wObject)
+    {
+        LogUtil.printErrPos(dbUnit.add(wObject));
+    }
+
+    @PortIn
     public Object list(WObject wObject)
     {
+
+
         return Common2.C.queryData(source, null, null, null, wObject);
     }
 
@@ -106,11 +110,12 @@ public class Hello1Porter
     public Object transactionOk(WObject wObject)
     {
         JSONArray names = wObject.fnOf(0);
+        dbUnit.add(wObject);
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
             condition.put(Condition.EQ, new CUnit("name", names.get(i)));
-            JResponse jResponse = Common3.deleteData(condition, wObject);
+            JResponse jResponse = Common2.C.deleteData(source,condition, wObject);
             jResponse.throwExCause();
         }
         return new JResponse(ResultCode.SUCCESS);
@@ -128,11 +133,12 @@ public class Hello1Porter
     public Object transactionFailed(WObject wObject)
     {
         JSONArray names = wObject.fnOf(0);
+        dbUnit.add(wObject);
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
             condition.put(Condition.EQ, new CUnit("name", names.get(i)));
-            JResponse jResponse = Common3.deleteData(condition, wObject);
+            JResponse jResponse = Common2.C.deleteData(source,condition, wObject);
             jResponse.throwExCause();
         }
         throw new RuntimeException("test transaction failed!");

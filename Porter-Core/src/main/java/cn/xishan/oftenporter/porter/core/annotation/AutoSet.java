@@ -2,6 +2,9 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
+import cn.xishan.oftenporter.porter.core.base.CheckPassable;
+import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -16,17 +19,18 @@ import java.lang.annotation.*;
  * <br>
  * 从这些途径会触发AutoSet:
  * <pre>
- *     1.{@linkplain PortIn}
- *     2.{@linkplain AutoSetSeek}
- *     3.{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
- *     4.{@linkplain cn.xishan.oftenporter.porter.core.base.StateListener}
+ *     1.{@linkplain PortIn PortIn}
+ *     2.{@linkplain AutoSetSeek AutoSetSeek}
+ *     3.{@linkplain CheckPassable CheckPassable}
+ *     4.{@linkplain StateListener StateListener}
+ *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
  * </pre>
  * <pre>
  * 内置对象:
- * 1.当注解在{@linkplain Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
- * 2.{@linkplain TypeTo}
- * 3.{@linkplain PorterData}
- * 4.{@linkplain Logger}
+ * 1.当注解在{@linkplain Delivery Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
+ * 2.{@linkplain TypeTo TypeTo}
+ * 3.{@linkplain PorterData PorterData}
+ * 4.{@linkplain Logger Logger}
  * </pre>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
@@ -149,13 +153,25 @@ public @interface AutoSet
     String option() default "";
 
     /**
+     * 是否允许注入的对象为空，默认为false。
+     * @return
+     */
+    boolean nullAble()default false;
+
+    /**
      * 对应的AutoSetDealt必须含有无参构造函数。
      * @return
      */
     Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
 
     /**
-     *
+     * 对应的AutoSetGen必须含有无参构造函数。
+     * @return
+     */
+    Class<? extends AutoSetGen> gen() default AutoSetGen.class;
+
+    /**
+     * 对注入进行处理.
      * @author Created by https://github.com/CLovinr on 2017/1/7.
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -169,5 +185,11 @@ public @interface AutoSet
          * @return
          */
         Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
+
+        /**
+         * 对应的AutoSetGen必须含有无参构造函数。
+         * @return
+         */
+        Class<? extends AutoSetGen> gen() default AutoSetGen.class;
     }
 }

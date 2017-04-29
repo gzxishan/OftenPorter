@@ -42,6 +42,12 @@ public class DBSourceImpl implements DBSource
         this.dbHandleSource = dbHandleSource;
     }
 
+    @Override
+    public DBHandleSource getDBHandleSource()
+    {
+        return dbHandleSource;
+    }
+
     /**
      * 构造一个Condition
      *
