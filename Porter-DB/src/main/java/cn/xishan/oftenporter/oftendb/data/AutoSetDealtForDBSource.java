@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 /**
  * Created by chenyg on 2017-04-26.
  */
-class AutoSetDealtForDBSource implements AutoSetDealt
+public class AutoSetDealtForDBSource implements AutoSetDealt
 {
     @Override
     public Object deal(Object object, Field field, @MayNull Object fieldValue, String option)
@@ -19,6 +19,11 @@ class AutoSetDealtForDBSource implements AutoSetDealt
         }
         DBSource dbSource = (DBSource) fieldValue;
         dbSource = dbSource.newInstance();
+        setUnit(object,dbSource);
+        return dbSource;
+    }
+
+    public static void setUnit(Object object,DBSource dbSource){
         if (object instanceof DataAble)
         {
             dbSource.getParams().set((DataAble) object);
@@ -26,6 +31,5 @@ class AutoSetDealtForDBSource implements AutoSetDealt
         {
             dbSource.getParams().setUnit(object);
         }
-        return dbSource;
     }
 }

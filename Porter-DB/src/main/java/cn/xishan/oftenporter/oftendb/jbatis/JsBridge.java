@@ -15,7 +15,7 @@ class JsBridge
 {
 
     private Invocable invocable;
-    private SqlSource sqlSource;
+    SqlSource sqlSource;
 
     public JsBridge(Invocable invocable, SqlSource sqlSource)
     {

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.oftendb.data.AutoSetDealtForDBSource;
 import cn.xishan.oftenporter.oftendb.data.DBHandleSource;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
@@ -15,7 +16,7 @@ import java.lang.reflect.Field;
 /**
  * Created by chenyg on 2017-04-29.
  */
-class JDaoGen implements AutoSetGen
+ class JDaoGen implements AutoSetGen
 {
     @AutoSet
     JDaoOption jDaoOption;
@@ -24,6 +25,7 @@ class JDaoGen implements AutoSetGen
     DBSource dbSource;
 
     private static ScriptEngineManager scriptEngineManager;
+    private static int count=0;
 
 
     public JDaoGen()
@@ -65,25 +67,41 @@ class JDaoGen implements AutoSetGen
     }
 
     @Override
-    public synchronized Object genObject(Object object, Field field, String option)
+    protected void finalize() throws Throwable
     {
-        try
-        {
-            ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
-            SimpleBindings bindings = new SimpleBindings();
-            bindings.put("jdaoBridge",new JsInterface(jDaoOption.tableNamePrefix));
-
-            scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-            String script = getScript(object, field, option);
-            scriptEngine.eval(script);
+        super.finalize();
+        synchronized (JDaoGen.class){
+            if(count==0&&scriptEngineManager!=null){
+                scriptEngineManager=null;
+            }
+        }
+    }
 
 
-            DBHandleSource handleSource = dbSource.getDBHandleSource();
-            JDaoImpl jDao = new JDaoImpl(new JsBridge((Invocable) scriptEngine, (SqlSource) handleSource));
-            return jDao;
-        } catch (Exception e)
-        {
-            throw new JInitException(e);
+
+    @Override
+    public  Object genObject(Object object, Field field, String option)
+    {
+        synchronized (JDaoGen.class){
+            try
+            {
+                ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
+                SimpleBindings bindings = new SimpleBindings();
+                bindings.put("jdaoBridge",new JsInterface(jDaoOption.tableNamePrefix));
+
+                scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+                String script = getScript(object, field, option);
+                scriptEngine.eval(script);
+
+                AutoSetDealtForDBSource.setUnit(object,dbSource);
+                DBHandleSource handleSource = dbSource.getDBHandleSource();
+                JDaoImpl jDao = new JDaoImpl(new JsBridge((Invocable) scriptEngine, (SqlSource) handleSource));
+                count++;
+                return jDao;
+            } catch (Exception e)
+            {
+                throw new JInitException(e);
+            }
         }
     }
 }

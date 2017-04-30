@@ -433,7 +433,9 @@ public class AutoSetHandle
                 AutoSet.AutoSetDefaultDealt autoSetDefaultDealt = objClazz
                         .getAnnotation(AutoSet.AutoSetDefaultDealt.class);
                 genClass = autoSetDefaultDealt.gen();
-                option = autoSetDefaultDealt.option();
+                if("".equals(option)){
+                    option = autoSetDefaultDealt.option();
+                }
             }
         }
         if (genClass.equals(AutoSetGen.class))
@@ -461,7 +463,9 @@ public class AutoSetHandle
                 AutoSet.AutoSetDefaultDealt autoSetDefaultDealt = objClazz
                         .getAnnotation(AutoSet.AutoSetDefaultDealt.class);
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
-                option = autoSetDefaultDealt.option();
+                if("".equals(option)){
+                    option = autoSetDefaultDealt.option();
+                }
             }
         }
         if (autoSetDealtClass.equals(AutoSetDealt.class))

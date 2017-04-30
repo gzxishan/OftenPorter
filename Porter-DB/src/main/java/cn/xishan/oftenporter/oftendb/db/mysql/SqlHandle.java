@@ -213,7 +213,11 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
+        return getDBEnumerations(whereSQL,keys);
+    }
 
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,String[] keys) throws DBException
+    {
 
         try
         {
@@ -331,6 +335,20 @@ public class SqlHandle implements DBHandle, SqlSource
             WPTool.close(ps);
         }
         return list;
+    }
+
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    {
+        if (!(advancedQuery instanceof SqlAdvancedQuery))
+        {
+            throw new DBException("the object must be " + SqlAdvancedQuery.class);
+        }
+        SqlAdvancedQuery advanced = (SqlAdvancedQuery) advancedQuery;
+
+        SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
+        String[] keys = advanced.keys;
+        return getDBEnumerations(whereSQL,keys);
     }
 
     private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException
