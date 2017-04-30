@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.db.mongodb.advanced;
 
 
 import cn.xishan.oftenporter.oftendb.db.Condition;
+import cn.xishan.oftenporter.oftendb.db.DBEnumeration;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.oftendb.db.mongodb.MongoAdvancedQuery;
@@ -61,14 +62,22 @@ public class QueryAdvanced extends MongoAdvancedQuery
         type = 0;
     }
 
+
     @Override
     public Object toFinalObject()
     {
         return null;
     }
 
+
     @Override
     protected JSONArray execute(DBCollection collection, MongoHandle mongoHandle) throws DBException
+    {
+        Condition condition = getCondition();
+        return mongoHandle.getJSONs(condition, querySettings, keys);
+    }
+
+    private Condition getCondition() throws DBException
     {
         final DBObject query = type == 0 ? new BasicDBObject() : this.query;
 
@@ -90,7 +99,14 @@ public class QueryAdvanced extends MongoAdvancedQuery
             }
         };
 
-        return mongoHandle.getJSONs(mongoCondition, querySettings, keys);
+        return mongoCondition;
     }
 
+    @Override
+    protected DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection,
+            MongoHandle mongoHandle) throws DBException
+    {
+        Condition condition = getCondition();
+        return mongoHandle.getDBEnumerations(condition,querySettings,keys);
+    }
 }

@@ -260,6 +260,17 @@ public class SqliteHandle implements DBHandle
         return _getJSONS(sqliteAdvancedQuery.whereSQL, sqliteAdvancedQuery.keys);
     }
 
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    {
+        if (!(advancedQuery instanceof SqliteAdvancedQuery))
+        {
+            throw new DBException("the object must be " + SqliteAdvancedQuery.class);
+        }
+        SqliteAdvancedQuery sqliteAdvancedQuery = (SqliteAdvancedQuery) advancedQuery;
+        return getDBEnumerations(sqliteAdvancedQuery.whereSQL,sqliteAdvancedQuery.keys);
+    }
+
     private Cursor rawQuery(SqlUtil.WhereSQL whereSQL)
     {
         String[] args = null;
@@ -359,7 +370,12 @@ public class SqliteHandle implements DBHandle
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
                         false, keys);
+        return getDBEnumerations(whereSQL,keys);
+    }
 
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,
+            String[] keys) throws DBException
+    {
         try
         {
             Cursor cursor = rawQuery(whereSQL);

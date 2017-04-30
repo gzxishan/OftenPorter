@@ -1,7 +1,10 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
+import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedExecutor;
+import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedQuery;
+import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 
 /**
@@ -21,6 +24,13 @@ public class JsInterface
     {
         JSqlArgs jSqlArgs = sqlArgs(sql, argsObj);
         return SqlAdvancedExecutor.withSqlAndArgs(jSqlArgs.sql, jSqlArgs.args);
+    }
+
+    public AdvancedQuery sqlQuery(String sql, Object argsObj)
+    {
+        JSqlArgs jSqlArgs = sqlArgs(sql, argsObj);
+        AdvancedQuery advancedQuery = new SqlAdvancedQuery(new SqlUtil.WhereSQL(jSqlArgs.sql,jSqlArgs.args));
+        return advancedQuery;
     }
 
     public JSqlArgs sqlArgs(String sql, Object argsObj)

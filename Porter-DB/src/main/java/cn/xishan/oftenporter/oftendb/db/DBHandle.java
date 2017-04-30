@@ -59,6 +59,8 @@ public interface DBHandle extends Closeable
      */
     JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException;
 
+    DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException;
+
     /**
      * @param advancedExecutor 高级执行对象
      * @return 执行结果

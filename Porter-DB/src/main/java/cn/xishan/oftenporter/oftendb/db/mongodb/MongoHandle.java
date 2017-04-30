@@ -207,6 +207,17 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    {
+        if (!(advancedQuery instanceof MongoAdvancedQuery))
+        {
+            throw new DBException("the object must be " + QueryAdvanced.class);
+        }
+        MongoAdvancedQuery mongoAdvancedQuery = (MongoAdvancedQuery) advancedQuery;
+        return mongoAdvancedQuery.getDBEnumerations(collection,this);
+    }
+
+    @Override
     public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
             String... keys) throws DBException
     {
@@ -223,7 +234,21 @@ public class MongoHandle implements DBHandle
             }
 
             DBCursor cursor = dealQuerySettings(collection.find(checkToFinal(query), fields), querySettings);
+            return getDBEnumerations(cursor, keys);
+        } catch (DBException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
 
+
+    DBEnumeration<JSONObject> getDBEnumerations(DBCursor cursor, String[] keys) throws DBException
+    {
+        try
+        {
             DBEnumeration<JSONObject> enumeration = new DBEnumeration<JSONObject>()
             {
                 @Override
@@ -260,7 +285,7 @@ public class MongoHandle implements DBHandle
                 public void close() throws DBException
                 {
                     WPTool.close(cursor);
-                    canOpenOrClose=true;
+                    canOpenOrClose = true;
                 }
             };
             canOpenOrClose = false;
