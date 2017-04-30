@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONObject;
 
@@ -43,5 +44,11 @@ class JDaoImpl implements JDao
     public <T> T execute(String method, JSONObject json,WObject wObject)
     {
         return jsBridge.execute(method, json,wObject);
+    }
+
+    @Override
+    public SqlSource getSqlSource()
+    {
+        return jsBridge.sqlSource;
     }
 }
