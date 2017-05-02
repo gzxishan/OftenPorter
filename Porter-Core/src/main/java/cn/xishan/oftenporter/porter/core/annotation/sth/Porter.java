@@ -24,6 +24,7 @@ public final class Porter
     Object object;
     Class<?> clazz;
     _PortIn portIn;
+    Object finalObject;
 
     WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
 
@@ -48,6 +49,11 @@ public final class Porter
     public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
     {
         return wholeClassCheckPassableGetter;
+    }
+
+    public Object getFinalPorterObject()
+    {
+        return finalObject;
     }
 
     /**
@@ -94,10 +100,7 @@ public final class Porter
                 throw new InitException(e);
             }
         }
-        if (object != null)
-        {
-            autoSetHandle.addAutoSetForPorter(object, autoSetMixinMap);
-        }
+        autoSetHandle.addAutoSetForPorter(this, autoSetMixinMap);
     }
 
 

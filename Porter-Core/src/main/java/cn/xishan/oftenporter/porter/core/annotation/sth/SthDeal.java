@@ -126,6 +126,7 @@ public class SthDeal
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
         porter.doAutoSet(autoSetMixinMap);
+        porter.finalObject=porter.getObj();
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
@@ -175,8 +176,9 @@ public class SthDeal
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
             while (mixinIt.hasNext())
             {
-                putFun(mixinIt.next(),porter.getObj(), childrenWithMethod, true, true);
+                putFun(mixinIt.next(), childrenWithMethod, true, true);
             }
+            mixinPorter.finalObject=porter.getObj();
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
             autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
@@ -221,7 +223,7 @@ public class SthDeal
             {
                 TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
                 annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
-                putFun(porterOfFun,porter.getObj(), childrenWithMethod, !isMixin, isMixin);
+                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
             }
         }
 
@@ -235,11 +237,10 @@ public class SthDeal
         return porter;
     }
 
-    private void putFun(PorterOfFun porterOfFun,Object finalObject, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
+    private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
             boolean isMixin)
     {
         PorterOfFun lastFun = null;
-        porterOfFun.finalObject=finalObject;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
         Method method = porterOfFun.getMethod();
         switch (tiedType)

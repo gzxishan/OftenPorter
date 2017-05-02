@@ -85,7 +85,7 @@ public class AutoSetHandle
         {
             for (Object obj : objects)
             {
-                doAutoSet(obj, null);
+                doAutoSet(obj,obj, null);
             }
         }
 
@@ -140,15 +140,15 @@ public class AutoSetHandle
             this.args = args;
         }
 
-        private void doAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap) throws FatalInitException
+        private void doAutoSetForPorter(Porter porter, Map<String, Object> autoSetMixinMap) throws FatalInitException
         {
-            doAutoSet(object, autoSetMixinMap);
+            doAutoSet(porter.getFinalPorterObject(),porter.getObj(), autoSetMixinMap);
         }
 
         @Override
         public void handle() throws FatalInitException
         {
-            this.doAutoSetForPorter(args[0], (Map<String, Object>) args[1]);
+            this.doAutoSetForPorter((Porter) args[0], (Map<String, Object>) args[1]);
         }
     }
 
@@ -189,7 +189,8 @@ public class AutoSetHandle
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
             if (clazz.isAnnotationPresent(AutoSetSeek.class))
             {
-                doAutoSet(clazz.newInstance(), null);
+                Object object=clazz.newInstance();
+                doAutoSet(object,object, null);
             }
         }
     }
@@ -200,9 +201,9 @@ public class AutoSetHandle
         iHandles.add(new Handle_doAutoSetsForNotPorter(objects));
     }
 
-    public synchronized void addAutoSetForPorter(Object object, Map<String, Object> autoSetMixinMap)
+    public synchronized void addAutoSetForPorter(Porter porter, Map<String, Object> autoSetMixinMap)
     {
-        iHandles.add(new Handle_doAutoSetForPorter(object, autoSetMixinMap));
+        iHandles.add(new Handle_doAutoSetForPorter(porter, autoSetMixinMap));
         //doAutoSet(object, autoSetMixinMap);
     }
 
@@ -248,7 +249,7 @@ public class AutoSetHandle
         }
     }
 
-    private void doAutoSet(Object object, Map<String, Object> autoSetMixinMap) throws FatalInitException
+    private void doAutoSet(Object finalObject,Object object, Map<String, Object> autoSetMixinMap) throws FatalInitException
     {
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
@@ -353,7 +354,7 @@ public class AutoSetHandle
                     {
                         value = genObjectOfAutoSet(autoSet, object, f);
                     }
-                    value = dealtAutoSet(autoSet, object, f, value);
+                    value = dealtAutoSet(autoSet,finalObject, object, f, value);
                     if (value == null)
                     {
                         if (!autoSet.nullAble())
@@ -368,7 +369,7 @@ public class AutoSetHandle
                 }
                 if (value != null)
                 {
-                    doAutoSet(value, autoSetMixinMap);//递归：设置被设置的变量。
+                    doAutoSet(value,value, autoSetMixinMap);//递归：设置被设置的变量。
                 }
                 f.set(object, value);
                 if (LOGGER.isDebugEnabled())
@@ -444,12 +445,12 @@ public class AutoSetHandle
         }
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
-        doAutoSet(autoSetGen,null);
+        doAutoSet(autoSetGen,autoSetGen,null);
         Object value = autoSetGen.genObject(object, field, option);
         return value;
     }
 
-    private Object dealtAutoSet(AutoSet autoSet, Object object, Field field,
+    private Object dealtAutoSet(AutoSet autoSet,Object finalObject, Object object, Field field,
             Object value) throws InvocationTargetException, NoSuchMethodException,
             InstantiationException, IllegalAccessException, FatalInitException
     {
@@ -473,8 +474,8 @@ public class AutoSetHandle
             return value;
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
-        doAutoSet(autoSetDealt,null);
-        Object finalValue = autoSetDealt.deal(object, field, value, option);
+        doAutoSet(autoSetDealt,autoSetDealt,null);
+        Object finalValue = autoSetDealt.deal(finalObject,object, field, value, option);
         return finalValue;
     }
 
@@ -527,7 +528,7 @@ public class AutoSetHandle
         {
             f.set(object, sysset);
             LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
-            doAutoSet(sysset, autoSetMixinMap);//递归：设置被设置的变量。
+            doAutoSet(sysset,sysset, autoSetMixinMap);//递归：设置被设置的变量。
         }
         return sysset != null;
     }

@@ -18,7 +18,7 @@ public abstract class PorterOfFun implements ObjectGetter
     _PortIn portIn;
     InObj inObj;
     Porter porter;
-    Object finalObject;
+
 
 
     /**
@@ -60,7 +60,7 @@ public abstract class PorterOfFun implements ObjectGetter
     }
 
     public Object getFinalPorterObject(){
-        return finalObject;
+        return porter.getFinalPorterObject();
     }
 
     @Override
