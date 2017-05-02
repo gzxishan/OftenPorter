@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 public class AutoSetDealtForDBSource implements AutoSetDealt
 {
     @Override
-    public Object deal(Object object, Field field, @MayNull Object fieldValue, String option)
+    public Object deal(Object finalObject,Object object, Field field, @MayNull Object fieldValue, String option)
     {
         if (fieldValue == null)
         {
@@ -19,7 +19,7 @@ public class AutoSetDealtForDBSource implements AutoSetDealt
         }
         DBSource dbSource = (DBSource) fieldValue;
         dbSource = dbSource.newInstance();
-        setUnit(object,dbSource);
+        setUnit(finalObject,dbSource);
         return dbSource;
     }
 

@@ -14,13 +14,20 @@ import java.sql.Connection;
 class JsBridge
 {
 
-    private Invocable invocable;
+    Invocable invocable;
     SqlSource sqlSource;
 
     public JsBridge(Invocable invocable, SqlSource sqlSource)
     {
         this.invocable = invocable;
         this.sqlSource = sqlSource;
+    }
+
+    @Override
+    protected void finalize() throws Throwable
+    {
+        super.finalize();
+        JDaoGen.doFinalize();
     }
 
     private Connection getConn(WObject wObject)

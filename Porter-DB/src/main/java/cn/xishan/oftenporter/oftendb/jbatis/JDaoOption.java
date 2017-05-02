@@ -11,6 +11,11 @@ public class JDaoOption
     public String classpath;
 
     /**
+     * 用于存放js的文件路径，每次调用时去获取对应js。
+     */
+    public String debugDirPath;
+
+    /**
      * 表名前缀。
      */
     public String tableNamePrefix="";

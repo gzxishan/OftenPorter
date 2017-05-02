@@ -9,5 +9,14 @@ import java.lang.reflect.Field;
  */
 public interface AutoSetDealt
 {
-    Object deal(Object object,Field field,@MayNull Object fieldValue,String option);
+    /**
+     *
+     * @param finalObject 目前对于接口，该对象为最终接口实例，例如把接口object混入到finalObject中去的情况；其他的情况，等于object。
+     * @param object
+     * @param field
+     * @param fieldValue
+     * @param option
+     * @return
+     */
+    Object deal(Object finalObject,Object object,Field field,@MayNull Object fieldValue,String option);
 }
