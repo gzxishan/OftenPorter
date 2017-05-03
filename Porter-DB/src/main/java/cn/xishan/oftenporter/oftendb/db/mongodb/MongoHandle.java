@@ -209,12 +209,8 @@ public class MongoHandle implements DBHandle
     @Override
     public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
     {
-        if (!(advancedQuery instanceof MongoAdvancedQuery))
-        {
-            throw new DBException("the object must be " + QueryAdvanced.class);
-        }
-        MongoAdvancedQuery mongoAdvancedQuery = (MongoAdvancedQuery) advancedQuery;
-        return mongoAdvancedQuery.getDBEnumerations(collection,this);
+        MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
+        return mongoAdvancedQuery.getDBEnumerations(collection, this);
     }
 
     @Override
@@ -382,6 +378,13 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
+    public long exists(AdvancedQuery advancedQuery) throws DBException
+    {
+        MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
+        return mongoAdvancedQuery.exists(collection, this);
+    }
+
+    @Override
     public long exists(Condition query) throws DBException
     {
 
@@ -455,14 +458,20 @@ public class MongoHandle implements DBHandle
         return bs;
     }
 
-    @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    private MongoAdvancedQuery getMongoAdvancedQuery(AdvancedQuery advancedQuery)
     {
         if (!(advancedQuery instanceof MongoAdvancedQuery))
         {
             throw new DBException("the object must be " + QueryAdvanced.class);
         }
         MongoAdvancedQuery mongoAdvancedQuery = (MongoAdvancedQuery) advancedQuery;
+        return mongoAdvancedQuery;
+    }
+
+    @Override
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    {
+        MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
         return mongoAdvancedQuery.execute(collection, this);
     }
 

@@ -168,6 +168,15 @@ public class Common2
     }
 
     /**
+     * @see Common#count(DBHandleSource, ParamsGetter, AdvancedQuery, WObject)
+     */
+    public JResponse count(DBSource dbSource, AdvancedQuery advancedQuery,
+            WObject wObject)
+    {
+        return common.count(dbSource, dbSource, advancedQuery, wObject);
+    }
+
+    /**
      * @see Common#queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, WObject)
      */
     public JResponse queryAdvanced(DBSource dbSource,

@@ -103,6 +103,13 @@ public class QueryAdvanced extends MongoAdvancedQuery
     }
 
     @Override
+    protected long exists(DBCollection collection, MongoHandle mongoHandle) throws DBException
+    {
+        Condition condition = getCondition();
+        return mongoHandle.exists(condition);
+    }
+
+    @Override
     protected DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection,
             MongoHandle mongoHandle) throws DBException
     {

@@ -23,6 +23,16 @@ public class SqliteAdvancedQuery extends AdvancedQuery
         this.keys = keys;
     }
 
+    public SqlUtil.WhereSQL getWhereSQL()
+    {
+        return whereSQL;
+    }
+
+    public String[] getKeys()
+    {
+        return keys;
+    }
+
     @Override
     public Object toFinalObject()
     {

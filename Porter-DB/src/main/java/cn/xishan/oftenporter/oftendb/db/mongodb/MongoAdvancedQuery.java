@@ -12,6 +12,10 @@ import com.mongodb.DBCollection;
  */
 public abstract class MongoAdvancedQuery extends AdvancedQuery
 {
+    protected abstract long exists(DBCollection collection, MongoHandle mongoHandle) throws DBException;
+
     protected abstract JSONArray execute(DBCollection collection, MongoHandle mongoHandle) throws DBException;
-    protected abstract DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection, MongoHandle mongoHandle) throws DBException;
+
+    protected abstract DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection,
+            MongoHandle mongoHandle) throws DBException;
 }

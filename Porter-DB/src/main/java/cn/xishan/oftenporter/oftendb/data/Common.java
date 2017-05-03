@@ -1146,6 +1146,42 @@ public class Common
     /**
      * 查询数据是否存在.若成功，返回结果码为ResultCode.SUCCESS,并且结果为一个long值，表示存在的数目.
      *
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param advancedQuery
+     * @param wObject
+     * @return
+     */
+    public JResponse count(final DBHandleSource dbHandleSource, ParamsGetter paramsGetter, AdvancedQuery advancedQuery,
+            WObject wObject)
+    {
+        Dealt dealt = new Dealt()
+        {
+
+            @Override
+            public Condition getCondition()
+            {
+
+                return null;
+            }
+
+            @Override
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
+                    Condition _condition, Object[] otherParams) throws Exception
+            {
+                long n = dbHandle.exists(advancedQuery);
+                jResponse.setCode(ResultCode.SUCCESS);
+                jResponse.setResult(n);
+            }
+        };
+
+        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
+                DataAble.OPTION_CODE_EXISTS);
+    }
+
+    /**
+     * 查询数据是否存在.若成功，返回结果码为ResultCode.SUCCESS,并且结果为一个long值，表示存在的数目.
+     *
      * @param key     键名 会进行@Key处理，以替换成数据库对应的名称。
      * @param value   键值
      * @param wObject
