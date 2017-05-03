@@ -7,6 +7,8 @@ import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -41,8 +43,21 @@ class MultiPartParamSourceHandle implements ParamSourceHandle
     @Override
     public ParamSource get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
     {
+
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
-        if (!ServletFileUpload.isMultipartContent(request))
+        if (ContentType.APP_JSON.equals(request.getContentType()))
+        {
+            if (multiPartOption.decodeJsonParams)
+            {
+                JSONObject jsonObject = JSON.parseObject(
+                        FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
+                ParamSource paramSource = new DefaultParamsSource(jsonObject, wObject.getRequest());
+                return paramSource;
+            } else
+            {
+                return null;
+            }
+        } else if (!ServletFileUpload.isMultipartContent(request))
         {
             return null;
         }
