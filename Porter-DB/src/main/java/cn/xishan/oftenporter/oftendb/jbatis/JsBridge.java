@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
 import cn.xishan.oftenporter.oftendb.data.Common;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONObject;
@@ -16,12 +17,16 @@ class JsBridge
 
     Invocable invocable;
     SqlSource sqlSource;
+    DBSource dbSource;
 
-    public JsBridge(Invocable invocable, SqlSource sqlSource)
+    public JsBridge(Invocable invocable,DBSource dbSource, SqlSource sqlSource)
     {
         this.invocable = invocable;
+        this.dbSource=dbSource;
         this.sqlSource = sqlSource;
     }
+
+
 
     @Override
     protected void finalize() throws Throwable

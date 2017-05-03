@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
@@ -17,9 +18,9 @@ class JsBridgeOfDebug extends JsBridge
     private JDaoOption jDaoOption;
     private long lasttime;
 
-    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, SqlSource sqlSource)
+    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource)
     {
-        super(null, sqlSource);
+        super(null,dbSource, sqlSource);
         this.jsFile = new File(jsFile);
         this.jDaoOption = jDaoOption;
         loadJsEngine();

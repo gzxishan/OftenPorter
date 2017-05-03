@@ -104,10 +104,10 @@ class JDaoGen implements AutoSetGen
                         dir += "/";
                     }
                     jsBridge = new JsBridgeOfDebug(jDaoOption, dir + object.getClass().getSimpleName() + ".js",
-                            sqlSource);
+                         dbSource,sqlSource);
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(object), jDaoOption), sqlSource);
+                    jsBridge = new JsBridge(getJsInvocable(getScript(object), jDaoOption),dbSource, sqlSource);
                 }
                 AutoSetDealtForDBSource.setUnit(object, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
