@@ -249,26 +249,30 @@ public class SqliteHandle implements DBHandle
 
     }
 
-    @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    private SqliteAdvancedQuery getSqliteAdvancedQuery(AdvancedQuery advancedQuery) throws DBException
     {
         if (!(advancedQuery instanceof SqliteAdvancedQuery))
         {
             throw new DBException("the object must be " + SqliteAdvancedQuery.class);
         }
         SqliteAdvancedQuery sqliteAdvancedQuery = (SqliteAdvancedQuery) advancedQuery;
+        return sqliteAdvancedQuery;
+    }
+
+
+    @Override
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    {
+        SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
         return _getJSONS(sqliteAdvancedQuery.whereSQL, sqliteAdvancedQuery.keys);
     }
 
     @Override
     public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
     {
-        if (!(advancedQuery instanceof SqliteAdvancedQuery))
-        {
-            throw new DBException("the object must be " + SqliteAdvancedQuery.class);
-        }
-        SqliteAdvancedQuery sqliteAdvancedQuery = (SqliteAdvancedQuery) advancedQuery;
-        return getDBEnumerations(sqliteAdvancedQuery.whereSQL,sqliteAdvancedQuery.keys);
+        SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
+
+        return getDBEnumerations(sqliteAdvancedQuery.whereSQL, sqliteAdvancedQuery.keys);
     }
 
     private Cursor rawQuery(SqlUtil.WhereSQL whereSQL)
@@ -370,7 +374,7 @@ public class SqliteHandle implements DBHandle
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
                         false, keys);
-        return getDBEnumerations(whereSQL,keys);
+        return getDBEnumerations(whereSQL, keys);
     }
 
     private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,
@@ -421,7 +425,7 @@ public class SqliteHandle implements DBHandle
                 public void close() throws DBException
                 {
                     SqliteHandle.close(cursor);
-                    canOpenOrClose=true;
+                    canOpenOrClose = true;
                 }
             };
             canOpenOrClose = false;
@@ -507,10 +511,22 @@ public class SqliteHandle implements DBHandle
     @Override
     public long exists(Condition query) throws DBException
     {
+        SqlUtil.WhereSQL whereSQL = SqlUtil.toCountSelect(tableName, "", checkCondition(query), true);
+        return exists(whereSQL);
+    }
+
+    @Override
+    public long exists(AdvancedQuery advancedQuery) throws DBException
+    {
+        SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
+        return exists(sqliteAdvancedQuery.whereSQL);
+    }
+
+    public long exists(SqlUtil.WhereSQL whereSQL) throws DBException
+    {
         Cursor cursor = null;
         try
         {
-            SqlUtil.WhereSQL whereSQL = SqlUtil.toCountSelect(tableName, "", checkCondition(query), true);
             cursor = rawQuery(whereSQL);
             long n = 0;
             if (cursor.moveToNext())

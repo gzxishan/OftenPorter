@@ -135,6 +135,15 @@ public interface DBHandle extends Closeable
     long exists(Condition query) throws DBException;
 
     /**
+     * 统计记录条数。
+     *
+     * @param advancedQuery 查询条件
+     * @return 返回存在的记录数。
+     * @throws DBException 操作异常
+     */
+    long exists(AdvancedQuery advancedQuery) throws DBException;
+
+    /**
      * 保存二进制数据
      *
      * @param query  判断条件

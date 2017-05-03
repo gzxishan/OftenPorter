@@ -22,6 +22,15 @@ public class SqlAdvancedQuery extends AdvancedQuery
         this.keys = keys;
     }
 
+    public String[] getKeys()
+    {
+        return keys;
+    }
+
+    public SqlUtil.WhereSQL getWhereSQL()
+    {
+        return whereSQL;
+    }
 
     @Override
     public Object toFinalObject()

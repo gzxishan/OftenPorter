@@ -213,10 +213,10 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
-        return getDBEnumerations(whereSQL,keys);
+        return getDBEnumerations(whereSQL, keys);
     }
 
-    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,String[] keys) throws DBException
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL, String[] keys) throws DBException
     {
 
         try
@@ -337,18 +337,24 @@ public class SqlHandle implements DBHandle, SqlSource
         return list;
     }
 
-    @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    private SqlAdvancedQuery getSqlAdvancedQuery(AdvancedQuery advancedQuery)
     {
         if (!(advancedQuery instanceof SqlAdvancedQuery))
         {
             throw new DBException("the object must be " + SqlAdvancedQuery.class);
         }
         SqlAdvancedQuery advanced = (SqlAdvancedQuery) advancedQuery;
+        return advanced;
+    }
+
+    @Override
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    {
+        SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
 
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
         String[] keys = advanced.keys;
-        return getDBEnumerations(whereSQL,keys);
+        return getDBEnumerations(whereSQL, keys);
     }
 
     private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException
@@ -536,11 +542,7 @@ public class SqlHandle implements DBHandle, SqlSource
     @Override
     public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
     {
-        if (!(advancedQuery instanceof SqlAdvancedQuery))
-        {
-            throw new DBException("the object must be " + SqlAdvancedQuery.class);
-        }
-        SqlAdvancedQuery advanced = (SqlAdvancedQuery) advancedQuery;
+        SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
         return _getJSONS(advanced.whereSQL, advanced.keys);
     }
 
@@ -768,10 +770,26 @@ public class SqlHandle implements DBHandle, SqlSource
 
     }
 
+    @Override
+    public long exists(AdvancedQuery advancedQuery) throws DBException
+    {
+        SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
+        SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
+        return exists(conn, whereSQL);
+    }
+
     /**
      * count某个条件
      */
+
     public long exists(Connection conn, Condition condition, String tableName) throws DBException
+    {
+        SqlUtil.WhereSQL whereSql = SqlUtil
+                .toCountSelect(tableName, "", checkCondition(condition), true);
+        return exists(conn, whereSql);
+    }
+
+    public long exists(Connection conn, SqlUtil.WhereSQL whereSql) throws DBException
     {
 
         long n = 0;
@@ -779,8 +797,7 @@ public class SqlHandle implements DBHandle, SqlSource
         PreparedStatement ps = null;
         try
         {
-            SqlUtil.WhereSQL whereSql = SqlUtil
-                    .toCountSelect(tableName, "rscount", checkCondition(condition), true);
+
 
             if (LOGGER.isDebugEnabled())
             {
@@ -802,7 +819,7 @@ public class SqlHandle implements DBHandle, SqlSource
             ResultSet rs = ps.executeQuery();
             if (rs.next())
             {
-                n = rs.getLong("rscount");
+                n = rs.getLong(1);
             }
             ps.close();
         } catch (Exception e)
