@@ -261,21 +261,21 @@ public class SqliteHandle implements DBHandle
 
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
-        return _getJSONS(sqliteAdvancedQuery.whereSQL, sqliteAdvancedQuery.keys);
+        return _getJSONS(sqliteAdvancedQuery.whereSQL,querySettings, sqliteAdvancedQuery.keys);
     }
 
     @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
 
-        return getDBEnumerations(sqliteAdvancedQuery.whereSQL, sqliteAdvancedQuery.keys);
+        return getDBEnumerations(sqliteAdvancedQuery.whereSQL,querySettings, sqliteAdvancedQuery.keys);
     }
 
-    private Cursor rawQuery(SqlUtil.WhereSQL whereSQL)
+    private Cursor rawQuery(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings)
     {
         String[] args = null;
         if (whereSQL.args != null)
@@ -291,18 +291,18 @@ public class SqliteHandle implements DBHandle
                 }
             }
         }
-
-        Cursor cursor = db.rawQuery(whereSQL.sql, args);
+        String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, false);
+        Cursor cursor = db.rawQuery(sql, args);
         return cursor;
     }
 
-    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, String[] keys)
+    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings, String[] keys)
     {
         JSONArray list = new JSONArray();
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(whereSQL);
+            cursor = rawQuery(whereSQL, querySettings);
             while (cursor.moveToNext())
             {
                 list.add(getJSONObject(cursor, keys));
@@ -364,7 +364,7 @@ public class SqliteHandle implements DBHandle
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
                         false, keys);
-        return _getJSONS(whereSQL, keys);
+        return _getJSONS(whereSQL,null, keys);
     }
 
     @Override
@@ -374,15 +374,15 @@ public class SqliteHandle implements DBHandle
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
                         false, keys);
-        return getDBEnumerations(whereSQL, keys);
+        return getDBEnumerations(whereSQL,null, keys);
     }
 
-    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,QuerySettings querySettings,
             String[] keys) throws DBException
     {
         try
         {
-            Cursor cursor = rawQuery(whereSQL);
+            Cursor cursor = rawQuery(whereSQL,querySettings);
             DBEnumeration<JSONObject> enumeration = new DBEnumeration<JSONObject>()
             {
                 int hasNext = -1;
@@ -455,7 +455,7 @@ public class SqliteHandle implements DBHandle
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(whereSQL);
+            cursor = rawQuery(whereSQL,null);
             while (cursor.moveToNext())
             {
                 list.add(TypeUtil.getObject(cursor, 0));
@@ -511,23 +511,23 @@ public class SqliteHandle implements DBHandle
     @Override
     public long exists(Condition query) throws DBException
     {
-        SqlUtil.WhereSQL whereSQL = SqlUtil.toCountSelect(tableName, "", checkCondition(query), true);
-        return exists(whereSQL);
+        SqlUtil.WhereSQL whereSQL = SqlUtil.toCountSelect(tableName, "", checkCondition(query), false);
+        return _countSql(whereSQL);
     }
 
     @Override
     public long exists(AdvancedQuery advancedQuery) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
-        return exists(sqliteAdvancedQuery.whereSQL);
+        return _countSql(SqlUtil.toCountSelect(sqliteAdvancedQuery.whereSQL,"",false));
     }
 
-    public long exists(SqlUtil.WhereSQL whereSQL) throws DBException
+    public long _countSql(SqlUtil.WhereSQL whereSQL) throws DBException
     {
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(whereSQL);
+            cursor = rawQuery(whereSQL,null);
             long n = 0;
             if (cursor.moveToNext())
             {
@@ -577,7 +577,7 @@ public class SqliteHandle implements DBHandle
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(wsql);
+            cursor = rawQuery(wsql,null);
             byte[] bs = null;
             if (cursor.moveToNext())
             {

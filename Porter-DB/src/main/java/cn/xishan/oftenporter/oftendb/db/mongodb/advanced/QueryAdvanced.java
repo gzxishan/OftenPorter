@@ -30,7 +30,6 @@ public class QueryAdvanced extends MongoAdvancedQuery
     }
 
     private RegexNameValues regexNameValues;
-    private QuerySettings querySettings;
     private String[] keys;
     private DBObject query;
 
@@ -39,10 +38,9 @@ public class QueryAdvanced extends MongoAdvancedQuery
      */
     private int type;
 
-    public void query(DBObject query, QuerySettings querySettings, String... keys)
+    public void query(DBObject query, String... keys)
     {
         this.query = query;
-        this.querySettings = querySettings;
         this.keys = keys;
         type = 1;
     }
@@ -51,13 +49,11 @@ public class QueryAdvanced extends MongoAdvancedQuery
      * 正则表达式查询。
      *
      * @param regexNameValues
-     * @param querySettings
      * @param keys            为空则表示取得所有键值
      */
-    public void regExpQuery(RegexNameValues regexNameValues, QuerySettings querySettings, String... keys)
+    public void regExpQuery(RegexNameValues regexNameValues, String... keys)
     {
         this.regexNameValues = regexNameValues;
-        this.querySettings = querySettings;
         this.keys = keys;
         type = 0;
     }
@@ -71,7 +67,8 @@ public class QueryAdvanced extends MongoAdvancedQuery
 
 
     @Override
-    protected JSONArray execute(DBCollection collection, MongoHandle mongoHandle) throws DBException
+    protected JSONArray execute(DBCollection collection, MongoHandle mongoHandle,
+            QuerySettings querySettings) throws DBException
     {
         Condition condition = getCondition();
         return mongoHandle.getJSONs(condition, querySettings, keys);
@@ -111,9 +108,9 @@ public class QueryAdvanced extends MongoAdvancedQuery
 
     @Override
     protected DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection,
-            MongoHandle mongoHandle) throws DBException
+            MongoHandle mongoHandle, QuerySettings querySettings) throws DBException
     {
         Condition condition = getCondition();
-        return mongoHandle.getDBEnumerations(condition,querySettings,keys);
+        return mongoHandle.getDBEnumerations(condition, querySettings, keys);
     }
 }

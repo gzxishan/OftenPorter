@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.exception.CannotOpenOrCloseException;
+import cn.xishan.oftenporter.oftendb.db.mongodb.advanced.QueryAdvanced;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -911,6 +912,64 @@ public class Common
     }
 
     /**
+     * 见{@linkplain #queryEnumeration(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject, int)}
+     *
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param advancedQuery
+     * @param querySettings
+     * @param wObject
+     * @return
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
+            AdvancedQuery advancedQuery,
+            QuerySettings querySettings, WObject wObject)
+    {
+        return queryEnumeration(dbHandleSource, paramsGetter, advancedQuery, querySettings, wObject,
+                DataAble.OPTION_CODE_DEFAULT);
+    }
+
+
+    /**
+     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration<JSONObject>}.
+     *
+     * @param dbHandleSource
+     * @param paramsGetter
+     * @param advancedQuery
+     * @param querySettings
+     * @param wObject
+     * @return
+     */
+    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
+            AdvancedQuery advancedQuery,
+            QuerySettings querySettings, WObject wObject, int optionCode)
+    {
+        Dealt dealt = new Dealt()
+        {
+
+            @Override
+            public Condition getCondition()
+            {
+                return null;
+            }
+
+            @Override
+            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
+                    Condition _condition, Object[] otherParams) throws Exception
+            {
+
+                DBEnumeration<JSONObject> enumeration = dbHandle.getDBEnumerations(advancedQuery, querySettings);
+                jResponse.setCode(ResultCode.SUCCESS);
+                jResponse.setResult(enumeration);
+            }
+
+        };
+
+        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
+                optionCode);
+    }
+
+    /**
      * @see #queryData2(DBHandleSource, ParamsGetter, ParamsSelection, QuerySettings,
      * KeysSelection, WObject, int)
      */
@@ -1033,7 +1092,7 @@ public class Common
 
 
     /**
-     * 高级查询，若成功，则结果码为SUCCESS,结果为json数组。
+     * 见{@linkplain #queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject)}
      *
      * @param advancedQuery
      * @param wObject
@@ -1041,6 +1100,19 @@ public class Common
      */
     public JResponse queryAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
             final AdvancedQuery advancedQuery, WObject wObject)
+    {
+        return queryAdvanced(dbHandleSource, paramsGetter, advancedQuery, null, wObject);
+    }
+
+    /**
+     * 高级查询，若成功，则结果码为SUCCESS,结果为json数组。
+     *
+     * @param advancedQuery
+     * @param wObject
+     * @return 操作结果
+     */
+    public JResponse queryAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
+            final AdvancedQuery advancedQuery, QuerySettings querySettings, WObject wObject)
     {
 
         Dealt dealt = new Dealt()
@@ -1056,7 +1128,7 @@ public class Common
             public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
                     Condition _condition, Object[] otherParams) throws Exception
             {
-                JSONArray array = dbHandle.advancedQuery(advancedQuery);
+                JSONArray array = dbHandle.advancedQuery(advancedQuery, querySettings);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(array);
             }

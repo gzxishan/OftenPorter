@@ -238,12 +238,27 @@ public class SqlUtil
     /**
      * 转换成sql语句，参数用？代替
      */
+    public static WhereSQL toCountSelect(WhereSQL whereSQL, String columnName,
+            boolean withSemicolon)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SELECT count(1) ").append(columnName).append(" FROM (").append(whereSQL.sql).append(") temp");
+        if(withSemicolon){
+            builder.append(";");
+        }
+        WhereSQL where = new WhereSQL(builder.toString(), whereSQL.args);
+        return where;
+    }
+
+    /**
+     * 转换成sql语句，参数用？代替
+     */
     public static WhereSQL toCountSelect(String tableName, String columnName, Condition basicCondition,
             boolean withSemicolon)
     {
         WhereSQL whereSQL = new WhereSQL();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("SELECT count(*) ").append(columnName);
+        stringBuilder.append("SELECT count(1) ").append(columnName);
         stringBuilder.append(" FROM `").append(tableName).append('`');
 
         if (basicCondition != null)
@@ -304,6 +319,17 @@ public class SqlUtil
             whereSQL.args = EMPTY_OBJS;
         }
 
+        String order = toOrder(querySettings, withSemicolon);
+
+        stringBuilder.append(order);
+
+        whereSQL.sql = stringBuilder.toString();
+        return whereSQL;
+    }
+
+    public static String toOrder(QuerySettings querySettings, boolean withSemicolon)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
         if (querySettings != null)
         {
             Object object = querySettings.toFinalObject();
@@ -324,9 +350,7 @@ public class SqlUtil
         {
             stringBuilder.append(";");
         }
-
-        whereSQL.sql = stringBuilder.toString();
-        return whereSQL;
+        return stringBuilder.toString();
     }
 
     public static String fileterLike(String content)

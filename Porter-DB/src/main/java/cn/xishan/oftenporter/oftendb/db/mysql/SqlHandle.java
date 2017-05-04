@@ -204,7 +204,7 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
-        return _getJSONS(whereSQL, keys);
+        return _getJSONS(whereSQL, null, keys);
     }
 
     @Override
@@ -213,10 +213,11 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
-        return getDBEnumerations(whereSQL, keys);
+        return getDBEnumerations(whereSQL, null, keys);
     }
 
-    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL, String[] keys) throws DBException
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings,
+            String[] keys) throws DBException
     {
 
         try
@@ -229,7 +230,8 @@ public class SqlHandle implements DBHandle, SqlSource
                 logArgs(args, builder);
                 LOGGER.debug("{}", builder);
             }
-            PreparedStatement ps = conn.prepareStatement(whereSQL.sql);
+            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
+            PreparedStatement ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
             {
@@ -299,7 +301,7 @@ public class SqlHandle implements DBHandle, SqlSource
         return canOpenOrClose;
     }
 
-    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, String[] keys)
+    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings, String[] keys)
     {
         JSONArray list = new JSONArray();
         PreparedStatement ps = null;
@@ -314,7 +316,8 @@ public class SqlHandle implements DBHandle, SqlSource
                 logArgs(args, builder);
                 LOGGER.debug("{}", builder);
             }
-            ps = conn.prepareStatement(whereSQL.sql);
+            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
+            ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
             {
@@ -348,13 +351,14 @@ public class SqlHandle implements DBHandle, SqlSource
     }
 
     @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,
+            QuerySettings querySettings) throws DBException
     {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
 
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
         String[] keys = advanced.keys;
-        return getDBEnumerations(whereSQL, keys);
+        return getDBEnumerations(whereSQL, querySettings, keys);
     }
 
     private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException
@@ -540,10 +544,10 @@ public class SqlHandle implements DBHandle, SqlSource
     }
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException
     {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
-        return _getJSONS(advanced.whereSQL, advanced.keys);
+        return _getJSONS(advanced.whereSQL, querySettings, advanced.keys);
     }
 
     @Override
@@ -775,7 +779,7 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
-        return exists(conn, whereSQL);
+        return _countSql(conn, SqlUtil.toCountSelect(whereSQL,"",true));
     }
 
     /**
@@ -786,10 +790,10 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlUtil.WhereSQL whereSql = SqlUtil
                 .toCountSelect(tableName, "", checkCondition(condition), true);
-        return exists(conn, whereSql);
+        return _countSql(conn, whereSql);
     }
 
-    public long exists(Connection conn, SqlUtil.WhereSQL whereSql) throws DBException
+    public long _countSql(Connection conn, SqlUtil.WhereSQL whereSql) throws DBException
     {
 
         long n = 0;
