@@ -207,10 +207,10 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
     {
         MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
-        return mongoAdvancedQuery.getDBEnumerations(collection, this);
+        return mongoAdvancedQuery.getDBEnumerations(collection, this,querySettings);
     }
 
     @Override
@@ -469,10 +469,10 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
     {
         MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
-        return mongoAdvancedQuery.execute(collection, this);
+        return mongoAdvancedQuery.execute(collection, this,querySettings);
     }
 
 

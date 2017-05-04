@@ -57,9 +57,9 @@ public interface DBHandle extends Closeable
      * @return 查询结果,存放的元素是json对象
      * @throws DBException 操作异常
      */
-    JSONArray advancedQuery(AdvancedQuery advancedQuery) throws DBException;
+    JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException;
 
-    DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery) throws DBException;
+    DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException;
 
     /**
      * @param advancedExecutor 高级执行对象

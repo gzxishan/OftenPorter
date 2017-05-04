@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.db.mongodb;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.DBEnumeration;
 import cn.xishan.oftenporter.oftendb.db.DBException;
+import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.DBCollection;
@@ -14,8 +15,8 @@ public abstract class MongoAdvancedQuery extends AdvancedQuery
 {
     protected abstract long exists(DBCollection collection, MongoHandle mongoHandle) throws DBException;
 
-    protected abstract JSONArray execute(DBCollection collection, MongoHandle mongoHandle) throws DBException;
+    protected abstract JSONArray execute(DBCollection collection, MongoHandle mongoHandle,QuerySettings querySettings) throws DBException;
 
     protected abstract DBEnumeration<JSONObject> getDBEnumerations(DBCollection collection,
-            MongoHandle mongoHandle) throws DBException;
+            MongoHandle mongoHandle,QuerySettings querySettings) throws DBException;
 }

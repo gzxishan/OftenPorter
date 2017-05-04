@@ -177,12 +177,21 @@ public class Common2
     }
 
     /**
-     * @see Common#queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, WObject)
+     * @see Common#queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject)
      */
     public JResponse queryAdvanced(DBSource dbSource,
             AdvancedQuery advancedQuery, WObject wObject)
     {
         return common.queryAdvanced(dbSource, dbSource, advancedQuery, wObject);
+    }
+
+    /**
+     * @see Common#queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject)
+     */
+    public JResponse queryAdvanced(DBSource dbSource,
+            AdvancedQuery advancedQuery, QuerySettings querySettings, WObject wObject)
+    {
+        return common.queryAdvanced(dbSource, dbSource, advancedQuery, querySettings, wObject);
     }
 
     /**
@@ -208,6 +217,21 @@ public class Common2
             QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
     {
         return common.queryEnumeration(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject);
+    }
+
+    /**
+     * 见{@linkplain Common#queryEnumeration(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject, int)}
+     *
+     * @param advancedQuery
+     * @param querySettings
+     * @param wObject
+     * @return
+     */
+    public JResponse queryEnumeration(DBSource dbSource,
+            AdvancedQuery advancedQuery,
+            QuerySettings querySettings, WObject wObject)
+    {
+        return common.queryEnumeration(dbSource, dbSource, advancedQuery, querySettings, wObject);
     }
 
     /**
