@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
 import cn.xishan.oftenporter.oftendb.data.DBHandleSource;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
@@ -70,4 +71,6 @@ public interface JDao
     <T> T execute(String method, JSONObject json, WObject wObject);
 
     SqlSource getSqlSource();
+
+    DBSource getDBSource();
 }
