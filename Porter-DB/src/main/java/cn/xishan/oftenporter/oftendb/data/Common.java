@@ -1105,6 +1105,24 @@ public class Common
     }
 
     /**
+     * 查询成功时，结果为null或json。
+     */
+    public JResponse queryOneAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
+            AdvancedQuery advancedQuery, WObject wObject)
+    {
+        QuerySettings querySettings = dbHandleSource.newQuerySettings();
+        querySettings.setLimit(1).setSkip(0);
+        JResponse jResponse = queryAdvanced(dbHandleSource, paramsGetter, advancedQuery, querySettings, wObject);
+        if (jResponse.isSuccess())
+        {
+            JSONArray array = jResponse.getResult();
+            JSONObject jsonObject = array.size() > 0 ? array.getJSONObject(0) : null;
+            jResponse.setResult(jsonObject);
+        }
+        return jResponse;
+    }
+
+    /**
      * 高级查询，若成功，则结果码为SUCCESS,结果为json数组。
      *
      * @param advancedQuery
