@@ -4,6 +4,8 @@ package cn.xishan.oftenporter.oftendb.data;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
 
@@ -192,6 +194,14 @@ public class Common2
             AdvancedQuery advancedQuery, QuerySettings querySettings, WObject wObject)
     {
         return common.queryAdvanced(dbSource, dbSource, advancedQuery, querySettings, wObject);
+    }
+
+    /**
+     * 见{@linkplain Common#queryOneAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, WObject)}
+     */
+    public JResponse queryOneAdvanced(DBSource dbSource, AdvancedQuery advancedQuery, WObject wObject)
+    {
+        return common.queryOneAdvanced(dbSource, dbSource, advancedQuery, wObject);
     }
 
     /**
