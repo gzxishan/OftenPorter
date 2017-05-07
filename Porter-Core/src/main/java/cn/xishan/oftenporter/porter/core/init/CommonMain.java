@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
+import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
 import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
@@ -32,7 +33,7 @@ public interface CommonMain
 
 
     /**
-     * 添加针对所有context有效的全局检测。
+     * 添加针对{@linkplain DuringType#ON_GLOBAL DuringType.ON_GLOBAL}的全局检测。
      * <br>
      * <strong>注意：</strong>在未启动任何context时有效，否则会抛出异常。
      *

@@ -18,7 +18,7 @@ class PortExecutorCheckers extends CheckHandle
     private DuringType duringType;
     private CheckPassable[] checkPassables;
     private CheckHandle handle;
-    private CheckPassable[] forAllCheckPassables;
+    private CheckPassable[] forAllChecksNotZeroLen;
 
     public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType,
             CheckPassable[] checkPassables, CheckHandle handle)
@@ -28,7 +28,9 @@ class PortExecutorCheckers extends CheckHandle
         this.wObject = wObject;
         this.duringType = duringType;
         this.checkPassables = checkPassables;
-        this.forAllCheckPassables = context.forAllCheckPassables;
+        if(context!=null){
+            this.forAllChecksNotZeroLen = context.forAllChecksNotZeroLen;
+        }
         this.handle = handle;
     }
 
@@ -64,7 +66,7 @@ class PortExecutorCheckers extends CheckHandle
     public void check()
     {
         currentIndex = 0;
-        if (forAllCheckPassables != null)
+        if (forAllChecksNotZeroLen != null)
         {
             inAll = true;
             checkForAll();
@@ -77,9 +79,9 @@ class PortExecutorCheckers extends CheckHandle
 
     private void checkForAll()
     {
-        if (currentIndex < forAllCheckPassables.length)
+        if (currentIndex < forAllChecksNotZeroLen.length)
         {
-            forAllCheckPassables[currentIndex++].willPass(wObject, duringType, this);
+            forAllChecksNotZeroLen[currentIndex++].willPass(wObject, duringType, this);
         } else
         {
             inAll = false;

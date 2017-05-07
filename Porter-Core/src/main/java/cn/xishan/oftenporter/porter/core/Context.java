@@ -9,15 +9,16 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
  */
 public class Context {
     public final ContextPorter contextPorter;
-    CheckPassable[] contextChecks;
     InnerContextBridge innerContextBridge;
     DeliveryBuilder deliveryBuilder;
     ParamSourceHandleManager paramSourceHandleManager;
     public final StateListener stateListenerForAll;
-
     boolean isEnable = true;
+
     String name, contentEncoding;
-    CheckPassable[] forAllCheckPassables;
+
+    CheckPassable[] contextChecks;
+    CheckPassable[] forAllChecksNotZeroLen;
 
     public Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
                    ParamSourceHandleManager paramSourceHandleManager,
@@ -28,7 +29,7 @@ public class Context {
         this.paramSourceHandleManager = paramSourceHandleManager;
         this.stateListenerForAll = stateListenerForAll;
         this.innerContextBridge = innerContextBridge;
-        this.forAllCheckPassables = forAllCheckPassables != null && forAllCheckPassables.length > 0 ? forAllCheckPassables : null;
+        this.forAllChecksNotZeroLen = forAllCheckPassables != null && forAllCheckPassables.length > 0 ? forAllCheckPassables : null;
         setEnable(true);
     }
 
