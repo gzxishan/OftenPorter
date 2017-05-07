@@ -30,6 +30,16 @@ import com.alibaba.fastjson.JSONObject;
 @AutoSet.AutoSetDefaultDealt(gen = JDaoGen.class)
 public interface JDao
 {
+
+    /**
+     * 见{@linkplain #query(JSONObject, WObject)}.
+     * @param wObject
+     * @param nameValues 必须是String,Object,String,Object...的形式.
+     * @param <T>
+     * @return
+     */
+    <T> T query(WObject wObject,Object ... nameValues);
+
     /**
      * 将获取调用处所在的方法名,见{@linkplain #query(String, JSONObject, WObject)}
      *
@@ -38,6 +48,15 @@ public interface JDao
      * @return
      */
     <T> T query(JSONObject json, WObject wObject);
+
+    /**
+     * 见{@linkplain #query(String,JSONObject, WObject)}.
+     * @param wObject
+     * @param nameValues 必须是String,Object,String,Object...的形式.
+     * @param <T>
+     * @return
+     */
+    <T> T query(String method, WObject wObject,Object ... nameValues);
 
     /**
      * 应用于查询。
@@ -50,6 +69,17 @@ public interface JDao
      */
     <T> T query(String method, JSONObject json, WObject wObject);
 
+
+
+    /**
+     * 见{@linkplain #execute(JSONObject, WObject)}.
+     * @param wObject
+     * @param nameValues 必须是String,Object,String,Object...的形式.
+     * @param <T>
+     * @return
+     */
+    <T> T execute(WObject wObject,Object ... nameValues);
+
     /**
      * 将获取调用处所在的方法名，见{@linkplain #execute(String, JSONObject, WObject)}
      *
@@ -58,6 +88,16 @@ public interface JDao
      * @return
      */
     <T> T execute(JSONObject json, WObject wObject);
+
+
+    /**
+     * 见{@linkplain #execute(String,JSONObject, WObject)}.
+     * @param wObject
+     * @param nameValues 必须是String,Object,String,Object...的形式.
+     * @param <T>
+     * @return
+     */
+    <T> T execute(String method, WObject wObject,Object ... nameValues);
 
     /**
      * 应用于非查询语句。
