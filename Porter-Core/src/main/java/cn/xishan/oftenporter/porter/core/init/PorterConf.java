@@ -16,7 +16,10 @@ public class PorterConf
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
     private Set<StateListener> stateListenerSet;
+
     private List<CheckPassable> contextChecks;
+    private List<CheckPassable> forAllCheckPassableList;
+
     private Map<String, Object> contextAutoSetMap;
     private Map<String, Class<?>> contextAutoGenImplMap;
     private ClassLoader classLoader;
@@ -25,7 +28,6 @@ public class PorterConf
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
-    private List<CheckPassable> forAllCheckPassableList;
     private String[] autoSetSeekPackages;
     private ParamSourceHandleManager paramSourceHandleManager;
 
@@ -64,7 +66,8 @@ public class PorterConf
     }
 
     /**
-     * 所有的时期都会调用它,并且该检测最先被调用。
+     * 除了{@linkplain DuringType#ON_GLOBAL DuringType.ON_GLOBAL
+     * }和{@linkplain DuringType#ON_CONTEXT DuringType.ON_CONTEXT}的所有时期都会调用它,并且该检测最先被调用。
      *
      * @param forAllCheckPassable
      */
@@ -203,7 +206,7 @@ public class PorterConf
     }
 
     /**
-     * 添加针对当前context有效的全局检测对象。
+     * 添加针对{@linkplain DuringType#ON_CONTEXT}有效的全局检测对象。
      *
      * @param checkPassable
      */

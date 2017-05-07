@@ -4,7 +4,7 @@
         <artifactId>Parent</artifactId>
         <groupId>cn.xishan.oftenporter</groupId>
         <version>1.0.3</version>
-        <relativePath>../Parent/pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>Demo</artifactId>

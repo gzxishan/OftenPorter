@@ -15,12 +15,12 @@
     <name>Parent</name>
 
     <modules>
-        <module>../Porter-Core</module>
-        <module>../Porter-DB</module>
-        <module>../Porter-Bridge-Servlet</module>
-        <module>../Porter-Bridge-Http</module>
-        <module>../Porter-UIBinder</module>
-        <module>../Demo</module>
+        <module>Porter-Core</module>
+        <module>Porter-DB</module>
+        <module>Porter-Bridge-Servlet</module>
+        <module>Porter-Bridge-Http</module>
+        <module>Porter-UIBinder</module>
+        <module>Demo</module>
     </modules>
 
     <dependencies>

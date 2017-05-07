@@ -30,7 +30,7 @@ public final class PorterMain
 {
     private PortExecutor portExecutor;
 
-    private boolean isInit, isGlobalAutoSet = false;
+    private boolean isInit;
     private final InnerBridge innerBridge;
     private final PLinker pLinker;
     private ListenerAdderImpl listenerAdder;
@@ -157,15 +157,13 @@ public final class PorterMain
         }
     }
 
-    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle)
+    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle,CheckPassable[] alls)
     {
-        if (isGlobalAutoSet)
+        if (alls==null)
         {
             return;
         }
-        LOGGER.debug("do doGlobalCheckAutoSet...");
-        isGlobalAutoSet = true;
-        CheckPassable[] alls = portExecutor.getAllGlobalChecks();
+        LOGGER.debug("add doGlobalCheckAutoSet...");
         autoSetHandle.addAutoSetsForNotPorter(alls);
     }
 
@@ -209,10 +207,10 @@ public final class PorterMain
 
     private void _startOne(PorterBridge bridge)
     {
-
+        CheckPassable[] alls=null;
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
-            CheckPassable[] alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
+            alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
             innerBridge.allGlobalChecksTemp = null;
             portExecutor.initAllGlobalChecks(alls);
         }
@@ -239,9 +237,9 @@ public final class PorterMain
         stateListenerForAll.beforeSeek(porterConf.getUserInitParam(), porterConf, paramSourceHandleManager);
 
 
-        doGlobalCheckAutoSet(autoSetHandle);
+        doGlobalCheckAutoSet(autoSetHandle,alls);
 
-        Map<Class<?>, CheckPassable> classCheckPassableMap = null;
+        Map<Class<?>, CheckPassable> classCheckPassableMap;
         SthDeal sthDeal = new SthDeal();
 
         try
@@ -262,12 +260,17 @@ public final class PorterMain
         autoSetHandle.addAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
 
 
-        CheckPassable[] checkPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
-        LOGGER.debug("do autoSet ForAllCheckPassable...");
-        autoSetHandle.addAutoSetsForNotPorter(checkPassables);
+        CheckPassable[] forAllCheckPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
+        LOGGER.debug("add autoSet ForAllCheckPassable...");
+        autoSetHandle.addAutoSetsForNotPorter(forAllCheckPassables);
 
-        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,
-                checkPassables);
+
+        CheckPassable[] contextChecks =   porterConf.getContextChecks().toArray(new CheckPassable[0]);
+        LOGGER.debug("add autoSet ForContextCheckPassable...");
+        autoSetHandle.addAutoSetsForNotPorter(contextChecks);
+
+        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,contextChecks,
+                forAllCheckPassables);
 
         try
         {
