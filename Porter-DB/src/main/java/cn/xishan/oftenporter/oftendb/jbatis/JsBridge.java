@@ -19,13 +19,12 @@ class JsBridge
     SqlSource sqlSource;
     DBSource dbSource;
 
-    public JsBridge(Invocable invocable,DBSource dbSource, SqlSource sqlSource)
+    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource)
     {
         this.invocable = invocable;
-        this.dbSource=dbSource;
+        this.dbSource = dbSource;
         this.sqlSource = sqlSource;
     }
-
 
 
     @Override
@@ -49,7 +48,7 @@ class JsBridge
     {
         try
         {
-            T t = (T) invocable.invokeFunction(method, getConn(wObject), json);
+            T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)
         {
@@ -61,7 +60,7 @@ class JsBridge
     {
         try
         {
-            T t = (T) invocable.invokeFunction(method, getConn(wObject), json);
+            T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)
         {
