@@ -234,6 +234,28 @@ public class Common
     }
 
     /**
+     * @param wObject
+     * @return 进行了关闭返回true。
+     */
+    public static boolean closeTransaction(WObject wObject)
+    {
+        try
+        {
+            TransactionHandle handle = getTransactionHandle(wObject);
+            if (handle == null)
+            {
+                return false;
+            }
+            handle.close();
+            wObject._otherObject = null;
+            return true;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
+
+    /**
      * 开启事务，操作对象被保存在{@linkplain WObject#_otherObject}
      *
      * @param wObject
@@ -242,107 +264,127 @@ public class Common
      */
     public static void startTransaction(WObject wObject, DBHandleSource dbHandleSource, ParamsGetter paramsGetter)
     {
-        TransactionHandle<Common> handle = getTransactionHandle(dbHandleSource, paramsGetter);
-        handle.startTransaction();
+        TransactionHandle<Common> handle = getTransactionHandle(wObject,dbHandleSource, paramsGetter);
         wObject._otherObject = handle;
+        handle.startTransaction();
     }
 
     /**
      * 提交事务.<strong>注意见：</strong>{@linkplain TransactionHandle#commitTransaction()}
      *
      * @param wObject
+     * @return 进行了提交，则返回true。
      * @throws IOException
      */
-    public static void commitTransaction(WObject wObject) throws IOException
+    public static boolean commitTransaction(WObject wObject)
+    {
+        TransactionHandle handle = getTransactionHandle(wObject);
+        if (handle == null)
+        {
+            return false;
+        }
+        handle.commitTransaction();
+        return true;
+    }
+
+    private static TransactionHandle getTransactionHandle(WObject wObject)
     {
         if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
         {
-            return;
+            return null;
         }
         TransactionHandle handle = (TransactionHandle) wObject._otherObject;
-        handle.commitTransaction();
-        handle.close();
-        wObject._otherObject = null;
+        return handle;
     }
 
     /**
      * 回滚事务。
      *
      * @param wObject
+     * @return 进行了回滚返回true。
      * @throws IOException
      */
-    public static void rollbackTransaction(WObject wObject) throws IOException
+    public static boolean rollbackTransaction(WObject wObject)
     {
-        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
+        TransactionHandle handle = getTransactionHandle(wObject);
+        if (handle == null)
         {
-            return;
+            return false;
         }
-        TransactionHandle handle = (TransactionHandle) wObject._otherObject;
         handle.rollback();
-        handle.close();
-        wObject._otherObject = null;
+        return true;
     }
 
     /**
      * 得到事务操作
      */
-    public static TransactionHandle<Common> getTransactionHandle(DBHandleSource dbHandleSource,
+    public static TransactionHandle<Common> getTransactionHandle(WObject wObject, DBHandleSource dbHandleSource,
             ParamsGetter paramsGetter)
     {
         if (dbHandleSource == null || paramsGetter == null)
         {
             throw new NullPointerException();
         }
-        CommonTransactionHandle<Common> transactionHandle = new CommonTransactionHandle<Common>(dbHandleSource,
-                paramsGetter)
+        TransactionHandle<Common> transactionHandle = null;
+
+        TransactionHandle lastHandle = getTransactionHandle(wObject);
+        if (lastHandle != null)
         {
-            Common common = initCommon();
-
-            @Override
-            public void startTransaction() throws DBException
+            transactionHandle = lastHandle;
+        } else
+        {
+            transactionHandle = new CommonTransactionHandle<Common>(dbHandleSource,
+                    paramsGetter)
             {
-                common._dbHandle.startTransaction();
-            }
+                Common common = initCommon();
 
-            private Common initCommon()
-            {
-                DBHandle _dDbHandle_ = getDBHandleSource().getDbHandle(getParamsGetter(), null, null);
-                Common common = new Common(_dDbHandle_);
-
-                if (!common._dbHandle.supportTransaction())
+                @Override
+                public void startTransaction() throws DBException
                 {
-                    throw new DBException("the dbhandle '" + common._dbHandle.getClass()
-                            + "' not support transaction");
+                    common._dbHandle.startTransaction();
                 }
 
-                return common;
-            }
+                private Common initCommon()
+                {
+                    DBHandle _dDbHandle_ = getDBHandleSource().getDbHandle(getParamsGetter(), null, null);
+                    Common common = new Common(_dDbHandle_);
 
-            @Override
-            public void commitTransaction() throws DBException
-            {
-                commitTransaction(common._dbHandle);
-            }
+                    if (!common._dbHandle.supportTransaction())
+                    {
+                        throw new DBException("the dbhandle '" + common._dbHandle.getClass()
+                                + "' not support transaction");
+                    }
 
-            @Override
-            public Common common()
-            {
-                return common;
-            }
+                    return common;
+                }
 
-            @Override
-            public void close() throws IOException
-            {
-                common._dbHandle.close();
-                getDBHandleSource().afterClose(common._dbHandle);
-            }
+                @Override
+                public void commitTransaction() throws DBException
+                {
+                    commitTransaction(common._dbHandle);
+                }
 
-            @Override
-            public void rollback() throws DBException
-            {
-                common._dbHandle.rollback();
-            }
-        };
+                @Override
+                public Common common()
+                {
+                    return common;
+                }
+
+                @Override
+                public void close() throws IOException
+                {
+                    common._dbHandle.close();
+                    getDBHandleSource().afterClose(common._dbHandle);
+                }
+
+                @Override
+                public void rollback() throws DBException
+                {
+                    common._dbHandle.rollback();
+                }
+            };
+        }
+
 
         return transactionHandle;
     }

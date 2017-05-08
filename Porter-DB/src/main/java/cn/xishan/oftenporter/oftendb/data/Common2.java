@@ -24,38 +24,61 @@ public class Common2
         this.common = common;
     }
 
+    private static TransactionHandle getTransactionHandle(WObject wObject)
+    {
+        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
+        {
+            return null;
+        }
+        TransactionHandle handle = (TransactionHandle) wObject._otherObject;
+        return handle;
+    }
+
 
     public static void startTransaction(WObject wObject, DBSource dbSource)
     {
-        TransactionHandle<Common2> handle = getTransactionHandle(dbSource);
+        TransactionHandle<Common2> handle = getTransactionHandle(wObject,dbSource);
         handle.startTransaction();
         wObject._otherObject = handle;
     }
 
-
-    public static void commitTransaction(WObject wObject) throws IOException
+    /**
+     * 见{@linkplain Common#closeTransaction(WObject)}
+     * @param wObject
+     * @return
+     */
+    public static boolean closeTransaction(WObject wObject)
     {
-        TransactionHandle handle = (TransactionHandle) wObject._otherObject;
-        handle.commitTransaction();
-        handle.close();
-        wObject._otherObject = null;
+       return Common.closeTransaction(wObject);
+    }
+
+    /**
+     * 见{@linkplain Common#commitTransaction(WObject)}
+     * @param wObject
+     * @return
+     */
+    public static boolean commitTransaction(WObject wObject)
+    {
+        return Common.commitTransaction(wObject);
     }
 
 
-    public static void rollbackTransaction(WObject wObject) throws IOException
+    /**
+     * 见{@linkplain Common#rollbackTransaction(WObject)}
+     * @param wObject
+     * @return
+     */
+    public static boolean rollbackTransaction(WObject wObject)
     {
-        TransactionHandle handle = (TransactionHandle) wObject._otherObject;
-        handle.rollback();
-        handle.close();
-        wObject._otherObject = null;
+        return Common.rollbackTransaction(wObject);
     }
 
-    public static TransactionHandle<Common2> getTransactionHandle(DBSource dbSource)
+    public static TransactionHandle<Common2> getTransactionHandle(WObject wObject,DBSource dbSource)
     {
         CommonTransactionHandle<Common2> thandle = new CommonTransactionHandle<Common2>(dbSource, dbSource)
         {
             TransactionHandle<Common> transactionHandle = Common
-                    .getTransactionHandle(getDBHandleSource(), getParamsGetter());
+                    .getTransactionHandle(wObject,getDBHandleSource(), getParamsGetter());
             Common2 common2 = new Common2(transactionHandle.common());
 
             @Override
