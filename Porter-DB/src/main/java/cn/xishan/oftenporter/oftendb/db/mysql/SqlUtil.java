@@ -353,7 +353,12 @@ public class SqlUtil
         return stringBuilder.toString();
     }
 
-    public static String fileterLike(String content)
+    /**
+     * 转义相对于like的特殊字符。
+     * @param content
+     * @return
+     */
+    public static String filterLike(String content)
     {
         content = content.replaceAll("\\[", "[[]");
         content = content.replaceAll("%", "[%]").replaceAll("\\^", "[^]").replaceAll("_", "[_]");

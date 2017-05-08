@@ -29,7 +29,7 @@ public class JsInterface
     public AdvancedQuery sqlQuery(String sql, Object argsObj)
     {
         JSqlArgs jSqlArgs = sqlArgs(sql, argsObj);
-        AdvancedQuery advancedQuery = new SqlAdvancedQuery(new SqlUtil.WhereSQL(jSqlArgs.sql,jSqlArgs.args));
+        AdvancedQuery advancedQuery = new SqlAdvancedQuery(new SqlUtil.WhereSQL(jSqlArgs.sql, jSqlArgs.args));
         return advancedQuery;
     }
 
@@ -53,4 +53,10 @@ public class JsInterface
         }
         return new JSqlArgs(sql, args);
     }
+
+    public String filterLike(String content)
+    {
+        return SqlUtil.filterLike(content);
+    }
+
 }

@@ -315,17 +315,17 @@ public class SqlCondition extends Condition
         } else if (operator == SUBSTR)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(cUnit.getParam2() + "") + "%");
+            args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == STARTSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add(SqlUtil.fileterLike(cUnit.getParam2() + "") + "%");
+            args.add(SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == ENDSSWITH)
         {
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
-            args.add("%" + SqlUtil.fileterLike(cUnit.getParam2() + ""));
+            args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + ""));
             return;
         } else
         {
