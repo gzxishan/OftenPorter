@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
+import jdk.nashorn.internal.objects.NativeArray;
 
 /**
  * Created by chenyg on 2017-04-29.
@@ -42,6 +43,10 @@ public class JsInterface
         } else if (argsObj instanceof Object[])
         {
             args = (Object[]) argsObj;
+        } else if (argsObj instanceof NativeArray)
+        {
+            NativeArray nativeArray = (NativeArray) argsObj;
+            args = nativeArray.asObjectArray();
         } else
         {
             ScriptObjectMirror scriptObjectMirror = (ScriptObjectMirror) argsObj;
