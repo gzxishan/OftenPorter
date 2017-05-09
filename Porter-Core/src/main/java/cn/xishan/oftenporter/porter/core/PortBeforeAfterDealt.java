@@ -70,7 +70,7 @@ class PortBeforeAfterDealt
         PRequest request = PRequest
                 .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false);
         ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_BEFORE,abPortType);
-        request.setABOption(abOption);
+        request._setABOption_(abOption);
 
         wObject.delivery().currentBridge().request(request, lResponse ->
         {
@@ -132,7 +132,7 @@ class PortBeforeAfterDealt
         PRequest request = PRequest
                 .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false);
         ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_AFTER,abPortType);
-        request.setABOption(abOption);
+        request._setABOption_(abOption);
 
         wObject.delivery().currentBridge().request(request, lResponse ->
         {

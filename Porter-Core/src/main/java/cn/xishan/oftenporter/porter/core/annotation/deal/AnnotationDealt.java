@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -77,27 +78,27 @@ public final class AnnotationDealt
         return list;
     }
 
-    public _SyncPorterOption syncPorterOption(Field field, String currentContext) throws FatalInitException
+    public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter) throws FatalInitException
 
     {
         if (field.isAnnotationPresent(SyncPorterOption.class))
         {
-            _SyncPorterOption syncPorterOption = new _SyncPorterOption();
-
+            _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
-            String context = option.context().equals("") ? currentContext : option.context();
-            String classTied = option.classTied();
-            PortUtil.checkName(context);
-            PortUtil.checkName(classTied);
-            PortUtil.checkName(option.funTied());
+            String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
+            String classTied=option.classTied().equals("")?porterParamGetter.getClassTied():option.classTied();
+            porterParamGetter.setContext(context);
+            porterParamGetter.setClassTied(classTied);
+            porterParamGetter.setFunTied(option.funTied());
+
             syncPorterOption.method = option.method();
-            syncPorterOption.pathWithContext = "/" + context + "/" + classTied + "/" + option.funTied();
+
             return syncPorterOption;
 
         } else
         {
             throw new FatalInitException(
-                    String.format("Field[%s] not annotate with %s", field, SyncPorterOption.class.getName()));
+                    String.format("Field[%s] not annotated with %s", field, SyncPorterOption.class.getName()));
         }
 
     }

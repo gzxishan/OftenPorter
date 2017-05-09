@@ -25,7 +25,7 @@ public class TestABPorter
         return time;
     }
 
-    @PortIn(tied = "genData", portFunType = PortFunType.JUST_BEFORE_AFTER)
+    @PortIn(tied = "genData", portFunType = PortFunType.JUST_INNER)
     public Object genData()
     {
         PortFunReturn funReturn = new PortFunReturn();
@@ -34,8 +34,9 @@ public class TestABPorter
     }
 
     @AutoSet
-    @SyncPorterOption(classTied = "TestAB",funTied = "genData")
+    @SyncPorterOption(funTied = "genData")
     SyncPorter syncPorter;
+
 
     @PortIn("syncData")
     public void syncData(WObject wObject)

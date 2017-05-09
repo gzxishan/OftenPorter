@@ -13,7 +13,17 @@ import java.lang.annotation.*;
 public @interface SyncPorterOption
 {
     PortMethod method() default PortMethod.GET;
+
+    /**
+     * 默认为当前的context名称。
+     * @return
+     */
     String context()default "";
-    String classTied();
+
+    /**
+     * 默认为当前接口的类绑定名。
+     * @return
+     */
+    String classTied()default "";
     String funTied();
 }

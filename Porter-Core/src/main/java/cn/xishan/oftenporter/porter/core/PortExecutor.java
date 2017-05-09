@@ -62,10 +62,10 @@ public class PortExecutor
 
 
     public void addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
-            InnerContextBridge innerContextBridge,CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables)
+            InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables)
     {
         PorterConf porterConf = bridge.porterConf();
-        Context context = new Context(deliveryBuilder, contextPorter,contextChecks,
+        Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
                 bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassables);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
@@ -202,8 +202,9 @@ public class PortExecutor
             if (request instanceof PRequest)
             {
                 PRequest pRequest = (PRequest) request;
-                abOption = pRequest.getABOption();
-                if (funPort.getMethodPortIn().getPortFunType() == PortFunType.JUST_BEFORE_AFTER && abOption == null)
+                abOption = pRequest._getABOption_();
+                if (funPort.getMethodPortIn()
+                        .getPortFunType() == PortFunType.JUST_INNER && abOption == null)
                 {
                     exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
                     return;
@@ -343,7 +344,7 @@ public class PortExecutor
             dealtOfContextCheck(context, funPort, wObject, innerContextBridge, result);
         } else
         {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null,wObject, DuringType.ON_GLOBAL,
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject, DuringType.ON_GLOBAL,
                     allGlobal,
                     new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
                     {
@@ -375,7 +376,7 @@ public class PortExecutor
             dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
         } else
         {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null,wObject,
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject,
                     DuringType.ON_CONTEXT, contextChecks,
                     new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
                     {
