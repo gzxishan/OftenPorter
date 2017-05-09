@@ -78,7 +78,8 @@ public final class AnnotationDealt
         return list;
     }
 
-    public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter) throws FatalInitException
+    public _SyncPorterOption syncPorterOption(Field field,
+            PorterParamGetterImpl porterParamGetter) throws FatalInitException
 
     {
         if (field.isAnnotationPresent(SyncPorterOption.class))
@@ -86,7 +87,7 @@ public final class AnnotationDealt
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
-            String classTied=option.classTied().equals("")?porterParamGetter.getClassTied():option.classTied();
+            String classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
             porterParamGetter.setContext(context);
             porterParamGetter.setClassTied(classTied);
             porterParamGetter.setFunTied(option.funTied());
@@ -378,7 +379,7 @@ public final class AnnotationDealt
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-            _portIn = new _PortIn(portIn.portFunType());
+            _portIn = new _PortIn(PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType()));
             _portIn.setTiedType(TiedType.type(class_PortIn.getTiedType(), portIn.tiedType()));
             _portIn.tiedName = PortUtil
                     .tied(portIn, method, _portIn.getTiedType() == TiedType.REST || enableDefaultValue);
