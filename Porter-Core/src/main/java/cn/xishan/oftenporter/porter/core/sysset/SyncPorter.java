@@ -10,5 +10,13 @@ public interface SyncPorter
 {
     <T> T request(WObject wObject);
 
-    <T> T request(WObject wObject,AppValues appValues);
+    <T> T request(WObject wObject, AppValues appValues);
+
+    /**
+     * @param wObject
+     * @param nameValues name,value,name,value...
+     * @param <T>
+     * @return
+     */
+    <T> T requestSimple(WObject wObject, Object... nameValues);
 }

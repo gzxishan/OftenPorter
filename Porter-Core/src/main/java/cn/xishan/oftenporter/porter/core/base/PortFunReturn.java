@@ -11,7 +11,7 @@ import java.util.Map;
  * 用于与{@linkplain After After}和{@linkplain Before Before}进行配合。
  * <pre>
  *     1.当直接返回时，会变成{@linkplain JResponse JResponse}的结果。
- *     2.过滤器时，会变成参数。
+ *     2.作为中间过滤器时，会变成参数。
  * </pre>
  * Created by chenyg on 2017-04-17.
  */

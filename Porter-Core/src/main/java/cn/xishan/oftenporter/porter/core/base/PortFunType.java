@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.After;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.Before;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 
 /**
  * 用于与{@linkplain PortIn PortIn}进行配合。
@@ -15,7 +16,7 @@ public enum PortFunType
      */
     DEFAULT,
     /**
-     * 只能在{@linkplain Before Before}或{@linkplain After After}中调用。
+     * 只能在{@linkplain SyncPorter SyncPorter}、{@linkplain Before Before}或{@linkplain After After}中调用。
      */
-    JUST_BEFORE_AFTER
+    JUST_INNER
 }

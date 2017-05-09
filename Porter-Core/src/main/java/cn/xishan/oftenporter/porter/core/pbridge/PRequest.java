@@ -42,12 +42,20 @@ public class PRequest implements WRequest, Cloneable
         initOrigin(request);
     }
 
-    public void setABOption(ABOption abOption)
+    /**
+     * 内部调用！
+     * @param abOption
+     */
+    public void _setABOption_(ABOption abOption)
     {
         this.abOption = abOption;
     }
 
-    public ABOption getABOption()
+    /**
+     * 外部调用的，该返回值为空
+     * @return
+     */
+    public ABOption _getABOption_()
     {
         return abOption;
     }
