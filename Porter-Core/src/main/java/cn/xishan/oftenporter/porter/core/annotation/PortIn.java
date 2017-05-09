@@ -207,6 +207,7 @@ public @interface PortIn
      */
     TiedType tiedType() default TiedType.DEFAULT;
 
+
     PortFunType portFunType() default PortFunType.DEFAULT;
 
 }
