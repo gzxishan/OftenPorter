@@ -13,6 +13,7 @@ public abstract class SqlAdvancedExecutor extends AdvancedExecutor
 {
 
     protected abstract Object execute(Connection connection, SqlHandle sqlHandle) throws DBException;
+
     private static final Logger LOGGER = LogUtil.logger(SqlAdvancedExecutor.class);
 
     @Override
@@ -31,11 +32,18 @@ public abstract class SqlAdvancedExecutor extends AdvancedExecutor
                 try
                 {
                     PreparedStatement ps = connection.prepareStatement(sql);
-                    LOGGER.debug(sql);
-                    if(args!=null){
-                        for (int i = 0; i <args.length ; i++)
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug(sql);
+                        StringBuilder builder = new StringBuilder();
+                        SqlHandle.logArgs(args, builder);
+                        LOGGER.debug("{}", builder);
+                    }
+                    if (args != null)
+                    {
+                        for (int i = 0; i < args.length; i++)
                         {
-                            ps.setObject(i+1,args[i]);
+                            ps.setObject(i + 1, args[i]);
                         }
                     }
                     return ps.executeUpdate();

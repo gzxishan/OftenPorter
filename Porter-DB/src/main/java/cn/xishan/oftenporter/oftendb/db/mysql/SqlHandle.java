@@ -104,8 +104,11 @@ public class SqlHandle implements DBHandle, SqlSource
         return addPS(conn, isTransaction, tableName, multiNameValues);
     }
 
-    private static void logArgs(Object[] args, StringBuilder builder)
+    static void logArgs(Object[] args, StringBuilder builder)
     {
+        if(args==null){
+            return;
+        }
         for (int i = 0; i < args.length; i++)
         {
             Object value = args[i];
@@ -779,7 +782,7 @@ public class SqlHandle implements DBHandle, SqlSource
     {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
-        return _countSql(conn, SqlUtil.toCountSelect(whereSQL,"",true));
+        return _countSql(conn, SqlUtil.toCountSelect(whereSQL, "", true));
     }
 
     /**
