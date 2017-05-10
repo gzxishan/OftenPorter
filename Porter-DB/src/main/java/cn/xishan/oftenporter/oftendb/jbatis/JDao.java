@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.JDaoPath;
 import cn.xishan.oftenporter.oftendb.data.DBHandleSource;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
@@ -14,7 +15,8 @@ import com.alibaba.fastjson.JSONObject;
  * <pre>
  *     通过js文件来生成sql语句，也可以执行并返回结果。
  *     一、通过添加context范围({@linkplain PorterConf#addContextAutoSet(Class, Object) addContextAutoSet(Class, Object)})
- *     的注解参数{@linkplain JDaoOption JDaoOption}来进行相关配置：
+ *     的注解参数{@linkplain JDaoOption JDaoOption}来进行相关配置.
+ *       js还可以通过{@linkplain JDaoPath JDaoPath}来配置在资源包中的位置
  *     二、js文件的格式：
  *     1.一个对象一个文件，每个文件是隔离的。
  *     2.内置变量jdaoBridge：
@@ -34,12 +36,13 @@ public interface JDao
 
     /**
      * 见{@linkplain #query(JSONObject, WObject)}.
+     *
      * @param wObject
      * @param nameValues 必须是String,Object,String,Object...的形式.
      * @param <T>
      * @return
      */
-    <T> T query(WObject wObject,Object ... nameValues);
+    <T> T query(WObject wObject, Object... nameValues);
 
     /**
      * 将获取调用处所在的方法名,见{@linkplain #query(String, JSONObject, WObject)}
@@ -51,13 +54,14 @@ public interface JDao
     <T> T query(JSONObject json, WObject wObject);
 
     /**
-     * 见{@linkplain #query(String,JSONObject, WObject)}.
+     * 见{@linkplain #query(String, JSONObject, WObject)}.
+     *
      * @param wObject
      * @param nameValues 必须是String,Object,String,Object...的形式.
      * @param <T>
      * @return
      */
-    <T> T query(String method, WObject wObject,Object ... nameValues);
+    <T> T query(String method, WObject wObject, Object... nameValues);
 
     /**
      * 应用于查询。
@@ -71,15 +75,15 @@ public interface JDao
     <T> T query(String method, JSONObject json, WObject wObject);
 
 
-
     /**
      * 见{@linkplain #execute(JSONObject, WObject)}.
+     *
      * @param wObject
      * @param nameValues 必须是String,Object,String,Object...的形式.
      * @param <T>
      * @return
      */
-    <T> T execute(WObject wObject,Object ... nameValues);
+    <T> T execute(WObject wObject, Object... nameValues);
 
     /**
      * 将获取调用处所在的方法名，见{@linkplain #execute(String, JSONObject, WObject)}
@@ -92,13 +96,14 @@ public interface JDao
 
 
     /**
-     * 见{@linkplain #execute(String,JSONObject, WObject)}.
+     * 见{@linkplain #execute(String, JSONObject, WObject)}.
+     *
      * @param wObject
      * @param nameValues 必须是String,Object,String,Object...的形式.
      * @param <T>
      * @return
      */
-    <T> T execute(String method, WObject wObject,Object ... nameValues);
+    <T> T execute(String method, WObject wObject, Object... nameValues);
 
     /**
      * 应用于非查询语句。

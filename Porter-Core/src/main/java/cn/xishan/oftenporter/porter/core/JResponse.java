@@ -261,13 +261,15 @@ public class JResponse
     {
         if (exCause != null)
         {
-            try
+            RuntimeException runtimeException;
+            if (exCause instanceof RuntimeException)
             {
-                throw exCause;
-            } catch (Throwable throwable)
+                runtimeException = (RuntimeException) exCause;
+            } else
             {
-                LOGGER.debug(throwable.getMessage(), throwable);
+                throw new RuntimeException(exCause);
             }
+            throw runtimeException;
         }
     }
 

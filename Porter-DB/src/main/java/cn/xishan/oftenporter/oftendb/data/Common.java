@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.oftendb.data;
 
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.exception.CannotOpenOrCloseException;
-import cn.xishan.oftenporter.oftendb.db.mongodb.advanced.QueryAdvanced;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -15,7 +14,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 
 /**
@@ -182,7 +180,7 @@ public class Common
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
 
-            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
+            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
 
         } catch (Exception e)
         {
@@ -190,7 +188,7 @@ public class Common
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
-            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
+            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
         } finally
         {
             if (dbHandle != null && !dbHandle.isTransaction() && dbHandle.canOpenOrClose())
@@ -219,7 +217,7 @@ public class Common
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
-            LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
+            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
             WCallException callException = new WCallException(jResponse);
 
             throw callException;

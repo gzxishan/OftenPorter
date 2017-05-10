@@ -15,6 +15,42 @@ public class SimpleAppValues implements AppValues
 
 
     /**
+     *
+     * @param nameValues 必须是key(String),value(Object),key,value...的形式
+     * @return
+     */
+    public static SimpleAppValues fromArray(Object ... nameValues){
+        if (nameValues.length % 2 != 0)
+        {
+            throw new IllegalArgumentException("Illegal arguments length:" + nameValues.length);
+        }
+        SimpleAppValues appValues = new SimpleAppValues();
+        String[] names = new String[nameValues.length / 2];
+        Object[] values = new Object[nameValues.length / 2];
+        for (int i = 0, k = 0; i < nameValues.length; i += 2, k++)
+        {
+            names[k] = (String) nameValues[i];
+            values[k] = nameValues[i + 1];
+        }
+        appValues.names(names).values(values);
+        return appValues;
+    }
+
+    public JSONObject toJson()
+    {
+        JSONObject jsonpObject = new JSONObject();
+        if (names != null)
+        {
+            for (int i = 0; i < names.length; i++)
+            {
+                jsonpObject.put(names[i], values[i]);
+            }
+        }
+        return jsonpObject;
+    }
+
+
+    /**
      * 提取键值对。
      *
      * @param jsonObject 要提取的json对象
@@ -26,15 +62,16 @@ public class SimpleAppValues implements AppValues
 
         String[] names = new String[jsonObject.size()];
         Object[] values = new Object[jsonObject.size()];
-        simpleAppValues.names=names;
-        simpleAppValues.values=values;
+        simpleAppValues.names = names;
+        simpleAppValues.values = values;
 
-        Iterator<Map.Entry<String,Object>> iterator = jsonObject.entrySet().iterator();
-        int i=0;
-        while (iterator.hasNext()){
-            Map.Entry<String,Object> entry = iterator.next();
-            names[i]=entry.getKey();
-            values[i++]=entry.getValue();
+        Iterator<Map.Entry<String, Object>> iterator = jsonObject.entrySet().iterator();
+        int i = 0;
+        while (iterator.hasNext())
+        {
+            Map.Entry<String, Object> entry = iterator.next();
+            names[i] = entry.getKey();
+            values[i++] = entry.getValue();
         }
 
         return simpleAppValues;

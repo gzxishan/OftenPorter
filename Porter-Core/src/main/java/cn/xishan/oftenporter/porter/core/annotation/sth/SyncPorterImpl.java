@@ -55,20 +55,7 @@ class SyncPorterImpl implements SyncPorter
     @Override
     public <T> T requestSimple(WObject wObject, Object... nameValues)
     {
-        if (nameValues.length % 2 != 0)
-        {
-            throw new IllegalArgumentException("Illegal arguments length:" + nameValues.length);
-        }
-        SimpleAppValues appValues = new SimpleAppValues();
-        String[] names = new String[nameValues.length / 2];
-        Object[] values = new Object[nameValues.length / 2];
-        for (int i = 0, k = 0; i < names.length; i += 2, k++)
-        {
-            names[k] = (String) nameValues[i];
-            values[k] = nameValues[i + 1];
-        }
-
-        appValues.names(names).values(values);
+        AppValues appValues = SimpleAppValues.fromArray(nameValues);
         return request(wObject, appValues);
     }
 }
