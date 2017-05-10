@@ -407,6 +407,7 @@ public class AutoSetHandle
                 {
                     if (method.isAnnotationPresent(AutoSet.SetOk.class))
                     {
+                        method.setAccessible(true);
                         method.invoke(object);
                     }
                 }
