@@ -14,6 +14,11 @@ public class EmptyWObject extends WObject
 {
     private UrlDecoder.Result result;
 
+    public EmptyWObject()
+    {
+        this("", "", "");
+    }
+
     public EmptyWObject(String contextName, String classTied, String funTied)
     {
         result = DefaultUrlDecoder.newResult(new HashMap<>(0), contextName, classTied, funTied);
@@ -83,6 +88,7 @@ public class EmptyWObject extends WObject
 
     /**
      * 返回空.
+     *
      * @return
      */
     @Override

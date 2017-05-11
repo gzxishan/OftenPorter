@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
@@ -330,5 +331,10 @@ public class SthDeal
             return null;
         }
 
+    }
+
+    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption){
+        SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption);
+        return syncPorter;
     }
 }
