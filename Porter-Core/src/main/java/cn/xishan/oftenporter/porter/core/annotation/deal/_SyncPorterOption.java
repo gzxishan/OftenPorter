@@ -17,6 +17,11 @@ public class _SyncPorterOption
         this.porterParamGetter = porterParamGetter;
     }
 
+    public void setMethod(PortMethod method)
+    {
+        this.method = method;
+    }
+
     public PortMethod getMethod()
     {
         return method;

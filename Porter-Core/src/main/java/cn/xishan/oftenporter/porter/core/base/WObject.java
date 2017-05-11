@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 
 /**
  * 接口中间对象。
@@ -233,6 +234,11 @@ public abstract class WObject
     {
         UrlDecoder.TiedValue tiedValue = url().pop();
         return tiedValue == null ? null : tiedValue.classTied;
+    }
+
+    public SyncPorter newSyncPorter(SyncOption syncOption)
+    {
+        return syncOption.build(this);
     }
 
 }
