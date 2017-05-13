@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.sysset;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
@@ -8,9 +9,9 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  */
 public interface SyncPorter
 {
-    <T> T request(WObject wObject);
+    <T> T request(@MayNull WObject wObject);
 
-    <T> T request(WObject wObject, AppValues appValues);
+    <T> T request(@MayNull WObject wObject, AppValues appValues);
 
     /**
      * @param wObject
@@ -18,5 +19,5 @@ public interface SyncPorter
      * @param <T>
      * @return
      */
-    <T> T requestSimple(WObject wObject, Object... nameValues);
+    <T> T requestSimple(@MayNull WObject wObject, Object... nameValues);
 }
