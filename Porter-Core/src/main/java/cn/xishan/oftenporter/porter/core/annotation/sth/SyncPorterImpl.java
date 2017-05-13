@@ -44,7 +44,7 @@ class SyncPorterImpl implements SyncPorter
     public <T> T request(WObject wObject, AppValues appValues)
     {
         PRequest request = new PRequest(syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
-        ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_INNER, ABPortType.OTHER);
+        ABOption abOption = new ABOption(wObject==null?null:wObject._otherObject, ABType.METHOD_OF_INNER, ABPortType.OTHER);
         request._setABOption_(abOption);
         request.addParamAll(appValues);
         Temp temp = new Temp();

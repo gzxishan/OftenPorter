@@ -44,7 +44,11 @@ class MultiPartParamSourceHandle implements ParamSourceHandle
     public ParamSource get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
     {
 
-        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+        Object originalRequest = wObject.getRequest().getOriginalRequest();
+        if(originalRequest==null||!(originalRequest instanceof HttpServletRequest)){
+            return null;
+        }
+        HttpServletRequest request = (HttpServletRequest) originalRequest;
         if (ContentType.APP_JSON.equals(request.getContentType()))
         {
             if (multiPartOption.decodeJsonParams)
