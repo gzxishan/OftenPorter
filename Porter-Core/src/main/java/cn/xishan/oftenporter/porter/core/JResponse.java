@@ -286,13 +286,7 @@ public class JResponse
         json.put(DESCRIPTION_FIELD, description);
         if (result != null)
         {
-            if (result instanceof JSONObject || result instanceof JSONArray)
-            {
-                json.put(RESULT_FIELD, result);
-            } else
-            {
-                json.put(RESULT_FIELD, String.valueOf(result));
-            }
+            json.put(RESULT_FIELD, result);
         }
 
         if (extra != null)

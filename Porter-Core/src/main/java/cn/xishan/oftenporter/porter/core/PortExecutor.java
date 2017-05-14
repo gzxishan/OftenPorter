@@ -346,7 +346,9 @@ public class PortExecutor
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject, DuringType.ON_GLOBAL,
                     allGlobal,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType(),
+                            wObject.abOption)
                     {
 
                         @Override
@@ -378,7 +380,9 @@ public class PortExecutor
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject,
                     DuringType.ON_CONTEXT, contextChecks,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType(),
+                            wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)
@@ -445,7 +449,8 @@ public class PortExecutor
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), wObject.abOption)
+                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType(), wObject.abOption)
                     {
                         @Override
                         public void go(Object failedObject)

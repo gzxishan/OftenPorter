@@ -210,6 +210,18 @@ public abstract class Condition implements ToFinal
         }
     }
 
+    /**
+     * 同{@linkplain #append(Operator, String, Object) append(Condition.EQ, String, Object)}
+     *
+     * @param cunitName
+     * @param value
+     * @return
+     */
+    public Condition append(String cunitName, Object value)
+    {
+        return append(EQ, cunitName, value);
+    }
+
     public Condition append(Operator operator, String cunitName, Object cunitValue)
     {
         return put(operator, new CUnit(cunitName, cunitValue));
