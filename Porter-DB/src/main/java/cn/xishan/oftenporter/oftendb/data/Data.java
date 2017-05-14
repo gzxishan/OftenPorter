@@ -318,7 +318,7 @@ public abstract class Data extends DataAble
             ClassAndField cf = getClassAndField();
 //            if (keysSelection.isSelect)
 //            {
-            keys = keysSelection.keys;
+            keys = keysSelection.getKeys();
             // 转换成数据库的名称
             for (int i = 0; i < keys.length; i++)
             {

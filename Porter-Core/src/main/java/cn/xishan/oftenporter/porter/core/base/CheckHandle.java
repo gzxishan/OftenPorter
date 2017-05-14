@@ -29,7 +29,7 @@ public abstract class CheckHandle
     public final Object handleObject;
 
     /**
-     * 当前接口函数,从{@linkplain DuringType#ON_METHOD}时期开始存在。
+     * 当前接口函数,整个时期都存在。
      */
     public final Object handleMethod;
 
@@ -52,11 +52,6 @@ public abstract class CheckHandle
         this.abOption = checkHandle.abOption;
     }
 
-
-    public CheckHandle(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, ABOption abOption)
-    {
-        this(null, null, urlResult, finalPorterObject, handleObject, null, null, abOption);
-    }
 
     private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject,
             Object handleObject,

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
@@ -103,6 +104,13 @@ public class WPTool
         for (T t : ts)
         {
             list.add(t);
+        }
+    }
+
+    public static <T> void addAll(Set<T> set,T ... ts){
+        for (T t : ts)
+        {
+            set.add(t);
         }
     }
 

@@ -14,4 +14,12 @@ public class StrUtilTest
         String[] strs = StrUtil.split(src,"&");
         assertArrayEquals("wrong",new String[]{"name=1","age=2"},strs);
     }
+
+    @Test
+    public void testGetSuffix(){
+        assertEquals("",StrUtil.getSuffix("no-suffix",'.'));
+        assertEquals("java",StrUtil.getSuffix("hello.java",'.'));
+        assertEquals("",StrUtil.getSuffix("hello.",'.'));
+        assertEquals("java",StrUtil.getSuffix("hello-java",'-'));
+    }
 }

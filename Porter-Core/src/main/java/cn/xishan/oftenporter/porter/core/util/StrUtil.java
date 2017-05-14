@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import com.alibaba.fastjson.JSONArray;
+
 import java.util.StringTokenizer;
 
 /**
@@ -34,6 +36,12 @@ public class StrUtil
     public static String[] array(String... args)
     {
         return args;
+    }
+
+    public static JSONArray toJSONArray(Object ... args){
+        JSONArray jsonArray = new JSONArray(args.length);
+        WPTool.addAll(jsonArray,args);
+        return jsonArray;
     }
 
     /**
@@ -96,5 +104,17 @@ public class StrUtil
         }
 
         return new String(cs);
+    }
+
+
+    /**
+     * 获取后缀名，不包括“.”;若没有找到，则返回空字符串"".
+     * @param content
+     * @param c
+     * @return
+     */
+    public static String getSuffix(String content,char c){
+        int index = content.lastIndexOf(c);
+        return index>=0?content.substring(index+1):"";
     }
 }
