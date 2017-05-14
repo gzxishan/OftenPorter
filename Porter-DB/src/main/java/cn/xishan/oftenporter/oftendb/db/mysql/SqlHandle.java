@@ -4,12 +4,12 @@ package cn.xishan.oftenporter.oftendb.db.mysql;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.sql.*;
@@ -22,7 +22,7 @@ public class SqlHandle implements DBHandle, SqlSource
 
     private boolean isTransaction;
     private Boolean field2LowerCase = null;
-    private static final Logger _LOGGER = LoggerFactory.getLogger(SqlHandle.class);
+    private static final Logger _LOGGER = LogUtil.logger(SqlHandle.class);
     private Logger LOGGER = _LOGGER;
     private boolean canOpenOrClose = true;
 
@@ -225,15 +225,16 @@ public class SqlHandle implements DBHandle, SqlSource
 
         try
         {
+            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
+
             if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("{}", whereSQL.sql);
+                LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
                 logArgs(args, builder);
                 LOGGER.debug("{}", builder);
             }
-            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
             PreparedStatement ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
@@ -311,15 +312,15 @@ public class SqlHandle implements DBHandle, SqlSource
 
         try
         {
+            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
             if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("{}", whereSQL.sql);
+                LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
                 logArgs(args, builder);
                 LOGGER.debug("{}", builder);
             }
-            String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
             ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
             for (int i = 0; i < args.length; i++)
@@ -540,6 +541,7 @@ public class SqlHandle implements DBHandle, SqlSource
         try
         {
             conn.close();
+            LOGGER.debug("conn closed:{}",tableName);
         } catch (SQLException e)
         {
             throw new IOException(e);

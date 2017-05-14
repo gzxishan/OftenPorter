@@ -1,16 +1,25 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by chenyg on 2017-04-19.
+ * @author Created by https://github.com/CLovinr on 2017/5/14.
  */
-@Deprecated
-public class DateParser extends TypeParser
+abstract class DateParser_ extends TypeParser
 {
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private SimpleDateFormat format;
+
+    public DateParser_(SimpleDateFormat format)
+    {
+        this.format = format;
+    }
+
+    public DateParser_(String format)
+    {
+        this(new SimpleDateFormat(format));
+    }
 
     @Override
     public ParseResult parse(String name, Object value)
@@ -27,7 +36,7 @@ public class DateParser extends TypeParser
                 v = new Date((long) value);
             } else
             {
-                v = SIMPLE_DATE_FORMAT.parse(String.valueOf(value));
+                v = format.parse(String.valueOf(value));
             }
 
             result = new ParseResult(v);
