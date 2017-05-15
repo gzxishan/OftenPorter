@@ -43,7 +43,8 @@ class SyncPorterImpl implements SyncPorter
     @Override
     public <T> T request(WObject wObject, AppValues appValues)
     {
-        PRequest request = new PRequest(syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
+        PRequest request = new PRequest(wObject.getRequest(), syncPorterOption.getPathWithContext());
+        request.setMethod(syncPorterOption.getMethod());
         ABOption abOption = new ABOption(wObject==null?null:wObject._otherObject, ABType.METHOD_OF_INNER, ABPortType.OTHER);
         request._setABOption_(abOption);
         request.addParamAll(appValues);

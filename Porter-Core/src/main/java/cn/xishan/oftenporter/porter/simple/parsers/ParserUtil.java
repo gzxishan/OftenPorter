@@ -82,7 +82,7 @@ public class ParserUtil
             {
                 clazz = FileParser.class;
             }else if(type== Date.class){
-                clazz = DateParser.class;
+                clazz = DateTime2MinitueParser.class;
             }
             //////////
             else if (type == Character.class)

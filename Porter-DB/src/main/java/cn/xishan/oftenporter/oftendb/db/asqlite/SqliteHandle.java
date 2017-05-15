@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlHandle;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlQuerySettings;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -31,6 +32,9 @@ public class SqliteHandle implements DBHandle
     private boolean isTransaction = false;
     private boolean canOpenOrClose = true;
 
+    private static final Logger _LOGGER = LogUtil.logger(SqlHandle.class);
+    private Logger LOGGER = _LOGGER;
+
     static
     {
         TYPES_ADD = TypeUtil.getTypesForAdd();
@@ -46,7 +50,7 @@ public class SqliteHandle implements DBHandle
     @Override
     public void setLogger(Logger logger)
     {
-
+        LOGGER=logger;
     }
 
     void close(SQLiteStatement sqLiteStatement)
@@ -599,6 +603,7 @@ public class SqliteHandle implements DBHandle
         try
         {
             db.close();
+            LOGGER.debug("conn closed:{}",tableName);
         } catch (SQLException e)
         {
             throw new IOException(e);
