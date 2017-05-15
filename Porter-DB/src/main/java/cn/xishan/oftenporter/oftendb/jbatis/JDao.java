@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
  *        3）sqlExecutor(sql,args)：生成{@linkplain AdvancedExecutor AdvancedExecutor}对象
  *        4）sqlQuery(sql,args)：生成{@linkplain AdvancedQuery AdvancedQuery}对象
  *        5)filterLike(str)：转义字符串，用于like。
- *     3.js执行数据库查询的函数格式:function(json,connection)
+ *     3.js执行数据库查询的函数格式:function(json,source):source.getConnection(),获取的连接记得关闭,见{@linkplain JDaoOption#needSqlSource JDaoOption.needSqlSource}
  *    <strong>注意：</strong>对应的{@linkplain DBHandleSource DBHandleSource}必须实现{@linkplain SqlSource SqlSource}接口。
  * </pre>
  * Created by chenyg on 2017-04-29.
