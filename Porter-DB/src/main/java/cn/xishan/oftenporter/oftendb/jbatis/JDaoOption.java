@@ -16,6 +16,11 @@ public class JDaoOption
     public String debugDirPath;
 
     /**
+     * 是否需要数据源，默认为false。
+     */
+    public boolean needSqlSource = false;
+
+    /**
      * 表名前缀。
      */
     public String tableNamePrefix="";

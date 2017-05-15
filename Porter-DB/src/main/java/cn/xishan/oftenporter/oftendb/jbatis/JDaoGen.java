@@ -120,7 +120,7 @@ class JDaoGen implements AutoSetGen
                 } else
                 {
                     jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath), jDaoOption), dbSource,
-                            sqlSource);
+                            sqlSource, jDaoOption.needSqlSource);
                 }
                 AutoSetDealtForDBSource.setUnit(object, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);

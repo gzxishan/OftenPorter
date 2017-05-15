@@ -20,7 +20,7 @@ class JsBridgeOfDebug extends JsBridge
 
     public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource)
     {
-        super(null,dbSource, sqlSource);
+        super(null,dbSource, sqlSource,jDaoOption.needSqlSource);
         this.jsFile = new File(jsFile);
         this.jDaoOption = jDaoOption;
         loadJsEngine();

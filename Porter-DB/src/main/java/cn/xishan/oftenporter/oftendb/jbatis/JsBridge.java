@@ -18,12 +18,14 @@ class JsBridge
     Invocable invocable;
     SqlSource sqlSource;
     DBSource dbSource;
+    boolean needSqlSource;
 
-    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource)
+    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource, boolean needSqlSource)
     {
         this.invocable = invocable;
         this.dbSource = dbSource;
         this.sqlSource = sqlSource;
+        this.needSqlSource = needSqlSource;
     }
 
 
@@ -34,14 +36,9 @@ class JsBridge
         JDaoGen.doFinalize();
     }
 
-    private Connection getConn(WObject wObject)
+    private _SqlSorce getConn(WObject wObject)
     {
-        SqlSource source = Common.getSqlSource(wObject);
-        if (source == null)
-        {
-            source = sqlSource;
-        }
-        return source.getConnection();
+        return needSqlSource ? new _SqlSorce(sqlSource, wObject) : null;
     }
 
     public <T> T query(String method, JSONObject json, WObject wObject)
