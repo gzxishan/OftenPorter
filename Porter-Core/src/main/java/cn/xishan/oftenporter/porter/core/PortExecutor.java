@@ -715,6 +715,9 @@ public class PortExecutor
                             if (!(failedObject instanceof JResponse))
                             {
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
+                                if(failedObject instanceof Throwable){
+                                    jResponse.setDescription(WPTool.getMessage((Throwable) failedObject));
+                                }
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
@@ -722,6 +725,7 @@ public class PortExecutor
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
+                            jResponse.setDescription(WPTool.getMessage(ex));
                             jResponse.setExtra(ex);
                             dealtOfResponse(wObject, OutType.OBJECT, jResponse);
                         }
