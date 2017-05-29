@@ -1,13 +1,11 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
-import cn.xishan.oftenporter.oftendb.data.Common;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONObject;
 
 import javax.script.Invocable;
-import java.sql.Connection;
 
 /**
  * Created by chenyg on 2017-04-29.
@@ -18,14 +16,12 @@ class JsBridge
     Invocable invocable;
     SqlSource sqlSource;
     DBSource dbSource;
-    boolean needSqlSource;
 
-    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource, boolean needSqlSource)
+    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource)
     {
         this.invocable = invocable;
         this.dbSource = dbSource;
         this.sqlSource = sqlSource;
-        this.needSqlSource = needSqlSource;
     }
 
 
@@ -38,7 +34,7 @@ class JsBridge
 
     private _SqlSorce getConn(WObject wObject)
     {
-        return needSqlSource ? new _SqlSorce(sqlSource, wObject) : null;
+        return new _SqlSorce(dbSource,sqlSource, wObject);
     }
 
     public <T> T query(String method, JSONObject json, WObject wObject)

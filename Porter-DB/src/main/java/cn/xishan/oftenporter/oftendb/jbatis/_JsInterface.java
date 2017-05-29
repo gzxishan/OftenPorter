@@ -1,10 +1,14 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.oftendb.data.Common2;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
+import cn.xishan.oftenporter.oftendb.data.EmptyWObject;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
+import cn.xishan.oftenporter.porter.core.JResponse;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import jdk.nashorn.internal.objects.NativeArray;
 
@@ -13,30 +17,44 @@ import java.util.Map;
 /**
  * Created by chenyg on 2017-04-29.
  */
-public class JsInterface
+public class _JsInterface
 {
     public String tableNamePrefix;
 
-    public JsInterface(String tableNamePrefix)
+    _JsInterface(DBSource dbSource, String tableNamePrefix)
     {
         this.tableNamePrefix = tableNamePrefix;
     }
 
-
     public AdvancedExecutor sqlExecutor(String sql, Object argsObj)
     {
-        JSqlArgs jSqlArgs = sqlArgs(sql, argsObj);
+        return _sqlExecutor(sql,argsObj);
+    }
+
+    static AdvancedExecutor _sqlExecutor(String sql, Object argsObj)
+    {
+        JSqlArgs jSqlArgs = _sqlArgs(sql, argsObj);
         return SqlAdvancedExecutor.withSqlAndArgs(jSqlArgs.sql, jSqlArgs.args);
     }
 
     public AdvancedQuery sqlQuery(String sql, Object argsObj)
     {
-        JSqlArgs jSqlArgs = sqlArgs(sql, argsObj);
+        return _sqlQuery(sql,argsObj);
+    }
+
+    static AdvancedQuery _sqlQuery(String sql, Object argsObj)
+    {
+        JSqlArgs jSqlArgs = _sqlArgs(sql, argsObj);
         AdvancedQuery advancedQuery = new SqlAdvancedQuery(new SqlUtil.WhereSQL(jSqlArgs.sql, jSqlArgs.args));
         return advancedQuery;
     }
 
     public JSqlArgs sqlArgs(String sql, Object argsObj)
+    {
+        return _sqlArgs(sql,argsObj);
+    }
+
+    static JSqlArgs _sqlArgs(String sql, Object argsObj)
     {
         Object[] args = toArray(argsObj);
         return new JSqlArgs(sql, args);

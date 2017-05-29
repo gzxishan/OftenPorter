@@ -11,7 +11,6 @@ import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import javax.script.*;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
@@ -88,11 +87,11 @@ class JDaoGen implements AutoSetGen
         }
     }
 
-    static Invocable getJsInvocable(String script, JDaoOption jDaoOption) throws Exception
+    static Invocable getJsInvocable(String script,DBSource dbSource, JDaoOption jDaoOption) throws Exception
     {
         ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
         SimpleBindings bindings = new SimpleBindings();
-        bindings.put("jdaoBridge", new JsInterface(jDaoOption.tableNamePrefix));
+        bindings.put("jdaoBridge", new _JsInterface(dbSource,jDaoOption.tableNamePrefix));
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
         scriptEngine.eval(script);
         return (Invocable) scriptEngine;
@@ -119,8 +118,8 @@ class JDaoGen implements AutoSetGen
                             dbSource, sqlSource);
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath), jDaoOption), dbSource,
-                            sqlSource, jDaoOption.needSqlSource);
+                    jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath),dbSource, jDaoOption), dbSource,
+                            sqlSource);
                 }
                 AutoSetDealtForDBSource.setUnit(object, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
