@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
+import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -31,6 +32,7 @@ import com.alibaba.fastjson.JSONObject;
  *        2)source.doCommonSqlExecutor(sql,args)：会调用{@linkplain Common2#advancedExecute(DBSource, AdvancedExecutor, WObject) Common2.advancedExecute(DBSource, AdvancedExecutor, WObject)}，并获的返回值
  *        3)source.doCommonSqlQuery(sql,args)：会调用{@linkplain Common2#queryAdvanced(DBSource, AdvancedQuery, WObject) Common2.queryAdvanced(DBSource, AdvancedQuery, WObject)}，并获得返回值
  *        4)source.doCommonSqlOneQuery(sql,args)：会调用{@linkplain Common2#queryOneAdvanced(DBSource, AdvancedQuery, WObject) Common2.queryOneAdvanced(DBSource, AdvancedQuery, WObject)}
+ *        5)4)source.doCommonSqlEnumerationQuery(sql,args)：会调用{@linkplain Common2#queryEnumeration(DBSource, AdvancedQuery, QuerySettings, WObject) Common2.queryEnumeration(DBSource, AdvancedQuery, null, WObject)}
  *    <strong>注意：</strong>对应的{@linkplain DBHandleSource DBHandleSource}必须实现{@linkplain SqlSource SqlSource}接口。
  * </pre>
  * Created by chenyg on 2017-04-29.

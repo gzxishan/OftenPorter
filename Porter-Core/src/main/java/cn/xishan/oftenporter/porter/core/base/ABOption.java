@@ -16,4 +16,15 @@ public class ABOption
         this.abPortType = abPortType;
     }
 
+    /**
+     * 如果{@linkplain #abPortType}为{@linkplain ABPortType#BOTH_FIRST_LAST ABPortType.BOTH_FIRST_LAST
+     * }或{@linkplain ABPortType#ORIGIN_FIRST ABPortType.ORIGIN_FIRST}返回true。
+     *
+     * @return
+     */
+    public boolean isFirst()
+    {
+        return abPortType == ABPortType.BOTH_FIRST_LAST || abPortType == ABPortType.ORIGIN_FIRST;
+    }
+
 }
