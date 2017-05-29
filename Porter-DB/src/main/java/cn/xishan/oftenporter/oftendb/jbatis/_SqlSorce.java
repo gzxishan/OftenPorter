@@ -56,4 +56,10 @@ public class _SqlSorce
         AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
         return Common2.C.queryOneAdvanced(dbSource, advancedQuery, wObject);
     }
+
+    public JResponse doCommonSqlEnumerationQuery(String sql, Object argsObj)
+    {
+        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
+        return Common2.C.queryEnumeration(dbSource, advancedQuery, null, wObject);
+    }
 }
