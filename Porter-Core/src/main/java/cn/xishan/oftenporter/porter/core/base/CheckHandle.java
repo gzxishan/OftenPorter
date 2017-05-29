@@ -38,18 +38,15 @@ public abstract class CheckHandle
      */
     public final OutType outType;
 
+    /**
+     * 整个时期都不为null。
+     */
     public final ABOption abOption;
 
     public CheckHandle(CheckHandle checkHandle)
     {
-        this.returnObj = checkHandle.returnObj;
-        this.exCause = checkHandle.exCause;
-        this.urlResult = checkHandle.urlResult;
-        this.finalPorterObject = checkHandle.finalPorterObject;
-        this.handleObject = checkHandle.handleObject;
-        this.handleMethod = checkHandle.handleMethod;
-        this.outType = checkHandle.outType;
-        this.abOption = checkHandle.abOption;
+        this(checkHandle.returnObj, checkHandle.exCause, checkHandle.urlResult, checkHandle.finalPorterObject,
+                checkHandle.handleObject, checkHandle.handleMethod, checkHandle.outType, checkHandle.abOption);
     }
 
 
@@ -57,6 +54,10 @@ public abstract class CheckHandle
             Object handleObject,
             Object handleMethod, OutType outType, ABOption abOption)
     {
+        if (abOption == null)
+        {
+            throw new NullPointerException("abOption is null!");
+        }
         this.returnObj = returnObj;
         this.exCause = exCause;
         this.urlResult = urlResult;
