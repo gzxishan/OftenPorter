@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import com.alibaba.fastjson.JSONObject;
 
-import javax.script.Invocable;
 import java.io.File;
 
 /**
@@ -20,10 +19,9 @@ class JsBridgeOfDebug extends JsBridge
 
     public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource)
     {
-        super(null,dbSource, sqlSource,jDaoOption.needSqlSource);
+        super(null,dbSource, sqlSource);
         this.jsFile = new File(jsFile);
         this.jDaoOption = jDaoOption;
-        loadJsEngine();
     }
 
     private void loadJsEngine()
@@ -34,7 +32,7 @@ class JsBridgeOfDebug extends JsBridge
             try
             {
                 invocable = JDaoGen
-                        .getJsInvocable(FileTool.getString(file, 1024, jDaoOption.scriptEncoding), jDaoOption);
+                        .getJsInvocable(FileTool.getString(file, 1024, jDaoOption.scriptEncoding),dbSource, jDaoOption);
                 lasttime=file.lastModified();
             } catch (Exception e)
             {
