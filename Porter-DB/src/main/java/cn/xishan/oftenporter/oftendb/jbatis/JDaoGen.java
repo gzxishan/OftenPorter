@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -87,11 +88,11 @@ class JDaoGen implements AutoSetGen
         }
     }
 
-    static Invocable getJsInvocable(String script,DBSource dbSource, JDaoOption jDaoOption) throws Exception
+    static Invocable getJsInvocable(String script, DBSource dbSource, JDaoOption jDaoOption) throws Exception
     {
         ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
         SimpleBindings bindings = new SimpleBindings();
-        bindings.put("jdaoBridge", new _JsInterface(dbSource,jDaoOption.tableNamePrefix));
+        bindings.put("jdaoBridge", new _JsInterface(dbSource, jDaoOption.tableNamePrefix));
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
         scriptEngine.eval(script);
         return (Invocable) scriptEngine;
@@ -115,11 +116,11 @@ class JDaoGen implements AutoSetGen
                         dir += "/";
                     }
                     jsBridge = new JsBridgeOfDebug(jDaoOption, dir + object.getClass().getSimpleName() + ".js",
-                            dbSource, sqlSource);
+                            dbSource, sqlSource, LogUtil.logger(_SqlSorce.class));
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath),dbSource, jDaoOption), dbSource,
-                            sqlSource);
+                    jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath), dbSource, jDaoOption), dbSource,
+                            sqlSource, LogUtil.logger(_SqlSorce.class));
                 }
                 AutoSetDealtForDBSource.setUnit(object, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
