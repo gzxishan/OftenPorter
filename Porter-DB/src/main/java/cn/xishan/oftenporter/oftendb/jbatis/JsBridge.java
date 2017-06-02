@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
 
 import javax.script.Invocable;
 
@@ -16,12 +17,14 @@ class JsBridge
     Invocable invocable;
     SqlSource sqlSource;
     DBSource dbSource;
+    Logger LOGGER;
 
-    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource)
+    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource,Logger sqlSourceLogger)
     {
         this.invocable = invocable;
         this.dbSource = dbSource;
         this.sqlSource = sqlSource;
+        LOGGER=sqlSourceLogger;
     }
 
 
@@ -34,7 +37,7 @@ class JsBridge
 
     private _SqlSorce getConn(WObject wObject)
     {
-        return new _SqlSorce(dbSource,sqlSource, wObject);
+        return new _SqlSorce(dbSource,sqlSource, wObject,LOGGER);
     }
 
     public <T> T query(String method, JSONObject json, WObject wObject)

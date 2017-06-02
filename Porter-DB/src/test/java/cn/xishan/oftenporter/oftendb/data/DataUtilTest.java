@@ -17,8 +17,6 @@ public class DataUtilTest
         Assert.assertFalse(DataUtil.resultIntOrLongGtZero(JResponse.success(null)));
         Assert.assertFalse(DataUtil.resultIntOrLongGtZero(JResponse.success("not number")));
         Assert.assertFalse(DataUtil.resultIntOrLongGtZero(JResponse.success(1.0)));
-
-
-
+        
     }
 }

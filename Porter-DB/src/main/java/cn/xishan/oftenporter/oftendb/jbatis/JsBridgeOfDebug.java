@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
 
 import java.io.File;
 
@@ -17,9 +18,9 @@ class JsBridgeOfDebug extends JsBridge
     private JDaoOption jDaoOption;
     private long lasttime;
 
-    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource)
+    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource,Logger sqlSourceLogger)
     {
-        super(null,dbSource, sqlSource);
+        super(null,dbSource, sqlSource,sqlSourceLogger);
         this.jsFile = new File(jsFile);
         this.jDaoOption = jDaoOption;
     }

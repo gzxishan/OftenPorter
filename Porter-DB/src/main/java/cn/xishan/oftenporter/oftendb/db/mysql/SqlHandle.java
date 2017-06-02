@@ -104,9 +104,10 @@ public class SqlHandle implements DBHandle, SqlSource
         return addPS(conn, isTransaction, tableName, multiNameValues);
     }
 
-    static void logArgs(Object[] args, StringBuilder builder)
+    public static void logArgs(Object[] args, StringBuilder builder)
     {
-        if(args==null){
+        if (args == null)
+        {
             return;
         }
         for (int i = 0; i < args.length; i++)
@@ -541,7 +542,7 @@ public class SqlHandle implements DBHandle, SqlSource
         try
         {
             conn.close();
-            LOGGER.debug("conn closed:{}",tableName);
+            LOGGER.debug("conn closed:{}", tableName);
         } catch (SQLException e)
         {
             throw new IOException(e);
@@ -705,7 +706,8 @@ public class SqlHandle implements DBHandle, SqlSource
         return n;
     }
 
-    private void setObject(PreparedStatement ps, int column, Object object) throws SQLException, FileNotFoundException
+    public static void setObject(PreparedStatement ps, int column,
+            Object object) throws SQLException, FileNotFoundException
     {
         if (object != null && object instanceof File)
         {
