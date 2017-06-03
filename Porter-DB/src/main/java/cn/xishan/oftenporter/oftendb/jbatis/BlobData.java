@@ -2,6 +2,8 @@ package cn.xishan.oftenporter.oftendb.jbatis;
 
 import java.io.Closeable;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Blob;
 import java.sql.SQLException;
 
 /**
@@ -9,5 +11,22 @@ import java.sql.SQLException;
  */
 public interface BlobData extends Closeable
 {
-    InputStream getInputStream() throws SQLException;
+    Blob getBlob();
+
+    long length() throws Exception;
+
+    InputStream getInputStream() throws Exception;
+
+    /**
+     * @param pos    从1开始。
+     * @param length
+     * @return
+     */
+    InputStream getInputStream(long pos, long length) throws Exception;
+
+    /**
+     * @param pos 从1开始。
+     * @return
+     */
+    OutputStream getOutputStream(long pos) throws Exception;
 }

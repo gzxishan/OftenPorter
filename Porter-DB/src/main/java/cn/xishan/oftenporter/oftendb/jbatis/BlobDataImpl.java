@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.jbatis;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -22,9 +23,33 @@ class BlobDataImpl implements BlobData
     }
 
     @Override
-    public InputStream getInputStream() throws SQLException
+    public Blob getBlob()
+    {
+        return blob;
+    }
+
+    @Override
+    public InputStream getInputStream() throws Exception
     {
         return blob.getBinaryStream();
+    }
+
+    @Override
+    public long length() throws Exception
+    {
+        return blob.length();
+    }
+
+    @Override
+    public InputStream getInputStream(long pos, long length) throws Exception
+    {
+        return blob.getBinaryStream(pos,length);
+    }
+
+    @Override
+    public OutputStream getOutputStream(long pos) throws Exception
+    {
+        return blob.setBinaryStream(pos);
     }
 
     @Override
