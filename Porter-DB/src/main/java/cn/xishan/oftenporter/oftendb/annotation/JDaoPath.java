@@ -22,18 +22,28 @@ public @interface JDaoPath
 
     /**
      * 当{@linkplain #value()}为""时使用,不包含文件名。
+     *
      * @return
      */
     String path() default "";
 
     /**
      * js文件的名称，默认为"当前对象名.js"
+     *
      * @return
      */
-    String name()default "";
+    String name() default "";
+
+    /**
+     * 名称使用"变量的名称.js",优先于{@linkplain #name()}
+     *
+     * @return
+     */
+    boolean filedName() default false;
 
     /**
      * 是否相对于{@linkplain JDaoOption JDaoOption}中的配置的路径。
+     *
      * @return 默认为false。
      */
     boolean relativeToOptionPath() default false;

@@ -56,7 +56,7 @@ class JDaoGen implements AutoSetGen
         boolean isFile;
     }
 
-    private Path getPath(JDaoPath jDaoPath, Object object)
+    private Path getPath(JDaoPath jDaoPath, Object object, Field field)
     {
         boolean isFile = WPTool.notNullAndEmpty(jDaoOption.debugDirPath);
         String optionDir = isFile ? jDaoOption.debugDirPath : jDaoOption.classpath;
@@ -81,7 +81,14 @@ class JDaoGen implements AutoSetGen
                 optionDir = path;
             }
 
-            name = jDaoPath.name().equals("") ? object.getClass().getSimpleName() + ".js" : jDaoPath.name();
+            if (jDaoPath.filedName())
+            {
+                name = field.getName() + ".js";
+            } else
+            {
+                name = jDaoPath.name().equals("") ? object.getClass().getSimpleName() + ".js" : jDaoPath.name();
+            }
+
         } else
         {
             name = object.getClass().getSimpleName() + ".js";
@@ -106,32 +113,6 @@ class JDaoGen implements AutoSetGen
         }
         return script;
     }
-
-
-//    private String getScript(Object object, JDaoPath jDaoPath) throws IOException
-//    {
-//        String path = jDaoOption.classpath;
-//        boolean needAddFileName = true;
-//        if (jDaoPath != null)
-//        {
-//            path = jDaoPath.value().startsWith("/") ? jDaoPath.value() : "/" + PackageUtil
-//                    .getPackageWithRelative(object.getClass(), jDaoPath.value(), "/");
-//            needAddFileName = false;
-//        }
-//        if (WPTool.isEmpty(path))
-//        {
-//            path = "/" + object.getClass().getPackage().getName().replace('.', '/');
-//        }
-//        if (needAddFileName)
-//        {
-//            if (!path.endsWith("/"))
-//            {
-//                path += "/";
-//            }
-//            path += object.getClass().getSimpleName() + ".js";
-//        }
-//        return FileTool.getString(object.getClass().getResourceAsStream(path), 1024, jDaoOption.scriptEncoding);
-//    }
 
     static void doFinalize()
     {
@@ -166,7 +147,7 @@ class JDaoGen implements AutoSetGen
                 SqlSource sqlSource = (SqlSource) dbSource.getDBHandleSource();
                 JDaoPath jDaoPath = field.getAnnotation(JDaoPath.class);
 
-                Path path = getPath(jDaoPath, object);
+                Path path = getPath(jDaoPath, object, field);
                 Logger logger = LogUtil.logger(_SqlSorce.class);
                 if (path.isFile)
                 {
@@ -174,25 +155,8 @@ class JDaoGen implements AutoSetGen
                 } else
                 {
                     jsBridge = new JsBridge(getJsInvocable(getScript(object, path.path), dbSource, jDaoOption),
-                            dbSource,
-                            sqlSource, logger);
+                            dbSource, sqlSource, path.path, logger);
                 }
-
-//                if (jDaoOption.debugDirPath != null && jDaoPath == null)
-//                {
-//                    String dir = jDaoOption.debugDirPath.replace('\\', '/');
-//                    if (!dir.endsWith("/"))
-//                    {
-//                        dir += "/";
-//                    }
-//                    jsBridge = new JsBridgeOfDebug(jDaoOption, dir + object.getClass().getSimpleName() + ".js",
-//                            dbSource, sqlSource, LogUtil.logger(_SqlSorce.class));
-//                } else
-//                {
-//                    jsBridge = new JsBridge(getJsInvocable(getScript(object, jDaoPath), dbSource, jDaoOption),
-// dbSource,
-//                            sqlSource, LogUtil.logger(_SqlSorce.class));
-//                }
                 AutoSetDealtForDBSource.setUnit(object, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
                 count++;
