@@ -13,17 +13,18 @@ import javax.script.Invocable;
  */
 class JsBridge
 {
-
+    String path;
     Invocable invocable;
     SqlSource sqlSource;
     DBSource dbSource;
     Logger LOGGER;
 
-    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource,Logger sqlSourceLogger)
+    public JsBridge(Invocable invocable, DBSource dbSource, SqlSource sqlSource,String path,Logger sqlSourceLogger)
     {
         this.invocable = invocable;
         this.dbSource = dbSource;
         this.sqlSource = sqlSource;
+        this.path=path;
         LOGGER=sqlSourceLogger;
     }
 
@@ -44,6 +45,7 @@ class JsBridge
     {
         try
         {
+            LOGGER.debug("jbatis script:{}",path);
             T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)
@@ -56,6 +58,7 @@ class JsBridge
     {
         try
         {
+            LOGGER.debug("jbatis script:{}",path);
             T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)

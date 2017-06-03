@@ -6,10 +6,11 @@ import android.database.CursorWindow;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
+import cn.xishan.oftenporter.oftendb.db.DBException;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -140,7 +141,14 @@ class TypeUtil
             @Override
             public void put(String name, Object value, ContentValues contentValues)
             {
-                contentValues.put(name, (byte[]) value);
+                File file = (File) value;
+                try
+                {
+                    contentValues.put(name, FileTool.getData(file,1024));
+                } catch (IOException e)
+                {
+                    throw new DBException(e);
+                }
             }
         }));
 

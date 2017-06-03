@@ -101,7 +101,21 @@ public class PackageUtil
      */
     public static String getPackageWithRelative(Class<?> clazz, String relative, String separator)
     {
-        String[] origins = clazz.getPackage().getName().split("\\.");
+        return getPathWithRelative('.',clazz.getPackage().getName(),relative,separator);
+    }
+
+    /**
+     * 根据类和相对包名获取最终的包名。
+     *
+     * @param pathSep   如“/”
+     * @param path
+     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前
+     * @param separator 最终的分隔符
+     * @return
+     */
+    public static String getPathWithRelative(char pathSep, String path, String relative, String separator)
+    {
+        String[] origins = StrUtil.split(path, pathSep + "");
         Stack<String> stack = new Stack<>();
         for (String s : origins)
         {

@@ -11,7 +11,7 @@ public class JDaoOption
     public String classpath;
 
     /**
-     * 用于存放js的文件路径，每次调用时去获取对应js。
+     * 用于存放js的文件路径,优先于{@linkplain #classpath}，每次调用时去获取对应js(如果文件改变)。
      */
     public String debugDirPath;
 
@@ -23,7 +23,7 @@ public class JDaoOption
     /**
      * 表名前缀。
      */
-    public String tableNamePrefix="";
+    public String tableNamePrefix = "";
 
-    public String scriptEncoding="utf-8";
+    public String scriptEncoding = "utf-8";
 }
