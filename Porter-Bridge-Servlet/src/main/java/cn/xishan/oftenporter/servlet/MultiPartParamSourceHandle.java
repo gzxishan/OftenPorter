@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.base.ParamSourceHandle;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
@@ -24,14 +25,16 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2017/4/15.
  */
-class MultiPartParamSourceHandle implements ParamSourceHandle
+class MultiPartParamSourceHandle extends PutParamSourceHandle
 {
     private MultiPartOption multiPartOption;
     private DiskFileItemFactory factory;
+    private boolean dealNormalPut;
 
-    public MultiPartParamSourceHandle(MultiPartOption multiPartOption)
+    public MultiPartParamSourceHandle(MultiPartOption multiPartOption, boolean dealNormalPut)
     {
         this.multiPartOption = multiPartOption;
+        this.dealNormalPut = dealNormalPut;
         factory = new DiskFileItemFactory();
         if (multiPartOption.tempDir != null)
         {
@@ -43,9 +46,21 @@ class MultiPartParamSourceHandle implements ParamSourceHandle
     @Override
     public ParamSource get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
     {
+        ParamSource paramSource = _get(wObject, porterClass, porterFun);
+        if (paramSource == null && wObject.getRequest().getMethod() == PortMethod.PUT)
+        {
+            paramSource = super.get(wObject, porterClass, porterFun);
+        }
+        return paramSource;
+    }
+
+    ParamSource _get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
+    {
+
 
         Object originalRequest = wObject.getRequest().getOriginalRequest();
-        if(originalRequest==null||!(originalRequest instanceof HttpServletRequest)){
+        if (originalRequest == null || !(originalRequest instanceof HttpServletRequest))
+        {
             return null;
         }
         HttpServletRequest request = (HttpServletRequest) originalRequest;
