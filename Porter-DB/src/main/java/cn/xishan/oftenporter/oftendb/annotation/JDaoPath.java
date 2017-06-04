@@ -39,7 +39,7 @@ public @interface JDaoPath
      *
      * @return
      */
-    boolean filedName() default false;
+    boolean fieldName() default false;
 
     /**
      * 是否相对于{@linkplain JDaoOption JDaoOption}中的配置的路径。

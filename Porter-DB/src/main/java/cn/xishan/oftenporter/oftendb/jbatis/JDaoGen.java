@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 
 import javax.script.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 
 /**
@@ -75,13 +76,17 @@ class JDaoGen implements AutoSetGen
             }
             if (jDaoPath.relativeToOptionPath())
             {
+                boolean start=optionDir.startsWith("/");
                 optionDir = PackageUtil.getPathWithRelative('/', optionDir, path, "/");
+                if(start&&!optionDir.startsWith("/")){
+                    optionDir="/"+optionDir;
+                }
             } else
             {
                 optionDir = path;
             }
 
-            if (jDaoPath.filedName())
+            if (jDaoPath.fieldName())
             {
                 name = field.getName() + ".js";
             } else
@@ -105,8 +110,8 @@ class JDaoGen implements AutoSetGen
 
     private String getScript(Object object, String path) throws IOException
     {
-        String script = FileTool
-                .getString(object.getClass().getResourceAsStream(path), 1024, jDaoOption.scriptEncoding);
+        InputStream inputStream = object.getClass().getResourceAsStream(path);
+        String script = inputStream == null ? null : FileTool.getString(inputStream, 1024, jDaoOption.scriptEncoding);
         if (script == null)
         {
             throw new RuntimeException("script not found in classpath:" + path);
