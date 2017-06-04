@@ -709,13 +709,20 @@ public class SqlHandle implements DBHandle, SqlSource
     public static void setObject(PreparedStatement ps, int column,
             Object object) throws SQLException, FileNotFoundException
     {
-        if (object != null && object instanceof File)
-        {
-            File file = (File) object;
-            ps.setBlob(column, new FileInputStream(file), file.length());
-        } else
-        {
-            ps.setObject(column, object);
+        if(object==null){
+            ps.setObject(column,object);
+        }else{
+            if ( object instanceof File)
+            {
+                File file = (File) object;
+                ps.setBlob(column, new FileInputStream(file), file.length());
+            }else if(object instanceof CharSequence){
+                ps.setString(column,String.valueOf(object));
+            }
+            else
+            {
+                ps.setObject(column, object);
+            }
         }
     }
 

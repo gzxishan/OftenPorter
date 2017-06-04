@@ -111,6 +111,18 @@ class TypeUtil
                 contentValues.put(name, (String) value);
             }
         }));
+        list.add(new Type<>(CharSequence.class, new PutDeal<ContentValues>()
+        {
+            @Override
+            public void put(String name, Object value, ContentValues contentValues)
+            {
+                if(value==null){
+                    contentValues.put(name, (String) null);
+                }else{
+                    contentValues.put(name, String.valueOf(value));
+                }
+            }
+        }));
         list.add(new Type<>(Double.class, new PutDeal<ContentValues>()
         {
             @Override
@@ -199,6 +211,18 @@ class TypeUtil
             public void put(String name, Object value, StatementObj statementObj)
             {
                 statementObj.sqLiteStatement.bindString(statementObj.index, (String) value);
+            }
+        }));
+        list.add(new Type<>(CharSequence.class, new PutDeal<StatementObj>()
+        {
+            @Override
+            public void put(String name, Object value, StatementObj statementObj)
+            {
+                if(value==null){
+                    statementObj.sqLiteStatement.bindString(statementObj.index, (String) value);
+                }else{
+                    statementObj.sqLiteStatement.bindString(statementObj.index, String.valueOf(value));
+                }
             }
         }));
         list.add(new Type<>(Double.class, new PutDeal<StatementObj>()
