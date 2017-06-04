@@ -41,6 +41,11 @@ public class WMainServlet extends HttpServlet implements CommonMain
     protected boolean supportMultiPart = false;
     protected MultiPartOption multiPartOption = null;
 
+    /**
+     * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+     */
+    protected boolean addPutDealt = true;
+
     public WMainServlet()
     {
 
@@ -324,8 +329,11 @@ public class WMainServlet extends HttpServlet implements CommonMain
         if (supportMultiPart)
         {
             porterConf.getParamSourceHandleManager()
-                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption), PortMethod.POST, PortMethod.PUT);
+                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption,addPutDealt), PortMethod.POST, PortMethod.PUT);
+        }else if(addPutDealt){
+            PutParamSourceHandle.addPutDealt(porterConf);
         }
+
         porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
     }
 
