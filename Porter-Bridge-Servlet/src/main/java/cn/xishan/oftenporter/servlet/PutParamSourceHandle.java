@@ -82,6 +82,9 @@ public class PutParamSourceHandle implements ParamSourceHandle
             String encode = getEncode(ctype);
 
             String body = FileTool.getString(request.getInputStream());
+            if(body==null){
+                return null;
+            }
             String[] strs = body.split("&");
             final HashMap<String, Object> paramsMap = new HashMap<>(strs.length);
             int index;

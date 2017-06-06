@@ -75,7 +75,11 @@ public class ParserUtil
             } else if (type == String.class)
             {
                 clazz = StringParser.class;
-            } else if (type == Map.class)
+            }
+            else if(type==String[].class){
+                clazz = StringArrayParser.class;
+            }
+            else if (type == Map.class)
             {
                 clazz = JSON2MapParser.class;
             } else if (type == File.class)
