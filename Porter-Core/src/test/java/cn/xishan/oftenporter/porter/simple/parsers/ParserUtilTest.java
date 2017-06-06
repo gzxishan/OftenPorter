@@ -45,6 +45,7 @@ public class ParserUtilTest
         assertEquals(JSONArrayParser.class, ParserUtil.getTypeParser(JSONArray.class));
         assertEquals(JSONObjectParser.class, ParserUtil.getTypeParser(JSONObject.class));
         assertEquals(StringParser.class, ParserUtil.getTypeParser(String.class));
+        assertEquals(StringArrayParser.class, ParserUtil.getTypeParser(String[].class));
         assertEquals(JSON2MapParser.class, ParserUtil.getTypeParser(Map.class));
         assertEquals(DateTime2MinitueParser.class, ParserUtil.getTypeParser(Date.class));
 
