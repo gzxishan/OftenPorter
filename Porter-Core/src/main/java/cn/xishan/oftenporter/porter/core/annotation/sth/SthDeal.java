@@ -222,8 +222,9 @@ public class SthDeal
             backableSeek.pop();
             if (porterOfFun != null)
             {
-                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
-                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
+//                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
+//                //设置方法的TiedType
+//                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
                 putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
             }
         }
