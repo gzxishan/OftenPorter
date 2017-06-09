@@ -38,9 +38,10 @@ public class StrUtil
         return args;
     }
 
-    public static JSONArray toJSONArray(Object ... args){
+    public static JSONArray toJSONArray(Object... args)
+    {
         JSONArray jsonArray = new JSONArray(args.length);
-        WPTool.addAll(jsonArray,args);
+        WPTool.addAll(jsonArray, args);
         return jsonArray;
     }
 
@@ -62,6 +63,7 @@ public class StrUtil
 
     /**
      * 增加1.
+     *
      * @param num
      * @param bits
      * @return
@@ -108,13 +110,58 @@ public class StrUtil
 
 
     /**
-     * 获取后缀名，不包括“.”;若没有找到，则返回空字符串"".
+     * 获取后缀名;若没有找到，则返回空字符串"".
+     *
+     * @param content     内容
+     * @param c           后缀名分隔符
+     * @param includeChar 返回的后缀名是否包含分隔符。
+     * @return
+     */
+    public static String getSuffix(String content, char c, boolean includeChar)
+    {
+        int index = content.lastIndexOf(c);
+        return index >= 0 ? content.substring(includeChar ? index : index + 1) : "";
+    }
+
+    /**
+     * 获取后缀名，不包括分隔符;若没有找到，则返回空字符串"".
+     * {@linkplain #getSuffix(String, char, boolean)}
+     *
      * @param content
      * @param c
      * @return
      */
-    public static String getSuffix(String content,char c){
-        int index = content.lastIndexOf(c);
-        return index>=0?content.substring(index+1):"";
+    public static String getSuffix(String content, char c)
+    {
+        return getSuffix(content, c, false);
     }
+
+    /**
+     * 移除后缀名;若没有找到，则返回原字符串.
+     *
+     * @param content
+     * @param c           后缀名分隔符
+     * @param includeChar 返回值是否包含分隔符。
+     * @return
+     */
+    public static String removeSuffix(String content, char c, boolean includeChar)
+    {
+        int index = content.lastIndexOf(c);
+        return index >= 0 ? content.substring(0, includeChar ? index + 1 : index) : content;
+    }
+
+    /**
+     * 移除后缀名,不包含分隔符;若没有找到，则返回原字符串.
+     * 见{@linkplain #removeSuffix(String, char, boolean)}
+     *
+     * @param content
+     * @param c       后缀名分隔符
+     * @return
+     */
+    public static String removeSuffix(String content, char c)
+    {
+        return removeSuffix(content, c, false);
+    }
+
+
 }
