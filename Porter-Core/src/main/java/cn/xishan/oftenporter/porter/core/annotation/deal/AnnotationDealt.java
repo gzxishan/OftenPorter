@@ -333,7 +333,7 @@ public final class AnnotationDealt
             _portOut.outType = portOut.value();
         } else
         {
-            _portOut.outType = OutType.OBJECT;
+            _portOut.outType = OutType.AUTO;
         }
         return _portOut;
     }
