@@ -8,22 +8,34 @@ public enum TiedType
 {
     REST,
     /**
-     * 强制REST
+     * <pre>
+     *     强制REST：
+     *     1）加在类上，函数都为REST；但不影响混入的接口
+     *     2）加在函数上，函数为REST。
+     * </pre>
      */
     FORCE_REST,
     DEFAULT;
 
     /**
-     * 当类和方法的类型都是{@linkplain #REST}或有一个是{@linkplain #FORCE_REST}时，结果才为{@linkplain #REST}。
+     * <pre>
+     *     1）当类和方法的类型都是{@linkplain #REST},结果才为{@linkplain #REST}
+     *     2）当有一个是{@linkplain #FORCE_REST}时，结果为{@linkplain #FORCE_REST}
+     * </pre>
+     *
      * @param classTiedType
      * @param methodTiedType
      * @return
      */
-    public static TiedType type(TiedType classTiedType, TiedType methodTiedType)
+    public static TiedType typeForFun(TiedType classTiedType, TiedType methodTiedType)
     {
-        if (classTiedType == REST && methodTiedType == REST||classTiedType==FORCE_REST||methodTiedType==FORCE_REST)
+        if (classTiedType == REST && methodTiedType == REST)
         {
             return REST;
+        } else if (classTiedType == FORCE_REST || methodTiedType ==
+                FORCE_REST)
+        {
+            return FORCE_REST;
         } else
         {
             return DEFAULT;

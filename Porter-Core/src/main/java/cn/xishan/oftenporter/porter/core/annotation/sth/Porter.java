@@ -123,31 +123,43 @@ public final class Porter
      */
     public PorterOfFun getChild(UrlDecoder.Result result, PortMethod method)
     {
-        PorterOfFun porterOfFun = getChild(result.funTied(), getPortIn().getTiedType(), method);
+        PorterOfFun porterOfFun = getChild(result.funTied(), method);
         return porterOfFun;
     }
 
-    public PorterOfFun getChild(String funTied, TiedType tiedType, PortMethod method)
+    public PorterOfFun getChild(String funTied,  PortMethod method)
     {
-        PorterOfFun porterOfFun = null;
-        switch (tiedType)
-        {
+        PorterOfFun porterOfFun;
+//        switch (classTiedType)
+//        {
+//
+//            case FORCE_REST:
+//            case REST:
+//                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+//                if (porterOfFun == null)
+//                {
+//                    porterOfFun = childrenWithMethod.get(method.name());
+//                }
+//                break;
+//            case DEFAULT:
+//                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+//                if(porterOfFun==null){
+//                    porterOfFun = childrenWithMethod.get(method.name());
+//                }
+//                break;
+//        }
 
-            case REST:
-                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
-                if (porterOfFun == null)
-                {
-                    porterOfFun = childrenWithMethod.get(method.name());
-                }
-                break;
-            case DEFAULT:
-                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
-                break;
-        }
-        if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)
+//        if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)
+//        {
+//            porterOfFun = null;
+//        }
+
+        porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+        if (porterOfFun == null)
         {
-            porterOfFun = null;
+            porterOfFun = childrenWithMethod.get(method.name());
         }
+
         return porterOfFun;
     }
 

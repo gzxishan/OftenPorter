@@ -127,7 +127,7 @@ public class SthDeal
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
         porter.doAutoSet(autoSetMixinMap);
-        porter.finalObject=porter.getObj();
+        porter.finalObject = porter.getObj();
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
@@ -179,7 +179,7 @@ public class SthDeal
             {
                 putFun(mixinIt.next(), childrenWithMethod, true, true);
             }
-            mixinPorter.finalObject=porter.getObj();
+            mixinPorter.finalObject = porter.getObj();
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
             autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
@@ -249,6 +249,7 @@ public class SthDeal
         {
 
             case REST:
+            case FORCE_REST:
                 lastFun = childrenWithMethod.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
                 if (LOGGER.isDebugEnabled() && willLog)
                 {
@@ -334,7 +335,8 @@ public class SthDeal
 
     }
 
-    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption){
+    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption)
+    {
         SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption);
         return syncPorter;
     }

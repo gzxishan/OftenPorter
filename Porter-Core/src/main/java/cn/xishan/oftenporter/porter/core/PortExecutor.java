@@ -109,7 +109,7 @@ public class PortExecutor
             Porter classPort = context.contextPorter.getClassPort(result.classTied());
             if (classPort != null)
             {
-                porterOfFun = classPort.getChild(result.funTied(), TiedType.DEFAULT, method);
+                porterOfFun = classPort.getChild(result.funTied(), method);
             }
         }
         return porterOfFun;
@@ -213,6 +213,12 @@ public class PortExecutor
 
 
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+
+            if (funPort.getMethodPortIn().getTiedType() == TiedType.REST||funPort.getMethodPortIn().getTiedType()==TiedType.FORCE_REST)
+            {
+                wObject.restValue = result.funTied();
+            }
+
             wObject.abOption = abOption;
             if (abOption != null)
             {
@@ -498,10 +504,6 @@ public class PortExecutor
             UrlDecoder.Result result)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
-        if (funPIn.getTiedType() == TiedType.REST)
-        {
-            wObject.restValue = result.funTied();
-        }
 
         //函数通过检测,参数没有准备好
         if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
