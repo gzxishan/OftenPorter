@@ -114,6 +114,23 @@ public class WPTool
         }
     }
 
+    public static String join(String separator,Object ... args){
+        if(args.length==0){
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(args[0]);
+        for (int i = 1; i < args.length; i++)
+        {
+            builder.append(separator).append(args[i]);
+        }
+        return builder.toString();
+    }
+
+    public static String join(String separator,List<?> list){
+        return join(separator,list.toArray(new Object[0]));
+    }
+
 
     /**
      * obj1和obj2都为null或者obj1不为null且obj1.equals(obj2)返回true时，结果为true；否则返回false。
