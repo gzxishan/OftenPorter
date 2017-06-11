@@ -20,4 +20,15 @@ public interface SyncPorter
      * @return
      */
     <T> T requestSimple(@MayNull WObject wObject, Object... nameValues);
+
+    <T> T requestWNull();
+    <T> T requestWNull(AppValues appValues);
+
+    /**
+     *
+     * @param nameValues name,value,name,value...
+     * @param <T>
+     * @return
+     */
+    <T> T requestWNullSimple(Object... nameValues);
 }

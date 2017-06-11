@@ -16,14 +16,22 @@ public @interface SyncPorterOption
 
     /**
      * 默认为当前的context名称。
+     *
      * @return
      */
-    String context()default "";
+    String context() default "";
 
     /**
      * 默认为当前接口的类绑定名。
+     *
      * @return
      */
-    String classTied()default "";
-    String funTied();
+    String classTied() default "";
+
+    /**
+     * 为空时，绑定名等于变量名。
+     *
+     * @return
+     */
+    String funTied() default "";
 }
