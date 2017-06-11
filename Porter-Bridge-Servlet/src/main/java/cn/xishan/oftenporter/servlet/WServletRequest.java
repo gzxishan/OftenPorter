@@ -139,11 +139,27 @@ public final class WServletRequest extends PRequest
      */
     public static String getHostFromURL(CharSequence url)
     {
+        return getHostFromURL(url,false);
+    }
+
+        /**
+         * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
+         *
+         * @param url
+         * @return
+         */
+    public static String getHostFromURL(CharSequence url,boolean http2Https )
+    {
 
         Matcher matcher = PATTERN_HOST_PORT.matcher(url);
+
         if (matcher.find())
         {
-            return matcher.group();
+            String host = matcher.group();
+            if(http2Https&&host.startsWith("http:")){
+                host="https:"+host.substring(5);
+            }
+            return host;
         } else
         {
             return "";
@@ -158,6 +174,16 @@ public final class WServletRequest extends PRequest
     public String getHost()
     {
         return getHostFromURL(request.getRequestURL());
+    }
+
+    /**
+     * 见{@linkplain #getHostFromURL(CharSequence,boolean)}
+     *
+     * @return
+     */
+    public String getHost(boolean http2Https)
+    {
+        return getHostFromURL(request.getRequestURL(),http2Https);
     }
 
 }
