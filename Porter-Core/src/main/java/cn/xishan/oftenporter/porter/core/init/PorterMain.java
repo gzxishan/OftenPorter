@@ -281,13 +281,15 @@ public final class PorterMain
             throw new Error(e);
         }
 
+        LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
+
         contextPorter.start();
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
         porterConf.initOk();
-        LOGGER.debug(":{}/{} started!", pLinker.currentPName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{}porterOne started!", pLinker.currentPName(), porterConf.getContextName());
 
     }
 
