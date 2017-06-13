@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.apt.AutoGen;
 import cn.xishan.oftenporter.porter.core.apt.PorterProcessor;
@@ -39,10 +40,10 @@ public class InObjDeal
     /**
      * 处理接口函数上的对象绑定。
      */
-     InObj dealPortInObj(Method method, InnerContextBridge innerContextBridge) throws Exception
+     InObj dealPortInObj(PortInObjBind.ObjList objList,Method method, InnerContextBridge innerContextBridge) throws Exception
     {
         InObj inObj = null;
-        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(method);
+        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(objList,method);
         if (portInObj != null)
         {
             inObj = dealPortInObj(portInObj, innerContextBridge);

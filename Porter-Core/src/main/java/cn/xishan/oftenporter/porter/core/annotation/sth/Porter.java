@@ -8,9 +8,15 @@ import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -19,6 +25,9 @@ import java.util.Map;
  */
 public final class Porter
 {
+
+    Class[] superGenericClasses;
+
     private final Logger LOGGER;
 
     Object object;
@@ -39,11 +48,82 @@ public final class Porter
     InObj inObj;
     private AutoSetHandle autoSetHandle;
 
-    public Porter(AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
+    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
+        this.clazz = clazz;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
+        try
+        {
+            initSuperGenericClasses();
+        } catch (Exception e)
+        {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+
+    //泛型处理
+    private void initSuperGenericClasses() throws Exception
+    {
+
+        Type superclassType = clazz.getGenericSuperclass();
+        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass()))
+        {
+            return;
+        }
+
+        List<Class> list = new ArrayList<>();
+
+        Type[] types = ((ParameterizedType) superclassType).getActualTypeArguments();
+        ClassLoader classLoader = autoSetHandle.getInnerContextBridge().classLoader;
+        for (Type type : types)
+        {
+            String className = getClassName(type);
+            if(className==null){
+                continue;
+            }
+            list.add(PackageUtil.newClass(className, classLoader));
+        }
+        superGenericClasses = list.toArray(new Class[0]);
+    }
+
+    private static final String TYPE_NAME_PREFIX = "class ";
+
+    public static String getClassName(Type type)
+    {
+        if (type == null)
+        {
+            return null;
+        }
+        String className = type.toString();
+        if (className.startsWith(TYPE_NAME_PREFIX))
+        {
+            className = className.substring(TYPE_NAME_PREFIX.length());
+        }
+        return className;
+    }
+
+    /**
+     * 获取正确的变量类型。
+     *
+     * @return
+     */
+    Class getFieldRealClass(Field field)
+    {
+        Class<?> ftype = field.getType();
+        if (field.getGenericType() == null || superGenericClasses == null)
+        {
+            return ftype;
+        }
+        for (int i = 0; i < superGenericClasses.length; i++)
+        {
+            if(WPTool.isAssignable(superGenericClasses[i],ftype)){
+                return superGenericClasses[i];
+            }
+        }
+        return ftype;
     }
 
     public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
@@ -127,7 +207,7 @@ public final class Porter
         return porterOfFun;
     }
 
-    public PorterOfFun getChild(String funTied,  PortMethod method)
+    public PorterOfFun getChild(String funTied, PortMethod method)
     {
         PorterOfFun porterOfFun;
 //        switch (classTiedType)

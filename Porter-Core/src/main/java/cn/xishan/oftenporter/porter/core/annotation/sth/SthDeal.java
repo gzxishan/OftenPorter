@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.Context;
 import cn.xishan.oftenporter.porter.core.PortExecutor;
+import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -118,11 +119,10 @@ public class SthDeal
             currentClassTied = portIn.getTiedName();
         }
 
-        Porter porter = new Porter(autoSetHandle, wholeClassCheckPassableGetter);
+        Porter porter = new Porter(clazz,autoSetHandle, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
-        porter.clazz = clazz;
         porter.object = object;
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
@@ -322,7 +322,9 @@ public class SthDeal
                         BackableSeek.SeekType.NotAdd_Bind);
             }
 
-            porterOfFun.inObj = inObjDeal.dealPortInObj(method, innerContextBridge);
+            porterOfFun.inObj = inObjDeal
+                    .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
+                            innerContextBridge);
 
             porterOfFun.portOut = annotationDealt.portOut(method);
 

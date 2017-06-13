@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -88,7 +89,7 @@ public final class AnnotationDealt
             SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
-            String funTied = option.funTied().equals("")?field.getName():option.funTied();
+            String funTied = option.funTied().equals("") ? field.getName() : option.funTied();
             porterParamGetter.setContext(context);
             porterParamGetter.setClassTied(classTied);
             porterParamGetter.setFunTied(funTied);
@@ -219,18 +220,50 @@ public final class AnnotationDealt
         return _unNece;
     }
 
-    public _PortInObj portInObj(Method method)
+    public _PortInObj portInObj(PortInObjBind.ObjList objList, Method method)
     {
-        return to_PortInObj(AnnoUtil.getAnnotation(method, PortInObj.class));
+        List<Class> classList = new ArrayList<>();
+
+        PortInObj portInObj = AnnoUtil.getAnnotation(method, PortInObj.class);
+        if (portInObj != null)
+        {
+            WPTool.addAll(classList, portInObj.value());
+        }
+
+
+        if (objList != null)
+        {
+            PortInObjBind portInObjBind = AnnoUtil.getAnnotation(method, PortInObjBind.class);
+            if (portInObjBind != null)
+            {
+                String[] bindNames = portInObjBind.value();
+                for (int i = 0; i < bindNames.length; i++)
+                {
+                    for (PortInObjBind.Obj obj : objList.value())
+                    {
+                        if (obj.name().equals(bindNames[i]))
+                        {
+                            classList.add(obj.clazz());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(classList.size()==0){
+            return null;
+        }
+
+        _PortInObj _portInObj = new _PortInObj();
+        _portInObj.value = classList.toArray(new Class[0]);
+        return _portInObj;
+
     }
 
     public _PortInObj portInObj(Class<?> clazz)
     {
-        return to_PortInObj(clazz.getAnnotation(PortInObj.class));
-    }
-
-    private _PortInObj to_PortInObj(PortInObj portInObj)
-    {
+        PortInObj portInObj = clazz.getAnnotation(PortInObj.class);
         if (portInObj == null)
         {
             return null;
@@ -383,7 +416,8 @@ public final class AnnotationDealt
             _portInOfMethod = new _PortIn(PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType()));
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
             _portInOfMethod.tiedName = PortUtil
-                    .tied(portIn, method, _portInOfMethod.getTiedType() == TiedType.REST||_portInOfMethod.getTiedType() == TiedType.FORCE_REST || enableDefaultValue);
+                    .tied(portIn, method, _portInOfMethod.getTiedType() == TiedType.REST || _portInOfMethod
+                            .getTiedType() == TiedType.FORCE_REST || enableDefaultValue);
             _portInOfMethod.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
             _portInOfMethod.checks = portIn.checks();
             _portInOfMethod.method = AnnoUtil.method(class_PortIn.getMethod(), portIn.method());

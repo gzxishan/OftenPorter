@@ -271,6 +271,8 @@ public class AutoSetHandle
             AutoSet autoSet = f.getAnnotation(AutoSet.class);
             try
             {
+                Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
+
                 Object value = null;
                 String autoSetMixinName = null;
                 boolean needPut = false;
@@ -279,7 +281,7 @@ public class AutoSetHandle
                 {
                     autoSetMixin = f.getAnnotation(AutoSetMixin.class);
                     autoSetMixinName = "".equals(autoSetMixin.value()) ? (autoSetMixin.classValue()
-                            .equals(AutoSetMixin.class) ? f.getType().getName() : autoSetMixin.classValue()
+                            .equals(AutoSetMixin.class) ? fieldType.getName() : autoSetMixin.classValue()
                             .getName()) : autoSetMixin.value();
 
                     if (autoSetMixin.waitingForSet())
@@ -322,11 +324,11 @@ public class AutoSetHandle
                     }
                     if ("".equals(keyName))
                     {
-                        keyName = f.getType().getName();
+                        keyName = fieldType.getName();
                     }
                     if (mayNew == null)
                     {
-                        mayNew = f.getType();
+                        mayNew = fieldType;
                     }
 
 
