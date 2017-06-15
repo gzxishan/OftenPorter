@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.porter.core.pbridge;
 
-import cn.xishan.oftenporter.porter.core.base.ABOption;
-import cn.xishan.oftenporter.porter.core.base.AppValues;
-import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WRequest;
+import cn.xishan.oftenporter.porter.core.base.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +30,7 @@ public class PRequest implements WRequest, Cloneable
         {
             params = new HashMap<>();
         }
+        //abOption = new ABOption(null, ABType.METHOD_OF_CURRENT,ABPortType.OTHER);
     }
 
     public PRequest(WRequest request, String requestPath)

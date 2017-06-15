@@ -893,11 +893,11 @@ public class PortExecutor
         close(wObject);
     }
 
-    private JResponse toJResponse(ParamDealt.FailedReason reason)
+    private JResponse toJResponse(ParamDealt.FailedReason reason,WObject wObject)
     {
         JResponse jResponse = new JResponse();
         jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
-        jResponse.setDescription(reason.desc());
+        jResponse.setDescription(reason.desc()+"("+wObject.url()+":"+wObject.getRequest().getMethod()+")");
         jResponse.setExtra(reason.toJSON());
         return jResponse;
     }
@@ -908,14 +908,14 @@ public class PortExecutor
         JResponse jResponse = null;
         if (LOGGER.isDebugEnabled() || responseWhenException)
         {
-            jResponse = toJResponse(reason);
+            jResponse = toJResponse(reason,wObject);
             LOGGER.debug("{}", jResponse);
         }
         if (responseWhenException)
         {
             if (jResponse == null)
             {
-                jResponse = toJResponse(reason);
+                jResponse = toJResponse(reason,wObject);
             }
             try
             {
