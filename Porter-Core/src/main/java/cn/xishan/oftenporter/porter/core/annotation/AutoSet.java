@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import java.lang.annotation.*;
 
 /**
- * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量。
+ * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量,支持泛型。
  * <br>
  * 从这些途径会触发AutoSet:
  * <pre>
@@ -32,6 +32,7 @@ import java.lang.annotation.*;
  * 3.{@linkplain PorterData PorterData}
  * 4.{@linkplain Logger Logger}
  * </pre>
+ *
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */
