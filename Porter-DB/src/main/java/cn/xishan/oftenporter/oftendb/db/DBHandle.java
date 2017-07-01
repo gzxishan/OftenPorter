@@ -1,16 +1,17 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 
+import cn.xishan.oftenporter.oftendb.data.Configing;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.util.Enumeration;
 
-public interface DBHandle extends Closeable
+public interface DBHandle extends Configing
 {
+
+
     /**
      * 添加。
      *
@@ -54,12 +55,13 @@ public interface DBHandle extends Closeable
      * 高级查询，相对简单查询来数，通用性更小。
      *
      * @param advancedQuery 高级查询对象
-     * @return 查询结果,存放的元素是json对象
+     * @return 查询结果, 存放的元素是json对象
      * @throws DBException 操作异常
      */
-    JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException;
+    JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException;
 
-    DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException;
+    DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,
+            QuerySettings querySettings) throws DBException;
 
     /**
      * @param advancedExecutor 高级执行对象
@@ -75,7 +77,7 @@ public interface DBHandle extends Closeable
      * @param query         查询条件
      * @param querySettings 查询选项
      * @param keys          为空表示选择所有
-     * @return 查询结果,存放的元素是json对象
+     * @return 查询结果, 存放的元素是json对象
      * @throws DBException 操作异常
      */
     JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException;
@@ -89,7 +91,8 @@ public interface DBHandle extends Closeable
      * @return 查询结果
      * @throws DBException 操作异常
      */
-    DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings, String... keys) throws DBException;
+    DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
+            String... keys) throws DBException;
 
 
     boolean canOpenOrClose();
@@ -110,7 +113,7 @@ public interface DBHandle extends Closeable
      * @param query         查询条件
      * @param querySettings 查询选项
      * @param key           键名
-     * @return 返回查询结果,存放的是key对应的对象
+     * @return 返回查询结果, 存放的是key对应的对象
      * @throws DBException 操作异常
      */
     JSONArray get(Condition query, QuerySettings querySettings, String key) throws DBException;
@@ -193,7 +196,7 @@ public interface DBHandle extends Closeable
      *
      * @throws DBException 操作异常
      */
-    void startTransaction() throws DBException;
+    void startTransaction(TransactionConfig config) throws DBException;
 
     /**
      * 提交事务

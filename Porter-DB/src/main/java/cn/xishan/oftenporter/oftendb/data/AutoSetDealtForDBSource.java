@@ -24,12 +24,6 @@ public class AutoSetDealtForDBSource implements AutoSetDealt
     }
 
     public static void setUnit(Object object,DBSource dbSource){
-        if (object instanceof DataAble)
-        {
-            dbSource.getParams().set((DataAble) object);
-        } else
-        {
-            dbSource.getParams().setUnit(object);
-        }
+        dbSource.getConfiged().setUnit(object);
     }
 }

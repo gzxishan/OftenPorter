@@ -1,14 +1,11 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
-import cn.xishan.oftenporter.oftendb.data.Common2;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
-import cn.xishan.oftenporter.oftendb.data.EmptyWObject;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
-import cn.xishan.oftenporter.porter.core.JResponse;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import jdk.nashorn.internal.objects.NativeArray;
 

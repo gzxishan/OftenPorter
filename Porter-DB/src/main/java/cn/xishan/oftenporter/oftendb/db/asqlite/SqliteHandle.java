@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlHandle;
-import cn.xishan.oftenporter.oftendb.db.mysql.SqlQuerySettings;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -25,6 +24,8 @@ import java.util.Arrays;
 public class SqliteHandle implements DBHandle
 {
 
+    private static final QuerySettings FIND_ONE = new QuerySettings().setLimit(1).setSkip(0);
+
     private String tableName;
     private SQLiteDatabase db;
     private static final TypeUtil.Type<ContentValues>[] TYPES_ADD;
@@ -41,16 +42,15 @@ public class SqliteHandle implements DBHandle
         TYPES_MULTI_ADD = TypeUtil.getTypesForMultiAdd();
     }
 
-    public SqliteHandle(SQLiteDatabase db, String tableName)
+    public SqliteHandle(SQLiteDatabase db)
     {
         this.db = db;
-        this.tableName = tableName;
     }
 
     @Override
     public void setLogger(Logger logger)
     {
-        LOGGER=logger;
+        LOGGER = logger;
     }
 
     void close(SQLiteStatement sqLiteStatement)
@@ -86,9 +86,10 @@ public class SqliteHandle implements DBHandle
         }
     }
 
-    public void setTableName(String tableName)
+    @Override
+    public void setCollectionName(String collectionName)
     {
-        this.tableName = tableName;
+        this.tableName = collectionName;
     }
 
     public String getTableName()
@@ -265,18 +266,19 @@ public class SqliteHandle implements DBHandle
 
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
-        return _getJSONS(sqliteAdvancedQuery.whereSQL,querySettings, sqliteAdvancedQuery.keys);
+        return _getJSONS(sqliteAdvancedQuery.whereSQL, querySettings, sqliteAdvancedQuery.keys);
     }
 
     @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,
+            QuerySettings querySettings) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
 
-        return getDBEnumerations(sqliteAdvancedQuery.whereSQL,querySettings, sqliteAdvancedQuery.keys);
+        return getDBEnumerations(sqliteAdvancedQuery.whereSQL, querySettings, sqliteAdvancedQuery.keys);
     }
 
     private Cursor rawQuery(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings)
@@ -357,7 +359,7 @@ public class SqliteHandle implements DBHandle
     @Override
     public JSONObject getOne(Condition query, String... keys) throws DBException
     {
-        JSONArray list = getJSONs(query, SqlQuerySettings.FIND_ONE, keys);
+        JSONArray list = getJSONs(query, FIND_ONE, keys);
         Object obj = list.size() > 0 ? list.get(0) : null;
         return (JSONObject) obj;
     }
@@ -366,9 +368,9 @@ public class SqliteHandle implements DBHandle
     public JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
+                .toSelect(tableName, checkCondition(query), querySettings,
                         false, keys);
-        return _getJSONS(whereSQL,null, keys);
+        return _getJSONS(whereSQL, null, keys);
     }
 
     @Override
@@ -376,17 +378,17 @@ public class SqliteHandle implements DBHandle
             String... keys) throws DBException
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
+                .toSelect(tableName, checkCondition(query), querySettings,
                         false, keys);
-        return getDBEnumerations(whereSQL,null, keys);
+        return getDBEnumerations(whereSQL, null, keys);
     }
 
-    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL,QuerySettings querySettings,
+    private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings,
             String[] keys) throws DBException
     {
         try
         {
-            Cursor cursor = rawQuery(whereSQL,querySettings);
+            Cursor cursor = rawQuery(whereSQL, querySettings);
             DBEnumeration<JSONObject> enumeration = new DBEnumeration<JSONObject>()
             {
                 int hasNext = -1;
@@ -453,13 +455,13 @@ public class SqliteHandle implements DBHandle
         JSONArray list = new JSONArray();
 
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), SqlHandle.checkQuerySettings(querySettings),
+                .toSelect(tableName, checkCondition(query), querySettings,
                         false, key);
 
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(whereSQL,null);
+            cursor = rawQuery(whereSQL, null);
             while (cursor.moveToNext())
             {
                 list.add(TypeUtil.getObject(cursor, 0));
@@ -523,7 +525,7 @@ public class SqliteHandle implements DBHandle
     public long exists(AdvancedQuery advancedQuery) throws DBException
     {
         SqliteAdvancedQuery sqliteAdvancedQuery = getSqliteAdvancedQuery(advancedQuery);
-        return _countSql(SqlUtil.toCountSelect(sqliteAdvancedQuery.whereSQL,"",false));
+        return _countSql(SqlUtil.toCountSelect(sqliteAdvancedQuery.whereSQL, "", false));
     }
 
     public long _countSql(SqlUtil.WhereSQL whereSQL) throws DBException
@@ -531,7 +533,7 @@ public class SqliteHandle implements DBHandle
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(whereSQL,null);
+            cursor = rawQuery(whereSQL, null);
             long n = 0;
             if (cursor.moveToNext())
             {
@@ -577,11 +579,11 @@ public class SqliteHandle implements DBHandle
     public byte[] getBinary(Condition query, String name) throws DBException
     {
         SqlUtil.WhereSQL wsql = SqlUtil
-                .toSelect(tableName, checkCondition(query), SqlQuerySettings.FIND_ONE, true, name);
+                .toSelect(tableName, checkCondition(query), FIND_ONE, true, name);
         Cursor cursor = null;
         try
         {
-            cursor = rawQuery(wsql,null);
+            cursor = rawQuery(wsql, null);
             byte[] bs = null;
             if (cursor.moveToNext())
             {
@@ -603,7 +605,7 @@ public class SqliteHandle implements DBHandle
         try
         {
             db.close();
-            LOGGER.debug("conn closed:{}",tableName);
+            LOGGER.debug("conn closed:{}", tableName);
         } catch (SQLException e)
         {
             throw new IOException(e);
@@ -623,8 +625,9 @@ public class SqliteHandle implements DBHandle
     }
 
     @Override
-    public void startTransaction() throws DBException
+    public void startTransaction(TransactionConfig config) throws DBException
     {
+        //TODO 事物类型设置
         db.beginTransaction();
         isTransaction = true;
     }

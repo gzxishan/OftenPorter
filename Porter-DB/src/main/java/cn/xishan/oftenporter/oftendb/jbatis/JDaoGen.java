@@ -45,7 +45,7 @@ class JDaoGen implements AutoSetGen
                 }
             } catch (Exception e)
             {
-                throw new JInitException(e);
+                throw new JDaoInitException(e);
             }
 
         }
@@ -149,7 +149,7 @@ class JDaoGen implements AutoSetGen
             try
             {
                 JsBridge jsBridge;
-                SqlSource sqlSource = (SqlSource) dbSource.getDBHandleSource();
+                SqlSource sqlSource = (SqlSource) dbSource;
                 JDaoPath jDaoPath = field.getAnnotation(JDaoPath.class);
 
                 Path path = getPath(jDaoPath, object, field);
@@ -168,7 +168,7 @@ class JDaoGen implements AutoSetGen
                 return jDao;
             } catch (Exception e)
             {
-                throw new JInitException(e);
+                throw new JDaoInitException(e);
             }
         }
     }

@@ -1,1516 +1,168 @@
 package cn.xishan.oftenporter.oftendb.data;
 
-
 import cn.xishan.oftenporter.oftendb.db.*;
-import cn.xishan.oftenporter.oftendb.db.exception.CannotOpenOrCloseException;
 import cn.xishan.oftenporter.porter.core.JResponse;
-import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.oftendb.data.ParamsGetter.Params;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-
-import java.io.IOException;
-
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
- * 简化一些数据库常用的操作（并不是全部）
+ * @author Created by https://github.com/CLovinr on 2017/7/1.
  */
-public class Common
+public class common
 {
-
-    private interface Dealt
+    /**
+     * @see DBCommon#addData(WObject, DBSource, NameValues)
+     */
+    public static JResponse addData(WObject wObject, DBSource dbSource, NameValues nameValues)
     {
-        /**
-         * 如果{@linkplain DataAble#forQuery()}为null，才会调用此函数。
-         *
-         * @return 条件
-         */
-        Condition getCondition();
-
-        void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                Condition _condition, Object[] otherParams) throws Exception;
+        return DBCommon.C.addData(wObject, dbSource, nameValues);
     }
 
     /**
-     * 默认的
+     * @see DBCommon#addData(WObject, DBSource, boolean)
      */
-    public static final Common C = new Common(null);
-    private DBHandle _dbHandle;
-    //private static final Logger LOGGER = LoggerFactory.getLogger(Common.class);
-
-    private Common(DBHandle dbHandle)
+    public static JResponse addData(WObject wObject, DBSource dbSource, boolean containsNull)
     {
-        this._dbHandle = dbHandle;
-    }
-
-
-    private void mayTransactionEx(WObject wObject, Exception e)
-    {
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
-            CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
-            handle.ex = e;
-        }
-    }
-
-    public static SqlSource getSqlSource(WObject wObject)
-    {
-        SqlSource sqlSource = null;
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
-            CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
-            handle.check();
-            Object comm = handle.common();
-            if (comm instanceof Common2)
-            {
-                comm = ((Common2) comm).common;
-            }
-            Common common = (Common) comm;
-            sqlSource = (SqlSource) common._dbHandle;
-        }
-        return sqlSource;
-    }
-
-    private JResponse commonDealt(Dealt dealt, boolean willSetParams, DBHandleSource dbHandleSource,
-            ParamsGetter paramsGetter,
-            WObject wObject, SetType setType, int optionCode, Object... otherParams)
-    {
-        Common common;
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
-            CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
-            handle.check();
-            Object comm = handle.common();
-            if (comm instanceof Common2)
-            {
-                comm = ((Common2) comm).common;
-            }
-            common = (Common) comm;
-            dbHandleSource = handle.getDBHandleSource();
-//            if (handle.getParamsGetter() != null)
-//            {
-//                ParamsGetter getter = handle.getParamsGetter();
-//                if (paramsGetter != null && paramsGetter.getParams() != null)
-//                {
-//                    getter.getParams().set(paramsGetter.getParams().getDataAble());
-//                }
-//                paramsGetter = getter;
-//            }
-        } else
-        {
-            common = this;
-        }
-        return common._commonDealt(dealt, willSetParams, dbHandleSource, paramsGetter, wObject, setType, optionCode,
-                otherParams);
+        return DBCommon.C.addData(wObject, dbSource, containsNull);
     }
 
     /**
-     * @param willSetParams
-     * 是否会调用{@linkplain DataAble#setParams(InNames.Name[], Object[], InNames.Name[], Object[], InNames.Name[], Object[])}
-     * @param dbHandleSource
-     * @param setType        不为空，则会进行
-     *                       {@linkplain #setDataFields(DataAble, boolean, WObject, SetType, int, DBHandleAccess)}
+     * @see DBCommon#addData(WObject, DBSource, MultiNameValues)
      */
-    private JResponse _commonDealt(Dealt dealt, boolean willSetParams, DBHandleSource dbHandleSource,
-            ParamsGetter paramsGetter,
-            WObject wObject, SetType setType, int optionCode, Object... otherParams)
+    public static JResponse addData(WObject wObject, DBSource dbSource, MultiNameValues multiNameValues)
     {
-
-
-        JResponse jResponse = new JResponse();
-        DBHandle dbHandle = null;
-        try
-        {
-            DataAble data;
-            Condition condition;
-            String rs = null;
-            Params params = paramsGetter.getParams();
-
-
-            data = params.newData(wObject);
-            if (setType != null)
-            {
-
-                if (dbHandle == null)
-                {
-                    dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
-                }
-                dbHandle.setLogger(LogUtil.logger(wObject, dbHandle.getClass()));
-                rs = setDataFields(data, willSetParams, wObject, setType, optionCode,
-                        new DBHandleAccess(dbHandleSource, dbHandle));
-            }
-            condition = data.forQuery();
-            if (condition == null)
-            {
-                condition = dealt.getCondition();
-            }
-
-
-            if (rs == null)
-            {
-                if (dbHandle == null)
-                {
-                    dbHandle = dbHandleSource.getDbHandle(paramsGetter, data, this._dbHandle);
-                }
-
-                if (!dbHandle.canOpenOrClose())
-                {
-                    throw new CannotOpenOrCloseException();
-                }
-
-                if (condition != null)
-                {
-                    data.dealNames(condition);
-                }
-                dealt.deal(jResponse, dbHandle, paramsGetter, data, condition, otherParams);
-
-            } else
-            {
-                jResponse.setCode(ResultCode.OK_BUT_FAILED);
-                jResponse.setDescription(rs);
-            }
-        } catch (DBException e)
-        {
-            mayTransactionEx(wObject, e);
-            jResponse.setCode(ResultCode.DB_EXCEPTION);
-            jResponse.setDescription(e.toString());
-            jResponse.setExCause(e);
-
-            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
-
-        } catch (Exception e)
-        {
-            mayTransactionEx(wObject, e);
-            jResponse.setCode(ResultCode.SERVER_EXCEPTION);
-            jResponse.setDescription("On OftenDB:" + e.toString());
-            jResponse.setExCause(e);
-            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
-        } finally
-        {
-            if (dbHandle != null && !dbHandle.isTransaction() && dbHandle.canOpenOrClose())
-            {
-                WPTool.close(dbHandle);
-                dbHandleSource.afterClose(dbHandle);
-            }
-        }
-
-        return jResponse;
-    }
-
-
-    private Condition getQuery(DBHandleSource dbHandleSource, ParamsSelection paramsSelection, WObject wObject,
-            Params params) throws WCallException
-    {
-        try
-        {
-
-            DataAble dataAble = params.getDataAble();
-
-            return dataAble.getQuery(dbHandleSource, paramsSelection, wObject, params);
-        } catch (Exception e)
-        {
-            JResponse jResponse = new JResponse();
-            jResponse.setCode(ResultCode.SERVER_EXCEPTION);
-            jResponse.setDescription("On OftenDB:" + e.toString());
-            jResponse.setExCause(e);
-            //LogUtil.logger(wObject, Common.class).warn(e.getMessage(), e);
-            WCallException callException = new WCallException(jResponse);
-
-            throw callException;
-        }
-    }
-
-
-    public static CheckPassable autoTransaction(TransactionConfirm confirm)
-    {
-        AutoTransactionCheckPassable checkPassable = new AutoTransactionCheckPassable(confirm);
-        return checkPassable;
-    }
-
-    /**
-     * @param wObject
-     * @return 进行了关闭返回true。
-     */
-    public static boolean closeTransaction(WObject wObject)
-    {
-        try
-        {
-            TransactionHandle handle = getTransactionHandle(wObject);
-            if (handle == null)
-            {
-                return false;
-            }
-            handle.close();
-            wObject._otherObject = null;
-            return true;
-        } catch (Exception e)
-        {
-            throw new DBException(e);
-        }
-    }
-
-    /**
-     * 开启事务，操作对象被保存在{@linkplain WObject#_otherObject}
-     *
-     * @param wObject
-     * @param dbHandleSource
-     * @param paramsGetter
-     */
-    public static void startTransaction(WObject wObject, DBHandleSource dbHandleSource, ParamsGetter paramsGetter)
-    {
-        TransactionHandle<Common> handle = getTransactionHandle(wObject,dbHandleSource, paramsGetter);
-        wObject._otherObject = handle;
-        handle.startTransaction();
-    }
-
-    /**
-     * 提交事务.<strong>注意见：</strong>{@linkplain TransactionHandle#commitTransaction()}
-     *
-     * @param wObject
-     * @return 进行了提交，则返回true。
-     * @throws IOException
-     */
-    public static boolean commitTransaction(WObject wObject)
-    {
-        TransactionHandle handle = getTransactionHandle(wObject);
-        if (handle == null)
-        {
-            return false;
-        }
-        handle.commitTransaction();
-        return true;
-    }
-
-    private static TransactionHandle getTransactionHandle(WObject wObject)
-    {
-        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
-        {
-            return null;
-        }
-        TransactionHandle handle = (TransactionHandle) wObject._otherObject;
-        return handle;
-    }
-
-    /**
-     * 回滚事务。
-     *
-     * @param wObject
-     * @return 进行了回滚返回true。
-     * @throws IOException
-     */
-    public static boolean rollbackTransaction(WObject wObject)
-    {
-        TransactionHandle handle = getTransactionHandle(wObject);
-        if (handle == null)
-        {
-            return false;
-        }
-        handle.rollback();
-        return true;
-    }
-
-    /**
-     * 得到事务操作
-     */
-    public static TransactionHandle<Common> getTransactionHandle(WObject wObject, DBHandleSource dbHandleSource,
-            ParamsGetter paramsGetter)
-    {
-        if (dbHandleSource == null || paramsGetter == null)
-        {
-            throw new NullPointerException();
-        }
-        TransactionHandle<Common> transactionHandle = null;
-
-        TransactionHandle lastHandle = getTransactionHandle(wObject);
-        if (lastHandle != null)
-        {
-            transactionHandle = lastHandle;
-        } else
-        {
-            transactionHandle = new CommonTransactionHandle<Common>(dbHandleSource,
-                    paramsGetter)
-            {
-                Common common = initCommon();
-
-                @Override
-                public void startTransaction() throws DBException
-                {
-                    common._dbHandle.startTransaction();
-                }
-
-                private Common initCommon()
-                {
-                    DBHandle _dDbHandle_ = getDBHandleSource().getDbHandle(getParamsGetter(), null, null);
-                    Common common = new Common(_dDbHandle_);
-
-                    if (!common._dbHandle.supportTransaction())
-                    {
-                        throw new DBException("the dbhandle '" + common._dbHandle.getClass()
-                                + "' not support transaction");
-                    }
-
-                    return common;
-                }
-
-                @Override
-                public void commitTransaction() throws DBException
-                {
-                    commitTransaction(common._dbHandle);
-                }
-
-                @Override
-                public Common common()
-                {
-                    return common;
-                }
-
-                @Override
-                public void close() throws IOException
-                {
-                    common._dbHandle.close();
-                    getDBHandleSource().afterClose(common._dbHandle);
-                }
-
-                @Override
-                public void rollback() throws DBException
-                {
-                    common._dbHandle.rollback();
-                }
-            };
-        }
-
-
-        return transactionHandle;
+        return DBCommon.C.addData(wObject, dbSource, multiNameValues);
     }
 
 
     /**
-     * @see #addData(DBHandleSource, ParamsGetter, boolean, WObject, int)
+     * @see DBCommon#advancedExecute(WObject, DBSource, AdvancedExecutor)
      */
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject)
+
+    public static JResponse advancedExecute(WObject wObject, DBSource dbSource, AdvancedExecutor advancedExecutor)
     {
-        return _addData(dbHandleSource, paramsGetter, responseData, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.advancedExecute(wObject, dbSource, advancedExecutor);
+    }
+
+    /**
+     * @see DBCommon#advancedQuery(WObject, DBSource, AdvancedQuery, QuerySettings)
+     */
+    public static JResponse advancedQuery(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
+            QuerySettings querySettings)
+    {
+        return DBCommon.C.advancedQuery(wObject, dbSource, advancedQuery, querySettings);
+    }
+
+    /**
+     * @see DBCommon#count(WObject, DBSource, AdvancedQuery)
+     */
+    public static JResponse count(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
+    {
+        return DBCommon.C.count(wObject, dbSource, advancedQuery);
     }
 
 
     /**
-     * @see #addData(DBHandleSource, ParamsGetter, boolean, NameValues, WObject, int)
+     * @see DBCommon#count(WObject, DBSource, Condition)
      */
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            NameValues nameValues, WObject wObject)
+    public static JResponse count(WObject wObject, DBSource dbSource, Condition condition)
     {
-        return _addData(dbHandleSource, paramsGetter, responseData, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.count(wObject, dbSource, condition);
     }
 
     /**
-     * 添加单条数据.若成功，返回结果码为ResultCode.SUCCESS，若此时响应数据，则结果为JSONObject.
-     *
-     * @param responseData 是否在添加成功时，返回添加的对象。
-     * @param nameValues
-     * @param wObject
-     * @param optionCode
-     * @return 操作结果
+     * @see DBCommon#count(WObject, DBSource, String, Object)
      */
-
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            final NameValues nameValues, WObject wObject, int optionCode)
+    public static JResponse count(WObject wObject, DBSource dbSource, String key, Object value)
     {
-        return _addData(dbHandleSource, paramsGetter, responseData, nameValues, wObject, optionCode);
-    }
-
-
-    private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            final NameValues nameValues, WObject wObject, int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
-
-                boolean success = dbHandle.add(nameValues);
-                if (success)
-                {
-                    boolean responseData = (Boolean) otherParams[0];
-                    jResponse.setCode(ResultCode.SUCCESS);
-                    jResponse.setResult(responseData ? data.toJsonObject()
-                            : null);
-                } else
-                {
-                    jResponse.setCode(ResultCode.OK_BUT_FAILED);
-                    jResponse.setDescription("add to db failed!");
-                }
-
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.ADD, optionCode,
-                responseData);
-
+        return DBCommon.C.count(wObject, dbSource, key, value);
     }
 
 
     /**
-     * 添加单条数据.若成功，返回结果码为ResultCode.SUCCESS，若此时响应数据，则结果为JSONObject.
-     *
-     * @param responseData 是否在添加成功时，返回添加的对象。
-     * @param wObject
-     * @param optionCode
-     * @return 操作结果
+     * @see DBCommon#deleteData(WObject, DBSource, Condition)
      */
-
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject,
-            int optionCode)
+    public static JResponse deleteData(WObject wObject, DBSource dbSource, Condition condition)
     {
-        return _addData(dbHandleSource, paramsGetter, responseData, wObject, optionCode);
-    }
-
-    private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, boolean responseData,
-            WObject wObject,
-            int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition condition, Object[] otherParams) throws Exception
-            {
-
-                NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
-                boolean success = dbHandle.add(nameValues);
-                if (success)
-                {
-                    boolean responseData = (Boolean) otherParams[0];
-                    jResponse.setCode(ResultCode.SUCCESS);
-                    jResponse.setResult(responseData ? data.toJsonObject()
-                            : null);
-                } else
-                {
-                    jResponse.setCode(ResultCode.OK_BUT_FAILED);
-                    jResponse.setDescription("add to db failed!");
-                }
-
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-        };
-
-        return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.ADD, optionCode,
-                responseData);
-
+        return DBCommon.C.deleteData(wObject, dbSource, condition);
     }
 
 
     /**
-     * @see #addData(DBHandleSource, ParamsGetter, MultiNameValues, WObject, int)
+     * @see DBCommon#queryData(WObject, DBSource, Condition, QuerySettings, KeysSelection)
      */
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject)
+    public static JResponse queryData(WObject wObject, DBSource dbSource,
+            Condition condition, QuerySettings querySettings, KeysSelection keysSelection)
     {
-        return _addData(dbHandleSource, paramsGetter, multiNameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
-    }
-
-    /**
-     * 批量添加.返回结果码为ResultCode.SUCCESS时，若结果为null不明确;为json数组，里面放的是整型.
-     *
-     * @param multiNameValues
-     * @param wObject
-     * @param optionCode
-     * @return 操作结果
-     */
-    public JResponse addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject, int optionCode)
-    {
-        return _addData(dbHandleSource, paramsGetter, multiNameValues, wObject, optionCode);
-    }
-
-    private JResponse _addData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final MultiNameValues multiNameValues,
-            WObject wObject, int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
-
-                int[] rs = dbHandle.add(multiNameValues);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(toJArray(rs));
-            }
-
-            private Object toJArray(int[] rs)
-            {
-                JSONArray array = null;
-                if (rs != null)
-                {
-                    array = new JSONArray(rs.length);
-                    for (int i : rs)
-                    {
-                        array.add(i);
-                    }
-                }
-                return array;
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.ADD, optionCode);
-
+        return DBCommon.C.queryData(wObject, dbSource, condition, querySettings, keysSelection);
     }
 
 
     /**
-     * @see #replaceData(DBHandleSource, ParamsGetter, Condition, WObject, int)
+     * @see DBCommon#queryEnumeration(WObject, DBSource, AdvancedQuery, QuerySettings)
      */
-    public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            Condition condition,
-            WObject wObject)
+    public static JResponse queryEnumeration(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
+            QuerySettings querySettings)
     {
-        return replaceData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.queryEnumeration(wObject, dbSource, advancedQuery, querySettings);
     }
 
     /**
-     * replace数据.若成功，返回结果码为ResultCode.SUCCESS.
-     *
-     * @param condition
-     * @param wObject
-     * @param optionCode
-     * @return
+     * @see DBCommon#queryEnumeration(WObject, DBSource, Condition, QuerySettings, KeysSelection)
      */
-    public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final Condition condition,
-            WObject wObject, int optionCode)
+    public static JResponse queryEnumeration(WObject wObject, DBSource dbSource, Condition condition,
+            QuerySettings querySettings, KeysSelection keysSelection)
     {
+        return DBCommon.C.queryEnumeration(wObject, dbSource, condition, querySettings, keysSelection);
+    }
 
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
-
-                boolean success = dbHandle.replace(_condition, nameValues);
-                if (success)
-                {
-                    jResponse.setCode(ResultCode.SUCCESS);
-                } else
-                {
-                    jResponse.setCode(ResultCode.OK_BUT_FAILED);
-                }
-
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-        };
-
-        return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.REPLACE, optionCode);
-
+    /**
+     * @see DBCommon#queryOne(WObject, DBSource, Condition, KeysSelection)
+     */
+    public static JResponse queryOne(WObject wObject, DBSource dbSource, Condition condition,
+            KeysSelection keysSelection)
+    {
+        return DBCommon.C.queryOne(wObject, dbSource, condition, keysSelection);
     }
 
 
     /**
-     * @see #replaceData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject, int)
+     * @see DBCommon#queryOne(WObject, DBSource, AdvancedQuery)
      */
-    public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            NameValues nameValues,
-            WObject wObject)
+    public static JResponse queryOne(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
     {
-        return replaceData(dbHandleSource, paramsGetter, condition, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.queryOne(wObject, dbSource, advancedQuery);
     }
 
     /**
-     * replace数据.若成功，返回结果码为ResultCode.SUCCESS.
-     *
-     * @param condition
-     * @param wObject
-     * @param nameValues
-     * @return
+     * @see DBCommon#replaceData(WObject, DBSource, Condition, NameValues)
      */
-    public JResponse replaceData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            final NameValues nameValues,
-            WObject wObject, int optionCode)
+    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
     {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws IllegalArgumentException, IllegalAccessException
-            {
-
-                boolean success = dbHandle.replace(_condition, nameValues);
-                if (success)
-                {
-                    jResponse.setCode(ResultCode.SUCCESS);
-                } else
-                {
-                    jResponse.setCode(ResultCode.OK_BUT_FAILED);
-                }
-
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.REPLACE, optionCode);
-
-    }
-
-
-    /**
-     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（int,可能为0）.
-     *
-     * @param paramsSelection 用于生成查询条件,不为null才会设置查询条件.
-     * @param wObject
-     * @param optionCode
-     * @return 操作结果
-     */
-    public JResponse deleteData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject, int optionCode)
-    {
-        Condition condition;
-
-        condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                paramsGetter.getParams());
-
-        return _deleteData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
-    }
-
-
-    ///////////////////////
-
-    /**
-     * @see #deleteData(DBHandleSource, ParamsGetter, Condition, WObject, int)
-     */
-    public JResponse deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            WObject wObject)
-    {
-        return _deleteData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.replaceData(wObject, dbSource, condition, nameValues);
     }
 
     /**
-     * @see #deleteData2(DBHandleSource, ParamsGetter, ParamsSelection, WObject,
-     * int)
+     * @see DBCommon#replaceData(WObject, DBSource, Condition, boolean)
      */
-    public JResponse deleteData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject)
+    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
     {
-        return deleteData2(dbHandleSource, paramsGetter, paramsSelection, wObject, DataAble.OPTION_CODE_DEFAULT);
+        return DBCommon.C.replaceData(wObject, dbSource, condition, containsNull);
     }
 
     /**
-     * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（int,可能为0）.
-     *
-     * @param condition
-     * @param wObject
-     * @param optionCode
-     * @return 操作结果
+     * @see DBCommon#updateData(WObject, DBSource, Condition, NameValues)
      */
-    public JResponse deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            WObject wObject, int optionCode)
+    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
     {
-        return _deleteData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
-    }
-
-
-    //////////////////////
-
-    private JResponse _deleteData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject, int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                int n = dbHandle.del(_condition);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-        };
-        return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.DELETE,
-                optionCode);
+        return DBCommon.C.updateData(wObject, dbSource, condition, nameValues);
     }
 
     /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONObject或null.
-     *
-     * @param condition
-     * @param keysSelection
-     * @param wObject
-     * @param optionCode
-     * @return
+     * @see DBCommon#updateData(WObject, DBSource, Condition, boolean)
      */
-    public JResponse queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            KeysSelection keysSelection, WObject wObject, int optionCode)
+    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
     {
-        return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject, optionCode);
+        return DBCommon.C.updateData(wObject, dbSource, condition, containsNull);
     }
-
-
-    /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONObject或null.
-     *
-     * @param paramsSelection
-     * @param keysSelection
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse queryOne2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
-
-        Condition condition = null;
-
-        condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                paramsGetter.getParams());
-
-
-        return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject, optionCode);
-    }
-
-
-    private JResponse _queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final Condition condition,
-            final KeysSelection _keysSelection, WObject wObject, int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                Params params = paramsGetter.getParams();
-                KeysSelection keysSelection = data.keys();
-                if (keysSelection == null)
-                {
-                    keysSelection = _keysSelection;
-                }
-                String[] keys = data.getFinalKeys(keysSelection,
-                        params);// getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
-                // paramsGetter);
-
-                JSONObject jsonObject = dbHandle.getOne(_condition, keys);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(jsonObject);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
-
-    }
-
-    // /////////////////
-
-
-    /**
-     * @see #queryData(DBHandleSource, ParamsGetter, Condition, QuerySettings,
-     * KeysSelection, WObject, int)
-     */
-    public JResponse queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
-    {
-        return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * @param dbHandleSource
-     * @param paramsGetter
-     * @param condition
-     * @param querySettings
-     * @param keysSelection
-     * @param wObject
-     * @return
-     * @see #queryEnumeration(DBHandleSource, ParamsGetter, Condition, QuerySettings, KeysSelection, WObject, int)
-     */
-    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
-    {
-        return queryEnumeration(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-    /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration<JSONObject>}.
-     *
-     * @param dbHandleSource
-     * @param paramsGetter
-     * @param condition
-     * @param querySettings
-     * @param _keysSelection
-     * @param wObject
-     * @return
-     */
-    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection _keysSelection, WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                Params params = paramsGetter.getParams();
-                KeysSelection keysSelection = data.keys();
-                if (keysSelection == null)
-                {
-                    keysSelection = _keysSelection;
-                }
-                String[] keys = data.getFinalKeys(keysSelection,
-                        params);//getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
-                // paramsGetter);
-                if (querySettings != null)
-                {
-                    data.dealNames(querySettings);
-                }
-
-                DBEnumeration<JSONObject> enumeration = dbHandle.getDBEnumerations(_condition, querySettings, keys);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(enumeration);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
-    }
-
-    /**
-     * 见{@linkplain #queryEnumeration(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject, int)}
-     *
-     * @param dbHandleSource
-     * @param paramsGetter
-     * @param advancedQuery
-     * @param querySettings
-     * @param wObject
-     * @return
-     */
-    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            AdvancedQuery advancedQuery,
-            QuerySettings querySettings, WObject wObject)
-    {
-        return queryEnumeration(dbHandleSource, paramsGetter, advancedQuery, querySettings, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration<JSONObject>}.
-     *
-     * @param dbHandleSource
-     * @param paramsGetter
-     * @param advancedQuery
-     * @param querySettings
-     * @param wObject
-     * @return
-     */
-    public JResponse queryEnumeration(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            AdvancedQuery advancedQuery,
-            QuerySettings querySettings, WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-
-                DBEnumeration<JSONObject> enumeration = dbHandle.getDBEnumerations(advancedQuery, querySettings);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(enumeration);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
-    }
-
-    /**
-     * @see #queryData2(DBHandleSource, ParamsGetter, ParamsSelection, QuerySettings,
-     * KeysSelection, WObject, int)
-     */
-    public JResponse queryData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject)
-    {
-        return queryData2(dbHandleSource, paramsGetter, paramsSelection, querySettings, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * @see #queryOne(DBHandleSource, ParamsGetter, Condition, KeysSelection,
-     * WObject, int)
-     */
-    public JResponse queryOne(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            KeysSelection keysSelection, WObject wObject)
-    {
-        return _queryOne(dbHandleSource, paramsGetter, condition, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * @see #queryOne2(DBHandleSource, ParamsGetter, ParamsSelection, KeysSelection,
-     * WObject, int)
-     */
-    public JResponse queryOne2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            KeysSelection keysSelection, WObject wObject)
-    {
-        return queryOne2(dbHandleSource, paramsGetter, paramsSelection, keysSelection, wObject,
-                DataAble.OPTION_CODE_DEFAULT);
-    }
-
-    /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONArray,array里的元素是JSONObject.
-     *
-     * @param condition
-     * @param querySettings
-     * @param keysSelection
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
-        return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
-    }
-
-
-    /**
-     * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONArray,array里的元素是JSONObject.
-     *
-     * @param paramsSelection
-     * @param querySettings
-     * @param keysSelection
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse queryData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            QuerySettings querySettings, KeysSelection keysSelection, WObject wObject, int optionCode)
-    {
-
-        Condition condition = null;
-
-        condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                paramsGetter.getParams());
-
-        return _queryData(dbHandleSource, paramsGetter, condition, querySettings, keysSelection, wObject, optionCode);
-    }
-
-    private JResponse _queryData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final Condition condition,
-            final QuerySettings querySettings, final KeysSelection _keysSelection, WObject wObject, int optionCode)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                Params params = paramsGetter.getParams();
-                KeysSelection keysSelection = data.keys();
-                if (keysSelection == null)
-                {
-                    keysSelection = _keysSelection;
-                }
-                String[] keys = data.getFinalKeys(keysSelection,
-                        params);//getKeys(data, params.getDataClass(), params.getKeyClass(), _keysSelection,
-                // paramsGetter);
-                if (querySettings != null)
-                {
-                    data.dealNames(querySettings);
-                }
-
-                JSONArray array = dbHandle.getJSONs(_condition, querySettings, keys);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(array);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                optionCode);
-
-    }
-
-
-    /**
-     * 见{@linkplain #queryAdvanced(DBHandleSource, ParamsGetter, AdvancedQuery, QuerySettings, WObject)}
-     *
-     * @param advancedQuery
-     * @param wObject
-     * @return 操作结果
-     */
-    public JResponse queryAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final AdvancedQuery advancedQuery, WObject wObject)
-    {
-        return queryAdvanced(dbHandleSource, paramsGetter, advancedQuery, null, wObject);
-    }
-
-    /**
-     * 查询成功时，结果为null或json。
-     */
-    public JResponse queryOneAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            AdvancedQuery advancedQuery, WObject wObject)
-    {
-        QuerySettings querySettings = dbHandleSource.newQuerySettings();
-        querySettings.setLimit(1).setSkip(0);
-        JResponse jResponse = queryAdvanced(dbHandleSource, paramsGetter, advancedQuery, querySettings, wObject);
-        if (jResponse.isSuccess())
-        {
-            JSONArray array = jResponse.getResult();
-            JSONObject jsonObject = array.size() > 0 ? array.getJSONObject(0) : null;
-            jResponse.setResult(jsonObject);
-        }
-        return jResponse;
-    }
-
-    /**
-     * 高级查询，若成功，则结果码为SUCCESS,结果为json数组。
-     *
-     * @param advancedQuery
-     * @param wObject
-     * @return 操作结果
-     */
-    public JResponse queryAdvanced(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final AdvancedQuery advancedQuery, QuerySettings querySettings, WObject wObject)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                JSONArray array = dbHandle.advancedQuery(advancedQuery, querySettings);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(array);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, null, 0);
-
-    }
-
-
-    /**
-     * 高级查询，若成功，则结果码为SUCCESS,结果为
-     * {@linkplain DBHandle#advancedExecute(AdvancedExecutor)}的结果
-     *
-     * @param advancedExecutor
-     * @param wObject
-     * @return 操作结果
-     */
-
-    public JResponse advancedExecute(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final AdvancedExecutor advancedExecutor,
-            WObject wObject)
-    {
-
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return null;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                Object object = dbHandle.advancedExecute(advancedExecutor);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(object);
-            }
-
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, null, 0);
-
-    }
-
-
-    /**
-     * 统计数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为一个long值，表示存在的数目.
-     *
-     * @param condition
-     * @param wObject
-     * @return 操作结果
-     */
-    public JResponse count(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                long n = dbHandle.exists(_condition);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                DataAble.OPTION_CODE_EXISTS);
-
-    }
-
-
-    /**
-     * 查询数据是否存在.若成功，返回结果码为ResultCode.SUCCESS,并且结果为一个long值，表示存在的数目.
-     *
-     * @param dbHandleSource
-     * @param paramsGetter
-     * @param advancedQuery
-     * @param wObject
-     * @return
-     */
-    public JResponse count(final DBHandleSource dbHandleSource, ParamsGetter paramsGetter, AdvancedQuery advancedQuery,
-            WObject wObject)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-
-                return null;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                long n = dbHandle.exists(advancedQuery);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                DataAble.OPTION_CODE_EXISTS);
-    }
-
-    /**
-     * 查询数据是否存在.若成功，返回结果码为ResultCode.SUCCESS,并且结果为一个long值，表示存在的数目.
-     *
-     * @param key     键名 会进行@Key处理，以替换成数据库对应的名称。
-     * @param value   键值
-     * @param wObject
-     * @return 操作结果
-     */
-    public JResponse exists(final DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final String key,
-            final Object value, WObject wObject)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-
-                return null;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                Condition condition = dbHandleSource.newCondition();
-                Params params = paramsGetter.getParams();
-                condition.put(Condition.EQ, new CUnit(key, value));
-                long n = dbHandle.exists(condition);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.QUERY,
-                DataAble.OPTION_CODE_EXISTS);
-
-    }
-
-
-    /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
-     *
-     * @param paramsSelection
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse updateData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject, int optionCode)
-    {
-
-        Condition condition = null;
-
-        condition = getQuery(dbHandleSource, paramsSelection, wObject,
-                paramsGetter.getParams());
-
-        return updateData(dbHandleSource, paramsGetter, condition, wObject, optionCode);
-    }
-
-
-    /**
-     * @see #updateData(DBHandleSource, ParamsGetter, Condition, WObject, int)
-     */
-    public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            WObject wObject)
-    {
-        return updateData(dbHandleSource, paramsGetter, condition, wObject, DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * @see #updateData2(DBHandleSource, ParamsGetter, ParamsSelection, WObject, int)
-     */
-    public JResponse updateData2(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            ParamsSelection paramsSelection,
-            WObject wObject)
-    {
-        return updateData2(dbHandleSource, paramsGetter, paramsSelection, wObject, DataAble.OPTION_CODE_DEFAULT);
-    }
-
-
-    /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
-     *
-     * @param condition
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter,
-            final Condition condition,
-            WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                NameValues nameValues = DataUtil.toNameValues(paramsGetter.getParams(), data);
-                int n = dbHandle.update(_condition, nameValues);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-        };
-
-        return commonDealt(dealt, true, dbHandleSource, paramsGetter, wObject, SetType.UPDATE,
-                optionCode);
-
-    }
-
-    /**
-     * @see #updateData(DBHandleSource, ParamsGetter, Condition, NameValues, WObject, int)
-     */
-    public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, Condition condition,
-            NameValues nameValues, WObject wObject)
-    {
-        return updateData(dbHandleSource, paramsGetter, condition, nameValues, wObject, DataAble.OPTION_CODE_DEFAULT);
-    }
-
-    /**
-     * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
-     *
-     * @param condition
-     * @param nameValues
-     * @param wObject
-     * @param optionCode
-     * @return
-     */
-    public JResponse updateData(DBHandleSource dbHandleSource, ParamsGetter paramsGetter, final Condition condition,
-            final NameValues nameValues, WObject wObject, int optionCode)
-    {
-        Dealt dealt = new Dealt()
-        {
-
-            @Override
-            public Condition getCondition()
-            {
-                return condition;
-            }
-
-            @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, ParamsGetter paramsGetter, DataAble data,
-                    Condition _condition, Object[] otherParams) throws Exception
-            {
-                int n = dbHandle.update(_condition, nameValues);
-                jResponse.setCode(ResultCode.SUCCESS);
-                jResponse.setResult(n);
-            }
-        };
-
-        return commonDealt(dealt, false, dbHandleSource, paramsGetter, wObject, SetType.UPDATE, optionCode);
-
-    }
-
-
-    /**
-     * 设置Data对象的类变量值
-     */
-    private String setDataFields(DataAble data, boolean willSetParams, WObject wObject, SetType setType,
-            int optionCode,
-            DBHandleAccess dbHandleAccess)
-    {
-        String rs = null;
-        try
-        {
-            switch (setType)
-            {
-                case ADD:
-                case REPLACE:
-                case UPDATE:
-                    if (wObject != null && willSetParams)
-                    {
-                        InNames inNames = wObject.cInNames;
-                        data.setParams(inNames.nece, wObject.cn, inNames.unece, wObject.cu, inNames.inner,
-                                wObject.cinner);
-                        inNames = wObject.fInNames;
-                        data.setParams(inNames.nece, wObject.fn, inNames.unece, wObject.fu, inNames.inner,
-                                wObject.finner);
-                    }
-                    break;
-                default:
-                    break;
-
-            }
-            data.whenSetDataFinished(setType, optionCode, wObject, dbHandleAccess);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            rs = e.toString();
-        }
-        return rs;
-    }
-
 
 }

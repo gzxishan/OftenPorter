@@ -26,9 +26,10 @@ public class DataUtil
     /**
      * 得到字段的绑定名称。
      *
-     * @param field 使用{@linkplain PortInObj.Nece}或{@linkplain PortInObj.UnNece}注解标注字段（外面科技），使用{@linkplain Key}来映射数据库字段名。
+     * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain Key}或{@linkplain PortInObj.UnNece
+     * }注解标注字段（外面科技），使用{@linkplain Key}来映射数据库字段名。
      */
-    public static String getTiedName(Field field,boolean withKey)
+    public static String getTiedName(Field field, boolean withKey)
     {
         field.setAccessible(true);
         String name = null;
@@ -38,9 +39,12 @@ public class DataUtil
         } else if (field.isAnnotationPresent(PortInObj.UnNece.class))
         {
             name = PortUtil.tied(field.getAnnotation(PortInObj.UnNece.class), field, true);
+        } else if (field.isAnnotationPresent(Key.class))
+        {
+            name = field.getName();
         }
 
-        if (withKey&&name!=null&&field.isAnnotationPresent(Key.class))
+        if (withKey && name != null && field.isAnnotationPresent(Key.class))
         {
             Key key = field.getAnnotation(Key.class);
             name = key.value().equals("") ? (name == null ? field.getName() : name)
@@ -70,75 +74,6 @@ public class DataUtil
         return index;
     }
 
-    /**
-     * 构造一个ParamsGeter.
-     *
-     * @param params
-     * @return
-     */
-    public static ParamsGetter newParamsGetter(final ParamsGetter.Params params)
-    {
-        ParamsGetter paramsGetter = new ParamsGetter()
-        {
-
-            @Override
-            public Params getParams()
-            {
-                return params;
-            }
-        };
-
-        return paramsGetter;
-    }
-
-
-    public static ParamsGetter newParamsGetter(DataAble dataAble, ParamsGetter.DataInitable dataInitable)
-    {
-        ParamsGetter.Params params = new ParamsGetter.Params(dataAble, dataInitable);
-        return newParamsGetter(params);
-    }
-
-    public static ParamsGetter newParamsGetter(Class<? extends DataAble> c, ParamsGetter.DataInitable dataInitable)
-    {
-        ParamsGetter.Params params = new ParamsGetter.Params(c, dataInitable);
-        return newParamsGetter(params);
-    }
-
-
-    /**
-     * 从WObject参数中构造一个Data（必须有无参构造函数）
-     *
-     * @param dataClass
-     * @param wObject
-     * @return
-     * @throws NewDataException
-     */
-    public <T extends DataAble> T createData(Class<T> dataClass, WObject wObject) throws NewDataException
-    {
-        try
-        {
-            T t = dataClass.newInstance();
-            t.setParams(wObject.fInNames.nece, wObject.fn, wObject.fInNames.unece, wObject.fu, wObject.fInNames.inner,
-                    wObject.finner);
-            t.whenSetDataFinished(SetType.CREATE, Data.OPTION_CODE_DEFAULT, wObject, null);
-            return t;
-        } catch (Exception e)
-        {
-            throw new NewDataException(e.toString());
-        }
-
-    }
-
-    /**
-     * @param dataAble 默认情况下，null值的类变量不会被添加,除非Key.nullSetOrAdd==true.
-     * @return
-     * @throws Exception
-     */
-    public static NameValues toNameValues(ParamsGetter.Params params,
-            DataAble dataAble) throws Exception
-    {
-        return dataAble.toNameValues(params);
-    }
 
     public static NameValues toNameValues(JSONObject jsonObject)
     {
@@ -277,27 +212,57 @@ public class DataUtil
         }
     }
 
-
     /**
-     * 通过扫描@key注解，结合KeysSelection，得到选择的字段。
+     * 把fns、finner和fus转换成NameValues对象
+     *
+     * @param wObject
+     * @param wObject
+     * @param containsNull 是否包含null值键值对
+     * @return
      */
-    public static String[] getKeys(KeysSelection keysSelection, ParamsGetter paramsGetter)
+    public static NameValues toNameValues(WObject wObject, boolean containsNull)
     {
-        ParamsGetter.Params params = paramsGetter.getParams();
-        DataAble dataAble = null;
+        NameValues nameValues = new NameValues();
+
         try
         {
-            dataAble = params.getDataAble();
-        } catch (Exception e)
+            InNames.Name[] names = wObject.fInNames.nece;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && wObject.fn[i] == null)
+                {
+                    continue;
+                }
+                nameValues.append(names[i].varName, wObject.fn[i]);
+            }
+            names = wObject.fInNames.unece;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && wObject.fu[i] == null)
+                {
+                    continue;
+                }
+                nameValues.append(names[i].varName, wObject.fu[i]);
+            }
+            names = wObject.fInNames.inner;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && wObject.finner[i] == null)
+                {
+                    continue;
+                }
+                nameValues.append(names[i].varName, wObject.finner[i]);
+            }
+        } catch (JSONException e)
         {
-            throw new RuntimeException(e);
+            LOGGER.warn(e.getMessage(), e);
         }
 
-        return dataAble.getFinalKeys(keysSelection, params);
+        return nameValues;
     }
 
     /**
-     * 把cns和cus转换成json对象
+     * 把fns、finner和fus转换成json对象
      *
      * @param wObject
      * @param wObject
@@ -328,9 +293,18 @@ public class DataUtil
                 }
                 jsonObject.put(names[i].varName, wObject.fu[i]);
             }
+            names = wObject.fInNames.inner;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && wObject.finner[i] == null)
+                {
+                    continue;
+                }
+                jsonObject.put(names[i].varName, wObject.finner[i]);
+            }
         } catch (JSONException e)
         {
-            LOGGER.warn(e.getMessage(), e);
+            throw e;
         }
 
         return jsonObject;

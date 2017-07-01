@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
-import cn.xishan.oftenporter.oftendb.data.*;
+import cn.xishan.oftenporter.oftendb.data.DBCommon;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.DBException;
@@ -41,7 +43,7 @@ public class _SqlSorce
 
     private Connection getConn(WObject wObject)
     {
-        SqlSource source = Common.getSqlSource(wObject);
+        SqlSource source = DBCommon.getSqlSource(wObject);
         if (source == null)
         {
             source = sqlSource;
@@ -52,31 +54,30 @@ public class _SqlSorce
     public JResponse doCommonSqlExecutor(String sql, Object argsObj)
     {
         AdvancedExecutor advancedExecutor = _JsInterface._sqlExecutor(sql, argsObj);
-        return Common2.C.advancedExecute(dbSource, advancedExecutor, new EmptyWObject());
+        return DBCommon.C.advancedExecute(wObject, dbSource, advancedExecutor);
     }
 
     public JResponse doCommonSqlQuery(String sql, Object argsObj)
     {
         AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryAdvanced(dbSource, advancedQuery, new EmptyWObject());
+        return DBCommon.C.advancedQuery(wObject, dbSource, advancedQuery, null);
     }
 
     public JResponse doCommonSqlOneQuery(String sql, Object argsObj)
     {
         AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryOneAdvanced(dbSource, advancedQuery, wObject);
+        return DBCommon.C.queryOne(wObject, dbSource, advancedQuery);
     }
 
     public JResponse doCommonSqlEnumerationQuery(String sql, Object argsObj)
     {
         AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryEnumeration(dbSource, advancedQuery, null, wObject);
+        return DBCommon.C.queryEnumeration(wObject, dbSource, advancedQuery, null);
     }
 
     public BlobData getBlobData(String sql, Object argsObj, String columnName)
     {
         JSqlArgs jSqlArgs = _JsInterface._sqlArgs(sql, argsObj);
-
         Connection conn = null;
         try
         {

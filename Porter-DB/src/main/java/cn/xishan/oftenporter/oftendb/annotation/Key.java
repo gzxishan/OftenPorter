@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 用于标记数据库字段名称
  * Created by https://github.com/CLovinr on 2016/9/9.
  */
 @Retention(RetentionPolicy.RUNTIME)

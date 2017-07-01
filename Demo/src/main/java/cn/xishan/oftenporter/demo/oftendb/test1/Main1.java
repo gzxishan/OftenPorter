@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.demo.oftendb.test1;
 
-import cn.xishan.oftenporter.demo.oftendb.base.ParamsGetterImpl;
 import cn.xishan.oftenporter.demo.oftendb.base.SqlDBSource;
 import cn.xishan.oftenporter.oftendb.data.*;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -23,11 +22,11 @@ public class Main1
     {
         LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
-        porterConf.addContextAutoSet(DBSource.class,new Source());
+        porterConf.addContextAutoSet(DBSource.class,new SqlDBSource());
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()
                 .addPorters(Main1.class.getPackage().getName() + ".porter");
-        porterConf.addForAllCheckPassable(Common.autoTransaction(new TransactionConfirm()
+        porterConf.addForAllCheckPassable(DBCommon.autoTransaction(new TransactionConfirm()
         {
             @Override
             public boolean needTransaction(WObject wObject, DuringType type, CheckHandle checkHandle)
@@ -36,15 +35,11 @@ public class Main1
             }
 
             @Override
-            public DBHandleSource getDBHandleSource(WObject wObject, DuringType type, CheckHandle checkHandle)
+            public TConfig getTConfig(WObject wObject, DuringType type, CheckHandle checkHandle)
             {
-                return new SqlDBSource();
-            }
-
-            @Override
-            public ParamsGetter getParamsGetter(WObject wObject, DuringType type, CheckHandle checkHandle)
-            {
-                return new ParamsGetterImpl();
+                TConfig tConfig = new TConfig();
+                tConfig.dbSource=new SqlDBSource();
+                return tConfig;
             }
         }));
 

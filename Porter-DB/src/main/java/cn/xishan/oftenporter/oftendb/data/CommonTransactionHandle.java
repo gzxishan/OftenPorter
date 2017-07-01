@@ -8,14 +8,12 @@ import cn.xishan.oftenporter.oftendb.db.DBHandle;
  */
 abstract class CommonTransactionHandle<T> implements TransactionHandle<T>
 {
-    private DBHandleSource dbHandleSource;
-    private ParamsGetter paramsGetter;
+    private DBSource dbSource;
     Exception ex;
 
-    public CommonTransactionHandle(DBHandleSource dbHandleSource, ParamsGetter paramsGetter)
+    public CommonTransactionHandle(DBSource dbSource)
     {
-        this.dbHandleSource = dbHandleSource;
-        this.paramsGetter = paramsGetter;
+        this.dbSource = dbSource;
     }
 
     public void check()
@@ -26,14 +24,9 @@ abstract class CommonTransactionHandle<T> implements TransactionHandle<T>
         }
     }
 
-    public DBHandleSource getDBHandleSource()
+    public DBSource getDBSource()
     {
-        return dbHandleSource;
-    }
-
-    public ParamsGetter getParamsGetter()
-    {
-        return paramsGetter;
+        return dbSource;
     }
 
     protected void commitTransaction(DBHandle dbHandle) throws DBException

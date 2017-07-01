@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 
 import cn.xishan.oftenporter.oftendb.db.DBException;
+import cn.xishan.oftenporter.oftendb.db.TransactionConfig;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -21,7 +22,7 @@ public interface TransactionHandle<T> extends Closeable
      *
      * @throws DBException
      */
-    void startTransaction() throws DBException;
+    void startTransaction(TransactionConfig config) throws DBException;
 
     /**
      * 提交事务,注意：若之前出现异常，则会回滚,同时抛出异常。
