@@ -76,10 +76,11 @@ class JDaoGen implements AutoSetGen
             }
             if (jDaoPath.relativeToOptionPath())
             {
-                boolean start=optionDir.startsWith("/");
+                boolean start = optionDir.startsWith("/");
                 optionDir = PackageUtil.getPathWithRelative('/', optionDir, path, "/");
-                if(start&&!optionDir.startsWith("/")){
-                    optionDir="/"+optionDir;
+                if (start && !optionDir.startsWith("/"))
+                {
+                    optionDir = "/" + optionDir;
                 }
             } else
             {
@@ -133,14 +134,34 @@ class JDaoGen implements AutoSetGen
     static Invocable getJsInvocable(String script, DBSource dbSource, JDaoOption jDaoOption) throws Exception
     {
         ScriptEngine scriptEngine = scriptEngineManager.getEngineByExtension("js");
-        if(jDaoOption.injectScript!=null){
-            scriptEngine.eval(jDaoOption.injectScript);
+        if (jDaoOption.injectScript != null)
+        {
+            tryCompileScript(scriptEngine, jDaoOption.injectScript);
         }
         SimpleBindings bindings = new SimpleBindings();
         bindings.put("jdaoBridge", new _JsInterface(dbSource, jDaoOption.tableNamePrefix));
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-        scriptEngine.eval(script);
+        tryCompileScript(scriptEngine, script);
         return (Invocable) scriptEngine;
+    }
+
+    private static void tryCompileScript(ScriptEngine scriptEngine, String script) throws ScriptException
+    {
+        if (scriptEngine instanceof Compilable)
+        {
+            Compilable compilable = (Compilable) scriptEngine;
+            try
+            {
+                CompiledScript compiledScript = compilable.compile(script);
+                compiledScript.eval();
+            } catch (ScriptException e)
+            {
+                scriptEngine.eval(script);
+            }
+        } else
+        {
+            scriptEngine.eval(script);
+        }
     }
 
 
