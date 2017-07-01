@@ -66,7 +66,7 @@ public class ContextPorter
     private PorterConf porterConf;
     private ListenerAdder<OnPorterAddListener> listenerAdder;
 
-    public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal,ListenerAdder<OnPorterAddListener> listenerAdder,
+    public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
             PorterConf porterConf,
             AutoSetHandle autoSetHandle) throws FatalInitException
     {
@@ -225,16 +225,20 @@ public class ContextPorter
             _PortIn port = porter.getPortIn();
             if (willAdd)
             {
-                if (portMap.containsKey(port.getTiedName()))
+                String[] tieds = port.getTiedNames();
+                for (String tiedName : tieds)
                 {
-                    LOGGER.warn("class tiedName '{}' added before.(current:{},last:{})", port.getTiedName(),
-                            clazz, portMap.get(port.getTiedName()).getClazz());
+                    if (portMap.containsKey(tiedName))
+                    {
+                        LOGGER.warn("class tiedName '{}' added before.(current:{},last:{})", tiedName,
+                                clazz, portMap.get(tiedName).getClazz());
+                    }
+                    portMap.put(tiedName, porter);
                 }
-                portMap.put(port.getTiedName(), porter);
                 autoSetHandle.getInnerContextBridge().contextAutoSet.put(porter.getClazz().getName(), porter.getObj());
             } else
             {
-                LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedName(), clazz);
+                LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedNames(), clazz);
             }
         }
     }

@@ -40,7 +40,7 @@ public class Hello1Porter
     {
         wObject.finner[0] = new Date();
         wObject.finner[1] = KeyUtil.randomUUID();
-        return common.addData(wObject,source, false);
+        return common.addData(wObject, source, false);
     }
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
@@ -50,7 +50,7 @@ public class Hello1Porter
         wObject.fn[0] += "-before";
         wObject.finner[0] = new Date();
         wObject.finner[1] = KeyUtil.randomUUID();
-        return common.addData(wObject,source, false);
+        return common.addData(wObject, source, false);
     }
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
@@ -60,7 +60,7 @@ public class Hello1Porter
         wObject.fn[0] += "-after";
         wObject.finner[0] = new Date();
         wObject.finner[1] = KeyUtil.randomUUID();
-        return common.addData(wObject,source, false);
+        return common.addData(wObject, source, false);
     }
 
     @PortIn(nece = {"name"})
@@ -68,23 +68,23 @@ public class Hello1Porter
     {
         Condition condition = source.newCondition();
         condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
-        return common.deleteData(wObject,source, condition);
+        return common.deleteData(wObject, source, condition);
     }
 
-    @PortIn(nece = {"name"})
+    @PortIn(nece = {"name"}, tieds = {"update", "update2"}, methods = {PortMethod.PUT, PortMethod.POST})
     public Object update(WObject wObject)
     {
         Condition condition = source.newCondition();
         condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
         NameValues nameValues = new NameValues();
         nameValues.put("time", new Date());
-        return common.updateData(wObject,source, condition, nameValues);
+        return common.updateData(wObject, source, condition, nameValues);
     }
 
     @PortIn(nece = {"name"})
     public Object count(WObject wObject)
     {
-        return common.count(wObject,source, "name", wObject.fn[0]);
+        return common.count(wObject, source, "name", wObject.fn[0]);
     }
 
     @PortIn
@@ -96,7 +96,7 @@ public class Hello1Porter
     @PortIn
     public Object list(WObject wObject)
     {
-        return common.queryData(wObject,source, null, null, null);
+        return common.queryData(wObject, source, null, null, null);
     }
 
     @PortIn(nece = "names")
@@ -109,7 +109,7 @@ public class Hello1Porter
         {
             Condition condition = source.newCondition();
             condition.put(Condition.EQ, new CUnit("name", names.get(i)));
-            JResponse jResponse = common.deleteData(wObject,source,condition);
+            JResponse jResponse = common.deleteData(wObject, source, condition);
             jResponse.throwExCause();
         }
         return new JResponse(ResultCode.SUCCESS);
@@ -118,7 +118,7 @@ public class Hello1Porter
     @PortIn
     public Object clear(WObject wObject)
     {
-        return common.deleteData(wObject,source, null);
+        return common.deleteData(wObject, source, null);
     }
 
 
@@ -132,7 +132,7 @@ public class Hello1Porter
         {
             Condition condition = source.newCondition();
             condition.put(Condition.EQ, new CUnit("name", names.get(i)));
-            JResponse jResponse = common.deleteData(wObject,source,condition);
+            JResponse jResponse = common.deleteData(wObject, source, condition);
             jResponse.throwExCause();
         }
         throw new RuntimeException("test transaction failed!");

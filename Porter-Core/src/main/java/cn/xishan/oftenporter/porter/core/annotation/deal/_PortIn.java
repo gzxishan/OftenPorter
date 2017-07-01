@@ -8,9 +8,9 @@ import cn.xishan.oftenporter.porter.core.base.*;
  */
 public final class _PortIn
 {
-    String tiedName;
+    String[] tiedNames;
     InNames inNames;
-    PortMethod method;
+    PortMethod[] methods;
     Class<? extends CheckPassable>[] checks, checksForWholeClass;
     private TiedType tiedType;
     boolean ignoreTypeParser;
@@ -43,9 +43,9 @@ public final class _PortIn
     }
 
 
-    public PortMethod getMethod()
+    public PortMethod[] getMethods()
     {
-        return method;
+        return methods;
     }
 
     public InNames getInNames()
@@ -53,15 +53,18 @@ public final class _PortIn
         return inNames;
     }
 
-    public String getTiedName()
+    public String[] getTiedNames()
     {
-        return tiedName;
+        return tiedNames;
     }
 
-    void setTiedName(String tiedName)
+    void setTiedNames(String[] tiedNames)
     {
-        PortUtil.checkName(tiedName);
-        this.tiedName = tiedName;
+        for (String tiedName : tiedNames)
+        {
+            PortUtil.checkName(tiedName);
+        }
+        this.tiedNames = tiedNames;
     }
 
     public boolean ignoreTypeParser()

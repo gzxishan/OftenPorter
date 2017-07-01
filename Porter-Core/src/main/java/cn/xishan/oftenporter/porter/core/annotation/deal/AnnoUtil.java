@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -45,19 +46,26 @@ public final class AnnoUtil
     }
 
 
-
-    static PortMethod method(PortMethod classMethod, PortMethod funMethod)
+    static PortMethod[] methods(PortMethod classMethod, PortIn funPorterIn)
     {
-        if (classMethod == PortMethod.DEFAULT && funMethod == PortMethod.DEFAULT)
+        PortMethod[] portMethods = funPorterIn.methods();
+        if (portMethods.length == 0)
         {
-            return PortMethod.GET;
-        } else if (funMethod == PortMethod.DEFAULT)
-        {
-            return classMethod;
-        } else
-        {
-            return funMethod;
+            portMethods = new PortMethod[]{funPorterIn.method()};
         }
+        for (int i = 0; i < portMethods.length; i++)
+        {
+            PortMethod method = portMethods[i];
+            if (classMethod == PortMethod.DEFAULT && method == PortMethod.DEFAULT)
+            {
+                method = PortMethod.GET;
+            } else if (method == PortMethod.DEFAULT)
+            {
+                method = classMethod;
+            }
+            portMethods[i] = method;
+        }
+        return portMethods;
     }
 
     /**

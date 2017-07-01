@@ -60,8 +60,16 @@ public class Main1
         }
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/count")
                 .addParam("name", "小明-1"), lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/update")
+
+        bridge.request(new PRequest(PortMethod.POST, "/T1/Hello1/update")
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
+        bridge.request(new PRequest(PortMethod.PUT, "/T1/Hello1/update2")
+                .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
+        bridge.request(new PRequest(PortMethod.POST, "/T1/Hello1/update")
+                .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
+        bridge.request(new PRequest(PortMethod.PUT, "/T1/Hello1/update2")
+                .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
+
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello1/del")
                 .addParam("name", "小明-10"), lResponse -> logger.debug(lResponse.toString()));
 
@@ -90,6 +98,10 @@ public class Main1
                 lResponse -> logger.debug(lResponse.toString()));
 
         localMain.destroyAll();
+
+        Object as = new String[]{"1","2","3"};
+
+        logger.debug("array={}",as);
 
     }
 

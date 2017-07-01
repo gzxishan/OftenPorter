@@ -160,6 +160,20 @@ public @interface PortIn
     String tied() default "";
 
     /**
+     * 注解在函数上，且大小不为0时有效。
+     *
+     * @return
+     */
+    String[] tieds() default {};
+
+    /**
+     * 注解在函数上，且大小不为0时有效。
+     *
+     * @return
+     */
+    PortMethod[] methods() default {};
+
+    /**
      * 必须参数列表.
      */
     String[] nece() default {};
