@@ -1,10 +1,10 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 /**
- * 调用接口的时期.
+ * 调用接口的顺序.
  * Created by chenyg on 2017-04-25.
  */
-public enum ABPortType
+public enum ABInvokeOrder
 {
     /**
      * 第一个接口方法
@@ -14,6 +14,17 @@ public enum ABPortType
      * 调用中间方法
      */
     OTHER,
+
+    /**
+     * 用于寻找第一个方法
+     */
+    _OTHER_BEFORE,
+
+    /**
+     * 用于寻找最后一个方法
+     */
+    _OTHER_AFTER,
+
     /**
      * 调用最后一个方法
      */

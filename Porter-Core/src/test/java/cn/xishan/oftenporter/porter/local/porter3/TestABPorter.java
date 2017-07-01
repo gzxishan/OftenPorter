@@ -25,7 +25,7 @@ public class TestABPorter
         return time;
     }
 
-    @PortIn(tied = "genData", portFunType = PortFunType.JUST_INNER)
+    @PortIn(tied = "genData", portFunType = PortFunType.INNER)
     public Object genData()
     {
         PortFunReturn funReturn = new PortFunReturn();

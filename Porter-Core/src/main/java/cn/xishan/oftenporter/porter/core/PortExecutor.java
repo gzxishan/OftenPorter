@@ -204,7 +204,8 @@ public class PortExecutor
                 PRequest pRequest = (PRequest) request;
                 abOption = pRequest._getABOption_();
                 if (funPort.getMethodPortIn()
-                        .getPortFunType() == PortFunType.JUST_INNER && abOption == null)
+                        .getPortFunType() == PortFunType.INNER && (abOption == null && abOption.portFunType !=
+                        PortFunType.INNER))
                 {
                     exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
                     return;
@@ -214,34 +215,57 @@ public class PortExecutor
 
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
 
-            if (funPort.getMethodPortIn().getTiedType() == TiedType.REST||funPort.getMethodPortIn().getTiedType()==TiedType.FORCE_REST)
+            if (funPort.getMethodPortIn().getTiedType() == TiedType.REST || funPort.getMethodPortIn()
+                    .getTiedType() == TiedType.FORCE_REST)
             {
                 wObject.restValue = result.funTied();
             }
 
-            wObject.abOption = abOption;
             if (abOption != null)
             {
                 wObject._otherObject = abOption._otherObject;
+                if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_BEFORE)
+                {
+                    if (funPort.getPortBefores().length == 0)
+                    {
+                        abOption = abOption.clone(ABInvokeOrder.ORIGIN_FIRST);
+                    } else
+                    {
+                        abOption = abOption.clone(ABInvokeOrder.OTHER);
+                    }
+                } else if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_AFTER)
+                {
+                    if (funPort.getPortAfters().length == 0)
+                    {
+                        abOption = abOption.clone(ABInvokeOrder.FINAL_LAST);
+                    } else
+                    {
+                        abOption = abOption.clone(ABInvokeOrder.OTHER);
+                    }
+                }
             } else
             {
                 //*********
                 //**初始情况***
                 //*********
-                ABType abType = ABType.METHOD_OF_CURRENT;
-                ABPortType abPortType;
+                ABInvokeOrder abInvokeOrder;
                 if (funPort.getPortBefores().length == 0 && funPort.getPortAfters().length == 0)
                 {
-                    abPortType = ABPortType.BOTH_FIRST_LAST;
+                    abInvokeOrder = ABInvokeOrder.BOTH_FIRST_LAST;
                 } else if (funPort.getPortBefores().length == 0)
                 {
-                    abPortType = ABPortType.ORIGIN_FIRST;
+                    abInvokeOrder = ABInvokeOrder.ORIGIN_FIRST;
+                } else if (funPort.getPortAfters().length == 0)
+                {
+                    abInvokeOrder = ABInvokeOrder.FINAL_LAST;
                 } else
                 {
-                    abPortType = ABPortType.OTHER;
+                    abInvokeOrder = ABInvokeOrder.OTHER;
                 }
-                wObject.abOption = new ABOption(null, abType, abPortType);
+                abOption = new ABOption(null, PortFunType.DEFAULT, abInvokeOrder);
             }
+            wObject.abOption = abOption;
+
 
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
@@ -479,7 +503,7 @@ public class PortExecutor
             Context context, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
-        if (funPort.getPortBefores().length > 0 && wObject.abOption.abType == ABType.METHOD_OF_CURRENT)
+        if (funPort.getPortBefores().length > 0)
         {
             PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
             portBeforeAfterDealt.startBefore((isOked, object) ->
@@ -675,8 +699,7 @@ public class PortExecutor
                 }
             }
 
-            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort
-                    .getPortAfters().length > 0 && wObject.abOption.abType == ABType.METHOD_OF_CURRENT)
+            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort.getPortAfters().length > 0)
             {
                 PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
                 portBeforeAfterDealt.startAfter((isOked, object) ->
@@ -717,7 +740,8 @@ public class PortExecutor
                             if (!(failedObject instanceof JResponse))
                             {
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                                if(failedObject instanceof Throwable){
+                                if (failedObject instanceof Throwable)
+                                {
                                     jResponse.setDescription(WPTool.getMessage((Throwable) failedObject));
                                 }
                                 jResponse.setExtra(failedObject);
@@ -893,11 +917,11 @@ public class PortExecutor
         close(wObject);
     }
 
-    private JResponse toJResponse(ParamDealt.FailedReason reason,WObject wObject)
+    private JResponse toJResponse(ParamDealt.FailedReason reason, WObject wObject)
     {
         JResponse jResponse = new JResponse();
         jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
-        jResponse.setDescription(reason.desc()+"("+wObject.url()+":"+wObject.getRequest().getMethod()+")");
+        jResponse.setDescription(reason.desc() + "(" + wObject.url() + ":" + wObject.getRequest().getMethod() + ")");
         jResponse.setExtra(reason.toJSON());
         return jResponse;
     }
@@ -908,14 +932,14 @@ public class PortExecutor
         JResponse jResponse = null;
         if (LOGGER.isDebugEnabled() || responseWhenException)
         {
-            jResponse = toJResponse(reason,wObject);
+            jResponse = toJResponse(reason, wObject);
             LOGGER.debug("{}", jResponse);
         }
         if (responseWhenException)
         {
             if (jResponse == null)
             {
-                jResponse = toJResponse(reason,wObject);
+                jResponse = toJResponse(reason, wObject);
             }
             try
             {

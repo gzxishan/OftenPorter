@@ -53,8 +53,7 @@ class SyncPorterImpl implements SyncPorter
             request.setMethod(syncPorterOption.getMethod());
         }
 
-        ABOption abOption = new ABOption(wObject == null ? null : wObject._otherObject, ABType.METHOD_OF_INNER,
-                ABPortType.OTHER);
+        ABOption abOption = new ABOption(wObject == null ? null : wObject._otherObject, PortFunType.INNER,ABInvokeOrder.OTHER);
         request._setABOption_(abOption);
         request.addParamAll(appValues);
         Temp temp = new Temp();
@@ -72,19 +71,19 @@ class SyncPorterImpl implements SyncPorter
     @Override
     public <T> T requestWNull()
     {
-        return request(null,null);
+        return request(null, null);
     }
 
     @Override
     public <T> T requestWNull(AppValues appValues)
     {
-        return request(null,appValues);
+        return request(null, appValues);
     }
 
     @Override
     public <T> T requestWNullSimple(Object... nameValues)
     {
         AppValues appValues = SimpleAppValues.fromArray(nameValues);
-        return request(null,appValues);
+        return request(null, appValues);
     }
 }

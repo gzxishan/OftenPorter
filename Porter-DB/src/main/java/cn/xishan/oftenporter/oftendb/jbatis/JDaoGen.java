@@ -132,7 +132,10 @@ class JDaoGen implements AutoSetGen
 
     static Invocable getJsInvocable(String script, DBSource dbSource, JDaoOption jDaoOption) throws Exception
     {
-        ScriptEngine scriptEngine = scriptEngineManager.getEngineByName("nashorn");
+        ScriptEngine scriptEngine = scriptEngineManager.getEngineByExtension("js");
+        if(jDaoOption.injectScript!=null){
+            scriptEngine.eval(jDaoOption.injectScript);
+        }
         SimpleBindings bindings = new SimpleBindings();
         bindings.put("jdaoBridge", new _JsInterface(dbSource, jDaoOption.tableNamePrefix));
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 
 /**
  * 抛出异常时才会进行事物回滚操作。
+ *
  * @author Created by https://github.com/CLovinr on 2017/4/24.
  */
 class AutoTransactionCheckPassable implements CheckPassable
@@ -26,10 +27,10 @@ class AutoTransactionCheckPassable implements CheckPassable
 
         try
         {
+
             if (type == DuringType.ON_METHOD)
             {
-                if (checkHandle.abOption.abPortType == ABPortType.ORIGIN_FIRST || checkHandle.abOption.abPortType
-                        == ABPortType.BOTH_FIRST_LAST)
+                if (checkHandle.abOption.isFirst())
                 {
                     if (transactionConfirm.needTransaction(wObject, type, checkHandle))
                     {
@@ -41,12 +42,16 @@ class AutoTransactionCheckPassable implements CheckPassable
                 }
             } else if (type == DuringType.AFTER_METHOD)
             {
-                if (DBCommon.commitTransaction(wObject))
+                if (checkHandle.abOption.isLast())
                 {
-                    LOGGER.debug("transaction committed!then closing...");
-                    DBCommon.closeTransaction(wObject);
-                    LOGGER.debug("transaction closed!({})", wObject.url());
+                    if (DBCommon.commitTransaction(wObject))
+                    {
+                        LOGGER.debug("transaction committed!then closing...");
+                        DBCommon.closeTransaction(wObject);
+                        LOGGER.debug("transaction closed!({})", wObject.url());
+                    }
                 }
+
             } else if (type == DuringType.ON_METHOD_EXCEPTION)
             {
                 if (DBCommon.rollbackTransaction(wObject))

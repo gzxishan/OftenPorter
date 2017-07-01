@@ -30,7 +30,7 @@ public class PRequest implements WRequest, Cloneable
         {
             params = new HashMap<>();
         }
-        //abOption = new ABOption(null, ABType.METHOD_OF_CURRENT,ABPortType.OTHER);
+        //abOption = new ABOption(null, ABInvokeTime.METHOD_OF_CURRENT,ABInvokeOrder.OTHER);
     }
 
     public PRequest(WRequest request, String requestPath)

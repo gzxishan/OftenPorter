@@ -234,7 +234,23 @@ public class WMainServlet extends HttpServlet implements CommonMain
         }
 
 
-        PBridge bridge = (request, callback) ->
+        PBridge inner = (request, callback) ->
+        {
+            LocalResponse resp = new LocalResponse(callback);
+            ABOption abOption = request._getABOption_();
+            if (abOption == null)
+            {
+                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
+                request._setABOption_(abOption);
+            }
+            PreRequest req = porterMain.forRequest(request, resp);
+            if (req != null)
+            {
+                porterMain.doRequest(req, request, resp);
+            }
+        };
+
+        PBridge current = (request, callback) ->
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = porterMain.forRequest(request, resp);
@@ -243,7 +259,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
                 porterMain.doRequest(req, request, resp);
             }
         };
-        porterMain = new PorterMain(new PName(pname), this, bridge);
+        porterMain = new PorterMain(new PName(pname), this, current,inner);
         if (responseWhenException == null)
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
@@ -329,8 +345,10 @@ public class WMainServlet extends HttpServlet implements CommonMain
         if (supportMultiPart)
         {
             porterConf.getParamSourceHandleManager()
-                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption,addPutDealt), PortMethod.POST, PortMethod.PUT);
-        }else if(addPutDealt){
+                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption, addPutDealt), PortMethod.POST,
+                            PortMethod.PUT);
+        } else if (addPutDealt)
+        {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
 

@@ -2,10 +2,10 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortFilterOne;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+import cn.xishan.oftenporter.porter.core.base.ABInvokeOrder;
 import cn.xishan.oftenporter.porter.core.base.ABOption;
-import cn.xishan.oftenporter.porter.core.base.ABPortType;
-import cn.xishan.oftenporter.porter.core.base.ABType;
 import cn.xishan.oftenporter.porter.core.base.PortFunReturn;
+import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 
 /**
@@ -14,8 +14,9 @@ import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 class PortBeforeAfterDealt
 {
 
-    enum DoState{
-        DoInvoke,DoMethodCheck,DoAfter,DoResponse
+    enum DoState
+    {
+        DoInvoke, DoMethodCheck, DoAfter, DoResponse
     }
 
     interface Callback<T>
@@ -39,22 +40,20 @@ class PortBeforeAfterDealt
     public void startBefore(Callback<Object> callbackForReturn)
     {
         this.callbackForReturn = callbackForReturn;
-
-        doBefore(0,ABPortType.ORIGIN_FIRST);
+        doBefore(0);
     }
 
 
-
-    private void doBefore(int index,ABPortType abPortType)
+    private void doBefore(int index)
     {
-        doBefore(index,abPortType, (isOk, isFinish) ->
+        doBefore(index, (isOk, isFinish) ->
         {
             if (isFinish && isOk)
             {
                 callbackForReturn.onCall(true, object);
             } else if (isOk)
             {
-                doBefore(index + 1,ABPortType.OTHER);
+                doBefore(index + 1);
             } else
             {
                 callbackForReturn.onCall(false, object);
@@ -62,14 +61,14 @@ class PortBeforeAfterDealt
         });
     }
 
-    private void doBefore(int index,ABPortType abPortType, Callback<Boolean> callback)
+    private void doBefore(int index, Callback<Boolean> callback)
     {
         _PortFilterOne[] portBefores = funPort.getPortBefores();
 
         _PortFilterOne portBefore = portBefores[index];
         PRequest request = PRequest
                 .withNewPath(portBefore.getPathWithContext(), portBefore.getMethod(), wObject.getRequest(), false);
-        ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_BEFORE,abPortType);
+        ABOption abOption = new ABOption(wObject._otherObject, PortFunType.INNER, ABInvokeOrder._OTHER_BEFORE);
         request._setABOption_(abOption);
 
         wObject.delivery().currentBridge().request(request, lResponse ->
@@ -102,20 +101,22 @@ class PortBeforeAfterDealt
     public void startAfter(Callback<Object> callbackForReturn)
     {
         this.callbackForReturn = callbackForReturn;
-        doAfter(0,ABPortType.FINAL_LAST);
+        ABOption abOption = wObject.abOption;
+
+        doAfter(0);
     }
 
-    private void doAfter(int index,ABPortType abPortType)
+    private void doAfter(int index)
     {
 
-        doAfter(index,abPortType, (isOk, isFinish) ->
+        doAfter(index, (isOk, isFinish) ->
         {
             if (isFinish && isOk)
             {
                 callbackForReturn.onCall(true, object);
             } else if (isOk)
             {
-                doAfter(index + 1,ABPortType.OTHER);
+                doAfter(index + 1);
             } else
             {
                 callbackForReturn.onCall(false, object);
@@ -124,14 +125,14 @@ class PortBeforeAfterDealt
 
     }
 
-    private void doAfter(int index,ABPortType abPortType, Callback<Boolean> callback)
+    private void doAfter(int index, Callback<Boolean> callback)
     {
         _PortFilterOne[] portAfters = funPort.getPortAfters();
 
         _PortFilterOne portAfter = portAfters[index];
         PRequest request = PRequest
                 .withNewPath(portAfter.getPathWithContext(), portAfter.getMethod(), wObject.getRequest(), false);
-        ABOption abOption = new ABOption(wObject._otherObject, ABType.METHOD_OF_AFTER,abPortType);
+        ABOption abOption = new ABOption(wObject._otherObject, PortFunType.INNER, ABInvokeOrder._OTHER_AFTER);
         request._setABOption_(abOption);
 
         wObject.delivery().currentBridge().request(request, lResponse ->

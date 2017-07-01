@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultPLinker implements PLinker {
     protected boolean isForAny = false;
     private PName pName;
-    private PBridge current;
+    private PBridge current,inner;
     private LinkListener linkListener;
     private Map<PName, LinkListener> listenerMap;
 
@@ -41,10 +41,11 @@ public class DefaultPLinker implements PLinker {
 
     private  final Logger LOGGER;
 
-    public DefaultPLinker(PName pName, PBridge bridge) {
+    public DefaultPLinker(PName pName, PBridge currentBridge,PBridge innerBridge) {
         LOGGER = LogUtil.logger(DefaultPLinker.class);
         this.pName = pName;
-        this.current = bridge;
+        this.current = currentBridge;
+        this.inner=innerBridge;
         pathMap = new ConcurrentHashMap<>();
         listenerMap = new ConcurrentHashMap<>();
 
@@ -102,6 +103,12 @@ public class DefaultPLinker implements PLinker {
     @Override
     public PBridge currentBridge() {
         return current;
+    }
+
+    @Override
+    public PBridge innerBridge()
+    {
+        return inner;
     }
 
     @Override

@@ -54,16 +54,17 @@ public final class PorterMain
     }
 
     /**
-     * @param pName  框架名称。
-     * @param bridge 只能访问当前实例的bridge。
+     * @param pName         框架名称。
+     * @param currentBridge 只能访问当前实例的bridge。
+     * @param innerBridge
      */
-    public PorterMain(PName pName, CommonMain commonMain, PBridge bridge)
+    public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
     {
         synchronized (PorterMain.class)
         {
             this.innerBridge = new InnerBridge();
             listenerAdder = new ListenerAdderImpl();
-            pLinker = new DefaultPLinker(pName, bridge);
+            pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
             pLinker.setPorterAttr(contextName ->
             {
                 Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
@@ -157,9 +158,9 @@ public final class PorterMain
         }
     }
 
-    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle,CheckPassable[] alls)
+    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls)
     {
-        if (alls==null)
+        if (alls == null)
         {
             return;
         }
@@ -207,7 +208,7 @@ public final class PorterMain
 
     private void _startOne(PorterBridge bridge)
     {
-        CheckPassable[] alls=null;
+        CheckPassable[] alls = null;
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
             alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
@@ -224,7 +225,8 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(innerContextBridge, getPLinker(), porterData,porterConf.getContextName());
+        AutoSetHandle autoSetHandle = AutoSetHandle
+                .newInstance(innerContextBridge, getPLinker(), porterData, porterConf.getContextName());
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
@@ -237,14 +239,14 @@ public final class PorterMain
         stateListenerForAll.beforeSeek(porterConf.getUserInitParam(), porterConf, paramSourceHandleManager);
 
 
-        doGlobalCheckAutoSet(autoSetHandle,alls);
+        doGlobalCheckAutoSet(autoSetHandle, alls);
 
         Map<Class<?>, CheckPassable> classCheckPassableMap;
         SthDeal sthDeal = new SthDeal();
 
         try
         {
-            classCheckPassableMap = contextPorter.initSeek(sthDeal,listenerAdder, porterConf, autoSetHandle);
+            classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle);
         } catch (FatalInitException e)
         {
             throw new Error(e);
@@ -265,17 +267,17 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(forAllCheckPassables);
 
 
-        CheckPassable[] contextChecks =   porterConf.getContextChecks().toArray(new CheckPassable[0]);
+        CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
-        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,contextChecks,
+        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
                 forAllCheckPassables);
 
         try
         {
             autoSetHandle.doAutoSet();//变量设置处理
-            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()),portExecutor);//处理After和Before
+            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
         } catch (FatalInitException e)
         {
             throw new Error(e);

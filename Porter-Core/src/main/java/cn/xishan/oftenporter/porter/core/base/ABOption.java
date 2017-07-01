@@ -6,25 +6,31 @@ package cn.xishan.oftenporter.porter.core.base;
 public class ABOption
 {
     public final Object _otherObject;
-    public final ABType abType;
-    public final ABPortType abPortType;
+    public final PortFunType portFunType;
+    public final ABInvokeOrder abInvokeOrder;
 
-    public ABOption(Object _otherObject, ABType abType, ABPortType abPortType)
+    public ABOption(Object _otherObject, PortFunType portFunType, ABInvokeOrder abInvokeOrder)
     {
         this._otherObject = _otherObject;
-        this.abType = abType;
-        this.abPortType = abPortType;
+        this.portFunType = portFunType;
+        this.abInvokeOrder = abInvokeOrder;
     }
 
-    /**
-     * 如果{@linkplain #abPortType}为{@linkplain ABPortType#BOTH_FIRST_LAST ABPortType.BOTH_FIRST_LAST
-     * }或{@linkplain ABPortType#ORIGIN_FIRST ABPortType.ORIGIN_FIRST}返回true。
-     *
-     * @return
-     */
+
+    public ABOption clone(ABInvokeOrder invokeOrder)
+    {
+        ABOption abOption = new ABOption(_otherObject, portFunType, invokeOrder);
+        return abOption;
+    }
+
     public boolean isFirst()
     {
-        return abPortType == ABPortType.BOTH_FIRST_LAST || abPortType == ABPortType.ORIGIN_FIRST;
+        return abInvokeOrder == ABInvokeOrder.ORIGIN_FIRST || abInvokeOrder == ABInvokeOrder.BOTH_FIRST_LAST;
+    }
+
+    public boolean isLast()
+    {
+        return abInvokeOrder == ABInvokeOrder.FINAL_LAST || abInvokeOrder == ABInvokeOrder.BOTH_FIRST_LAST;
     }
 
 }
