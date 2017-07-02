@@ -67,7 +67,7 @@ public class Hello1Porter
     public Object del(WObject wObject)
     {
         Condition condition = source.newCondition();
-        condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
+        condition.append(Condition.EQ, new CUnit("name", wObject.fn[0]));
         return common.deleteData(wObject, source, condition);
     }
 
@@ -75,9 +75,9 @@ public class Hello1Porter
     public Object update(WObject wObject)
     {
         Condition condition = source.newCondition();
-        condition.put(Condition.EQ, new CUnit("name", wObject.fn[0]));
+        condition.append(Condition.EQ, new CUnit("name", wObject.fn[0]));
         NameValues nameValues = new NameValues();
-        nameValues.put("time", new Date());
+        nameValues.append("time", new Date());
         return common.updateData(wObject, source, condition, nameValues);
     }
 
@@ -108,7 +108,7 @@ public class Hello1Porter
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
-            condition.put(Condition.EQ, new CUnit("name", names.get(i)));
+            condition.append(Condition.EQ, new CUnit("name", names.get(i)));
             JResponse jResponse = common.deleteData(wObject, source, condition);
             jResponse.throwExCause();
         }
@@ -131,7 +131,7 @@ public class Hello1Porter
         for (int i = 0; i < names.size(); i++)
         {
             Condition condition = source.newCondition();
-            condition.put(Condition.EQ, new CUnit("name", names.get(i)));
+            condition.append(Condition.EQ, new CUnit("name", names.get(i)));
             JResponse jResponse = common.deleteData(wObject, source, condition);
             jResponse.throwExCause();
         }

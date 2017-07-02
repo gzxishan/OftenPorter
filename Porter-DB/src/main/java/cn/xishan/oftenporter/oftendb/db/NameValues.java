@@ -66,21 +66,6 @@ public class NameValues
         return this;
     }
 
-    /**
-     * 请使用{@linkplain #append(String, Object)}.
-     * @param name
-     * @param value
-     * @return
-     */
-    @Deprecated
-    public NameValues put(String name, Object value)
-    {
-        if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){
-            names.add(name);
-            values.add(value);
-        }
-        return this;
-    }
 
     public String[] names()
     {

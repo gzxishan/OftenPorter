@@ -74,14 +74,10 @@ public class BaseEasier
      */
     public static void removeEndStr(StringBuilder sb, String str)
     {
-        // System.out.println("BaseEasier.removeEndStr()");
-        // System.out.println(sb.toString());
-        // System.out.println(str);
         if ((sb.length() >= str.length()) && (sb.indexOf(str) == sb.length() - str.length()))
         {
             sb.delete(sb.length() - str.length(), sb.length());
         }
-        // System.out.println(sb.toString());
     }
 
     /**

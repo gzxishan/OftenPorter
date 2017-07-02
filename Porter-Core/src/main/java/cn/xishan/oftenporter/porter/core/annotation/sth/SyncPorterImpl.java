@@ -57,7 +57,7 @@ class SyncPorterImpl implements SyncPorter
         request._setABOption_(abOption);
         request.addParamAll(appValues);
         Temp temp = new Temp();
-        delivery.currentBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+        delivery.innerBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
         return (T) temp.rs;
     }
 

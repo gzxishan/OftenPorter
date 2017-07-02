@@ -80,7 +80,7 @@ public class DataUtil
         NameValues nameValues = new NameValues(jsonObject.size());
         for (Map.Entry<String, Object> entry : jsonObject.entrySet())
         {
-            nameValues.put(entry.getKey(), entry.getValue());
+            nameValues.append(entry.getKey(), entry.getValue());
         }
         return nameValues;
     }
