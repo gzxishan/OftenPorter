@@ -247,6 +247,7 @@ public class SthDeal
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
         Method method = porterOfFun.getMethod();
 
+        PortFunType portFunType = porterOfFun.getMethodPortIn().getPortFunType();
 
         switch (tiedType)
         {
@@ -260,8 +261,8 @@ public class SthDeal
                     lastFun = childrenWithMethod.put(portMethod.name(), porterOfFun);
                     if (LOGGER.isDebugEnabled() && willLog)
                     {
-                        LOGGER.debug("add-rest:{} (outType={},function={}{})",
-                                portMethod, porterOfFun.getPortOut().getOutType(), method.getName(),
+                        LOGGER.debug("add-rest:{} (outType={},portFunType={},function={}{})",
+                                portMethod, porterOfFun.getPortOut().getOutType(), portFunType, method.getName(),
                                 isMixin ? ",from " + method.getDeclaringClass() : "");
                     }
                     if (lastFun != null && LOGGER.isDebugEnabled())
@@ -282,11 +283,12 @@ public class SthDeal
                     Arrays.sort(ignoredFunTieds);
                     for (String tiedName : tieds)
                     {
-                        if(Arrays.binarySearch(ignoredFunTieds,tiedName)>=0){
+                        if (Arrays.binarySearch(ignoredFunTieds, tiedName) >= 0)
+                        {
                             if (LOGGER.isDebugEnabled() && willLog)
                             {
-                                LOGGER.debug("ignore:{},{} (outType={},function={}{})",
-                                        tiedName, portMethod, porterOfFun.getPortOut().getOutType(),
+                                LOGGER.debug("ignore:{},{} (outType={},portFunType={},jmethod={}{})",
+                                        tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
                                         method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                             }
                             continue;
@@ -295,8 +297,8 @@ public class SthDeal
                                 .put(tiedName + "/" + portMethod.name(), porterOfFun);
                         if (LOGGER.isDebugEnabled() && willLog)
                         {
-                            LOGGER.debug("add:{},{} (outType={},function={}{})",
-                                    tiedName, portMethod, porterOfFun.getPortOut().getOutType(),
+                            LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
+                                    tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
                                     method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                         }
 
