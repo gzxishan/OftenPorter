@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 
-import cn.xishan.oftenporter.oftendb.annotation.Key;
+import cn.xishan.oftenporter.oftendb.annotation.DBField;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
@@ -28,11 +28,11 @@ public class BaseEasier
         } catch (SecurityException e)
         {
         }
-        if (field != null && field.isAnnotationPresent(Key.class))
+        if (field != null && field.isAnnotationPresent(DBField.class))
         {
 
-            Key key = field.getAnnotation(Key.class);
-            name = key.value().equals("") ? name : key.value();
+            DBField DBField = field.getAnnotation(DBField.class);
+            name = DBField.value().equals("") ? name : DBField.value();
 
         }
         return name;

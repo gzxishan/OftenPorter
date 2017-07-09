@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Key
+public @interface DBField
 {
     /**
      * 默认为"",表示使用变量名;否则使用该值。
@@ -20,10 +20,10 @@ public @interface Key
      */
     String value() default "";
 
-    /**
-     * 为null时，是否添加到数据库中去，默认为false。
-     *
-     * @return 为true，表示null值会被写到数据库；为false，则不会。
-     */
-    boolean nullSetOrAdd() default false;
+//    /**
+//     * 为null时，是否添加到数据库中去，默认为false。
+//     *
+//     * @return 为true，表示null值会被写到数据库；为false，则不会。
+//     */
+//    boolean nullSetOrAdd() default false;
 }

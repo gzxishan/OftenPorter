@@ -219,6 +219,11 @@ public class JResponse
         return code;
     }
 
+    public int getIntCode()
+    {
+        return code.toCode();
+    }
+
     /**
      * 如果异常不为空则，抛出异常。
      *

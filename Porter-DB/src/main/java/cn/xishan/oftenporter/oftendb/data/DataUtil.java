@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data;
 
 
-import cn.xishan.oftenporter.oftendb.annotation.Key;
+import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
@@ -26,8 +26,8 @@ public class DataUtil
     /**
      * 得到字段的绑定名称。
      *
-     * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain Key}或{@linkplain PortInObj.UnNece
-     * }注解标注字段（外面科技），使用{@linkplain Key}来映射数据库字段名。
+     * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain DBField}或{@linkplain PortInObj.UnNece
+     * }注解标注字段（外面科技），使用{@linkplain DBField}来映射数据库字段名。
      */
     public static String getTiedName(Field field, boolean withKey)
     {
@@ -39,16 +39,16 @@ public class DataUtil
         } else if (field.isAnnotationPresent(PortInObj.UnNece.class))
         {
             name = PortUtil.tied(field.getAnnotation(PortInObj.UnNece.class), field, true);
-        } else if (field.isAnnotationPresent(Key.class))
+        } else if (field.isAnnotationPresent(DBField.class))
         {
             name = field.getName();
         }
 
-        if (withKey && name != null && field.isAnnotationPresent(Key.class))
+        if (withKey && name != null && field.isAnnotationPresent(DBField.class))
         {
-            Key key = field.getAnnotation(Key.class);
-            name = key.value().equals("") ? (name == null ? field.getName() : name)
-                    : key.value();
+            DBField DBField = field.getAnnotation(DBField.class);
+            name = DBField.value().equals("") ? (name == null ? field.getName() : name)
+                    : DBField.value();
         }
         return name;
     }
