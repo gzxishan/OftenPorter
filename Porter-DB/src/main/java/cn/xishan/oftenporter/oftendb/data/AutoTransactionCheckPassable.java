@@ -32,7 +32,8 @@ class AutoTransactionCheckPassable implements CheckPassable
                 {
                     if (transactionConfirm.needTransaction(wObject, type, checkHandle))
                     {
-                        LOGGER.debug("transaction starting...({}:{})", wObject.url(),wObject.getRequest().getMethod());
+                        LOGGER.debug("transaction starting...({}:{}:{})", wObject.url(),
+                                wObject.getRequest().getMethod(), checkHandle.abOption.portFunType);
                         TransactionConfirm.TConfig tConfig = transactionConfirm.getTConfig(wObject, type, checkHandle);
                         DBCommon.startTransaction(wObject, tConfig.dbSource, tConfig.transactionConfig);
                         LOGGER.debug("transaction started!");
@@ -44,7 +45,8 @@ class AutoTransactionCheckPassable implements CheckPassable
                 {
                     if (DBCommon.commitTransaction(wObject))
                     {
-                        LOGGER.debug("transaction committed!then closing...({}:{})", wObject.url(),wObject.getRequest().getMethod());
+                        LOGGER.debug("transaction committed!then closing...({}:{}:{})", wObject.url(),
+                                wObject.getRequest().getMethod(), checkHandle.abOption.portFunType);
                         DBCommon.closeTransaction(wObject);
                         LOGGER.debug("transaction closed!");
                     }
@@ -54,7 +56,8 @@ class AutoTransactionCheckPassable implements CheckPassable
             {
                 if (DBCommon.rollbackTransaction(wObject))
                 {
-                    LOGGER.debug("transaction rollbacked!then closing...({}:{})", wObject.url(),wObject.getRequest().getMethod());
+                    LOGGER.debug("transaction rollbacked!then closing...({}:{}:{})", wObject.url(),
+                            wObject.getRequest().getMethod(), checkHandle.abOption.portFunType);
                     DBCommon.closeTransaction(wObject);
                     LOGGER.debug("transaction closed!");
                 }
@@ -63,7 +66,8 @@ class AutoTransactionCheckPassable implements CheckPassable
             }
         } catch (Exception e)
         {
-            LOGGER.debug("need close for some exception...({}:{})", wObject.url(),wObject.getRequest().getMethod());
+            LOGGER.debug("need close for some exception...({}:{}:{})", wObject.url(), wObject.getRequest().getMethod(),
+                    checkHandle.abOption.portFunType);
             DBCommon.closeTransaction(wObject);
             LOGGER.debug("transaction closed in catch!");
             checkHandle.failed(e);

@@ -16,7 +16,7 @@ public enum ABInvokeOrder
     OTHER,
 
     /**
-     * 用于寻找第一个方法
+     * 用于寻找第一个方法,同时会寻找最后一个
      */
     _OTHER_BEFORE,
 

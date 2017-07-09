@@ -224,6 +224,7 @@ public class PortExecutor
             if (abOption != null)
             {
                 wObject._otherObject = abOption._otherObject;
+                boolean willFindLast = false;
                 if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_BEFORE)
                 {
                     if (funPort.getPortBefores().length == 0)
@@ -233,11 +234,18 @@ public class PortExecutor
                     {
                         abOption = abOption.clone(ABInvokeOrder.OTHER);
                     }
+                    willFindLast = true;
                 } else if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_AFTER)
+                {
+                    willFindLast = true;
+                }
+                if (willFindLast)
                 {
                     if (funPort.getPortAfters().length == 0)
                     {
-                        abOption = abOption.clone(ABInvokeOrder.FINAL_LAST);
+                        abOption = abOption
+                                .clone(abOption.abInvokeOrder == ABInvokeOrder.ORIGIN_FIRST ? ABInvokeOrder
+                                        .BOTH_FIRST_LAST : ABInvokeOrder.FINAL_LAST);
                     } else
                     {
                         abOption = abOption.clone(ABInvokeOrder.OTHER);
@@ -810,6 +818,9 @@ public class PortExecutor
                 break;
             case AUTO:
                 responseObject(wObject, rs, false);
+                break;
+            case CLOSE:
+                responseObject(wObject, rs, true);
                 break;
         }
     }

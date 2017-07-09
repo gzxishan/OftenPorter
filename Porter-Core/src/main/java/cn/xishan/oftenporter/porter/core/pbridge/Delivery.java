@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.PortFunType;
 public interface Delivery
 {
     /**
-     * 可以访问当前实例的接口,但不能访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口，且重新构建一个方法调用链。请求格式为/contextName/ClassTied/[funTied
+     * 可以访问当前实例的接口,同时也能访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口，且重新构建一个方法调用链。请求格式为/contextName/ClassTied/[funTied
      * |restValue][?name1=value1&name2=value2...]
      *
      * @return

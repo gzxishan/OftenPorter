@@ -19,31 +19,7 @@ public class LocalMain implements CommonMain
 
     public LocalMain(boolean responseWhenException, PName pName, String urlEncoding)
     {
-        PBridge inner = (request, callback) ->
-        {
-            ABOption abOption = request._getABOption_();
-            if (abOption == null)
-            {
-                abOption = new ABOption(null, PortFunType.INNER,ABInvokeOrder.OTHER);
-                request._setABOption_(abOption);
-            }
-            LocalResponse resp = new LocalResponse(callback);
-            PreRequest req = porterMain.forRequest(request, resp);
-            if (req != null)
-            {
-                porterMain.doRequest(req, request, resp);
-            }
-        };
-        PBridge current = (request, callback) ->
-        {
-            LocalResponse resp = new LocalResponse(callback);
-            PreRequest req = porterMain.forRequest(request, resp);
-            if (req != null)
-            {
-                porterMain.doRequest(req, request, resp);
-            }
-        };
-        porterMain = new PorterMain(pName, this, current,inner);
+        porterMain = new PorterMain(pName, this);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
@@ -58,7 +34,7 @@ public class LocalMain implements CommonMain
 
     protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge)
     {
-        porterMain = new PorterMain(pName, this, bridge,bridge);
+        porterMain = new PorterMain(pName, this, bridge, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 

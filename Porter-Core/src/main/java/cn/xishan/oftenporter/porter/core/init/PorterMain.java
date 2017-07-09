@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +32,13 @@ public final class PorterMain
     private PortExecutor portExecutor;
 
     private boolean isInit;
-    private final InnerBridge innerBridge;
-    private final PLinker pLinker;
+    private InnerBridge innerBridge;
+    private PLinker pLinker;
     private ListenerAdderImpl listenerAdder;
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
-    private final Logger LOGGER;
+    private Logger LOGGER;
     private static String currentPNameForLogger;
 
     static
@@ -53,12 +54,58 @@ public final class PorterMain
         });
     }
 
+    public PorterMain(PName pName, CommonMain commonMain)
+    {
+        PBridge inner = (request, callback) ->
+        {
+            ABOption abOption = request._getABOption_();
+            if (abOption == null)
+            {
+                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
+                request._setABOption_(abOption);
+            }
+            LocalResponse resp = new LocalResponse(callback);
+            PreRequest req = forRequest(request, resp);
+            if (req != null)
+            {
+                doRequest(req, request, resp);
+            }
+        };
+        PBridge current = (request, callback) ->
+        {
+            ABOption abOption = request._getABOption_();
+            if (abOption == null)
+            {
+                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder._OTHER_BEFORE);
+                request._setABOption_(abOption);
+            }
+            LocalResponse resp = new LocalResponse(callback);
+            PreRequest req = forRequest(request, resp);
+            if (req != null)
+            {
+                doRequest(req, request, resp);
+            }
+        };
+
+        initPorterMain(pName, commonMain, current, inner);
+    }
+
     /**
      * @param pName         框架名称。
      * @param currentBridge 只能访问当前实例的bridge。
      * @param innerBridge
      */
     public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    {
+        initPorterMain(pName, commonMain, currentBridge, innerBridge);
+    }
+
+    /**
+     * @param pName         框架名称。
+     * @param currentBridge 只能访问当前实例的bridge。
+     * @param innerBridge
+     */
+    private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
     {
         synchronized (PorterMain.class)
         {
@@ -291,7 +338,7 @@ public final class PorterMain
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
         porterConf.initOk();
-        LOGGER.debug(":{}/{}porterOne started!", pLinker.currentPName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
 
     }
 
