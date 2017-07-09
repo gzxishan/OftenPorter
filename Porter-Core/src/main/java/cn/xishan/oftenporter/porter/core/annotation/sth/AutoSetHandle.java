@@ -546,16 +546,21 @@ public class AutoSetHandle
             sysset = LogUtil.logger(currentObjectClass);
         } else if (typeName.equals(SyncPorter.class.getName()))
         {
-            if (porter == null)
-            {
-                throw new FatalInitException(SyncPorter.class.getSimpleName() + "just allowed in porter!");
-            }
+
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(currentContextName);
-            porterParamGetter.setClassTied(PortUtil.tied(porter.getFinalPorterObject().getClass()));
 
+            if (porter == null)
+            {
+                LOGGER.debug("auto set {} in not porter[{}]", SyncPorter.class.getSimpleName(), currentObjectClass);
+                //throw new FatalInitException(SyncPorter.class.getSimpleName() + "just allowed in porter!");
+            } else
+            {
+                porterParamGetter.setClassTied(PortUtil.tied(porter.getFinalPorterObject().getClass()));
+            }
             _SyncPorterOption syncPorterOption = innerContextBridge.annotationDealt
                     .syncPorterOption(f, porterParamGetter);
+            porterParamGetter.check();
             sysset = new SyncPorterImpl(syncPorterOption);
         } else if (typeName.equals(Delivery.class.getName()))
         {

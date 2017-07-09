@@ -10,6 +10,14 @@ public class PorterParamGetterImpl implements PorterParamGetter
 
     private String context, classTied, funTied;
 
+    @Override
+    public void check()
+    {
+        PortUtil.checkName(context);
+        PortUtil.checkName(classTied);
+        PortUtil.checkName(funTied);
+    }
+
     public void setContext(String context)
     {
         PortUtil.checkName(context);

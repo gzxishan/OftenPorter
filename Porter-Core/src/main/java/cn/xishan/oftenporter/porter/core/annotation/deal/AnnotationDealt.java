@@ -100,8 +100,17 @@ public final class AnnotationDealt
 
         } else
         {
-            throw new FatalInitException(
-                    String.format("Field[%s] not annotated with %s", field, SyncPorterOption.class.getName()));
+            _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
+
+            String context = porterParamGetter.getContext();
+            String classTied = porterParamGetter.getClassTied();
+            String funTied = field.getName();
+            porterParamGetter.setContext(context);
+            porterParamGetter.setClassTied(classTied);
+            porterParamGetter.setFunTied(funTied);
+            syncPorterOption.method = PortMethod.GET;
+            LOGGER.debug("Field[{}] not annotated with {}", field, SyncPorterOption.class.getName());
+            return syncPorterOption;
         }
 
     }
@@ -251,7 +260,8 @@ public final class AnnotationDealt
             }
         }
 
-        if(classList.size()==0){
+        if (classList.size() == 0)
+        {
             return null;
         }
 
@@ -396,7 +406,8 @@ public final class AnnotationDealt
 
         if (LOGGER.isDebugEnabled() && !isMixin)
         {
-            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedNames, _portIn.getTiedType(), _portIn.methods);
+            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedNames, _portIn.getTiedType(),
+                    _portIn.methods);
         }
 
         return _portIn;

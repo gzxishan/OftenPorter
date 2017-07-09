@@ -8,4 +8,5 @@ public interface PorterParamGetter
      String getContext();
      String getClassTied();
      String getFunTied();
+     void check();
 }
