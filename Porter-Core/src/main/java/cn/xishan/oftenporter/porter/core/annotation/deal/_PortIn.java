@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
  */
 public final class _PortIn
 {
-    String[] tiedNames;
+    String[] tiedNames, ignoredFunTieds;
     InNames inNames;
     PortMethod[] methods;
     Class<? extends CheckPassable>[] checks, checksForWholeClass;
@@ -17,9 +17,15 @@ public final class _PortIn
 
     PortFunType portFunType;
 
-    public _PortIn(PortFunType portFunType)
+    public _PortIn(PortFunType portFunType, String[] ignoredFunTieds)
     {
         this.portFunType = portFunType;
+        this.ignoredFunTieds = ignoredFunTieds;
+    }
+
+    public String[] getIgnoredFunTieds()
+    {
+        return ignoredFunTieds;
     }
 
     public PortFunType getPortFunType()

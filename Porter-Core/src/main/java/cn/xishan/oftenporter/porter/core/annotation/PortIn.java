@@ -203,6 +203,13 @@ public @interface PortIn
     boolean ignoreTypeParser() default false;
 
     /**
+     * 忽略指定绑定名的接口方法，对类有效。
+     *
+     * @return
+     */
+    String[] ignoredFunTieds() default {};
+
+    /**
      * 设置检测类型(对类或函数阶段有效，但对混入接口无效。)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
      */
     Class<? extends CheckPassable>[] checks() default {};

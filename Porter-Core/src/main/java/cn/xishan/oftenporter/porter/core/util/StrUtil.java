@@ -38,6 +38,16 @@ public class StrUtil
         return args;
     }
 
+    public static String[] newArray(String... args)
+    {
+        String[] as = new String[args.length];
+        for (int i = 0; i < args.length; i++)
+        {
+            as[i] = args[i];
+        }
+        return as;
+    }
+
     public static JSONArray toJSONArray(Object... args)
     {
         JSONArray jsonArray = new JSONArray(args.length);

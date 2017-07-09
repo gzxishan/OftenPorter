@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
@@ -276,8 +277,20 @@ public class SthDeal
                 for (PortMethod portMethod : portMethods)
                 {
                     String[] tieds = porterOfFun.getMethodPortIn().getTiedNames();
+                    String[] ignoredFunTieds = StrUtil
+                            .newArray(porterOfFun.getPorter().getPortIn().getIgnoredFunTieds());
+                    Arrays.sort(ignoredFunTieds);
                     for (String tiedName : tieds)
                     {
+                        if(Arrays.binarySearch(ignoredFunTieds,tiedName)>=0){
+                            if (LOGGER.isDebugEnabled() && willLog)
+                            {
+                                LOGGER.debug("ignore:{},{} (outType={},function={}{})",
+                                        tiedName, portMethod, porterOfFun.getPortOut().getOutType(),
+                                        method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                            }
+                            continue;
+                        }
                         lastFun = childrenWithMethod
                                 .put(tiedName + "/" + portMethod.name(), porterOfFun);
                         if (LOGGER.isDebugEnabled() && willLog)
