@@ -57,13 +57,13 @@ class JDaoGen implements AutoSetGen
         boolean isFile;
     }
 
-    private Path getPath(JDaoPath jDaoPath, Object object, Field field)
+    private Path getPath(JDaoPath jDaoPath,Class<?> currentObjectClass, Field field)
     {
         boolean isFile = WPTool.notNullAndEmpty(jDaoOption.debugDirPath);
         String optionDir = isFile ? jDaoOption.debugDirPath : jDaoOption.classpath;
         if (WPTool.isEmpty(optionDir))
         {
-            optionDir = "/" + object.getClass().getPackage().getName().replace('.', '/');
+            optionDir = "/" + currentObjectClass.getPackage().getName().replace('.', '/');
         }
 
         String name;
@@ -92,12 +92,12 @@ class JDaoGen implements AutoSetGen
                 name = field.getName() + ".js";
             } else
             {
-                name = jDaoPath.name().equals("") ? object.getClass().getSimpleName() + ".js" : jDaoPath.name();
+                name = jDaoPath.name().equals("") ? currentObjectClass.getSimpleName() + ".js" : jDaoPath.name();
             }
 
         } else
         {
-            name = object.getClass().getSimpleName() + ".js";
+            name = currentObjectClass.getSimpleName() + ".js";
         }
         if (optionDir.length() > 0 && !optionDir.endsWith("/"))
         {
@@ -109,9 +109,9 @@ class JDaoGen implements AutoSetGen
         return path;
     }
 
-    private String getScript(Object object, String path) throws IOException
+    private String getScript(Class<?> currentObjectClass,String path) throws IOException
     {
-        InputStream inputStream = object.getClass().getResourceAsStream(path);
+        InputStream inputStream = currentObjectClass.getResourceAsStream(path);
         String script = inputStream == null ? null : FileTool.getString(inputStream, 1024, jDaoOption.scriptEncoding);
         if (script == null)
         {
@@ -164,9 +164,8 @@ class JDaoGen implements AutoSetGen
         }
     }
 
-
     @Override
-    public Object genObject(Object object, Field field, String option)
+    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field, String option)
     {
         synchronized (JDaoGen.class)
         {
@@ -176,17 +175,17 @@ class JDaoGen implements AutoSetGen
                 SqlSource sqlSource = (SqlSource) dbSource;
                 JDaoPath jDaoPath = field.getAnnotation(JDaoPath.class);
 
-                Path path = getPath(jDaoPath, object, field);
+                Path path = getPath(jDaoPath, currentObjectClass, field);
                 Logger logger = LogUtil.logger(_SqlSorce.class);
                 if (path.isFile)
                 {
                     jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, dbSource, sqlSource, logger);
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(object, path.path), dbSource, jDaoOption),
+                    jsBridge = new JsBridge(getJsInvocable(getScript(currentObjectClass, path.path), dbSource, jDaoOption),
                             dbSource, sqlSource, path.path, logger);
                 }
-                AutoSetDealtForDBSource.setUnit(object, dbSource);
+                AutoSetDealtForDBSource.setUnit(currentObject, dbSource);
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
                 count++;
                 return jDao;

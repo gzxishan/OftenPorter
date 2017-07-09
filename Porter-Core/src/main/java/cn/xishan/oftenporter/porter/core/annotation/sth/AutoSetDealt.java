@@ -10,13 +10,16 @@ import java.lang.reflect.Field;
 public interface AutoSetDealt
 {
     /**
-     *
-     * @param finalObject 目前对于接口，该对象为最终接口实例，例如把接口object混入到finalObject中去的情况；其他的情况，等于object。
-     * @param object
+     * @param finalObject        目前对于接口，该对象为最终接口实例，例如把接口object混入到finalObject中去的情况；其他的情况，等于object。
+     * @param currentObjectClass
+     * @param currentObject      设置静态字段时为null。
      * @param field
      * @param fieldValue
      * @param option
      * @return
      */
-    Object deal(Object finalObject,Object object,Field field,@MayNull Object fieldValue,String option);
+    Object deal(@MayNull("设置静态字段时为null") Object finalObject, Class<?> currentObjectClass,
+            @MayNull("设置静态字段时为null") Object currentObject,
+            Field field,
+            @MayNull Object fieldValue, String option);
 }

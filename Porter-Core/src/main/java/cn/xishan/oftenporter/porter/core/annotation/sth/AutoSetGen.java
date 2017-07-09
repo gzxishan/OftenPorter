@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 import java.lang.reflect.Field;
 
@@ -10,5 +11,5 @@ import java.lang.reflect.Field;
  */
 public interface AutoSetGen
 {
-    Object genObject(Object object, Field field, String option);
+    Object genObject(Class<?> currentObjectClass, @MayNull Object currentObject, Field field, String option);
 }

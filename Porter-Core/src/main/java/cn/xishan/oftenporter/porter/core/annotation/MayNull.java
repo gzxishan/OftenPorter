@@ -9,5 +9,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
 @Inherited
-public @interface MayNull {
+public @interface MayNull
+{
+    /**
+     * 描述。
+     *
+     * @return
+     */
+    String value() default "";
 }
