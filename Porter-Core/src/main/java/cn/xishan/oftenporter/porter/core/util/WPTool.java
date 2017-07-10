@@ -24,14 +24,18 @@ public class WPTool
     private static final Logger LOGGER = LoggerFactory.getLogger(WPTool.class);
 
     /**
-     * 判断是否为null或"".
+     * 判断是否为null(对于{@linkplain CharSequence}会判断是否为"").
      *
      * @param obj
      * @return
      */
     public static boolean isEmpty(Object obj)
     {
-        return obj == null || "".equals(obj);
+        if (obj != null && obj instanceof CharSequence && "".equals(obj))
+        {
+            obj = null;
+        }
+        return obj == null;
     }
 
 
@@ -61,11 +65,13 @@ public class WPTool
 
     /**
      * 判断类是否为接口或抽象类。
+     *
      * @param clazz
      * @return
      */
-    public static boolean isInterfaceOrAbstract(Class<?> clazz){
-        boolean is = clazz.isInterface()||Modifier.isAbstract(clazz.getModifiers());
+    public static boolean isInterfaceOrAbstract(Class<?> clazz)
+    {
+        boolean is = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
         return is;
     }
 
@@ -107,15 +113,18 @@ public class WPTool
         }
     }
 
-    public static <T> void addAll(Set<T> set,T ... ts){
+    public static <T> void addAll(Set<T> set, T... ts)
+    {
         for (T t : ts)
         {
             set.add(t);
         }
     }
 
-    public static String join(String separator,Object ... args){
-        if(args.length==0){
+    public static String join(String separator, Object... args)
+    {
+        if (args.length == 0)
+        {
             return "";
         }
         StringBuilder builder = new StringBuilder();
@@ -127,8 +136,9 @@ public class WPTool
         return builder.toString();
     }
 
-    public static String join(String separator,List<?> list){
-        return join(separator,list.toArray(new Object[0]));
+    public static String join(String separator, List<?> list)
+    {
+        return join(separator, list.toArray(new Object[0]));
     }
 
 
