@@ -1,5 +1,5 @@
 
-function add(conn,data){
+function add(data){
 	var sql="INSERT INTO test1 (_id,name,age,sex,time)VALUES(?,?,?,?,?)";
 	var args=[data._id,data.name,data.age,data.sex,data.time];
 //	var ps = conn.prepareStatement(sql);

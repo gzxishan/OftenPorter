@@ -1,9 +1,8 @@
 package cn.xishan.oftenporter.demo.oftendb.test1.porter;
 
-import cn.xishan.oftenporter.oftendb.data.Common2;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
+import cn.xishan.oftenporter.oftendb.data.common;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
-import cn.xishan.oftenporter.oftendb.db.mysql.SqlAdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.jbatis.JDao;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -32,9 +31,8 @@ public class DBUnit
         add.put("time", new Date());
         add.put("sex", "男");
         add.put("age", 12);
-
         AdvancedExecutor executor = jDao.execute(add, wObject);
-        return Common2.C.advancedExecute(dbSource, executor,wObject);
+        return common.advancedExecute(wObject, dbSource, executor);
     }
 
 }

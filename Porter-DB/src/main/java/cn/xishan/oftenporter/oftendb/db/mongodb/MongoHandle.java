@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,18 +20,41 @@ public class MongoHandle implements DBHandle
 
     private DBCollection collection;
     private boolean canOpenOrClose = true;
+    private DB db;
 
-    public MongoHandle(DB db, String collectionName)
+    public MongoHandle(DB db)
     {
-
-        this.collection = db.getCollection(collectionName);
+        this.db=db;
     }
 
+
+    @Override
+    public void setCollectionName(String collectionName)
+    {
+        this.collection = db.getCollection(collectionName);
+    }
 
     @Override
     public void setLogger(Logger logger)
     {
 
+    }
+
+
+    public static DBObject checkToFinal(QuerySettings querySettings)
+    {
+        if (querySettings == null || querySettings.getOrders().size() == 0)
+        {
+            return null;
+        }
+        List<QuerySettings.Order> orders = querySettings.getOrders();
+        DBObject dbObject = new BasicDBObject();
+        for (int i = 0; i < orders.size(); i++)
+        {
+            QuerySettings.Order order = orders.get(i);
+            dbObject.put(order.name, order.n);
+        }
+        return dbObject;
     }
 
     /**
@@ -42,12 +66,10 @@ public class MongoHandle implements DBHandle
         if (toFinal == null)
         {
             return null;
-        } else if ((toFinal instanceof MongoCondition) || (toFinal instanceof MongoQuerySettings))
+        } else if ((toFinal instanceof MongoCondition))
         {
             Object object = toFinal.toFinalObject();
-
             return (DBObject) object;
-
         } else
         {
             throw new DBException("The current type " + toFinal.getClass()
@@ -207,10 +229,11 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
-    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
+    public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,
+            QuerySettings querySettings) throws DBException
     {
         MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
-        return mongoAdvancedQuery.getDBEnumerations(collection, this,querySettings);
+        return mongoAdvancedQuery.getDBEnumerations(collection, this, querySettings);
     }
 
     @Override
@@ -469,10 +492,10 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery,QuerySettings querySettings) throws DBException
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException
     {
         MongoAdvancedQuery mongoAdvancedQuery = getMongoAdvancedQuery(advancedQuery);
-        return mongoAdvancedQuery.execute(collection, this,querySettings);
+        return mongoAdvancedQuery.execute(collection, this, querySettings);
     }
 
 
@@ -494,7 +517,7 @@ public class MongoHandle implements DBHandle
     }
 
     @Override
-    public void startTransaction() throws DBException
+    public void startTransaction(TransactionConfig config) throws DBException
     {
 
     }

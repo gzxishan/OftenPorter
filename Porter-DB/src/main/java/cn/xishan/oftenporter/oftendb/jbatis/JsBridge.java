@@ -45,7 +45,7 @@ class JsBridge
     {
         try
         {
-            LOGGER.debug("jbatis script:{}",path);
+            LOGGER.debug("jbatis script:{}:{}",path,method);
             T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)
@@ -58,7 +58,7 @@ class JsBridge
     {
         try
         {
-            LOGGER.debug("jbatis script:{}",path);
+            LOGGER.debug("jbatis script:{}:{}",path,method);
             T t = (T) invocable.invokeFunction(method, json, getConn(wObject));
             return t;
         } catch (Exception e)

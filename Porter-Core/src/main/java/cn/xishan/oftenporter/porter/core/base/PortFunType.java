@@ -18,7 +18,7 @@ public enum PortFunType
     /**
      * 只能在{@linkplain SyncPorter SyncPorter}、{@linkplain Before Before}或{@linkplain After After}中调用。
      */
-    JUST_INNER;
+    INNER;
 
     /**
      * 当函数的为{@linkplain #DEFAULT}时，返回类的；否则返回函数自己的类型。

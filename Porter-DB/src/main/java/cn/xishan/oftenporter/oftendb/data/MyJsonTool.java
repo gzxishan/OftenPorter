@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 
 import cn.xishan.oftenporter.oftendb.annotation.AnnotationSearch;
-import cn.xishan.oftenporter.oftendb.annotation.Key;
+import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.MyConsumer;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -91,11 +91,11 @@ public class MyJsonTool
             public void accept(Field field) throws Exception
             {
                 field.setAccessible(true);
-                Key key = field.getAnnotation(Key.class);
-                jsonObject.put(key.value().equals("") ? field.getName() : key.value(), field.get(object));
+                DBField DBField = field.getAnnotation(DBField.class);
+                jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
 
             }
-        }, object.getClass(), exceptFieldsName, Key.class);
+        }, object.getClass(), exceptFieldsName, DBField.class);
 
         return jsonObject;
     }

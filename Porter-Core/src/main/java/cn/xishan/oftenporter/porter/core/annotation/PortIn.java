@@ -160,6 +160,20 @@ public @interface PortIn
     String tied() default "";
 
     /**
+     * 注解在函数上，且大小不为0时有效。
+     *
+     * @return
+     */
+    String[] tieds() default {};
+
+    /**
+     * 注解在函数上，且大小不为0时有效。
+     *
+     * @return
+     */
+    PortMethod[] methods() default {};
+
+    /**
      * 必须参数列表.
      */
     String[] nece() default {};
@@ -187,6 +201,13 @@ public @interface PortIn
      * @return
      */
     boolean ignoreTypeParser() default false;
+
+    /**
+     * 忽略指定绑定名的接口方法，对类有效。
+     *
+     * @return
+     */
+    String[] ignoredFunTieds() default {};
 
     /**
      * 设置检测类型(对类或函数阶段有效，但对混入接口无效。)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。

@@ -75,13 +75,13 @@ public class MongodbUtil
                 @Override
                 public void accept(Field t) throws Exception
                 {
-                    Key key = t.getAnnotation(Key.class);
-                    if (key == null)
+                    DBField DBField = t.getAnnotation(DBField.class);
+                    if (DBField == null)
                     {
                         return;
                     }
-                    String name = key.value().equals("") ? t.getName()
-                            : key.value();
+                    String name = DBField.value().equals("") ? t.getName()
+                            : DBField.value();
                     collection.createIndex(new BasicDBObject(name, order), basicDBObject);
                 }
             }, forSearch, null, annotationClass);

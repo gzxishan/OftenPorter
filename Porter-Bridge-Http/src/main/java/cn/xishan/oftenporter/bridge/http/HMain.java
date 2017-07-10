@@ -117,6 +117,12 @@ public class HMain extends LocalMain
             }
 
             @Override
+            public PBridge innerBridge()
+            {
+                return HMain.super.getPLinker().innerBridge();
+            }
+
+            @Override
             public PBridge currentBridge()
             {
                 return HMain.super.getPLinker().currentBridge();

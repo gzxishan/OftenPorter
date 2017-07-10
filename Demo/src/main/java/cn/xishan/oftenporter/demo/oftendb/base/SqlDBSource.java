@@ -5,19 +5,20 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import cn.xishan.oftenporter.oftendb.data.DataAble;
-import cn.xishan.oftenporter.oftendb.data.ParamsGetter;
 import cn.xishan.oftenporter.oftendb.data.impl.MysqlSource;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlHandle;
-import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
-public class SqlDBSource extends MysqlSource {
+public class SqlDBSource extends MysqlSource
+{
 
-    public SqlDBSource() {
+    public SqlDBSource()
+    {
+        super((wObject, configed, configing) -> configing.setCollectionName("test1"));
         Connection connection = null;
-        try {
+        try
+        {
             String initSql =
                     "CREATE TABLE IF NOT EXISTS `test1` (\n" + "  `_id` char(32) NOT NULL,\n"
                             + "  `name` varchar(35) NOT NULL,\n"
@@ -30,13 +31,18 @@ public class SqlDBSource extends MysqlSource {
             Statement statement = connection.createStatement();
             statement.execute(initSql);
             statement.close();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             e.printStackTrace();
-        } finally {
-            if (connection != null) {
-                try {
+        } finally
+        {
+            if (connection != null)
+            {
+                try
+                {
                     connection.close();
-                } catch (SQLException e) {
+                } catch (SQLException e)
+                {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
@@ -50,29 +56,27 @@ public class SqlDBSource extends MysqlSource {
         return getConn();
     }
 
-    private Connection getConn() {
+    private Connection getConn()
+    {
 
-        try {
+        try
+        {
             Class.forName("org.h2.Driver");
             Connection conn = DriverManager.getConnection(
                     "jdbc:h2:~/PorterDemo/oftendb;MODE=MySQL", "sa", "");
             return conn;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
         }
 
     }
 
     @Override
-    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble, DBHandle dbHandle)
-            throws DBException {
-        SqlHandle sqlHandle = (SqlHandle) dbHandle;
-        if (sqlHandle == null) {
-            sqlHandle = new SqlHandle(getConn(), null);
-        }
-        if (dataAble != null) {
-            sqlHandle.setTableName(dataAble.getCollectionName());
-        }
+    public DBHandle getDBHandle()
+            throws DBException
+    {
+        SqlHandle sqlHandle = new SqlHandle(getConn());
         return sqlHandle;
     }
 

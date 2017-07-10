@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
-import cn.xishan.oftenporter.oftendb.data.*;
+import cn.xishan.oftenporter.oftendb.data.DBCommon;
+import cn.xishan.oftenporter.oftendb.data.DBSource;
+import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.DBException;
@@ -25,6 +27,7 @@ public class _SqlSorce
     private WObject wObject;
     private Logger LOGGER;
 
+    private static final Object[] ZERO_ARGS = new Object[0];
 
     _SqlSorce(DBSource dbSource, SqlSource sqlSource, WObject wObject, Logger LOGGER)
     {
@@ -41,7 +44,7 @@ public class _SqlSorce
 
     private Connection getConn(WObject wObject)
     {
-        SqlSource source = Common.getSqlSource(wObject);
+        SqlSource source = DBCommon.getSqlSource(wObject);
         if (source == null)
         {
             source = sqlSource;
@@ -49,49 +52,72 @@ public class _SqlSorce
         return source.getConnection();
     }
 
-    public JResponse doCommonSqlExecutor(String sql, Object argsObj)
+
+    public JResponse doCommonSqlExecutor(String sql)
     {
-        AdvancedExecutor advancedExecutor = _JsInterface._sqlExecutor(sql, argsObj);
-        return Common2.C.advancedExecute(dbSource, advancedExecutor, new EmptyWObject());
+        return doCommonSqlExecutor(sql, ZERO_ARGS);
     }
 
-    public JResponse doCommonSqlQuery(String sql, Object argsObj)
+    public JResponse doCommonSqlExecutor(String sql, Object[] args)
     {
-        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryAdvanced(dbSource, advancedQuery, new EmptyWObject());
+        AdvancedExecutor advancedExecutor = _JsInterface._sqlExecutor(sql, args);
+        return DBCommon.C.advancedExecute(wObject, dbSource, advancedExecutor);
     }
 
-    public JResponse doCommonSqlOneQuery(String sql, Object argsObj)
+    public JResponse doCommonSqlQuery(String sql)
     {
-        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryOneAdvanced(dbSource, advancedQuery, wObject);
+        return doCommonSqlQuery(sql, ZERO_ARGS);
     }
 
-    public JResponse doCommonSqlEnumerationQuery(String sql, Object argsObj)
+    public JResponse doCommonSqlQuery(String sql, Object[] args)
     {
-        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, argsObj);
-        return Common2.C.queryEnumeration(dbSource, advancedQuery, null, wObject);
+        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, args);
+        return DBCommon.C.advancedQuery(wObject, dbSource, advancedQuery, null);
     }
 
-    public BlobData getBlobData(String sql, Object argsObj, String columnName)
+    public JResponse doCommonSqlOneQuery(String sql)
     {
-        JSqlArgs jSqlArgs = _JsInterface._sqlArgs(sql, argsObj);
+        return doCommonSqlOneQuery(sql, ZERO_ARGS);
+    }
 
+    public JResponse doCommonSqlOneQuery(String sql, Object[] args)
+    {
+        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, args);
+        return DBCommon.C.queryOne(wObject, dbSource, advancedQuery);
+    }
+
+
+    public JResponse doCommonSqlEnumerationQuery(String sql)
+    {
+        return doCommonSqlEnumerationQuery(sql, ZERO_ARGS);
+    }
+
+    public JResponse doCommonSqlEnumerationQuery(String sql, Object[] args)
+    {
+        AdvancedQuery advancedQuery = _JsInterface._sqlQuery(sql, args);
+        return DBCommon.C.queryEnumeration(wObject, dbSource, advancedQuery, null);
+    }
+
+    public BlobData getBlobData(String sql, String columnName)
+    {
+        return getBlobData(sql, ZERO_ARGS, columnName);
+    }
+
+    public BlobData getBlobData(String sql, Object[] args, String columnName)
+    {
         Connection conn = null;
         try
         {
             if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("{}", jSqlArgs.sql);
+                LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
-                Object[] args = jSqlArgs.args;
                 SqlHandle.logArgs(args, builder);
                 LOGGER.debug("{}", builder);
             }
             conn = sqlSource.getConnection();
 
-            PreparedStatement ps = conn.prepareStatement(jSqlArgs.sql);
-            Object[] args = jSqlArgs.args;
+            PreparedStatement ps = conn.prepareStatement(sql);
             for (int i = 0; i < args.length; i++)
             {
                 Object obj = args[i];

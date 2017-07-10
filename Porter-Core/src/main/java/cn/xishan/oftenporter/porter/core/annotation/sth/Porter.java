@@ -29,6 +29,7 @@ public final class Porter
     Class[] superGenericClasses;
 
     private final Logger LOGGER;
+    private boolean started=false,destroyed=false;
 
     Object object;
     Class<?> clazz;
@@ -245,6 +246,11 @@ public final class Porter
 
     public void start()
     {
+        if(started){
+            return;
+        }else{
+            started=true;
+        }
         if (mixins != null)
         {
             for (Porter porter : mixins)
@@ -269,6 +275,11 @@ public final class Porter
 
     public void destroy()
     {
+        if(destroyed){
+            return;
+        }else{
+            destroyed=true;
+        }
         if (mixins != null)
         {
             for (Porter porter : mixins)

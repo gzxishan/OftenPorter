@@ -5,6 +5,8 @@ import cn.xishan.oftenporter.oftendb.db.BaseEasier;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 
+import java.util.List;
+
 public class SqlUtil
 {
 
@@ -243,7 +245,8 @@ public class SqlUtil
     {
         StringBuilder builder = new StringBuilder();
         builder.append("SELECT count(1) ").append(columnName).append(" FROM (").append(whereSQL.sql).append(") temp");
-        if(withSemicolon){
+        if (withSemicolon)
+        {
             builder.append(";");
         }
         WhereSQL where = new WhereSQL(builder.toString(), whereSQL.args);
@@ -327,12 +330,44 @@ public class SqlUtil
         return whereSQL;
     }
 
+
+    public static Object toFinalObject(QuerySettings settings)
+    {
+        if (settings == null || settings.getOrders().size() == 0)
+        {
+            return null;
+        }
+        List<QuerySettings.Order> orders = settings.getOrders();
+
+        StringBuilder sbuilder = new StringBuilder();
+
+        for (int i = 0; i < orders.size(); i++)
+        {
+            QuerySettings.Order order = orders.get(i);
+
+            SqlCondition.appendName(order.name, sbuilder);
+            if (order.n == 1)
+            {
+                sbuilder.append(" ASC");
+            } else
+            {
+                sbuilder.append(" DESC");
+            }
+            sbuilder.append(",");
+        }
+        if (sbuilder.length() > 0)
+        {
+            BaseEasier.removeEndChar(sbuilder, ',');
+        }
+        return sbuilder;
+    }
+
     public static String toOrder(QuerySettings querySettings, boolean withSemicolon)
     {
         StringBuilder stringBuilder = new StringBuilder();
         if (querySettings != null)
         {
-            Object object = querySettings.toFinalObject();
+            Object object = toFinalObject(querySettings);
             if (object != null)
             {
                 stringBuilder.append(" ORDER BY ").append(object);
@@ -355,6 +390,7 @@ public class SqlUtil
 
     /**
      * 转义相对于like的特殊字符。
+     *
      * @param content
      * @return
      */

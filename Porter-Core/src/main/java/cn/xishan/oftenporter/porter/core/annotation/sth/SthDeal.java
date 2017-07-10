@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
@@ -116,10 +117,10 @@ public class SthDeal
         }
         if (currentClassTied == null)
         {
-            currentClassTied = portIn.getTiedName();
+            currentClassTied = portIn.getTiedNames()[0];
         }
 
-        Porter porter = new Porter(clazz,autoSetHandle, wholeClassCheckPassableGetter);
+        Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
@@ -131,7 +132,7 @@ public class SthDeal
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
-            annotationDealt.setTiedName(porter.getPortIn(), iPorter.classTied());
+            annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
 
 
@@ -245,36 +246,73 @@ public class SthDeal
         PorterOfFun lastFun = null;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
         Method method = porterOfFun.getMethod();
+
+        PortFunType portFunType = porterOfFun.getMethodPortIn().getPortFunType();
+
         switch (tiedType)
         {
 
             case REST:
             case FORCE_REST:
-                lastFun = childrenWithMethod.put(porterOfFun.getMethodPortIn().getMethod().name(), porterOfFun);
-                if (LOGGER.isDebugEnabled() && willLog)
+            {
+                PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
+                for (PortMethod portMethod : portMethods)
                 {
-                    LOGGER.debug("add-rest:{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getMethod(),
-                            porterOfFun.getPortOut().getOutType(), method.getName(),
-                            isMixin ? ",from " + method.getDeclaringClass() : "");
+                    lastFun = childrenWithMethod.put(portMethod.name(), porterOfFun);
+                    if (LOGGER.isDebugEnabled() && willLog)
+                    {
+                        LOGGER.debug("add-rest:{} (outType={},portFunType={},function={}{})",
+                                portMethod, porterOfFun.getPortOut().getOutType(), portFunType, method.getName(),
+                                isMixin ? ",from " + method.getDeclaringClass() : "");
+                    }
+                    if (lastFun != null && LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("overrided:{}", lastFun.getMethod());
+                    }
                 }
-                break;
+            }
+
+            break;
             case DEFAULT:
-                lastFun = childrenWithMethod
-                        .put(porterOfFun.getMethodPortIn().getTiedName() + "/" + porterOfFun.getMethodPortIn()
-                                .getMethod().name(), porterOfFun);
-                if (LOGGER.isDebugEnabled() && willLog)
+                PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
+                for (PortMethod portMethod : portMethods)
                 {
-                    LOGGER.debug("add:{},{} (outType={},function={}{})", porterOfFun.getMethodPortIn().getTiedName(),
-                            porterOfFun.getMethodPortIn().getMethod(), porterOfFun.getPortOut().getOutType(),
-                            method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                    String[] tieds = porterOfFun.getMethodPortIn().getTiedNames();
+                    String[] ignoredFunTieds = StrUtil
+                            .newArray(porterOfFun.getPorter().getPortIn().getIgnoredFunTieds());
+                    Arrays.sort(ignoredFunTieds);
+                    for (String tiedName : tieds)
+                    {
+                        if (Arrays.binarySearch(ignoredFunTieds, tiedName) >= 0)
+                        {
+                            if (LOGGER.isDebugEnabled() && willLog)
+                            {
+                                LOGGER.debug("ignore:{},{} (outType={},portFunType={},jmethod={}{})",
+                                        tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
+                                        method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                            }
+                            continue;
+                        }
+                        lastFun = childrenWithMethod
+                                .put(tiedName + "/" + portMethod.name(), porterOfFun);
+                        if (LOGGER.isDebugEnabled() && willLog)
+                        {
+                            LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
+                                    tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
+                                    method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                        }
+
+                        if (lastFun != null && LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("overrided:{}", lastFun.getMethod());
+                        }
+                    }
                 }
+
                 break;
         }
 
-        if (lastFun != null && LOGGER.isDebugEnabled())
-        {
-            LOGGER.debug("overrided:{}", lastFun.getMethod());
-        }
+
     }
 
     private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,

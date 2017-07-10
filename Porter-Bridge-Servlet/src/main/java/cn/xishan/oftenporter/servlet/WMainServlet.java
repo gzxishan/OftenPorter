@@ -8,7 +8,6 @@ import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 import org.slf4j.Logger;
@@ -233,17 +232,33 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
         }
 
-
-        PBridge bridge = (request, callback) ->
-        {
-            LocalResponse resp = new LocalResponse(callback);
-            PreRequest req = porterMain.forRequest(request, resp);
-            if (req != null)
-            {
-                porterMain.doRequest(req, request, resp);
-            }
-        };
-        porterMain = new PorterMain(new PName(pname), this, bridge);
+//
+//        PBridge inner = (request, callback) ->
+//        {
+//            LocalResponse resp = new LocalResponse(callback);
+//            ABOption abOption = request._getABOption_();
+//            if (abOption == null)
+//            {
+//                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
+//                request._setABOption_(abOption);
+//            }
+//            PreRequest req = porterMain.forRequest(request, resp);
+//            if (req != null)
+//            {
+//                porterMain.doRequest(req, request, resp);
+//            }
+//        };
+//
+//        PBridge current = (request, callback) ->
+//        {
+//            LocalResponse resp = new LocalResponse(callback);
+//            PreRequest req = porterMain.forRequest(request, resp);
+//            if (req != null)
+//            {
+//                porterMain.doRequest(req, request, resp);
+//            }
+//        };
+        porterMain = new PorterMain(new PName(pname), this);
         if (responseWhenException == null)
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
@@ -329,8 +344,10 @@ public class WMainServlet extends HttpServlet implements CommonMain
         if (supportMultiPart)
         {
             porterConf.getParamSourceHandleManager()
-                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption,addPutDealt), PortMethod.POST, PortMethod.PUT);
-        }else if(addPutDealt){
+                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption, addPutDealt), PortMethod.POST,
+                            PortMethod.PUT);
+        } else if (addPutDealt)
+        {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
 

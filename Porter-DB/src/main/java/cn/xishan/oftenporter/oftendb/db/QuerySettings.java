@@ -1,54 +1,63 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class QuerySettings implements ToFinal
+public class QuerySettings
 {
     protected Integer skip, limit;
 
+    public static class Order
+    {
+        public String name;
+        public int n;
+
+        public Order(String name, int n)
+        {
+            this.name = name;
+            this.n = n;
+        }
+    }
+
+    private List<Order> orders = new ArrayList<>();
+
+    public List<Order> getOrders()
+    {
+        return orders;
+    }
+
     public final QuerySettings setSkip(int skip)
     {
-	this.skip = skip;
-	return this;
+        this.skip = skip;
+        return this;
     }
 
     public final QuerySettings setLimit(int limit)
     {
-	this.limit = limit;
-	return this;
+        this.limit = limit;
+        return this;
     }
 
     public Integer getLimit()
     {
-	return limit;
+        return limit;
     }
 
     public Integer getSkip()
     {
-	return skip;
+        return skip;
     }
 
     /**
-     * 
      * @param name
-     * @param n 其中1为升序排列，而-1是用于降序排列
+     * @param n    其中1为升序排列，而-1是用于降序排列
      * @return
      */
-    public abstract QuerySettings putOrder(String name, int n);
+    public QuerySettings putOrder(String name, int n)
+    {
+        orders.add(new Order(name, n));
+        return this;
+    }
 
-    /**
-     * 处理字段(含有@Key注解的).此方法使用者无需调用.
-     * 
-     * @param c 用于Field查找的类
-     */
-    public abstract void _dealNames(Class<?> c);
-
-    
-
-    /**
-     * 转换为最终的对象
-     * 
-     * @return
-     */
-    public abstract Object toFinalObject();
 }

@@ -100,8 +100,17 @@ public final class AnnotationDealt
 
         } else
         {
-            throw new FatalInitException(
-                    String.format("Field[%s] not annotated with %s", field, SyncPorterOption.class.getName()));
+            _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
+
+            String context = porterParamGetter.getContext();
+            String classTied = porterParamGetter.getClassTied();
+            String funTied = field.getName();
+            porterParamGetter.setContext(context);
+            porterParamGetter.setClassTied(classTied);
+            porterParamGetter.setFunTied(funTied);
+            syncPorterOption.method = PortMethod.GET;
+            LOGGER.debug("Field[{}] not annotated with {}", field, SyncPorterOption.class.getName());
+            return syncPorterOption;
         }
 
     }
@@ -251,7 +260,8 @@ public final class AnnotationDealt
             }
         }
 
-        if(classList.size()==0){
+        if (classList.size() == 0)
+        {
             return null;
         }
 
@@ -359,12 +369,12 @@ public final class AnnotationDealt
     {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (method.getReturnType().equals(Void.TYPE))
-        {
-            _portOut.outType = OutType.NO_RESPONSE;
-        } else if (portOut != null)
+        if (portOut != null)
         {
             _portOut.outType = portOut.value();
+        } else if (method.getReturnType().equals(Void.TYPE))
+        {
+            _portOut.outType = OutType.NO_RESPONSE;
         } else
         {
             _portOut.outType = OutType.AUTO;
@@ -385,10 +395,10 @@ public final class AnnotationDealt
         {
             return null;
         }
-        _PortIn _portIn = new _PortIn(portIn.portFunType());
-        _portIn.tiedName = PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue);
+        _PortIn _portIn = new _PortIn(portIn.portFunType(),portIn.ignoredFunTieds());
+        _portIn.tiedNames = new String[]{PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue)};
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
-        _portIn.method = portIn.method();
+        _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
         _portIn.setTiedType(portIn.tiedType());
@@ -396,7 +406,8 @@ public final class AnnotationDealt
 
         if (LOGGER.isDebugEnabled() && !isMixin)
         {
-            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedName, _portIn.getTiedType(), _portIn.method);
+            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedNames, _portIn.getTiedType(),
+                    _portIn.methods);
         }
 
         return _portIn;
@@ -413,23 +424,25 @@ public final class AnnotationDealt
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-            _portInOfMethod = new _PortIn(PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType()));
+            _portInOfMethod = new _PortIn(PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType()),
+                    portIn.ignoredFunTieds());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
-            _portInOfMethod.tiedName = PortUtil
-                    .tied(portIn, method, _portInOfMethod.getTiedType() == TiedType.REST || _portInOfMethod
+
+            _portInOfMethod.tiedNames = PortUtil
+                    .tieds(portIn, method, _portInOfMethod.getTiedType() == TiedType.REST || _portInOfMethod
                             .getTiedType() == TiedType.FORCE_REST || enableDefaultValue);
             _portInOfMethod.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
             _portInOfMethod.checks = portIn.checks();
-            _portInOfMethod.method = AnnoUtil.method(class_PortIn.getMethod(), portIn.method());
+            _portInOfMethod.methods = AnnoUtil.methods(class_PortIn.getMethods()[0], portIn);
             _portInOfMethod.ignoreTypeParser = portIn.ignoreTypeParser();
 
         }
         return _portInOfMethod;
     }
 
-    public void setTiedName(_PortIn portIn, String tiedName)
+    public void setClassTiedName(_PortIn portIn, String tiedName)
     {
-        portIn.setTiedName(tiedName);
+        portIn.setTiedNames(new String[]{tiedName});
     }
 
     public void setTiedType(_PortIn portIn, TiedType tiedType)

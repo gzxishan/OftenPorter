@@ -4,8 +4,6 @@ package cn.xishan.oftenporter.porter.core;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 响应结果的封装.
@@ -53,15 +51,10 @@ public class JResponse
     //public static final String REQUEST_URI_FIELD = "uri";
 
 
-    @Deprecated
-    public static final JResponse SUCCESS_RESPONSE = new JResponse(ResultCode.SUCCESS);
-
     private ResultCode code = ResultCode.Other;
     private String description;
     private Object result, extra;
     private Throwable exCause;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JResponse.class);
 
     public JResponse(ResultCode code)
     {
@@ -226,6 +219,11 @@ public class JResponse
         return code;
     }
 
+    public int getIntCode()
+    {
+        return code.toCode();
+    }
+
     /**
      * 如果异常不为空则，抛出异常。
      *
@@ -279,7 +277,7 @@ public class JResponse
     @Override
     public String toString()
     {
-        JSONObject json = new JSONObject(3);
+        JSONObject json = new JSONObject(5);
         ResultCode resultCode = code != null ? code : ResultCode.Other;
         json.put(CODE_FIELD, resultCode.toCode());
         json.put(CODE_NAME_FIELD, resultCode.name());

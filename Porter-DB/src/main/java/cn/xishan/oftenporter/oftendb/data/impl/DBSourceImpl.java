@@ -2,73 +2,35 @@ package cn.xishan.oftenporter.oftendb.data.impl;
 
 
 import cn.xishan.oftenporter.oftendb.data.*;
-import cn.xishan.oftenporter.oftendb.db.Condition;
-import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
-import cn.xishan.oftenporter.oftendb.db.QuerySettings;
-import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 
 /**
  * @author ZhuiFeng
  */
-public class DBSourceImpl implements DBSource
+public abstract class DBSourceImpl implements DBSource, Cloneable
 {
-    protected DBHandleSource dbHandleSource;
-    private Params params;
+    private ConfigToDo configToDo;
+    private Configed configed;
 
-
-    /**
-     * @param dataClass
-     * @param dbHandleSource
-     */
-    public DBSourceImpl(Class<? extends Data> dataClass, ParamsGetter.DataInitable dataInitable,
-            DBHandleSource dbHandleSource)
+    public DBSourceImpl(ConfigToDo configToDo)
     {
-        this(dataClass == null ? null : new Params(dataClass, dataInitable),
-                dbHandleSource);
-    }
-
-    public DBSourceImpl(DataAble dataAble, ParamsGetter.DataInitable dataInitable,
-            DBHandleSource dbHandleSource)
-    {
-        this(new Params(dataAble, dataInitable), dbHandleSource);
-    }
-
-    public DBSourceImpl(Params params,
-            DBHandleSource dbHandleSource)
-    {
-        this.params = params;
-        this.dbHandleSource = dbHandleSource;
+        this.configToDo = configToDo;
+        configed = new ConfigedImpl();
     }
 
     @Override
-    public DBHandleSource getDBHandleSource()
+    public Configed getConfiged()
     {
-        return dbHandleSource;
-    }
-
-    /**
-     * 构造一个Condition
-     *
-     * @return
-     */
-    public Condition newCondition()
-    {
-        return dbHandleSource.newCondition();
-    }
-
-    public QuerySettings newQuerySettings()
-    {
-        return dbHandleSource.newQuerySettings();
+        return configed;
     }
 
     @Override
-    public DBHandle getDbHandle(ParamsGetter paramsGetter, @MayNull DataAble dataAble,
-            DBHandle dbHandle) throws DBException
+    public ConfigToDo getConfigToDo()
     {
-        return dbHandleSource.getDbHandle(paramsGetter, dataAble, dbHandle);
+        return configToDo;
     }
+
 
     @Override
     public void afterClose(DBHandle dbHandle)
@@ -76,23 +38,21 @@ public class DBSourceImpl implements DBSource
 
     }
 
-    @Override
-    public Params getParams()
-    {
-        return params;
-    }
-
-    @Override
-    public DBSource withAnotherData(Class<? extends Data> clazz)
-    {
-        DBSource dbSource = new DBSourceImpl(clazz, params.getDataInitable(), dbHandleSource);
-        return dbSource;
-    }
 
     @Override
     public DBSource newInstance()
     {
-        DBSource dbSource = new DBSourceImpl(params.getDataAble(),params.getDataInitable(),dbHandleSource);
-        return dbSource;
+
+        try
+        {
+            DBSourceImpl dbSource = (DBSourceImpl) clone();
+            dbSource.configToDo = this.configToDo;
+            dbSource.configed = new ConfigedImpl();
+            return dbSource;
+
+        } catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -10,7 +10,7 @@ class DeliveryImpl implements Delivery
 {
     private PLinker pLinker;
     private WObject wObject;
-    private PBridgeImpl toAll, current;
+    private PBridgeImpl toAll, current,inner;
 
 
     public class PBridgeImpl implements PBridge
@@ -50,6 +50,22 @@ class DeliveryImpl implements Delivery
             }
         }
         return current;
+    }
+
+    @Override
+    public PBridge innerBridge()
+    {
+        if (inner == null)
+        {
+            synchronized (this)
+            {
+                if (inner == null)
+                {
+                    inner = new PBridgeImpl(pLinker.innerBridge());
+                }
+            }
+        }
+        return inner;
     }
 
     @Override

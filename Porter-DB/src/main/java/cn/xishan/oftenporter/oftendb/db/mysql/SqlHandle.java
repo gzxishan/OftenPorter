@@ -17,6 +17,8 @@ import java.sql.*;
 public class SqlHandle implements DBHandle, SqlSource
 {
 
+    private static final QuerySettings FIND_ONE = new QuerySettings().setLimit(1).setSkip(0);
+
     private Connection conn;
     private String tableName;// 表名
 
@@ -29,13 +31,11 @@ public class SqlHandle implements DBHandle, SqlSource
     /**
      * 创建一个DbRwMysql
      *
-     * @param conn      数据库连接对象
-     * @param tableName 要操作的表的名字
+     * @param conn 数据库连接对象
      */
-    public SqlHandle(Connection conn, String tableName)
+    public SqlHandle(Connection conn)
     {
         this.conn = conn;
-        this.tableName = tableName;
     }
 
     @Override
@@ -61,9 +61,10 @@ public class SqlHandle implements DBHandle, SqlSource
         return this;
     }
 
-    public void setTableName(String tableName)
+    @Override
+    public void setCollectionName(String collectionName)
     {
-        this.tableName = tableName;
+        this.tableName = collectionName;
     }
 
     public String getTableName()
@@ -185,29 +186,12 @@ public class SqlHandle implements DBHandle, SqlSource
         return execute(whereSQL);
     }
 
-    public static QuerySettings checkQuerySettings(QuerySettings querySettings)
-    {
-        SqlQuerySettings settings = null;
-        if (querySettings != null)
-        {
-            if (querySettings instanceof SqlQuerySettings)
-            {
-                settings = (SqlQuerySettings) querySettings;
-            } else
-            {
-                throw new RuntimeException("the type of " + querySettings.getClass()
-                        + " is not accept!");
-            }
-        }
-        return settings;
-    }
-
 
     @Override
     public JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
+                .toSelect(tableName, checkCondition(query), querySettings, true, keys);
         return _getJSONS(whereSQL, null, keys);
     }
 
@@ -216,7 +200,7 @@ public class SqlHandle implements DBHandle, SqlSource
             String... keys) throws DBException
     {
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, keys);
+                .toSelect(tableName, checkCondition(query), querySettings, true, keys);
         return getDBEnumerations(whereSQL, null, keys);
     }
 
@@ -397,7 +381,7 @@ public class SqlHandle implements DBHandle, SqlSource
     @Override
     public JSONObject getOne(Condition query, String... keys) throws DBException
     {
-        JSONArray list = getJSONs(query, SqlQuerySettings.FIND_ONE, keys);
+        JSONArray list = getJSONs(query, FIND_ONE, keys);
         Object obj = list.size() > 0 ? list.get(0) : null;
         JSONObject jsonObject = (JSONObject) obj;
         return jsonObject;
@@ -411,7 +395,7 @@ public class SqlHandle implements DBHandle, SqlSource
         JSONArray list = new JSONArray();
 
         SqlUtil.WhereSQL whereSQL = SqlUtil
-                .toSelect(tableName, checkCondition(query), checkQuerySettings(querySettings), true, key);
+                .toSelect(tableName, checkCondition(query), querySettings, true, key);
 
         PreparedStatement ps = null;
 
@@ -502,7 +486,7 @@ public class SqlHandle implements DBHandle, SqlSource
     @Override
     public byte[] getBinary(Condition query, String name) throws DBException
     {
-        SqlUtil.WhereSQL ws = SqlUtil.toSelect(tableName, checkCondition(query), SqlQuerySettings.FIND_ONE, true, name);
+        SqlUtil.WhereSQL ws = SqlUtil.toSelect(tableName, checkCondition(query), FIND_ONE, true, name);
         PreparedStatement ps = null;
         try
         {
@@ -574,12 +558,16 @@ public class SqlHandle implements DBHandle, SqlSource
     }
 
     @Override
-    public void startTransaction() throws DBException
+    public void startTransaction(TransactionConfig transactionConfig) throws DBException
     {
         try
         {
             conn.setAutoCommit(false);
-
+            SqlTransactionConfig sqlTransactionConfig = (SqlTransactionConfig) transactionConfig;
+            if (sqlTransactionConfig != null && sqlTransactionConfig.transactionLevel != null)
+            {
+                conn.setTransactionIsolation(sqlTransactionConfig.transactionLevel);
+            }
             isTransaction = true;
         } catch (SQLException e)
         {
@@ -709,17 +697,19 @@ public class SqlHandle implements DBHandle, SqlSource
     public static void setObject(PreparedStatement ps, int column,
             Object object) throws SQLException, FileNotFoundException
     {
-        if(object==null){
-            ps.setObject(column,object);
-        }else{
-            if ( object instanceof File)
+        if (object == null)
+        {
+            ps.setObject(column, object);
+        } else
+        {
+            if (object instanceof File)
             {
                 File file = (File) object;
                 ps.setBlob(column, new FileInputStream(file), file.length());
-            }else if(object instanceof CharSequence){
-                ps.setString(column,String.valueOf(object));
-            }
-            else
+            } else if (object instanceof CharSequence)
+            {
+                ps.setString(column, String.valueOf(object));
+            } else
             {
                 ps.setObject(column, object);
             }

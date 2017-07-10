@@ -39,18 +39,23 @@ public class PortUtil
      * @param method
      * @return
      */
-    public static String tied(PortIn portIn, Method method, boolean enableDefaultValue)
+    public static String[] tieds(PortIn portIn, Method method, boolean enableDefaultValue)
     {
-        String name = tied(portIn);
-        if (WPTool.isEmpty(name))
+        String[] names = tieds(portIn);
+        for (int i = 0; i < names.length; i++)
         {
-            if (!enableDefaultValue)
+            String name = names[i];
+            if (WPTool.isEmpty(name))
             {
-                throw new InitException("default value is not enable for " + method);
+                if (!enableDefaultValue)
+                {
+                    throw new InitException("default value is not enable for " + method);
+                }
+                name = method.getName();
             }
-            name = method.getName();
+            names[i] = checkTied(name);
         }
-        return checkTied(name);
+        return names;
     }
 
     private static String tied(PortIn portIn)
@@ -61,6 +66,21 @@ public class PortUtil
             name = portIn.tied();
         }
         return name;
+    }
+
+    private static String[] tieds(PortIn portIn)
+    {
+        String[] tieds = portIn.tieds();
+        if (tieds.length == 0)
+        {
+            String name = portIn.value();
+            if (WPTool.isEmpty(name))
+            {
+                name = portIn.tied();
+            }
+            tieds = new String[]{name};
+        }
+        return tieds;
     }
 
     public static String tied(PortInObj.UnNece unNece, Field field, boolean enableDefaultValue)

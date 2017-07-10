@@ -20,12 +20,12 @@ public class SqlConditionTest
     public void test()
     {
         SqlCondition sqlCondition = new SqlCondition();
-        sqlCondition.put(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
-        sqlCondition.put(Condition.STARTSWITH,new CUnit("name","[chen]"));
-        sqlCondition.put(Condition.EQ,new CUnit("pid",null));
-        sqlCondition.put(Condition.IN,new CUnit("t1.age",new String[]{"12","23","26"}));
-        sqlCondition.put(Condition.IN,new CUnit("agex", Arrays.asList(new String[]{"12","23","26"})));
-        sqlCondition.put(Condition.IN,new CUnit("age2","19"));
+        sqlCondition.append(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
+        sqlCondition.append(Condition.STARTSWITH,new CUnit("name","[chen]"));
+        sqlCondition.append(Condition.EQ,new CUnit("pid",null));
+        sqlCondition.append(Condition.IN,new CUnit("t1.age",new String[]{"12","23","26"}));
+        sqlCondition.append(Condition.IN,new CUnit("agex", Arrays.asList(new String[]{"12","23","26"})));
+        sqlCondition.append(Condition.IN,new CUnit("age2","19"));
 
         Object[] as = (Object[]) sqlCondition.toFinalObject();
         LogUtil.printErrPos(as[0]);

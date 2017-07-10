@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.db;
 
+import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
  *
  * @author ZhuiFeng
  */
-public class NameValues
+public class NameValues implements AppValues
 {
 
     public interface Foreach
@@ -26,12 +27,12 @@ public class NameValues
     // private Map<String, Object> map;
     private List<String> names;
     private List<Object> values;
-    private boolean filterNullAndEmpty=false;
+    private boolean filterNullAndEmpty = false;
 
     public NameValues()
     {
-        names = new ArrayList<String>();
-        values = new ArrayList<Object>();
+        names = new ArrayList<>();
+        values = new ArrayList<>();
     }
 
     public NameValues(int capacity)
@@ -41,7 +42,8 @@ public class NameValues
     }
 
     /**
-     * 是否过滤掉值为null或""的元素,默认为false,请在{@linkplain #put(String, Object)}之前调用。
+     * 是否过滤掉值为null或""的元素,默认为false,请在{@linkplain #append(String, Object)}之前调用。
+     *
      * @param filterNullAndEmpty
      * @return
      */
@@ -53,38 +55,30 @@ public class NameValues
 
     /**
      * 添加键值对。
+     *
      * @param name
      * @param value
      * @return
      */
-    public  NameValues append(String name, Object value)
+    public NameValues append(String name, Object value)
     {
-        if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){
+        if (!filterNullAndEmpty || WPTool.notNullAndEmpty(value))
+        {
             names.add(name);
             values.add(value);
         }
         return this;
     }
 
-    /**
-     * 请使用{@linkplain #append(String, Object)}.
-     * @param name
-     * @param value
-     * @return
-     */
-    @Deprecated
-    public NameValues put(String name, Object value)
-    {
-        if(!filterNullAndEmpty|| WPTool.notNullAndEmpty(value)){
-            names.add(name);
-            values.add(value);
-        }
-        return this;
-    }
 
     public String[] names()
     {
         return names.toArray(new String[0]);
+    }
+
+    public Object[] values()
+    {
+        return values.toArray(new Object[0]);
     }
 
     public void forEach(Foreach foreach)
@@ -118,6 +112,18 @@ public class NameValues
     public int size()
     {
         return names.size();
+    }
+
+    @Override
+    public String[] getNames()
+    {
+        return names();
+    }
+
+    @Override
+    public Object[] getValues()
+    {
+        return values();
     }
 
 }

@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +32,13 @@ public final class PorterMain
     private PortExecutor portExecutor;
 
     private boolean isInit;
-    private final InnerBridge innerBridge;
-    private final PLinker pLinker;
+    private InnerBridge innerBridge;
+    private PLinker pLinker;
     private ListenerAdderImpl listenerAdder;
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
-    private final Logger LOGGER;
+    private Logger LOGGER;
     private static String currentPNameForLogger;
 
     static
@@ -53,17 +54,64 @@ public final class PorterMain
         });
     }
 
+    public PorterMain(PName pName, CommonMain commonMain)
+    {
+        PBridge inner = (request, callback) ->
+        {
+            ABOption abOption = request._getABOption_();
+            if (abOption == null)
+            {
+                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
+                request._setABOption_(abOption);
+            }
+            LocalResponse resp = new LocalResponse(callback);
+            PreRequest req = forRequest(request, resp);
+            if (req != null)
+            {
+                doRequest(req, request, resp);
+            }
+        };
+        PBridge current = (request, callback) ->
+        {
+            ABOption abOption = request._getABOption_();
+            if (abOption == null)
+            {
+                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder._OTHER_BEFORE);
+                request._setABOption_(abOption);
+            }
+            LocalResponse resp = new LocalResponse(callback);
+            PreRequest req = forRequest(request, resp);
+            if (req != null)
+            {
+                doRequest(req, request, resp);
+            }
+        };
+
+        initPorterMain(pName, commonMain, current, inner);
+    }
+
     /**
-     * @param pName  框架名称。
-     * @param bridge 只能访问当前实例的bridge。
+     * @param pName         框架名称。
+     * @param currentBridge 只能访问当前实例的bridge。
+     * @param innerBridge
      */
-    public PorterMain(PName pName, CommonMain commonMain, PBridge bridge)
+    public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    {
+        initPorterMain(pName, commonMain, currentBridge, innerBridge);
+    }
+
+    /**
+     * @param pName         框架名称。
+     * @param currentBridge 只能访问当前实例的bridge。
+     * @param innerBridge
+     */
+    private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
     {
         synchronized (PorterMain.class)
         {
             this.innerBridge = new InnerBridge();
             listenerAdder = new ListenerAdderImpl();
-            pLinker = new DefaultPLinker(pName, bridge);
+            pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
             pLinker.setPorterAttr(contextName ->
             {
                 Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
@@ -157,9 +205,9 @@ public final class PorterMain
         }
     }
 
-    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle,CheckPassable[] alls)
+    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls)
     {
-        if (alls==null)
+        if (alls == null)
         {
             return;
         }
@@ -207,7 +255,7 @@ public final class PorterMain
 
     private void _startOne(PorterBridge bridge)
     {
-        CheckPassable[] alls=null;
+        CheckPassable[] alls = null;
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
             alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
@@ -224,7 +272,8 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
                 porterConf.isEnableTiedNameDefault(), bridge, porterConf.isResponseWhenException());
 
-        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(innerContextBridge, getPLinker(), porterData,porterConf.getContextName());
+        AutoSetHandle autoSetHandle = AutoSetHandle
+                .newInstance(innerContextBridge, getPLinker(), porterData, porterConf.getContextName());
 
         LOGGER.debug("do autoSet StateListener...");
         Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
@@ -237,14 +286,14 @@ public final class PorterMain
         stateListenerForAll.beforeSeek(porterConf.getUserInitParam(), porterConf, paramSourceHandleManager);
 
 
-        doGlobalCheckAutoSet(autoSetHandle,alls);
+        doGlobalCheckAutoSet(autoSetHandle, alls);
 
         Map<Class<?>, CheckPassable> classCheckPassableMap;
         SthDeal sthDeal = new SthDeal();
 
         try
         {
-            classCheckPassableMap = contextPorter.initSeek(sthDeal,listenerAdder, porterConf, autoSetHandle);
+            classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle);
         } catch (FatalInitException e)
         {
             throw new Error(e);
@@ -265,17 +314,17 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(forAllCheckPassables);
 
 
-        CheckPassable[] contextChecks =   porterConf.getContextChecks().toArray(new CheckPassable[0]);
+        CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
-        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge,contextChecks,
+        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
                 forAllCheckPassables);
 
         try
         {
             autoSetHandle.doAutoSet();//变量设置处理
-            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()),portExecutor);//处理After和Before
+            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
         } catch (FatalInitException e)
         {
             throw new Error(e);
@@ -289,7 +338,7 @@ public final class PorterMain
         stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
         porterConf.initOk();
-        LOGGER.debug(":{}/{}porterOne started!", pLinker.currentPName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
 
     }
 
