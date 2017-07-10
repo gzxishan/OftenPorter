@@ -224,7 +224,7 @@ public class PortUtil
 
                 for (int k = 0; k < unneces.length; k++)
                 {
-                    if (!(unneces[k] == null && one.unneceObjFields[k].getType().isPrimitive()))
+                    if (unneces[k] != null)
                     {
                         one.unneceObjFields[k].set(object, unneces[k]);
                     }
