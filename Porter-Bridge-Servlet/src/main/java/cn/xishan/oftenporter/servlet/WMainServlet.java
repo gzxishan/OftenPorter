@@ -1,11 +1,13 @@
 package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.PreRequest;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
+import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
@@ -73,42 +75,42 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    public void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        doRequest(req, resp, PortMethod.TARCE);
+        doRequest(request, response, PortMethod.TARCE);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        doRequest(req, resp, PortMethod.PUT);
+        doRequest(request, response, PortMethod.PUT);
     }
 
     @Override
-    protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    public void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        doRequest(req, resp, PortMethod.HEAD);
+        doRequest(request, response, PortMethod.HEAD);
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
-        doRequest(req, resp, PortMethod.DELETE);
+        doRequest(request, response, PortMethod.DELETE);
     }
 
     @Override
-    protected void doOptions(HttpServletRequest request,
+    public void doOptions(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException
     {
         doRequest(request, response, PortMethod.OPTIONS);
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         doRequest(request, response, PortMethod.POST);
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
     {
         doRequest(request, response, PortMethod.GET);
     }
@@ -158,7 +160,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * @param method
      * @throws IOException
      */
-    protected void doRequest(HttpServletRequest request, String path, HttpServletResponse response,
+    public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             PortMethod method) throws IOException
     {
 
