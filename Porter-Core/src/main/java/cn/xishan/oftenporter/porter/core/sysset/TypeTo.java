@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -123,6 +124,18 @@ public class TypeTo
                         public Object getParam(String name)
                         {
                             return jsonObject.get(name);
+                        }
+
+                        @Override
+                        public <T> T getNeceParam(String name, String errmsgOfEmpty)
+                        {
+                            return DefaultParamsSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+                        }
+
+                        @Override
+                        public <T> T getNeceParam(String name)
+                        {
+                            return DefaultParamsSource.getNeceParamUtil(this,name);
                         }
 
                         @Override

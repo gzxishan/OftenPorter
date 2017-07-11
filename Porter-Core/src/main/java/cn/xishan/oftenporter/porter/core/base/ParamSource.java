@@ -13,9 +13,23 @@ public interface ParamSource
      * 根据名称得到参数,路径参数优先。
      *
      * @param name 参数名称
-     * @return 返回参数值
+     * @return 返回参数值, 可能为null且字符串可能为""。
      */
-    <T>T getParam(String name);
+    <T> T getParam(String name);
+
+    /**
+     * 根据名称得到参数,路径参数优先。
+     *
+     * @param name          参数名称
+     * @param errmsgOfEmpty 为空时抛出异常的错误信息
+     * @return 返回参数值, 不为null且字符串不为""。
+     */
+    <T> T getNeceParam(String name, String errmsgOfEmpty);
+
+    /**
+     * 见{@linkplain #getNeceParam(String, String)},使用默认的错误信息。
+     */
+    <T> T getNeceParam(String name);
 
     void putNewParams(Map<String, ?> newParams);
 

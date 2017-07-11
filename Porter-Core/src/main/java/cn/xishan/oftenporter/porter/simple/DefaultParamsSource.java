@@ -1,9 +1,13 @@
 package cn.xishan.oftenporter.porter.simple;
 
 
+import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.ResultCode;
+import cn.xishan.oftenporter.porter.core.base.ParamDealt;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WRequest;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -39,6 +43,37 @@ public class DefaultParamsSource implements ParamSource
             rs = request.getParameter(name);
         }
         return (T) rs;
+    }
+
+    public static <T> T getNeceParamUtil(ParamSource paramSource,String name, String errmsgOfEmpty)
+    {
+        Object value = paramSource.getParam(name);
+        if(WPTool.isEmpty(value)){
+            ParamDealt.FailedReason failedReason = DefaultFailedReason.lackNecessaryParams(errmsgOfEmpty,name);
+            JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
+            jResponse.setDescription(failedReason.desc());
+            jResponse.setExtra(failedReason.toJSON());
+            throw new WCallException(jResponse);
+        }
+
+        return (T) value;
+    }
+
+    public static <T> T getNeceParamUtil(ParamSource paramSource,String name)
+    {
+        return getNeceParamUtil(paramSource,name,"缺少必需参数:"+name);
+    }
+
+    @Override
+    public <T> T getNeceParam(String name, String errmsgOfEmpty)
+    {
+        return getNeceParamUtil(this,name,errmsgOfEmpty);
+    }
+
+    @Override
+    public <T> T getNeceParam(String name)
+    {
+        return getNeceParamUtil(this,name);
     }
 
     /**

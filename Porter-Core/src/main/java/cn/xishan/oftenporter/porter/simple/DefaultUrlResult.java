@@ -95,6 +95,18 @@ class DefaultUrlResult implements UrlDecoder.Result
     }
 
     @Override
+    public <T> T getNeceParam(String name, String errmsgOfEmpty)
+    {
+        return DefaultParamsSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+    }
+
+    @Override
+    public <T> T getNeceParam(String name)
+    {
+        return DefaultParamsSource.getNeceParamUtil(this,name);
+    }
+
+    @Override
     public void putNewParams(Map<String, ?> newParams)
     {
         params.putAll(newParams);
