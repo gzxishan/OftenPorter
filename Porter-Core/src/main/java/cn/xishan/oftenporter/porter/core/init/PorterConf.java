@@ -28,7 +28,8 @@ public class PorterConf
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
-    private String[] autoSetSeekPackages;
+    private String[] autoSetSeekPackages,staticAutoSetPackages,staticAutoSetClassStrs;
+    private Class<?>[] staticAutoSetClasses;
     private ParamSourceHandleManager paramSourceHandleManager;
 
 
@@ -53,6 +54,45 @@ public class PorterConf
     public void setAutoSetSeekPackages(String... autoSetSeekPackages)
     {
         this.autoSetSeekPackages = autoSetSeekPackages;
+    }
+
+    /**
+     * 用于扫描指定包中的每一个类，进而注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * @param staticAutoSetPackages
+     */
+    public void setStaticAutoSetPackages(String ...staticAutoSetPackages){
+        this.staticAutoSetPackages=staticAutoSetPackages;
+    }
+
+    public String[] getStaticAutoSetPackages()
+    {
+        return staticAutoSetPackages;
+    }
+
+    /**
+     * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * @param staticAutoSetClasses
+     */
+    public void setStaticAutoSetClasses(Class<?> ...staticAutoSetClasses){
+        this.staticAutoSetClasses=staticAutoSetClasses;
+    }
+
+    public Class<?>[] getStaticAutoSetClasses()
+    {
+        return staticAutoSetClasses;
+    }
+
+    /**
+     * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * @param staticAutoSetClasses
+     */
+    public void setStaticAutoSetClasses(String ...staticAutoSetClasses){
+        this.staticAutoSetClassStrs=staticAutoSetClasses;
+    }
+
+    public String[] getStaticAutoSetClassStrs()
+    {
+        return staticAutoSetClassStrs;
     }
 
     public String[] getAutoSetSeekPackages()

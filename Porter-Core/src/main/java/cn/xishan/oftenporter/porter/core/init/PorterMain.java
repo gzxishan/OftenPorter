@@ -308,6 +308,10 @@ public final class PorterMain
         LOGGER.debug("add autoSetSeek...");
         autoSetHandle.addAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
 
+        LOGGER.debug("add staticAutoSet...");
+        autoSetHandle.addStaticAutoSet(porterConf.getStaticAutoSetPackages(), porterConf.getStaticAutoSetClassStrs(),
+                porterConf.getStaticAutoSetClasses(), porterConf.getClassLoader());
+
 
         CheckPassable[] forAllCheckPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
         LOGGER.debug("add autoSet ForAllCheckPassable...");

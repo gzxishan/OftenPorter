@@ -149,6 +149,81 @@ public class AutoSetHandle
         }
     }
 
+    private class Handle_doStaticAutoSet implements IHandle
+    {
+
+        Object[] args;
+
+        public Handle_doStaticAutoSet(Object... args)
+        {
+            this.args = args;
+        }
+
+        private void doAutoSetSeek(String[] packages, String[] classStrs, Class<?>[] classes, ClassLoader classLoader)
+        {
+            if ((packages == null || packages.length == 0) && (classStrs == null || classStrs.length == 0) &&
+                    (classes == null || classes.length == 0))
+            {
+                return;
+            }
+            try
+            {
+                LOGGER.debug("*****StaticAutoSet******");
+                if (packages != null)
+                {
+                    for (int k = 0; k < packages.length; k++)
+                    {
+                        String packageStr = packages[k];
+                        LOGGER.debug("扫描包：{}", packageStr);
+                        List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
+                        for (int i = 0; i < classeses.size(); i++)
+                        {
+                            Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
+                            doAutoSet(null, null, clazz, null, null, RangeType.STATIC);
+                        }
+                    }
+                }
+                if (classes != null)
+                {
+                    for (int k = 0; k < classes.length; k++)
+                    {
+                        Class<?> clazz = classes[k];
+                        doAutoSet(null, null, clazz, null, null, RangeType.STATIC);
+                    }
+                }
+
+                if (classStrs != null)
+                {
+                    for (String clazzStr : classStrs)
+                    {
+                        Class<?> clazz = null;
+                        try
+                        {
+                            clazz = PackageUtil.newClass(clazzStr, classLoader);
+                        } catch (Exception e)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                        if (clazz != null)
+                        {
+                            doAutoSet(null, null, clazz, null, null, RangeType.STATIC);
+                        }
+                    }
+                }
+
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public void handle()
+        {
+            this.doAutoSetSeek((String[]) args[0], (String[]) args[1], (Class<?>[]) args[2], (ClassLoader) args[3]);
+        }
+    }
+
     private class Handle_doAutoSetForPorter implements IHandle
     {
         Object[] args;
@@ -196,6 +271,12 @@ public class AutoSetHandle
     public synchronized void addAutoSetSeek(String[] packages, ClassLoader classLoader)
     {
         iHandles.add(new Handle_doAutoSetSeek(packages, classLoader));
+    }
+
+    public synchronized void addStaticAutoSet(String[] packages, String[] classStrs, Class<?>[] classes,
+            ClassLoader classLoader)
+    {
+        iHandles.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
     }
 
     private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
