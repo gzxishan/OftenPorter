@@ -26,7 +26,7 @@ public class Hello3RESTPorter
      * @param wObject
      * @return
      */
-    @PortIn(nece = { "name" }, unnece = { "msg" }, method = PortMethod.POST,
+    @PortIn(nece = { "name" }, unece = { "msg" }, method = PortMethod.POST,
 	    tiedType = TiedType.REST)
     public Object add(WObject wObject)
     {

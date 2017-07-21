@@ -19,7 +19,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 public class Hello4RESTPorter
 {
 
-    @PortIn(nece = { "name" }, unnece = { "msg" }, method = PortMethod.POST,
+    @PortIn(nece = { "name" }, unece = { "msg" }, method = PortMethod.POST,
 	    tiedType = TiedType.REST)
     public Object add(WObject wObject)
     {

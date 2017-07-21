@@ -181,7 +181,7 @@ public @interface PortIn
     /**
      * 非必须参数列表.
      */
-    String[] unnece() default {};
+    String[] unece() default {};
 
     String[] inner() default {};
 

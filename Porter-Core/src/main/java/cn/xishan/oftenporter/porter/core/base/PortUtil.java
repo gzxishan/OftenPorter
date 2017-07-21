@@ -250,7 +250,7 @@ public class PortUtil
      */
     public ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
             Object[] nece,
-            Object[] unnece,
+            Object[] unece,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
@@ -265,16 +265,16 @@ public class PortUtil
                     nece[i] = paramSource.getParam(names[i].varName);
                 }
                 names = inNames.unece;
-                for (int i = 0; i < unnece.length; i++)
+                for (int i = 0; i < unece.length; i++)
                 {
-                    unnece[i] = paramSource.getParam(names[i].varName);
+                    unece[i] = paramSource.getParam(names[i].varName);
                 }
             } else
             {
                 reason = paramDealt.deal(inNames.nece, nece, true, paramSource, currentTypeParserStore);
                 if (reason == null)
                 {
-                    reason = paramDealt.deal(inNames.unece, unnece, false, paramSource, currentTypeParserStore);
+                    reason = paramDealt.deal(inNames.unece, unece, false, paramSource, currentTypeParserStore);
                 }
             }
         } catch (Exception e)

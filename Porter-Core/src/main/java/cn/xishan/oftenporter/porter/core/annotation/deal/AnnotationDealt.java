@@ -397,7 +397,7 @@ public final class AnnotationDealt
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(),portIn.ignoredFunTieds());
         _portIn.tiedNames = new String[]{PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue)};
-        _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
+        _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
@@ -431,7 +431,7 @@ public final class AnnotationDealt
             _portInOfMethod.tiedNames = PortUtil
                     .tieds(portIn, method, _portInOfMethod.getTiedType() == TiedType.REST || _portInOfMethod
                             .getTiedType() == TiedType.FORCE_REST || enableDefaultValue);
-            _portInOfMethod.inNames = InNames.fromStringArray(portIn.nece(), portIn.unnece(), portIn.inner());
+            _portInOfMethod.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
             _portInOfMethod.checks = portIn.checks();
             _portInOfMethod.methods = AnnoUtil.methods(class_PortIn.getMethods()[0], portIn);
             _portInOfMethod.ignoreTypeParser = portIn.ignoreTypeParser();
