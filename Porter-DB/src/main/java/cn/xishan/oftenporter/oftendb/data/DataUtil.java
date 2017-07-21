@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.data;
 
 
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
+import cn.xishan.oftenporter.oftendb.annotation.ExceptDBField;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
@@ -24,13 +25,16 @@ public class DataUtil
     private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
 
     /**
-     * 得到字段的绑定名称。
+     * 得到字段的绑定名称,如果含有{@linkplain ExceptDBField}注解则会返回null。
      *
      * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain DBField}或{@linkplain PortInObj.UnNece
      * }注解标注字段（外面科技），使用{@linkplain DBField}来映射数据库字段名。
      */
     public static String getTiedName(Field field, boolean withKey)
     {
+        if(field.isAnnotationPresent(ExceptDBField.class)){
+            return null;
+        }
         field.setAccessible(true);
         String name = null;
         if (field.isAnnotationPresent(PortInObj.Nece.class))
