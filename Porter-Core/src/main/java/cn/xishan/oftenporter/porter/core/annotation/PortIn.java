@@ -167,7 +167,7 @@ public @interface PortIn
     String[] tieds() default {};
 
     /**
-     * 注解在函数上，且大小不为0时有效。
+     * 大小不为0时有效。
      *
      * @return
      */

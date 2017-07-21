@@ -396,7 +396,7 @@ public final class AnnotationDealt
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(),portIn.ignoredFunTieds());
-        _portIn.tiedNames = new String[]{PortUtil.tied(portIn, clazz, isMixin || enableDefaultValue)};
+        _portIn.tiedNames = PortUtil.tieds(portIn, clazz, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();
