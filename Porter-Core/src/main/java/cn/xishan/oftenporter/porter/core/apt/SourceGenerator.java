@@ -28,7 +28,7 @@ class SourceGenerator implements Closeable
     private String packageName;
     private String name;
     private Set<String> imports;
-    private List<ReturnAndName> nece, unnece;
+    private List<ReturnAndName> nece, unece;
 
     static class ReturnAndName
     {
@@ -80,7 +80,7 @@ class SourceGenerator implements Closeable
         this.name = name;
         imports = new HashSet<>();
         nece = new ArrayList<>();
-        unnece = new ArrayList<>();
+        unece = new ArrayList<>();
 
         imports.add(PortInObj.class.getName());
     }
@@ -145,7 +145,7 @@ class SourceGenerator implements Closeable
 
     public void addUnNeceMethod(ExecutableElement methodElement)
     {
-        unnece.add(addImport(methodElement, methodElement.getAnnotation(PortInObj.UnNece.class)));
+        unece.add(addImport(methodElement, methodElement.getAnnotation(PortInObj.UnNece.class)));
     }
 
 
@@ -196,9 +196,9 @@ class SourceGenerator implements Closeable
             writeFieldAndMethod(returnAndName, neceAnnotation);
         }
 
-        for (int i = 0; i < unnece.size(); i++)
+        for (int i = 0; i < unece.size(); i++)
         {
-            ReturnAndName returnAndName = unnece.get(i);
+            ReturnAndName returnAndName = unece.get(i);
             writeFieldAndMethod(returnAndName, unneceAnnotation);
         }
 
@@ -230,9 +230,9 @@ class SourceGenerator implements Closeable
                     .append("+\",\"+");
         }
 
-        for (int i = 0; i < unnece.size(); i++)
+        for (int i = 0; i < unece.size(); i++)
         {
-            ReturnAndName item = unnece.get(i);
+            ReturnAndName item = unece.get(i);
             sb.append("\"").append(item.var_name).append("=\"+").append("this.").append(item.var_name)
                     .append("+\",\"+");
         }

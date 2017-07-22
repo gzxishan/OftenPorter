@@ -32,6 +32,34 @@ public class PortUtil
         LOGGER = LogUtil.logger(PortUtil.class);
     }
 
+
+    /**
+     * 得到类的绑定名。
+     *
+     * @param portIn
+     * @param clazz
+     * @return
+     */
+    public static String[] tieds(PortIn portIn, Class<?> clazz, boolean enableDefaultValue)
+    {
+
+        String[] names = tieds(portIn);
+        for (int i = 0; i < names.length; i++)
+        {
+            String name = names[i];
+            if (WPTool.isEmpty(name))
+            {
+                if (!enableDefaultValue)
+                {
+                    throw new InitException("default value is not enable for " + clazz);
+                }
+                name = tied(clazz);
+            }
+            names[i] = checkTied(name);
+        }
+        return names;
+    }
+
     /**
      * 得到函数的绑定名。
      *
@@ -133,6 +161,7 @@ public class PortUtil
             return checkTied(name);
         }
     }
+
 
     public static String tied(Class<?> clazz)
     {
@@ -250,7 +279,7 @@ public class PortUtil
      */
     public ParamDealt.FailedReason paramDeal(boolean ignoreTypeParser, ParamDealt paramDealt, InNames inNames,
             Object[] nece,
-            Object[] unnece,
+            Object[] unece,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
@@ -265,16 +294,16 @@ public class PortUtil
                     nece[i] = paramSource.getParam(names[i].varName);
                 }
                 names = inNames.unece;
-                for (int i = 0; i < unnece.length; i++)
+                for (int i = 0; i < unece.length; i++)
                 {
-                    unnece[i] = paramSource.getParam(names[i].varName);
+                    unece[i] = paramSource.getParam(names[i].varName);
                 }
             } else
             {
                 reason = paramDealt.deal(inNames.nece, nece, true, paramSource, currentTypeParserStore);
                 if (reason == null)
                 {
-                    reason = paramDealt.deal(inNames.unece, unnece, false, paramSource, currentTypeParserStore);
+                    reason = paramDealt.deal(inNames.unece, unece, false, paramSource, currentTypeParserStore);
                 }
             }
         } catch (Exception e)

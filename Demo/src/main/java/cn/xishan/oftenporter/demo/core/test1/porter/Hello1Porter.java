@@ -32,7 +32,7 @@ public class Hello1Porter
      * @param wObject
      * @return
      */
-    @PortIn(nece = { "name" }, unnece = { "msg" })
+    @PortIn(nece = { "name" }, unece = { "msg" })
     public Object say(WObject wObject)
     {
 	/**

@@ -24,7 +24,7 @@ class Hello2Porter
      * @param wObject
      * @return
      */
-    @PortIn(nece = { "name" }, unnece = { "msg" }, method = PortMethod.POST)
+    @PortIn(nece = { "name" }, unece = { "msg" }, method = PortMethod.POST)
     public Object say(WObject wObject)
     {
 	String name = (String) wObject.fn[0];

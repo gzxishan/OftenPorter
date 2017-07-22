@@ -167,7 +167,7 @@ public @interface PortIn
     String[] tieds() default {};
 
     /**
-     * 注解在函数上，且大小不为0时有效。
+     * 大小不为0时有效。
      *
      * @return
      */
@@ -181,7 +181,7 @@ public @interface PortIn
     /**
      * 非必须参数列表.
      */
-    String[] unnece() default {};
+    String[] unece() default {};
 
     String[] inner() default {};
 
