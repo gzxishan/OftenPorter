@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 
 /**
@@ -238,7 +239,12 @@ public abstract class WObject
 
     public SyncPorter newSyncPorter(SyncOption syncOption)
     {
-        return syncOption.build(this);
+        return syncOption.build(this,true);
+    }
+
+    public SyncNotInnerPorter newSyncNotInnerPorter(SyncOption syncOption)
+    {
+        return (SyncNotInnerPorter) syncOption.build(this,false);
     }
 
 }
