@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.db;
 
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +12,9 @@ import java.util.List;
  *
  * @author ZhuiFeng
  */
-public class NameValues implements AppValues
-{
+public class NameValues implements AppValues {
 
-    public interface Foreach
-    {
+    public interface Foreach {
         /**
          * @param name
          * @param value
@@ -29,14 +28,12 @@ public class NameValues implements AppValues
     private List<Object> values;
     private boolean filterNullAndEmpty = false;
 
-    public NameValues()
-    {
+    public NameValues() {
         names = new ArrayList<>();
         values = new ArrayList<>();
     }
 
-    public NameValues(int capacity)
-    {
+    public NameValues(int capacity) {
         names = new ArrayList<String>(capacity);
         values = new ArrayList<Object>(capacity);
     }
@@ -47,8 +44,7 @@ public class NameValues implements AppValues
      * @param filterNullAndEmpty
      * @return
      */
-    public NameValues filterNullAndEmpty(boolean filterNullAndEmpty)
-    {
+    public NameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
         this.filterNullAndEmpty = filterNullAndEmpty;
         return this;
     }
@@ -60,10 +56,8 @@ public class NameValues implements AppValues
      * @param value
      * @return
      */
-    public NameValues append(String name, Object value)
-    {
-        if (!filterNullAndEmpty || WPTool.notNullAndEmpty(value))
-        {
+    public NameValues append(String name, Object value) {
+        if (!filterNullAndEmpty || WPTool.notNullAndEmpty(value)) {
             names.add(name);
             values.add(value);
         }
@@ -71,58 +65,55 @@ public class NameValues implements AppValues
     }
 
 
-    public String[] names()
-    {
+    public String[] names() {
         return names.toArray(new String[0]);
     }
 
-    public Object[] values()
-    {
+    public Object[] values() {
         return values.toArray(new Object[0]);
     }
 
-    public void forEach(Foreach foreach)
-    {
-        for (int i = 0; i < names.size(); i++)
-        {
-            if (!foreach.forEach(names.get(i), values.get(i)))
-            {
+    public void forEach(Foreach foreach) {
+        for (int i = 0; i < names.size(); i++) {
+            if (!foreach.forEach(names.get(i), values.get(i))) {
                 break;
             }
         }
 
     }
 
-    public void clear()
-    {
+    public void clear() {
         names.clear();
         values.clear();
     }
 
-    public Object value(int index)
-    {
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        for (int i = 0; i < names.size(); i++) {
+            jsonObject.put(names.get(i), values.get(i));
+        }
+        return jsonObject;
+    }
+
+    public Object value(int index) {
         return values.get(index);
     }
 
-    public String name(int index)
-    {
+    public String name(int index) {
         return names.get(index);
     }
 
-    public int size()
-    {
+    public int size() {
         return names.size();
     }
 
     @Override
-    public String[] getNames()
-    {
+    public String[] getNames() {
         return names();
     }
 
     @Override
-    public Object[] getValues()
-    {
+    public Object[] getValues() {
         return values();
     }
 

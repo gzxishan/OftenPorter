@@ -470,6 +470,9 @@ public class AutoSetHandle
                         }
                         break;
                     }
+                    if(value==null){
+                        value=f.get(currentObject);
+                    }
                     if (value == null)
                     {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
