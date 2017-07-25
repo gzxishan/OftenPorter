@@ -223,7 +223,6 @@ public class PortExecutor
 
             if (abOption != null)
             {
-                wObject._otherObject = abOption._otherObject;
                 boolean willFindLast = false;
                 if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_BEFORE)
                 {
@@ -250,6 +249,9 @@ public class PortExecutor
                     {
                         abOption = abOption.clone(ABInvokeOrder.OTHER);
                     }
+                }
+                if(!abOption.isFirst()){
+                    wObject._otherObject = abOption._otherObject;
                 }
             } else
             {

@@ -49,7 +49,7 @@ public abstract class WObject
     public String restValue;
 
     /**
-     * 用于其他用处。
+     * 用于其他用处,且为{@linkplain PortFunType#INNER}的情况。
      */
     public Object _otherObject;
 
