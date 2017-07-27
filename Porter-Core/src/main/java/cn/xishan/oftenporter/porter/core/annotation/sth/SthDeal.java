@@ -375,9 +375,9 @@ public class SthDeal
 
     }
 
-    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption)
+    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption,boolean isInner)
     {
-        SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption);
+        SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption,isInner);
         return syncPorter;
     }
 }

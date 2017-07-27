@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.porter.local;
 
-import cn.xishan.oftenporter.porter.core.PreRequest;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;

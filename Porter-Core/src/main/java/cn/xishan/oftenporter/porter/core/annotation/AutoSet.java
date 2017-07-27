@@ -32,15 +32,14 @@ import java.lang.annotation.*;
  * 3.{@linkplain PorterData PorterData}
  * 4.{@linkplain Logger Logger}
  * </pre>
- *
+ * <p>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 @Documented
-public @interface AutoSet
-{
+public @interface AutoSet {
 
 
     /**
@@ -51,19 +50,24 @@ public @interface AutoSet
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
     @Documented
-    @interface AutoSetSeek
-    {
+    @interface AutoSetSeek {
     }
 
     /**
+     * <pre>
      * 注解在public的函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
+     * <strong>注意：</strong>只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
+     * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     @Documented
-    @interface SetOk
-    {
-
+    @interface SetOk {
+        /**
+         * 全局优先级,数值越大越先执行，同一优先级的执行顺序并不保证。
+         * @return
+         */
+        int priority() default 0;
     }
 
     /**
@@ -74,8 +78,7 @@ public @interface AutoSet
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
     @Documented
-    @interface AutoSetMixin
-    {
+    @interface AutoSetMixin {
         /**
          * 为""表示匹配名称为当前注解类的Class.getName，从被混入的类中查找有该注解的对应变量.
          *
@@ -104,13 +107,11 @@ public @interface AutoSet
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
     @Documented
-    @interface AutoSetThatOfMixin
-    {
+    @interface AutoSetThatOfMixin {
 
     }
 
-    enum Range
-    {
+    enum Range {
         /**
          * 表示使用针对所有context全局实例.若不存在，则会尝试反射创建，并加入到全局map中。
          * <br>
@@ -155,44 +156,51 @@ public @interface AutoSet
 
     /**
      * 是否允许注入的对象为空，默认为false。
+     *
      * @return
      */
-    boolean nullAble()default false;
+    boolean nullAble() default false;
 
     /**
      * 对应的AutoSetDealt必须含有无参构造函数。
+     *
      * @return
      */
     Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
 
     /**
      * 对应的AutoSetGen必须含有无参构造函数。
+     *
      * @return
      */
     Class<? extends AutoSetGen> gen() default AutoSetGen.class;
 
     /**
      * 对注入进行处理.
+     *
      * @author Created by https://github.com/CLovinr on 2017/1/7.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
     @Documented
-    @interface AutoSetDefaultDealt
-    {
+    @interface AutoSetDefaultDealt {
         /**
          * 默认选项，当{@linkplain AutoSet#option() AutoSet.option()}为空时有效。
+         *
          * @return
          */
         String option() default "";
+
         /**
          * 对应的AutoSetDealt必须含有无参构造函数。
+         *
          * @return
          */
         Class<? extends AutoSetDealt> dealt() default AutoSetDealt.class;
 
         /**
          * 对应的AutoSetGen必须含有无参构造函数。
+         *
          * @return
          */
         Class<? extends AutoSetGen> gen() default AutoSetGen.class;

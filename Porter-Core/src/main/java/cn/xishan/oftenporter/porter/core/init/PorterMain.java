@@ -294,9 +294,9 @@ public final class PorterMain
         try
         {
             classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle);
-        } catch (FatalInitException e)
+        } catch (Exception e)
         {
-            throw new Error(e);
+            throw new Error(WPTool.getCause(e));
         }
 
         LOGGER.debug("add autoSet CheckPassable of Class and Method...");
@@ -329,9 +329,10 @@ public final class PorterMain
         {
             autoSetHandle.doAutoSet();//变量设置处理
             sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
-        } catch (FatalInitException e)
+            autoSetHandle.invokeSetOk();
+        } catch (Exception e)
         {
-            throw new Error(e);
+            throw new Error(WPTool.getCause(e));
         }
 
         LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());

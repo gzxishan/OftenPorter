@@ -17,6 +17,10 @@ public enum TiedType
     FORCE_REST,
     DEFAULT;
 
+
+    public boolean isRest(){
+        return this==FORCE_REST||this==REST;
+    }
     /**
      * <pre>
      *     1）当类和方法的类型都是{@linkplain #REST},结果才为{@linkplain #REST}

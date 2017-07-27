@@ -54,7 +54,7 @@ abstract class HServerPorter
 
     private void delivery(final WObject wObject)
     {
-        delivery.toAllBridge().request(new PRequest(wObject.getRequest(), wObject.restValue), lResponse ->
+        delivery.toAllBridge().request(new PRequest(wObject, wObject.restValue), lResponse ->
         {
             if (lResponse != null)
             {

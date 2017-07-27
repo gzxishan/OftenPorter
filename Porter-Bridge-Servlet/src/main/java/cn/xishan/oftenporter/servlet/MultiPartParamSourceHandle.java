@@ -1,13 +1,12 @@
 package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.ParamSourceHandle;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
+import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.fileupload.FileItem;
@@ -70,7 +69,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             {
                 JSONObject jsonObject = JSON.parseObject(
                         FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
-                ParamSource paramSource = new DefaultParamsSource(jsonObject, wObject.getRequest());
+                ParamSource paramSource = new DefaultParamSource(jsonObject, wObject.getRequest());
                 return paramSource;
             } else
             {
@@ -117,7 +116,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             map.put(name, value);
         }
 
-        ParamSource paramSource = new DefaultParamsSource(map, wObject.getRequest());
+        ParamSource paramSource = new DefaultParamSource(map, wObject.getRequest());
 
         return paramSource;
     }

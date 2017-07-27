@@ -14,7 +14,7 @@ public class SyncOption
     private String contextName, classTied, funTied;
     private PortMethod method;
 
-    SyncPorter build(WObject wObject)
+    SyncPorter build(WObject wObject,boolean isInner)
     {
         SyncOption syncOption = this;
         if (syncOption.contextName == null)
@@ -31,7 +31,7 @@ public class SyncOption
         porterParamGetter.setFunTied(syncOption.funTied);
         _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
         syncPorterOption.setMethod(syncOption.method);
-        SyncPorter syncPorter = SthDeal.newSyncPorter(syncPorterOption);
+        SyncPorter syncPorter = SthDeal.newSyncPorter(syncPorterOption,isInner);
         return syncPorter;
     }
 
