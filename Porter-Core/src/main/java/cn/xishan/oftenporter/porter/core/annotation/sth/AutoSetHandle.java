@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.AutoSetMixin;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
@@ -25,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +41,28 @@ public class AutoSetHandle {
     private PorterData porterData;
     private List<IHandle> iHandles = new ArrayList<>();
     private String currentContextName;
+    private List<_SetOkObject> setOkObjects = new ArrayList<>();
+
+    public static class _SetOkObject implements Comparable<_SetOkObject> {
+        public final Object obj;
+        public final Method method;
+        public final int priority;
+
+        public _SetOkObject(Object obj, Method method, int priority) {
+            this.obj = obj;
+            this.method = method;
+            this.priority = priority;
+        }
+
+        @Override
+        public int compareTo(_SetOkObject o) {
+            return o.priority - priority;
+        }
+
+        public void invoke() throws InvocationTargetException, IllegalAccessException {
+            method.invoke(obj);
+        }
+    }
 
     enum RangeType {
         /**
@@ -260,6 +284,23 @@ public class AutoSetHandle {
         iHandles.add(new Handle_doAutoSetThatOfMixin(obj1, obj2));
     }
 
+
+    /**
+     * 调用所有的{@linkplain SetOk SetOk}函数。
+     */
+    public synchronized void invokeSetOk() {
+        _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
+        Arrays.sort(setOkObjects);
+        try {
+            for (_SetOkObject setOkObject : setOkObjects) {
+                setOkObject.invoke();
+            }
+            this.setOkObjects.clear();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public synchronized void doAutoSet() throws FatalInitException {
         try {
             for (int i = 0; i < iHandles.size(); i++) {
@@ -418,16 +459,15 @@ public class AutoSetHandle {
             throw thr;
         } else {
             Method[] methods = WPTool.getAllPublicMethods(currentObjectClass);
-            try {
-                for (Method method : methods) {
-                    if (method.isAnnotationPresent(AutoSet.SetOk.class)) {
-                        method.setAccessible(true);
-                        method.invoke(currentObject);
-                    }
+
+            for (Method method : methods) {
+                SetOk setOk = method.getAnnotation(SetOk.class);
+                if (setOk != null) {
+                    method.setAccessible(true);
+                    setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority()));
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+
         }
     }
 

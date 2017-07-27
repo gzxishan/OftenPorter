@@ -19,8 +19,7 @@ import java.util.Set;
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class WPTool
-{
+public class WPTool {
     private static final Logger LOGGER = LoggerFactory.getLogger(WPTool.class);
 
     /**
@@ -29,10 +28,8 @@ public class WPTool
      * @param obj
      * @return
      */
-    public static boolean isEmpty(Object obj)
-    {
-        if (obj != null && obj instanceof CharSequence && "".equals(obj))
-        {
+    public static boolean isEmpty(Object obj) {
+        if (obj != null && obj instanceof CharSequence && "".equals(obj)) {
             obj = null;
         }
         return obj == null;
@@ -46,8 +43,7 @@ public class WPTool
      * @param c2
      * @return
      */
-    public static boolean isAssignable(Class<?> c1, Class<?> c2)
-    {
+    public static boolean isAssignable(Class<?> c1, Class<?> c2) {
         return c2.isAssignableFrom(c1);
     }
 
@@ -58,8 +54,7 @@ public class WPTool
      * @param clazz
      * @return
      */
-    public static boolean isAssignable(Object obj, Class<?> clazz)
-    {
+    public static boolean isAssignable(Object obj, Class<?> clazz) {
         return isAssignable(obj.getClass(), clazz);
     }
 
@@ -69,8 +64,7 @@ public class WPTool
      * @param clazz
      * @return
      */
-    public static boolean isInterfaceOrAbstract(Class<?> clazz)
-    {
+    public static boolean isInterfaceOrAbstract(Class<?> clazz) {
         boolean is = clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers());
         return is;
     }
@@ -83,16 +77,12 @@ public class WPTool
      * @param c2
      * @return
      */
-    public static int subclassOf(Class<?> c1, Class<?> c2)
-    {
-        if (c1 == null)
-        {
+    public static int subclassOf(Class<?> c1, Class<?> c2) {
+        if (c1 == null) {
             return -1;
-        } else if (c1.getName().equals(c2.getName()))
-        {
+        } else if (c1.getName().equals(c2.getName())) {
             return 0;
-        } else
-        {
+        } else {
             int n = subclassOf(c1.getSuperclass(), c2);
             return n == -1 ? -1 : n + 1;
         }
@@ -105,39 +95,31 @@ public class WPTool
      * @param ts
      * @param <T>
      */
-    public static <T> void addAll(List<T> list, T... ts)
-    {
-        for (T t : ts)
-        {
+    public static <T> void addAll(List<T> list, T... ts) {
+        for (T t : ts) {
             list.add(t);
         }
     }
 
-    public static <T> void addAll(Set<T> set, T... ts)
-    {
-        for (T t : ts)
-        {
+    public static <T> void addAll(Set<T> set, T... ts) {
+        for (T t : ts) {
             set.add(t);
         }
     }
 
-    public static String join(String separator, Object... args)
-    {
-        if (args.length == 0)
-        {
+    public static String join(String separator, Object... args) {
+        if (args.length == 0) {
             return "";
         }
         StringBuilder builder = new StringBuilder();
         builder.append(args[0]);
-        for (int i = 1; i < args.length; i++)
-        {
+        for (int i = 1; i < args.length; i++) {
             builder.append(separator).append(args[i]);
         }
         return builder.toString();
     }
 
-    public static String join(String separator, List<?> list)
-    {
+    public static String join(String separator, List<?> list) {
         return join(separator, list.toArray(new Object[0]));
     }
 
@@ -149,26 +131,19 @@ public class WPTool
      * @param obj2
      * @return
      */
-    public static boolean isEqual(Object obj1, Object obj2)
-    {
-        if (obj1 == null)
-        {
+    public static boolean isEqual(Object obj1, Object obj2) {
+        if (obj1 == null) {
             return obj2 == null;
-        } else
-        {
+        } else {
             return obj1.equals(obj2);
         }
     }
 
-    public static void close(PreparedStatement ps)
-    {
-        if (ps != null)
-        {
-            try
-            {
+    public static void close(PreparedStatement ps) {
+        if (ps != null) {
+            try {
                 ps.close();
-            } catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
@@ -183,8 +158,7 @@ public class WPTool
      */
     public static <T> T newObject(
             Class<T> clazz) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
-            InstantiationException
-    {
+            InstantiationException {
         Constructor<T> c = clazz.getDeclaredConstructor();
         c.setAccessible(true);
         return c.newInstance();
@@ -196,20 +170,25 @@ public class WPTool
      * @param throwable
      * @return
      */
-    public static String getMessage(Throwable throwable)
-    {
+    public static String getMessage(Throwable throwable) {
         Throwable cause = throwable.getCause();
-        if (cause == null)
-        {
+        if (cause == null) {
             cause = throwable;
         }
         String msg = cause.getMessage();
-        if (msg == null)
-        {
+        if (msg == null) {
             msg = cause.toString();
         }
         StackTraceElement element = cause.getStackTrace()[0];
         return msg + " " + LogUtil.toString(element);
+    }
+
+    public static Throwable getCause(Throwable throwable) {
+        Throwable cause = throwable.getCause();
+        if (cause == null) {
+            cause = throwable;
+        }
+        return cause;
     }
 
     /**
@@ -217,43 +196,31 @@ public class WPTool
      *
      * @param closeable
      */
-    public static void close(Closeable closeable)
-    {
-        if (closeable != null)
-        {
-            try
-            {
+    public static void close(Closeable closeable) {
+        if (closeable != null) {
+            try {
                 closeable.close();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
     }
 
-    public static void close(Connection connection)
-    {
-        if (connection != null)
-        {
-            try
-            {
+    public static void close(Connection connection) {
+        if (connection != null) {
+            try {
                 connection.close();
-            } catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
     }
 
-    public static void close(Statement statement)
-    {
-        if (statement != null)
-        {
-            try
-            {
+    public static void close(Statement statement) {
+        if (statement != null) {
+            try {
                 statement.close();
-            } catch (SQLException e)
-            {
+            } catch (SQLException e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
@@ -265,8 +232,7 @@ public class WPTool
      * @param object
      * @return
      */
-    public static boolean notNullAndEmpty(Object object)
-    {
+    public static boolean notNullAndEmpty(Object object) {
         return object != null && !"".equals(object);
     }
 
@@ -276,13 +242,10 @@ public class WPTool
      * @param object
      * @return 存在则，返回对应索引；不存在返回-1.
      */
-    public static int contains(JSONArray array, Object object)
-    {
+    public static int contains(JSONArray array, Object object) {
         int index = -1;
-        for (int i = 0; i < array.size(); i++)
-        {
-            if (array.get(i).equals(object))
-            {
+        for (int i = 0; i < array.size(); i++) {
+            if (array.get(i).equals(object)) {
                 index = i;
                 break;
             }
@@ -298,15 +261,12 @@ public class WPTool
      * @param object
      * @return 存在则，返回对应索引；不存在返回-1.
      */
-    public static int containsJsonValue(JSONArray array, String key, Object object)
-    {
+    public static int containsJsonValue(JSONArray array, String key, Object object) {
         int index = -1;
 
-        for (int i = 0; i < array.size(); i++)
-        {
+        for (int i = 0; i < array.size(); i++) {
             JSONObject jsonObject = array.getJSONObject(i);
-            if (jsonObject.containsKey(key) && jsonObject.get(key).equals(object))
-            {
+            if (jsonObject.containsKey(key) && jsonObject.get(key).equals(object)) {
                 index = i;
                 break;
             }
@@ -321,11 +281,9 @@ public class WPTool
      * @param clazz
      * @return
      */
-    public static Field[] getAllFields(Class<?> clazz)
-    {
+    public static Field[] getAllFields(Class<?> clazz) {
         List<Field> list = new ArrayList<>();
-        if (!Modifier.isInterface(clazz.getModifiers()))
-        {
+        if (!Modifier.isInterface(clazz.getModifiers())) {
             getAllFields(clazz, list);
         }
         return list.toArray(new Field[0]);
@@ -337,22 +295,18 @@ public class WPTool
      * @param clazz
      * @return
      */
-    public static Method[] getAllPublicMethods(Class<?> clazz)
-    {
+    public static Method[] getAllPublicMethods(Class<?> clazz) {
         Method[] methods = clazz.getMethods();
         return methods;
     }
 
-    private static void getAllFields(Class<?> clazz, List<Field> list)
-    {
-        if (clazz.equals(Object.class))
-        {
+    private static void getAllFields(Class<?> clazz, List<Field> list) {
+        if (clazz.equals(Object.class)) {
             return;
         }
 
         Field[] fields = clazz.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++)
-        {
+        for (int i = 0; i < fields.length; i++) {
             list.add(fields[i]);
         }
 
