@@ -97,13 +97,13 @@ class DefaultUrlResult implements UrlDecoder.Result
     @Override
     public <T> T getNeceParam(String name, String errmsgOfEmpty)
     {
-        return DefaultParamsSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+        return DefaultParamSource.getNeceParamUtil(this,name,errmsgOfEmpty);
     }
 
     @Override
     public <T> T getNeceParam(String name)
     {
-        return DefaultParamsSource.getNeceParamUtil(this,name);
+        return DefaultParamSource.getNeceParamUtil(this,name);
     }
 
     @Override

@@ -9,7 +9,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
+import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
@@ -98,7 +98,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
                 }
             }
 
-            ParamSource paramSource = new DefaultParamsSource(paramsMap, wObject.getRequest());
+            ParamSource paramSource = new DefaultParamSource(paramsMap, wObject.getRequest());
 
             return paramSource;
 

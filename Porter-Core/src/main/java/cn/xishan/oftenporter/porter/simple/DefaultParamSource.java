@@ -17,19 +17,19 @@ import java.util.*;
  * 默认的参数源
  * Created by https://github.com/CLovinr on 2016/7/24.
  */
-public class DefaultParamsSource implements ParamSource
+public class DefaultParamSource implements ParamSource
 {
     private UrlDecoder.Result result;
     private WRequest request;
     protected boolean hasRequestParameter = true;
 
-    public DefaultParamsSource(UrlDecoder.Result result, WRequest request)
+    public DefaultParamSource(UrlDecoder.Result result, WRequest request)
     {
         this.result = result;
         this.request = request;
     }
 
-    public DefaultParamsSource(Map<String, Object> map, WRequest request)
+    public DefaultParamSource(Map<String, Object> map, WRequest request)
     {
         this(DefaultUrlDecoder.newResult(map, null, null, null), request);
     }

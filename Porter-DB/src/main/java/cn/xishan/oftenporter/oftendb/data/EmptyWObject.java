@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
+import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
 
 import java.util.HashMap;
 
@@ -35,7 +36,7 @@ public class EmptyWObject extends WObject
     @Override
     public ParamSource getParamSource()
     {
-        throw new RuntimeException("not allowed");
+        return EmptyParamSource.getEMPTY();
     }
 
     @Override

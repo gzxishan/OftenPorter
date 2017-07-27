@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
-import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
+import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ public class ServletWObject extends WObject
         this("", "", "");
         wRequest = new WServletRequest(request,"",response,PortMethod.DEFAULT);
         wResponse=new WServletResponse(response);
-        paramSource=new DefaultParamsSource(result,wRequest);
+        paramSource=new DefaultParamSource(result,wRequest);
     }
 
     private UrlDecoder.Result result;

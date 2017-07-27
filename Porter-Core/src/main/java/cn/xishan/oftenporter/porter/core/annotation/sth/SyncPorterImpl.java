@@ -22,7 +22,7 @@ class SyncPorterImpl implements SyncNotInnerPorter {
         Object rs = null;
     }
 
-    @AutoSet.SetOk
+    @AutoSet.SetOk(priority = Integer.MAX_VALUE)
     public void setOk() {
         syncPorterOption.setOk();
     }
@@ -43,7 +43,7 @@ class SyncPorterImpl implements SyncNotInnerPorter {
         if (wObject == null) {
             request = new PRequest(syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
         } else {
-            request = new PRequest(wObject.getRequest(), syncPorterOption.getPathWithContext());
+            request = new PRequest(wObject, syncPorterOption.getPathWithContext());
             request.setMethod(syncPorterOption.getMethod());
         }
 

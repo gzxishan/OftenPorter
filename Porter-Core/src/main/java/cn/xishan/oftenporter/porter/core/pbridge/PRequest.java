@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.pbridge;
 
 import cn.xishan.oftenporter.porter.core.base.*;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,14 +31,17 @@ public class PRequest implements WRequest, Cloneable
         {
             params = new HashMap<>();
         }
-        //abOption = new ABOption(null, ABInvokeTime.METHOD_OF_CURRENT,ABInvokeOrder.OTHER);
     }
 
-    public PRequest(WRequest request, String requestPath)
+    public PRequest(WObject wObject, String requestPath)
     {
-        this(request.getMethod(), requestPath, true);
-        params.putAll(request.getParameterMap());
-        initOrigin(request);
+        this(wObject.getRequest().getMethod(), requestPath, true);
+        Enumeration<Map.Entry<String,Object>> e = wObject.getParamSource().params();
+        while (e.hasMoreElements()){
+            Map.Entry<String,Object> entry = e.nextElement();
+            params.put(entry.getKey(),entry.getValue());
+        }
+        initOrigin(wObject.getRequest());
     }
 
     /**

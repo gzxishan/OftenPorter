@@ -13,7 +13,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.simple.DefaultParamsSource;
+import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -215,8 +215,7 @@ public class PortExecutor
 
             WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
 
-            if (funPort.getMethodPortIn().getTiedType() == TiedType.REST || funPort.getMethodPortIn()
-                    .getTiedType() == TiedType.FORCE_REST)
+            if (funPort.getMethodPortIn().getTiedType().isRest())
             {
                 wObject.restValue = result.funTied();
             }
@@ -794,13 +793,13 @@ public class PortExecutor
         ParamSource ps;
         if (handle == null)
         {
-            ps = new DefaultParamsSource(result, wObject.getRequest());
+            ps = new DefaultParamSource(result, wObject.getRequest());
         } else
         {
             ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
             if (ps == null)
             {
-                ps = new DefaultParamsSource(result, wObject.getRequest());
+                ps = new DefaultParamSource(result, wObject.getRequest());
             }
         }
         return ps;
