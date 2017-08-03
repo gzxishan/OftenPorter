@@ -151,28 +151,30 @@ public class PortExecutor {
             exNotFoundClassPort(request, response, responseWhenException);
             return null;
         } else {
-            return new PreRequest(context, result);
+            Porter classPort = context.contextPorter.getClassPort(result.classTied());
+            PorterOfFun funPort;
+            InnerContextBridge innerContextBridge = context.innerContextBridge;
+
+            if (classPort == null) {
+                exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
+                return null;
+            } else if ((funPort = classPort.getChild(result, request.getMethod())) == null) {
+                exNotFoundFun(response, result, innerContextBridge.responseWhenException);
+                return null;
+            }
+            return new PreRequest(context, result, classPort, funPort);
         }
     }
 
     public void doRequest(PreRequest req, WRequest request, WResponse response) {
         try {
+
+            PorterOfFun funPort = req.funPort;
+            Porter classPort = req.classPort;
+
             Context context = req.context;
-            UrlDecoder.Result result = req.result;
-
-            Porter classPort = context.contextPorter.getClassPort(result.classTied());
-
-            PorterOfFun funPort;
-
             InnerContextBridge innerContextBridge = context.innerContextBridge;
-
-            if (classPort == null) {
-                exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
-                return;
-            } else if ((funPort = classPort.getChild(result, request.getMethod())) == null) {
-                exNotFoundFun(response, result, innerContextBridge.responseWhenException);
-                return;
-            }
+            UrlDecoder.Result result = req.result;
 
             ABOption abOption = null;
             if (request instanceof PRequest) {

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue][?name1
@@ -33,8 +34,7 @@ import java.io.IOException;
  *     responseWhenException:默认为true。
  * </pre>
  */
-public class WMainServlet extends HttpServlet implements CommonMain
-{
+public class WMainServlet extends HttpServlet implements CommonMain {
     private static final long serialVersionUID = 1L;
     private PorterMain porterMain;
     private String pname, urlEncoding;
@@ -47,8 +47,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      */
     protected boolean addPutDealt = true;
 
-    public WMainServlet()
-    {
+    public WMainServlet() {
 
     }
 
@@ -57,68 +56,46 @@ public class WMainServlet extends HttpServlet implements CommonMain
      *
      * @param multiPartOption
      */
-    public WMainServlet(MultiPartOption multiPartOption)
-    {
+    public WMainServlet(MultiPartOption multiPartOption) {
         this.multiPartOption = multiPartOption;
-        if (multiPartOption != null)
-        {
+        if (multiPartOption != null) {
             supportMultiPart = true;
         }
     }
 
-    public WMainServlet(String pname, boolean responseWhenException)
-    {
+    public WMainServlet(String pname, boolean responseWhenException) {
         //this.urlPatternPrefix = urlPatternPrefix;
         this.pname = pname;
         this.urlEncoding = "utf-8";
         this.responseWhenException = responseWhenException;
     }
 
-    @Override
-    public void doTrace(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.TARCE);
-    }
-
-    @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.PUT);
-    }
-
-    @Override
-    public void doHead(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.HEAD);
-    }
-
-    @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.DELETE);
-    }
-
-    @Override
-    public void doOptions(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.OPTIONS);
-    }
-
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.POST);
-    }
-
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        doRequest(request, response, PortMethod.GET);
-    }
-
-    private void doRequest(HttpServletRequest request, HttpServletResponse response,
-            PortMethod method) throws IOException
-    {
+    protected void doRequest(HttpServletRequest request, HttpServletResponse response,
+                             PortMethod method) throws IOException {
         doRequest(request, null, response, method);
+    }
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String method = request.getMethod();
+        if (method.equals("GET")) {
+            doRequest(request, response, PortMethod.GET);
+        } else if (method.equals("HEAD")) {
+            doRequest(request, response, PortMethod.HEAD);
+        } else if (method.equals("POST")) {
+            doRequest(request, response, PortMethod.POST);
+        } else if (method.equals("PUT")) {
+            doRequest(request, response, PortMethod.PUT);
+        } else if (method.equals("DELETE")) {
+            doRequest(request, response, PortMethod.DELETE);
+        } else if (method.equals("OPTIONS")) {
+            doRequest(request, response, PortMethod.OPTIONS);
+        } else if (method.equals("TRACE")) {
+            doRequest(request, response, PortMethod.TARCE);
+        } else {
+            super.service(request, response);
+        }
+
     }
 
     /**
@@ -129,21 +106,17 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * @param request
      * @return
      */
-    public static String getPath(HttpServletRequest request)
-    {
+    public static String getPath(HttpServletRequest request) {
         String uri = request.getRequestURI();
         int length = request.getContextPath().length() + request.getServletPath().length();
-        if (length > uri.length())
-        {
+        if (length > uri.length()) {
             return request.getServletPath();
-        } else
-        {
+        } else {
             return uri.substring(length);
         }
     }
 
-    static String getUriPrefix(HttpServletRequest request)
-    {
+    static String getUriPrefix(HttpServletRequest request) {
         String prefix = request.getRequestURI()
                 .substring(0, request.getContextPath().length() + request.getServletPath().length());
         return prefix;
@@ -161,38 +134,30 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * @throws IOException
      */
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
-            PortMethod method) throws IOException
-    {
+                          PortMethod method) throws IOException {
 
         WServletRequest wreq = new WServletRequest(request, path, response, method);
         final WServletResponse wresp = new WServletResponse(response);
 
-        if (wreq.getPath().startsWith("/="))
-        {
+        if (wreq.getPath().startsWith("/=")) {
             wreq.setRequestPath(":" + wreq.getPath().substring(2));
             getPLinker().toAllBridge().request(wreq, lResponse ->
             {
-                if (lResponse != null)
-                {
+                if (lResponse != null) {
                     Object obj = lResponse.getResponse();
-                    if (obj != null)
-                    {
-                        try
-                        {
+                    if (obj != null) {
+                        try {
                             wresp.write(obj);
-                        } catch (IOException e)
-                        {
+                        } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                     WPTool.close(wresp);
                 }
             });
-        } else
-        {
+        } else {
             PreRequest req = porterMain.forRequest(wreq, wresp);
-            if (req != null)
-            {
+            if (req != null) {
                 request.setCharacterEncoding(req.context.getContentEncoding());
                 response.setCharacterEncoding(req.context.getContentEncoding());
                 porterMain.doRequest(req, wreq, wresp);
@@ -209,14 +174,11 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * @throws ServletException
      */
     @Override
-    public void init() throws ServletException
-    {
+    public void init() throws ServletException {
         super.init();
-        if (this.pname == null)
-        {
+        if (this.pname == null) {
             pname = getInitParameter("pname");
-            if (WPTool.isEmpty(pname))
-            {
+            if (WPTool.isEmpty(pname)) {
                 pname = WMainServlet.class.getSimpleName();
             }
         }
@@ -224,11 +186,9 @@ public class WMainServlet extends HttpServlet implements CommonMain
         Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
         LOGGER.debug("******Porter-Bridge-Servlet init******");
 
-        if (this.urlEncoding == null)
-        {
+        if (this.urlEncoding == null) {
             urlEncoding = getInitParameter("urlEncoding");
-            if (urlEncoding == null)
-            {
+            if (urlEncoding == null) {
                 urlEncoding = "utf-8";
             }
 
@@ -261,8 +221,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
 //            }
 //        };
         porterMain = new PorterMain(new PName(pname), this);
-        if (responseWhenException == null)
-        {
+        if (responseWhenException == null) {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
         }
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
@@ -274,8 +233,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      *
      * @return
      */
-    public static String getWebInfDir()
-    {
+    public static String getWebInfDir() {
         // file:/D:/JavaWeb/.metadata/.me_tcat/webapps/TestBeanUtils/WEB-INF/classes/
         String path = Thread.currentThread().getContextClassLoader().getResource("").getFile();// .toString();
         path = path.replace('/', File.separatorChar);
@@ -298,8 +256,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      *
      * @return
      */
-    public static String getContextDir()
-    {
+    public static String getContextDir() {
         // WEB-INF/
         String path = WMainServlet.getWebInfDir();
         path = path.substring(0, path.length() - 8);
@@ -307,49 +264,40 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    public void addGlobalAutoSet(String name, Object object)
-    {
+    public void addGlobalAutoSet(String name, Object object) {
         porterMain.addGlobalAutoSet(name, object);
     }
 
     @Override
-    public void addGlobalTypeParser(ITypeParser typeParser)
-    {
+    public void addGlobalTypeParser(ITypeParser typeParser) {
         porterMain.addGlobalTypeParser(typeParser);
     }
 
     @Override
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
-    {
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder() {
         return porterMain.getOnPorterAddListenerAdder();
     }
 
     @Override
-    public void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException
-    {
+    public void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException {
         porterMain.addGlobalCheck(checkPassable);
     }
 
     @Override
-    public PorterConf newPorterConf()
-    {
-        if (porterMain == null)
-        {
+    public PorterConf newPorterConf() {
+        if (porterMain == null) {
             throw new RuntimeException("Not init!");
         }
         return porterMain.newPorterConf();
     }
 
     @Override
-    public void startOne(PorterConf porterConf)
-    {
-        if (supportMultiPart)
-        {
+    public void startOne(PorterConf porterConf) {
+        if (supportMultiPart) {
             porterConf.getParamSourceHandleManager()
                     .addByMethod(new MultiPartParamSourceHandle(multiPartOption, addPutDealt), PortMethod.POST,
                             PortMethod.PUT);
-        } else if (addPutDealt)
-        {
+        } else if (addPutDealt) {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
 
@@ -357,39 +305,33 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    public PLinker getPLinker()
-    {
+    public PLinker getPLinker() {
         return porterMain.getPLinker();
     }
 
     @Override
-    public void destroyOne(String contextName)
-    {
+    public void destroyOne(String contextName) {
         porterMain.destroyOne(contextName);
     }
 
     @Override
-    public void enableOne(String contextName, boolean enable)
-    {
+    public void enableOne(String contextName, boolean enable) {
         porterMain.enableContext(contextName, enable);
     }
 
     @Override
-    public void destroyAll()
-    {
+    public void destroyAll() {
         porterMain.destroyAll();
     }
 
     @Override
-    public PorterData getPorterData()
-    {
+    public PorterData getPorterData() {
         return porterMain.getPorterData();
     }
 
 
     @Override
-    public void destroy()
-    {
+    public void destroy() {
         destroyAll();
         super.destroy();
     }
