@@ -58,6 +58,17 @@ public class BytesTool
      * 转换成16进制.
      *
      * @param bs
+     * @return
+     */
+    public static String toHex(byte[] bs)
+    {
+        return toHex(bs,0,bs.length);
+    }
+
+    /**
+     * 转换成16进制.
+     *
+     * @param bs
      * @param offset
      * @param length
      * @return
@@ -89,8 +100,8 @@ public class BytesTool
         int index, n;
         for (int i = 0; i < bs.length; i++)
         {
-            index = i << 2;
-            n = Integer.parseInt(str.substring(index, index + 2), 16);
+            index = i << 1;
+            n = Integer.parseInt(str.substring(index, index + 1), 16);
             bs[i] = (byte) n;
         }
         return bs;
