@@ -11,17 +11,14 @@ import java.util.HashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2017/2/27.
  */
-public class EmptyWObject extends WObject
-{
+public class EmptyWObject extends WObject {
     private UrlDecoder.Result result;
 
-    public EmptyWObject()
-    {
+    public EmptyWObject() {
         this("", "", "");
     }
 
-    public EmptyWObject(String contextName, String classTied, String funTied)
-    {
+    public EmptyWObject(String contextName, String classTied, String funTied) {
         result = DefaultUrlDecoder.newResult(new HashMap<>(0), contextName, classTied, funTied);
         cn = new Object[0];
         cu = new Object[0];
@@ -34,56 +31,47 @@ public class EmptyWObject extends WObject
     }
 
     @Override
-    public ParamSource getParamSource()
-    {
+    public ParamSource getParamSource() {
         return EmptyParamSource.getEMPTY();
     }
 
     @Override
-    public WRequest getRequest()
-    {
+    public WRequest getRequest() {
+        return null;
+    }
+
+    @Override
+    public WResponse getResponse() {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public WResponse getResponse()
-    {
+    public <T> T finObject(int index) {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public <T> T finObject(int index)
-    {
+    public <T> T cinObject(int index) {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public <T> T cinObject(int index)
-    {
+    public <T> T savedObject(String key) {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public <T> T savedObject(String key)
-    {
+    public <T> T gsavedObject(String key) {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public <T> T gsavedObject(String key)
-    {
+    public Delivery delivery() {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public Delivery delivery()
-    {
-        throw new RuntimeException("not allowed");
-    }
-
-    @Override
-    public UrlDecoder.Result url()
-    {
+    public UrlDecoder.Result url() {
         return result;
     }
 
@@ -93,8 +81,7 @@ public class EmptyWObject extends WObject
      * @return
      */
     @Override
-    public PName getPName()
-    {
+    public PName getPName() {
         return null;
     }
 }
