@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 /**
  * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue][?name1
@@ -70,28 +69,23 @@ public class WMainServlet extends HttpServlet implements CommonMain {
         this.responseWhenException = responseWhenException;
     }
 
-    protected void doRequest(HttpServletRequest request, HttpServletResponse response,
-                             PortMethod method) throws IOException {
-        doRequest(request, null, response, method);
-    }
-
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String method = request.getMethod();
         if (method.equals("GET")) {
-            doRequest(request, response, PortMethod.GET);
+            doRequest(request, null, response, PortMethod.GET);
         } else if (method.equals("HEAD")) {
-            doRequest(request, response, PortMethod.HEAD);
+            doRequest(request, null, response, PortMethod.HEAD);
         } else if (method.equals("POST")) {
-            doRequest(request, response, PortMethod.POST);
+            doRequest(request, null, response, PortMethod.POST);
         } else if (method.equals("PUT")) {
-            doRequest(request, response, PortMethod.PUT);
+            doRequest(request, null, response, PortMethod.PUT);
         } else if (method.equals("DELETE")) {
-            doRequest(request, response, PortMethod.DELETE);
+            doRequest(request, null, response, PortMethod.DELETE);
         } else if (method.equals("OPTIONS")) {
-            doRequest(request, response, PortMethod.OPTIONS);
+            doRequest(request, null, response, PortMethod.OPTIONS);
         } else if (method.equals("TRACE")) {
-            doRequest(request, response, PortMethod.TARCE);
+            doRequest(request, null, response, PortMethod.TARCE);
         } else {
             super.service(request, response);
         }
@@ -126,7 +120,7 @@ public class WMainServlet extends HttpServlet implements CommonMain {
      * 处理请求
      *
      * @param request
-     * @param path     @param path     当为null时，使用request.getRequestURI().substring(request.getContextPath().length()
+     * @param path     当为null时，使用request.getRequestURI().substring(request.getContextPath().length()
      *                 + request
      *                 .getServletPath().length())
      * @param response

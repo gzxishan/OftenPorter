@@ -29,7 +29,7 @@ public final class WServletRequest extends PRequest
      */
     WServletRequest(HttpServletRequest request, String path, HttpServletResponse response, PortMethod method)
     {
-        super(method, path != null ? path : WMainServlet.getPath(request),
+        super(method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
                 false);
         this.request = request;
         this.response = response;
