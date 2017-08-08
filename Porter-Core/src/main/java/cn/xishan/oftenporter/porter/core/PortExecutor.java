@@ -61,7 +61,8 @@ public class PortExecutor {
                            InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables) {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
-                bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge, forAllCheckPassables);
+                bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge,
+                forAllCheckPassables, porterConf.getDefaultReturnFactory());
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
@@ -563,6 +564,21 @@ public class PortExecutor {
                 } else {
                     returnObject = javaMethod.invoke(funPort.getObject(), wObject);
                 }
+
+                OutType outType = funPort.getPortOut().getOutType();
+                if (returnObject == null && context.defaultReturnFactory != null){
+                    if(outType==OutType.VoidReturn){
+                        if(javaMethod.getReturnType().equals(Void.TYPE)){
+                            returnObject = context.defaultReturnFactory.getVoidReturn(wObject, funPort.getFinalPorterObject(),
+                                    funPort.getObject(), funPort.getMethod());
+                        }
+                    }else if(outType==OutType.NullReturn){
+                        if(!javaMethod.getReturnType().equals(Void.TYPE)){
+                            returnObject = context.defaultReturnFactory.getNullReturn(wObject, funPort.getFinalPorterObject(),
+                                    funPort.getObject(), funPort.getMethod());
+                        }
+                    }
+                }
                 doState = PortBeforeAfterDealt.DoState.DoMethodCheck;
             }
 
@@ -608,6 +624,8 @@ public class PortExecutor {
             }
 
             if (doState == PortBeforeAfterDealt.DoState.DoResponse) {
+
+
                 dealtOfResponse(wObject, funPort.getPortOut().getOutType(), returnObject);
             }
 
@@ -686,6 +704,8 @@ public class PortExecutor {
                 responseObject(wObject, rs, true);
                 break;
             case AUTO:
+            case VoidReturn:
+            case NullReturn:
                 responseObject(wObject, rs, false);
                 break;
             case CLOSE:

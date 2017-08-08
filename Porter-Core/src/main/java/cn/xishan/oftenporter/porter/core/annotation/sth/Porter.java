@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
@@ -35,6 +36,7 @@ public final class Porter
     Class<?> clazz;
     _PortIn portIn;
     Object finalObject;
+    PortOut portOut;
 
     WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
 
@@ -91,6 +93,10 @@ public final class Porter
     }
 
     private static final String TYPE_NAME_PREFIX = "class ";
+
+    public PortOut getPortOut() {
+        return portOut;
+    }
 
     public static String getClassName(Type type)
     {

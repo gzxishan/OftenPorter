@@ -34,21 +34,18 @@ import static org.junit.Assert.*;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-public class TestLocalMain
-{
+public class TestLocalMain {
 
-    interface Listener
-    {
+    interface Listener {
         void onEnd(long totalDTime, int n);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new TestLocalMain().main();
     }
 
     @Test
-    public void main()
-    {
+    public void main() {
         PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j.properties"));
         final LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
@@ -58,41 +55,48 @@ public class TestLocalMain
         porterConf.getSeekPackages().addClassPorter(My2Porter.class)
                 .addObjectPorter(new MyPorter("Hello MyPorter!"));
         porterConf.addContextAutoGenImpl(IDemo.class.getName(), Demo.class);
-        porterConf.setEnableTiedNameDefault(false);
+        //porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
+
+        porterConf.setDefaultReturnFactory(new DefaultReturnFactory() {
+            @Override
+            public Object getVoidReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod) {
+                return Void.TYPE;
+            }
+
+            @Override
+            public Object getNullReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod) {
+                return "null-return";
+            }
+        });
+
         final Logger logger = LoggerFactory.getLogger(getClass());
 
-        porterConf.addStateListener(new StateListener()
-        {
+        porterConf.addStateListener(new StateListener() {
             @Override
             public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
-                    ParamSourceHandleManager paramSourceHandleManager)
-            {
+                                   ParamSourceHandleManager paramSourceHandleManager) {
                 initParamSource.putInitParameter("debug", true);
                 logger.debug("");
             }
 
             @Override
-            public void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager)
-            {
+            public void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager) {
                 logger.debug("");
             }
 
             @Override
-            public void afterStart(InitParamSource initParamSource)
-            {
+            public void afterStart(InitParamSource initParamSource) {
                 logger.debug("{}", initParamSource.getInitParameter("debug"));
             }
 
             @Override
-            public void beforeDestroy()
-            {
+            public void beforeDestroy() {
                 logger.debug("");
             }
 
             @Override
-            public void afterDestroy()
-            {
+            public void afterDestroy() {
                 logger.debug("");
             }
         });
@@ -100,13 +104,27 @@ public class TestLocalMain
         porterConf.addContextCheck((wObject, type, handle) ->
         {
             //logger.debug("");
-            if(handle.abOption!=null){
+            if (handle.abOption != null) {
                 //logger.debug("{}",handle.abOption);
             }
             handle.next();
         });
 
         localMain.startOne(porterConf);
+
+
+        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testVoid"), lResponse -> Assert.assertEquals(Void.TYPE, lResponse.getResponse()));
+
+        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testCVoid"), lResponse -> Assert.assertEquals(Void.TYPE, lResponse.getResponse()));
+
+
+        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testNull"), new PCallback() {
+            @Override
+            public void onResponse(PResponse lResponse) {
+                Assert.assertEquals("null-return", lResponse.getResponse());
+            }
+        });
+
         int n = 1;//00000 ;
         final int threads = Runtime.getRuntime().availableProcessors();
 
@@ -132,11 +150,9 @@ public class TestLocalMain
             localMain.getPLinker().currentBridge()
                     .request(new PRequest("/Local-1/Delay/test"), lResponse -> logger.debug("{}", lResponse));
 
-            try
-            {
+            try {
                 hotTest(logger, localMain);
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
 
@@ -148,13 +164,11 @@ public class TestLocalMain
 
     }
 
-    private void hotTest(final Logger logger, CommonMain commonMain) throws Exception
-    {
+    private void hotTest(final Logger logger, CommonMain commonMain) throws Exception {
         logger.debug("热部署测试...");
         File dir = new File(System.getProperty(
                 "user.home") + File.separator + "porter-core" + File.separator + "test" + File.separator);
-        if (!dir.exists())
-        {
+        if (!dir.exists()) {
             dir.mkdirs();
         }
         File clazzFile = new File(dir.getPath() + File.separator + "HotPorter.jar");
@@ -180,22 +194,18 @@ public class TestLocalMain
                 .request(new PRequest("/hot-test/Hot/show"), lResponse -> logger.debug(lResponse.toString()));
     }
 
-    private void exe(final ExecutorService executorService, final int n, final PBridge bridge, final Listener listener)
-    {
+    private void exe(final ExecutorService executorService, final int n, final PBridge bridge, final Listener listener) {
 
         final AtomicInteger count = new AtomicInteger(0);
         final AtomicLong dtime = new AtomicLong(0);
 
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
 
-            if (executorService == null)
-            {
+            if (executorService == null) {
                 bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
                                 .addParam("myAge", 22),
                         lResponse -> assertEquals("小明+22", lResponse.getResponse()));
-            } else
-            {
+            } else {
                 executorService.execute(() ->
                 {
                     long time = System.nanoTime();
@@ -213,22 +223,22 @@ public class TestLocalMain
                             });
 
                     bridge.request(new PRequest("/Local-1/Hello/helloMixin"),
-                            lResponse ->{
-                            assertEquals("Mixin!",lResponse.getResponse());
-                    });
+                            lResponse -> {
+                                assertEquals("Mixin!", lResponse.getResponse());
+                            });
 
                     bridge.request(new PRequest("/Local-1/TestAB/main"),
-                            lResponse ->{
+                            lResponse -> {
                                 Assert.assertTrue(lResponse.getResponse() instanceof Date);
                             });
 
                     bridge.request(new PRequest("/Local-1/TestAB/genData"),
-                            lResponse ->{
+                            lResponse -> {
 
                             });
 
                     bridge.request(new PRequest("/Local-1/TestAB/syncData"),
-                            lResponse ->{
+                            lResponse -> {
 
                             });
 
@@ -255,8 +265,7 @@ public class TestLocalMain
                     bridge.request(new PRequest("/Local-1/My/hello").addParam("name", "Demo001"),
                             lResponse -> assertTrue(lResponse.getResponse() instanceof IDemo));
                     dtime.addAndGet(System.nanoTime() - time);
-                    if (count.incrementAndGet() == n)
-                    {
+                    if (count.incrementAndGet() == n) {
                         listener.onEnd(dtime.get(), n);
                         executorService.shutdown();
                     }
@@ -266,17 +275,13 @@ public class TestLocalMain
 
         }
 
-        if (executorService != null)
-        {
+        if (executorService != null) {
 
-            try
-            {
-                while (!executorService.isTerminated())
-                {
+            try {
+                while (!executorService.isTerminated()) {
                     Thread.sleep(500);
                 }
-            } catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
 
             }

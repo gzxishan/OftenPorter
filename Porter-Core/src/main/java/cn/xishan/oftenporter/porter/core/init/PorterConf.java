@@ -32,6 +32,8 @@ public class PorterConf
     private Class<?>[] staticAutoSetClasses;
     private ParamSourceHandleManager paramSourceHandleManager;
 
+    private DefaultReturnFactory defaultReturnFactory;
+
 
     PorterConf()
     {
@@ -44,6 +46,14 @@ public class PorterConf
         contextAutoGenImplMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    public void setDefaultReturnFactory(DefaultReturnFactory defaultReturnFactory) {
+        this.defaultReturnFactory = defaultReturnFactory;
+    }
+
+    public DefaultReturnFactory getDefaultReturnFactory() {
+        return defaultReturnFactory;
     }
 
     /**
@@ -306,5 +316,6 @@ public class PorterConf
         forAllCheckPassableList = null;
         autoSetSeekPackages = null;
         paramSourceHandleManager = null;
+        defaultReturnFactory=null;
     }
 }
