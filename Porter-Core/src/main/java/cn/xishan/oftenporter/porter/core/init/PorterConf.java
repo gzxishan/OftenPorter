@@ -33,6 +33,7 @@ public class PorterConf
     private ParamSourceHandleManager paramSourceHandleManager;
 
     private DefaultReturnFactory defaultReturnFactory;
+    private OutType defaultPortOutType;
 
 
     PorterConf()
@@ -46,6 +47,14 @@ public class PorterConf
         contextAutoGenImplMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    public void setDefaultPortOutType(OutType defaultPortOutType) {
+        this.defaultPortOutType = defaultPortOutType;
+    }
+
+    public OutType getDefaultPortOutType() {
+        return defaultPortOutType;
     }
 
     public void setDefaultReturnFactory(DefaultReturnFactory defaultReturnFactory) {

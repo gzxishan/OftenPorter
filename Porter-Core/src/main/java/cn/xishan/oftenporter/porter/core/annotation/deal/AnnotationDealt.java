@@ -309,13 +309,15 @@ public final class AnnotationDealt {
         return _portStart;
     }
 
-    public _PortOut portOut(Porter classPorter, Method method) {
+    public _PortOut portOut(Porter classPorter, Method method, OutType defaultPoutType) {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if(portOut==null){
-            portOut=classPorter.getPortOut();
+        if (portOut == null) {
+            portOut = classPorter.getPortOut();
         }
-        if (portOut != null) {
+        if (portOut == null && defaultPoutType != null) {
+            _portOut.outType = defaultPoutType;
+        } else if (portOut != null) {
             _portOut.outType = portOut.value();
         } else if (method.getReturnType().equals(Void.TYPE)) {
             _portOut.outType = OutType.NO_RESPONSE;

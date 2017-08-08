@@ -319,7 +319,7 @@ public class SthDeal {
                     .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
                             innerContextBridge);
 
-            porterOfFun.portOut = annotationDealt.portOut(porter, method);
+            porterOfFun.portOut = annotationDealt.portOut(porter, method,innerContextBridge.defaultOutType);
 
             return porterOfFun;
         } catch (Exception e) {
