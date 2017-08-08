@@ -43,15 +43,17 @@ public final class PorterMain
 
     static
     {
-        LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
-        {
-            @Override
-            public Logger getLogger(String name)
+        if(!LogUtil.isDefaultLogger){
+            LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
             {
-                return LoggerFactory
-                        .getLogger(currentPNameForLogger == null ? name : name + "." + currentPNameForLogger);
-            }
-        });
+                @Override
+                public Logger getLogger(String name)
+                {
+                    return LoggerFactory
+                            .getLogger(currentPNameForLogger == null ? name : name + "." + currentPNameForLogger);
+                }
+            });
+        }
     }
 
     public PorterMain(PName pName, CommonMain commonMain)
