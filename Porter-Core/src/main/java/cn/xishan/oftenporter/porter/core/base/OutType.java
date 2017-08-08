@@ -28,7 +28,7 @@ public enum OutType {
      */
     AUTO,
     /**
-     * 当函数返回类型为Void时,调用{@linkplain DefaultReturnFactory#getVoidReturn(WObject, Object, Object, Object) DefaultReturnFactory.getVoidReturn(WObject, Object, Object, Object)}.
+     * 当函数返回类型为Void且未抛出异常时,调用{@linkplain DefaultReturnFactory#getVoidReturn(WObject, Object, Object, Object) DefaultReturnFactory.getVoidReturn(WObject, Object, Object, Object)}.
      * <pre>
      *     最终效果等同于{@linkplain #AUTO}
      * </pre>
