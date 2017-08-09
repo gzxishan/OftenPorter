@@ -43,7 +43,7 @@ public class PackageUtil
          *
          * @param packages 存放的是字符串
          */
-        void setPackages(List<?> packages);
+        void setPackages(List<String> packages);
 
         /**
          * 搜索

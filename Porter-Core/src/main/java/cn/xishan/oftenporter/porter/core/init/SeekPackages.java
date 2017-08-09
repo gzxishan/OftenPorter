@@ -1,23 +1,22 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import com.alibaba.fastjson.JSONArray;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 存放扫描包的对象。
+ * 存放扫描包或类的对象，用于扫描接口，且会设置所有含有@{@linkplain AutoSet}注解的静态变量。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class SeekPackages
-{
+public class SeekPackages {
     private JSONArray jsonArray = new JSONArray();
     private Set<Class<?>> classesForSeek;
     private Set<Object> objectsForSeek;
 
-    public SeekPackages()
-    {
+    public SeekPackages() {
         classesForSeek = new HashSet<>();
         objectsForSeek = new HashSet<>();
     }
@@ -29,13 +28,10 @@ public class SeekPackages
      * @return
      * @throws NullPointerException clazz为null。
      */
-    public SeekPackages addClassPorter(Class<?>... clazzes) throws NullPointerException
-    {
+    public SeekPackages addClassPorter(Class<?>... clazzes) throws NullPointerException {
         int i = 0;
-        for (Class<?> clazz : clazzes)
-        {
-            if (clazz == null)
-            {
+        for (Class<?> clazz : clazzes) {
+            if (clazz == null) {
                 throw new NullPointerException("null element at index " + i);
             }
             classesForSeek.add(clazz);
@@ -52,13 +48,10 @@ public class SeekPackages
      * @return
      * @throws NullPointerException object为null。
      */
-    public SeekPackages addObjectPorter(Object... objects) throws NullPointerException
-    {
-        for (int i = 0; i < objects.length; i++)
-        {
+    public SeekPackages addObjectPorter(Object... objects) throws NullPointerException {
+        for (int i = 0; i < objects.length; i++) {
             Object object = objects[i];
-            if (object == null)
-            {
+            if (object == null) {
                 throw new NullPointerException("null element at index " + i);
             }
             objectsForSeek.add(object);
@@ -68,13 +61,11 @@ public class SeekPackages
         return this;
     }
 
-    public Set<Object> getObjectsForSeek()
-    {
+    public Set<Object> getObjectsForSeek() {
         return objectsForSeek;
     }
 
-    public Set<Class<?>> getClassesForSeek()
-    {
+    public Set<Class<?>> getClassesForSeek() {
         return classesForSeek;
     }
 
@@ -84,11 +75,9 @@ public class SeekPackages
      * @param packages 包名称，可变参数
      * @return
      */
-    public SeekPackages addPorters(String... packages)
-    {
+    public SeekPackages addPorters(String... packages) {
 
-        for (int i = 0; i < packages.length; i++)
-        {
+        for (int i = 0; i < packages.length; i++) {
             jsonArray.add(packages[i]);
         }
 
@@ -101,14 +90,12 @@ public class SeekPackages
      * @param packages 存放的是字符串
      * @return
      */
-    public SeekPackages addPorters(JSONArray packages)
-    {
+    public SeekPackages addPorters(JSONArray packages) {
         jsonArray.addAll(packages);
         return this;
     }
 
-    public JSONArray getPackages()
-    {
+    public JSONArray getPackages() {
         return jsonArray;
     }
 }
