@@ -71,7 +71,7 @@ public class AutoSetHandle {
 
     enum RangeType {
         /**
-         * 只针对static类型。
+         * 只针对static类型且为null的成员。
          */
         STATIC,
         /**
@@ -138,13 +138,13 @@ public class AutoSetHandle {
             this.args = args;
         }
 
-        private void doAutoSetSeek(String[] packages, ClassLoader classLoader) {
+        private void doAutoSetSeek(List<String> packages, ClassLoader classLoader) {
             if (packages == null) {
                 return;
             }
             try {
-                for (int i = 0; i < packages.length; i++) {
-                    AutoSetHandle.this.doAutoSetSeek(packages[i], classLoader);
+                for (int i = 0; i < packages.size(); i++) {
+                    AutoSetHandle.this.doAutoSetSeek(packages.get(i), classLoader);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -153,7 +153,7 @@ public class AutoSetHandle {
 
         @Override
         public void handle() {
-            this.doAutoSetSeek((String[]) args[0], (ClassLoader) args[1]);
+            this.doAutoSetSeek((List) args[0], (ClassLoader) args[1]);
         }
     }
 
@@ -165,16 +165,16 @@ public class AutoSetHandle {
             this.args = args;
         }
 
-        private void doAutoSetSeek(String[] packages, String[] classStrs, Class<?>[] classes, ClassLoader classLoader) {
-            if ((packages == null || packages.length == 0) && (classStrs == null || classStrs.length == 0) &&
-                    (classes == null || classes.length == 0)) {
+        private void doAutoSetSeek(List<String> packages, List<String> classStrs, List<Class<?>> classes, ClassLoader classLoader) {
+            if ((packages == null || packages.size() == 0) && (classStrs == null || classStrs.size() == 0) &&
+                    (classes == null || classes.size() == 0)) {
                 return;
             }
             try {
                 LOGGER.debug("*****StaticAutoSet******");
                 if (packages != null) {
-                    for (int k = 0; k < packages.length; k++) {
-                        String packageStr = packages[k];
+                    for (int k = 0; k < packages.size(); k++) {
+                        String packageStr = packages.get(k);
                         LOGGER.debug("扫描包：{}", packageStr);
                         List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
                         for (int i = 0; i < classeses.size(); i++) {
@@ -184,8 +184,8 @@ public class AutoSetHandle {
                     }
                 }
                 if (classes != null) {
-                    for (int k = 0; k < classes.length; k++) {
-                        Class<?> clazz = classes[k];
+                    for (int k = 0; k < classes.size(); k++) {
+                        Class<?> clazz = classes.get(k);
                         doAutoSet(null, null, clazz, null, null, RangeType.STATIC);
                     }
                 }
@@ -211,7 +211,7 @@ public class AutoSetHandle {
 
         @Override
         public void handle() {
-            this.doAutoSetSeek((String[]) args[0], (String[]) args[1], (Class<?>[]) args[2], (ClassLoader) args[3]);
+            this.doAutoSetSeek((List) args[0], (List) args[1], (List) args[2], (ClassLoader) args[3]);
         }
     }
 
@@ -252,11 +252,11 @@ public class AutoSetHandle {
         return innerContextBridge;
     }
 
-    public synchronized void addAutoSetSeek(String[] packages, ClassLoader classLoader) {
+    public synchronized void addAutoSetSeek(List<String> packages, ClassLoader classLoader) {
         iHandles.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
-    public synchronized void addStaticAutoSet(String[] packages, String[] classStrs, Class<?>[] classes,
+    public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class<?>> classes,
                                               ClassLoader classLoader) {
         iHandles.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
     }
@@ -360,6 +360,11 @@ public class AutoSetHandle {
             AutoSet autoSet = f.getAnnotation(AutoSet.class);
             try {
                 Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
+                f.setAccessible(true);
+                if (rangeType == RangeType.STATIC && f.get(currentObject) != null) {
+                    continue;//静态成员且不为null的，忽略。
+                }
+
                 Object value = null;
                 String autoSetMixinName = null;
                 boolean needPut = false;
@@ -376,7 +381,6 @@ public class AutoSetHandle {
                         needPut = true;
                     }
                 }
-                f.setAccessible(true);
                 if (autoSet == null) {
                     if (value == null || autoSetMixinMap == null) {
                         continue;

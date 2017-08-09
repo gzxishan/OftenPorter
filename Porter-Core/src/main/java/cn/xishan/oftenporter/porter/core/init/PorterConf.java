@@ -5,14 +5,14 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.*;
 
 /**
  * 框架配置对象。非线程安全。
  */
-public class PorterConf
-{
+public class PorterConf {
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
     private Set<StateListener> stateListenerSet;
@@ -28,16 +28,16 @@ public class PorterConf
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
-    private String[] autoSetSeekPackages,staticAutoSetPackages,staticAutoSetClassStrs;
-    private Class<?>[] staticAutoSetClasses;
+    private List<String> autoSetSeekPackages = new ArrayList<>(),
+            staticAutoSetPackages = new ArrayList<>(), staticAutoSetClassStrs = new ArrayList<>();
+    private List<Class<?>> staticAutoSetClasses = new ArrayList<>();
     private ParamSourceHandleManager paramSourceHandleManager;
 
     private DefaultReturnFactory defaultReturnFactory;
     private OutType defaultPortOutType;
 
 
-    PorterConf()
-    {
+    PorterConf() {
         seekPackages = new SeekPackages();
         stateListenerSet = new HashSet<>();
         contextChecks = new ArrayList<>();
@@ -70,57 +70,63 @@ public class PorterConf
      *
      * @param autoSetSeekPackages
      */
-    public void setAutoSetSeekPackages(String... autoSetSeekPackages)
-    {
-        this.autoSetSeekPackages = autoSetSeekPackages;
+    public void addAutoSetSeekPackages(String... autoSetSeekPackages) {
+        WPTool.addAll(this.autoSetSeekPackages, autoSetSeekPackages);
     }
 
     /**
      * 用于扫描指定包中的每一个类，进而注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * <pre>
+     *     会忽略非null的对象。
+     * </pre>
+     *
      * @param staticAutoSetPackages
      */
-    public void setStaticAutoSetPackages(String ...staticAutoSetPackages){
-        this.staticAutoSetPackages=staticAutoSetPackages;
+    public void addStaticAutoSetPackages(String... staticAutoSetPackages) {
+        WPTool.addAll(this.staticAutoSetPackages, staticAutoSetPackages);
     }
 
-    public String[] getStaticAutoSetPackages()
-    {
+    public List<String> getStaticAutoSetPackages() {
         return staticAutoSetPackages;
     }
 
     /**
      * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * <pre>
+     *     会忽略非null的对象。
+     * </pre>
+     *
      * @param staticAutoSetClasses
      */
-    public void setStaticAutoSetClasses(Class<?> ...staticAutoSetClasses){
-        this.staticAutoSetClasses=staticAutoSetClasses;
+    public void addStaticAutoSetClasses(Class<?>... staticAutoSetClasses) {
+        WPTool.addAll(this.staticAutoSetClasses, staticAutoSetClasses);
     }
 
-    public Class<?>[] getStaticAutoSetClasses()
-    {
+    public List<Class<?>> getStaticAutoSetClasses() {
         return staticAutoSetClasses;
     }
 
     /**
      * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * <pre>
+     *     会忽略非null的对象。
+     * </pre>
+     *
      * @param staticAutoSetClasses
      */
-    public void setStaticAutoSetClasses(String ...staticAutoSetClasses){
-        this.staticAutoSetClassStrs=staticAutoSetClasses;
+    public void addStaticAutoSetClasses(String... staticAutoSetClasses) {
+        WPTool.addAll(this.staticAutoSetClassStrs, staticAutoSetClasses);
     }
 
-    public String[] getStaticAutoSetClassStrs()
-    {
+    public List<String> getStaticAutoSetClassStrs() {
         return staticAutoSetClassStrs;
     }
 
-    public String[] getAutoSetSeekPackages()
-    {
+    public List<String> getAutoSetSeekPackages() {
         return autoSetSeekPackages;
     }
 
-    public List<CheckPassable> getForAllCheckPassableList()
-    {
+    public List<CheckPassable> getForAllCheckPassableList() {
         return forAllCheckPassableList;
     }
 
@@ -130,39 +136,32 @@ public class PorterConf
      *
      * @param forAllCheckPassable
      */
-    public void addForAllCheckPassable(CheckPassable forAllCheckPassable)
-    {
+    public void addForAllCheckPassable(CheckPassable forAllCheckPassable) {
         forAllCheckPassableList.add(forAllCheckPassable);
     }
 
-    public String getContentEncoding()
-    {
+    public String getContentEncoding() {
         return contentEncoding;
     }
 
-    public void setContentEncoding(String contentEncoding)
-    {
+    public void setContentEncoding(String contentEncoding) {
         checkInited();
         this.contentEncoding = contentEncoding;
     }
 
-    public void setContextName(String contextName)
-    {
+    public void setContextName(String contextName) {
         checkInited();
         PortUtil.checkName(contextName);
         this.name = contextName;
     }
 
-    public String getContextName()
-    {
+    public String getContextName() {
         return name;
     }
 
 
-    private void checkInited()
-    {
-        if (isInited)
-        {
+    private void checkInited() {
+        if (isInited) {
             throw new RuntimeException("already init!");
         }
     }
@@ -172,8 +171,7 @@ public class PorterConf
      *
      * @param enablePortInTiedNameDefault
      */
-    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault)
-    {
+    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault) {
         checkInited();
         this.enablePortInTiedNameDefault = enablePortInTiedNameDefault;
     }
@@ -183,8 +181,7 @@ public class PorterConf
      *
      * @return
      */
-    public boolean isEnableTiedNameDefault()
-    {
+    public boolean isEnableTiedNameDefault() {
         checkInited();
         return enablePortInTiedNameDefault;
     }
@@ -195,8 +192,7 @@ public class PorterConf
      * @param name
      * @param object
      */
-    public void addContextAutoSet(String name, Object object)
-    {
+    public void addContextAutoSet(String name, Object object) {
         contextAutoSetMap.put(name, object);
     }
 
@@ -205,8 +201,7 @@ public class PorterConf
      *
      * @param object
      */
-    public void addContextAutoSet(Object object)
-    {
+    public void addContextAutoSet(Object object) {
         addContextAutoSet(object.getClass().getName(), object);
     }
 
@@ -215,8 +210,7 @@ public class PorterConf
      *
      * @param object
      */
-    public void addContextAutoSet(Class<?> clazz, Object object)
-    {
+    public void addContextAutoSet(Class<?> clazz, Object object) {
         addContextAutoSet(clazz.getName(), object);
     }
 
@@ -226,8 +220,7 @@ public class PorterConf
      * @param name      名称
      * @param implClass 实现类。
      */
-    public void addContextAutoGenImpl(String name, Class<?> implClass)
-    {
+    public void addContextAutoGenImpl(String name, Class<?> implClass) {
         contextAutoGenImplMap.put(name, implClass);
     }
 
@@ -237,29 +230,24 @@ public class PorterConf
      * @param clazz
      * @param implClass
      */
-    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass)
-    {
+    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass) {
         contextAutoGenImplMap.put(clazz.getName(), implClass);
     }
 
-    public Map<String, Class<?>> getContextAutoGenImplMap()
-    {
+    public Map<String, Class<?>> getContextAutoGenImplMap() {
         return contextAutoGenImplMap;
     }
 
-    public boolean isResponseWhenException()
-    {
+    public boolean isResponseWhenException() {
         return responseWhenException;
     }
 
 
-    public SeekPackages getSeekPackages()
-    {
+    public SeekPackages getSeekPackages() {
         return seekPackages;
     }
 
-    public void addStateListener(StateListener stateListener)
-    {
+    public void addStateListener(StateListener stateListener) {
         checkInited();
         stateListenerSet.add(stateListener);
     }
@@ -269,51 +257,42 @@ public class PorterConf
      *
      * @param checkPassable
      */
-    public void addContextCheck(CheckPassable checkPassable)
-    {
+    public void addContextCheck(CheckPassable checkPassable) {
         contextChecks.add(checkPassable);
     }
 
-    public void setClassLoader(ClassLoader classLoader)
-    {
+    public void setClassLoader(ClassLoader classLoader) {
         checkInited();
         this.classLoader = classLoader;
     }
 
-    public ClassLoader getClassLoader()
-    {
+    public ClassLoader getClassLoader() {
         return classLoader;
     }
 
-    public List<CheckPassable> getContextChecks()
-    {
+    public List<CheckPassable> getContextChecks() {
         return contextChecks;
     }
 
-    public Map<String, Object> getContextAutoSetMap()
-    {
+    public Map<String, Object> getContextAutoSetMap() {
         return contextAutoSetMap;
     }
 
-    public Set<StateListener> getStateListenerSet()
-    {
+    public Set<StateListener> getStateListenerSet() {
         checkInited();
         return stateListenerSet;
     }
 
-    public InitParamSource getUserInitParam()
-    {
+    public InitParamSource getUserInitParam() {
         checkInited();
         return userInitParam;
     }
 
-    public ParamSourceHandleManager getParamSourceHandleManager()
-    {
+    public ParamSourceHandleManager getParamSourceHandleManager() {
         return paramSourceHandleManager;
     }
 
-    void initOk()
-    {
+    void initOk() {
         isInited = true;
         seekPackages = null;
         userInitParam = null;
@@ -325,6 +304,6 @@ public class PorterConf
         forAllCheckPassableList = null;
         autoSetSeekPackages = null;
         paramSourceHandleManager = null;
-        defaultReturnFactory=null;
+        defaultReturnFactory = null;
     }
 }
