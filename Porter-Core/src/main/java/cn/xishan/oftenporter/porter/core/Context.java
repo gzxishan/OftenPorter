@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
+import cn.xishan.oftenporter.porter.core.base.DefaultReturnFactory;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 
 /**
@@ -20,9 +21,12 @@ public class Context {
     CheckPassable[] contextChecks;
     CheckPassable[] forAllChecksNotZeroLen;
 
+    DefaultReturnFactory defaultReturnFactory;
+
     public Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
                    ParamSourceHandleManager paramSourceHandleManager,
-                   StateListener stateListenerForAll, InnerContextBridge innerContextBridge, CheckPassable[] forAllCheckPassables) {
+                   StateListener stateListenerForAll, InnerContextBridge innerContextBridge,
+                   CheckPassable[] forAllCheckPassables, DefaultReturnFactory defaultReturnFactory) {
         this.deliveryBuilder = deliveryBuilder;
         this.contextPorter = contextPorter;
         this.contextChecks = contextChecks;
@@ -30,6 +34,7 @@ public class Context {
         this.stateListenerForAll = stateListenerForAll;
         this.innerContextBridge = innerContextBridge;
         this.forAllChecksNotZeroLen = forAllCheckPassables != null && forAllCheckPassables.length > 0 ? forAllCheckPassables : null;
+        this.defaultReturnFactory=defaultReturnFactory;
         setEnable(true);
     }
 

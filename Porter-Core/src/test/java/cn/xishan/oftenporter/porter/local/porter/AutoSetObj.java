@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +25,8 @@ public class AutoSetObj
     }
 
     @AutoSet.SetOk
-    public void setOk(){
-        LogUtil.printErrPos();
+    public void setOk(WObject wObject){
+        LogUtil.printErrPos(wObject);
     }
 
     @AutoSet.SetOk

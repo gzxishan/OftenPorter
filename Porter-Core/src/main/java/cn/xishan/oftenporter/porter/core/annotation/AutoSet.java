@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
@@ -9,6 +10,8 @@ import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import org.slf4j.Logger;
 
@@ -31,6 +34,8 @@ import java.lang.annotation.*;
  * 2.{@linkplain TypeTo TypeTo}
  * 3.{@linkplain PorterData PorterData}
  * 4.{@linkplain Logger Logger}
+ * 5.{@linkplain SyncPorter SyncPorter}
+ * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
  * <p>
  * Created by https://github.com/CLovinr on 2016/9/8.
@@ -56,7 +61,9 @@ public @interface AutoSet {
     /**
      * <pre>
      * 注解在public的函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
-     * <strong>注意：</strong>只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
+     * <strong>注意：</strong>1.只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
+     *        2.函数可以无形参，或者有一个形参WObject。
+     *        3.在{@linkplain PortStart PortStart}之前调用。
      * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -65,6 +72,7 @@ public @interface AutoSet {
     @interface SetOk {
         /**
          * 全局优先级,数值越大越先执行，同一优先级的执行顺序并不保证。
+         *
          * @return
          */
         int priority() default 0;

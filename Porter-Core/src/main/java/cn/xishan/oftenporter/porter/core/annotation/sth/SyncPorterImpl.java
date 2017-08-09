@@ -49,6 +49,7 @@ class SyncPorterImpl implements SyncNotInnerPorter {
 
         ABOption abOption = new ABOption(wObject == null ? null : wObject._otherObject,
                 isInner ? PortFunType.INNER : PortFunType.DEFAULT, isInner?ABInvokeOrder.OTHER:ABInvokeOrder._OTHER_BEFORE);
+        abOption.setCanInVokeInner(true);
         request._setABOption_(abOption);
         request.addParamAll(appValues);
         Temp temp = new Temp();

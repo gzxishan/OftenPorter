@@ -9,8 +9,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class BytesTool
-{
+public class BytesTool {
     private static final Logger LOGGER = LoggerFactory.getLogger(BytesTool.class);
 
     /**
@@ -19,8 +18,7 @@ public class BytesTool
      * @return 返回传人的buffer
      * @throws IOException
      */
-    public static ByteBuffer read(ByteBuffer buffer, InputStream in) throws IOException
-    {
+    public static ByteBuffer read(ByteBuffer buffer, InputStream in) throws IOException {
         buffer.clear();
         byte[] bs = buffer.array();
         int n;
@@ -28,6 +26,34 @@ public class BytesTool
         buffer.position(0);
         buffer.limit(n == -1 ? 0 : n);
         return buffer;
+    }
+
+
+    public static String toMinLengthOfLeft(String content, int length, char c) {
+        return toMinLength(content, length, c, true);
+    }
+
+    public static String toMinLengthOfRight(String content, int length, char c) {
+        return toMinLength(content, length, c, false);
+    }
+
+    /**
+     * 当content小于length时，则在左或右补字符c。
+     *
+     * @param content
+     * @param length
+     * @param c
+     * @param isLeft
+     */
+    public static String toMinLength(String content, int length, char c, boolean isLeft) {
+        for (int i = length - content.length(); i > 0; i--) {
+            if (isLeft) {
+                content = c + content;
+            } else {
+                content += c;
+            }
+        }
+        return content;
     }
 
     /**
@@ -39,14 +65,11 @@ public class BytesTool
      * @param in
      * @throws IOException
      */
-    public static void readLength(byte[] buf, int offset, int needLength, InputStream in) throws IOException
-    {
+    public static void readLength(byte[] buf, int offset, int needLength, InputStream in) throws IOException {
         int n;
-        while (needLength > 0)
-        {
+        while (needLength > 0) {
             n = in.read(buf, offset, needLength);
-            if (n == -1)
-            {
+            if (n == -1) {
                 throw new IOException("the stream is end!");
             }
             needLength -= n;
@@ -58,17 +81,25 @@ public class BytesTool
      * 转换成16进制.
      *
      * @param bs
+     * @return
+     */
+    public static String toHex(byte[] bs) {
+        return toHex(bs, 0, bs.length);
+    }
+
+    /**
+     * 转换成16进制.
+     *
+     * @param bs
      * @param offset
      * @param length
      * @return
      */
-    public static String toHex(byte[] bs, int offset, int length)
-    {
+    public static String toHex(byte[] bs, int offset, int length) {
         final String HEX = "0123456789abcdef";
         StringBuilder sb = new StringBuilder(length * 2);
         int nend = offset + length;
-        for (int i = offset; i < nend; i++)
-        {
+        for (int i = offset; i < nend; i++) {
             byte b = bs[i];
             sb.append(HEX.charAt((b >> 4) & 0x0f));
             sb.append(HEX.charAt(b & 0x0f));
@@ -83,14 +114,12 @@ public class BytesTool
      * @param str
      * @return
      */
-    public static byte[] hexToByte(String str)
-    {
+    public static byte[] hexToByte(String str) {
         byte[] bs = new byte[str.length() / 2];
         int index, n;
-        for (int i = 0; i < bs.length; i++)
-        {
-            index = i << 2;
-            n = Integer.parseInt(str.substring(index, index + 2), 16);
+        for (int i = 0; i < bs.length; i++) {
+            index = i << 1;
+            n = Integer.parseInt(str.substring(index, index + 1), 16);
             bs[i] = (byte) n;
         }
         return bs;
@@ -100,18 +129,14 @@ public class BytesTool
     /**
      * @see #combineBytes(boolean, byte[]...)
      */
-    public static byte[][] uncombineBytes(boolean intOrShortLen, byte[] bss)
-    {
+    public static byte[][] uncombineBytes(boolean intOrShortLen, byte[] bss) {
         ArrayList<byte[]> list = new ArrayList<>();
-        for (int i = 0; i < bss.length; )
-        {
+        for (int i = 0; i < bss.length; ) {
             int n;
-            if (intOrShortLen)
-            {
+            if (intOrShortLen) {
                 n = readInt(bss, i);
                 i += 4;
-            } else
-            {
+            } else {
                 n = readUnShort(bss, i);
                 i += 2;
             }
@@ -127,41 +152,33 @@ public class BytesTool
     /**
      * 格式：【int/short】【byte[]】...
      */
-    public static byte[] combineBytes(boolean intOrShortLen, byte[]... bss)
-    {
+    public static byte[] combineBytes(boolean intOrShortLen, byte[]... bss) {
         int n = 0;
-        for (int i = 0; i < bss.length; i++)
-        {
+        for (int i = 0; i < bss.length; i++) {
             n += 4 + bss[i].length;
         }
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream(n);
 
-        try
-        {
-            if (intOrShortLen)
-            {
+        try {
+            if (intOrShortLen) {
                 byte[] temp = new byte[4];
-                for (int i = 0; i < bss.length; i++)
-                {
+                for (int i = 0; i < bss.length; i++) {
                     writeInt(temp, 0, bss[i].length);
                     bos.write(temp);
                     bos.write(bss[i]);
                 }
-            } else
-            {
+            } else {
                 byte[] temp = new byte[2];
-                for (int i = 0; i < bss.length; i++)
-                {
+                for (int i = 0; i < bss.length; i++) {
                     writeShort(temp, 0, bss[i].length);
                     bos.write(temp);
                     bos.write(bss[i]);
                 }
             }
 
-        } catch (IOException e)
-        {
-            LOGGER.warn(e.getMessage(),e);
+        } catch (IOException e) {
+            LOGGER.warn(e.getMessage(), e);
         }
         return bos.toByteArray();
     }
@@ -176,18 +193,14 @@ public class BytesTool
      * @param offset2
      * @return
      */
-    public static boolean eq(byte[] bs1, int offset1, int length, byte[] bs2, int offset2)
-    {
-        if (length > bs2.length - offset2)
-        {
+    public static boolean eq(byte[] bs1, int offset1, int length, byte[] bs2, int offset2) {
+        if (length > bs2.length - offset2) {
             return false;
         }
 
         boolean isEq = true;
-        for (int i = 0; i < length; i++)
-        {
-            if (bs1[offset1 + i] != bs2[offset2 + i])
-            {
+        for (int i = 0; i < length; i++) {
+            if (bs1[offset1 + i] != bs2[offset2 + i]) {
                 isEq = false;
                 break;
             }
@@ -202,8 +215,7 @@ public class BytesTool
      * @param offset 开始的索引
      * @param n
      */
-    public static void writeInt(byte[] data, int offset, int n)
-    {
+    public static void writeInt(byte[] data, int offset, int n) {
 
         data[offset] = (byte) ((n >> 24) & 0xFF);
         data[offset + 1] = (byte) ((n >> 16) & 0xFF);
@@ -218,8 +230,7 @@ public class BytesTool
      * @param offset
      * @return
      */
-    public static int readInt(byte[] data, int offset)
-    {
+    public static int readInt(byte[] data, int offset) {
 
         int n = ((data[offset + 3] & 0xFF) | ((data[offset + 2] & 0xFF) << 8)
                 | ((data[offset + 1] & 0xFF) << 16) | ((data[offset] & 0xFF) << 24));
@@ -234,8 +245,7 @@ public class BytesTool
      * @param offset
      * @param l
      */
-    public static void writeLong(byte[] bs, int offset, long l)
-    {
+    public static void writeLong(byte[] bs, int offset, long l) {
         writeInt(bs, offset, (int) ((l >>> 32) & 0xffffffff));
         writeInt(bs, offset + 4, (int) (l & 0xffffffff));
     }
@@ -247,8 +257,7 @@ public class BytesTool
      * @param offset
      * @return
      */
-    public static long readLong(byte[] data, int offset)
-    {
+    public static long readLong(byte[] data, int offset) {
         long l = ((long) readInt(data, offset)) << 32;
         l |= readInt(data, offset + 4);
         return l;
@@ -261,8 +270,7 @@ public class BytesTool
      * @param offset 开始的索引
      * @param n
      */
-    public static void writeShort(byte[] data, int offset, int n)
-    {
+    public static void writeShort(byte[] data, int offset, int n) {
 
         data[offset] = (byte) ((n >> 8) & 0xFF);
         data[offset + 1] = (byte) (n & 0xFF);
@@ -275,8 +283,7 @@ public class BytesTool
      * @param offset
      * @return
      */
-    public static int readUnShort(byte[] data, int offset)
-    {
+    public static int readUnShort(byte[] data, int offset) {
 
         int n = ((data[offset + 1] & 0xFF)) | ((data[offset] & 0xFF) << 8);
         return n;

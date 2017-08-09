@@ -249,12 +249,12 @@ public class ContextPorter
     }
 
 
-    public void start()
+    public void start(WObject wObject)
     {
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().start();
+            iterator.next().start(wObject);
         }
     }
 

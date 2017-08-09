@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -308,10 +309,15 @@ public final class AnnotationDealt {
         return _portStart;
     }
 
-    public _PortOut portOut(Method method) {
+    public _PortOut portOut(Porter classPorter, Method method, OutType defaultPoutType) {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (portOut != null) {
+        if (portOut == null) {
+            portOut = classPorter.getPortOut();
+        }
+        if (portOut == null && defaultPoutType != null) {
+            _portOut.outType = defaultPoutType;
+        } else if (portOut != null) {
             _portOut.outType = portOut.value();
         } else if (method.getReturnType().equals(Void.TYPE)) {
             _portOut.outType = OutType.NO_RESPONSE;

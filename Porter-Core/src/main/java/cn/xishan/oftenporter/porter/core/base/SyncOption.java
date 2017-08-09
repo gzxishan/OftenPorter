@@ -31,7 +31,8 @@ public class SyncOption
         porterParamGetter.setFunTied(syncOption.funTied);
         _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
         syncPorterOption.setMethod(syncOption.method);
-        SyncPorter syncPorter = SthDeal.newSyncPorter(syncPorterOption,isInner);
+        syncPorterOption.setOk();
+        SyncPorter syncPorter = SthDeal.newSyncPorter(syncPorterOption,isInner,wObject.delivery());
         return syncPorter;
     }
 

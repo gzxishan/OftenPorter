@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
@@ -59,8 +60,12 @@ public class AutoSetHandle {
             return o.priority - priority;
         }
 
-        public void invoke() throws InvocationTargetException, IllegalAccessException {
-            method.invoke(obj);
+        public void invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException {
+            if (method.getParameterTypes().length == 1) {
+                method.invoke(obj, wObject);
+            } else {
+                method.invoke(obj);
+            }
         }
     }
 
@@ -288,12 +293,12 @@ public class AutoSetHandle {
     /**
      * 调用所有的{@linkplain SetOk SetOk}函数。
      */
-    public synchronized void invokeSetOk() {
+    public synchronized void invokeSetOk(WObject wObject) {
         _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
         Arrays.sort(setOkObjects);
         try {
             for (_SetOkObject setOkObject : setOkObjects) {
-                setOkObject.invoke();
+                setOkObject.invoke(wObject);
             }
             this.setOkObjects.clear();
         } catch (Exception e) {
