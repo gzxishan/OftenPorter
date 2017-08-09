@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
@@ -329,8 +330,9 @@ public class SthDeal {
 
     }
 
-    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner) {
+    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery) {
         SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption, isInner);
+        syncPorter.delivery=delivery;
         return syncPorter;
     }
 }

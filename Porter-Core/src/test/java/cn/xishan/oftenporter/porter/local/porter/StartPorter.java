@@ -2,6 +2,10 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
+import cn.xishan.oftenporter.porter.core.base.SyncOption;
+import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,5 +19,16 @@ public class StartPorter
     @PortStart
     public void onStart(){
         LOGGER.debug("[{}] on start!",getClass());
+    }
+
+    @PortIn
+    public Object startInvoke(){
+        return "From startInvoke!";
+    }
+
+    @PortStart
+    public void onStart(WObject wObject){
+      SyncPorter syncPorter = wObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET,"startInvoke"));
+        LOGGER.debug("[{},{},{}] on start!",getClass(),wObject,syncPorter.requestWNull());
     }
 }

@@ -1,13 +1,12 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
-import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -284,20 +283,43 @@ public final class PorterMain {
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
-        portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
+        Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
                 forAllCheckPassables);
 
         try {
             autoSetHandle.doAutoSet();//变量设置处理
             sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
-            autoSetHandle.invokeSetOk();
+
+            String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
+            UrlDecoder.Result result = getUrlDecoder().decode(path);
+            PRequest request = new PRequest(path);
+            WResponse response = new LocalResponse(new PCallback() {
+                @Override
+                public void onResponse(PResponse lResponse) {
+
+                }
+            });
+            WObject wObject = portExecutor.forPortStart(getPLinker().currentPName(), result, request, response, context);
+
+            autoSetHandle.invokeSetOk(wObject);
+
         } catch (Exception e) {
             throw new Error(WPTool.getCause(e));
         }
 
         LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
 
-        contextPorter.start();
+        String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class.getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
+        UrlDecoder.Result result = getUrlDecoder().decode(path);
+        PRequest request = new PRequest(path);
+        WResponse response = new LocalResponse(new PCallback() {
+            @Override
+            public void onResponse(PResponse lResponse) {
+
+            }
+        });
+        WObject wObject = portExecutor.forPortStart(getPLinker().currentPName(), result, request, response, context);
+        contextPorter.start(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());

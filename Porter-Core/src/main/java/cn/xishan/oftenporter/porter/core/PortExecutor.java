@@ -57,7 +57,7 @@ public class PortExecutor {
     }
 
 
-    public void addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
+    public Context addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
                            InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables) {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
@@ -66,6 +66,7 @@ public class PortExecutor {
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
+        return context;
     }
 
     public UrlDecoder getUrlDecoder() {
@@ -165,6 +166,11 @@ public class PortExecutor {
             }
             return new PreRequest(context, result, classPort, funPort);
         }
+    }
+
+    public WObject forPortStart(PName pName, UrlDecoder.Result result,WRequest request,WResponse response,Context context){
+        WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+        return wObject;
     }
 
     public void doRequest(PreRequest req, WRequest request, WResponse response) {
@@ -624,8 +630,6 @@ public class PortExecutor {
             }
 
             if (doState == PortBeforeAfterDealt.DoState.DoResponse) {
-
-
                 dealtOfResponse(wObject, funPort.getPortOut().getOutType(), returnObject);
             }
 
