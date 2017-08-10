@@ -28,4 +28,14 @@ public class RequestData {
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
+
+    public RequestData putParam(String name,Object value){
+        params.put(name,value);
+        return this;
+    }
+
+    public RequestData putHeader(String name,String value){
+        headers.put(name,value);
+        return this;
+    }
 }

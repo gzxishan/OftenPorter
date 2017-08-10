@@ -74,8 +74,8 @@ public class HttpUtil {
     }
 
 
-    private static final int SET_CONNECTION_TIMEOUT = 10 * 1000;
-    private static final int SET_SOCKET_TIMEOUT = 20 * 1000;
+   // private static final int SET_CONNECTION_TIMEOUT = 10 * 1000;
+   // private static final int SET_SOCKET_TIMEOUT = 20 * 1000;
     private static OkHttpClientImpl defaultClient;
 
 
@@ -98,9 +98,9 @@ public class HttpUtil {
     private static OkHttpClientImpl _getClient(CookieHandler cookieHandler) {
 
         OkHttpClientImpl okHttpClient = new OkHttpClientImpl();
-        okHttpClient.setConnectTimeout(SET_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-        okHttpClient.setReadTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
-        okHttpClient.setWriteTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
+        //okHttpClient.setConnectTimeout(SET_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
+        //okHttpClient.setReadTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
+        //okHttpClient.setWriteTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
         if (cookieHandler == null) {
             CookieManager cookieManager = new CookieManager();
             cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_NONE);
