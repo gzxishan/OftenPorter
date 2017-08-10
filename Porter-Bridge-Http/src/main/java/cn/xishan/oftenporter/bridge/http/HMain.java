@@ -9,10 +9,13 @@ import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 import com.squareup.okhttp.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/7.
@@ -21,9 +24,13 @@ public class HMain extends LocalMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(HMain.class);
     private PLinker pLinker;
 
+    private static final String HEADER_KEY = KeyUtil.random48Key();
+    private OkHttpClient okHttpClient;
+
     public HMain(boolean responseWhenException, PName pName,
-                 final String urlEncoding, final OkHttpClient okHttpClient, final String hostUrlPrefix) {
+                 final String urlEncoding, OkHttpClient httpClient, final String hostUrlPrefix) {
         super();
+        this.okHttpClient = httpClient;
         newLocalMain(responseWhenException, pName, urlEncoding, (request, callback) ->
         {
             try {
@@ -37,7 +44,15 @@ public class HMain extends LocalMain {
 //                    path = (hostUrlPrefix.endsWith("/") ? "=" : "/=") + path.substring(2);
 //                }
                 String url = hostUrlPrefix + path;
-                HttpUtil.requestWPorter(new RequestData(request.getParameterMap()), HttpMethod.valueOf(request.getMethod().name()),
+
+                Map<String, Object> params = request.getParameterMap();
+                RequestData requestData = new RequestData(params);
+                if (params != null) {
+                    Map<String, String> headers = (Map<String, String>) params.remove(HEADER_KEY);
+                    requestData.setHeaders(headers);
+                }
+
+                HttpUtil.requestWPorter(requestData, HttpMethod.valueOf(request.getMethod().name()),
                         okHttpClient, url,
                         jResponse ->
                         {
@@ -123,6 +138,14 @@ public class HMain extends LocalMain {
                 return true;
             }
         };
+    }
+
+    public OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
+
+    public static String getHeaderKey() {
+        return HEADER_KEY;
     }
 
     @Override

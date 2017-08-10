@@ -147,7 +147,9 @@ public class PRequest implements WRequest, Cloneable
 
     public synchronized PRequest addParamAll(Map<String, Object> paramMap)
     {
-        params.putAll(paramMap);
+        if(paramMap!=null){
+            params.putAll(paramMap);
+        }
         return this;
     }
 
