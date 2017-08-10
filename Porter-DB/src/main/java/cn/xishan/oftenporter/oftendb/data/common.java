@@ -7,29 +7,32 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 /**
  * @author Created by https://github.com/CLovinr on 2017/7/1.
  */
-public class common
-{
+public class common {
+    /**
+     * @see DBCommon#addObjectData(WObject, DBSource, Object)
+     */
+    public static JResponse addObjectData(WObject wObject, DBSource dbSource, Object object) {
+        return DBCommon.C.addObjectData(wObject, dbSource, object);
+    }
+
     /**
      * @see DBCommon#addData(WObject, DBSource, NameValues)
      */
-    public static JResponse addData(WObject wObject, DBSource dbSource, NameValues nameValues)
-    {
+    public static JResponse addData(WObject wObject, DBSource dbSource, NameValues nameValues) {
         return DBCommon.C.addData(wObject, dbSource, nameValues);
     }
 
     /**
      * @see DBCommon#addData(WObject, DBSource, boolean)
      */
-    public static JResponse addData(WObject wObject, DBSource dbSource, boolean containsNull)
-    {
+    public static JResponse addData(WObject wObject, DBSource dbSource, boolean containsNull) {
         return DBCommon.C.addData(wObject, dbSource, containsNull);
     }
 
     /**
      * @see DBCommon#addData(WObject, DBSource, MultiNameValues)
      */
-    public static JResponse addData(WObject wObject, DBSource dbSource, MultiNameValues multiNameValues)
-    {
+    public static JResponse addData(WObject wObject, DBSource dbSource, MultiNameValues multiNameValues) {
         return DBCommon.C.addData(wObject, dbSource, multiNameValues);
     }
 
@@ -38,8 +41,7 @@ public class common
      * @see DBCommon#advancedExecute(WObject, DBSource, AdvancedExecutor)
      */
 
-    public static JResponse advancedExecute(WObject wObject, DBSource dbSource, AdvancedExecutor advancedExecutor)
-    {
+    public static JResponse advancedExecute(WObject wObject, DBSource dbSource, AdvancedExecutor advancedExecutor) {
         return DBCommon.C.advancedExecute(wObject, dbSource, advancedExecutor);
     }
 
@@ -47,16 +49,14 @@ public class common
      * @see DBCommon#advancedQuery(WObject, DBSource, AdvancedQuery, QuerySettings)
      */
     public static JResponse advancedQuery(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
-            QuerySettings querySettings)
-    {
+                                          QuerySettings querySettings) {
         return DBCommon.C.advancedQuery(wObject, dbSource, advancedQuery, querySettings);
     }
 
     /**
      * @see DBCommon#count(WObject, DBSource, AdvancedQuery)
      */
-    public static JResponse count(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
-    {
+    public static JResponse count(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery) {
         return DBCommon.C.count(wObject, dbSource, advancedQuery);
     }
 
@@ -64,16 +64,14 @@ public class common
     /**
      * @see DBCommon#count(WObject, DBSource, Condition)
      */
-    public static JResponse count(WObject wObject, DBSource dbSource, Condition condition)
-    {
+    public static JResponse count(WObject wObject, DBSource dbSource, Condition condition) {
         return DBCommon.C.count(wObject, dbSource, condition);
     }
 
     /**
      * @see DBCommon#count(WObject, DBSource, String, Object)
      */
-    public static JResponse count(WObject wObject, DBSource dbSource, String key, Object value)
-    {
+    public static JResponse count(WObject wObject, DBSource dbSource, String key, Object value) {
         return DBCommon.C.count(wObject, dbSource, key, value);
     }
 
@@ -81,8 +79,7 @@ public class common
     /**
      * @see DBCommon#deleteData(WObject, DBSource, Condition)
      */
-    public static JResponse deleteData(WObject wObject, DBSource dbSource, Condition condition)
-    {
+    public static JResponse deleteData(WObject wObject, DBSource dbSource, Condition condition) {
         return DBCommon.C.deleteData(wObject, dbSource, condition);
     }
 
@@ -91,8 +88,7 @@ public class common
      * @see DBCommon#queryData(WObject, DBSource, Condition, QuerySettings, KeysSelection)
      */
     public static JResponse queryData(WObject wObject, DBSource dbSource,
-            Condition condition, QuerySettings querySettings, KeysSelection keysSelection)
-    {
+                                      Condition condition, QuerySettings querySettings, KeysSelection keysSelection) {
         return DBCommon.C.queryData(wObject, dbSource, condition, querySettings, keysSelection);
     }
 
@@ -101,8 +97,7 @@ public class common
      * @see DBCommon#queryEnumeration(WObject, DBSource, AdvancedQuery, QuerySettings)
      */
     public static JResponse queryEnumeration(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
-            QuerySettings querySettings)
-    {
+                                             QuerySettings querySettings) {
         return DBCommon.C.queryEnumeration(wObject, dbSource, advancedQuery, querySettings);
     }
 
@@ -110,8 +105,7 @@ public class common
      * @see DBCommon#queryEnumeration(WObject, DBSource, Condition, QuerySettings, KeysSelection)
      */
     public static JResponse queryEnumeration(WObject wObject, DBSource dbSource, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection)
-    {
+                                             QuerySettings querySettings, KeysSelection keysSelection) {
         return DBCommon.C.queryEnumeration(wObject, dbSource, condition, querySettings, keysSelection);
     }
 
@@ -119,8 +113,7 @@ public class common
      * @see DBCommon#queryOne(WObject, DBSource, Condition, KeysSelection)
      */
     public static JResponse queryOne(WObject wObject, DBSource dbSource, Condition condition,
-            KeysSelection keysSelection)
-    {
+                                     KeysSelection keysSelection) {
         return DBCommon.C.queryOne(wObject, dbSource, condition, keysSelection);
     }
 
@@ -128,40 +121,35 @@ public class common
     /**
      * @see DBCommon#queryOne(WObject, DBSource, AdvancedQuery)
      */
-    public static JResponse queryOne(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
-    {
+    public static JResponse queryOne(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery) {
         return DBCommon.C.queryOne(wObject, dbSource, advancedQuery);
     }
 
     /**
      * @see DBCommon#replaceData(WObject, DBSource, Condition, NameValues)
      */
-    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
-    {
+    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues) {
         return DBCommon.C.replaceData(wObject, dbSource, condition, nameValues);
     }
 
     /**
      * @see DBCommon#replaceData(WObject, DBSource, Condition, boolean)
      */
-    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
-    {
+    public static JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {
         return DBCommon.C.replaceData(wObject, dbSource, condition, containsNull);
     }
 
     /**
      * @see DBCommon#updateData(WObject, DBSource, Condition, NameValues)
      */
-    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
-    {
+    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues) {
         return DBCommon.C.updateData(wObject, dbSource, condition, nameValues);
     }
 
     /**
      * @see DBCommon#updateData(WObject, DBSource, Condition, boolean)
      */
-    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
-    {
+    public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {
         return DBCommon.C.updateData(wObject, dbSource, condition, containsNull);
     }
 

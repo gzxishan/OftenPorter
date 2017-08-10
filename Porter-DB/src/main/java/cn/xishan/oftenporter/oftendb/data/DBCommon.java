@@ -16,80 +16,65 @@ import java.io.IOException;
 /**
  * @author Created by https://github.com/CLovinr on 2017/7/1.
  */
-public class DBCommon
-{
+public class DBCommon {
     /**
      * 默认的
      */
     public static final DBCommon C = new DBCommon(null);
     private final DBHandle _dbHandle;
 
-    private DBCommon(DBHandle dbHandle)
-    {
+    private DBCommon(DBHandle dbHandle) {
         this._dbHandle = dbHandle;
     }
 
-    private interface Dealt
-    {
+    private interface Dealt {
         void deal(JResponse jResponse, DBHandle dbHandle, DBSource dbSource) throws Exception;
     }
 
 
-    private JResponse commonDealt(WObject wObject, Dealt dealt, DBSource dbSource)
-    {
+    private JResponse commonDealt(WObject wObject, Dealt dealt, DBSource dbSource) {
         DBCommon common;
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
+        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle) {
             CommonTransactionHandle<DBCommon> handle = (CommonTransactionHandle) wObject._otherObject;
             handle.check();
             common = handle.common();
-        } else
-        {
+        } else {
             common = this;
         }
         return common._commonDealt(wObject, dealt, dbSource);
     }
 
 
-    private JResponse _commonDealt(WObject wObject, Dealt dealt, DBSource dbSource)
-    {
+    private JResponse _commonDealt(WObject wObject, Dealt dealt, DBSource dbSource) {
         JResponse jResponse = new JResponse();
         DBHandle dbHandle = null;
-        try
-        {
+        try {
             ConfigToDo configToDo = dbSource.getConfigToDo();
-            if (this._dbHandle != null)
-            {
+            if (this._dbHandle != null) {
                 dbHandle = this._dbHandle;
-            } else
-            {
+            } else {
                 dbHandle = dbSource.getDBHandle();
             }
             configToDo.atLeastCollectionName(wObject, dbSource.getConfiged(), dbHandle);
             dbHandle.setLogger(LogUtil.logger(wObject, dbHandle.getClass()));
 
-            if (!dbHandle.canOpenOrClose())
-            {
+            if (!dbHandle.canOpenOrClose()) {
                 throw new CannotOpenOrCloseException();
             }
             dealt.deal(jResponse, dbHandle, dbSource);
 
-        } catch (DBException e)
-        {
+        } catch (DBException e) {
             mayTransactionEx(wObject, e);
             jResponse.setCode(ResultCode.DB_EXCEPTION);
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             mayTransactionEx(wObject, e);
             jResponse.setCode(ResultCode.SERVER_EXCEPTION);
             jResponse.setDescription("On OftenDB:" + e.toString());
             jResponse.setExCause(e);
-        } finally
-        {
-            if (dbHandle != null && !dbHandle.isTransaction() && dbHandle.canOpenOrClose())
-            {
+        } finally {
+            if (dbHandle != null && !dbHandle.isTransaction() && dbHandle.canOpenOrClose()) {
                 WPTool.close(dbHandle);
                 dbSource.afterClose(dbHandle);
             }
@@ -98,27 +83,22 @@ public class DBCommon
         return jResponse;
     }
 
-    private void mayTransactionEx(WObject wObject, Exception e)
-    {
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
+    private void mayTransactionEx(WObject wObject, Exception e) {
+        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle) {
             CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
             handle.ex = e;
         }
     }
 
 
-    private JResponse _addData(WObject wObject, DBSource dbSource, final NameValues nameValues)
-    {
+    private JResponse _addData(WObject wObject, DBSource dbSource, final NameValues nameValues) {
 
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             boolean success = dbHandle.add(nameValues);
-            if (success)
-            {
+            if (success) {
                 jResponse.setCode(ResultCode.SUCCESS);
-            } else
-            {
+            } else {
                 jResponse.setCode(ResultCode.OK_BUT_FAILED);
                 jResponse.setDescription("add to db failed!");
             }
@@ -127,19 +107,16 @@ public class DBCommon
         return commonDealt(wObject, dealt, dbSource);
     }
 
-    private JResponse _addData(WObject wObject, DBSource dbSource, boolean containsNull)
-    {
+    private JResponse _addData(WObject wObject, DBSource dbSource, boolean containsNull) {
 
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
 
             NameValues nameValues = DataUtil.toNameValues(wObject, containsNull);
             boolean success = dbHandle.add(nameValues);
-            if (success)
-            {
+            if (success) {
                 jResponse.setCode(ResultCode.SUCCESS);
-            } else
-            {
+            } else {
                 jResponse.setCode(ResultCode.OK_BUT_FAILED);
                 jResponse.setDescription("add to db failed!");
             }
@@ -151,12 +128,28 @@ public class DBCommon
     }
 
     /**
+     * <pre>
+     * 见1.{@linkplain DataUtil#toNameValues(Object)}
+     *   2.{@link #addData(WObject, DBSource, NameValues)}
+     * </pre>
+     *
+     * @param wObject
+     * @param dbSource
+     * @param object
+     * @return
+     */
+    public JResponse addObjectData(WObject wObject, DBSource dbSource, Object object) {
+        NameValues nameValues = DataUtil.toNameValues(object);
+        return addData(wObject, dbSource, nameValues);
+    }
+
+
+    /**
      * 结果码为{@linkplain ResultCode#SUCCESS}表示成功。
      *
      * @see #addData(WObject, DBSource, boolean)
      */
-    public JResponse addData(WObject wObject, DBSource dbSource, NameValues nameValues)
-    {
+    public JResponse addData(WObject wObject, DBSource dbSource, NameValues nameValues) {
         return _addData(wObject, dbSource, nameValues);
     }
 
@@ -165,8 +158,7 @@ public class DBCommon
      *
      * @see #addData(WObject, DBSource, NameValues)
      */
-    public JResponse addData(WObject wObject, DBSource dbSource, boolean containsNull)
-    {
+    public JResponse addData(WObject wObject, DBSource dbSource, boolean containsNull) {
         return _addData(wObject, dbSource, containsNull);
     }
 
@@ -178,26 +170,20 @@ public class DBCommon
      * @param multiNameValues
      * @return
      */
-    public JResponse addData(WObject wObject, DBSource dbSource, MultiNameValues multiNameValues)
-    {
-        Dealt dealt = new Dealt()
-        {
+    public JResponse addData(WObject wObject, DBSource dbSource, MultiNameValues multiNameValues) {
+        Dealt dealt = new Dealt() {
             @Override
-            public void deal(JResponse jResponse, DBHandle dbHandle, DBSource dbSource) throws Exception
-            {
+            public void deal(JResponse jResponse, DBHandle dbHandle, DBSource dbSource) throws Exception {
                 int[] rs = dbHandle.add(multiNameValues);
                 jResponse.setCode(ResultCode.SUCCESS);
                 jResponse.setResult(toJArray(rs));
             }
 
-            private Object toJArray(int[] rs)
-            {
+            private Object toJArray(int[] rs) {
                 JSONArray array = null;
-                if (rs != null)
-                {
+                if (rs != null) {
                     array = new JSONArray(rs.length);
-                    for (int i : rs)
-                    {
+                    for (int i : rs) {
                         array.add(i);
                     }
                 }
@@ -215,8 +201,7 @@ public class DBCommon
      * @return 操作结果
      */
 
-    public JResponse advancedExecute(WObject wObject, DBSource dbSource, AdvancedExecutor advancedExecutor)
-    {
+    public JResponse advancedExecute(WObject wObject, DBSource dbSource, AdvancedExecutor advancedExecutor) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             Object object = dbHandle.advancedExecute(advancedExecutor);
@@ -234,8 +219,7 @@ public class DBCommon
      * @return 操作结果
      */
     public JResponse advancedQuery(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
-            QuerySettings querySettings)
-    {
+                                   QuerySettings querySettings) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             JSONArray array = dbHandle.advancedQuery(advancedQuery, querySettings);
@@ -251,8 +235,7 @@ public class DBCommon
      *
      * @return
      */
-    public JResponse count(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
-    {
+    public JResponse count(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             long n = dbHandle.exists(advancedQuery);
@@ -268,8 +251,7 @@ public class DBCommon
      *
      * @return 操作结果
      */
-    public JResponse count(WObject wObject, DBSource dbSource, Condition condition)
-    {
+    public JResponse count(WObject wObject, DBSource dbSource, Condition condition) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             long n = dbHandle.exists(condition);
@@ -282,8 +264,7 @@ public class DBCommon
     /**
      * @see #count(WObject, DBSource, Condition)
      */
-    public JResponse count(WObject wObject, DBSource dbSource, String key, Object value)
-    {
+    public JResponse count(WObject wObject, DBSource dbSource, String key, Object value) {
         Condition condition = dbSource.newCondition();
         condition.append(Condition.EQ, new CUnit(key, value));
         return count(wObject, dbSource, condition);
@@ -293,8 +274,7 @@ public class DBCommon
     /**
      * 删除数据.若成功，返回结果码为ResultCode.SUCCESS,并且结果为删除的记录个数（int,可能为0）.
      */
-    public JResponse deleteData(WObject wObject, DBSource dbSource, Condition condition)
-    {
+    public JResponse deleteData(WObject wObject, DBSource dbSource, Condition condition) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             int n = dbHandle.del(condition);
@@ -309,8 +289,7 @@ public class DBCommon
      * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONArray,array里的元素是JSONObject.
      */
     public JResponse queryData(WObject wObject, DBSource dbSource,
-            Condition condition, QuerySettings querySettings, KeysSelection keysSelection)
-    {
+                               Condition condition, QuerySettings querySettings, KeysSelection keysSelection) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             String[] keys = keysSelection == null ? null : keysSelection.getKeys();
@@ -326,8 +305,7 @@ public class DBCommon
      * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration< JSONObject >}.
      */
     public JResponse queryEnumeration(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery,
-            QuerySettings querySettings)
-    {
+                                      QuerySettings querySettings) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             DBEnumeration<JSONObject> enumeration = dbHandle.getDBEnumerations(advancedQuery, querySettings);
@@ -341,8 +319,7 @@ public class DBCommon
      * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为{@linkplain DBEnumeration<JSONObject>}.
      */
     public JResponse queryEnumeration(WObject wObject, DBSource dbSource, Condition condition,
-            QuerySettings querySettings, KeysSelection keysSelection)
-    {
+                                      QuerySettings querySettings, KeysSelection keysSelection) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             String[] keys = keysSelection == null ? null : keysSelection.getKeys();
@@ -356,8 +333,7 @@ public class DBCommon
     /**
      * 查询数据。若成功，返回结果码为ResultCode.SUCCESS,结果为JSONObject或null.
      */
-    public JResponse queryOne(WObject wObject, DBSource dbSource, Condition condition, KeysSelection keysSelection)
-    {
+    public JResponse queryOne(WObject wObject, DBSource dbSource, Condition condition, KeysSelection keysSelection) {
 
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
@@ -373,13 +349,11 @@ public class DBCommon
     /**
      * 查询成功时，结果为null或json。
      */
-    public JResponse queryOne(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery)
-    {
+    public JResponse queryOne(WObject wObject, DBSource dbSource, AdvancedQuery advancedQuery) {
         QuerySettings querySettings = new QuerySettings();
         querySettings.setLimit(1).setSkip(0);
         JResponse jResponse = advancedQuery(wObject, dbSource, advancedQuery, querySettings);
-        if (jResponse.isSuccess())
-        {
+        if (jResponse.isSuccess()) {
             JSONArray array = jResponse.getResult();
             JSONObject jsonObject = array.size() > 0 ? array.getJSONObject(0) : null;
             jResponse.setResult(jsonObject);
@@ -390,18 +364,15 @@ public class DBCommon
     /**
      * replace数据.若成功，返回结果码为ResultCode.SUCCESS.
      */
-    public JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
-    {
+    public JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues) {
 
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
 
             boolean success = dbHandle.replace(condition, nameValues);
-            if (success)
-            {
+            if (success) {
                 jResponse.setCode(ResultCode.SUCCESS);
-            } else
-            {
+            } else {
                 jResponse.setCode(ResultCode.OK_BUT_FAILED);
             }
         };
@@ -411,8 +382,7 @@ public class DBCommon
     /**
      * replace数据.若成功，返回结果码为ResultCode.SUCCESS.
      */
-    public JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
-    {
+    public JResponse replaceData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {
         NameValues nameValues = DataUtil.toNameValues(wObject, containsNull);
         return replaceData(wObject, dbSource, condition, nameValues);
     }
@@ -420,8 +390,7 @@ public class DBCommon
     /**
      * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      */
-    public JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues)
-    {
+    public JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, NameValues nameValues) {
         Dealt dealt = (jResponse, dbHandle, dbSource1) ->
         {
             int n = dbHandle.update(condition, nameValues);
@@ -434,17 +403,14 @@ public class DBCommon
     /**
      * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      */
-    public JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull)
-    {
+    public JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {
         NameValues nameValues = DataUtil.toNameValues(wObject, containsNull);
         return updateData(wObject, dbSource, condition, nameValues);
     }
 
-    public static SqlSource getSqlSource(WObject wObject)
-    {
+    public static SqlSource getSqlSource(WObject wObject) {
         SqlSource sqlSource = null;
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle)
-        {
+        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle) {
             CommonTransactionHandle handle = (CommonTransactionHandle) wObject._otherObject;
             handle.check();
             Object comm = handle.common();
@@ -455,18 +421,15 @@ public class DBCommon
     }
     ///////////////////////////////////
 
-    private static TransactionHandle getTransactionHandle(WObject wObject)
-    {
-        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle))
-        {
+    private static TransactionHandle getTransactionHandle(WObject wObject) {
+        if (wObject._otherObject == null || !(wObject._otherObject instanceof TransactionHandle)) {
             return null;
         }
         TransactionHandle handle = (TransactionHandle) wObject._otherObject;
         return handle;
     }
 
-    public static CheckPassable autoTransaction(TransactionConfirm confirm)
-    {
+    public static CheckPassable autoTransaction(TransactionConfirm confirm) {
         AutoTransactionCheckPassable checkPassable = new AutoTransactionCheckPassable(confirm);
         return checkPassable;
     }
@@ -475,20 +438,16 @@ public class DBCommon
      * @param wObject
      * @return 进行了关闭返回true。
      */
-    public static boolean closeTransaction(WObject wObject)
-    {
-        try
-        {
+    public static boolean closeTransaction(WObject wObject) {
+        try {
             TransactionHandle handle = getTransactionHandle(wObject);
-            if (handle == null)
-            {
+            if (handle == null) {
                 return false;
             }
             handle.close();
             wObject._otherObject = null;
             return true;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new DBException(e);
         }
     }
@@ -499,11 +458,9 @@ public class DBCommon
      * @param wObject
      * @return 进行了提交，则返回true。
      */
-    public static boolean commitTransaction(WObject wObject)
-    {
+    public static boolean commitTransaction(WObject wObject) {
         TransactionHandle handle = getTransactionHandle(wObject);
-        if (handle == null)
-        {
+        if (handle == null) {
             return false;
         }
         handle.commitTransaction();
@@ -516,11 +473,9 @@ public class DBCommon
      * @param wObject
      * @return 进行了回滚返回true。
      */
-    public static boolean rollbackTransaction(WObject wObject)
-    {
+    public static boolean rollbackTransaction(WObject wObject) {
         TransactionHandle handle = getTransactionHandle(wObject);
-        if (handle == null)
-        {
+        if (handle == null) {
             return false;
         }
         handle.rollback();
@@ -530,8 +485,7 @@ public class DBCommon
     /**
      * 开启事务，操作对象被保存在{@linkplain WObject#_otherObject}
      */
-    public static void startTransaction(WObject wObject, DBSource dbSource, TransactionConfig config)
-    {
+    public static void startTransaction(WObject wObject, DBSource dbSource, TransactionConfig config) {
         TransactionHandle<DBCommon> handle = getTransactionHandle(wObject, dbSource);
         wObject._otherObject = handle;
         handle.startTransaction(config);
@@ -540,41 +494,32 @@ public class DBCommon
     /**
      * 得到事务操作
      */
-    public static TransactionHandle<DBCommon> getTransactionHandle(WObject wObject, DBSource dbSource)
-    {
-        if (dbSource == null)
-        {
+    public static TransactionHandle<DBCommon> getTransactionHandle(WObject wObject, DBSource dbSource) {
+        if (dbSource == null) {
             throw new NullPointerException();
         }
         TransactionHandle<DBCommon> transactionHandle;
 
         TransactionHandle lastHandle = getTransactionHandle(wObject);
-        if (lastHandle != null)
-        {
+        if (lastHandle != null) {
             transactionHandle = lastHandle;
-        } else
-        {
-            transactionHandle = new CommonTransactionHandle<DBCommon>(dbSource)
-            {
+        } else {
+            transactionHandle = new CommonTransactionHandle<DBCommon>(dbSource) {
                 DBCommon common = initCommon();
 
                 @Override
-                public void startTransaction(TransactionConfig transactionConfig) throws DBException
-                {
-                    if (common._dbHandle.isTransaction())
-                    {
+                public void startTransaction(TransactionConfig transactionConfig) throws DBException {
+                    if (common._dbHandle.isTransaction()) {
                         return;
                     }
                     common._dbHandle.startTransaction(transactionConfig);
                 }
 
-                private DBCommon initCommon()
-                {
+                private DBCommon initCommon() {
                     DBHandle _dDbHandle_ = getDBSource().getDBHandle();
                     DBCommon common = new DBCommon(_dDbHandle_);
 
-                    if (!common._dbHandle.supportTransaction())
-                    {
+                    if (!common._dbHandle.supportTransaction()) {
                         throw new DBException("the dbhandle '" + common._dbHandle.getClass()
                                 + "' not support transaction");
                     }
@@ -583,27 +528,23 @@ public class DBCommon
                 }
 
                 @Override
-                public void commitTransaction() throws DBException
-                {
+                public void commitTransaction() throws DBException {
                     commitTransaction(common._dbHandle);
                 }
 
                 @Override
-                public DBCommon common()
-                {
+                public DBCommon common() {
                     return common;
                 }
 
                 @Override
-                public void close() throws IOException
-                {
+                public void close() throws IOException {
                     common._dbHandle.close();
                     getDBSource().afterClose(common._dbHandle);
                 }
 
                 @Override
-                public void rollback() throws DBException
-                {
+                public void rollback() throws DBException {
                     common._dbHandle.rollback();
                 }
             };

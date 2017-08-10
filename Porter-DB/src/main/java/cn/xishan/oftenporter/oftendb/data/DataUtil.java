@@ -93,7 +93,7 @@ public class DataUtil {
      * 得到字段的绑定名称,如果含有{@linkplain ExceptDBField}注解则会返回null。
      *
      * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain DBField}或{@linkplain PortInObj.UnNece
-     *              }注解标注字段（外面科技），使用{@linkplain DBField}来映射数据库字段名。
+     *              }注解标注字段，使用{@linkplain DBField}来映射数据库字段名。
      */
     public static String getTiedName(Field field) {
         if (field.isAnnotationPresent(ExceptDBField.class)) {

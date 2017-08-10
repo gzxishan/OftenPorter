@@ -113,9 +113,11 @@ public class TypeTo
 
     public <T> T parse(Class<T> clazz, final JSONObject jsonObject) throws RuntimeException
     {
+        if(jsonObject==null){
+            return null;
+        }
         try
         {
-
             CacheOne cache = getCache(clazz);
             Object object = portUtil
                     .paramDealOne(false, innerContextBridge.paramDealt, cache.getOne(), new ParamSource()
