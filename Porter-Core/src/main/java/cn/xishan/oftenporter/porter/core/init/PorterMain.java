@@ -299,7 +299,7 @@ public final class PorterMain {
 
                 }
             });
-            WObject wObject = portExecutor.forPortStart(getPLinker().currentPName(), result, request, response, context);
+            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context);
 
             autoSetHandle.invokeSetOk(wObject);
 
@@ -318,7 +318,7 @@ public final class PorterMain {
 
             }
         });
-        WObject wObject = portExecutor.forPortStart(getPLinker().currentPName(), result, request, response, context);
+        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context);
         contextPorter.start(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());

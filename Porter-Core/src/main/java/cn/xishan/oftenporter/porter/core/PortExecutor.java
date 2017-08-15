@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
+import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -168,8 +169,9 @@ public class PortExecutor {
         }
     }
 
-    public WObject forPortStart(PName pName, UrlDecoder.Result result,WRequest request,WResponse response,Context context){
+    public WObject forPortInit(PName pName, UrlDecoder.Result result,WRequest request,WResponse response,Context context){
         WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+        wObject.setParamSource(new EmptyParamSource());
         return wObject;
     }
 

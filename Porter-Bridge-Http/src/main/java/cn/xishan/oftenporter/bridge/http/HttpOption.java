@@ -5,12 +5,6 @@ package cn.xishan.oftenporter.bridge.http;
  */
 public class HttpOption
 {
-    public Integer so_timeout=20*1000;
-    public Integer conn_timeout=20*1000;
-    /**
-     * 默认为空，用于改变请求方法
-     */
-    public HttpMethod method = null;
-
-    public boolean useCookie=true;
+    public Integer so_timeout=null;
+    public Integer conn_timeout=null;
 }
