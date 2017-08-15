@@ -401,6 +401,22 @@ public class DBCommon {
     }
 
     /**
+     * <pre>
+     * 见1.{@linkplain DataUtil#toNameValues(Object)}
+     *   2.{@link #updateData(WObject, DBSource, Condition, NameValues)}
+     * </pre>
+     *
+     * @param wObject
+     * @param dbSource
+     * @param object
+     * @return
+     */
+    public JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object) {
+        NameValues nameValues = DataUtil.toNameValues(object);
+        return updateData(wObject, dbSource, condition, nameValues);
+    }
+
+    /**
      * 保存数据.若成功，返回结果码为ResultCode.SUCCESS,且结果为影响的记录条数(int)。
      */
     public JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {
