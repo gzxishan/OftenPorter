@@ -409,11 +409,19 @@ public class DBCommon {
      * @param wObject
      * @param dbSource
      * @param object
+     * @param excepts  排除的变量
      * @return
      */
-    public JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object) {
-        NameValues nameValues = DataUtil.toNameValues(object);
-        return updateData(wObject, dbSource, condition, nameValues);
+    public JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object, String... excepts) {
+        NameValues nameValues = null;
+        try {
+            nameValues = DataUtil.toNameValues(object, true, excepts);
+            return updateData(wObject, dbSource, condition, nameValues);
+        } catch (IllegalAccessException e) {
+            JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
+            jResponse.setExCause(e);
+            return jResponse;
+        }
     }
 
     /**

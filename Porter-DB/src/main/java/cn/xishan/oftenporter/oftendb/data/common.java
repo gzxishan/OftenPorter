@@ -147,10 +147,10 @@ public class common {
     }
 
     /**
-     * @see DBCommon#updateObjectData(WObject, DBSource, Condition, Object)
+     * @see DBCommon#updateObjectData(WObject, DBSource, Condition, Object, String[])
      */
-    public static JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object) {
-        return DBCommon.C.updateObjectData(wObject, dbSource, condition, object);
+    public static JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object, String... excepts) {
+        return DBCommon.C.updateObjectData(wObject, dbSource, condition, object,excepts);
     }
 
     /**
