@@ -36,7 +36,9 @@ abstract class DateParser_ extends TypeParser
                 v = new Date((long) value);
             } else
             {
-                v = format.parse(String.valueOf(value));
+                synchronized (format){
+                    v = format.parse(String.valueOf(value));
+                }
             }
 
             result = new ParseResult(v);
