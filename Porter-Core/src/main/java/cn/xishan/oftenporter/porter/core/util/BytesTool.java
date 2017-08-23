@@ -285,12 +285,12 @@ public class BytesTool {
     }
 
     public static void writeLongBigEndian(byte[] bs, int offset, long l) {
-        writeIntBigEndian(bs, offset , (int) ((l >>> 32) & 0xffffffff));
-        writeIntBigEndian(bs, offset+4, (int) (l & 0xffffffff));
+        writeIntBigEndian(bs, offset, (int) ((l >>> 32) & 0xffffffff));
+        writeIntBigEndian(bs, offset + 4, (int) (l & 0xffffffff));
     }
 
     public static void writeLongLittleEndian(byte[] bs, int offset, long l) {
-        writeIntLittleEndian(bs, offset+4, (int) ((l >>> 32) & 0xffffffff));
+        writeIntLittleEndian(bs, offset + 4, (int) ((l >>> 32) & 0xffffffff));
         writeIntLittleEndian(bs, offset, (int) (l & 0xffffffff));
     }
 
@@ -318,7 +318,7 @@ public class BytesTool {
     }
 
     /**
-     * 写入一个short到字节数组中,大端，高字节在低索引位置。
+     * 写入一个short到字节数组中,大端，高字节在低索引位置,高字节的第一位是符号位。
      *
      * @param data
      * @param offset 开始的索引
@@ -329,13 +329,28 @@ public class BytesTool {
     }
 
     public static void writeShortBigEndian(byte[] data, int offset, int n) {
+        //n = int2SignShort(n);
         data[offset] = (byte) ((n >> 8) & 0xFF);
         data[offset + 1] = (byte) (n & 0xFF);
     }
 
+//    private static int int2SignShort(int n) {
+//        int m;
+//        if (n > 0) {
+//            m = n & 0xFFFF;
+//        } else {
+//            m = (-n)& 0xFFFF;
+//            if ((m & MASK_SHORT_SIGN) < 0) {
+//                m += MASK_SHORT_SIGN;
+//            }
+//        }
+//        return m;
+//    }
+
     public static void writeShortLittleEndian(byte[] data, int offset, int n) {
-        data[offset + 1] = (byte) ((n >> 8) & 0xFF);
+        //n = int2SignShort(n);
         data[offset] = (byte) (n & 0xFF);
+        data[offset + 1] = (byte) ((n >> 8) & 0xFF);
     }
 
     /**
@@ -349,13 +364,40 @@ public class BytesTool {
         return readUnShortBigEndian(data, offset);
     }
 
+    private static final int MASK_SHORT_SIGN = 1 << 15;
+    private static final int MASK_SHORT_VALUE = 0xFFFF ^ MASK_SHORT_SIGN;
+
+    /**
+     * 转换成有符号的short值，[sbbb bbbb][bbbb bbbb],s为0表示正数、为1表示负数
+     *
+     * @param shortValue
+     * @return
+     */
+    public static int toSignShort(int shortValue) {
+        shortValue &= 0xffff;
+        boolean sign = (MASK_SHORT_SIGN & shortValue) > 0;
+        int value = shortValue & MASK_SHORT_VALUE;
+        return sign ? -value : value;
+    }
+
+    /**
+     * 转换成有符号的short值，
+     *
+     * @param shortValue
+     * @return
+     */
+    public static short toJavaSignShort(int shortValue) {
+        short s = (short) shortValue;
+        return s;
+    }
+
     public static int readUnShortBigEndian(byte[] data, int offset) {
         int n = ((data[offset + 1] & 0xFF)) | ((data[offset] & 0xFF) << 8);
         return n;
     }
 
     public static int readUnShortLittleEndian(byte[] data, int offset) {
-        int n = ((data[offset ] & 0xFF)) | ((data[offset+1] & 0xFF) << 8);
+        int n = ((data[offset] & 0xFF)) | ((data[offset + 1] & 0xFF) << 8);
         return n;
     }
 

@@ -10,6 +10,17 @@ import static org.junit.Assert.*;
 public class BytesToolTest {
 
 
+    @Test
+    public void testToSignShort(){
+        int n = Integer.parseInt("1000000000000001",2);
+        assertEquals(-1,BytesTool.toSignShort(n));
+        assertEquals(110,BytesTool.toSignShort(110));
+        byte[] bs = new byte[2];
+        BytesTool.writeShortLittleEndian(bs,0,-110);
+        assertEquals(-110,BytesTool.toJavaSignShort(BytesTool.readUnShortLittleEndian(bs,0)));
+
+    }
+
 
     @Test
     public void testInt() {
