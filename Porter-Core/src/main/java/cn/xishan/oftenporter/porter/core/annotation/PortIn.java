@@ -126,7 +126,7 @@ public @interface PortIn
     /**
      * 用于标记函数(public)，启动时调用。
      * <pre>
-     *     函数可以无形参，或者有一个形参WObject(其请求类绑定名为当前接口类的)
+     * 函数可以无形参，或者有一个形参WObject(其请求类绑定名为当前接口类的)
      * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)

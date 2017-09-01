@@ -301,8 +301,6 @@ public class SqlHandle implements DBHandle, SqlSource {
             int columnCount = metaData.getColumnCount();
             jsonObject = new JSONObject(columnCount);
             for (int i = 1; i <= columnCount; i++) {
-//                jsonObject.put(field2LowerCase == null ? metaData.getColumnName(i) : (field2LowerCase ? metaData
-//                        .getColumnName(i).toLowerCase() : metaData.getColumnName(i).toUpperCase()), rs.getObject(i));
                 String label = metaData.getColumnLabel(i);
                 jsonObject.put(field2LowerCase == null ? label : (field2LowerCase ? label.toLowerCase() : label
                         .toUpperCase()), rs.getObject(i));
