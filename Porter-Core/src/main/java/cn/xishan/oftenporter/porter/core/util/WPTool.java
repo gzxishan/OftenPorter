@@ -107,6 +107,13 @@ public class WPTool {
         }
     }
 
+    /**
+     * 连接成字符串。
+     *
+     * @param separator 分隔字符串
+     * @param args
+     * @return
+     */
     public static String join(String separator, Object... args) {
         if (args.length == 0) {
             return "";
@@ -119,6 +126,13 @@ public class WPTool {
         return builder.toString();
     }
 
+    /**
+     * 连接成字符串。
+     *
+     * @param separator 分隔字符串
+     * @param list
+     * @return
+     */
     public static String join(String separator, List<?> list) {
         return join(separator, list.toArray(new Object[0]));
     }
