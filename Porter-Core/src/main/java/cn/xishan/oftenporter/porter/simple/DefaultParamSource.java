@@ -23,15 +23,20 @@ public class DefaultParamSource implements ParamSource
     private WRequest request;
     protected boolean hasRequestParameter = true;
 
-    public DefaultParamSource(UrlDecoder.Result result, WRequest request)
+    public DefaultParamSource(WRequest request)
     {
-        this.result = result;
         this.request = request;
+    }
+
+    @Override
+    public void setUrlResult(UrlDecoder.Result result) {
+        this.result = result;
     }
 
     public DefaultParamSource(Map<String, Object> map, WRequest request)
     {
-        this(DefaultUrlDecoder.newResult(map, null, null, null), request);
+        this(request);
+        setUrlResult(DefaultUrlDecoder.newResult(map, null, null, null));
     }
 
     @Override

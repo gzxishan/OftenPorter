@@ -9,6 +9,9 @@ import java.util.Map;
  */
 public interface ParamSource
 {
+
+    void setUrlResult(UrlDecoder.Result result);
+
     /**
      * 根据名称得到参数,路径参数优先。
      *

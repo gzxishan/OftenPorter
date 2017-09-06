@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
+import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 
 import java.util.Enumeration;
@@ -16,6 +17,11 @@ public class EmptyParamSource implements ParamSource {
 
     public static ParamSource getEMPTY() {
         return EMPTY;
+    }
+
+    @Override
+    public void setUrlResult(UrlDecoder.Result result) {
+
     }
 
     @Override

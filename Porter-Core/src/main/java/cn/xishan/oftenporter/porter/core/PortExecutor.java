@@ -59,7 +59,7 @@ public class PortExecutor {
 
 
     public Context addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
-                           InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables) {
+                              InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] forAllCheckPassables) {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
                 bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge,
@@ -169,7 +169,7 @@ public class PortExecutor {
         }
     }
 
-    public WObject forPortInit(PName pName, UrlDecoder.Result result,WRequest request,WResponse response,Context context){
+    public WObject forPortInit(PName pName, UrlDecoder.Result result, WRequest request, WResponse response, Context context) {
         WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
         wObject.setParamSource(new EmptyParamSource());
         return wObject;
@@ -574,14 +574,14 @@ public class PortExecutor {
                 }
 
                 OutType outType = funPort.getPortOut().getOutType();
-                if (returnObject == null && context.defaultReturnFactory != null){
-                    if(outType==OutType.VoidReturn){
-                        if(javaMethod.getReturnType().equals(Void.TYPE)){
+                if (returnObject == null && context.defaultReturnFactory != null) {
+                    if (outType == OutType.VoidReturn) {
+                        if (javaMethod.getReturnType().equals(Void.TYPE)) {
                             returnObject = context.defaultReturnFactory.getVoidReturn(wObject, funPort.getFinalPorterObject(),
                                     funPort.getObject(), funPort.getMethod());
                         }
-                    }else if(outType==OutType.NullReturn){
-                        if(!javaMethod.getReturnType().equals(Void.TYPE)){
+                    } else if (outType == OutType.NullReturn) {
+                        if (!javaMethod.getReturnType().equals(Void.TYPE)) {
                             returnObject = context.defaultReturnFactory.getNullReturn(wObject, funPort.getFinalPorterObject(),
                                     funPort.getObject(), funPort.getMethod());
                         }
@@ -689,13 +689,14 @@ public class PortExecutor {
         }
         ParamSource ps;
         if (handle == null) {
-            ps = new DefaultParamSource(result, wObject.getRequest());
+            ps = new DefaultParamSource(wObject.getRequest());
         } else {
             ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
             if (ps == null) {
-                ps = new DefaultParamSource(result, wObject.getRequest());
+                ps = new DefaultParamSource(wObject.getRequest());
             }
         }
+        ps.setUrlResult(result);
         return ps;
     }
 
