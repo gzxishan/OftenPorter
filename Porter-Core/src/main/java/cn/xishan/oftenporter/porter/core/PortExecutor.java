@@ -729,10 +729,10 @@ public class PortExecutor {
                 if (object != null && object instanceof JResponse && ((JResponse) object).isNotSuccess()) {
                     wObject.getResponse().toErr();
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("{}", object);
+                        LOGGER.debug("{}:{}",wObject.url(), object);
 
                     } else if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("{}", object);
+                        LOGGER.info("{}:{}",wObject.url(), object);
                     }
                 }
                 wObject.getResponse().write(object);
@@ -759,7 +759,7 @@ public class PortExecutor {
         response.toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(throwable.getMessage(), throwable);
+            LOGGER.warn((wObject==null?"":wObject.url()+":")+throwable.getMessage(), throwable);
         }
         if (responseWhenException) {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
@@ -779,7 +779,7 @@ public class PortExecutor {
         wObject.getResponse().toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("{}", obj);
+            LOGGER.debug("{}:{}",wObject.url(), obj);
         }
         if (obj instanceof JResponse) {
             try {
@@ -814,7 +814,7 @@ public class PortExecutor {
         JResponse jResponse = null;
         if (LOGGER.isDebugEnabled() || responseWhenException) {
             jResponse = toJResponse(reason, wObject);
-            LOGGER.debug("{}", jResponse);
+            LOGGER.debug("{}:{}",wObject.url(), jResponse);
         }
         if (responseWhenException) {
             if (jResponse == null) {
