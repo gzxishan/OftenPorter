@@ -153,6 +153,11 @@ public class TypeTo
                         }
 
                         @Override
+                        public void setUrlResult(UrlDecoder.Result result) {
+
+                        }
+
+                        @Override
                         public Enumeration<Map.Entry<String, Object>> params()
                         {
                             EnumerationImpl<Map.Entry<String, Object>> enumeration = new EnumerationImpl(

@@ -78,14 +78,25 @@ public class BytesTool {
     }
 
     /**
-     * 转换成16进制.
+     * 转换成16进制,小写.
      *
      * @param bs
      * @return
      */
     public static String toHex(byte[] bs) {
-        return toHex(bs, 0, bs.length);
+        return toHex(bs, 0, bs.length, true);
     }
+
+    /**
+     * 转换成16进制,大写.
+     *
+     * @param bs
+     * @return
+     */
+    public static String toHexUppercase(byte[] bs) {
+        return toHex(bs, 0, bs.length, false);
+    }
+
 
     /**
      * 转换成16进制.
@@ -93,10 +104,11 @@ public class BytesTool {
      * @param bs
      * @param offset
      * @param length
+     * @param isLowercase 是否是小写
      * @return
      */
-    public static String toHex(byte[] bs, int offset, int length) {
-        final String HEX = "0123456789abcdef";
+    public static String toHex(byte[] bs, int offset, int length, boolean isLowercase) {
+        final String HEX = isLowercase ? "0123456789abcdef" : "0123456789ABCDEF";
         StringBuilder sb = new StringBuilder(length * 2);
         int nend = offset + length;
         for (int i = offset; i < nend; i++) {
@@ -209,13 +221,18 @@ public class BytesTool {
     }
 
     /**
-     * 写入一个整数到字节数组中，高字节在低索引位置。
+     * 写入一个整数到字节数组中,大端，高字节在低索引位置。
      *
      * @param data
      * @param offset 开始的索引
      * @param n
      */
     public static void writeInt(byte[] data, int offset, int n) {
+        writeIntBigEndian(data, offset, n);
+    }
+
+
+    public static void writeIntBigEndian(byte[] data, int offset, int n) {
 
         data[offset] = (byte) ((n >> 24) & 0xFF);
         data[offset + 1] = (byte) ((n >> 16) & 0xFF);
@@ -223,17 +240,35 @@ public class BytesTool {
         data[offset + 3] = (byte) (n & 0xFF);
     }
 
+    public static void writeIntLittleEndian(byte[] data, int offset, int n) {
+
+        data[offset + 3] = (byte) ((n >> 24) & 0xFF);
+        data[offset + 2] = (byte) ((n >> 16) & 0xFF);
+        data[offset + 1] = (byte) ((n >> 8) & 0xFF);
+        data[offset] = (byte) (n & 0xFF);
+    }
+
     /**
-     * 从索引开始的四个字节中读取一个int整数,高字节在低索引位置。
+     * 从索引开始的四个字节中读取一个int整数,大端模式,高字节在低索引位置。
      *
      * @param data
      * @param offset
      * @return
      */
     public static int readInt(byte[] data, int offset) {
+        return readIntBigEndian(data, offset);
+    }
+
+    public static int readIntBigEndian(byte[] data, int offset) {
 
         int n = ((data[offset + 3] & 0xFF) | ((data[offset + 2] & 0xFF) << 8)
                 | ((data[offset + 1] & 0xFF) << 16) | ((data[offset] & 0xFF) << 24));
+        return n;
+    }
+
+    public static int readIntLittleEndian(byte[] data, int offset) {
+        int n = ((data[offset] & 0xFF) | ((data[offset + 1] & 0xFF) << 8)
+                | ((data[offset + 2] & 0xFF) << 16) | ((data[offset + 3] & 0xFF) << 24));
         return n;
     }
 
@@ -246,8 +281,17 @@ public class BytesTool {
      * @param l
      */
     public static void writeLong(byte[] bs, int offset, long l) {
-        writeInt(bs, offset, (int) ((l >>> 32) & 0xffffffff));
-        writeInt(bs, offset + 4, (int) (l & 0xffffffff));
+        writeLongBigEndian(bs, offset, l);
+    }
+
+    public static void writeLongBigEndian(byte[] bs, int offset, long l) {
+        writeIntBigEndian(bs, offset, (int) ((l >>> 32) & 0xffffffff));
+        writeIntBigEndian(bs, offset + 4, (int) (l & 0xffffffff));
+    }
+
+    public static void writeLongLittleEndian(byte[] bs, int offset, long l) {
+        writeIntLittleEndian(bs, offset + 4, (int) ((l >>> 32) & 0xffffffff));
+        writeIntLittleEndian(bs, offset, (int) (l & 0xffffffff));
     }
 
     /**
@@ -258,34 +302,103 @@ public class BytesTool {
      * @return
      */
     public static long readLong(byte[] data, int offset) {
+        return readLongBigEndian(data, offset);
+    }
+
+    public static long readLongBigEndian(byte[] data, int offset) {
         long l = ((long) readInt(data, offset)) << 32;
         l |= readInt(data, offset + 4);
         return l;
     }
 
+    public static long readLongLittleEndian(byte[] data, int offset) {
+        long l = ((long) readIntLittleEndian(data, offset + 4)) << 32;
+        l |= readIntLittleEndian(data, offset);
+        return l;
+    }
+
     /**
-     * 写入一个short到字节数组中，高字节在低索引位置。
+     * 写入一个short到字节数组中,大端，高字节在低索引位置,高字节的第一位是符号位。
      *
      * @param data
      * @param offset 开始的索引
      * @param n
      */
     public static void writeShort(byte[] data, int offset, int n) {
+        writeShortBigEndian(data, offset, n);
+    }
 
+    public static void writeShortBigEndian(byte[] data, int offset, int n) {
+        //n = int2SignShort(n);
         data[offset] = (byte) ((n >> 8) & 0xFF);
         data[offset + 1] = (byte) (n & 0xFF);
     }
 
+//    private static int int2SignShort(int n) {
+//        int m;
+//        if (n > 0) {
+//            m = n & 0xFFFF;
+//        } else {
+//            m = (-n)& 0xFFFF;
+//            if ((m & MASK_SHORT_SIGN) < 0) {
+//                m += MASK_SHORT_SIGN;
+//            }
+//        }
+//        return m;
+//    }
+
+    public static void writeShortLittleEndian(byte[] data, int offset, int n) {
+        //n = int2SignShort(n);
+        data[offset] = (byte) (n & 0xFF);
+        data[offset + 1] = (byte) ((n >> 8) & 0xFF);
+    }
+
     /**
-     * 从索引开始的2个字节中读取一个short
+     * 从索引开始的2个字节中读取一个short,大端.
      *
      * @param data
      * @param offset
      * @return
      */
     public static int readUnShort(byte[] data, int offset) {
+        return readUnShortBigEndian(data, offset);
+    }
 
+    private static final int MASK_SHORT_SIGN = 1 << 15;
+    private static final int MASK_SHORT_VALUE = 0xFFFF ^ MASK_SHORT_SIGN;
+
+    /**
+     * 转换成有符号的short值，[sbbb bbbb][bbbb bbbb],s为0表示正数、为1表示负数
+     *
+     * @param shortValue
+     * @return
+     */
+    public static int toSignShort(int shortValue) {
+        shortValue &= 0xffff;
+        boolean sign = (MASK_SHORT_SIGN & shortValue) > 0;
+        int value = shortValue & MASK_SHORT_VALUE;
+        return sign ? -value : value;
+    }
+
+    /**
+     * 转换成有符号的short值，
+     *
+     * @param shortValue
+     * @return
+     */
+    public static short toJavaSignShort(int shortValue) {
+        short s = (short) shortValue;
+        return s;
+    }
+
+    public static int readUnShortBigEndian(byte[] data, int offset) {
         int n = ((data[offset + 1] & 0xFF)) | ((data[offset] & 0xFF) << 8);
         return n;
     }
+
+    public static int readUnShortLittleEndian(byte[] data, int offset) {
+        int n = ((data[offset] & 0xFF)) | ((data[offset + 1] & 0xFF) << 8);
+        return n;
+    }
+
 }

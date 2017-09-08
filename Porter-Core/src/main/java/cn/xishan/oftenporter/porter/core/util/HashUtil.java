@@ -51,7 +51,7 @@ public class HashUtil
     public static String hashHex(byte[] bs, String sname, int... offsetAndLength)
     {
         byte[] bytes = hash(bs, sname, offsetAndLength);
-        return BytesTool.toHex(bytes, 0, bytes.length);
+        return BytesTool.toHex(bytes, 0, bytes.length,true);
     }
 
     /**

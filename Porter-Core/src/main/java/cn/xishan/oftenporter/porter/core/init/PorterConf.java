@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -49,6 +50,10 @@ public class PorterConf {
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
+    /**
+     * 设置没有加{@linkplain PortOut#}
+     * @param defaultPortOutType
+     */
     public void setDefaultPortOutType(OutType defaultPortOutType) {
         this.defaultPortOutType = defaultPortOutType;
     }

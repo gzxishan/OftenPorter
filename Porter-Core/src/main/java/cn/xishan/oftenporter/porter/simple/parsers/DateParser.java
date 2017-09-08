@@ -8,31 +8,26 @@ import java.util.Date;
  * Created by chenyg on 2017-04-19.
  */
 @Deprecated
-public class DateParser extends TypeParser
-{
-    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+public class DateParser extends TypeParser {
+    private final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public ParseResult parse(String name, Object value)
-    {
+    public ParseResult parse(String name, Object value) {
         ParseResult result;
-        try
-        {
+        try {
             Object v;
-            if (value instanceof Date)
-            {
+            if (value instanceof Date) {
                 v = value;
-            } else if (value instanceof Long)
-            {
+            } else if (value instanceof Long) {
                 v = new Date((long) value);
-            } else
-            {
-                v = SIMPLE_DATE_FORMAT.parse(String.valueOf(value));
+            } else {
+                synchronized (SIMPLE_DATE_FORMAT) {
+                    v = SIMPLE_DATE_FORMAT.parse(String.valueOf(value));
+                }
             }
 
             result = new ParseResult(v);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             result = ParserUtil.failed(this, e.getMessage());
         }
         return result;

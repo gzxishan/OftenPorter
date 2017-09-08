@@ -37,7 +37,7 @@ import com.alibaba.fastjson.JSONObject;
  *        5)source.doCommonSqlEnumerationQuery(sql,args)：会调用{@linkplain DBCommon#queryEnumeration(WObject, DBSource,
  *        AdvancedQuery, QuerySettings) Common2.queryEnumeration(WObject,DBSource,
  *        AdvancedQuery, QuerySettings)}
- *        6)source.getBlobData(sql,args,columnName):返回{@linkplain BlobData BlobData},没有找到返回null。
+ *        6)source.getBlobData(sql,args,blobColumnName):返回json对象,blobColumnName为{@linkplain BlobData BlobData},没有找到返回null。
  *    <strong>注意：</strong>对应的{@linkplain DBSource DBSource}的实现类必须实现{@linkplain SqlSource SqlSource}接口。
  * </pre>
  * Created by chenyg on 2017-04-29.

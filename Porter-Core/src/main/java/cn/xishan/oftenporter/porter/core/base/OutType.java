@@ -1,14 +1,16 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.init.PorterConf;
+
 /**
- * 输出类型。
+ * 输出类型。设置默认输出类型{@linkplain PorterConf#setDefaultPortOutType(OutType)}
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
 public enum OutType {
     /**
      * <pre>
      * 无错误情况下，框架不会输出,而且不会调用{@linkplain WResponse#close()}。
-     * <strong>注意：</strong>当返回类型为void且没有改注解时，输出类型{@linkplain #NO_RESPONSE}。
+     * <strong>注意：</strong>当返回类型为void且没有该注解时,且没有设置{@linkplain PorterConf#setDefaultPortOutType(OutType)}，输出类型{@linkplain #NO_RESPONSE}。
      * </pre>
      */
     NO_RESPONSE,

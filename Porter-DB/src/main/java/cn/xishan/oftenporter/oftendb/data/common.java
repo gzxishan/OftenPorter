@@ -147,6 +147,13 @@ public class common {
     }
 
     /**
+     * @see DBCommon#updateObjectData(WObject, DBSource, Condition, Object, String[])
+     */
+    public static JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object, String... excepts) {
+        return DBCommon.C.updateObjectData(wObject, dbSource, condition, object,excepts);
+    }
+
+    /**
      * @see DBCommon#updateData(WObject, DBSource, Condition, boolean)
      */
     public static JResponse updateData(WObject wObject, DBSource dbSource, Condition condition, boolean containsNull) {

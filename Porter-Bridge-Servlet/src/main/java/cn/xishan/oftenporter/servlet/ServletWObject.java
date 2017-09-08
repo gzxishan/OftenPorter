@@ -26,7 +26,8 @@ public class ServletWObject extends WObject
         this("", "", "");
         wRequest = new WServletRequest(request,"",response,PortMethod.DEFAULT);
         wResponse=new WServletResponse(response);
-        paramSource=new DefaultParamSource(result,wRequest);
+        paramSource=new DefaultParamSource(wRequest);
+        paramSource.setUrlResult(result);
     }
 
     private UrlDecoder.Result result;
