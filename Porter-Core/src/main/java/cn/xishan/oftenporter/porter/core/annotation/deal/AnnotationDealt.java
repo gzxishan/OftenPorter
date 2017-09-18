@@ -21,6 +21,8 @@ import java.util.List;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
+@PortIn
+@PortIn.MinxinOnly
 public final class AnnotationDealt {
     private boolean enableDefaultValue;
 
@@ -334,7 +336,9 @@ public final class AnnotationDealt {
 
     public _PortIn portIn(Class<?> clazz, boolean isMixin) {
         PortIn portIn = clazz.getAnnotation(PortIn.class);
-        if (portIn == null || (!isMixin && clazz.isAnnotationPresent(PortIn.MinxinOnly.class))) {
+        if (portIn == null && isMixin) {
+            portIn = AnnotationDealt.class.getAnnotation(PortIn.class);
+        } else if (portIn == null || (!isMixin && clazz.isAnnotationPresent(PortIn.MinxinOnly.class))) {
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(), portIn.ignoredFunTieds());
