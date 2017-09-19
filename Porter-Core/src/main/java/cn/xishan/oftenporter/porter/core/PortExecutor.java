@@ -334,9 +334,9 @@ public class PortExecutor {
         if (allGlobal.length == 0) {
             dealtOfContextCheck(context, funPort, wObject, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject, DuringType.ON_GLOBAL,
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, wObject, DuringType.ON_GLOBAL,
                     allGlobal,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
                             funPort.getPortOut().getOutType(),
                             wObject.abOption) {
 
@@ -361,9 +361,9 @@ public class PortExecutor {
         if (contextChecks.length == 0) {
             dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, wObject,
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, wObject,
                     DuringType.ON_CONTEXT, contextChecks,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
                             funPort.getPortOut().getOutType(),
                             wObject.abOption) {
                         @Override
@@ -422,8 +422,8 @@ public class PortExecutor {
                 .getChecksForWholeClass().length == 0 && context.forAllChecksNotZeroLen == null) {
             doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_CLASS,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject, DuringType.ON_CLASS,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
                             funPort.getPortOut().getOutType(), wObject.abOption) {
                         @Override
                         public void go(Object failedObject) {
@@ -468,9 +468,9 @@ public class PortExecutor {
                 .getChecksForWholeClass().length == 0 && context.forAllChecksNotZeroLen == null) {
             dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
                     DuringType.BEFORE_METHOD,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
                             funPort.getPortOut().getOutType(),
                             wObject.abOption) {
                         @Override
@@ -527,8 +527,8 @@ public class PortExecutor {
                 .getChecksForWholeClass().length == 0 && context.forAllChecksNotZeroLen == null) {
             dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
         } else {
-            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject, DuringType.ON_METHOD,
-                    new CheckHandle(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject, DuringType.ON_METHOD,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(), funPort.getObject(), funPort.getMethod(),
                             funPort.getPortOut().getOutType(),
                             wObject.abOption) {
                         @Override
@@ -596,7 +596,7 @@ public class PortExecutor {
                     doState = PortBeforeAfterDealt.DoState.DoAfter;
                 } else {
                     Object finalReturnObject = returnObject;
-                    CheckHandle checkHandle = new CheckHandle(finalReturnObject, result, funPort.getFinalPorterObject(),
+                    CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(finalReturnObject, result, funPort.getFinalPorterObject(),
                             funPort.getObject(),
                             funPort.getMethod(),
                             funPort.getPortOut().getOutType(), wObject.abOption) {
@@ -610,7 +610,7 @@ public class PortExecutor {
                             }
                         }
                     };
-                    PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                    PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
                             DuringType.AFTER_METHOD, checkHandle,
                             funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
                             funPIn.getChecks());
@@ -642,7 +642,7 @@ public class PortExecutor {
                 ex(wObject, wObject.getResponse(), ex, responseWhenException);
             } else {
                 logger(wObject).warn(ex.getMessage(), ex);
-                CheckHandle checkHandle = new CheckHandle(ex, result, funPort.getFinalPorterObject(),
+                CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result, funPort.getFinalPorterObject(),
                         funPort.getObject(),
                         funPort.getMethod(), funPort.getPortOut().getOutType(), wObject.abOption) {
                     @Override
@@ -665,7 +665,7 @@ public class PortExecutor {
                         }
                     }
                 };
-                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, wObject,
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
                         DuringType.ON_METHOD_EXCEPTION, checkHandle, funPIn.getChecks(),
                         funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass());
                 portExecutorCheckers.check();
@@ -729,10 +729,10 @@ public class PortExecutor {
                 if (object != null && object instanceof JResponse && ((JResponse) object).isNotSuccess()) {
                     wObject.getResponse().toErr();
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("{}:{}",wObject.url(), object);
+                        LOGGER.debug("{}:{}", wObject.url(), object);
 
                     } else if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("{}:{}",wObject.url(), object);
+                        LOGGER.info("{}:{}", wObject.url(), object);
                     }
                 }
                 wObject.getResponse().write(object);
@@ -759,7 +759,7 @@ public class PortExecutor {
         response.toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn((wObject==null?"":wObject.url()+":")+throwable.getMessage(), throwable);
+            LOGGER.warn((wObject == null ? "" : wObject.url() + ":") + throwable.getMessage(), throwable);
         }
         if (responseWhenException) {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
@@ -779,7 +779,7 @@ public class PortExecutor {
         wObject.getResponse().toErr();
         Logger LOGGER = logger(wObject);
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("{}:{}",wObject.url(), obj);
+            LOGGER.debug("{}:{}", wObject.url(), obj);
         }
         if (obj instanceof JResponse) {
             try {
@@ -814,7 +814,7 @@ public class PortExecutor {
         JResponse jResponse = null;
         if (LOGGER.isDebugEnabled() || responseWhenException) {
             jResponse = toJResponse(reason, wObject);
-            LOGGER.debug("{}:{}",wObject.url(), jResponse);
+            LOGGER.debug("{}:{}", wObject.url(), jResponse);
         }
         if (responseWhenException) {
             if (jResponse == null) {

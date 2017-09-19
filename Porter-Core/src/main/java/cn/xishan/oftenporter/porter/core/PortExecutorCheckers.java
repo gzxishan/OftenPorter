@@ -1,16 +1,45 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.base.CheckHandle;
-import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.DuringType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 
 /**
  * Created by chenyg on 2017/1/5.
  */
-class PortExecutorCheckers extends CheckHandle
-{
+class PortExecutorCheckers extends CheckHandle {
+
+    static abstract class CheckHandleAdapter extends CheckHandle{
+
+        public CheckHandleAdapter(CheckHandle checkHandle) {
+            super(checkHandle);
+        }
+
+        public CheckHandleAdapter(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
+            super(urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        }
+
+        public CheckHandleAdapter(Object returnObj, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
+            super(returnObj, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        }
+
+        public CheckHandleAdapter(Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
+            super(exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        }
+
+
+
+        @Override
+        public Porter getClassPorter() {
+            return null;
+        }
+
+        @Override
+        public PorterOfFun getFunPorter() {
+            return null;
+        }
+    }
 
     private int currentIndex;
     private boolean inAll;
@@ -20,42 +49,39 @@ class PortExecutorCheckers extends CheckHandle
     private CheckHandle handle;
     private CheckPassable[] forAllChecksNotZeroLen;
 
-    public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType,
-            CheckPassable[] checkPassables, CheckHandle handle)
-    {
+    private PorterOfFun porterOfFun;
+
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, WObjectImpl wObject, DuringType duringType,
+                                CheckPassable[] checkPassables, CheckHandle handle) {
         super(handle);
+        this.porterOfFun = porterOfFun;
         currentIndex = 0;
         this.wObject = wObject;
         this.duringType = duringType;
         this.checkPassables = checkPassables;
-        if(context!=null){
+        if (context != null) {
             this.forAllChecksNotZeroLen = context.forAllChecksNotZeroLen;
         }
         this.handle = handle;
     }
 
-    public PortExecutorCheckers(Context context, WObjectImpl wObject, DuringType duringType,
-            CheckHandle handle,
-            Class<? extends CheckPassable>[] ... cpss)
-    {
-        this(context, wObject, duringType, toCheckPassables(context, cpss), handle);
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, WObjectImpl wObject, DuringType duringType,
+                                CheckHandle handle,
+                                Class<? extends CheckPassable>[]... cpss) {
+        this(context, porterOfFun, wObject, duringType, toCheckPassables(context, cpss), handle);
     }
 
-    private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[] ... cpss)
-    {
+    private static CheckPassable[] toCheckPassables(Context context, Class<? extends CheckPassable>[]... cpss) {
         ContextPorter contextPorter = context.contextPorter;
-        int totalLength=0;
-        for (int i = 0; i < cpss.length; i++)
-        {
-            totalLength+=cpss[i].length;
+        int totalLength = 0;
+        for (int i = 0; i < cpss.length; i++) {
+            totalLength += cpss[i].length;
         }
         CheckPassable[] checkPassables = new CheckPassable[totalLength];
-        int k=0;
-        for (int i = 0; i < cpss.length; i++)
-        {
+        int k = 0;
+        for (int i = 0; i < cpss.length; i++) {
             Class<? extends CheckPassable>[] cps = cpss[i];
-            for (int j = 0; j <cps.length ; j++)
-            {
+            for (int j = 0; j < cps.length; j++) {
                 CheckPassable cp = contextPorter.getCheckPassable(cps[j]);
                 checkPassables[k++] = cp;
             }
@@ -63,60 +89,58 @@ class PortExecutorCheckers extends CheckHandle
         return checkPassables;
     }
 
-    public void check()
-    {
+    public void check() {
         currentIndex = 0;
-        if (forAllChecksNotZeroLen != null)
-        {
+        if (forAllChecksNotZeroLen != null) {
             inAll = true;
             checkForAll();
-        } else
-        {
+        } else {
             inAll = false;
             checkOne();
         }
     }
 
-    private void checkForAll()
-    {
-        if (currentIndex < forAllChecksNotZeroLen.length)
-        {
+    private void checkForAll() {
+        if (currentIndex < forAllChecksNotZeroLen.length) {
             forAllChecksNotZeroLen[currentIndex++].willPass(wObject, duringType, this);
-        } else
-        {
+        } else {
             inAll = false;
             currentIndex = 0;
             checkOne();
         }
     }
 
-    private void checkOne()
-    {
-        if (currentIndex < checkPassables.length)
-        {
+    private void checkOne() {
+        if (currentIndex < checkPassables.length) {
             checkPassables[currentIndex++].willPass(wObject, duringType, this);
-        } else
-        {
+        } else {
             handle.next();
         }
     }
 
     @Override
-    public void go(Object failedObject)
-    {
-        if (failedObject != null)
-        {
-            if(failedObject instanceof WCallException){
+    public void go(Object failedObject) {
+        if (failedObject != null) {
+            if (failedObject instanceof WCallException) {
                 WCallException callException = (WCallException) failedObject;
-                failedObject=callException.theJResponse();
+                failedObject = callException.theJResponse();
             }
             handle.go(failedObject);
-        } else if (inAll)
-        {
+        } else if (inAll) {
             checkForAll();
-        } else
-        {
+        } else {
             checkOne();
         }
+    }
+
+
+    @Override
+    public Porter getClassPorter() {
+        return porterOfFun.getPorter();
+    }
+
+    @Override
+    public PorterOfFun getFunPorter() {
+        return porterOfFun;
     }
 }

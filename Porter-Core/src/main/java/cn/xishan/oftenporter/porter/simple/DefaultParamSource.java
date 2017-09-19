@@ -24,6 +24,7 @@ public class DefaultParamSource implements ParamSource {
 
     public DefaultParamSource(WRequest request) {
         this.request = request;
+        this.result = new DefaultUrlResult(new HashMap<>(),null,null,null);
     }
 
     @Override
