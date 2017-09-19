@@ -146,7 +146,7 @@ public class SthDeal {
         List<Porter> mixinList = new ArrayList<>(mixins.length);
         //List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
         for (Class c : mixins) {
-            if (!PortUtil.isPortClass(c)) {
+            if (!PortUtil.isMixinPortClass(c)) {
                 continue;
             }
             Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetHandle, true,

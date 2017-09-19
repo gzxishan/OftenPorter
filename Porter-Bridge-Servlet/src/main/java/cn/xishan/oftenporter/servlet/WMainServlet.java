@@ -38,7 +38,6 @@ public class WMainServlet extends HttpServlet implements CommonMain {
     private PorterMain porterMain;
     private String pname, urlEncoding;
     private Boolean responseWhenException;
-    protected boolean supportMultiPart = false;
     protected MultiPartOption multiPartOption = null;
 
     /**
@@ -57,9 +56,6 @@ public class WMainServlet extends HttpServlet implements CommonMain {
      */
     public WMainServlet(MultiPartOption multiPartOption) {
         this.multiPartOption = multiPartOption;
-        if (multiPartOption != null) {
-            supportMultiPart = true;
-        }
     }
 
     public WMainServlet(String pname, boolean responseWhenException) {
@@ -287,7 +283,7 @@ public class WMainServlet extends HttpServlet implements CommonMain {
 
     @Override
     public void startOne(PorterConf porterConf) {
-        if (supportMultiPart) {
+        if (multiPartOption!=null) {
             porterConf.getParamSourceHandleManager()
                     .addByMethod(new MultiPartParamSourceHandle(multiPartOption, addPutDealt), PortMethod.POST,
                             PortMethod.PUT);

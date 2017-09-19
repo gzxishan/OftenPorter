@@ -5,7 +5,9 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 用来说明哪些字段有效或无效。
@@ -27,6 +29,7 @@ public class NameValues implements AppValues {
     private List<String> names;
     private List<Object> values;
     private boolean filterNullAndEmpty = false;
+    private Set<String> filterNullKeys;
 
     public NameValues() {
         names = new ArrayList<>();
@@ -36,6 +39,22 @@ public class NameValues implements AppValues {
     public NameValues(int capacity) {
         names = new ArrayList<String>(capacity);
         values = new ArrayList<Object>(capacity);
+    }
+
+    /**
+     * 设置或清除待过滤的空属性.
+     * @param filterNullKeys
+     */
+    public NameValues setFilterNullKeys(String... filterNullKeys) {
+        if(filterNullKeys.length==0){
+            this.filterNullKeys=null;
+        }else{
+            Set<String> set = new HashSet<>();
+            for(String s:filterNullKeys){
+                set.add(s);
+            }
+        }
+        return this;
     }
 
     /**
@@ -57,7 +76,7 @@ public class NameValues implements AppValues {
      * @return
      */
     public NameValues append(String name, Object value) {
-        if (!filterNullAndEmpty || WPTool.notNullAndEmpty(value)) {
+        if (!(filterNullAndEmpty&&(filterNullKeys==null||filterNullKeys.contains(name))) || WPTool.notNullAndEmpty(value)) {
             names.add(name);
             values.add(value);
         }
