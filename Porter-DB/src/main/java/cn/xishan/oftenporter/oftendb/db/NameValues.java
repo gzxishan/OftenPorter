@@ -36,6 +36,11 @@ public class NameValues implements AppValues {
         values = new ArrayList<>();
     }
 
+    public NameValues(String name, Object value) {
+        this();
+        append(name, value);
+    }
+
     public NameValues(int capacity) {
         names = new ArrayList<String>(capacity);
         values = new ArrayList<Object>(capacity);
@@ -43,14 +48,15 @@ public class NameValues implements AppValues {
 
     /**
      * 设置或清除待过滤的空属性.
+     *
      * @param filterNullKeys
      */
     public NameValues setFilterNullKeys(String... filterNullKeys) {
-        if(filterNullKeys.length==0){
-            this.filterNullKeys=null;
-        }else{
+        if (filterNullKeys.length == 0) {
+            this.filterNullKeys = null;
+        } else {
             Set<String> set = new HashSet<>();
-            for(String s:filterNullKeys){
+            for (String s : filterNullKeys) {
                 set.add(s);
             }
         }
@@ -76,7 +82,7 @@ public class NameValues implements AppValues {
      * @return
      */
     public NameValues append(String name, Object value) {
-        if (!(filterNullAndEmpty&&(filterNullKeys==null||filterNullKeys.contains(name))) || WPTool.notNullAndEmpty(value)) {
+        if (!(filterNullAndEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || WPTool.notNullAndEmpty(value)) {
             names.add(name);
             values.add(value);
         }
