@@ -71,7 +71,7 @@ public class AutoSetHandle {
 
     enum RangeType {
         /**
-         * 只针对static类型且为null的成员。
+         * 只针对static类型的成员。
          */
         STATIC,
         /**
@@ -306,13 +306,17 @@ public class AutoSetHandle {
         }
     }
 
+
+    private AutoSetHandleWorkedInstance workedInstance;
+
     public synchronized void doAutoSet() throws FatalInitException {
         try {
+            workedInstance = new AutoSetHandleWorkedInstance();
             for (int i = 0; i < iHandles.size(); i++) {
-
                 iHandles.get(i).handle();
-
             }
+            workedInstance.clear();
+            workedInstance = null;
         } catch (FatalInitException e) {
             throw e;
         } catch (Exception e) {
@@ -342,12 +346,21 @@ public class AutoSetHandle {
     private void doAutoSet(Porter porter, @MayNull Object finalObject, Class<?> currentObjectClass,
                            @MayNull Object currentObject,
                            Map<String, Object> autoSetMixinMap, RangeType rangeType) throws FatalInitException {
+        if(workedInstance.workInstance(currentObject)){
+            return;//已经递归扫描过该实例
+        }
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
         Field[] fields = WPTool.getAllFields(currentObjectClass);
+        LOGGER.debug("autoSetSeek:class={},instance={},{}",currentObjectClass.getName(),currentObject,currentObject==null?"":currentObject.hashCode());
         RuntimeException thr = null;
         for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
+            AutoSet autoSet = f.getAnnotation(AutoSet.class);
+            if(autoSet==null){
+                continue;
+            }
+
             if (Modifier.isStatic(f.getModifiers())) {
                 if (rangeType == RangeType.INSTANCE) {
                     continue;
@@ -357,15 +370,18 @@ public class AutoSetHandle {
                     continue;
                 }
             }
-            AutoSet autoSet = f.getAnnotation(AutoSet.class);
+
             try {
                 Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
                 f.setAccessible(true);
-                if (rangeType == RangeType.STATIC && f.get(currentObject) != null) {
-                    continue;//静态成员且不为null的，忽略。
-                }
+//                if (Modifier.isStatic(f.getModifiers()) && f.get(currentObject) != null) {
+//                    continue;//静态成员且不为null的，忽略。
+//                }
+                Object value = f.get(currentObject);
+//                if (rangeType == RangeType.STATIC && f.get(currentObject) != null) {
+//                    continue;//静态成员且不为null的，忽略。
+//                }
 
-                Object value = null;
                 String autoSetMixinName = null;
                 boolean needPut = false;
                 AutoSetMixin autoSetMixin;
@@ -376,7 +392,8 @@ public class AutoSetHandle {
                             .getName()) : autoSetMixin.value();
 
                     if (autoSetMixin.waitingForSet()) {
-                        value = autoSetMixinMap.get(autoSetMixinName);
+                        if (value == null)
+                            value = autoSetMixinMap.get(autoSetMixinName);
                     } else {
                         needPut = true;
                     }
@@ -432,9 +449,7 @@ public class AutoSetHandle {
                         }
                         break;
                     }
-                    if (value == null) {
-                        value = f.get(currentObject);
-                    }
+
                     if (value == null) {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
                     }
@@ -459,8 +474,8 @@ public class AutoSetHandle {
             } catch (FatalInitException e) {
                 throw e;
             } catch (Exception e) {
-                LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
                 LOGGER.error(e.getMessage(), e);
+                LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
             }
 
         }
