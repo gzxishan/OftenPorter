@@ -109,13 +109,13 @@ class JDaoGen implements AutoSetGen
         return path;
     }
 
-    private String getScript(Class<?> currentObjectClass,String path) throws IOException
+    private String getScript(Class<?> currentObjectClass,String path,Field field) throws IOException
     {
         InputStream inputStream = currentObjectClass.getResourceAsStream(path);
         String script = inputStream == null ? null : FileTool.getString(inputStream, 1024, jDaoOption.scriptEncoding);
         if (script == null)
         {
-            throw new RuntimeException("script not found in classpath:" + path);
+            throw new RuntimeException("script not found in classpath:" + path+"("+currentObjectClass+" "+field.getName() +")");
         }
         return script;
     }
@@ -182,7 +182,7 @@ class JDaoGen implements AutoSetGen
                     jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, dbSource, sqlSource, logger);
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(currentObjectClass, path.path), dbSource, jDaoOption),
+                    jsBridge = new JsBridge(getJsInvocable(getScript(currentObjectClass, path.path,field), dbSource, jDaoOption),
                             dbSource, sqlSource, path.path, logger);
                 }
                 AutoSetDealtForDBSource.setUnit(currentObject, dbSource);

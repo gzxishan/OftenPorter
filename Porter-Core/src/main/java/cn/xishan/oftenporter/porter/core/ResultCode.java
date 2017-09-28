@@ -5,8 +5,7 @@ package cn.xishan.oftenporter.porter.core;
  *
  * @author Administrator
  */
-public enum ResultCode
-{
+public enum ResultCode {
     /**
      * 响应成功，将得到请求的内容。
      */
@@ -16,6 +15,11 @@ public enum ResultCode
      * 同{@linkplain #SUCCESS}
      */
     OK(0),
+
+    /**
+     * 用户友好的错误，描述信息可以直接弹出给用户
+     */
+    USER_FRIENDLY_ERROR(4004),
 
     /**
      * 无访问权限。
@@ -85,13 +89,11 @@ public enum ResultCode
 
     private int code;
 
-    ResultCode()
-    {
+    ResultCode() {
         this.code = -100;
     }
 
-    ResultCode(int code)
-    {
+    ResultCode(int code) {
         this.code = code;
     }
 
@@ -100,21 +102,21 @@ public enum ResultCode
      *
      * @return 整型的结果码
      */
-    public int toCode()
-    {
+    public int toCode() {
         return code;
     }
 
-    public static ResultCode toResponseCode(int code)
-    {
+    public static ResultCode toResponseCode(int code) {
         ResultCode responseCode;
-        switch (code)
-        {
+        switch (code) {
             case 0:
                 responseCode = SUCCESS;
                 break;
             case HttpStatusCode.NOT_FOUND:
                 responseCode = NOT_AVAILABLE;
+                break;
+            case 4004:
+                responseCode = USER_FRIENDLY_ERROR;
                 break;
             case -3:
                 responseCode = SERVER_EXCEPTION;

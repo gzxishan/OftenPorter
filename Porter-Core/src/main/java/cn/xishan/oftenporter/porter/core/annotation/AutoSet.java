@@ -19,7 +19,11 @@ import java.lang.annotation.*;
 
 /**
  * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量,支持泛型。
- * <br>
+ * <pre>
+ *     注意:
+ *     1.递归扫描时会忽略对所有以"java."的类。
+ *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描
+ * </pre>
  * 从这些途径会触发AutoSet:
  * <pre>
  *     1.{@linkplain PortIn PortIn}
@@ -37,7 +41,7 @@ import java.lang.annotation.*;
  * 5.{@linkplain SyncPorter SyncPorter}
  * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
- * <p>
+ *
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */
