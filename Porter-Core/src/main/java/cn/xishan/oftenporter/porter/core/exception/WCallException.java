@@ -18,7 +18,25 @@ public class WCallException extends RuntimeException
      */
     public WCallException(String msg)
     {
-        JResponse jResponse = new JResponse(ResultCode.OK_BUT_FAILED);
+        this(ResultCode.OK_BUT_FAILED,msg);
+    }
+
+    /**
+     * 内部构建一个JResponse
+     * @param msg
+     */
+    public WCallException(int code,String msg)
+    {
+        this(ResultCode.toResponseCode(code),msg);
+    }
+
+    /**
+     * 内部构建一个JResponse
+     * @param msg
+     */
+    public WCallException(ResultCode code,String msg)
+    {
+        JResponse jResponse = new JResponse(code);
         jResponse.setDescription(msg);
         this.jResponse = jResponse;
     }
