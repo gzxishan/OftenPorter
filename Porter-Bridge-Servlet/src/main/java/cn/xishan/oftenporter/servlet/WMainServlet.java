@@ -39,6 +39,7 @@ public class WMainServlet extends HttpServlet implements CommonMain {
     private String pname, urlEncoding;
     private Boolean responseWhenException;
     protected MultiPartOption multiPartOption = null;
+    protected ResponseHandle responseHandle;
 
     /**
      * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
@@ -214,7 +215,7 @@ public class WMainServlet extends HttpServlet implements CommonMain {
         if (responseWhenException == null) {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
         }
-        porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
+        porterMain.init(responseHandle,new DefaultUrlDecoder(urlEncoding), responseWhenException);
 
     }
 

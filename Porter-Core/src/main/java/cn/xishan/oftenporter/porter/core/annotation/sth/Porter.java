@@ -26,7 +26,8 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class Porter {
+public final class Porter
+{
 
     Class[] superGenericClasses;
 
@@ -52,24 +53,29 @@ public final class Porter {
     InObj inObj;
     private AutoSetHandle autoSetHandle;
 
-    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter) {
+    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
+    {
         this.clazz = clazz;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
-        try {
+        try
+        {
             initSuperGenericClasses();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             LOGGER.error(e.getMessage(), e);
         }
     }
 
 
     //泛型处理
-    private void initSuperGenericClasses() throws Exception {
+    private void initSuperGenericClasses() throws Exception
+    {
 
         Type superclassType = clazz.getGenericSuperclass();
-        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass())) {
+        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass()))
+        {
             return;
         }
 
@@ -77,9 +83,11 @@ public final class Porter {
 
         Type[] types = ((ParameterizedType) superclassType).getActualTypeArguments();
         ClassLoader classLoader = autoSetHandle.getInnerContextBridge().classLoader;
-        for (Type type : types) {
+        for (Type type : types)
+        {
             String className = getClassName(type);
-            if (className == null) {
+            if (className == null)
+            {
                 continue;
             }
             list.add(PackageUtil.newClass(className, classLoader));
@@ -89,16 +97,20 @@ public final class Porter {
 
     private static final String TYPE_NAME_PREFIX = "class ";
 
-    public PortOut getPortOut() {
+    public PortOut getPortOut()
+    {
         return portOut;
     }
 
-    public static String getClassName(Type type) {
-        if (type == null) {
+    public static String getClassName(Type type)
+    {
+        if (type == null)
+        {
             return null;
         }
         String className = type.toString();
-        if (className.startsWith(TYPE_NAME_PREFIX)) {
+        if (className.startsWith(TYPE_NAME_PREFIX))
+        {
             className = className.substring(TYPE_NAME_PREFIX.length());
         }
         return className;
@@ -109,24 +121,35 @@ public final class Porter {
      *
      * @return
      */
-    Class getFieldRealClass(Field field) {
+    Class getFieldRealClass(Field field)
+    {
         Class<?> ftype = field.getType();
-        if (field.getGenericType() == null || superGenericClasses == null) {
+        if (field.getGenericType() == null || superGenericClasses == null)
+        {
             return ftype;
         }
-        for (int i = 0; i < superGenericClasses.length; i++) {
-            if (WPTool.isAssignable(superGenericClasses[i], ftype)) {
+        for (int i = 0; i < superGenericClasses.length; i++)
+        {
+            if (WPTool.isAssignable(superGenericClasses[i], ftype))
+            {
                 return superGenericClasses[i];
             }
         }
         return ftype;
     }
 
-    public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter() {
+    public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
+    {
         return wholeClassCheckPassableGetter;
     }
 
-    public Object getFinalPorterObject() {
+    /**
+     * 获取最终的接口对象，对于一般接口，该对象等于{@linkplain #getObj()}(即当前接口类本身)；对于混入接口的情况，如把接口A（含有接口函数a）混入到B中，则调用B/a接口函数时，返回的最终对象为B的实例。
+     *
+     * @return
+     */
+    public Object getFinalPorterObject()
+    {
         return finalObject;
     }
 
@@ -135,33 +158,42 @@ public final class Porter {
      *
      * @return
      */
-    public Map<String, PorterOfFun> getFuns() {
+    public Map<String, PorterOfFun> getFuns()
+    {
         return childrenWithMethod;
     }
 
 
-    private _PortStart[] getStarts() {
+    private _PortStart[] getStarts()
+    {
         return starts;
     }
 
-    private _PortDestroy[] getDestroys() {
+    private _PortDestroy[] getDestroys()
+    {
         return destroys;
     }
 
-    public InObj getInObj() {
+    public InObj getInObj()
+    {
         return inObj;
     }
 
-    public _PortIn getPortIn() {
+    public _PortIn getPortIn()
+    {
         return portIn;
     }
 
 
-    void doAutoSet(Map<String, Object> autoSetMixinMap) {
-        if (object == null) {
-            try {
+    void doAutoSet(Map<String, Object> autoSetMixinMap)
+    {
+        if (object == null)
+        {
+            try
+            {
                 object = WPTool.newObject(clazz);
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 throw new InitException(e);
             }
         }
@@ -169,11 +201,13 @@ public final class Porter {
     }
 
 
-    public Class<?> getClazz() {
+    public Class<?> getClazz()
+    {
         return clazz;
     }
 
-    public Object getObj() {
+    public Object getObj()
+    {
         return object;
     }
 
@@ -184,12 +218,14 @@ public final class Porter {
      * @param method 请求方法
      * @return 函数接口。
      */
-    public PorterOfFun getChild(UrlDecoder.Result result, PortMethod method) {
+    public PorterOfFun getChild(UrlDecoder.Result result, PortMethod method)
+    {
         PorterOfFun porterOfFun = getChild(result.funTied(), method);
         return porterOfFun;
     }
 
-    public PorterOfFun getChild(String funTied, PortMethod method) {
+    public PorterOfFun getChild(String funTied, PortMethod method)
+    {
         PorterOfFun porterOfFun;
 //        switch (classTiedType)
 //        {
@@ -216,37 +252,48 @@ public final class Porter {
 //        }
 
         porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
-        if (porterOfFun == null) {
+        if (porterOfFun == null)
+        {
             porterOfFun = childrenWithMethod.get(method.name());
         }
 
         return porterOfFun;
     }
 
-    public void start(WObject wObject) {
-        if (started) {
+    public void start(WObject wObject)
+    {
+        if (started)
+        {
             return;
-        } else {
+        } else
+        {
             started = true;
         }
-        if (mixins != null) {
-            for (Porter porter : mixins) {
+        if (mixins != null)
+        {
+            for (Porter porter : mixins)
+            {
                 porter.start(wObject);
             }
         }
         _PortStart[] starts = getStarts();
         wObject.pushClassTied(getPortIn().getTiedNames()[0]);
-        for (int i = 0; i < starts.length; i++) {
-            try {
+        for (int i = 0; i < starts.length; i++)
+        {
+            try
+            {
                 PorterOfFun porterOfFun = starts[i].getPorterOfFun();
                 Method method = porterOfFun.getMethod();
                 Class<?>[] parameters = method.getParameterTypes();
-                if (parameters.length == 1) {
+                if (parameters.length == 1)
+                {
                     method.invoke(porterOfFun.getObject(), wObject);
-                } else {
+                } else
+                {
                     method.invoke(porterOfFun.getObject());
                 }
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
@@ -254,23 +301,31 @@ public final class Porter {
 
     }
 
-    public void destroy() {
-        if (destroyed) {
+    public void destroy()
+    {
+        if (destroyed)
+        {
             return;
-        } else {
+        } else
+        {
             destroyed = true;
         }
-        if (mixins != null) {
-            for (Porter porter : mixins) {
+        if (mixins != null)
+        {
+            for (Porter porter : mixins)
+            {
                 porter.destroy();
             }
         }
         _PortDestroy[] ds = getDestroys();
-        for (int i = 0; i < ds.length; i++) {
-            try {
+        for (int i = 0; i < ds.length; i++)
+        {
+            try
+            {
                 PorterOfFun porterOfFun = ds[i].getPorterOfFun();
                 porterOfFun.getMethod().invoke(porterOfFun.getObject());
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
