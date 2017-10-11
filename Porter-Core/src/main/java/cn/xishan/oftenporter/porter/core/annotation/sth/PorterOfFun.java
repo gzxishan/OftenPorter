@@ -20,7 +20,6 @@ public abstract class PorterOfFun implements ObjectGetter
     Porter porter;
 
 
-
     /**
      * 第一个先调用
      */
@@ -59,7 +58,12 @@ public abstract class PorterOfFun implements ObjectGetter
         return porter;
     }
 
-    public Object getFinalPorterObject(){
+    /**
+     * @return
+     * @see Porter#getFinalPorterObject()
+     */
+    public Object getFinalPorterObject()
+    {
         return porter.getFinalPorterObject();
     }
 

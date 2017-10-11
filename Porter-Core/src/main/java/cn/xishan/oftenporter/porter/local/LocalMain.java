@@ -18,23 +18,29 @@ public class LocalMain implements CommonMain
 
     public LocalMain(boolean responseWhenException, PName pName, String urlEncoding)
     {
+        this(responseWhenException, pName, urlEncoding, null);
+    }
+
+    public LocalMain(boolean responseWhenException, PName pName, String urlEncoding, ResponseHandle responseHandle)
+    {
         porterMain = new PorterMain(pName, this);
-        porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
+        porterMain.init(responseHandle, new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
 
     /**
-     * 接着请调用{@linkplain #newLocalMain(boolean, PName, String, PBridge)}
+     * 接着请调用{@linkplain #newLocalMain(boolean, PName, String, PBridge, ResponseHandle)}
      */
     protected LocalMain()
     {
 
     }
 
-    protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge)
+    protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge,
+            ResponseHandle responseHandle)
     {
         porterMain = new PorterMain(pName, this, bridge, bridge);
-        porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
+        porterMain.init(responseHandle, new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
     protected UrlDecoder getUrlDecoder()
