@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
+import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.InObj;
@@ -696,7 +697,15 @@ public class PortExecutor
 
             if (doState == PortBeforeAfterDealt.DoState.DoInvoke)
             {
-                if (funPort.getArgCount() == 0)
+                //处理AspectFunOperation
+                AspectFunOperation.Handle[] handles = funPort.getHandles();
+                if (handles != null)
+                {
+                    for (AspectFunOperation.Handle handle : handles)
+                    {
+                        returnObject = handle.invoke(wObject, returnObject);
+                    }
+                } else if (funPort.getArgCount() == 0)
                 {
                     returnObject = javaMethod.invoke(funPort.getObject());
                 } else
@@ -845,10 +854,10 @@ public class PortExecutor
         UrlDecoder.Result result = wObject.url();
         Context context = wObject.context;
         ParamSourceHandle handle = context.paramSourceHandleManager.fromName(result.classTied());
-        boolean isName=true;
+        boolean isName = true;
         if (handle == null)
         {
-            isName=false;
+            isName = false;
             //1/2.确保通过类绑定名未查找到参数源时，通过方法名查找
             handle = context.paramSourceHandleManager.fromMethod(wObject.getRequest().getMethod());
         }
@@ -860,7 +869,7 @@ public class PortExecutor
         {
             ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
 
-            if (ps == null&&isName)
+            if (ps == null && isName)
             {//2/2.确保通过类绑定名未查找到参数源时，通过方法名查找
                 handle = context.paramSourceHandleManager.fromMethod(wObject.getRequest().getMethod());
                 if (handle != null)
