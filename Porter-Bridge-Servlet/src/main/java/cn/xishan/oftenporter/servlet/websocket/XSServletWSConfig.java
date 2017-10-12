@@ -14,7 +14,18 @@ import java.util.Set;
 public class XSServletWSConfig implements ServerApplicationConfig
 {
 
-    static final String WS_PATH = "/" + KeyUtil.randomUUID();
+    static final String WS_PATH = getPath();
+
+    private static String getPath()
+    {
+        try
+        {
+            return "/" + KeyUtil.secureRandomKeySha256(128);
+        } catch (Exception e)
+        {
+            return "/" + KeyUtil.random48Key() + KeyUtil.random48Key();
+        }
+    }
 
     @Override
     public Set<ServerEndpointConfig> getEndpointConfigs(Set<Class<? extends Endpoint>> set)
