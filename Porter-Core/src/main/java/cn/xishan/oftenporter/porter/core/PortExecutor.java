@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
+import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.InObj;
@@ -418,7 +419,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 dealtOfContextCheck(context, funPort, wObject, innerContextBridge, result);
@@ -452,7 +454,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
@@ -488,7 +491,7 @@ public class PortExecutor
                         typeParserStore);
         if (failedReason != null)
         {
-            exParamDeal(wObject,funPort, failedReason, responseWhenException);
+            exParamDeal(wObject, funPort, failedReason, responseWhenException);
             return;
         }
 
@@ -498,7 +501,7 @@ public class PortExecutor
                 typeParserStore);
         if (failedReason != null)
         {
-            exParamDeal(wObject,funPort, failedReason, responseWhenException);
+            exParamDeal(wObject, funPort, failedReason, responseWhenException);
             return;
         }
         //////////////////////////////
@@ -522,7 +525,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
@@ -548,7 +552,7 @@ public class PortExecutor
                     dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
                 } else
                 {
-                    responseObject(wObject,funPort, object, true);
+                    responseObject(wObject, funPort, object, true);
                 }
             });
             return;
@@ -583,7 +587,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
@@ -618,7 +623,7 @@ public class PortExecutor
                         typeParserStore);
         if (failedReason != null)
         {
-            exParamDeal(wObject,funPort, failedReason, responseWhenException);
+            exParamDeal(wObject, funPort, failedReason, responseWhenException);
             return;
         }
         ///////////////////////////
@@ -627,7 +632,7 @@ public class PortExecutor
                 typeParserStore);
         if (failedReason != null)
         {
-            exParamDeal(wObject,funPort, failedReason, responseWhenException);
+            exParamDeal(wObject, funPort, failedReason, responseWhenException);
             return;
         }
         //////////////////////////////
@@ -652,7 +657,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
@@ -684,14 +690,22 @@ public class PortExecutor
             if (!isOk)
             {
                 wObject.getResponse().toErr();
-                responseObject(wObject,funPort, returnObject, true);
+                responseObject(wObject, funPort, returnObject, true);
                 return;
             }
 
 
             if (doState == PortBeforeAfterDealt.DoState.DoInvoke)
             {
-                if (funPort.getArgCount() == 0)
+                //处理AspectFunOperation
+                AspectFunOperation.Handle[] handles = funPort.getHandles();
+                if (handles != null)
+                {
+                    for (AspectFunOperation.Handle handle : handles)
+                    {
+                        returnObject = handle.invoke(wObject, returnObject);
+                    }
+                } else if (funPort.getArgCount() == 0)
                 {
                     returnObject = javaMethod.invoke(funPort.getObject());
                 } else
@@ -743,7 +757,8 @@ public class PortExecutor
                         {
                             if (failedObject != null)
                             {
-                                exCheckPassable(wObject,funPort, failedObject, innerContextBridge.responseWhenException);
+                                exCheckPassable(wObject, funPort, failedObject,
+                                        innerContextBridge.responseWhenException);
                             } else
                             {
                                 dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
@@ -776,7 +791,7 @@ public class PortExecutor
 
             if (doState == PortBeforeAfterDealt.DoState.DoResponse)
             {
-                dealtOfResponse(wObject,funPort, funPort.getPortOut().getOutType(), returnObject);
+                dealtOfResponse(wObject, funPort, funPort.getPortOut().getOutType(), returnObject);
             }
 
         } catch (Exception e)
@@ -785,7 +800,7 @@ public class PortExecutor
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.forAllChecksNotZeroLen == null)
             {
-                exNotNull(wObject,funPort, wObject.getResponse(), ex, responseWhenException);
+                exNotNull(wObject, funPort, wObject.getResponse(), ex, responseWhenException);
             } else
             {
                 logger(wObject).warn(ex.getMessage(), ex);
@@ -809,13 +824,13 @@ public class PortExecutor
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
-                            dealtOfResponse(wObject,funPort, OutType.OBJECT, failedObject);
+                            dealtOfResponse(wObject, funPort, OutType.OBJECT, failedObject);
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setDescription(WPTool.getMessage(ex));
                             jResponse.setExtra(ex);
-                            dealtOfResponse(wObject,funPort, OutType.OBJECT, jResponse);
+                            dealtOfResponse(wObject, funPort, OutType.OBJECT, jResponse);
                         }
                     }
                 };
@@ -839,8 +854,11 @@ public class PortExecutor
         UrlDecoder.Result result = wObject.url();
         Context context = wObject.context;
         ParamSourceHandle handle = context.paramSourceHandleManager.fromName(result.classTied());
+        boolean isName = true;
         if (handle == null)
         {
+            isName = false;
+            //1/2.确保通过类绑定名未查找到参数源时，通过方法名查找
             handle = context.paramSourceHandleManager.fromMethod(wObject.getRequest().getMethod());
         }
         ParamSource ps;
@@ -850,6 +868,16 @@ public class PortExecutor
         } else
         {
             ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
+
+            if (ps == null && isName)
+            {//2/2.确保通过类绑定名未查找到参数源时，通过方法名查找
+                handle = context.paramSourceHandleManager.fromMethod(wObject.getRequest().getMethod());
+                if (handle != null)
+                {
+                    ps = handle.get(wObject, classPort.getClazz(), funPort.getMethod());
+                }
+            }
+
             if (ps == null)
             {
                 ps = new DefaultParamSource(wObject.getRequest());
@@ -862,28 +890,28 @@ public class PortExecutor
 ////////////////////////////////////////////////
     //////////////////////////////////////////
 
-    private void dealtOfResponse(WObjectImpl wObject,PorterOfFun porterOfFun, OutType outType, Object rs)
+    private void dealtOfResponse(WObjectImpl wObject, PorterOfFun porterOfFun, OutType outType, Object rs)
     {
         switch (outType)
         {
             case NO_RESPONSE:
                 break;
             case OBJECT:
-                responseObject(wObject,porterOfFun, rs, true);
+                responseObject(wObject, porterOfFun, rs, true);
                 break;
             case AUTO:
             case VoidReturn:
             case NullReturn:
-                responseObject(wObject,porterOfFun, rs, false);
+                responseObject(wObject, porterOfFun, rs, false);
                 break;
             case CLOSE:
-                responseObject(wObject,porterOfFun, rs, true);
+                responseObject(wObject, porterOfFun, rs, true);
                 break;
         }
     }
 
 
-    private void responseObject(WObject wObject,PorterOfFun porterOfFun, Object object, boolean nullClose)
+    private void responseObject(WObject wObject, PorterOfFun porterOfFun, Object object, boolean nullClose)
     {
         if (object != null)
         {
@@ -901,7 +929,7 @@ public class PortExecutor
                     LOGGER.info("{}:{}", wObject.url(), object);
                 }
             }
-            doFinalWrite(wObject,porterOfFun, object);
+            doFinalWrite(wObject, porterOfFun, object);
             close(wObject);
         } else if (nullClose)
         {
@@ -919,7 +947,7 @@ public class PortExecutor
         WPTool.close(response);
     }
 
-    private void exNotNull(@NotNull WObject wObject,PorterOfFun porterOfFun, WResponse response, Throwable throwable,
+    private void exNotNull(@NotNull WObject wObject, PorterOfFun porterOfFun, WResponse response, Throwable throwable,
             boolean responseWhenException)
     {
         response.toErr();
@@ -932,13 +960,13 @@ public class PortExecutor
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(WPTool.getMessage(throwable));
-            doFinalWrite(wObject,porterOfFun, jResponse);
+            doFinalWrite(wObject, porterOfFun, jResponse);
         }
         close(response);
     }
 
 
-    private void exCheckPassable(WObject wObject,PorterOfFun porterOfFun, Object obj, boolean responseWhenException)
+    private void exCheckPassable(WObject wObject, PorterOfFun porterOfFun, Object obj, boolean responseWhenException)
     {
         wObject.getResponse().toErr();
         Logger LOGGER = logger(wObject);
@@ -948,12 +976,12 @@ public class PortExecutor
         }
         if (obj instanceof JResponse)
         {
-            doFinalWrite(wObject,porterOfFun, obj);
+            doFinalWrite(wObject, porterOfFun, obj);
         } else if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.ACCESS_DENIED);
             jResponse.setDescription(String.valueOf(obj));
-            doFinalWrite(wObject,porterOfFun, jResponse);
+            doFinalWrite(wObject, porterOfFun, jResponse);
         }
         close(wObject);
     }
@@ -967,7 +995,8 @@ public class PortExecutor
         return jResponse;
     }
 
-    private void exParamDeal(WObject wObject,PorterOfFun porterOfFun, ParamDealt.FailedReason reason, boolean responseWhenException)
+    private void exParamDeal(WObject wObject, PorterOfFun porterOfFun, ParamDealt.FailedReason reason,
+            boolean responseWhenException)
     {
         Logger LOGGER = logger(wObject);
         JResponse jResponse = null;
@@ -982,7 +1011,7 @@ public class PortExecutor
             {
                 jResponse = toJResponse(reason, wObject);
             }
-            doFinalWrite(wObject,porterOfFun, jResponse);
+            doFinalWrite(wObject, porterOfFun, jResponse);
         }
         close(wObject);
     }
@@ -1008,9 +1037,12 @@ public class PortExecutor
     {
         try
         {
-            if(object!=null&&responseHandle!=null){
+            if (object != null && responseHandle != null)
+            {
                 Porter porter = porterOfFun.getPorter();
-                object=responseHandle.toResponse(wObject,porter.getFinalPorterObject(),porter.getObj(),porterOfFun.getMethod(),object);
+                object = responseHandle
+                        .toResponse(wObject, porter.getFinalPorterObject(), porter.getObj(), porterOfFun.getMethod(),
+                                object);
             }
             wObject.getResponse().write(object);
         } catch (IOException e)

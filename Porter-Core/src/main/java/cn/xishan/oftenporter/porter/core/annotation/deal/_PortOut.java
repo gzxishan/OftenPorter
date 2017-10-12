@@ -13,4 +13,9 @@ public final class _PortOut
     {
         return outType;
     }
+
+    public void _setOutType(OutType outType)
+    {
+        this.outType = outType;
+    }
 }

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortFilterOne;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
@@ -19,6 +20,7 @@ public abstract class PorterOfFun implements ObjectGetter
     InObj inObj;
     Porter porter;
 
+    AspectFunOperation.Handle[] handles;
 
     /**
      * 第一个先调用
@@ -28,6 +30,16 @@ public abstract class PorterOfFun implements ObjectGetter
      * 第一个先调用
      */
     _PortFilterOne[] portAfters;
+
+    public AspectFunOperation.Handle[] getHandles()
+    {
+        return handles;
+    }
+
+    public void setHandles(AspectFunOperation.Handle[] handles)
+    {
+        this.handles = handles;
+    }
 
     public _PortFilterOne[] getPortBefores()
     {

@@ -2,70 +2,84 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.Context;
 import cn.xishan.oftenporter.porter.core.PortExecutor;
+import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public class SthDeal {
+public class SthDeal
+{
     private final Logger LOGGER;
     private InObjDeal inObjDeal;
 
-    public SthDeal() {
+    public SthDeal()
+    {
         LOGGER = LogUtil.logger(SthDeal.class);
         inObjDeal = new InObjDeal();
     }
 
 
     private boolean mayAddStartOrDestroy(Method method, ObjectGetter objectGetter, List<_PortStart> portStarts,
-                                         List<_PortDestroy> portDestroys,
-                                         AnnotationDealt annotationDealt) {
+            List<_PortDestroy> portDestroys,
+            AnnotationDealt annotationDealt)
+    {
         _PortStart portStart = annotationDealt.portStart(method, objectGetter);
-        if (portStart != null) {
+        if (portStart != null)
+        {
             portStarts.add(portStart);
         }
         _PortDestroy portDestroy = annotationDealt.portDestroy(method, objectGetter);
-        if (portDestroy != null) {
+        if (portDestroy != null)
+        {
             portDestroys.add(portDestroy);
         }
         return portStart != null || portDestroy != null;
     }
 
 
-    public void dealPortAB(Context context, PortExecutor portExecutor) throws FatalInitException {
+    public void dealPortAB(Context context, PortExecutor portExecutor) throws FatalInitException
+    {
         SthUtil sthUtil = new SthUtil();
         sthUtil.expandPortAB(context, portExecutor);
     }
 
 
     private void addPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
-                                    AutoSetHandle autoSetHandle) {
+            AutoSetHandle autoSetHandle)
+    {
         List<_PortFilterOne> portBeforesAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portBefores(porter.getClazz(), currentContextName, currentClassTied);
         List<_PortFilterOne> portAftersAll = autoSetHandle.getInnerContextBridge().annotationDealt
                 .portAfters(porter.getClazz(), currentContextName, currentClassTied);
-        for (PorterOfFun porterOfFun : porter.getFuns().values()) {
+        for (PorterOfFun porterOfFun : porter.getFuns().values())
+        {
             Method method = porterOfFun.method;
             List<_PortFilterOne> portBefores = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portBefores(method, currentContextName, currentClassTied);
             List<_PortFilterOne> portAfters = autoSetHandle.getInnerContextBridge().annotationDealt
                     .portAfters(method, currentContextName, currentClassTied);
 
-            for (int i = portBeforesAll.size() - 1; i >= 0; i--) {
+            for (int i = portBeforesAll.size() - 1; i >= 0; i--)
+            {
                 portBefores.add(0, portBeforesAll.get(i));
             }
             portAfters.addAll(portAftersAll);
@@ -77,33 +91,45 @@ public class SthDeal {
 
 
     public Porter porter(Class<?> clazz, Object object, String currentContextName,
-                         AutoSetHandle autoSetHandle) throws FatalInitException {
+            AutoSetHandle autoSetHandle) throws FatalInitException
+    {
         return porter(clazz, object, currentContextName, null, autoSetHandle, false, null, null);
     }
 
 
+    /**
+     * <pre>
+     * 1.会处理{@linkplain AspectFunOperation}
+     *
+     * </pre>
+     */
     private Porter porter(Class<?> clazz, Object object, String currentContextName, String currentClassTied,
-                          AutoSetHandle autoSetHandle,
-                          boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
-                          Map<String, Object> autoSetMixinMap) throws FatalInitException
+            AutoSetHandle autoSetHandle,
+            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
+            Map<String, Object> autoSetMixinMap) throws FatalInitException
 
     {
-        if (autoSetMixinMap == null) {
+        if (autoSetMixinMap == null)
+        {
             autoSetMixinMap = new HashMap<>();
         }
-        if (isMixin) {
+        if (isMixin)
+        {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
-        } else {
+        } else
+        {
             wholeClassCheckPassableGetter = new WholeClassCheckPassableGetterImpl();
         }
 
         InnerContextBridge innerContextBridge = autoSetHandle.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(clazz, isMixin);
-        if (portIn == null) {
+        if (portIn == null)
+        {
             return null;
         }
-        if (currentClassTied == null) {
+        if (currentClassTied == null)
+        {
             currentClassTied = portIn.getTiedNames()[0];
         }
 
@@ -117,7 +143,8 @@ public class SthDeal {
         //自动设置,会确保接口对象已经实例化
         porter.doAutoSet(autoSetMixinMap);
         porter.finalObject = porter.getObj();
-        if (porter.object instanceof IPorter) {
+        if (porter.object instanceof IPorter)
+        {
             IPorter iPorter = (IPorter) porter.object;
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
@@ -132,9 +159,11 @@ public class SthDeal {
         //对Parser和Parser.parse的处理
         inObjDeal.sthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
 
-        try {
+        try
+        {
             porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge);
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             LOGGER.warn(e.getMessage(), e);
         }
 
@@ -145,20 +174,24 @@ public class SthDeal {
         Class<?>[] mixins = SthUtil.getMixin(clazz);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
         //List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
-        for (Class c : mixins) {
-            if (!PortUtil.isMixinPortClass(c)) {
+        for (Class c : mixins)
+        {
+            if (!PortUtil.isMixinPortClass(c))
+            {
                 continue;
             }
             Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetHandle, true,
                     wholeClassCheckPassableGetter,
                     autoSetMixinMap);
-            if (mixinPorter == null) {
+            if (mixinPorter == null)
+            {
                 continue;
             }
             mixinList.add(mixinPorter);
             Map<String, PorterOfFun> mixinChildren = mixinPorter.childrenWithMethod;
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
-            while (mixinIt.hasNext()) {
+            while (mixinIt.hasNext())
+            {
                 putFun(mixinIt.next(), childrenWithMethod, true, true);
             }
             mixinPorter.finalObject = porter.getObj();
@@ -166,16 +199,19 @@ public class SthDeal {
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
             autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
         }
-        if (mixinList.size() > 0) {
+        if (mixinList.size() > 0)
+        {
             porter.mixins = mixinList.toArray(new Porter[0]);
         }
 
         //实例化经检查对象并添加到map。
         inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
-        if (isMixin) {
+        if (isMixin)
+        {
             LOGGER.debug("***********For mixin:{}***********end!", clazz);
-        } else {
+        } else
+        {
             wholeClassCheckPassableGetter.done();
             inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
                     wholeClassCheckPassableGetter.getChecksForWholeClass());
@@ -188,20 +224,26 @@ public class SthDeal {
 
         Method[] methods = WPTool.getAllPublicMethods(clazz);
         ObjectGetter objectGetter = () -> porter.getObj();
-        for (Method method : methods) {
+        for (Method method : methods)
+        {
 
-            if (mayAddStartOrDestroy(method, objectGetter, portStarts, portDestroys, annotationDealt)) {
+            if (mayAddStartOrDestroy(method, objectGetter, portStarts, portDestroys, annotationDealt))
+            {
                 method.setAccessible(true);
                 continue;
             }
             backableSeek.push();
             PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek);
             backableSeek.pop();
-            if (porterOfFun != null) {
+            if (porterOfFun != null)
+            {
 //                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
 //                //设置方法的TiedType
 //                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
                 putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
+
+                //扫描AspectFunOperation
+                seekAspectFunOperation(porterOfFun);
             }
         }
 
@@ -215,27 +257,73 @@ public class SthDeal {
         return porter;
     }
 
+    private void seekAspectFunOperation(PorterOfFun porterOfFun)
+    {
+        Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
+        List<AspectFunOperation.Handle> handles = null;
+        for (Annotation annotation : annotations)
+        {
+            Class<? extends Annotation> atype = annotation.annotationType();
+            if (!atype.isAnnotationPresent(AspectFunOperation.class))
+            {
+                continue;
+            }
+            AspectFunOperation aspectFunOperation = AnnoUtil
+                    .getAnnotation(atype, AspectFunOperation.class);
+            if (aspectFunOperation != null)
+            {
+                try
+                {
+                    AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
+                    if (handle.initWith(porterOfFun))
+                    {
+                        porterOfFun.portOut._setOutType(handle.getOutType());
+                        if (handles == null)
+                        {
+                            handles = new ArrayList<>();
+                        }
+                        handles.add(handle);
+                    }
+                } catch (Exception e)
+                {
+                    throw new InitException(e);
+                }
+            }
+        }
+
+        if (handles != null)
+        {
+            porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
+        }
+    }
+
     private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
-                        boolean isMixin) {
+            boolean isMixin)
+    {
         PorterOfFun lastFun = null;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
         Method method = porterOfFun.getMethod();
 
         PortFunType portFunType = porterOfFun.getMethodPortIn().getPortFunType();
 
-        switch (tiedType) {
+        switch (tiedType)
+        {
 
             case REST:
-            case FORCE_REST: {
+            case FORCE_REST:
+            {
                 PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
-                for (PortMethod portMethod : portMethods) {
+                for (PortMethod portMethod : portMethods)
+                {
                     lastFun = childrenWithMethod.put(portMethod.name(), porterOfFun);
-                    if (LOGGER.isDebugEnabled() && willLog) {
+                    if (LOGGER.isDebugEnabled() && willLog)
+                    {
                         LOGGER.debug("add-rest:{} (outType={},portFunType={},function={}{})",
                                 portMethod, porterOfFun.getPortOut().getOutType(), portFunType, method.getName(),
                                 isMixin ? ",from " + method.getDeclaringClass() : "");
                     }
-                    if (lastFun != null && LOGGER.isDebugEnabled()) {
+                    if (lastFun != null && LOGGER.isDebugEnabled())
+                    {
                         LOGGER.debug("overrided:{}", lastFun.getMethod());
                     }
                 }
@@ -244,14 +332,18 @@ public class SthDeal {
             break;
             case DEFAULT:
                 PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
-                for (PortMethod portMethod : portMethods) {
+                for (PortMethod portMethod : portMethods)
+                {
                     String[] tieds = porterOfFun.getMethodPortIn().getTiedNames();
                     String[] ignoredFunTieds = StrUtil
                             .newArray(porterOfFun.getPorter().getPortIn().getIgnoredFunTieds());
                     Arrays.sort(ignoredFunTieds);
-                    for (String tiedName : tieds) {
-                        if (Arrays.binarySearch(ignoredFunTieds, tiedName) >= 0) {
-                            if (LOGGER.isDebugEnabled() && willLog) {
+                    for (String tiedName : tieds)
+                    {
+                        if (Arrays.binarySearch(ignoredFunTieds, tiedName) >= 0)
+                        {
+                            if (LOGGER.isDebugEnabled() && willLog)
+                            {
                                 LOGGER.debug("ignore:{},{} (outType={},portFunType={},jmethod={}{})",
                                         tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
                                         method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
@@ -260,13 +352,15 @@ public class SthDeal {
                         }
                         lastFun = childrenWithMethod
                                 .put(tiedName + "/" + portMethod.name(), porterOfFun);
-                        if (LOGGER.isDebugEnabled() && willLog) {
+                        if (LOGGER.isDebugEnabled() && willLog)
+                        {
                             LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
                                     tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
                                     method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
                         }
 
-                        if (lastFun != null && LOGGER.isDebugEnabled()) {
+                        if (lastFun != null && LOGGER.isDebugEnabled())
+                        {
                             LOGGER.debug("overrided:{}", lastFun.getMethod());
                         }
                     }
@@ -279,22 +373,28 @@ public class SthDeal {
     }
 
     private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,
-                                    BackableSeek backableSeek) {
+            BackableSeek backableSeek)
+    {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
-        if (portIn == null) {
+        if (portIn == null)
+        {
             return null;
         }
-        try {
+        try
+        {
 
             method.setAccessible(true);
             Class<?>[] parameters = method.getParameterTypes();
-            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0])) {
-                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
-            }
-            PorterOfFun porterOfFun = new PorterOfFun() {
+//            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
+//            {
+//                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
+//            }
+            PorterOfFun porterOfFun = new PorterOfFun()
+            {
                 @Override
-                public Object getObject() {
+                public Object getObject()
+                {
                     return porter.getObj();
                 }
             };
@@ -310,7 +410,8 @@ public class SthDeal {
             boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),
                     typeParserStore, backableSeek);
 
-            if (!hasBinded) {
+            if (!hasBinded)
+            {
                 //当函数上没有转换注解、而类上有时，加上此句是确保类上的转换对函数有想
                 SthUtil.bindTypeParser(portIn.getInNames(), null, typeParserStore, backableSeek,
                         BackableSeek.SeekType.NotAdd_Bind);
@@ -320,19 +421,21 @@ public class SthDeal {
                     .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
                             innerContextBridge);
 
-            porterOfFun.portOut = annotationDealt.portOut(porter, method,innerContextBridge.defaultOutType);
+            porterOfFun.portOut = annotationDealt.portOut(porter, method, innerContextBridge.defaultOutType);
 
             return porterOfFun;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             LOGGER.warn(e.getMessage(), e);
             return null;
         }
 
     }
 
-    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery) {
+    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery)
+    {
         SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption, isInner);
-        syncPorter.delivery=delivery;
+        syncPorter.delivery = delivery;
         return syncPorter;
     }
 }
