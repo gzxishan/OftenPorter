@@ -60,6 +60,7 @@ public abstract class WS
         HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
         httpSession.removeAttribute(WObject.class.getName());
         httpSession.removeAttribute(PorterOfFun.class.getName());
+        httpSession.removeAttribute(WebSocket.class.getName());
         if (closeReason != null)
         {
             session.close(closeReason);
