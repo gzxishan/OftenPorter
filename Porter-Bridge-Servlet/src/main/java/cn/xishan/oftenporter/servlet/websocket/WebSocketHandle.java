@@ -8,29 +8,36 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-class WebSocketHandle implements AspectFunOperation.Handle
+class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
 {
     private PorterOfFun porterOfFun;
+    private WebSocket webSocket;
 
     @Override
-    public boolean initWith(PorterOfFun porterOfFun)
+    public boolean initWith(WebSocket webSocket, PorterOfFun porterOfFun)
     {
+        this.webSocket = webSocket;
         this.porterOfFun = porterOfFun;
         return true;
     }
 
     @Override
-    public Object invoke(WObject wObject,Object lastReturn)throws Exception
+    public Object invoke(WObject wObject, Object lastReturn) throws Exception
     {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         HttpServletResponse response = wObject.getRequest().getOriginalResponse();
         RequestDispatcher requestDispatcher = request.getRequestDispatcher(XSServletWSConfig.WS_PATH);
-        request.getSession().setAttribute(WObject.class.getName(), wObject);
-        request.getSession().setAttribute(PorterOfFun.class.getName(), porterOfFun);
+        HttpSession session = request.getSession();
+
+        session.setAttribute(WObject.class.getName(), wObject);
+        session.setAttribute(PorterOfFun.class.getName(), porterOfFun);
+        session.setAttribute(WebSocket.class.getName(), webSocket);
+
         requestDispatcher.forward(request, response);
         return null;
     }

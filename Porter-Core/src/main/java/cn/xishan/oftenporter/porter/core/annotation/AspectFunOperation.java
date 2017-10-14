@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface AspectFunOperation
 {
-    public static interface Handle
+    public static interface Handle<T extends Annotation>
     {
 
         /**
@@ -23,7 +23,7 @@ public @interface AspectFunOperation
          * @param porterOfFun
          * @return
          */
-        boolean initWith(PorterOfFun porterOfFun);
+        boolean initWith(T current,PorterOfFun porterOfFun);
 
         /**
          *

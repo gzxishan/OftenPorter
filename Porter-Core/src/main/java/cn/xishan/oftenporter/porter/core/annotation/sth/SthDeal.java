@@ -275,7 +275,7 @@ public class SthDeal
                 try
                 {
                     AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
-                    if (handle.initWith(porterOfFun))
+                    if (handle.initWith(annotation,porterOfFun))
                     {
                         porterOfFun.portOut._setOutType(handle.getOutType());
                         if (handles == null)
