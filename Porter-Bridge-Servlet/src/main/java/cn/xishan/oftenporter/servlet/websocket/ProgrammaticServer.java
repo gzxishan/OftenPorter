@@ -2,7 +2,9 @@ package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.servlet.websocket.handle.*;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.*;
@@ -13,7 +15,7 @@ import javax.websocket.*;
 public class ProgrammaticServer extends Endpoint
 {
 
-    private void doInvoke(Session session, WebSocket.Type type, Object value)
+    public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value)
     {
         try
         {
@@ -22,7 +24,7 @@ public class ProgrammaticServer extends Endpoint
             PorterOfFun porterOfFun = (PorterOfFun) httpSession.getAttribute(PorterOfFun.class.getName());
 
             porterOfFun.getMethod().invoke(porterOfFun.getPorter().getObj(), wObject, WS.newWS(type,
-                    session, value));
+                    session, isLast, value));
         } catch (Exception e)
         {
             throw new WCallException(e);
@@ -32,30 +34,72 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig)
     {
-        doInvoke(session, WebSocket.Type.ON_OPEN, null);
+        doInvoke(session, WebSocket.Type.ON_OPEN, true, null);
+        HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
 
-        MessageHandler.Whole<String> messageHandler = new MessageHandler.Whole<String>()
+        WebSocket webSocket = (WebSocket) httpSession.getAttribute(WebSocket.class.getName());
+        if (webSocket.isPartial())
         {
-            @Override
-            public void onMessage(String message)
+            switch (webSocket.stringType())
             {
-                doInvoke(session, WebSocket.Type.ON_MESSAGE, message);
+                case STRING:
+                    session.addMessageHandler(new PartialStringHandle(this, session));
+                    break;
+                default:
+                    throw new InitException("illegal StringType for part handle:" + webSocket.stringType());
             }
-        };
-        session.addMessageHandler(messageHandler);
+
+            switch (webSocket.binaryType())
+            {
+                case BYTE_BUFFER:
+                    session.addMessageHandler(new PartialByteBufferHandle(this, session));
+                    break;
+                case BYTE_ARRAY:
+                    session.addMessageHandler(new PartialByteArrayHandle(this, session));
+                    break;
+                default:
+                    throw new InitException("illegal BinaryType for part handle:" + webSocket.binaryType());
+            }
+        } else
+        {
+            switch (webSocket.stringType())
+            {
+                case STRING:
+                    session.addMessageHandler(new WholeStringHandle(this, session));
+                    break;
+                case READER:
+                    session.addMessageHandler(new WholeReaderHandle(this, session));
+                    break;
+            }
+
+            switch (webSocket.binaryType())
+            {
+                case BYTE_BUFFER:
+                    session.addMessageHandler(new WholeByteBufferHandle(this, session));
+                    break;
+                case BYTE_ARRAY:
+                    session.addMessageHandler(new WholeByteArrayHandle(this, session));
+                    break;
+                case INPUT_STREAM:
+                    session.addMessageHandler(new WholeInputStreamHandle(this, session));
+                    break;
+            }
+        }
+
+        session.addMessageHandler(new WholePongHandle(this, session));
 
     }
 
     @Override
     public void onClose(Session session, CloseReason closeReason)
     {
-        doInvoke(session, WebSocket.Type.ON_CLOSE, closeReason);
+        doInvoke(session, WebSocket.Type.ON_CLOSE, true, closeReason);
     }
 
     @Override
     public void onError(Session session, Throwable thr)
     {
-        doInvoke(session, WebSocket.Type.ON_ERROR, thr);
+        doInvoke(session, WebSocket.Type.ON_ERROR, true, thr);
     }
 
 }

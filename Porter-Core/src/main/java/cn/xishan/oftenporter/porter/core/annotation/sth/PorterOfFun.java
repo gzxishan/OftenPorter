@@ -79,6 +79,10 @@ public abstract class PorterOfFun implements ObjectGetter
         return porter.getFinalPorterObject();
     }
 
+    /**
+     * 得到函数所在的对象实例。
+     * @return
+     */
     @Override
     public abstract Object getObject();
 

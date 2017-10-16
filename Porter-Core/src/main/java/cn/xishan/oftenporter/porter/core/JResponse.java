@@ -236,6 +236,47 @@ public class JResponse
         return (T) result;
     }
 
+    /**
+     * 结果为json的情况。
+     *
+     * @return
+     */
+    public JSONObject resultJSON()
+    {
+        JSONObject json = getResult();
+        return json;
+    }
+
+    public boolean resultBoolean()
+    {
+        boolean is = getResult();
+        return is;
+    }
+
+    public int resultInt()
+    {
+        int n = getResult();
+        return n;
+    }
+
+    public long resultLong()
+    {
+        long l = getResult();
+        return l;
+    }
+
+    public String resultString()
+    {
+        String str = getResult();
+        return str;
+    }
+
+    public JSONArray resultJSONArray()
+    {
+        JSONArray jsonArray = getResult();
+        return jsonArray;
+    }
+
     public boolean isSuccess()
     {
         return code == ResultCode.SUCCESS || code == ResultCode.OK;
