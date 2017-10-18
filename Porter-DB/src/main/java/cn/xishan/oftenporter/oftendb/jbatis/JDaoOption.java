@@ -1,5 +1,9 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
+import cn.xishan.oftenporter.porter.core.util.WPTool;
+
+import java.io.File;
+
 /**
  * Created by chenyg on 2017-04-29.
  */
@@ -22,9 +26,40 @@ public class JDaoOption
     public String injectScript;
 
     /**
+     * 全局注入的Java对象,名称见{@linkplain #globalInjectObjectName}。
+     */
+    public Object globalInjectObject;
+
+    /**
+     * 默认为gobj
+     */
+    public String globalInjectObjectName = "gobj";
+
+    /**
      * 表名前缀。
      */
     public String tableNamePrefix = "";
 
     public String scriptEncoding = "utf-8";
+
+    private boolean isInit=false;
+
+    boolean init()
+    {
+        if(isInit){
+            return false;
+        }
+        isInit=true;
+        if (WPTool.notNullAndEmpty(debugDirPath))
+        {
+            debugDirPath = debugDirPath.replace('\\', '/');
+            if (!debugDirPath.endsWith("/"))
+            {
+                debugDirPath += "/";
+            }
+        }
+
+        return true;
+    }
+
 }

@@ -21,11 +21,11 @@ public @interface JDaoPath
     String value() default "";
 
     /**
-     * 当{@linkplain #value()}为""时使用,不包含文件名。
+     * 当{@linkplain #value()}为""时使用。不包含文件名。
      *
      * @return
      */
-    String path() default "";
+    String pathDir() default "";
 
     /**
      * js文件的名称，默认为"当前对象名.js"

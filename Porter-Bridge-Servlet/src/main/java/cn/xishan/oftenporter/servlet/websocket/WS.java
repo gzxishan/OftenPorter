@@ -81,4 +81,22 @@ public abstract class WS
             }
         };
     }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj==null||!(obj instanceof WS)){
+            return false;
+        }else{
+            WS ws = (WS) obj;
+            return ws.session.getId().equals(session.getId());
+        }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return session.getId().hashCode();
+    }
 }
