@@ -57,7 +57,19 @@ class JDaoGen implements AutoSetGen
         boolean isFile;
     }
 
-    private Path getPath(JDaoPath jDaoPath,Class<?> currentObjectClass, Field field)
+    @AutoSet.SetOk
+    public void setOk()
+    {
+        if (jDaoOption.init())
+        {
+            if (WPTool.notNullAndEmpty(jDaoOption.globalInjectObject))
+            {
+                scriptEngineManager.getBindings().put(jDaoOption.globalInjectObjectName, jDaoOption.globalInjectObject);
+            }
+        }
+    }
+
+    private Path getPath(JDaoPath jDaoPath, Class<?> currentObjectClass, Field field)
     {
         boolean isFile = WPTool.notNullAndEmpty(jDaoOption.debugDirPath);
         String optionDir = isFile ? jDaoOption.debugDirPath : jDaoOption.classpath;
@@ -72,7 +84,7 @@ class JDaoGen implements AutoSetGen
             String path = jDaoPath.value();
             if (path.equals(""))
             {
-                path = jDaoPath.path();
+                path = jDaoPath.pathDir();
             }
             if (jDaoPath.relativeToOptionPath())
             {
@@ -109,13 +121,14 @@ class JDaoGen implements AutoSetGen
         return path;
     }
 
-    private String getScript(Class<?> currentObjectClass,String path,Field field) throws IOException
+    private String getScript(Class<?> currentObjectClass, String path, Field field) throws IOException
     {
         InputStream inputStream = currentObjectClass.getResourceAsStream(path);
         String script = inputStream == null ? null : FileTool.getString(inputStream, 1024, jDaoOption.scriptEncoding);
         if (script == null)
         {
-            throw new RuntimeException("script not found in classpath:" + path+"("+currentObjectClass+" "+field.getName() +")");
+            throw new RuntimeException(
+                    "script not found in classpath:" + path + "(" + currentObjectClass + " " + field.getName() + ")");
         }
         return script;
     }
@@ -139,7 +152,10 @@ class JDaoGen implements AutoSetGen
             tryCompileScript(scriptEngine, jDaoOption.injectScript);
         }
         SimpleBindings bindings = new SimpleBindings();
-        bindings.put("jdaoBridge", new _JsInterface(dbSource, jDaoOption.tableNamePrefix));
+        _JsInterface jsInterface = new _JsInterface(dbSource, jDaoOption.tableNamePrefix);
+        bindings.put("jdaoBridge", jsInterface);
+        bindings.put("jdao", jsInterface);
+
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
         tryCompileScript(scriptEngine, script);
         return (Invocable) scriptEngine;
@@ -182,7 +198,8 @@ class JDaoGen implements AutoSetGen
                     jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, dbSource, sqlSource, logger);
                 } else
                 {
-                    jsBridge = new JsBridge(getJsInvocable(getScript(currentObjectClass, path.path,field), dbSource, jDaoOption),
+                    jsBridge = new JsBridge(
+                            getJsInvocable(getScript(currentObjectClass, path.path, field), dbSource, jDaoOption),
                             dbSource, sqlSource, path.path, logger);
                 }
                 AutoSetDealtForDBSource.setUnit(currentObject, dbSource);

@@ -101,7 +101,7 @@ public class PackageUtil
      */
     public static String getPackageWithRelative(Class<?> clazz, String relative, String separator)
     {
-        return getPathWithRelative('.',clazz.getPackage().getName(),relative,separator);
+        return getPathWithRelative('.', clazz.getPackage().getName(), relative, separator);
     }
 
     /**
@@ -109,12 +109,18 @@ public class PackageUtil
      *
      * @param pathSep   如“/”
      * @param path
-     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前
+     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前;如果以"/"开头，则结果为该路径。
      * @param separator 最终的分隔符
      * @return
      */
     public static String getPathWithRelative(char pathSep, String path, String relative, String separator)
     {
+
+        if (relative.startsWith("/"))
+        {
+            return relative.replace("/", separator);
+        }
+
         String[] origins = StrUtil.split(path, pathSep + "");
         Stack<String> stack = new Stack<>();
         for (String s : origins)

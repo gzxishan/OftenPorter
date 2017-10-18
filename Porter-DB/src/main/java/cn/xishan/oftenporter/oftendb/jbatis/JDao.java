@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
  *       1)可以通过{@linkplain JDaoPath JDaoPath}来配置js文件在资源包中的位置
  *     二、js文件的格式：
  *     1.一个对象一个文件，每个文件是隔离的。
- *     2.内置变量jdaoBridge：
+ *     2.内置变量jdaoBridge(简写jdao)：
  *        1）tableNamePrefix：表名前缀。
  *        2）sqlArgs(sql,args)：生成{@linkplain JSqlArgs JSqlArgs}对象
  *        3）sqlExecutor(sql,args)：生成{@linkplain AdvancedExecutor AdvancedExecutor}对象
@@ -38,6 +38,7 @@ import com.alibaba.fastjson.JSONObject;
  *        AdvancedQuery, QuerySettings) Common2.queryEnumeration(WObject,DBSource,
  *        AdvancedQuery, QuerySettings)}
  *        6)source.getBlobData(sql,args,blobColumnName):返回json对象,blobColumnName为{@linkplain BlobData BlobData},没有找到返回null。
+ *        7)source.count(sql,args)：返回long.
  *    <strong>注意：</strong>对应的{@linkplain DBSource DBSource}的实现类必须实现{@linkplain SqlSource SqlSource}接口。
  * </pre>
  * Created by chenyg on 2017-04-29.
