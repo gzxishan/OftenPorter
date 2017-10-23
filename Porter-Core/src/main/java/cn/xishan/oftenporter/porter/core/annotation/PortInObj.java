@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.apt.AutoGen;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
 
 import java.lang.annotation.*;
 
@@ -44,6 +45,23 @@ public @interface PortInObj
          * @return
          */
         String value() default "";
+
+        /**
+         * <pre>
+         *     若当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()} ()}中,或以上都为空时。
+         *     1.为true时：注解的变量任然为必需参数。
+         *     2.为false时：注解的变量变为非必需参数。
+         * </pre>
+         *
+         * @return 默认为true。
+         */
+        boolean forNece() default true;
+
+        PortMethod[] forMethods() default {};
+
+        String[] forClassTieds() default {};
+
+        String[] forFunTieds() default {};
     }
 
     /**

@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 public interface DBSource
 {
     DBSource newInstance();
+    DBSource newInstance(ConfigToDo configToDo);
     /**
      * 新建一个条件
      *

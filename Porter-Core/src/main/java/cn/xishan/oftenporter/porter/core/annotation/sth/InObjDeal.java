@@ -130,6 +130,7 @@ public class InObjDeal
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
         List<Name> neceNames = new ArrayList<>();
+        List<_Nece> neceDeals = new ArrayList<>();
         List<Field> unneces = new ArrayList<>();
         List<Name> unneceNames = new ArrayList<>();
 
@@ -150,6 +151,7 @@ public class InObjDeal
             {
                 nameStr = nece.getValue();
                 nameList = neceNames;
+                neceDeals.add(nece);
                 fieldList = neces;
             } else if ((unNece = annotationDealt.unNece(field)) != null)
             {
@@ -192,7 +194,7 @@ public class InObjDeal
 
         }
         one = new One(clazz,
-                new InNames(neceNames.toArray(new Name[0]), unneceNames.toArray(new Name[0]), null),
+                new InNames(neceNames.toArray(new Name[0]),neceDeals.toArray(new _Nece[0]), unneceNames.toArray(new Name[0]), null),
                 neces.toArray(new Field[0]), unneces.toArray(new Field[0]));
 
 

@@ -40,6 +40,14 @@ public abstract class DBSourceImpl implements DBSource, Cloneable
 
 
     @Override
+    public DBSource newInstance(ConfigToDo configToDo)
+    {
+        DBSourceImpl dbSource = (DBSourceImpl) newInstance();
+        dbSource.configToDo = configToDo;
+        return dbSource;
+    }
+
+    @Override
     public DBSource newInstance()
     {
 

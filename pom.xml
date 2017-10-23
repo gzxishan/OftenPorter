@@ -119,7 +119,6 @@
             </plugin>
             <!--
             注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。
-            -->
 
             <plugin>
                 <groupId>net.orfjackal.retrolambda</groupId>
@@ -134,7 +133,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+            -->
 
             <plugin>
                 <groupId>com.github.wvengen</groupId>
