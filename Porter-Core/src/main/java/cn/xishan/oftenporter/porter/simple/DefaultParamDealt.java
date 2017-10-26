@@ -1,9 +1,11 @@
 package cn.xishan.oftenporter.porter.simple;
 
+import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.Map;
+
 import cn.xishan.oftenporter.porter.core.base.InNames.Name;
 
 /**
@@ -13,7 +15,8 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
 public class DefaultParamDealt implements ParamDealt
 {
     @Override
-    public FailedReason deal(Name[] names, Object[] values, boolean isNecessary, ParamSource paramSource,
+    public FailedReason deal(WObject wObject, Name[] names, _Nece[] neceDeals, Object[] values, boolean isNecessary,
+            ParamSource paramSource,
             TypeParserStore typeParserStore)
     {
         for (int i = 0; i < names.length; i++)
@@ -29,7 +32,7 @@ public class DefaultParamDealt implements ParamDealt
                 {
                     values[i] = value;
                 }
-            } else if (isNecessary)
+            } else if (isNecessary && (neceDeals == null || neceDeals[i].isNece(wObject)))
             {
                 return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
             }

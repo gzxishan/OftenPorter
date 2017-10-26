@@ -27,7 +27,7 @@ import java.io.IOException;
  * =value1
  * &name2=value2...]
  * <pre>
- *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符,x可含"/")的形式
+ *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符,x可含"/")的形式,如"/op-porter/*"
  *     初始参数有：
  *     pname:框架实例名称，默认为"WMainServlet".
  *     responseWhenException:默认为true。

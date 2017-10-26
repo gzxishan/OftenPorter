@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -22,13 +24,17 @@ public interface ParamDealt
      * 进行参数处理
      *
      * @param names           参数名称
+     * @param neceDeals       如果不为null，可以通过{@linkplain _Nece#isNece(WObject)}来判断是否最终为必需参数。
      * @param values          用于放参数值
      * @param isNecessary     是否是必须参数
      * @param paramSource     参数原
      * @param typeParserStore 类型转换store
      * @return 转换成功返回null，否则返回对应的错误原因。
      */
-    FailedReason deal(InNames.Name[] names, Object[] values, boolean isNecessary, ParamSource paramSource,
+
+    FailedReason deal(@MayNull WObject wObject, InNames.Name[] names, @MayNull _Nece[] neceDeals, Object[] values,
+            boolean isNecessary,
+            ParamSource paramSource,
             TypeParserStore typeParserStore);
 
 

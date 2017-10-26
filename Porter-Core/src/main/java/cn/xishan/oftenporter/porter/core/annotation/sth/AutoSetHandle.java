@@ -508,8 +508,8 @@ public class AutoSetHandle {
      * @throws IllegalAccessException
      */
     private Object genObjectOfAutoSet(AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
-                                      Field field) throws InvocationTargetException,
-            NoSuchMethodException, InstantiationException, IllegalAccessException, FatalInitException {
+                                      Field field) throws Exception
+    {
         Class<? extends AutoSetGen> genClass = autoSet.gen();
         String option = autoSet.option();
         if (genClass.equals(AutoSetGen.class)) {
@@ -536,8 +536,8 @@ public class AutoSetHandle {
     private Object dealtAutoSet(AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
                                 Object currentObject,
                                 Field field,
-                                Object value) throws InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException, FatalInitException {
+                                Object value) throws Exception
+    {
         Class<? extends AutoSetDealt> autoSetDealtClass = autoSet.dealt();
         String option = autoSet.option();
         if (autoSetDealtClass.equals(AutoSetDealt.class)) {

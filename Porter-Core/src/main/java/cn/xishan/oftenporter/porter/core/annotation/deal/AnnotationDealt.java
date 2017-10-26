@@ -23,13 +23,15 @@ import java.util.List;
  */
 @PortIn
 @PortIn.MinxinOnly
-public final class AnnotationDealt {
+public final class AnnotationDealt
+{
     private boolean enableDefaultValue;
 
 
     private final Logger LOGGER;
 
-    private AnnotationDealt(boolean enableDefaultValue) {
+    private AnnotationDealt(boolean enableDefaultValue)
+    {
         this.enableDefaultValue = enableDefaultValue;
         LOGGER = LogUtil.logger(AnnotationDealt.class);
     }
@@ -37,34 +39,43 @@ public final class AnnotationDealt {
     /**
      * @param enableDefaultValue 是否允许{@linkplain PortIn#value()}取默认值。
      */
-    public static AnnotationDealt newInstance(boolean enableDefaultValue) {
+    public static AnnotationDealt newInstance(boolean enableDefaultValue)
+    {
         return new AnnotationDealt(enableDefaultValue);
     }
 
-    public List<_PortFilterOne> portAfters(Class<?> clazz, String currentContext, String currentClassTied) {
+    public List<_PortFilterOne> portAfters(Class<?> clazz, String currentContext, String currentClassTied)
+    {
         List<_PortFilterOne> list = new ArrayList<>();
-        if (clazz.isAnnotationPresent(PortIn.After.class)) {
+        if (clazz.isAnnotationPresent(PortIn.After.class))
+        {
             PortIn.After after = clazz.getAnnotation(PortIn.After.class);
             list.add(portAfter(after, currentContext, currentClassTied));
         }
-        if (clazz.isAnnotationPresent(PortIn.Filter.class)) {
+        if (clazz.isAnnotationPresent(PortIn.Filter.class))
+        {
             PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
-            for (PortIn.After after : filter.after()) {
+            for (PortIn.After after : filter.after())
+            {
                 list.add(portAfter(after, currentContext, currentClassTied));
             }
         }
         return list;
     }
 
-    public List<_PortFilterOne> portAfters(Method method, String currentContext, String currentClassTied) {
+    public List<_PortFilterOne> portAfters(Method method, String currentContext, String currentClassTied)
+    {
         List<_PortFilterOne> list = new ArrayList<>();
-        if (method.isAnnotationPresent(PortIn.After.class)) {
+        if (method.isAnnotationPresent(PortIn.After.class))
+        {
             PortIn.After after = method.getAnnotation(PortIn.After.class);
             list.add(portAfter(after, currentContext, currentClassTied));
         }
-        if (method.isAnnotationPresent(PortIn.Filter.class)) {
+        if (method.isAnnotationPresent(PortIn.Filter.class))
+        {
             PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
-            for (PortIn.After after : filter.after()) {
+            for (PortIn.After after : filter.after())
+            {
                 list.add(portAfter(after, currentContext, currentClassTied));
             }
         }
@@ -72,10 +83,11 @@ public final class AnnotationDealt {
     }
 
     public _SyncPorterOption syncPorterOption(Field field,
-                                              PorterParamGetterImpl porterParamGetter) throws FatalInitException
+            PorterParamGetterImpl porterParamGetter) throws FatalInitException
 
     {
-        if (field.isAnnotationPresent(SyncPorterOption.class)) {
+        if (field.isAnnotationPresent(SyncPorterOption.class))
+        {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
@@ -89,7 +101,8 @@ public final class AnnotationDealt {
 
             return syncPorterOption;
 
-        } else {
+        } else
+        {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
 
             String context = porterParamGetter.getContext();
@@ -105,7 +118,8 @@ public final class AnnotationDealt {
 
     }
 
-    private _PortFilterOne portAfter(PortIn.After after, String currentContext, String currentClassTied) {
+    private _PortFilterOne portAfter(PortIn.After after, String currentContext, String currentClassTied)
+    {
         String context = after.context().equals("") ? currentContext : after.context();
         String classTied = after.classTied().equals("") ? currentClassTied : after.classTied();
         PortUtil.checkName(context);
@@ -116,37 +130,46 @@ public final class AnnotationDealt {
         return portAfter;
     }
 
-    public List<_PortFilterOne> portBefores(Class<?> clazz, String currentContext, String currentClassTied) {
+    public List<_PortFilterOne> portBefores(Class<?> clazz, String currentContext, String currentClassTied)
+    {
         List<_PortFilterOne> list = new ArrayList<>();
-        if (clazz.isAnnotationPresent(PortIn.Before.class)) {
+        if (clazz.isAnnotationPresent(PortIn.Before.class))
+        {
             PortIn.Before before = clazz.getAnnotation(PortIn.Before.class);
             list.add(portBefore(before, currentContext, currentClassTied));
         }
-        if (clazz.isAnnotationPresent(PortIn.Filter.class)) {
+        if (clazz.isAnnotationPresent(PortIn.Filter.class))
+        {
             PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
-            for (PortIn.Before before : filter.before()) {
+            for (PortIn.Before before : filter.before())
+            {
                 list.add(portBefore(before, currentContext, currentClassTied));
             }
         }
         return list;
     }
 
-    public List<_PortFilterOne> portBefores(Method method, String currentContext, String currentClassTied) {
+    public List<_PortFilterOne> portBefores(Method method, String currentContext, String currentClassTied)
+    {
         List<_PortFilterOne> list = new ArrayList<>();
-        if (method.isAnnotationPresent(PortIn.Before.class)) {
+        if (method.isAnnotationPresent(PortIn.Before.class))
+        {
             PortIn.Before before = method.getAnnotation(PortIn.Before.class);
             list.add(portBefore(before, currentContext, currentClassTied));
         }
-        if (method.isAnnotationPresent(PortIn.Filter.class)) {
+        if (method.isAnnotationPresent(PortIn.Filter.class))
+        {
             PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
-            for (PortIn.Before before : filter.before()) {
+            for (PortIn.Before before : filter.before())
+            {
                 list.add(portBefore(before, currentContext, currentClassTied));
             }
         }
         return list;
     }
 
-    private _PortFilterOne portBefore(PortIn.Before before, String currentContext, String currentClassTied) {
+    private _PortFilterOne portBefore(PortIn.Before before, String currentContext, String currentClassTied)
+    {
         String context = before.context().equals("") ? currentContext : before.context();
         String classTied = before.classTied().equals("") ? currentClassTied : before.classTied();
         PortUtil.checkName(context);
@@ -159,9 +182,11 @@ public final class AnnotationDealt {
     }
 
 
-    public _AutoSet autoSet(Field field) {
+    public _AutoSet autoSet(Field field)
+    {
         AutoSet autoSet = field.getAnnotation(AutoSet.class);
-        if (autoSet == null) {
+        if (autoSet == null)
+        {
             return null;
         }
         _AutoSet _autoSet = new _AutoSet();
@@ -171,50 +196,71 @@ public final class AnnotationDealt {
         return _autoSet;
     }
 
-    public _Nece nece(Field field) {
+    public _Nece nece(Field field)
+    {
         PortInObj.Nece nece = field.getAnnotation(PortInObj.Nece.class);
-        if (nece == null) {
+        if (nece == null)
+        {
             return null;
         }
         _Nece _nece = new _Nece();
-        if ("".equals(nece.value())) {
+        if ("".equals(nece.value()))
+        {
             _nece.value = field.getName();
-        } else {
+        } else
+        {
             _nece.value = nece.value();
         }
+        _nece.forNece = nece.forNece();
+        _nece.forMethods = nece.forMethods();
+        _nece.forClassTieds = nece.forClassTieds();
+        _nece.forFunTieds = nece.forFunTieds();
+
+        _nece.init();
         return _nece;
     }
 
-    public _UnNece unNece(Field field) {
+    public _UnNece unNece(Field field)
+    {
         PortInObj.UnNece unNece = field.getAnnotation(PortInObj.UnNece.class);
-        if (unNece == null) {
+        if (unNece == null)
+        {
             return null;
         }
         _UnNece _unNece = new _UnNece();
-        if ("".equals(unNece.value())) {
+        if ("".equals(unNece.value()))
+        {
             _unNece.value = field.getName();
-        } else {
+        } else
+        {
             _unNece.value = unNece.value();
         }
         return _unNece;
     }
 
-    public _PortInObj portInObj(PortInObjBind.ObjList objList, Method method) {
+    public _PortInObj portInObj(PortInObjBind.ObjList objList, Method method)
+    {
         List<Class> classList = new ArrayList<>();
 
         PortInObj portInObj = AnnoUtil.getAnnotation(method, PortInObj.class);
-        if (portInObj != null) {
+        if (portInObj != null)
+        {
             WPTool.addAll(classList, portInObj.value());
         }
 
 
-        if (objList != null) {
+        if (objList != null)
+        {
             PortInObjBind portInObjBind = AnnoUtil.getAnnotation(method, PortInObjBind.class);
-            if (portInObjBind != null) {
+            if (portInObjBind != null)
+            {
                 String[] bindNames = portInObjBind.value();
-                for (int i = 0; i < bindNames.length; i++) {
-                    for (PortInObjBind.Obj obj : objList.value()) {
-                        if (obj.name().equals(bindNames[i])) {
+                for (int i = 0; i < bindNames.length; i++)
+                {
+                    for (PortInObjBind.Obj obj : objList.value())
+                    {
+                        if (obj.name().equals(bindNames[i]))
+                        {
                             classList.add(obj.clazz());
                             break;
                         }
@@ -223,7 +269,8 @@ public final class AnnotationDealt {
             }
         }
 
-        if (classList.size() == 0) {
+        if (classList.size() == 0)
+        {
             return null;
         }
 
@@ -233,9 +280,11 @@ public final class AnnotationDealt {
 
     }
 
-    public _PortInObj portInObj(Class<?> clazz) {
+    public _PortInObj portInObj(Class<?> clazz)
+    {
         PortInObj portInObj = clazz.getAnnotation(PortInObj.class);
-        if (portInObj == null) {
+        if (portInObj == null)
+        {
             return null;
         }
         _PortInObj _portInObj = new _PortInObj();
@@ -243,38 +292,47 @@ public final class AnnotationDealt {
         return _portInObj;
     }
 
-    public _Parser parser(Method method) {
+    public _Parser parser(Method method)
+    {
         return to_parser(AnnoUtil.getAnnotation(method, Parser.class));
     }
 
-    public _Parser parser(Class<?> clazz) {
+    public _Parser parser(Class<?> clazz)
+    {
         return to_parser(clazz.getAnnotation(Parser.class));
     }
 
-    private _Parser to_parser(Parser parser) {
-        if (parser == null) {
+    private _Parser to_parser(Parser parser)
+    {
+        if (parser == null)
+        {
             return null;
         }
         _Parser _parser = new _Parser();
         _parse[] ps = new _parse[parser.value().length];
         int i = 0;
-        for (Parser.parse p : parser.value()) {
+        for (Parser.parse p : parser.value())
+        {
             ps[i++] = to_parse(p);
         }
         _parser._parses = ps;
         return _parser;
     }
 
-    public _parse parse(Method method) {
+    public _parse parse(Method method)
+    {
         return to_parse(AnnoUtil.getAnnotation(method, Parser.parse.class));
     }
 
-    public _parse parse(Field field) {
+    public _parse parse(Field field)
+    {
         return to_parse(field.getAnnotation(Parser.parse.class));
     }
 
-    private _parse to_parse(Parser.parse parse) {
-        if (parse == null) {
+    private _parse to_parse(Parser.parse parse)
+    {
+        if (parse == null)
+        {
             return null;
         }
         _parse _p = new _parse();
@@ -284,13 +342,16 @@ public final class AnnotationDealt {
         return _p;
     }
 
-    public _parse parse(Class<?> clazz) {
+    public _parse parse(Class<?> clazz)
+    {
         return to_parse(clazz.getAnnotation(Parser.parse.class));
     }
 
-    public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter) {
+    public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter)
+    {
         PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
-        if (portDestroy == null) {
+        if (portDestroy == null)
+        {
             return null;
         }
         _PortDestroy _portDestroy = new _PortDestroy();
@@ -300,9 +361,11 @@ public final class AnnotationDealt {
         return _portDestroy;
     }
 
-    public _PortStart portStart(Method method, ObjectGetter objectGetter) {
+    public _PortStart portStart(Method method, ObjectGetter objectGetter)
+    {
         PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
-        if (portStart == null) {
+        if (portStart == null)
+        {
             return null;
         }
         _PortStart _portStart = new _PortStart();
@@ -311,34 +374,44 @@ public final class AnnotationDealt {
         return _portStart;
     }
 
-    public _PortOut portOut(Porter classPorter, Method method, OutType defaultPoutType) {
+    public _PortOut portOut(Porter classPorter, Method method, OutType defaultPoutType)
+    {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (portOut == null) {
+        if (portOut == null)
+        {
             portOut = classPorter.getPortOut();
         }
-        if (portOut == null && defaultPoutType != null) {
+        if (portOut == null && defaultPoutType != null)
+        {
             _portOut.outType = defaultPoutType;
-        } else if (portOut != null) {
+        } else if (portOut != null)
+        {
             _portOut.outType = portOut.value();
-        } else if (method.getReturnType().equals(Void.TYPE)) {
+        } else if (method.getReturnType().equals(Void.TYPE))
+        {
             _portOut.outType = OutType.NO_RESPONSE;
-        } else {
+        } else
+        {
             _portOut.outType = OutType.AUTO;
         }
         return _portOut;
     }
 
 
-    public _PortIn portIn(Class<?> clazz) {
+    public _PortIn portIn(Class<?> clazz)
+    {
         return portIn(clazz, false);
     }
 
-    public _PortIn portIn(Class<?> clazz, boolean isMixin) {
+    public _PortIn portIn(Class<?> clazz, boolean isMixin)
+    {
         PortIn portIn = clazz.getAnnotation(PortIn.class);
-        if (portIn == null && isMixin) {
+        if (portIn == null && isMixin)
+        {
             portIn = AnnotationDealt.class.getAnnotation(PortIn.class);
-        } else if (portIn == null || (!isMixin && clazz.isAnnotationPresent(PortIn.MinxinOnly.class))) {
+        } else if (portIn == null || (!isMixin && clazz.isAnnotationPresent(PortIn.MinxinOnly.class)))
+        {
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(), portIn.ignoredFunTieds());
@@ -350,7 +423,8 @@ public final class AnnotationDealt {
         _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
 
-        if (LOGGER.isDebugEnabled() && !isMixin) {
+        if (LOGGER.isDebugEnabled() && !isMixin)
+        {
             LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedNames, _portIn.getTiedType(),
                     _portIn.methods);
         }
@@ -358,10 +432,12 @@ public final class AnnotationDealt {
         return _portIn;
     }
 
-    public _PortIn portIn(Method method, _PortIn class_PortIn) {
+    public _PortIn portIn(Method method, _PortIn class_PortIn)
+    {
         _PortIn _portInOfMethod = null;
         PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
-        if (portIn != null) {
+        if (portIn != null)
+        {
 //            Class<?>[] parameters = method.getParameterTypes();
 //            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
 //            {
@@ -371,9 +447,11 @@ public final class AnnotationDealt {
                     portIn.ignoredFunTieds());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
 
-            if (_portInOfMethod.getTiedType().isRest()) {
+            if (_portInOfMethod.getTiedType().isRest())
+            {
                 _portInOfMethod.tiedNames = new String[]{""};
-            } else {
+            } else
+            {
                 _portInOfMethod.tiedNames = PortUtil
                         .tieds(portIn, method, enableDefaultValue);
             }
@@ -388,11 +466,13 @@ public final class AnnotationDealt {
         return _portInOfMethod;
     }
 
-    public void setClassTiedName(_PortIn portIn, String tiedName) {
+    public void setClassTiedName(_PortIn portIn, String tiedName)
+    {
         portIn.setTiedNames(new String[]{tiedName});
     }
 
-    public void setTiedType(_PortIn portIn, TiedType tiedType) {
+    public void setTiedType(_PortIn portIn, TiedType tiedType)
+    {
         portIn.setTiedType(tiedType);
     }
 }

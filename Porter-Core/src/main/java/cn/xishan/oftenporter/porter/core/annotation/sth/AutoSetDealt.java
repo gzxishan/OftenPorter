@@ -21,5 +21,5 @@ public interface AutoSetDealt
     Object deal(@MayNull("设置静态字段时为null") Object finalObject, Class<?> currentObjectClass,
             @MayNull("设置静态字段时为null") Object currentObject,
             Field field,
-            @MayNull Object fieldValue, String option);
+            @MayNull Object fieldValue, String option)throws Exception;
 }

@@ -379,7 +379,7 @@ public class PortExecutor
         {
             One one = ones[i];
             Object object = portUtil
-                    .paramDealOne(ignoreTypeParser, context.innerContextBridge.paramDealt, one,
+                    .paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt, one,
                             wObjectImpl.getParamSource(),
                             currentTypeParserStore);
             if (object instanceof ParamDealt.FailedReason)
@@ -486,7 +486,8 @@ public class PortExecutor
 
         //类参数处理
         ParamDealt.FailedReason failedReason = portUtil
-                .paramDeal(clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn, wObject.cu,
+                .paramDeal(wObject, clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn,
+                        wObject.cu,
                         wObject.getParamSource(),
                         typeParserStore);
         if (failedReason != null)
@@ -618,7 +619,8 @@ public class PortExecutor
         //函数参数处理
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
         ParamDealt.FailedReason failedReason = portUtil
-                .paramDeal(funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn, wObject.fu,
+                .paramDeal(wObject, funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn,
+                        wObject.fu,
                         wObject.getParamSource(),
                         typeParserStore);
         if (failedReason != null)
