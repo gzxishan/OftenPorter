@@ -24,11 +24,12 @@ public class _JsInterface
 
     public AdvancedExecutor sqlExecutor(String sql)
     {
-        return _sqlExecutor(sql,ZERO_ARGS);
+        return _sqlExecutor(sql, ZERO_ARGS);
     }
+
     public AdvancedExecutor sqlExecutor(String sql, Object[] args)
     {
-        return _sqlExecutor(sql,args);
+        return _sqlExecutor(sql, args);
     }
 
     static AdvancedExecutor _sqlExecutor(String sql, Object[] args)
@@ -38,17 +39,41 @@ public class _JsInterface
 
     public AdvancedQuery sqlQuery(String sql)
     {
-        return _sqlQuery(sql,ZERO_ARGS);
+        return _sqlQuery(sql, ZERO_ARGS);
     }
 
     public AdvancedQuery sqlQuery(String sql, Object[] args)
     {
-        return _sqlQuery(sql,args);
+        return _sqlQuery(sql, args);
     }
 
     static AdvancedQuery _sqlQuery(String sql, Object[] args)
     {
         //JSqlArgs jSqlArgs = _sqlArgs(sql, argsObj);
+
+        int n = 0;
+        int len = sql.length();
+        for (int i = 0; i < len; i++)
+        {
+            if (sql.charAt(i) == '?')
+            {
+                n++;
+            }
+        }
+
+        if (n != args.length)
+        {
+            Object[] objects = new Object[n];
+            if (n > args.length)
+            {
+                System.arraycopy(args, 0, objects, 0, args.length);
+            } else
+            {
+                System.arraycopy(args, 0, objects, 0, n);
+            }
+            args = objects;
+        }
+
         AdvancedQuery advancedQuery = new SqlAdvancedQuery(new SqlUtil.WhereSQL(sql, args));
         return advancedQuery;
     }

@@ -10,7 +10,9 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
  *     ON_GLOBAL---ON_CONTEXT--ON_CLASS---BEFORE_METHOD---ON_METHOD---AFTER_METHOD
  *                                                                |___ON_METHOD_EXCEPTION
  * </pre>
- *
+ *  <pre>
+ *      见:{@linkplain PorterConf#addContextCheck(CheckPassable)},{@linkplain PorterConf#addForAllCheckPassable(CheckPassable)}
+ *  </pre>
  * @author Created by https://github.com/CLovinr on 2016/10/3.
  */
 public enum DuringType
