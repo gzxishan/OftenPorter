@@ -198,7 +198,7 @@ public @interface PortIn
     PortMethod method() default PortMethod.DEFAULT;
 
     /**
-     * 是否忽略类型转换。默认为false。当为true时，将跳过{@linkplain cn.xishan.oftenporter.porter.core.base.ITypeParser}转换。
+     * 是否忽略所在类（或函数）的类型转换，默认为false。当为true时，将跳过{@linkplain cn.xishan.oftenporter.porter.core.base.ITypeParser}转换。
      *
      * @return
      */
