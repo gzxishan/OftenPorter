@@ -49,7 +49,7 @@ public @interface PortInObj
         /**
          * <pre>
          *     若当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()} ()}中,或以上都为空时。
-         *     1.为true时：注解的变量任然为必需参数。
+         *     1.为true时：注解的变量仍然为必需参数。
          *     2.为false时：注解的变量变为非必需参数。
          * </pre>
          *

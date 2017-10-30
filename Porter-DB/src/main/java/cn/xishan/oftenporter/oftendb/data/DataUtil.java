@@ -34,13 +34,7 @@ public class DataUtil
      */
     public static NameValues toNameValues(Object object)
     {
-        try
-        {
-            return toNameValues(object, true);
-        } catch (IllegalAccessException e)
-        {
-            throw new RuntimeException(e);
-        }
+        return toNameValues(object, true);
     }
 
     /**
@@ -48,9 +42,20 @@ public class DataUtil
      * @param isExcept
      * @param keyNames
      * @return
-     * @throws IllegalAccessException
      */
     public static NameValues toNameValues(Object object, boolean isExcept,
+            String... keyNames)
+    {
+        try
+        {
+            return _toNameValues(object, isExcept, keyNames);
+        } catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static NameValues _toNameValues(Object object, boolean isExcept,
             String... keyNames) throws IllegalAccessException
     {
         Field[] fields = WPTool.getAllFields(object.getClass());
@@ -418,6 +423,7 @@ public class DataUtil
 
     /**
      * 返回表名，会去掉Porter、Unit、UnitApi、Dao等后缀。
+     *
      * @param tablePrefix
      * @param configed
      * @return

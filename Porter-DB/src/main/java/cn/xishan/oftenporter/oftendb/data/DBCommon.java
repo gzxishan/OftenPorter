@@ -417,7 +417,7 @@ public class DBCommon {
         try {
             nameValues = DataUtil.toNameValues(object, true, excepts);
             return updateData(wObject, dbSource, condition, nameValues);
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setExCause(e);
             return jResponse;

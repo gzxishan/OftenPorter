@@ -736,6 +736,9 @@ public class PortExecutor
                         }
                     }
                 }
+                if(outType==OutType.SUCCESS){
+                    returnObject=JResponse.success(null);
+                }
                 doState = PortBeforeAfterDealt.DoState.DoMethodCheck;
             }
 
