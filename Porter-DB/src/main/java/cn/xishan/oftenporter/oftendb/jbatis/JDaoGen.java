@@ -96,7 +96,12 @@ class JDaoGen implements AutoSetGen
                 }
             } else
             {
-                optionDir = path;
+                optionDir = "/" + currentObjectClass.getPackage().getName().replace('.', '/');
+                optionDir = PackageUtil.getPathWithRelative('/', optionDir, path, "/");
+                if (!optionDir.startsWith("/"))
+                {
+                    optionDir = "/" + optionDir;
+                }
             }
 
             if (jDaoPath.fieldName())
