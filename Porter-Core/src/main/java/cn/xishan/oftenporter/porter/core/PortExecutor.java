@@ -902,6 +902,7 @@ public class PortExecutor
             case NO_RESPONSE:
                 break;
             case OBJECT:
+            case SUCCESS:
                 responseObject(wObject, porterOfFun, rs, true);
                 break;
             case AUTO:
