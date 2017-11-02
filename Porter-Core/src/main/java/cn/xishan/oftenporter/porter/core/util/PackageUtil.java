@@ -263,6 +263,9 @@ public class PackageUtil
         File file = new File(filePath);
 
         File[] childFiles = file.listFiles();
+        if(childFiles==null){
+            return myClassName;
+        }
         for (File childFile : childFiles)
         {
             if (childFile.isDirectory())

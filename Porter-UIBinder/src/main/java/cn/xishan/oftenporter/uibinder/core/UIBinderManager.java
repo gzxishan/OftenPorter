@@ -88,7 +88,7 @@ public class UIBinderManager implements BinderDataSender
         this.fireBlock = fireBlock;
     }
 
-    public FireBlock getFireBlock()
+    public synchronized FireBlock getFireBlock()
     {
         return fireBlock;
     }

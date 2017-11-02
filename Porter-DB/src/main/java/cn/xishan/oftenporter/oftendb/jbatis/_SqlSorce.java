@@ -153,6 +153,8 @@ public class _SqlSorce
                 return jsonObject;
             } else
             {
+                rs.close();
+                WPTool.close(ps);
                 WPTool.close(conn);
                 return null;
             }

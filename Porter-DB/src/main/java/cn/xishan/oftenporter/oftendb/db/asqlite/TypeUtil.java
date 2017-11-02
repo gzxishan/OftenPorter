@@ -116,9 +116,11 @@ class TypeUtil
             @Override
             public void put(String name, Object value, ContentValues contentValues)
             {
-                if(value==null){
+                if (value == null)
+                {
                     contentValues.put(name, (String) null);
-                }else{
+                } else
+                {
                     contentValues.put(name, String.valueOf(value));
                 }
             }
@@ -156,7 +158,7 @@ class TypeUtil
                 File file = (File) value;
                 try
                 {
-                    contentValues.put(name, FileTool.getData(file,1024));
+                    contentValues.put(name, FileTool.getData(file, 1024));
                 } catch (IOException e)
                 {
                     throw new DBException(e);
@@ -218,9 +220,11 @@ class TypeUtil
             @Override
             public void put(String name, Object value, StatementObj statementObj)
             {
-                if(value==null){
-                    statementObj.sqLiteStatement.bindString(statementObj.index, (String) value);
-                }else{
+                if (value == null)
+                {
+                    statementObj.sqLiteStatement.bindString(statementObj.index, null);
+                } else
+                {
                     statementObj.sqLiteStatement.bindString(statementObj.index, String.valueOf(value));
                 }
             }

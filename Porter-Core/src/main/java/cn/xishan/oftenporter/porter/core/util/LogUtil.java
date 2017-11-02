@@ -12,32 +12,39 @@ import java.util.*;
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class LogUtil {
+public class LogUtil
+{
 
-    public final static class LogKey {
+    public final static class LogKey
+    {
         private Thread thread;
         private String key;
 
-        private LogKey() {
+        private LogKey()
+        {
             this.thread = Thread.currentThread();
         }
 
         /**
          * 当前线程。
          */
-        public LogKey(String key) {
+        public LogKey(String key)
+        {
             this.key = key;
             this.thread = Thread.currentThread();
         }
 
         @Override
-        public int hashCode() {
+        public int hashCode()
+        {
             return thread.hashCode();
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (obj == null || !(obj instanceof LogKey)) {
+        public boolean equals(Object obj)
+        {
+            if (obj == null || !(obj instanceof LogKey))
+            {
                 return false;
             }
             LogKey logKey = (LogKey) obj;
@@ -46,7 +53,8 @@ public class LogUtil {
         }
     }
 
-    public interface OnGetLoggerListener {
+    public interface OnGetLoggerListener
+    {
         Logger getLogger(String name);
     }
 
@@ -54,23 +62,28 @@ public class LogUtil {
     public static boolean isDefaultLogger = true;
     private static OnGetLoggerListener defaultOnGetLoggerListener = name -> LoggerFactory.getLogger(name);
 
-    public synchronized static void setDefaultOnGetLoggerListener(OnGetLoggerListener defaultOnGetLoggerListener) {
+    public synchronized static void setDefaultOnGetLoggerListener(OnGetLoggerListener defaultOnGetLoggerListener)
+    {
         LogUtil.defaultOnGetLoggerListener = defaultOnGetLoggerListener;
     }
 
-    public synchronized static Logger logger(Class<?> clazz) {
+    public synchronized static Logger logger(Class<?> clazz)
+    {
         Logger logger = logger(clazz.getName());
         return logger;
     }
 
-    public synchronized static Logger logger(String name) {
+    public synchronized static Logger logger(String name)
+    {
         LogKey logKey = new LogKey();
 
         OnGetLoggerListener onGetLogger = isDefaultLogger ? defaultOnGetLoggerListener : onGetLoggerMap.get(logKey);
-        if (onGetLogger == null) {
+        if (onGetLogger == null)
+        {
             onGetLogger = defaultOnGetLoggerListener;
         }
-        if (onGetLogger == null) {
+        if (onGetLogger == null)
+        {
             throw new RuntimeException(OnGetLoggerListener.class.getName() + " is null!");
         }
         Logger logger = onGetLogger.getLogger(name);
@@ -79,50 +92,64 @@ public class LogUtil {
     }
 
     public synchronized static void setOrRemoveOnGetLoggerListener(LogKey logKey,
-                                                                   OnGetLoggerListener onGetLoggerListener) {
-        if (onGetLoggerMap.containsKey(logKey)) {
-            for (LogKey key : onGetLoggerMap.keySet()) {
-                if (key.equals(logKey)) {
-                    if (!logKey.key.equals(key.key)) {
+            OnGetLoggerListener onGetLoggerListener)
+    {
+        if (onGetLoggerMap.containsKey(logKey))
+        {
+            for (LogKey key : onGetLoggerMap.keySet())
+            {
+                if (key.equals(logKey))
+                {
+                    if (!logKey.key.equals(key.key))
+                    {
                         throw new RuntimeException("can not set " + OnGetLoggerListener.class + "!");
                     }
                     break;
                 }
             }
         }
-        if (onGetLoggerListener == null) {
+        if (onGetLoggerListener == null)
+        {
             onGetLoggerMap.remove(logKey);
-        } else {
+        } else
+        {
             onGetLoggerMap.put(logKey, onGetLoggerListener);
         }
     }
 
     private static Map<String, Logger> loggerMap = new HashMap<>();
 
-    public static synchronized Logger logger(WObject wObject, Class<?> clazz) {
-        if(isDefaultLogger){
+    public static synchronized Logger logger(WObject wObject, Class<?> clazz)
+    {
+        if (isDefaultLogger)
+        {
             return defaultOnGetLoggerListener.getLogger(clazz.getName());
         }
         StringBuilder builder = new StringBuilder();
         builder.append(clazz.getName());
         PName pName = wObject.getPName();
-        if (pName != null) {
+        if (pName != null)
+        {
             builder.append(".").append(pName.getName());
         }
         UrlDecoder.Result result = wObject.url();
-        if (WPTool.notNullAndEmpty(result.contextName())) {
+        if (WPTool.notNullAndEmpty(result.contextName()))
+        {
             builder.append(".").append(result.contextName());
         }
-        if (WPTool.notNullAndEmpty(result.classTied())) {
+        if (WPTool.notNullAndEmpty(result.classTied()))
+        {
             builder.append(".").append(result.classTied());
         }
-        if (WPTool.notNullAndEmpty(result.funTied())) {
+        if (WPTool.notNullAndEmpty(result.funTied()))
+        {
             builder.append(".").append(result.funTied());
         }
 
         String key = builder.toString();
         Logger logger = loggerMap.get(key);
-        if (logger == null) {
+        if (logger == null)
+        {
             logger = LoggerFactory.getLogger(key);
             loggerMap.put(key, logger);
         }
@@ -135,7 +162,8 @@ public class LogUtil {
      *
      * @return
      */
-    public static String getCodePos() {
+    public static String getCodePos()
+    {
         return getCodePos(2);
     }
 
@@ -145,21 +173,25 @@ public class LogUtil {
      * @param n
      * @return
      */
-    public static String getCodePos(int n) {
+    public static String getCodePos(int n)
+    {
         StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
         StackTraceElement stackTraceElement = stacks[n + 1];
-        if (stackTraceElement.getClassName().equals(LogUtil.class.getName())) {
+        if (stackTraceElement.getClassName().equals(LogUtil.class.getName()))
+        {
             stackTraceElement = stacks[n + 2];
         }
         return toString(stackTraceElement);
     }
 
-    public static String toString(StackTraceElement stackTraceElement) {
+    public static String toString(StackTraceElement stackTraceElement)
+    {
         StringBuilder sb = new StringBuilder();
         String name = stackTraceElement.getClassName();
         name = name.substring(name.lastIndexOf('.') + 1);
         int index = name.indexOf('$');
-        if (index > 0) {
+        if (index > 0)
+        {
             name = name.substring(0, index);
         }
         sb.append("at ").append(stackTraceElement.getClassName()).append(".").append(stackTraceElement.getMethodName())
@@ -174,7 +206,8 @@ public class LogUtil {
      * @param n
      * @return
      */
-    public static Object[] methodAndClass(int n) {
+    public static Object[] methodAndClass(int n)
+    {
         StackTraceElement[] stacks = new Throwable().getStackTrace();
         StackTraceElement stackTraceElement = stacks[n];
         return new Object[]{stackTraceElement.getMethodName(), stackTraceElement.getClassName()};
@@ -183,17 +216,21 @@ public class LogUtil {
     /**
      * 打印当前位置
      */
-    public static void printPosLn(Object... objects) {
+    public static void printPosLn(Object... objects)
+    {
         System.out.println(getCodePos(2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.out.print(object);
         }
         System.out.println();
     }
 
-    public static void printPos(Object... objects) {
+    public static void printPos(Object... objects)
+    {
         System.out.print(getCodePos(2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.out.print(object);
         }
         System.out.println();
@@ -202,17 +239,21 @@ public class LogUtil {
     /**
      * 打印当前位置
      */
-    public static void printErrPosLn(Object... objects) {
+    public static void printErrPosLn(Object... objects)
+    {
         System.err.println(getCodePos(2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.err.print(object);
         }
         System.err.println();
     }
 
-    public static void printErrPos(Object... objects) {
+    public static void printErrPos(Object... objects)
+    {
         System.err.print(getCodePos(2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.err.print(object);
         }
         System.err.println();
@@ -224,9 +265,11 @@ public class LogUtil {
      * @param stack   0表示调用的地方，1表示上一个地方，依次类推。
      * @param objects
      */
-    public static void printErrPosLnS(int stack, Object... objects) {
+    public static void printErrPosLnS(int stack, Object... objects)
+    {
         System.err.println(getCodePos(stack + 2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.err.print(object);
         }
         System.err.println();
@@ -238,36 +281,24 @@ public class LogUtil {
      * @param stack
      * @param objects
      */
-    public static void printPosLnS(int stack, Object... objects) {
+    public static void printPosLnS(int stack, Object... objects)
+    {
         System.out.println(getCodePos(stack + 2));
-        for (Object object : objects) {
+        for (Object object : objects)
+        {
             System.out.print(object);
         }
         System.out.println();
     }
 
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
-            "yy/MM/dd HH:mm");
-
-    /**
-     * 设置时间格式化对象。
-     *
-     * @param simpleDateFormat
-     */
-    public static void setSimpleDateFormat(SimpleDateFormat simpleDateFormat) {
-        if (simpleDateFormat == null) {
-            throw new NullPointerException();
-        }
-        LogUtil.simpleDateFormat = simpleDateFormat;
-    }
-
     /**
      * 得到当前时间
      *
      * @return
      */
-    public static String getTime() {
+    public static String getTime()
+    {
         return getTime(Calendar.getInstance().getTime());
     }
 
@@ -276,7 +307,8 @@ public class LogUtil {
      * @param calendar
      * @return
      */
-    public static String getTime(Calendar calendar) {
+    public static String getTime(Calendar calendar)
+    {
         return getTime(calendar.getTime());
     }
 
@@ -284,9 +316,12 @@ public class LogUtil {
      * @param mills 毫秒数
      * @return
      */
-    public static String getTime(long mills) {
+    public static String getTime(long mills)
+    {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(mills);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+                "yy/MM/dd HH:mm");
         return simpleDateFormat.format(calendar.getTime());
     }
 
@@ -294,7 +329,10 @@ public class LogUtil {
      * @param date 日期对象
      * @return
      */
-    public static String getTime(Date date) {
+    public static String getTime(Date date)
+    {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+                "yy/MM/dd HH:mm");
         return simpleDateFormat.format(date);
     }
 }

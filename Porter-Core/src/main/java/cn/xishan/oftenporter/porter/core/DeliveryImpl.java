@@ -10,7 +10,7 @@ class DeliveryImpl implements Delivery
 {
     private PLinker pLinker;
     private WObject wObject;
-    private PBridgeImpl toAll, current,inner;
+    private PBridgeImpl toAll, current, inner;
 
 
     public class PBridgeImpl implements PBridge
@@ -37,49 +37,31 @@ class DeliveryImpl implements Delivery
     }
 
     @Override
-    public PBridge currentBridge()
+    public synchronized PBridge currentBridge()
     {
         if (current == null)
         {
-            synchronized (this)
-            {
-                if (current == null)
-                {
-                    current = new PBridgeImpl(pLinker.currentBridge());
-                }
-            }
+            current = new PBridgeImpl(pLinker.currentBridge());
         }
         return current;
     }
 
     @Override
-    public PBridge innerBridge()
+    public synchronized PBridge innerBridge()
     {
         if (inner == null)
         {
-            synchronized (this)
-            {
-                if (inner == null)
-                {
-                    inner = new PBridgeImpl(pLinker.innerBridge());
-                }
-            }
+            inner = new PBridgeImpl(pLinker.innerBridge());
         }
         return inner;
     }
 
     @Override
-    public PBridge toAllBridge()
+    public synchronized PBridge toAllBridge()
     {
         if (toAll == null)
         {
-            synchronized (this)
-            {
-                if (toAll == null)
-                {
-                    toAll = new PBridgeImpl(pLinker.toAllBridge());
-                }
-            }
+            toAll = new PBridgeImpl(pLinker.toAllBridge());
         }
         return toAll;
     }
