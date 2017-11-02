@@ -42,12 +42,12 @@ class PortExecutorCheckers extends CheckHandle {
     }
 
     private int currentIndex;
-    private boolean inAll;
+    private boolean inPorters;
     private WObject wObject;
     private DuringType duringType;
     private CheckPassable[] checkPassables;
     private CheckHandle handle;
-    private CheckPassable[] forAllChecksNotZeroLen;
+    private CheckPassable[] porterCheckPassables;
 
     private PorterOfFun porterOfFun;
 
@@ -60,7 +60,7 @@ class PortExecutorCheckers extends CheckHandle {
         this.duringType = duringType;
         this.checkPassables = checkPassables;
         if (context != null) {
-            this.forAllChecksNotZeroLen = context.forAllChecksNotZeroLen;
+            this.porterCheckPassables = context.porterCheckPassables;
         }
         this.handle = handle;
     }
@@ -91,20 +91,20 @@ class PortExecutorCheckers extends CheckHandle {
 
     public void check() {
         currentIndex = 0;
-        if (forAllChecksNotZeroLen != null) {
-            inAll = true;
-            checkForAll();
+        if (porterCheckPassables != null) {
+            inPorters = true;
+            checkForPorters();
         } else {
-            inAll = false;
+            inPorters = false;
             checkOne();
         }
     }
 
-    private void checkForAll() {
-        if (currentIndex < forAllChecksNotZeroLen.length) {
-            forAllChecksNotZeroLen[currentIndex++].willPass(wObject, duringType, this);
+    private void checkForPorters() {
+        if (currentIndex < porterCheckPassables.length) {
+            porterCheckPassables[currentIndex++].willPass(wObject, duringType, this);
         } else {
-            inAll = false;
+            inPorters = false;
             currentIndex = 0;
             checkOne();
         }
@@ -126,8 +126,8 @@ class PortExecutorCheckers extends CheckHandle {
                 failedObject = callException.theJResponse();
             }
             handle.go(failedObject);
-        } else if (inAll) {
-            checkForAll();
+        } else if (inPorters) {
+            checkForPorters();
         } else {
             checkOne();
         }

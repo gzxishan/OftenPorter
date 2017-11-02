@@ -44,7 +44,7 @@ public @interface JDaoPath
     /**
      * 默认为true。是否相对于{@linkplain JDaoOption JDaoOption}中的配置的路径。
      *
-     * @return false时相对于当前所在类的class路径
+     * @return false时相对于当前所在类的class路径；为true时，若设置了调试目录，相对于目录，否则相对于class所在路径。
      */
     boolean relativeToOptionPath() default true;
 }

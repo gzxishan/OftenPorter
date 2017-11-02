@@ -129,7 +129,7 @@ public class DBCommon {
 
     /**
      * <pre>
-     * 见1.{@linkplain DataUtil#toNameValues(Object)}
+     * 见1.{@linkplain DataUtil#toNameValues(Object,boolean)}
      *   2.{@link #addData(WObject, DBSource, NameValues)}
      * </pre>
      *
@@ -138,8 +138,8 @@ public class DBCommon {
      * @param object
      * @return
      */
-    public JResponse addObjectData(WObject wObject, DBSource dbSource, Object object) {
-        NameValues nameValues = DataUtil.toNameValues(object);
+    public JResponse addObjectData(WObject wObject, DBSource dbSource, Object object,boolean filterNullAndEmpty) {
+        NameValues nameValues = DataUtil.toNameValues(object,filterNullAndEmpty);
         return addData(wObject, dbSource, nameValues);
     }
 
@@ -402,20 +402,21 @@ public class DBCommon {
 
     /**
      * <pre>
-     * 见1.{@linkplain DataUtil#toNameValues(Object)}
+     * 见1.{@linkplain DataUtil#toNameValues(Object, boolean, boolean, String...) DataUtil.toNameValues(Object, boolean, true, String...)}
      *   2.{@link #updateData(WObject, DBSource, Condition, NameValues)}
      * </pre>
      *
      * @param wObject
      * @param dbSource
      * @param object
+     * @param filterNullAndEmpty
      * @param excepts  排除的变量
      * @return
      */
-    public JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object, String... excepts) {
+    public JResponse updateObjectData(WObject wObject, DBSource dbSource, Condition condition, Object object,boolean filterNullAndEmpty, String... excepts) {
         NameValues nameValues = null;
         try {
-            nameValues = DataUtil.toNameValues(object, true, excepts);
+            nameValues = DataUtil.toNameValues(object, filterNullAndEmpty,true, excepts);
             return updateData(wObject, dbSource, condition, nameValues);
         } catch (Exception e) {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);

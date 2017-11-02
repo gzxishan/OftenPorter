@@ -1,7 +1,11 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * <pre>
@@ -127,4 +131,43 @@ public abstract class CheckHandle
      * @return
      */
     public abstract PorterOfFun getFunPorter();
+
+
+    /**
+     * 判断当前所有的注解是否全部在最终对象上或全部在函数上注解了。
+     *
+     * @param annotationClasses
+     * @return
+     */
+    public boolean isAllPresentOnClassOrFun(Class<? extends Annotation>... annotationClasses)
+    {
+        if (AnnoUtil.isAllOfAnnotationsPresent(finalPorterObject.getClass(), annotationClasses) || AnnoUtil
+                .isAllOfAnnotationsPresent(
+                        (Method) handleMethod, annotationClasses))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * 判断是否存在一个注解在类或函数上
+     *
+     * @param annotationClasses
+     * @return
+     */
+    public boolean isOneOfPresentOnClassOrFun(Class<? extends Annotation>... annotationClasses)
+    {
+        if (AnnoUtil.isOneOfAnnotationsPresent(finalPorterObject.getClass(), annotationClasses) || AnnoUtil
+                .isOneOfAnnotationsPresent(
+                        (Method) handleMethod, annotationClasses))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
 }

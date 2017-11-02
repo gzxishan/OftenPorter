@@ -19,21 +19,21 @@ public class Context {
     String name, contentEncoding;
 
     CheckPassable[] contextChecks;
-    CheckPassable[] forAllChecksNotZeroLen;
+    CheckPassable[] porterCheckPassables;
 
     DefaultReturnFactory defaultReturnFactory;
 
     public Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
                    ParamSourceHandleManager paramSourceHandleManager,
                    StateListener stateListenerForAll, InnerContextBridge innerContextBridge,
-                   CheckPassable[] forAllCheckPassables, DefaultReturnFactory defaultReturnFactory) {
+                   CheckPassable[] porterCheckPassables, DefaultReturnFactory defaultReturnFactory) {
         this.deliveryBuilder = deliveryBuilder;
         this.contextPorter = contextPorter;
         this.contextChecks = contextChecks;
         this.paramSourceHandleManager = paramSourceHandleManager;
         this.stateListenerForAll = stateListenerForAll;
         this.innerContextBridge = innerContextBridge;
-        this.forAllChecksNotZeroLen = forAllCheckPassables != null && forAllCheckPassables.length > 0 ? forAllCheckPassables : null;
+        this.porterCheckPassables = porterCheckPassables != null && porterCheckPassables.length > 0 ? porterCheckPassables : null;
         this.defaultReturnFactory=defaultReturnFactory;
         setEnable(true);
     }

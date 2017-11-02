@@ -274,9 +274,9 @@ public final class PorterMain {
                 porterConf.getStaticAutoSetClasses(), porterConf.getClassLoader());
 
 
-        CheckPassable[] forAllCheckPassables = porterConf.getForAllCheckPassableList().toArray(new CheckPassable[0]);
+        CheckPassable[] porterCheckPassables = porterConf.getPorterCheckPassableList().toArray(new CheckPassable[0]);
         LOGGER.debug("add autoSet ForAllCheckPassable...");
-        autoSetHandle.addAutoSetsForNotPorter(forAllCheckPassables);
+        autoSetHandle.addAutoSetsForNotPorter(porterCheckPassables);
 
 
         CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
@@ -284,7 +284,7 @@ public final class PorterMain {
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
         Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
-                forAllCheckPassables);
+                porterCheckPassables);
 
         try {
             autoSetHandle.doAutoSet();//变量设置处理
