@@ -7,12 +7,19 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 /**
  * <pre>
  *     执行的顺序：
- *     ON_GLOBAL---ON_CONTEXT--ON_CLASS---BEFORE_METHOD---ON_METHOD---AFTER_METHOD
- *                                                                |___ON_METHOD_EXCEPTION
+ *     ON_GLOBAL---ON_CONTEXT---BEFORE_CLOASS--ON_CLASS---BEFORE_METHOD---ON_METHOD---AFTER_METHOD
+ *                                                                                |___ON_METHOD_EXCEPTION
+ *     <ul>
+ *         <li>{@linkplain #ON_GLOBAL}:只对{@linkplain CommonMain#addGlobalCheck(CheckPassable)}有效</li>
+ *         <li>{@linkplain #ON_CONTEXT}:只对{@linkplain PorterConf#addContextCheck(CheckPassable)}有效</li>
+ *         <li>{@linkplain }</li>
+ *     </ul>
  * </pre>
- *  <pre>
- *      见:{@linkplain PorterConf#addContextCheck(CheckPassable)},{@linkplain PorterConf#addForAllCheckPassable(CheckPassable)}
+ * <pre>
+ *      见:{@linkplain PorterConf#addContextCheck(CheckPassable)},
+ *      {@linkplain PorterConf#addForAllCheckPassable(CheckPassable)}
  *  </pre>
+ *
  * @author Created by https://github.com/CLovinr on 2016/10/3.
  */
 public enum DuringType
@@ -27,6 +34,12 @@ public enum DuringType
      * 没有初始化任何参数。
      */
     ON_CONTEXT,
+
+    /**
+     * 此时类参数没有准备好。
+     */
+    BEFORE_CLASS,
+
     /**
      * 此时类参数已经准备完成。
      */

@@ -21,7 +21,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface PortOut {
     /**
-     * 输出类型。
+     * 输出类型,默认为{@linkplain OutType#AUTO},但可以通过{@linkplain PorterConf#setDefaultPortOutType(OutType)}来设置context级别的默认输出类别。
      */
     OutType value() default OutType.AUTO;
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
-public class PRequest implements WRequest, Cloneable
+public class PRequest implements WRequest
 {
     protected String requestPath;
     protected PortMethod method;

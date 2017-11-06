@@ -31,6 +31,10 @@ public abstract class PorterOfFun implements ObjectGetter
      */
     _PortFilterOne[] portAfters;
 
+    /**
+     * 返回null表示没有切面处理器。
+     * @return
+     */
     public AspectFunOperation.Handle[] getHandles()
     {
         return handles;

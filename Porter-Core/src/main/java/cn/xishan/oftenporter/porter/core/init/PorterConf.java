@@ -13,13 +13,14 @@ import java.util.*;
 /**
  * 框架配置对象。非线程安全。
  */
-public class PorterConf {
+public class PorterConf
+{
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
     private Set<StateListener> stateListenerSet;
 
     private List<CheckPassable> contextChecks;
-    private List<CheckPassable> forAllCheckPassableList;
+    private List<CheckPassable> porterCheckPassableList;
 
     private Map<String, Object> contextAutoSetMap;
     private Map<String, Class<?>> contextAutoGenImplMap;
@@ -38,11 +39,12 @@ public class PorterConf {
     private OutType defaultPortOutType;
 
 
-    PorterConf() {
+    PorterConf()
+    {
         seekPackages = new SeekPackages();
         stateListenerSet = new HashSet<>();
         contextChecks = new ArrayList<>();
-        forAllCheckPassableList = new ArrayList<>();
+        porterCheckPassableList = new ArrayList<>();
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
         contextAutoGenImplMap = new HashMap<>();
@@ -52,21 +54,26 @@ public class PorterConf {
 
     /**
      * 设置没有加{@linkplain PortOut#}
+     *
      * @param defaultPortOutType
      */
-    public void setDefaultPortOutType(OutType defaultPortOutType) {
+    public void setDefaultPortOutType(OutType defaultPortOutType)
+    {
         this.defaultPortOutType = defaultPortOutType;
     }
 
-    public OutType getDefaultPortOutType() {
+    public OutType getDefaultPortOutType()
+    {
         return defaultPortOutType;
     }
 
-    public void setDefaultReturnFactory(DefaultReturnFactory defaultReturnFactory) {
+    public void setDefaultReturnFactory(DefaultReturnFactory defaultReturnFactory)
+    {
         this.defaultReturnFactory = defaultReturnFactory;
     }
 
-    public DefaultReturnFactory getDefaultReturnFactory() {
+    public DefaultReturnFactory getDefaultReturnFactory()
+    {
         return defaultReturnFactory;
     }
 
@@ -75,7 +82,8 @@ public class PorterConf {
      *
      * @param autoSetSeekPackages
      */
-    public void addAutoSetSeekPackages(String... autoSetSeekPackages) {
+    public void addAutoSetSeekPackages(String... autoSetSeekPackages)
+    {
         WPTool.addAll(this.autoSetSeekPackages, autoSetSeekPackages);
     }
 
@@ -87,11 +95,13 @@ public class PorterConf {
      *
      * @param staticAutoSetPackages
      */
-    public void addStaticAutoSetPackages(String... staticAutoSetPackages) {
+    public void addStaticAutoSetPackages(String... staticAutoSetPackages)
+    {
         WPTool.addAll(this.staticAutoSetPackages, staticAutoSetPackages);
     }
 
-    public List<String> getStaticAutoSetPackages() {
+    public List<String> getStaticAutoSetPackages()
+    {
         return staticAutoSetPackages;
     }
 
@@ -103,11 +113,13 @@ public class PorterConf {
      *
      * @param staticAutoSetClasses
      */
-    public void addStaticAutoSetClasses(Class<?>... staticAutoSetClasses) {
+    public void addStaticAutoSetClasses(Class<?>... staticAutoSetClasses)
+    {
         WPTool.addAll(this.staticAutoSetClasses, staticAutoSetClasses);
     }
 
-    public List<Class<?>> getStaticAutoSetClasses() {
+    public List<Class<?>> getStaticAutoSetClasses()
+    {
         return staticAutoSetClasses;
     }
 
@@ -119,20 +131,24 @@ public class PorterConf {
      *
      * @param staticAutoSetClasses
      */
-    public void addStaticAutoSetClasses(String... staticAutoSetClasses) {
+    public void addStaticAutoSetClasses(String... staticAutoSetClasses)
+    {
         WPTool.addAll(this.staticAutoSetClassStrs, staticAutoSetClasses);
     }
 
-    public List<String> getStaticAutoSetClassStrs() {
+    public List<String> getStaticAutoSetClassStrs()
+    {
         return staticAutoSetClassStrs;
     }
 
-    public List<String> getAutoSetSeekPackages() {
+    public List<String> getAutoSetSeekPackages()
+    {
         return autoSetSeekPackages;
     }
 
-    public List<CheckPassable> getForAllCheckPassableList() {
-        return forAllCheckPassableList;
+    public List<CheckPassable> getPorterCheckPassableList()
+    {
+        return porterCheckPassableList;
     }
 
     /**
@@ -140,33 +156,59 @@ public class PorterConf {
      * }和{@linkplain DuringType#ON_CONTEXT DuringType.ON_CONTEXT}的所有时期都会调用它,并且该检测最先被调用。
      *
      * @param forAllCheckPassable
+     * @see #addPorterCheck(CheckPassable)
      */
-    public void addForAllCheckPassable(CheckPassable forAllCheckPassable) {
-        forAllCheckPassableList.add(forAllCheckPassable);
+    @Deprecated
+    public void addForAllCheckPassable(CheckPassable forAllCheckPassable)
+    {
+        porterCheckPassableList.add(forAllCheckPassable);
     }
 
-    public String getContentEncoding() {
+    /**
+     * <pre>
+     * 走的流程为:{@linkplain DuringType#BEFORE_CLASS}--{@linkplain DuringType#ON_CLASS}--{@linkplain
+     * DuringType#BEFORE_METHOD
+     * }--{@linkplain DuringType#ON_METHOD}--{@linkplain DuringType#AFTER_METHOD
+     * }或{@linkplain DuringType#ON_METHOD_EXCEPTION}
+     *
+     * 见：{@linkplain PortIn#checks()}和{@linkplain PortIn#checksForWholeClass()}
+     * </pre>
+     *
+     * @param checkPassable
+     */
+    public void addPorterCheck(CheckPassable checkPassable)
+    {
+        porterCheckPassableList.add(checkPassable);
+    }
+
+    public String getContentEncoding()
+    {
         return contentEncoding;
     }
 
-    public void setContentEncoding(String contentEncoding) {
+    public void setContentEncoding(String contentEncoding)
+    {
         checkInited();
         this.contentEncoding = contentEncoding;
     }
 
-    public void setContextName(String contextName) {
+    public void setContextName(String contextName)
+    {
         checkInited();
         PortUtil.checkName(contextName);
         this.name = contextName;
     }
 
-    public String getContextName() {
+    public String getContextName()
+    {
         return name;
     }
 
 
-    private void checkInited() {
-        if (isInited) {
+    private void checkInited()
+    {
+        if (isInited)
+        {
             throw new RuntimeException("already init!");
         }
     }
@@ -176,7 +218,8 @@ public class PorterConf {
      *
      * @param enablePortInTiedNameDefault
      */
-    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault) {
+    public void setEnableTiedNameDefault(boolean enablePortInTiedNameDefault)
+    {
         checkInited();
         this.enablePortInTiedNameDefault = enablePortInTiedNameDefault;
     }
@@ -186,7 +229,8 @@ public class PorterConf {
      *
      * @return
      */
-    public boolean isEnableTiedNameDefault() {
+    public boolean isEnableTiedNameDefault()
+    {
         checkInited();
         return enablePortInTiedNameDefault;
     }
@@ -197,7 +241,8 @@ public class PorterConf {
      * @param name
      * @param object
      */
-    public void addContextAutoSet(String name, Object object) {
+    public void addContextAutoSet(String name, Object object)
+    {
         contextAutoSetMap.put(name, object);
     }
 
@@ -206,7 +251,8 @@ public class PorterConf {
      *
      * @param object
      */
-    public void addContextAutoSet(Object object) {
+    public void addContextAutoSet(Object object)
+    {
         addContextAutoSet(object.getClass().getName(), object);
     }
 
@@ -215,7 +261,8 @@ public class PorterConf {
      *
      * @param object
      */
-    public void addContextAutoSet(Class<?> clazz, Object object) {
+    public void addContextAutoSet(Class<?> clazz, Object object)
+    {
         addContextAutoSet(clazz.getName(), object);
     }
 
@@ -225,7 +272,8 @@ public class PorterConf {
      * @param name      名称
      * @param implClass 实现类。
      */
-    public void addContextAutoGenImpl(String name, Class<?> implClass) {
+    public void addContextAutoGenImpl(String name, Class<?> implClass)
+    {
         contextAutoGenImplMap.put(name, implClass);
     }
 
@@ -235,24 +283,29 @@ public class PorterConf {
      * @param clazz
      * @param implClass
      */
-    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass) {
+    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass)
+    {
         contextAutoGenImplMap.put(clazz.getName(), implClass);
     }
 
-    public Map<String, Class<?>> getContextAutoGenImplMap() {
+    public Map<String, Class<?>> getContextAutoGenImplMap()
+    {
         return contextAutoGenImplMap;
     }
 
-    public boolean isResponseWhenException() {
+    public boolean isResponseWhenException()
+    {
         return responseWhenException;
     }
 
 
-    public SeekPackages getSeekPackages() {
+    public SeekPackages getSeekPackages()
+    {
         return seekPackages;
     }
 
-    public void addStateListener(StateListener stateListener) {
+    public void addStateListener(StateListener stateListener)
+    {
         checkInited();
         stateListenerSet.add(stateListener);
     }
@@ -262,42 +315,51 @@ public class PorterConf {
      *
      * @param checkPassable
      */
-    public void addContextCheck(CheckPassable checkPassable) {
+    public void addContextCheck(CheckPassable checkPassable)
+    {
         contextChecks.add(checkPassable);
     }
 
-    public void setClassLoader(ClassLoader classLoader) {
+    public void setClassLoader(ClassLoader classLoader)
+    {
         checkInited();
         this.classLoader = classLoader;
     }
 
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader()
+    {
         return classLoader;
     }
 
-    public List<CheckPassable> getContextChecks() {
+    public List<CheckPassable> getContextChecks()
+    {
         return contextChecks;
     }
 
-    public Map<String, Object> getContextAutoSetMap() {
+    public Map<String, Object> getContextAutoSetMap()
+    {
         return contextAutoSetMap;
     }
 
-    public Set<StateListener> getStateListenerSet() {
+    public Set<StateListener> getStateListenerSet()
+    {
         checkInited();
         return stateListenerSet;
     }
 
-    public InitParamSource getUserInitParam() {
+    public InitParamSource getUserInitParam()
+    {
         checkInited();
         return userInitParam;
     }
 
-    public ParamSourceHandleManager getParamSourceHandleManager() {
+    public ParamSourceHandleManager getParamSourceHandleManager()
+    {
         return paramSourceHandleManager;
     }
 
-    void initOk() {
+    void initOk()
+    {
         isInited = true;
         seekPackages = null;
         userInitParam = null;
@@ -306,7 +368,7 @@ public class PorterConf {
         contextAutoSetMap = null;
         contextAutoGenImplMap = null;
         stateListenerSet = null;
-        forAllCheckPassableList = null;
+        porterCheckPassableList = null;
         autoSetSeekPackages = null;
         paramSourceHandleManager = null;
         defaultReturnFactory = null;

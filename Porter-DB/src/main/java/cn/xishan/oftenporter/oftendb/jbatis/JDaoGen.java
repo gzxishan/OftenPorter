@@ -86,7 +86,7 @@ class JDaoGen implements AutoSetGen
             {
                 path = jDaoPath.pathDir();
             }
-            if (jDaoPath.relativeToOptionPath())
+            if (jDaoPath.relativeToOptionPath()&&isFile)
             {
                 boolean start = optionDir.startsWith("/");
                 optionDir = PackageUtil.getPathWithRelative('/', optionDir, path, "/");
@@ -96,7 +96,13 @@ class JDaoGen implements AutoSetGen
                 }
             } else
             {
-                optionDir = path;
+                isFile=false;
+                optionDir = "/" + currentObjectClass.getPackage().getName().replace('.', '/');
+                optionDir = PackageUtil.getPathWithRelative('/', optionDir, path, "/");
+                if (!optionDir.startsWith("/"))
+                {
+                    optionDir = "/" + optionDir;
+                }
             }
 
             if (jDaoPath.fieldName())

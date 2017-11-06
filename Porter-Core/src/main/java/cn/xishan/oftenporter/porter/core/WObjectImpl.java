@@ -92,17 +92,11 @@ class WObjectImpl extends WObject
     }
 
     @Override
-    public Delivery delivery()
+    public synchronized Delivery delivery()
     {
         if (delivery == null)
         {
-            synchronized (this)
-            {
-                if (delivery == null)
-                {
-                    delivery = context.deliveryBuilder.build(this);
-                }
-            }
+            delivery = context.deliveryBuilder.build(this);
         }
         return delivery;
     }

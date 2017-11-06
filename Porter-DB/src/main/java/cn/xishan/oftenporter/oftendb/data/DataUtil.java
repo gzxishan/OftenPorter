@@ -26,36 +26,43 @@ public class DataUtil
     private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
 
     /**
-     * 见{@linkplain #toNameValues(Object, boolean, String...)}
+     * 见{@linkplain #toNameValues(Object, boolean, boolean, String...)}
      *
      * @param object
      * @return
      * @throws IllegalAccessException
      */
-    public static NameValues toNameValues(Object object)
+    public static NameValues toNameValues(Object object, boolean filterNullAndEmpty)
+    {
+        return toNameValues(object, filterNullAndEmpty, true);
+    }
+
+    /**
+     * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}
+     * @param filterNullAndEmpty 是否过滤null或空字符串
+     * @param isExcept
+     * @param keyNames
+     * @return
+     */
+    public static NameValues toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
+            String... keyNames)
     {
         try
         {
-            return toNameValues(object, true);
+            return _toNameValues(object, filterNullAndEmpty, isExcept, keyNames);
         } catch (IllegalAccessException e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * @param object   用于提取的实例，见{@linkplain #getTiedName(Field)}
-     * @param isExcept
-     * @param keyNames
-     * @return
-     * @throws IllegalAccessException
-     */
-    public static NameValues toNameValues(Object object, boolean isExcept,
+    private static NameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
             String... keyNames) throws IllegalAccessException
     {
         Field[] fields = WPTool.getAllFields(object.getClass());
 
         NameValues nameValues = new NameValues(fields.length);
+        nameValues.filterNullAndEmpty(filterNullAndEmpty);
         if (isExcept)
         {
             for (int i = 0; i < fields.length; i++)
@@ -418,6 +425,7 @@ public class DataUtil
 
     /**
      * 返回表名，会去掉Porter、Unit、UnitApi、Dao等后缀。
+     *
      * @param tablePrefix
      * @param configed
      * @return

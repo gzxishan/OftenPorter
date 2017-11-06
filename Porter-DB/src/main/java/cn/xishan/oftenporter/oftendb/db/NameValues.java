@@ -59,6 +59,7 @@ public class NameValues implements AppValues {
             for (String s : filterNullKeys) {
                 set.add(s);
             }
+            this.filterNullKeys=set;
         }
         return this;
     }

@@ -155,7 +155,7 @@ public class FileTool
                 return new String(bos.toByteArray(), encode);
             } else
             {
-                return new String(bos.toByteArray());
+                return new String(bos.toByteArray(),"utf-8");
             }
         } catch (IOException e)
         {

@@ -425,6 +425,7 @@ public class SqlHandle implements DBHandle, SqlSource {
             if (rs.next()) {
                 bs = FileTool.getData(rs.getBinaryStream(1), 1024);
             }
+            rs.close();
             return bs;
         } catch (Exception e) {
             throw new DBException(e);
@@ -578,7 +579,7 @@ public class SqlHandle implements DBHandle, SqlSource {
     public static void setObject(PreparedStatement ps, int column,
                                  Object object) throws SQLException, FileNotFoundException {
         if (object == null) {
-            ps.setObject(column, object);
+            ps.setObject(column, null);
         } else {
             if (object instanceof File) {
                 File file = (File) object;

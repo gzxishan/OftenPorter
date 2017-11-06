@@ -89,4 +89,60 @@ public final class AnnoUtil {
         }
         return t;
     }
+
+    private static boolean isAnnotationPresent(boolean isAll, Class<?> clazz, Class<? extends Annotation>... annotationClasses)
+    {
+        for (Class c : annotationClasses)
+        {
+            if (clazz.isAnnotationPresent(c))
+            {
+                if (!isAll)
+                {
+                    return true;
+                }
+            } else if (isAll)
+            {
+                return false;
+            }
+        }
+        return isAll;
+    }
+
+    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<? extends Annotation>... annotationClasses)
+    {
+        return isAnnotationPresent(false, clazz, annotationClasses);
+    }
+
+    public static boolean isAllOfAnnotationsPresent(Class<?> clazz, Class<? extends Annotation>... annotationClasses)
+    {
+        return isAnnotationPresent(true, clazz, annotationClasses);
+    }
+
+    private static boolean isAnnotationPresent(boolean isAll, Method method, Class<? extends Annotation>... annotationClasses)
+    {
+        for (Class c : annotationClasses)
+        {
+            if (method.isAnnotationPresent(c))
+            {
+                if (!isAll)
+                {
+                    return true;
+                }
+            } else if (isAll)
+            {
+                return false;
+            }
+        }
+        return isAll;
+    }
+
+    public static boolean isOneOfAnnotationsPresent(Method method, Class<? extends Annotation>... annotationClasses)
+    {
+        return isAnnotationPresent(false, method, annotationClasses);
+    }
+
+    public static boolean isAllOfAnnotationsPresent(Method method, Class<? extends Annotation>... annotationClasses)
+    {
+        return isAnnotationPresent(true, method, annotationClasses);
+    }
 }

@@ -56,7 +56,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle {
             return null;
         }
         HttpServletRequest request = (HttpServletRequest) originalRequest;
-        if (ContentType.APP_JSON.equals(request.getContentType())) {
+        if (ContentType.APP_JSON.name().equals(request.getContentType())) {
             if (multiPartOption.decodeJsonParams) {
                 JSONObject jsonObject = JSON.parseObject(
                         FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));

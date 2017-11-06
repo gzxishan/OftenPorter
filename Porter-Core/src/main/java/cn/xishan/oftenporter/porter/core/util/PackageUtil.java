@@ -263,6 +263,9 @@ public class PackageUtil
         File file = new File(filePath);
 
         File[] childFiles = file.listFiles();
+        if(childFiles==null){
+            return myClassName;
+        }
         for (File childFile : childFiles)
         {
             if (childFile.isDirectory())
@@ -332,7 +335,7 @@ public class PackageUtil
                     }
                     if (childPackage)
                     {
-                        if (entryName.startsWith(packagePath))
+                        if (entryName.startsWith(packagePath)&&entryName.charAt(packagePath.length())=='/')
                         {
                             entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6);
                             myClassName.add(entryName);

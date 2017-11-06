@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -474,7 +475,7 @@ public class MongoHandle implements DBHandle
                     bs = (byte[]) object;
                 } else
                 {
-                    bs = object.toString().getBytes();
+                    bs = object.toString().getBytes(Charset.forName("utf-8"));
                 }
             }
         }

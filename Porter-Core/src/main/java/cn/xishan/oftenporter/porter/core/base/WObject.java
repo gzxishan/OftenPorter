@@ -163,6 +163,32 @@ public abstract class WObject
     }
 
     /**
+     * 获取必须参数
+     *
+     * @param name
+     * @param <T>
+     * @return
+     */
+    public <T> T nece(String name)
+    {
+        T t = getParamSource().getNeceParam(name);
+        return t;
+    }
+
+    /**
+     * 获取非必须参数
+     *
+     * @param name
+     * @param <T>
+     * @return
+     */
+    public <T> T unece(String name)
+    {
+        T t = getParamSource().getParam(name);
+        return t;
+    }
+
+    /**
      * 使用当前请求的接口方法。
      *
      * @param funTied
@@ -239,12 +265,12 @@ public abstract class WObject
 
     public SyncPorter newSyncPorter(SyncOption syncOption)
     {
-        return syncOption.build(this,true);
+        return syncOption.build(this, true);
     }
 
     public SyncNotInnerPorter newSyncNotInnerPorter(SyncOption syncOption)
     {
-        return (SyncNotInnerPorter) syncOption.build(this,false);
+        return (SyncNotInnerPorter) syncOption.build(this, false);
     }
 
 }

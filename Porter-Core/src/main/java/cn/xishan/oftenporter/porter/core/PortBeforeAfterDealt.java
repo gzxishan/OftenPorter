@@ -101,8 +101,6 @@ class PortBeforeAfterDealt
     public void startAfter(Callback<Object> callbackForReturn)
     {
         this.callbackForReturn = callbackForReturn;
-        ABOption abOption = wObject.abOption;
-
         doAfter(0);
     }
 
