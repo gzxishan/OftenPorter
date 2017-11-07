@@ -78,7 +78,11 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle {
             String name = fileItem.getFieldName();
             Object value;
             if (fileItem.isFormField()) {
-                value = fileItem.getString();
+                String encoding = request.getCharacterEncoding();
+                if(WPTool.isEmpty(encoding)){
+                    encoding="utf-8";
+                }
+                value = fileItem.getString(encoding);
             } else {
                 File tempFile;
                 if (fileItem.isInMemory()) {
