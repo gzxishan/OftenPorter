@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
+import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
@@ -45,6 +46,12 @@ public final class WServletRequest extends PRequest
     public HttpServletResponse getOriginalResponse()
     {
         return response;
+    }
+
+
+    public AsyncContext startAsync()
+    {
+        return request.startAsync(request, response);
     }
 
     @Override
@@ -139,16 +146,16 @@ public final class WServletRequest extends PRequest
      */
     public static String getHostFromURL(CharSequence url)
     {
-        return getHostFromURL(url,false);
+        return getHostFromURL(url, false);
     }
 
-        /**
-         * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
-         *
-         * @param url
-         * @return
-         */
-    public static String getHostFromURL(CharSequence url,boolean http2Https )
+    /**
+     * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
+     *
+     * @param url
+     * @return
+     */
+    public static String getHostFromURL(CharSequence url, boolean http2Https)
     {
 
         Matcher matcher = PATTERN_HOST_PORT.matcher(url);
@@ -156,8 +163,9 @@ public final class WServletRequest extends PRequest
         if (matcher.find())
         {
             String host = matcher.group();
-            if(http2Https&&host.startsWith("http:")){
-                host="https:"+host.substring(5);
+            if (http2Https && host.startsWith("http:"))
+            {
+                host = "https:" + host.substring(5);
             }
             return host;
         } else
@@ -177,13 +185,13 @@ public final class WServletRequest extends PRequest
     }
 
     /**
-     * 见{@linkplain #getHostFromURL(CharSequence,boolean)}
+     * 见{@linkplain #getHostFromURL(CharSequence, boolean)}
      *
      * @return
      */
     public String getHost(boolean http2Https)
     {
-        return getHostFromURL(request.getRequestURL(),http2Https);
+        return getHostFromURL(request.getRequestURL(), http2Https);
     }
 
 }

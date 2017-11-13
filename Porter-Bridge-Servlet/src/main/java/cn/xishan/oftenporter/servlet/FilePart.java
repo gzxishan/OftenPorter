@@ -13,9 +13,16 @@ public class FilePart
     public String originalName;
     public File file;
 
-    public FilePart(String originalName, File file)
+    public String[] originalNames;
+    public File[] files;
+
+    public FilePart(String[] originalNames, File[] files)
     {
-        this.originalName = originalName;
-        this.file = file;
+        this.originalName = originalNames[0];
+        this.file = files[0];
+        this.originalNames = originalNames;
+        this.files = files;
     }
+
+
 }
