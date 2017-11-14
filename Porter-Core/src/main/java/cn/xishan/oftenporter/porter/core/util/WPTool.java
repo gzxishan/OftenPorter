@@ -117,6 +117,13 @@ public class WPTool
         }
     }
 
+
+    public static String join(String separator, String... strs)
+    {
+        Object[] args = strs;
+        return join(separator, args);
+    }
+
     /**
      * 连接成字符串。
      *

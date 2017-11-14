@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
@@ -250,6 +251,14 @@ public class AutoSetHandle {
 
     public InnerContextBridge getInnerContextBridge() {
         return innerContextBridge;
+    }
+
+    public String getContextName(){
+        return currentContextName;
+    }
+
+    public PName getPName(){
+        return thisDelivery.currentPName();
     }
 
     public synchronized void addAutoSetSeek(List<String> packages, ClassLoader classLoader) {

@@ -157,6 +157,7 @@ public @interface PortIn
      *     1.如果注解的是类，则绑定名是类名,并且会去掉末尾的"WPort"或"Porter"。
      *       如："Hello"="Hello","HelloPorter"="Hello"
      *     2.如果注解的是函数，则绑定名是函数名。
+     *     3.不能出现'/'
      * </pre>
      */
     String tied() default "";

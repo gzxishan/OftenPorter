@@ -4,7 +4,9 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortFilterOne;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -33,6 +35,7 @@ public abstract class PorterOfFun implements ObjectGetter
 
     /**
      * 返回null表示没有切面处理器。
+     *
      * @return
      */
     public AspectFunOperation.Handle[] getHandles()
@@ -85,10 +88,33 @@ public abstract class PorterOfFun implements ObjectGetter
 
     /**
      * 得到函数所在的对象实例。
+     *
      * @return
      */
     @Override
     public abstract Object getObject();
+
+    /**
+     * @param wObject
+     * @param optionArgs 可选参数,为null采用默认的处理。
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public Object invoke(WObject wObject, Object[] optionArgs) throws InvocationTargetException, IllegalAccessException
+    {
+        Method javaMethod = getMethod();
+        if (optionArgs != null)
+        {
+            return javaMethod.invoke(getObject(), optionArgs);
+        } else if (getArgCount() == 0)
+        {
+            return javaMethod.invoke(getObject());
+        } else
+        {
+            return javaMethod.invoke(getObject(), wObject);
+        }
+    }
 
     public _PortOut getPortOut()
     {

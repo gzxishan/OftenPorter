@@ -374,17 +374,31 @@ public final class AnnotationDealt
         return _portStart;
     }
 
-    public _PortOut portOut(Porter classPorter, Method method, OutType defaultPoutType)
+    public _PortOut portOut(Class<?> classPorter,  OutType defaultPoutType)
     {
         _PortOut _portOut = new _PortOut();
-        PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
-        if (portOut == null)
-        {
-            portOut = classPorter.getPortOut();
-        }
+        PortOut portOut = AnnoUtil.getAnnotation(classPorter, PortOut.class);
         if (portOut == null && defaultPoutType != null)
         {
             _portOut.outType = defaultPoutType;
+        } else if (portOut != null)
+        {
+            _portOut.outType = portOut.value();
+        } else
+        {
+            _portOut.outType = OutType.AUTO;
+        }
+        return _portOut;
+    }
+
+    public _PortOut portOut(Porter classPorter, Method method)
+    {
+        _PortOut _portOut = new _PortOut();
+        PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
+
+        if (portOut == null )
+        {
+            _portOut.outType = classPorter.getPortOut().outType;
         } else if (portOut != null)
         {
             _portOut.outType = portOut.value();

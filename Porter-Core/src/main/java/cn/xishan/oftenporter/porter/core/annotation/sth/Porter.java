@@ -1,14 +1,15 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -38,7 +39,7 @@ public final class Porter
     Class<?> clazz;
     _PortIn portIn;
     Object finalObject;
-    PortOut portOut;
+    _PortOut portOut;
 
     WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
 
@@ -97,9 +98,19 @@ public final class Porter
 
     private static final String TYPE_NAME_PREFIX = "class ";
 
-    public PortOut getPortOut()
+    public _PortOut getPortOut()
     {
         return portOut;
+    }
+
+    public String getContextName()
+    {
+        return autoSetHandle.getContextName();
+    }
+
+    public PName getPName()
+    {
+        return autoSetHandle.getPName();
     }
 
     public static String getClassName(Type type)

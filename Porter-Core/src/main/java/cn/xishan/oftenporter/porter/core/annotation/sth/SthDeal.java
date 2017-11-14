@@ -4,7 +4,6 @@ import cn.xishan.oftenporter.porter.core.Context;
 import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
-import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -13,13 +12,11 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -137,7 +134,8 @@ public class SthDeal
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
-        porter.portOut = AnnoUtil.getAnnotation(clazz, PortOut.class);
+        porter.portOut = annotationDealt.portOut(clazz,
+                autoSetHandle.getInnerContextBridge().defaultOutType);
         porter.object = object;
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
@@ -148,7 +146,9 @@ public class SthDeal
             IPorter iPorter = (IPorter) porter.object;
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
-
+        //TODO 处理类上的AspectFunOperation
+        List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(clazz.getDeclaredAnnotations(), porter,
+                null);
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
@@ -243,7 +243,7 @@ public class SthDeal
                 putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
 
                 //扫描AspectFunOperation
-                seekAspectFunOperation(porterOfFun);
+                seekAspectFunOperation(porterOfFun, classHandles);
             }
         }
 
@@ -257,10 +257,34 @@ public class SthDeal
         return porter;
     }
 
-    private void seekAspectFunOperation(PorterOfFun porterOfFun)
+    private void seekAspectFunOperation(PorterOfFun porterOfFun, List<AspectFunOperation.Handle> classHandles)
     {
         Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
-        List<AspectFunOperation.Handle> handles = null;
+        List<AspectFunOperation.Handle> handles = seekAspectFunOperation(annotations, porterOfFun, classHandles);
+        if (handles.size() > 0)
+        {
+            porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
+        }
+    }
+
+
+    /**
+     * @param annotations
+     * @param object
+     * @param _handles
+     * @return 返回一个新的List
+     */
+    private List<AspectFunOperation.Handle> seekAspectFunOperation(Annotation[] annotations, Object object,
+            List<AspectFunOperation.Handle> _handles)
+    {
+        // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
+
+        List<AspectFunOperation.Handle> handles = new ArrayList<>();
+
+        if(_handles!=null){
+            handles.addAll(_handles);
+        }
+
         for (Annotation annotation : annotations)
         {
             Class<? extends Annotation> atype = annotation.annotationType();
@@ -275,15 +299,28 @@ public class SthDeal
                 try
                 {
                     AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
-                    if (handle.initWith(annotation,porterOfFun))
+                    if (object instanceof PorterOfFun)
                     {
-                        porterOfFun.portOut._setOutType(handle.getOutType());
-                        if (handles == null)
+                        PorterOfFun porterOfFun = (PorterOfFun) object;
+                        if (handle.init(annotation, porterOfFun))
                         {
-                            handles = new ArrayList<>();
+                            if(handle.getOutType()!=null){
+                                porterOfFun.portOut._setOutType(handle.getOutType());
+                            }
+                            handles.add(handle);
                         }
-                        handles.add(handle);
+                    } else
+                    {
+                        Porter porter = (Porter) object;
+                        if (handle.init(annotation, porter))
+                        {
+                            if(handle.getOutType()!=null){
+                                porter.portOut._setOutType(handle.getOutType());
+                            }
+                            handles.add(handle);
+                        }
                     }
+
                 } catch (Exception e)
                 {
                     throw new InitException(e);
@@ -291,10 +328,7 @@ public class SthDeal
             }
         }
 
-        if (handles != null)
-        {
-            porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
-        }
+        return handles;
     }
 
     private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
@@ -420,8 +454,7 @@ public class SthDeal
             porterOfFun.inObj = inObjDeal
                     .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
                             innerContextBridge);
-
-            porterOfFun.portOut = annotationDealt.portOut(porter, method, innerContextBridge.defaultOutType);
+            porterOfFun.portOut = annotationDealt.portOut(porter, method);
 
             return porterOfFun;
         } catch (Exception e)
