@@ -69,4 +69,11 @@ public @interface KeyLock
      */
     String[] uneceLocks() default {};
 
+    /**
+     * 是否把最终获得的key按顺序合并成一个。
+     *
+     * @return
+     */
+    boolean combining();
+
 }

@@ -23,6 +23,7 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
     private String lockPrefix = null;
     private String[] locks, neceLocks, uneceLocks;
     private KeyLock.LockType[] lockTypes;
+    private boolean combine;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
 
@@ -109,6 +110,7 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
                         break;
                 }
                 this.lockTypes = lockTypeList.toArray(new KeyLock.LockType[0]);
+                this.combine = keyLock.combining();
                 return true;
             } else
             {
@@ -168,6 +170,12 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
         }
 
         String[] locks = keys.toArray(new String[0]);
+        if (combine)
+        {
+            locks = new String[]{
+                    WPTool.join(":", locks)
+            };
+        }
         try
         {
             concurrentKeyLock.lock(locks);
