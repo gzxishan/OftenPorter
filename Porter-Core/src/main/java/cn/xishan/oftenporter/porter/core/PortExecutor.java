@@ -722,7 +722,6 @@ public class PortExecutor
             InnerContextBridge innerContextBridge, UrlDecoder.Result result, PortBeforeAfterDealt.DoState doState,
             boolean isOk, Object returnObject)
     {
-        Method javaMethod = funPort.getMethod();
         _PortIn funPIn = funPort.getMethodPortIn();
         try
         {
@@ -742,14 +741,11 @@ public class PortExecutor
                 {
                     for (AspectFunOperation.Handle handle : handles)
                     {
-                        returnObject = handle.invoke(wObject, returnObject);
+                        returnObject = handle.invokeMethod(wObject, funPort, returnObject);
                     }
-                } else if (funPort.getArgCount() == 0)
-                {
-                    returnObject = javaMethod.invoke(funPort.getObject());
                 } else
                 {
-                    returnObject = javaMethod.invoke(funPort.getObject(), wObject);
+                    returnObject = funPort.invoke(wObject,null);
                 }
 
                 OutType outType = funPort.getPortOut().getOutType();
@@ -757,7 +753,7 @@ public class PortExecutor
                 {
                     if (outType == OutType.VoidReturn)
                     {
-                        if (javaMethod.getReturnType().equals(Void.TYPE))
+                        if (funPort.getMethod().getReturnType().equals(Void.TYPE))
                         {
                             returnObject = context.defaultReturnFactory
                                     .getVoidReturn(wObject, funPort.getFinalPorterObject(),
@@ -765,7 +761,7 @@ public class PortExecutor
                         }
                     } else if (outType == OutType.NullReturn)
                     {
-                        if (!javaMethod.getReturnType().equals(Void.TYPE))
+                        if (!funPort.getMethod().getReturnType().equals(Void.TYPE))
                         {
                             returnObject = context.defaultReturnFactory
                                     .getNullReturn(wObject, funPort.getFinalPorterObject(),
