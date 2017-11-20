@@ -6,6 +6,8 @@ import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +19,8 @@ import java.util.Map;
  */
 public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeyLockHandle.class);
+
     private static ConcurrentKeyLock<String> staticKeyLock;
     private static Map<String, ConcurrentKeyLock<String>> keyLockMap = new HashMap<>();
 
@@ -26,6 +30,7 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
     private boolean combine;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
+
 
     @Override
     public boolean init(KeyLock current, Porter porter)
@@ -178,11 +183,15 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
         }
         try
         {
+            LOGGER.debug("locking[{}]:{}",wObject.url(),locks);
             concurrentKeyLock.lock(locks);
+            LOGGER.debug("locked[{}]:{}",wObject.url(),locks);
             return fun.invoke(wObject, null);
         } finally
         {
+            LOGGER.debug("unlocking[{}]:{}",wObject.url(),locks);
             concurrentKeyLock.unlock(locks);
+            LOGGER.debug("unlocked[{}]:{}",wObject.url(),locks);
         }
     }
 
