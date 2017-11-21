@@ -18,9 +18,15 @@ class JsBridgeOfDebug extends JsBridge
     private JDaoOption jDaoOption;
     private long lasttime;
 
-    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource,Logger sqlSourceLogger)
+    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, Logger sqlSourceLogger)
     {
-        super(null,dbSource, sqlSource,jsFile,sqlSourceLogger);
+        this(jDaoOption, jsFile, null, null, sqlSourceLogger);
+    }
+
+    public JsBridgeOfDebug(JDaoOption jDaoOption, String jsFile, DBSource dbSource, SqlSource sqlSource,
+            Logger sqlSourceLogger)
+    {
+        super(null, dbSource, sqlSource, jsFile, sqlSourceLogger);
         this.jsFile = new File(jsFile);
         this.jDaoOption = jDaoOption;
     }
@@ -33,8 +39,9 @@ class JsBridgeOfDebug extends JsBridge
             try
             {
                 invocable = JDaoGen
-                        .getJsInvocable(FileTool.getString(file, 1024, jDaoOption.scriptEncoding),dbSource, jDaoOption);
-                lasttime=file.lastModified();
+                        .getJsInvocable(FileTool.getString(file, 1024, jDaoOption.scriptEncoding), dbSource,
+                                jDaoOption);
+                lasttime = file.lastModified();
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -54,5 +61,12 @@ class JsBridgeOfDebug extends JsBridge
     {
         loadJsEngine();
         return super.execute(method, json, wObject);
+    }
+
+    @Override
+    public <T> T invoke(String method, Object... args)
+    {
+        loadJsEngine();
+        return super.invoke(method, args);
     }
 }

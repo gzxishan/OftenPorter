@@ -39,6 +39,10 @@ public @interface AspectFunOperation
          */
         boolean init(T current, PorterOfFun porterOfFun);
 
+        void onStart(WObject wObject);
+
+        void onDestroy();
+
         /**
          * 调用函数时触发，且注解在类上的先调用。
          *

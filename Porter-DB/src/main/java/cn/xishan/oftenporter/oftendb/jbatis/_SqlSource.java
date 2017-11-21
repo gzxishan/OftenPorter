@@ -18,7 +18,7 @@ import java.sql.*;
 /**
  * Created by chenyg on 2017-05-15.
  */
-public class _SqlSorce
+public class _SqlSource
 {
     private DBSource dbSource;
     private SqlSource sqlSource;
@@ -27,7 +27,7 @@ public class _SqlSorce
 
     private static final Object[] ZERO_ARGS = new Object[0];
 
-    _SqlSorce(DBSource dbSource, SqlSource sqlSource, WObject wObject, Logger LOGGER)
+    _SqlSource(DBSource dbSource, SqlSource sqlSource, WObject wObject, Logger LOGGER)
     {
         this.dbSource = dbSource;
         this.sqlSource = sqlSource;

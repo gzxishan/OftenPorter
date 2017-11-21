@@ -89,4 +89,17 @@ class JDaoImpl implements JDao
     {
         return jsBridge.dbSource;
     }
+
+
+    @Override
+    public <T> T call(Object... args)
+    {
+        return jsBridge.invoke(getMethod(), args);
+    }
+
+    @Override
+    public <T> T callMethod(String method, Object ... args)
+    {
+        return jsBridge.invoke(method, args);
+    }
 }

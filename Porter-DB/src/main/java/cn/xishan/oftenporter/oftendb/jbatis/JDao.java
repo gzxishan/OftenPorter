@@ -44,7 +44,7 @@ import com.alibaba.fastjson.JSONObject;
  * Created by chenyg on 2017-04-29.
  */
 @AutoSet.AutoSetDefaultDealt(gen = JDaoGen.class)
-public interface JDao
+public interface JDao extends JS
 {
 
     /**

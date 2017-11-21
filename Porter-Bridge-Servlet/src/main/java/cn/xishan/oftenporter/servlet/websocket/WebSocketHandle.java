@@ -16,15 +16,25 @@ import javax.servlet.http.HttpSession;
  */
 class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
 {
-    private PorterOfFun porterOfFun;
     private WebSocket webSocket;
 
     @Override
     public boolean init(WebSocket webSocket, PorterOfFun porterOfFun)
     {
         this.webSocket = webSocket;
-        this.porterOfFun = porterOfFun;
         return true;
+    }
+
+    @Override
+    public void onStart(WObject wObject)
+    {
+
+    }
+
+    @Override
+    public void onDestroy()
+    {
+
     }
 
     @Override
