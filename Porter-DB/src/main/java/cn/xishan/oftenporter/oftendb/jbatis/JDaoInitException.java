@@ -9,4 +9,9 @@ public class JDaoInitException extends RuntimeException
     {
         super(cause);
     }
+
+    public JDaoInitException(String message)
+    {
+        super(message);
+    }
 }

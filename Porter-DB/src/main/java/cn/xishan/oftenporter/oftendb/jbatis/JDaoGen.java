@@ -196,24 +196,50 @@ class JDaoGen implements AutoSetGen
             try
             {
                 JsBridge jsBridge;
-                SqlSource sqlSource = (SqlSource) dbSource;
                 JDaoPath jDaoPath = field.getAnnotation(JDaoPath.class);
-
-                Path path = getPath(jDaoPath, currentObjectClass, field);
-                Logger logger = LogUtil.logger(_SqlSorce.class);
-                if (path.isFile)
+                if (field.getType().equals(JS.class))
                 {
-                    jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, dbSource, sqlSource, logger);
+                    dbSource = null;
+                    Path path = getPath(jDaoPath, currentObjectClass, field);
+                    Logger logger = LogUtil.logger(_SqlSource.class);
+                    if (path.isFile)
+                    {
+                        jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, logger);
+                    } else
+                    {
+                        jsBridge = new JsBridge(
+                                getJsInvocable(getScript(currentObjectClass, path.path, field), dbSource, jDaoOption),
+                                path.path, logger);
+                    }
+
+                } else if (field.getType().equals(JDao.class))
+                {
+                    SqlSource sqlSource = (SqlSource) dbSource;
+
+                    Path path = getPath(jDaoPath, currentObjectClass, field);
+                    Logger logger = LogUtil.logger(_SqlSource.class);
+                    if (path.isFile)
+                    {
+                        jsBridge = new JsBridgeOfDebug(jDaoOption, path.path, dbSource, sqlSource, logger);
+                    } else
+                    {
+                        jsBridge = new JsBridge(
+                                getJsInvocable(getScript(currentObjectClass, path.path, field), dbSource, jDaoOption),
+                                dbSource, sqlSource, path.path, logger);
+                    }
+                    AutoSetDealtForDBSource.setUnit(currentObject, dbSource);
                 } else
                 {
-                    jsBridge = new JsBridge(
-                            getJsInvocable(getScript(currentObjectClass, path.path, field), dbSource, jDaoOption),
-                            dbSource, sqlSource, path.path, logger);
+                    throw new JDaoInitException("illegal type :" + field.getType());
                 }
-                AutoSetDealtForDBSource.setUnit(currentObject, dbSource);
+
+
                 JDaoImpl jDao = new JDaoImpl(jsBridge);
                 count++;
                 return jDao;
+            } catch (JDaoInitException e)
+            {
+                throw e;
             } catch (Exception e)
             {
                 throw new JDaoInitException(e);

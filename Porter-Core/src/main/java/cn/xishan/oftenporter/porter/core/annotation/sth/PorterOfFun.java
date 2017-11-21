@@ -162,4 +162,26 @@ public abstract class PorterOfFun implements ObjectGetter
         PorterOfFun fun = (PorterOfFun) obj;
         return method.equals(fun.method);
     }
+
+    public void startHandles(WObject wObject)
+    {
+        if (handles != null)
+        {
+            for (AspectFunOperation.Handle handle : handles)
+            {
+                handle.onStart(wObject);
+            }
+        }
+    }
+
+    public void destroyHandles()
+    {
+        if (handles != null)
+        {
+            for (AspectFunOperation.Handle handle : handles)
+            {
+                handle.onDestroy();
+            }
+        }
+    }
 }

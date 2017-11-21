@@ -140,6 +140,18 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
     }
 
     @Override
+    public void onStart(WObject wObject)
+    {
+
+    }
+
+    @Override
+    public void onDestroy()
+    {
+
+    }
+
+    @Override
     public Object invokeMethod(WObject wObject, PorterOfFun fun, Object lastReturn) throws Exception
     {
         List<String> keys = new ArrayList<>();

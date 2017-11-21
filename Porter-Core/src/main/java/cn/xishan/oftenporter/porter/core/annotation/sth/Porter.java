@@ -273,6 +273,11 @@ public final class Porter
 
     public void start(WObject wObject)
     {
+        start(wObject, false);
+    }
+
+    private void start(WObject wObject, boolean isMixin)
+    {
         if (started)
         {
             return;
@@ -284,7 +289,7 @@ public final class Porter
         {
             for (Porter porter : mixins)
             {
-                porter.start(wObject);
+                porter.start(wObject, true);
             }
         }
         _PortStart[] starts = getStarts();
@@ -308,11 +313,23 @@ public final class Porter
                 LOGGER.warn(e.getMessage(), e);
             }
         }
+        if (!isMixin)
+        {
+            for (PorterOfFun porterOfFun : childrenWithMethod.values())
+            {
+                porterOfFun.startHandles(wObject);
+            }
+        }
         wObject.popClassTied();
 
     }
 
     public void destroy()
+    {
+        destroy(false);
+    }
+
+    private void destroy(boolean isMixin)
     {
         if (destroyed)
         {
@@ -321,11 +338,18 @@ public final class Porter
         {
             destroyed = true;
         }
+        if (!isMixin)
+        {
+            for (PorterOfFun porterOfFun : childrenWithMethod.values())
+            {
+                porterOfFun.destroyHandles();
+            }
+        }
         if (mixins != null)
         {
             for (Porter porter : mixins)
             {
-                porter.destroy();
+                porter.destroy(true);
             }
         }
         _PortDestroy[] ds = getDestroys();

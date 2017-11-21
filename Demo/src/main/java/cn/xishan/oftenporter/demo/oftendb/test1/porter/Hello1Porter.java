@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.oftendb.data.common;
 import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
+import cn.xishan.oftenporter.oftendb.jbatis.JS;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
@@ -26,6 +27,9 @@ public class Hello1Porter
 
     @AutoSet
     DBUnit dbUnit;
+
+    @AutoSet
+    JS js;
 
     @AutoSet
     private DBSource source;
@@ -136,6 +140,13 @@ public class Hello1Porter
             jResponse.throwExCause();
         }
         throw new RuntimeException("test transaction failed!");
+    }
+
+    @PortIn.PortStart
+    public void onStart()
+    {
+        js.call("**********************\n","starting...");
+        js.callMethod("saySth", "HelloWorld","\n********************************\n");
     }
 
 
