@@ -65,4 +65,6 @@ public @interface ClientWebSocket
      * @return
      */
     StringType stringType() default StringType.STRING;
+
+    boolean autoStart() default true;
 }

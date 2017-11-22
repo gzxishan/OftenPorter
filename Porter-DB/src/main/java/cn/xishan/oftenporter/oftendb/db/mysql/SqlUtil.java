@@ -3,8 +3,14 @@ package cn.xishan.oftenporter.oftendb.db.mysql;
 
 import cn.xishan.oftenporter.oftendb.db.BaseEasier;
 import cn.xishan.oftenporter.oftendb.db.Condition;
+import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SqlUtil
@@ -400,5 +406,103 @@ public class SqlUtil
         content = content.replaceAll("%", "[%]").replaceAll("\\^", "[^]").replaceAll("_", "[_]");
         return content;
     }
+
+
+    public static class CreateTable
+    {
+        public String tableName;
+        public String createTableSql;
+
+        public CreateTable(String tableName, String createTableSql)
+        {
+            this.tableName = tableName;
+            this.createTableSql = createTableSql;
+        }
+
+        @Override
+        public String toString()
+        {
+            return createTableSql;
+        }
+    }
+
+    /**
+     * @param tableNamePattern
+     * @param host             包括端口,如localhost:3306
+     * @param dbname
+     * @param mysqlUser
+     * @param mysqlPassword
+     * @return
+     */
+    public static List<CreateTable> exportCreateTable(String tableNamePattern, String host, String dbname,
+            String mysqlUser, String mysqlPassword)
+    {
+        try
+        {
+            return exportCreateTable(tableNamePattern,
+                    "jdbc:mysql://" + host + "/" + dbname + "?user=" + URLEncoder
+                            .encode(mysqlUser, "utf-8") + "&password=" + URLEncoder.encode(mysqlPassword, "utf-8"),
+                    "com.mysql.jdbc.Driver");
+        } catch (UnsupportedEncodingException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param tableNamePattern 为null表示导出所有的。
+     * @param connectionUrl
+     * @param driverClass
+     * @return
+     */
+    public static List<CreateTable> exportCreateTable(String tableNamePattern, String connectionUrl, String driverClass)
+    {
+        Connection conn = null;
+        try
+        {
+            Class.forName(driverClass);
+            conn = DriverManager.getConnection(connectionUrl);
+
+            DatabaseMetaData metaData = conn.getMetaData();
+            ResultSet tables = metaData
+                    .getTables(null, "%", tableNamePattern == null ? "%" : tableNamePattern, new String[]{"TABLE"});
+
+            List<CreateTable> list = new ArrayList<>();
+
+            if (tables.next())
+            {
+                PreparedStatement ps0 = conn.prepareStatement("set sql_quote_show_create=1;");
+                ps0.execute();
+                ps0.close();
+                do
+                {
+                    String tableName = tables.getString("TABLE_NAME");
+                    PreparedStatement ps = conn.prepareStatement("SHOW CREATE TABLE `" + tableName + "`");
+                    ResultSet resultSet = ps.executeQuery();
+                    resultSet.next();
+                    String createTable = resultSet.getString("Create Table");
+                    list.add(new CreateTable(tableName, createTable));
+                    resultSet.close();
+                    ps.close();
+                } while (tables.next());
+
+
+            }
+            tables.close();
+            return list;
+        } catch (RuntimeException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        } finally
+        {
+            WPTool.close(conn);
+        }
+
+
+    }
+
 
 }

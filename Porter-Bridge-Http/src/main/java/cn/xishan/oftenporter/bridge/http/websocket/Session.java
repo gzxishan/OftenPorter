@@ -7,11 +7,17 @@ import java.nio.ByteBuffer;
  */
 public interface Session
 {
+    /**
+     * 调用后将不会连接。
+     */
+    public void close(int code, String reason);
+
+    /**
+     * 调用后将不会连接。
+     */
     public void close();
 
     public boolean isClosed();
-
-    public void close(int code, String reason);
 
     public void sendPing();
 
