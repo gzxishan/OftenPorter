@@ -27,6 +27,7 @@ public abstract class WS
     /**
      * <pre>
      *     返回值类型:
+     *     0.{@linkplain Type#ON_CONNECTING}:{@linkplain Connecting}
      *     1.{@linkplain Type#ON_OPEN}:null
      *     2.{@linkplain Type#ON_MESSAGE}:String
      *     3.{@linkplain Type#ON_ERROR}:Throwable
@@ -86,9 +87,11 @@ public abstract class WS
     @Override
     public boolean equals(Object obj)
     {
-        if(obj==null||!(obj instanceof WS)){
+        if (obj == null || !(obj instanceof WS))
+        {
             return false;
-        }else{
+        } else
+        {
             WS ws = (WS) obj;
             return ws.session.getId().equals(session.getId());
         }

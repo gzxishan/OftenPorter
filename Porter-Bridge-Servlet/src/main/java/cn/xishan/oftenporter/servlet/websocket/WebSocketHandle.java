@@ -5,17 +5,22 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WebSocket webSocket;
 
     @Override
@@ -46,6 +51,37 @@ class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
     @Override
     public Object invokeMethod(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
+        if (webSocket.needConnectingState())
+        {
+            WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
+                try
+                {
+                    if (will)
+                    {
+                        doConnect(wObject, porterOfFun);
+                    } else
+                    {
+                        HttpServletResponse response = wObject.getRequest().getOriginalResponse();
+                        response.getWriter().close();
+                    }
+                } catch (Exception e)
+                {
+                    LOGGER.debug(e.getMessage(), e);
+                }
+
+            });
+            porterOfFun.invoke(wObject, new Object[]{wObject, ws});
+        } else
+        {
+            doConnect(wObject, porterOfFun);
+        }
+
+
+        return null;
+    }
+
+    private void doConnect(WObject wObject, PorterOfFun porterOfFun) throws ServletException, IOException
+    {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         HttpServletResponse response = wObject.getRequest().getOriginalResponse();
         RequestDispatcher requestDispatcher = request.getRequestDispatcher(XSServletWSConfig.WS_PATH);
@@ -56,7 +92,6 @@ class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
         session.setAttribute(WebSocket.class.getName(), webSocket);
 
         requestDispatcher.forward(request, response);
-        return null;
     }
 
     @Override

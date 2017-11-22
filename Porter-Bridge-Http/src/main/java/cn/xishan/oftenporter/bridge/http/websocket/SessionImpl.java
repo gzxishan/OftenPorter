@@ -7,19 +7,27 @@ import java.nio.ByteBuffer;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
  */
-public class SessionImpl implements Session
+class SessionImpl implements Session
 {
     WebSocketClient webSocketClient;
+    private OnClose onClose;
 
-    public SessionImpl(WebSocketClient webSocketClient)
+    interface OnClose
+    {
+        void onClosed();
+    }
+
+    public SessionImpl(WebSocketClient webSocketClient, OnClose onClose)
     {
         this.webSocketClient = webSocketClient;
+        this.onClose = onClose;
     }
 
     @Override
     public void close()
     {
         webSocketClient.close();
+        onClose.onClosed();
     }
 
     @Override
@@ -32,6 +40,7 @@ public class SessionImpl implements Session
     public void close(int code, String reason)
     {
         webSocketClient.close(code, reason);
+        onClose.onClosed();
     }
 
     @Override

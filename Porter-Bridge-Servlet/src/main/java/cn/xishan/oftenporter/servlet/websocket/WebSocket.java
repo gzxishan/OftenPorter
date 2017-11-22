@@ -23,7 +23,7 @@ public @interface WebSocket
 {
     public enum Type
     {
-        ON_OPEN, ON_MESSAGE, ON_PONG, ON_ERROR, ON_CLOSE,
+        ON_CONNECTING, ON_OPEN, ON_MESSAGE, ON_PONG, ON_ERROR, ON_CLOSE,
         ON_BINARY_BYTE_BUFFER, ON_BINARY_BYTE_ARRAY, ON_BINARY_INPUT_STREAM,
         ON_MESSAGE_READER
     }
@@ -69,4 +69,11 @@ public @interface WebSocket
      * @return
      */
     StringType stringType() default StringType.STRING;
+
+    /**
+     * 是否需要{@linkplain Type#ON_CONNECTING}状态，默认false。
+     *
+     * @return
+     */
+    boolean needConnectingState() default false;
 }
