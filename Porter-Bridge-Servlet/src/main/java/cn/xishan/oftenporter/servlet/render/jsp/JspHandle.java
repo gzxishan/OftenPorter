@@ -61,31 +61,35 @@ class JspHandle implements AspectFunOperation.Handle<Jsp>
                 .useStdTag() != 0) && suffix
                 .equals(".jsp");
 
-        stdJsp = FileTool.getString(
-                getClass().getResourceAsStream("/" + PackageUtil.getPackageWithRelative(getClass(), "std.jsp", "/")));
-
-        pageEncoding = jsp.pageEncoding().equals("") ? jspOption.pageEncoding : jsp.pageEncoding();
-        if (pageEncoding.equals(""))
+        if (useStdTag)
         {
-            pageEncoding = "utf-8";
-        }
+            stdJsp = FileTool.getString(
+                    getClass()
+                            .getResourceAsStream("/" + PackageUtil.getPackageWithRelative(getClass(), "std.jsp", "/")));
 
-        stdJsp = stdJsp.replace("#{pageEncoding}", pageEncoding);
+            pageEncoding = jsp.pageEncoding().equals("") ? jspOption.pageEncoding : jsp.pageEncoding();
+            if (pageEncoding.equals(""))
+            {
+                pageEncoding = "utf-8";
+            }
 
-        if(jsp.enableEL() == -1 && jspOption.enableEL || jsp.enableEL() != -1 && jsp
-                .enableEL() != 0){
-            //启用EL表达式
-            stdJsp+="<%@ page isELIgnored=\"false\"%>\n";
-        }
+            stdJsp = stdJsp.replace("#{pageEncoding}", pageEncoding);
 
+            if (jsp.enableEL() == -1 && jspOption.enableEL || jsp.enableEL() != -1 && jsp
+                    .enableEL() != 0)
+            {
+                //启用EL表达式
+                stdJsp += "<%@ page isELIgnored=\"false\"%>\n";
+            }
 
-        if (WPTool.notNullAndEmpty(jspOption.appendJspContent))
-        {
-            stdJsp += jspOption.appendJspContent;
-        }
-        if (WPTool.notNullAndEmpty(jsp.appendJspContent()))
-        {
-            stdJsp += jsp.appendJspContent();
+            if (WPTool.notNullAndEmpty(jspOption.appendJspContent))
+            {
+                stdJsp += jspOption.appendJspContent;
+            }
+            if (WPTool.notNullAndEmpty(jsp.appendJspContent()))
+            {
+                stdJsp += jsp.appendJspContent();
+            }
         }
 
 
