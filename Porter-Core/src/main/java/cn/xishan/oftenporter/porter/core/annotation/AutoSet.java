@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
@@ -30,7 +31,9 @@ import java.lang.annotation.*;
  *     2.{@linkplain AutoSetSeek AutoSetSeek}
  *     3.{@linkplain CheckPassable CheckPassable}
  *     4.{@linkplain StateListener StateListener}
- *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
+ *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},
+ *     这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
+ *     6.{@linkplain Handle}
  * </pre>
  * <pre>
  * 内置对象:
@@ -41,14 +44,15 @@ import java.lang.annotation.*;
  * 5.{@linkplain SyncPorter SyncPorter}
  * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
- *
+ * <p>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 @Documented
-public @interface AutoSet {
+public @interface AutoSet
+{
 
 
     /**
@@ -59,7 +63,8 @@ public @interface AutoSet {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
     @Documented
-    @interface AutoSetSeek {
+    @interface AutoSetSeek
+    {
     }
 
     /**
@@ -73,7 +78,8 @@ public @interface AutoSet {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     @Documented
-    @interface SetOk {
+    @interface SetOk
+    {
         /**
          * 全局优先级,数值越大越先执行，同一优先级的执行顺序并不保证。
          *
@@ -90,7 +96,8 @@ public @interface AutoSet {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
     @Documented
-    @interface AutoSetMixin {
+    @interface AutoSetMixin
+    {
         /**
          * 为""表示匹配名称为当前注解类的Class.getName，从被混入的类中查找有该注解的对应变量.
          *
@@ -119,11 +126,13 @@ public @interface AutoSet {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
     @Documented
-    @interface AutoSetThatOfMixin {
+    @interface AutoSetThatOfMixin
+    {
 
     }
 
-    enum Range {
+    enum Range
+    {
         /**
          * 表示使用针对所有context全局实例.若不存在，则会尝试反射创建，并加入到全局map中。
          * <br>
@@ -195,7 +204,8 @@ public @interface AutoSet {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
     @Documented
-    @interface AutoSetDefaultDealt {
+    @interface AutoSetDefaultDealt
+    {
         /**
          * 默认选项，当{@linkplain AutoSet#option() AutoSet.option()}为空时有效。
          *

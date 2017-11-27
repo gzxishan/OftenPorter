@@ -147,7 +147,8 @@ public class SthDeal
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
         //TODO 处理类上的AspectFunOperation
-        List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(clazz.getDeclaredAnnotations(), porter,
+        List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
+                clazz.getDeclaredAnnotations(), porter,
                 null);
 
         BackableSeek backableSeek = new BackableSeek();
@@ -243,7 +244,7 @@ public class SthDeal
                 putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
 
                 //扫描AspectFunOperation
-                seekAspectFunOperation(porterOfFun, classHandles);
+                seekAspectFunOperation(autoSetHandle, porterOfFun, classHandles);
             }
         }
 
@@ -257,10 +258,12 @@ public class SthDeal
         return porter;
     }
 
-    private void seekAspectFunOperation(PorterOfFun porterOfFun, List<AspectFunOperation.Handle> classHandles)
+    private void seekAspectFunOperation(AutoSetHandle setHandle, PorterOfFun porterOfFun,
+            List<AspectFunOperation.Handle> classHandles)
     {
         Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
-        List<AspectFunOperation.Handle> handles = seekAspectFunOperation(annotations, porterOfFun, classHandles);
+        List<AspectFunOperation.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
+                classHandles);
         if (handles.size() > 0)
         {
             porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
@@ -274,14 +277,16 @@ public class SthDeal
      * @param _handles
      * @return 返回一个新的List
      */
-    private List<AspectFunOperation.Handle> seekAspectFunOperation(Annotation[] annotations, Object object,
+    private List<AspectFunOperation.Handle> seekAspectFunOperation(AutoSetHandle setHandle, Annotation[] annotations,
+            Object object,
             List<AspectFunOperation.Handle> _handles)
     {
         // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
 
         List<AspectFunOperation.Handle> handles = new ArrayList<>();
 
-        if(_handles!=null){
+        if (_handles != null)
+        {
             handles.addAll(_handles);
         }
 
@@ -304,20 +309,24 @@ public class SthDeal
                         PorterOfFun porterOfFun = (PorterOfFun) object;
                         if (handle.init(annotation, porterOfFun))
                         {
-                            if(handle.getOutType()!=null){
+                            if (handle.getOutType() != null)
+                            {
                                 porterOfFun.portOut._setOutType(handle.getOutType());
                             }
                             handles.add(handle);
+                            setHandle.addAutoSetsForNotPorter(new Object[]{handle});
                         }
                     } else
                     {
                         Porter porter = (Porter) object;
                         if (handle.init(annotation, porter))
                         {
-                            if(handle.getOutType()!=null){
+                            if (handle.getOutType() != null)
+                            {
                                 porter.portOut._setOutType(handle.getOutType());
                             }
                             handles.add(handle);
+                            setHandle.addAutoSetsForNotPorter(new Object[]{handle});
                         }
                     }
 

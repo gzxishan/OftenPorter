@@ -18,6 +18,9 @@ import java.lang.annotation.*;
 @Documented
 public @interface AspectFunOperation
 {
+    /**
+     * @param <T>
+     */
     public static interface Handle<T extends Annotation>
     {
 

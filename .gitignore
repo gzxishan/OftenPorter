@@ -8,5 +8,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .idea/
+.jsp-handle/
 *.iml
 */src/main/webapp/WEB-INF/classes/
