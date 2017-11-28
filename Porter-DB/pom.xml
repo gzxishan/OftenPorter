@@ -14,7 +14,7 @@
 
     <name>Porter-DB</name>
     <url>http://maven.apache.org</url>
-    
+
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/com.google.android/android -->
@@ -23,6 +23,14 @@
             <artifactId>android</artifactId>
             <version>4.0.1.2</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.4.5</version>
+            <scope>compile</scope>
+            <optional>true</optional>
         </dependency>
 
 
