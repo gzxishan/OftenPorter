@@ -4,6 +4,8 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.init.IAttribute;
+import cn.xishan.oftenporter.porter.core.init.IAttributeFactory;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -16,10 +18,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class WServletRequest extends PRequest
+public final class WServletRequest extends PRequest implements IAttributeFactory
 {
     private HttpServletRequest request;
     private HttpServletResponse response;
+    private IAttributeFactory iAttributeFactory;
 
     /**
      * @param request
@@ -28,10 +31,12 @@ public final class WServletRequest extends PRequest
      * @param response
      * @param method
      */
-    WServletRequest(HttpServletRequest request, String path, HttpServletResponse response, PortMethod method)
+    WServletRequest(IAttributeFactory iAttributeFactory, HttpServletRequest request, String path,
+            HttpServletResponse response, PortMethod method)
     {
         super(method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
                 false);
+        this.iAttributeFactory = iAttributeFactory;
         this.request = request;
         this.response = response;
     }
@@ -194,4 +199,9 @@ public final class WServletRequest extends PRequest
         return getHostFromURL(request.getRequestURL(), http2Https);
     }
 
+    @Override
+    public IAttribute getIAttribute(WObject wObject)
+    {
+        return iAttributeFactory==null?null:iAttributeFactory.getIAttribute(wObject);
+    }
 }

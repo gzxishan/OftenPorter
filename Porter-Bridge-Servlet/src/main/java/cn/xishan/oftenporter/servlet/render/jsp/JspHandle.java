@@ -26,6 +26,12 @@ import java.util.concurrent.ConcurrentHashMap;
 class JspHandle implements AspectFunOperation.Handle<Jsp>
 {
 
+    static class Cache
+    {
+        long lastModified;
+        long lastAdd = System.currentTimeMillis();
+    }
+
     @AutoSet(nullAble = true)
     JspOption jspOption;
     @AutoSet
@@ -42,7 +48,7 @@ class JspHandle implements AspectFunOperation.Handle<Jsp>
 
     private String stdJsp;
 
-    private Map<String, Long> newFiles = new ConcurrentHashMap<>();
+    private Map<String, Cache> newFiles = new ConcurrentHashMap<>();
     private String prefix, suffix;
     private boolean useStdTag = false;
 
@@ -167,10 +173,19 @@ class JspHandle implements AspectFunOperation.Handle<Jsp>
                     {
                         file.getParentFile().mkdirs();
                     }
-                    if (!newFiles.containsKey(realPathOfNewFile) || originFile.lastModified() != newFiles
-                            .get(realPathOfNewFile))
+                    Cache cache;
+                    if ((cache = newFiles.get(realPathOfNewFile)) == null || (System
+                            .currentTimeMillis() - cache.lastAdd > 5000 && originFile
+                            .lastModified() != cache.lastModified))
                     {
-                        newFiles.put(realPathOfNewFile, originFile.lastModified());
+                        if (cache == null)
+                        {
+                            cache = new Cache();
+                            newFiles.put(realPathOfNewFile, cache);
+                        }
+                        cache.lastModified = originFile.lastModified();
+                        cache.lastAdd = System.currentTimeMillis();
+
                         String content = FileTool
                                 .getString(originFile, 1024, pageEncoding);
                         FileTool.write2File(stdJsp + content, pageEncoding, file, true);

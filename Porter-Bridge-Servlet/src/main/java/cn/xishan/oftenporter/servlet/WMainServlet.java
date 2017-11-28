@@ -3,9 +3,7 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.PreRequest;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.init.CommonMain;
-import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.init.PorterMain;
+import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
@@ -47,6 +45,43 @@ public class WMainServlet extends HttpServlet implements CommonMain
      * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
      */
     protected boolean addPutDealt = true;
+
+    private IAttributeFactory attributeFactory = new IAttributeFactory()
+    {
+        @Override
+        public IAttribute getIAttribute(WObject wObject)
+        {
+            Object req = wObject.getRequest().getOriginalRequest();
+            if(req==null||!(req instanceof HttpServletRequest)){
+                return null;
+            }
+            HttpServletRequest request = (HttpServletRequest) req;
+            return new IAttribute()
+            {
+                @Override
+                public IAttribute setAttribute(String key, Object value)
+                {
+                    request.setAttribute(key, value);
+                    return this;
+                }
+
+                @Override
+                public <T> T getAttribute(String key)
+                {
+                    Object obj = request.getAttribute(key);
+                    return (T) obj;
+                }
+
+                @Override
+                public <T> T removeAttribute(String key)
+                {
+                    Object obj = request.getAttribute(key);
+                    request.removeAttribute(key);
+                    return (T) obj;
+                }
+            };
+        }
+    };
 
     public WMainServlet()
     {
@@ -147,7 +182,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             PortMethod method) throws IOException
     {
 
-        WServletRequest wreq = new WServletRequest(request, path, response, method);
+        WServletRequest wreq = new WServletRequest(attributeFactory, request, path, response, method);
         final WServletResponse wresp = new WServletResponse(response);
 
         if (wreq.getPath().startsWith("/="))
@@ -249,7 +284,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
         }
         porterMain.init(responseHandle, new DefaultUrlDecoder(urlEncoding), responseWhenException);
-
+        porterMain.setIAttributeFactory(attributeFactory);
     }
 
     /**

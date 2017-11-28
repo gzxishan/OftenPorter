@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.init.IAttribute;
+import cn.xishan.oftenporter.porter.core.init.IAttributeFactory;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 
@@ -15,19 +17,27 @@ class WObjectImpl extends WObject
     private UrlDecoder.Result result;
     Object[] finObjs, cinObjs;
 
+
     Context context;
     ABOption abOption;
     private PName pName;
     private Delivery delivery;
     private ParamSource paramSource;
+    private IAttribute iAttribute;
 
-    WObjectImpl(PName pName, UrlDecoder.Result result, WRequest request, WResponse response, Context context)
+    WObjectImpl(PName pName, UrlDecoder.Result result, WRequest request, WResponse response,
+            Context context)
     {
         this.pName = pName;
         this.result = result;
         this.request = request;
         this.response = response;
         this.context = context;
+    }
+
+    void setIAttribute(IAttributeFactory factory)
+    {
+        this.iAttribute = factory.getIAttribute(this);
     }
 
     void setParamSource(ParamSource paramSource)
@@ -105,5 +115,23 @@ class WObjectImpl extends WObject
     public UrlDecoder.Result url()
     {
         return result;
+    }
+
+    @Override
+    public IAttribute setAttribute(String key, Object value)
+    {
+        return iAttribute.setAttribute(key, value);
+    }
+
+    @Override
+    public <T> T getAttribute(String key)
+    {
+        return iAttribute.getAttribute(key);
+    }
+
+    @Override
+    public <T> T removeAttribute(String key)
+    {
+        return iAttribute.removeAttribute(key);
     }
 }

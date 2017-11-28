@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.init.IAttribute;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
@@ -24,7 +25,7 @@ public class ServletWObject extends WObject
     public ServletWObject(HttpServletRequest request, HttpServletResponse response)
     {
         this("", "", "");
-        wRequest = new WServletRequest(request,"",response,PortMethod.DEFAULT);
+        wRequest = new WServletRequest(null,request,"",response,PortMethod.DEFAULT);
         wResponse=new WServletResponse(response);
         paramSource=new DefaultParamSource(wRequest);
         paramSource.setUrlResult(result);
@@ -107,6 +108,24 @@ public class ServletWObject extends WObject
      */
     @Override
     public PName getPName()
+    {
+        return null;
+    }
+
+    @Override
+    public IAttribute setAttribute(String key, Object value)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getAttribute(String key)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T removeAttribute(String key)
     {
         return null;
     }

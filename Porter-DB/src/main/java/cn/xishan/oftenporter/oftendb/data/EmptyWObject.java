@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data;
 
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.init.IAttribute;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
@@ -82,6 +83,24 @@ public class EmptyWObject extends WObject {
      */
     @Override
     public PName getPName() {
+        return null;
+    }
+
+    @Override
+    public IAttribute setAttribute(String key, Object value)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getAttribute(String key)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T removeAttribute(String key)
+    {
         return null;
     }
 }

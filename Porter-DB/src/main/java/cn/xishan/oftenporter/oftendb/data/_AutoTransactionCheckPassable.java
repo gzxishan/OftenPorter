@@ -10,13 +10,13 @@ import org.slf4j.Logger;
  *
  * @author Created by https://github.com/CLovinr on 2017/4/24.
  */
-class AutoTransactionCheckPassable implements CheckPassable
+public class _AutoTransactionCheckPassable implements CheckPassable
 {
     private TransactionConfirm transactionConfirm;
 
     Logger LOGGER = LogUtil.logger(getClass());
 
-    public AutoTransactionCheckPassable(TransactionConfirm transactionConfirm)
+    public _AutoTransactionCheckPassable(TransactionConfirm transactionConfirm)
     {
         this.transactionConfirm = transactionConfirm;
     }

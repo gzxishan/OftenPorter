@@ -455,7 +455,7 @@ public class DBCommon {
     }
 
     public static CheckPassable autoTransaction(TransactionConfirm confirm) {
-        AutoTransactionCheckPassable checkPassable = new AutoTransactionCheckPassable(confirm);
+        _AutoTransactionCheckPassable checkPassable = new _AutoTransactionCheckPassable(confirm);
         return checkPassable;
     }
 
