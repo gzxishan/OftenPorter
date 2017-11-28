@@ -35,11 +35,14 @@ public class MyBatisBridge
 
     public static void init(PorterConf porterConf, MyBatisOption myBatisOption, InputStream configStream)
     {
+        if (myBatisOption == null)
+        {
+            throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
+        }
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configStream);
         porterConf.addContextAutoSet(SqlSessionFactory.class, sqlSessionFactory);
         porterConf.addContextAutoSet(MyBatisOption.class, myBatisOption);
     }
-
 
 
     public static void startTransaction(WObject wObject, SqlTransactionConfig sqlTransactionConfig)
@@ -108,8 +111,8 @@ public class MyBatisBridge
         if (sqlSession == null)
         {
             SqlSessionFactory sqlSessionFactory = wObject.savedObject(SqlSessionFactory.class);
-
-            sqlSession = sqlSessionFactory.openSession();
+            MyBatisOption myBatisOption = wObject.savedObject(MyBatisOption.class);
+            sqlSession = sqlSessionFactory.openSession(myBatisOption.autoCommit);
             wObject.setAttribute(SqlSession.class, sqlSession);
         }
         return sqlSession;
@@ -184,7 +187,7 @@ public class MyBatisBridge
                 return tConfig;
             }
         };
-        _AutoTransactionCheckPassable checkPassable = new _AutoTransactionCheckPassable(confirm);
+        _AutoTransactionCheckPassable checkPassable = new _AutoTransactionCheckPassable(transactionConfirm);
         return checkPassable;
     }
 }

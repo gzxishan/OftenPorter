@@ -7,6 +7,8 @@ public class MyBatisOption
 {
     public String rootDir;
 
+    public boolean autoCommit=true;
+
     public MyBatisOption(String rootDir)
     {
         this.rootDir = rootDir;
