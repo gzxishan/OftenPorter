@@ -184,7 +184,7 @@ public class MyBatisBridge
                 return tConfig;
             }
         };
-        _AutoTransactionCheckPassable checkPassable = new _AutoTransactionCheckPassable(confirm);
+        _AutoTransactionCheckPassable checkPassable = new _AutoTransactionCheckPassable(transactionConfirm);
         return checkPassable;
     }
 }
