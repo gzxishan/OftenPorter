@@ -14,7 +14,8 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.sql.*;
 
-public class SqlHandle implements DBHandle, SqlSource {
+public class SqlHandle implements DBHandle, SqlSource
+{
 
     private static final QuerySettings FIND_ONE = new QuerySettings().setLimit(1).setSkip(0);
 
@@ -32,17 +33,20 @@ public class SqlHandle implements DBHandle, SqlSource {
      *
      * @param conn 数据库连接对象
      */
-    public SqlHandle(Connection conn) {
+    public SqlHandle(Connection conn)
+    {
         this.conn = conn;
     }
 
     @Override
-    public Connection getConnection() {
+    public Connection getConnection()
+    {
         return conn;
     }
 
     @Override
-    public void setLogger(Logger Logger) {
+    public void setLogger(Logger Logger)
+    {
         LOGGER = Logger;
     }
 
@@ -51,29 +55,36 @@ public class SqlHandle implements DBHandle, SqlSource {
      *
      * @param field2LowerCase
      */
-    public SqlHandle setField2LowerCase(Boolean field2LowerCase) {
+    public SqlHandle setField2LowerCase(Boolean field2LowerCase)
+    {
         this.field2LowerCase = field2LowerCase;
         return this;
     }
 
     @Override
-    public void setCollectionName(String collectionName) {
+    public void setCollectionName(String collectionName)
+    {
         this.tableName = collectionName;
     }
 
-    public String getTableName() {
+    public String getTableName()
+    {
         return tableName;
     }
 
     private static final SqlCondition TRUE = null;// new SqlCondition();
 
-    public static SqlCondition checkCondition(Condition condition) {
-        if (condition == null) {
+    public static SqlCondition checkCondition(Condition condition)
+    {
+        if (condition == null)
+        {
             return TRUE;
         }
-        if (condition instanceof SqlCondition) {
+        if (condition instanceof SqlCondition)
+        {
             return (SqlCondition) condition;
-        } else {
+        } else
+        {
             throw new DBException("the condition type of " + SqlCondition.class
                     + " is accept."
                     + "Current is "
@@ -83,37 +94,46 @@ public class SqlHandle implements DBHandle, SqlSource {
 
 
     @Override
-    public boolean add(NameValues addFields) throws DBException {
+    public boolean add(NameValues addFields) throws DBException
+    {
         return executePS(conn, true, tableName, addFields) == 1;
     }
 
     @Override
-    public int[] add(MultiNameValues multiNameValues) throws DBException {
+    public int[] add(MultiNameValues multiNameValues) throws DBException
+    {
         return addPS(conn, isTransaction, tableName, multiNameValues);
     }
 
-    public static void logArgs(Object[] args, StringBuilder builder) {
-        if (args == null) {
+    public static void logArgs(Object[] args, StringBuilder builder)
+    {
+        if (args == null)
+        {
             return;
         }
-        for (int i = 0; i < args.length; i++) {
+        for (int i = 0; i < args.length; i++)
+        {
             Object value = args[i];
             logArg(value, builder);
         }
     }
 
-    private static void logArg(Object value, StringBuilder builder) {
+    private static void logArg(Object value, StringBuilder builder)
+    {
         value = value != null && (value instanceof InputStream) ? value.getClass() : value;
         String str = String.valueOf(value);
-        if (str.length() > 256) {
+        if (str.length() > 256)
+        {
             str = str.substring(0, 256) + "...";
             value = str;
         }
         builder.append(value).append("(").append(value == null ? null : value.getClass().getSimpleName()).append("),");
     }
 
-    private static void logArgs(NameValues nameValues, StringBuilder builder) {
-        for (int i = 0; i < nameValues.size(); i++) {
+    private static void logArgs(NameValues nameValues, StringBuilder builder)
+    {
+        for (int i = 0; i < nameValues.size(); i++)
+        {
             Object value = nameValues.value(i);
             logArg(value, builder);
         }
@@ -123,14 +143,18 @@ public class SqlHandle implements DBHandle, SqlSource {
      * @param query 不会被使用
      */
     @Override
-    public boolean replace(Condition query, NameValues updateFields) throws DBException {
+    public boolean replace(Condition query, NameValues updateFields) throws DBException
+    {
         return executePS(conn, false, tableName, updateFields) > 0;
     }
 
-    private int execute(SqlUtil.WhereSQL whereSQL) {
+    private int execute(SqlUtil.WhereSQL whereSQL)
+    {
         PreparedStatement ps = null;
-        try {
-            if (LOGGER.isDebugEnabled()) {
+        try
+        {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", whereSQL.sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
@@ -139,28 +163,33 @@ public class SqlHandle implements DBHandle, SqlSource {
             }
             ps = conn.prepareStatement(whereSQL.sql);
             Object[] args = whereSQL.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 Object obj = args[i];
                 setObject(ps, i + 1, obj);
             }
             int n = ps.executeUpdate();
             return n;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
     }
 
     @Override
-    public int del(Condition query) throws DBException {
+    public int del(Condition query) throws DBException
+    {
         SqlUtil.WhereSQL whereSQL = SqlUtil.toDelete(tableName, checkCondition(query), true);
         return execute(whereSQL);
     }
 
 
     @Override
-    public JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException {
+    public JSONArray getJSONs(Condition query, QuerySettings querySettings, String... keys) throws DBException
+    {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), querySettings, true, keys);
         return _getJSONS(whereSQL, null, keys);
@@ -168,19 +197,23 @@ public class SqlHandle implements DBHandle, SqlSource {
 
     @Override
     public DBEnumeration<JSONObject> getDBEnumerations(Condition query, QuerySettings querySettings,
-                                                       String... keys) throws DBException {
+            String... keys) throws DBException
+    {
         SqlUtil.WhereSQL whereSQL = SqlUtil
                 .toSelect(tableName, checkCondition(query), querySettings, true, keys);
         return getDBEnumerations(whereSQL, null, keys);
     }
 
     private DBEnumeration<JSONObject> getDBEnumerations(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings,
-                                                        String[] keys) throws DBException {
+            String[] keys) throws DBException
+    {
 
-        try {
+        try
+        {
             String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
 
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
@@ -189,27 +222,34 @@ public class SqlHandle implements DBHandle, SqlSource {
             }
             PreparedStatement ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 Object obj = args[i];
                 setObject(ps, i + 1, obj);
             }
             ResultSet rs = ps.executeQuery();
 
-            DBEnumeration<JSONObject> dbEnumeration = new DBEnumeration<JSONObject>() {
+            DBEnumeration<JSONObject> dbEnumeration = new DBEnumeration<JSONObject>()
+            {
                 int hasNext = -1;
 
                 @Override
-                public void close() throws DBException {
+                public void close() throws DBException
+                {
                     WPTool.close(ps);
                     canOpenOrClose = true;
                 }
 
                 @Override
-                public boolean hasMoreElements() throws DBException {
-                    if (hasNext == -1) {
-                        try {
+                public boolean hasMoreElements() throws DBException
+                {
+                    if (hasNext == -1)
+                    {
+                        try
+                        {
                             hasNext = rs.next() ? 1 : 0;
-                        } catch (SQLException e) {
+                        } catch (SQLException e)
+                        {
                             throw new DBException(e);
                         }
                     }
@@ -217,22 +257,27 @@ public class SqlHandle implements DBHandle, SqlSource {
                 }
 
                 @Override
-                public JSONObject nextElement() {
-                    if (!hasMoreElements()) {
+                public JSONObject nextElement()
+                {
+                    if (!hasMoreElements())
+                    {
                         throw new DBException("no more elements!");
                     }
-                    try {
+                    try
+                    {
                         JSONObject jsonObject = getJSONObject(rs, keys);
                         hasNext = -1;
                         return jsonObject;
-                    } catch (SQLException e) {
+                    } catch (SQLException e)
+                    {
                         throw new DBException(e);
                     }
                 }
             };
             canOpenOrClose = false;
             return dbEnumeration;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
         }
 
@@ -240,17 +285,21 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     @Override
-    public boolean canOpenOrClose() {
+    public boolean canOpenOrClose()
+    {
         return canOpenOrClose;
     }
 
-    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings, String[] keys) {
+    private JSONArray _getJSONS(SqlUtil.WhereSQL whereSQL, QuerySettings querySettings, String[] keys)
+    {
         JSONArray list = new JSONArray();
         PreparedStatement ps = null;
 
-        try {
+        try
+        {
             String sql = querySettings == null ? whereSQL.sql : whereSQL.sql + SqlUtil.toOrder(querySettings, true);
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
@@ -259,25 +308,31 @@ public class SqlHandle implements DBHandle, SqlSource {
             }
             ps = conn.prepareStatement(sql);
             Object[] args = whereSQL.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 Object obj = args[i];
                 setObject(ps, i + 1, obj);
             }
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next())
+            {
                 list.add(getJSONObject(rs, keys));
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
         return list;
     }
 
-    private SqlAdvancedQuery getSqlAdvancedQuery(AdvancedQuery advancedQuery) {
-        if (!(advancedQuery instanceof SqlAdvancedQuery)) {
+    private SqlAdvancedQuery getSqlAdvancedQuery(AdvancedQuery advancedQuery)
+    {
+        if (!(advancedQuery instanceof SqlAdvancedQuery))
+        {
             throw new DBException("the object must be " + SqlAdvancedQuery.class);
         }
         SqlAdvancedQuery advanced = (SqlAdvancedQuery) advancedQuery;
@@ -286,7 +341,8 @@ public class SqlHandle implements DBHandle, SqlSource {
 
     @Override
     public DBEnumeration<JSONObject> getDBEnumerations(AdvancedQuery advancedQuery,
-                                                       QuerySettings querySettings) throws DBException {
+            QuerySettings querySettings) throws DBException
+    {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
 
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
@@ -294,20 +350,25 @@ public class SqlHandle implements DBHandle, SqlSource {
         return getDBEnumerations(whereSQL, querySettings, keys);
     }
 
-    private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException {
+    private JSONObject getJSONObject(ResultSet rs, String[] keys) throws JSONException, SQLException
+    {
         JSONObject jsonObject;
-        if (keys == null || keys.length == 0) {
+        if (keys == null || keys.length == 0)
+        {
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();
             jsonObject = new JSONObject(columnCount);
-            for (int i = 1; i <= columnCount; i++) {
+            for (int i = 1; i <= columnCount; i++)
+            {
                 String label = metaData.getColumnLabel(i);
                 jsonObject.put(field2LowerCase == null ? label : (field2LowerCase ? label.toLowerCase() : label
                         .toUpperCase()), rs.getObject(i));
             }
-        } else {
+        } else
+        {
             jsonObject = new JSONObject(keys.length);
-            for (String string : keys) {
+            for (String string : keys)
+            {
                 jsonObject.put(string, rs.getObject(string));
             }
         }
@@ -316,7 +377,8 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     @Override
-    public JSONObject getOne(Condition query, String... keys) throws DBException {
+    public JSONObject getOne(Condition query, String... keys) throws DBException
+    {
         JSONArray list = getJSONs(query, FIND_ONE, keys);
         Object obj = list.size() > 0 ? list.get(0) : null;
         JSONObject jsonObject = (JSONObject) obj;
@@ -325,7 +387,8 @@ public class SqlHandle implements DBHandle, SqlSource {
 
 
     @Override
-    public JSONArray get(Condition query, QuerySettings querySettings, String key) throws DBException {
+    public JSONArray get(Condition query, QuerySettings querySettings, String key) throws DBException
+    {
 
         JSONArray list = new JSONArray();
 
@@ -334,8 +397,10 @@ public class SqlHandle implements DBHandle, SqlSource {
 
         PreparedStatement ps = null;
 
-        try {
-            if (LOGGER.isDebugEnabled()) {
+        try
+        {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", whereSQL.sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
@@ -344,17 +409,21 @@ public class SqlHandle implements DBHandle, SqlSource {
             }
             ps = conn.prepareStatement(whereSQL.sql);
             Object[] args = whereSQL.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 setObject(ps, i + 1, args[i]);
             }
             ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next())
+            {
                 list.add(rs.getObject(key));
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 
@@ -362,8 +431,10 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     @Override
-    public int update(Condition query, NameValues updateFields) throws DBException {
-        if (updateFields == null || updateFields.size() == 0) {
+    public int update(Condition query, NameValues updateFields) throws DBException
+    {
+        if (updateFields == null || updateFields.size() == 0)
+        {
             return 0;
         }
 
@@ -371,16 +442,20 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     @Override
-    public long exists(Condition query) throws DBException {
+    public long exists(Condition query) throws DBException
+    {
         return exists(conn, checkCondition(query), tableName);
     }
 
     @Override
-    public boolean saveBinary(Condition query, String name, byte[] data, int offset, int length) throws DBException {
+    public boolean saveBinary(Condition query, String name, byte[] data, int offset, int length) throws DBException
+    {
         PreparedStatement ps = null;
-        try {
+        try
+        {
             SqlUtil.WhereSQL whereSQL = SqlUtil.toUpdate(tableName, checkCondition(query), name, true);
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", whereSQL.sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSQL.args;
@@ -390,25 +465,31 @@ public class SqlHandle implements DBHandle, SqlSource {
             ps = conn.prepareStatement(whereSQL.sql);
             ps.setBinaryStream(1, new ByteArrayInputStream(data, offset, length), length);
             Object[] args = whereSQL.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 setObject(ps, i + 2, args[i]);
             }
             ps.executeUpdate();
             return true;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 
     }
 
     @Override
-    public byte[] getBinary(Condition query, String name) throws DBException {
+    public byte[] getBinary(Condition query, String name) throws DBException
+    {
         SqlUtil.WhereSQL ws = SqlUtil.toSelect(tableName, checkCondition(query), FIND_ONE, true, name);
         PreparedStatement ps = null;
-        try {
-            if (LOGGER.isDebugEnabled()) {
+        try
+        {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", ws.sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = ws.args;
@@ -416,43 +497,57 @@ public class SqlHandle implements DBHandle, SqlSource {
                 LOGGER.debug("{}", builder);
             }
             ps = conn.prepareStatement(ws.sql);
-            for (int i = 0; i < ws.args.length; i++) {
+            for (int i = 0; i < ws.args.length; i++)
+            {
                 setObject(ps, i + 1, ws.args[i]);
             }
 
             ResultSet rs = ps.executeQuery();
             byte[] bs = null;
-            if (rs.next()) {
+            if (rs.next())
+            {
                 bs = FileTool.getData(rs.getBinaryStream(1), 1024);
             }
             rs.close();
             return bs;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
     }
 
     @Override
-    public void close() throws IOException {
-        try {
+    public void close() throws IOException
+    {
+        try
+        {
+            if (!conn.getAutoCommit())
+            {
+                conn.setAutoCommit(true);
+            }
             conn.close();
             LOGGER.debug("conn closed:{}", tableName);
-        } catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new IOException(e);
         }
     }
 
     @Override
-    public JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException {
+    public JSONArray advancedQuery(AdvancedQuery advancedQuery, QuerySettings querySettings) throws DBException
+    {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
         return _getJSONS(advanced.whereSQL, querySettings, advanced.keys);
     }
 
     @Override
-    public Object advancedExecute(AdvancedExecutor advancedExecutor) throws DBException {
-        if (!(advancedExecutor instanceof SqlAdvancedExecutor)) {
+    public Object advancedExecute(AdvancedExecutor advancedExecutor) throws DBException
+    {
+        if (!(advancedExecutor instanceof SqlAdvancedExecutor))
+        {
             throw new DBException("the object must be " + SqlAdvancedExecutor.class);
         }
         SqlAdvancedExecutor sqlAdvancedNeed = (SqlAdvancedExecutor) advancedExecutor;
@@ -460,44 +555,56 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     @Override
-    public boolean supportTransaction() throws DBException {
+    public boolean supportTransaction() throws DBException
+    {
         return true;
     }
 
     @Override
-    public void startTransaction(TransactionConfig transactionConfig) throws DBException {
-        try {
+    public void startTransaction(TransactionConfig transactionConfig) throws DBException
+    {
+        try
+        {
             conn.setAutoCommit(false);
             SqlTransactionConfig sqlTransactionConfig = (SqlTransactionConfig) transactionConfig;
-            if (sqlTransactionConfig != null && sqlTransactionConfig.transactionLevel != null) {
+            if (sqlTransactionConfig != null && sqlTransactionConfig.transactionLevel != null)
+            {
                 conn.setTransactionIsolation(sqlTransactionConfig.transactionLevel);
             }
             isTransaction = true;
-        } catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new DBException(e);
         }
     }
 
     @Override
-    public void commitTransaction() throws DBException {
-        try {
+    public void commitTransaction() throws DBException
+    {
+        try
+        {
             conn.commit();
             isTransaction = false;
-        } catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new DBException(e);
         }
     }
 
     @Override
-    public boolean isTransaction() {
+    public boolean isTransaction()
+    {
         return isTransaction;
     }
 
     @Override
-    public void rollback() throws DBException {
-        try {
+    public void rollback() throws DBException
+    {
+        try
+        {
             conn.rollback();
-        } catch (SQLException e) {
+        } catch (SQLException e)
+        {
             throw new DBException(e);
         }
     }
@@ -505,7 +612,8 @@ public class SqlHandle implements DBHandle, SqlSource {
     private Object tempObject;
 
     @Override
-    public Object tempObject(Object tempObject) {
+    public Object tempObject(Object tempObject)
+    {
         Object obj = this.tempObject;
         this.tempObject = tempObject;
         return obj;
@@ -514,15 +622,18 @@ public class SqlHandle implements DBHandle, SqlSource {
     //////////////////////////////////////
 
     private int executeSet(Connection conn, String tableName, Condition query,
-                           NameValues updateFields) throws DBException {
+            NameValues updateFields) throws DBException
+    {
         int n = 0;
         PreparedStatement ps = null;
-        try {
+        try
+        {
             SqlUtil.WhereSQL whereSQL = SqlUtil
                     .toSetValues(tableName, updateFields.names(), checkCondition(query), true);
             ps = conn.prepareStatement(whereSQL.sql);
 
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", whereSQL.sql);
                 StringBuilder builder = new StringBuilder();
                 logArgs(updateFields, builder);
@@ -530,46 +641,56 @@ public class SqlHandle implements DBHandle, SqlSource {
                 LOGGER.debug("{}", builder);
             }
 
-            for (int i = 0; i < updateFields.size(); i++) {
+            for (int i = 0; i < updateFields.size(); i++)
+            {
                 setObject(ps, i + 1, updateFields.value(i));
             }
 
             Object[] args = whereSQL.args;
-            for (int i = 0, k = updateFields.size() + 1; i < args.length; i++, k++) {
+            for (int i = 0, k = updateFields.size() + 1; i < args.length; i++, k++)
+            {
                 setObject(ps, k, args[i]);
             }
 
             n = ps.executeUpdate();
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 
         return n;
     }
 
-    private int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields) {
+    private int executePS(Connection conn, boolean isInsert, String tableName, NameValues addFields)
+    {
         int n = 0;
         PreparedStatement ps = null;
-        try {
+        try
+        {
             String sql = SqlUtil.toInsertOrReplace(isInsert, tableName, addFields.names(), true);
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder();
                 logArgs(addFields, builder);
                 LOGGER.debug("{}", builder);
             }
             ps = conn.prepareStatement(sql);
-            for (int i = 0; i < addFields.size(); i++) {
+            for (int i = 0; i < addFields.size(); i++)
+            {
                 setObject(ps, i + 1, addFields.value(i));
             }
             n = ps.executeUpdate();
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 
@@ -577,34 +698,44 @@ public class SqlHandle implements DBHandle, SqlSource {
     }
 
     public static void setObject(PreparedStatement ps, int column,
-                                 Object object) throws SQLException, FileNotFoundException {
-        if (object == null) {
+            Object object) throws SQLException, FileNotFoundException
+    {
+        if (object == null)
+        {
             ps.setObject(column, null);
-        } else {
-            if (object instanceof File) {
+        } else
+        {
+            if (object instanceof File)
+            {
                 File file = (File) object;
                 ps.setBlob(column, new FileInputStream(file), file.length());
-            } else if (object instanceof CharSequence || object instanceof JSONArray || object instanceof JSONObject) {
+            } else if (object instanceof CharSequence || object instanceof JSONArray || object instanceof JSONObject)
+            {
                 ps.setString(column, String.valueOf(object));
-            } else {
+            } else
+            {
                 ps.setObject(column, object);
             }
         }
     }
 
     private int[] addPS(Connection conn, boolean isTransaction, String tableName,
-                        MultiNameValues multiNameValues) {
+            MultiNameValues multiNameValues)
+    {
         String[] names = multiNameValues.getNames();
         PreparedStatement ps = null;
-        try {
+        try
+        {
 
             String sql = SqlUtil.toInsertOrReplace(true, tableName, names, true);
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", sql);
                 StringBuilder builder = new StringBuilder("[");
 
                 int n = multiNameValues.count();
-                for (int j = 0; j < n; j++) {
+                for (int j = 0; j < n; j++)
+                {
                     Object[] values = multiNameValues.values(j);
                     logArgs(values, builder);
                     builder.append("\n");
@@ -613,38 +744,46 @@ public class SqlHandle implements DBHandle, SqlSource {
                 LOGGER.debug("{}", builder);
             }
             ps = conn.prepareStatement(sql);
-            if (!isTransaction) {
+            if (!isTransaction)
+            {
                 conn.setAutoCommit(false);
             }
 
             int n = multiNameValues.count();
-            for (int j = 0; j < n; j++) {
+            for (int j = 0; j < n; j++)
+            {
                 Object[] values = multiNameValues.values(j);
-                for (int k = 0; k < values.length; k++) {
+                for (int k = 0; k < values.length; k++)
+                {
                     setObject(ps, k + 1, values[k]);
                 }
                 ps.addBatch();
             }
             int[] rs = ps.executeBatch();
-            if (!isTransaction) {
+            if (!isTransaction)
+            {
                 conn.commit();
             }
 
             return rs;
-        } catch (BatchUpdateException e) {
+        } catch (BatchUpdateException e)
+        {
 
             throw new DBException(e);
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 
     }
 
     @Override
-    public long exists(AdvancedQuery advancedQuery) throws DBException {
+    public long exists(AdvancedQuery advancedQuery) throws DBException
+    {
         SqlAdvancedQuery advanced = getSqlAdvancedQuery(advancedQuery);
         SqlUtil.WhereSQL whereSQL = advanced.whereSQL;
         return _countSql(conn, SqlUtil.toCountSelect(whereSQL, "", true));
@@ -654,21 +793,25 @@ public class SqlHandle implements DBHandle, SqlSource {
      * count某个条件
      */
 
-    public long exists(Connection conn, Condition condition, String tableName) throws DBException {
+    public long exists(Connection conn, Condition condition, String tableName) throws DBException
+    {
         SqlUtil.WhereSQL whereSql = SqlUtil
                 .toCountSelect(tableName, "", checkCondition(condition), true);
         return _countSql(conn, whereSql);
     }
 
-    public long _countSql(Connection conn, SqlUtil.WhereSQL whereSql) throws DBException {
+    public long _countSql(Connection conn, SqlUtil.WhereSQL whereSql) throws DBException
+    {
 
         long n = 0;
 
         PreparedStatement ps = null;
-        try {
+        try
+        {
 
 
-            if (LOGGER.isDebugEnabled()) {
+            if (LOGGER.isDebugEnabled())
+            {
                 LOGGER.debug("{}", whereSql.sql);
                 StringBuilder builder = new StringBuilder();
                 Object[] args = whereSql.args;
@@ -679,18 +822,22 @@ public class SqlHandle implements DBHandle, SqlSource {
             ps = conn.prepareStatement(whereSql.sql);
 
             Object[] args = whereSql.args;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < args.length; i++)
+            {
                 setObject(ps, i + 1, args[i]);
             }
 
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
+            if (rs.next())
+            {
                 n = rs.getLong(1);
             }
             ps.close();
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new DBException(e);
-        } finally {
+        } finally
+        {
             WPTool.close(ps);
         }
 

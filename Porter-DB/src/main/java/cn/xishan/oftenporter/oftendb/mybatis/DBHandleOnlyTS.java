@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
@@ -134,7 +135,6 @@ class DBHandleOnlyTS implements DBHandle
     }
 
 
-
     @Override
     public boolean supportTransaction() throws DBException
     {
@@ -193,6 +193,17 @@ class DBHandleOnlyTS implements DBHandle
     @Override
     public void close() throws IOException
     {
+        try
+        {
+            Connection connection = sqlSession.getConnection();
+            if (!connection.getAutoCommit())
+            {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e)
+        {
+            throw new IOException(e);
+        }
         sqlSession.close();
     }
 
