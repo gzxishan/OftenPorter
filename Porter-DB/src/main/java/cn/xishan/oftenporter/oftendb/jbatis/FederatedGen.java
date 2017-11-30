@@ -7,8 +7,10 @@ import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -26,14 +28,31 @@ class FederatedGen implements AutoSetGen
 {
     @AutoSet(nullAble = true)
     DBSource dbSource;
+    @AutoSet
+    Logger LOGGER;
 
     static class FederatedImpl implements Federated
     {
+
+        private void checkEmpty(Object object, String err)
+        {
+            if (WPTool.isEmpty(object))
+            {
+                throw new NullPointerException(err + " is empty!");
+            }
+        }
 
         @Override
         public void init(DBSource dbSource, boolean dropTableIfExists, String tableName, String jdbcUrl,
                 String driverClass, String connectionUrl)
         {
+
+            checkEmpty(tableName, "table name");
+            checkEmpty(jdbcUrl, "jdbc url");
+            checkEmpty(driverClass, "driver class");
+            checkEmpty(connectionUrl, "connection url");
+
+
             SqlSource sqlSource = (SqlSource) dbSource;
 
             Connection connection = null;
@@ -87,6 +106,10 @@ class FederatedGen implements AutoSetGen
                 String dbname, String user,
                 String password)
         {
+            checkEmpty(tableName, "table name");
+            checkEmpty(host, "host");
+            checkEmpty(dbname, "database name");
+            checkEmpty(user, "user name");
             try
             {
                 String url = "jdbc:mysql://" + host + "/" + dbname + "?user=" + URLEncoder
@@ -114,9 +137,48 @@ class FederatedGen implements AutoSetGen
                 throw new DBException("dbSource is not set!");
             }
             FederatedOption federatedOption = field.getAnnotation(FederatedOption.class);
-            federated.init(dbSource, federatedOption.dropIfExists(), federatedOption.tableName(),
-                    federatedOption.jdbcUrl(),
-                    federatedOption.driverClass(), federatedOption.connectionUrl());
+
+            FederatedOption federatedOptionOfClass = AnnoUtil.getAnnotation(currentObjectClass, FederatedOption.class);
+
+            int dropIfExists = federatedOptionOfClass != null && federatedOptionOfClass
+                    .dropIfExists() != -1 ? federatedOptionOfClass.dropIfExists() : federatedOption.dropIfExists();
+            String tableName = federatedOptionOfClass != null && WPTool
+                    .notNullAndEmpty(federatedOptionOfClass.tableName()) ? federatedOptionOfClass
+                    .tableName() : federatedOption.tableName();
+            String jdbcUrl = federatedOptionOfClass != null && WPTool
+                    .notNullAndEmpty(federatedOptionOfClass.jdbcUrl()) ? federatedOptionOfClass
+                    .jdbcUrl() : federatedOption.jdbcUrl();
+            String driverClass = federatedOptionOfClass != null && WPTool
+                    .notNullAndEmpty(federatedOptionOfClass.driverClass()) ? federatedOptionOfClass
+                    .driverClass() : federatedOption.driverClass();
+            String connectionUrl = federatedOptionOfClass != null && WPTool
+                    .notNullAndEmpty(federatedOptionOfClass.connectionUrl()) ? federatedOptionOfClass
+                    .connectionUrl() : federatedOption.connectionUrl();
+
+            int tryCount = federatedOptionOfClass != null && federatedOptionOfClass
+                    .tryCount() != 0 ? federatedOptionOfClass.tryCount() : federatedOption.tryCount();
+            if (tryCount < 0)
+            {
+                tryCount = 0;
+            }
+            tryCount++;
+
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    federated.init(dbSource, dropIfExists != 0, tableName, jdbcUrl, driverClass, connectionUrl);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
         } else if (field.isAnnotationPresent(FederatedMysqlOption.class))
         {
             if (dbSource == null)
@@ -124,8 +186,55 @@ class FederatedGen implements AutoSetGen
                 throw new DBException("dbSource is not set!");
             }
             FederatedMysqlOption mysqlOption = field.getAnnotation(FederatedMysqlOption.class);
-            federated.initOfMysql(dbSource, mysqlOption.dropIfExists(), mysqlOption.tableName(), mysqlOption.host(),
-                    mysqlOption.dbName(), mysqlOption.user(), mysqlOption.password());
+            FederatedMysqlOption mysqlOptionOfClass = AnnoUtil
+                    .getAnnotation(currentObjectClass, FederatedMysqlOption.class);
+
+
+            int dropIfExists = mysqlOptionOfClass != null && mysqlOptionOfClass
+                    .dropIfExists() != -1 ? mysqlOptionOfClass.dropIfExists() : mysqlOption.dropIfExists();
+            String tableName = mysqlOptionOfClass != null && WPTool
+                    .notNullAndEmpty(mysqlOptionOfClass.tableName()) ? mysqlOptionOfClass
+                    .tableName() : mysqlOption.tableName();
+            String host = mysqlOptionOfClass != null && WPTool
+                    .notNullAndEmpty(mysqlOptionOfClass.host()) ? mysqlOptionOfClass
+                    .host() : mysqlOption.host();
+            String dbName = mysqlOptionOfClass != null && WPTool
+                    .notNullAndEmpty(mysqlOptionOfClass.dbName()) ? mysqlOptionOfClass
+                    .dbName() : mysqlOption.dbName();
+            String user = mysqlOptionOfClass != null && WPTool
+                    .notNullAndEmpty(mysqlOptionOfClass.user()) ? mysqlOptionOfClass
+                    .user() : mysqlOption.user();
+            String password = mysqlOptionOfClass != null && WPTool
+                    .notNullAndEmpty(mysqlOptionOfClass.password()) ? mysqlOptionOfClass
+                    .password() : mysqlOption.password();
+
+
+            int tryCount = mysqlOptionOfClass != null && mysqlOptionOfClass
+                    .tryCount() != 0 ? mysqlOptionOfClass.tryCount() : mysqlOption.tryCount();
+            if (tryCount < 0)
+            {
+                tryCount = 0;
+            }
+            tryCount++;
+
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    federated.initOfMysql(dbSource, dropIfExists != 0, tableName, host,
+                            dbName, user, password);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                }
+            }
+
+
         }
         return federated;
     }
