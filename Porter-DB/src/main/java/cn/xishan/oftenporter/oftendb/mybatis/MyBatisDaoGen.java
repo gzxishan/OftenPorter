@@ -13,6 +13,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 
@@ -25,18 +28,63 @@ class MyBatisDaoGen implements AutoSetGen
     @AutoSet
     MyBatisOption myBatisOption;
 
+
     @AutoSet
-    SqlSessionFactory sqlSessionFactory;
+    MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder;
 
     @AutoSet
     Logger LOGGER;
+
+    private String loadXml(MyBatis.Type type, String path) throws IOException
+    {
+        return loadXml(type, path, null);
+    }
+
+    String loadXml(MyBatis.Type type, String path, File optionMapperFile) throws IOException
+    {
+        try
+        {
+            SqlSessionFactory sqlSessionFactory = mSqlSessionFactoryBuilder.getFactory();
+
+            Configuration configuration = sqlSessionFactory.getConfiguration();
+            if (optionMapperFile != null)
+            {
+                ErrorContext.instance().resource(optionMapperFile.getAbsolutePath());
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(new FileInputStream(optionMapperFile),
+                        configuration,
+                        path,
+                        configuration.getSqlFragments());
+                mapperParser.parse();
+            } else if (type == MyBatis.Type.RESOURCES)
+            {
+                path = PackageUtil.getPathWithRelative('/', myBatisOption.rootDir, path, "/");
+                ErrorContext.instance().resource(path);
+                InputStream inputStream = Resources.getResourceAsStream(path);
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
+                        configuration.getSqlFragments());
+                mapperParser.parse();
+            } else
+            {
+                //URL
+                ErrorContext.instance().resource(path);
+                InputStream inputStream = Resources.getUrlAsStream(path);
+                XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
+                        configuration.getSqlFragments());
+                mapperParser.parse();
+            }
+        } finally
+        {
+            ErrorContext.instance().reset();
+        }
+
+        return path;
+    }
 
 
     @Override
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-
 
 
         MyBatisField myBatisField = field.getAnnotation(MyBatisField.class);
@@ -56,8 +104,9 @@ class MyBatisDaoGen implements AutoSetGen
 
         MyBatis.Type type = MyBatis.Type.RESOURCES;
 
-        if(_myBatis!=null){
-            type=_myBatis.type();
+        if (_myBatis != null)
+        {
+            type = _myBatis.type();
             if (!_myBatis.dir().equals(""))
             {
                 dir = _myBatis.dir();
@@ -75,27 +124,15 @@ class MyBatisDaoGen implements AutoSetGen
         }
         String path = dir + name;
         LOGGER.debug("mapper={},type={}", path, type);
-        Configuration configuration = sqlSessionFactory.getConfiguration();
-        if (type == MyBatis.Type.RESOURCES)
+        String finalPath = loadXml(type, path);
+
+        MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, mapperClass);
+        if (myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
-            path = PackageUtil.getPathWithRelative('/', myBatisOption.rootDir, path, "/");
-            ErrorContext.instance().resource(path);
-            InputStream inputStream = Resources.getResourceAsStream(path);
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
-                    configuration.getSqlFragments());
-            mapperParser.parse();
-        } else
-        {
-            //URL
-            ErrorContext.instance().resource(path);
-            InputStream inputStream = Resources.getUrlAsStream(path);
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
-                    configuration.getSqlFragments());
-            mapperParser.parse();
+            File file = new File(myBatisOption.resourcesDir + finalPath);
+            myBatisDao.setMapperFile(type, finalPath, file);
         }
-
-        MyBatisDao myBatisDao = new MyBatisDaoImpl(mapperClass);
-
+        mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
     }
 }
