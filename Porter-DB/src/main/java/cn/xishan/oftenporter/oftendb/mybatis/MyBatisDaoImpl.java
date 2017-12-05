@@ -1,24 +1,44 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
-class MyBatisDaoImpl implements MyBatisDao
+class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderListener
 {
-    private Class<?> mapperClass;
 
-    public MyBatisDaoImpl( Class<?> mapperClass)
+
+    private Class<?> mapperClass;
+    private MyBatisDaoGen myBatisDaoGen;
+    private File mapperFile;
+    private String mapperPath;
+    private MyBatis.Type type;
+    private long lastModified;
+
+
+    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, Class<?> mapperClass)
     {
+        this.myBatisDaoGen = myBatisDaoGen;
         this.mapperClass = mapperClass;
+    }
+
+
+    void setMapperFile(MyBatis.Type type, String mapperPath, File mapperFile)
+    {
+        this.type = type;
+        this.mapperPath = mapperPath;
+        this.mapperFile = mapperFile;
+        lastModified = mapperFile.lastModified();
     }
 
     @Override
@@ -174,5 +194,24 @@ class MyBatisDaoImpl implements MyBatisDao
     {
         SqlSession sqlSession = MyBatisBridge.openSession(wObject);
         return sqlSession;
+    }
+
+    @Override
+    public void onBuild() throws Exception
+    {
+        myBatisDaoGen.loadXml(type, mapperPath, mapperFile);
+        lastModified = mapperFile.lastModified();
+    }
+
+    @Override
+    public boolean isMapperFileChange()
+    {
+        return lastModified!=mapperFile.lastModified();
+    }
+
+    @Override
+    public boolean willCheckMapperFile()
+    {
+        return mapperFile != null;
     }
 }

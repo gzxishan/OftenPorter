@@ -11,11 +11,13 @@ import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -39,9 +41,21 @@ public class MyBatisBridge
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
         }
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configStream);
-        porterConf.addContextAutoSet(SqlSessionFactory.class, sqlSessionFactory);
-        porterConf.addContextAutoSet(MyBatisOption.class, myBatisOption);
+        try
+        {
+
+            byte[] configData = FileTool.getData(configStream, 1024);
+
+            MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
+                    myBatisOption.checkMapperFileDelaySeconds, configData);
+            mSqlSessionFactoryBuilder.build();
+
+            porterConf.addContextAutoSet(MSqlSessionFactoryBuilder.class, mSqlSessionFactoryBuilder);
+            porterConf.addContextAutoSet(MyBatisOption.class, myBatisOption);
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -110,9 +124,9 @@ public class MyBatisBridge
 
         if (sqlSession == null)
         {
-            SqlSessionFactory sqlSessionFactory = wObject.savedObject(SqlSessionFactory.class);
+            MSqlSessionFactoryBuilder sqlSessionFatoryBuilder = wObject.savedObject(MSqlSessionFactoryBuilder.class);
             MyBatisOption myBatisOption = wObject.savedObject(MyBatisOption.class);
-            sqlSession = sqlSessionFactory.openSession(myBatisOption.autoCommit);
+            sqlSession = sqlSessionFatoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
             wObject.setAttribute(SqlSession.class, sqlSession);
         }
         return sqlSession;
