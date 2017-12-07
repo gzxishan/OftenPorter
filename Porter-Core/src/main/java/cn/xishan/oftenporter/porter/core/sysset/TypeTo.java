@@ -111,60 +111,76 @@ public class TypeTo
         }
     }
 
+
     public <T> T parse(Class<T> clazz, final JSONObject jsonObject) throws RuntimeException
     {
-        if(jsonObject==null){
+        if (jsonObject == null)
+        {
             return null;
         }
+        ParamSource paramSource = new ParamSource()
+        {
+            @Override
+            public Object getParam(String name)
+            {
+                return jsonObject.get(name);
+            }
+
+            @Override
+            public <T> T getNeceParam(String name, String errmsgOfEmpty)
+            {
+                return DefaultParamSource.getNeceParamUtil(this, name, errmsgOfEmpty);
+            }
+
+            @Override
+            public <T> T getNeceParam(String name)
+            {
+                return DefaultParamSource.getNeceParamUtil(this, name);
+            }
+
+            @Override
+            public void putNewParams(Map<String, ?> newParams)
+            {
+                jsonObject.fluentPutAll(newParams);
+            }
+
+            @Override
+            public Enumeration<String> paramNames()
+            {
+                return new EnumerationImpl<String>(jsonObject.keySet());
+            }
+
+            @Override
+            public void setUrlResult(UrlDecoder.Result result)
+            {
+
+            }
+
+            @Override
+            public Enumeration<Map.Entry<String, Object>> params()
+            {
+                EnumerationImpl<Map.Entry<String, Object>> enumeration = new EnumerationImpl(
+                        jsonObject.entrySet());
+                return enumeration;
+            }
+        };
+        return parse(clazz, paramSource);
+    }
+
+    public <T> T parse(Class<T> clazz, WObject wObject) throws RuntimeException
+    {
+        return parse(clazz, wObject.getParamSource());
+    }
+
+    public <T> T parse(Class<T> clazz, ParamSource paramSource) throws RuntimeException
+    {
+
         try
         {
             CacheOne cache = getCache(clazz);
             Object object = portUtil
-                    .paramDealOne(null,false, innerContextBridge.paramDealt, cache.getOne(), new ParamSource()
-                    {
-                        @Override
-                        public Object getParam(String name)
-                        {
-                            return jsonObject.get(name);
-                        }
-
-                        @Override
-                        public <T> T getNeceParam(String name, String errmsgOfEmpty)
-                        {
-                            return DefaultParamSource.getNeceParamUtil(this,name,errmsgOfEmpty);
-                        }
-
-                        @Override
-                        public <T> T getNeceParam(String name)
-                        {
-                            return DefaultParamSource.getNeceParamUtil(this,name);
-                        }
-
-                        @Override
-                        public void putNewParams(Map<String, ?> newParams)
-                        {
-                            jsonObject.fluentPutAll(newParams);
-                        }
-
-                        @Override
-                        public Enumeration<String> paramNames()
-                        {
-                            return new EnumerationImpl<String>(jsonObject.keySet());
-                        }
-
-                        @Override
-                        public void setUrlResult(UrlDecoder.Result result) {
-
-                        }
-
-                        @Override
-                        public Enumeration<Map.Entry<String, Object>> params()
-                        {
-                            EnumerationImpl<Map.Entry<String, Object>> enumeration = new EnumerationImpl(
-                                    jsonObject.entrySet());
-                            return enumeration;
-                        }
-                    }, innerContextBridge.innerBridge.globalParserStore);
+                    .paramDealOne(null, false, innerContextBridge.paramDealt, cache.getOne(), paramSource,
+                            innerContextBridge.innerBridge.globalParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason reason = (ParamDealt.FailedReason) object;

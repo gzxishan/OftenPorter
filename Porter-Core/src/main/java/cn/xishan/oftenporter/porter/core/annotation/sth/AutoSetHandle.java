@@ -430,9 +430,9 @@ public class AutoSetHandle
 
     private void _doAutoSetThatOfMixin(Object objectForGet, Object objectForSet) throws Exception
     {
-        Map<String, Object> fromGet = new HashMap<>();
+        Map<String, Field> fromGet = new HashMap<>();
 
-        Field[] fieldsGet = objectForGet.getClass().getDeclaredFields();
+        Field[] fieldsGet = WPTool.getAllFields(objectForGet.getClass());
         for (Field field : fieldsGet)
         {
             AutoSetToThatForMixin autoSetToThatForMixin = field.getAnnotation(AutoSetToThatForMixin.class);
@@ -446,13 +446,17 @@ public class AutoSetHandle
                 throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
                         .getSimpleName() + " is empty  for field '" + field + "'");
             }
-            field.setAccessible(true);
             String key = autoSetToThatForMixin.key().equals("") ? autoSetToThatForMixin.value()
                     .getName() : autoSetToThatForMixin.key();
-            fromGet.put(key, field.get(objectForGet));
+            if (fromGet.containsKey(key))
+            {
+                LOGGER.warn("already exists key '{}', current field is [{}],last field is [{}]", field,
+                        fromGet.get(key));
+            }
+            fromGet.put(key, field);
         }
 
-        Field[] fields = objectForSet.getClass().getDeclaredFields();
+        Field[] fields = WPTool.getAllFields(objectForSet.getClass());
         for (Field field : fields)
         {
             AutoSetThatForMixin autoSetThatForMixin = field.getAnnotation(AutoSetThatForMixin.class);
@@ -461,7 +465,6 @@ public class AutoSetHandle
                 continue;
             }
 
-            field.setAccessible(true);
 
             Object value;
             if (autoSetThatForMixin.value().equals(AutoSetThatForMixin.class) && autoSetThatForMixin.key().equals(""))
@@ -471,13 +474,23 @@ public class AutoSetHandle
             {
                 String key = autoSetThatForMixin.key().equals("") ? autoSetThatForMixin.value()
                         .getName() : autoSetThatForMixin.key();
-                value = fromGet.get(key);
+                Field getField = fromGet.get(key);
+                if (getField == null)
+                {
+                    value = null;
+                } else
+                {
+                    getField.setAccessible(true);
+                    value = getField.get(objectForGet);
+                }
                 if (value == null && autoSetThatForMixin.required())
                 {
                     throw new InitException("need transfer field from '" + objectForGet
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
+
+            field.setAccessible(true);
             field.set(objectForSet, value);
             LOGGER.debug("AutoSet.AutoSetThatForMixin:[{}] with [{}]", field, value);
         }
