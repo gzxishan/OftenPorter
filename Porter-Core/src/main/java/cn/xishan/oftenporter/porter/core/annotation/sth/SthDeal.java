@@ -90,7 +90,7 @@ public class SthDeal
     public Porter porter(Class<?> clazz, Object object, String currentContextName,
             AutoSetHandle autoSetHandle) throws FatalInitException
     {
-        return porter(clazz, object, currentContextName, null, autoSetHandle, false, null, null);
+        return porter(clazz, object, currentContextName, null, autoSetHandle, false, null);
     }
 
 
@@ -102,14 +102,9 @@ public class SthDeal
      */
     private Porter porter(Class<?> clazz, Object object, String currentContextName, String currentClassTied,
             AutoSetHandle autoSetHandle,
-            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter,
-            Map<String, Object> autoSetMixinMap) throws FatalInitException
+            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws FatalInitException
 
     {
-        if (autoSetMixinMap == null)
-        {
-            autoSetMixinMap = new HashMap<>();
-        }
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
@@ -139,7 +134,7 @@ public class SthDeal
         porter.object = object;
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
-        porter.doAutoSet(autoSetMixinMap);
+        porter.doAutoSet();
         porter.finalObject = porter.getObj();
         if (porter.object instanceof IPorter)
         {
@@ -182,8 +177,7 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetHandle, true,
-                    wholeClassCheckPassableGetter,
-                    autoSetMixinMap);
+                    wholeClassCheckPassableGetter);
             if (mixinPorter == null)
             {
                 continue;

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.MinxinOnly;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
@@ -202,7 +203,7 @@ public class PortUtil
     public static boolean isMixinPortClass(Class<?> clazz)
     {
         return !Modifier.isAbstract(clazz.getModifiers()) && (clazz.isAnnotationPresent(PortIn.class) || clazz
-                .isAnnotationPresent(PortIn.MinxinOnly.class));
+                .isAnnotationPresent(MinxinOnly.class));
     }
 
     /**

@@ -1,11 +1,11 @@
 package cn.xishan.oftenporter.oftendb.jbatis;
 
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/21.
  */
-@AutoSet.AutoSetDefaultDealt(gen = JDaoGen.class)
+@AutoSetDefaultDealt(gen = JDaoGen.class)
 public interface JS
 {
     <T> T call(Object... args);

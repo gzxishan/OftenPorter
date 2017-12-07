@@ -26,11 +26,8 @@ class MyBatisDaoGen implements AutoSetGen
 {
 
     @AutoSet
-    MyBatisOption myBatisOption;
+    MybatisConfig mybatisConfig;
 
-
-    @AutoSet
-    MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder;
 
     @AutoSet
     Logger LOGGER;
@@ -44,7 +41,8 @@ class MyBatisDaoGen implements AutoSetGen
     {
         try
         {
-            SqlSessionFactory sqlSessionFactory = mSqlSessionFactoryBuilder.getFactory();
+
+            SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
 
             Configuration configuration = sqlSessionFactory.getConfiguration();
             if (optionMapperFile != null)
@@ -57,7 +55,7 @@ class MyBatisDaoGen implements AutoSetGen
                 mapperParser.parse();
             } else if (type == MyBatis.Type.RESOURCES)
             {
-                path = PackageUtil.getPathWithRelative('/', myBatisOption.rootDir, path, "/");
+                path = PackageUtil.getPathWithRelative('/', mybatisConfig.myBatisOption.rootDir, path, "/");
                 ErrorContext.instance().resource(path);
                 InputStream inputStream = Resources.getResourceAsStream(path);
                 XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
@@ -91,8 +89,11 @@ class MyBatisDaoGen implements AutoSetGen
 
         if (myBatisField == null)
         {
-            throw new NullPointerException(
-                    "the field " + field + " not annotated with @" + MyBatisField.class.getName());
+            LOGGER.debug("the field {} not annotated with@{}", field, MyBatisField.class.getName());
+//            throw new NullPointerException(
+//                    "the field " + field + " not annotated with @" + MyBatisField.class.getName());
+            MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, null);
+            return myBatisDao;
         }
 
         Class<?> mapperClass = myBatisField.value();
@@ -127,12 +128,12 @@ class MyBatisDaoGen implements AutoSetGen
         String finalPath = loadXml(type, path);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, mapperClass);
-        if (myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
+        if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
-            File file = new File(myBatisOption.resourcesDir + finalPath);
+            File file = new File(mybatisConfig.myBatisOption.resourcesDir + finalPath);
             myBatisDao.setMapperFile(type, finalPath, file);
         }
-        mSqlSessionFactoryBuilder.addListener(myBatisDao);
+        mybatisConfig.mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
     }
 }

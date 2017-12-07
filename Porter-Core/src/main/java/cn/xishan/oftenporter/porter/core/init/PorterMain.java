@@ -292,18 +292,15 @@ public final class PorterMain {
                 porterCheckPassables);
 
         try {
-            autoSetHandle.doAutoSet();//变量设置处理
+            autoSetHandle.doAutoSetNormal();//变量设置处理
+            autoSetHandle.doAutoSetThat();
+
             sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
             PRequest request = new PRequest(path);
-            WResponse response = new LocalResponse(new PCallback() {
-                @Override
-                public void onResponse(PResponse lResponse) {
-
-                }
-            });
+            WResponse response = new LocalResponse(lResponse -> {});
             WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context);
 
             autoSetHandle.invokeSetOk(wObject);
