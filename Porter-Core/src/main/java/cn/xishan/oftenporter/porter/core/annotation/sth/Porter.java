@@ -196,7 +196,7 @@ public final class Porter
     }
 
 
-    void doAutoSet(Map<String, Object> autoSetMixinMap)
+    void doAutoSet()
     {
         if (object == null)
         {
@@ -208,7 +208,7 @@ public final class Porter
                 throw new InitException(e);
             }
         }
-        autoSetHandle.addAutoSetForPorter(this, autoSetMixinMap);
+        autoSetHandle.addAutoSetForPorter(this);
     }
 
 

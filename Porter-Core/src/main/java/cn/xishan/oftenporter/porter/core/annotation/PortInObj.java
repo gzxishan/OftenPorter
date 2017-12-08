@@ -19,9 +19,10 @@ import java.lang.annotation.*;
  *     boolean isOk();
  * }
  * </pre>
- * <p>
- * <strong>注意：</strong>对于此方式注解的绑定类，对应的field使用{@linkplain Parser}或{@linkplain Parser.parse}来手动绑定类型转换，可以注解在类或field上.
- * </p>
+ * <pre>
+ * <strong>注意：</strong>1.对于此方式注解的绑定类，对应的field使用{@linkplain Parser}或{@linkplain Parser.parse}来手动绑定类型转换，可以注解在类或field上.
+ * 2.如果field已经被绑定了转换类型，则此field（加了{@linkplain Nece}或{@linkplain UnNece}的）不会进行自动绑定。
+ * </pre>
  * Created by https://github.com/CLovinr on 2016/9/7.
  */
 @Retention(RetentionPolicy.RUNTIME)

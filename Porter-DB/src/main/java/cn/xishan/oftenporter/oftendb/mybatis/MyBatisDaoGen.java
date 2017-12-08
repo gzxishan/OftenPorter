@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -26,14 +27,24 @@ class MyBatisDaoGen implements AutoSetGen
 {
 
     @AutoSet
-    MyBatisOption myBatisOption;
+    MybatisConfig mybatisConfig;
 
-
-    @AutoSet
-    MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder;
 
     @AutoSet
     Logger LOGGER;
+
+
+    @PortIn.PortStart
+    public void onStart() throws IOException
+    {
+        mybatisConfig.mSqlSessionFactoryBuilder.onStart();
+    }
+
+    @PortIn.PortDestroy
+    public void onDestroy()
+    {
+        mybatisConfig.mSqlSessionFactoryBuilder.onDestroy();
+    }
 
     private String loadXml(MyBatis.Type type, String path) throws IOException
     {
@@ -44,7 +55,8 @@ class MyBatisDaoGen implements AutoSetGen
     {
         try
         {
-            SqlSessionFactory sqlSessionFactory = mSqlSessionFactoryBuilder.getFactory();
+
+            SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
 
             Configuration configuration = sqlSessionFactory.getConfiguration();
             if (optionMapperFile != null)
@@ -57,7 +69,7 @@ class MyBatisDaoGen implements AutoSetGen
                 mapperParser.parse();
             } else if (type == MyBatis.Type.RESOURCES)
             {
-                path = PackageUtil.getPathWithRelative('/', myBatisOption.rootDir, path, "/");
+                path = PackageUtil.getPathWithRelative('/', mybatisConfig.myBatisOption.rootDir, path, "/");
                 ErrorContext.instance().resource(path);
                 InputStream inputStream = Resources.getResourceAsStream(path);
                 XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
@@ -91,8 +103,11 @@ class MyBatisDaoGen implements AutoSetGen
 
         if (myBatisField == null)
         {
-            throw new NullPointerException(
-                    "the field " + field + " not annotated with @" + MyBatisField.class.getName());
+            LOGGER.debug("the field {} not annotated with@{}", field, MyBatisField.class.getName());
+//            throw new NullPointerException(
+//                    "the field " + field + " not annotated with @" + MyBatisField.class.getName());
+            MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, null);
+            return myBatisDao;
         }
 
         Class<?> mapperClass = myBatisField.value();
@@ -127,12 +142,12 @@ class MyBatisDaoGen implements AutoSetGen
         String finalPath = loadXml(type, path);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, mapperClass);
-        if (myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
+        if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
-            File file = new File(myBatisOption.resourcesDir + finalPath);
+            File file = new File(mybatisConfig.myBatisOption.resourcesDir + finalPath);
             myBatisDao.setMapperFile(type, finalPath, file);
         }
-        mSqlSessionFactoryBuilder.addListener(myBatisDao);
+        mybatisConfig.mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
     }
 }

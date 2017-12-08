@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
 
 import java.lang.annotation.*;
@@ -92,20 +94,11 @@ public @interface PortIn
 
 
     /**
-     * 加在接口类上，表示只用于混入。
-     * @author Created by https://github.com/CLovinr on 2017/3/4.
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE})
-    @Inherited
-    @Documented
-    @interface MinxinOnly
-    {
-    }
-
-
-    /**
      * 用于标记函数(public)，在销毁时调用。
+     * <pre>
+     *     1.可用于{@linkplain PortIn}、{@linkplain AutoSetGen},{@linkplain AutoSetDealt}类中
+     *     2.具有继承性
+     * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
@@ -125,7 +118,9 @@ public @interface PortIn
     /**
      * 用于标记函数(public)，启动时调用。
      * <pre>
-     * 函数可以无形参，或者有一个形参WObject(其请求类绑定名为当前接口类的)
+     * 1.函数可以无形参，或者有一个形参WObject(其请求类绑定名为当前接口类的)
+     * 2.可用于{@linkplain PortIn}、{@linkplain AutoSetGen},{@linkplain AutoSetDealt}类中
+     * 3.具有继承性
      * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)

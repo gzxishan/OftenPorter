@@ -31,7 +31,97 @@ class FederatedGen implements AutoSetGen
     @AutoSet
     Logger LOGGER;
 
-    static class FederatedImpl implements Federated
+    class FederatedImpl implements Federated
+    {
+        private int tryCount;
+        private int tryDelay;
+        private Federated federated;
+
+        public FederatedImpl(int tryCount, int tryDelay)
+        {
+            if (tryCount < 0)
+            {
+                tryCount = 0;
+            }
+            this.tryCount = tryCount + 1;
+            federated = new FederatedImplInner();
+        }
+
+        @Override
+        public void init(DBSource dbSource, boolean dropTableIfExists, String tableName, String jdbcUrl,
+                String driverClass,
+                String connectionUrl)
+        {
+            int tryCount = this.tryCount;
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    LOGGER.debug("init federated[{},{}]...",tableName,jdbcUrl);
+                    federated.init(dbSource, dropTableIfExists, tableName, jdbcUrl, driverClass, connectionUrl);
+                    LOGGER.debug("init federated[{},{}] success!",tableName,jdbcUrl);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug("init federated[{},{}] fail!",tableName,jdbcUrl);
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                    if (tryDelay > 0)
+                    {
+                        try
+                        {
+                            Thread.sleep(tryDelay);
+                        } catch (InterruptedException e1)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void initOfMysql(DBSource dbSource, boolean dropTableIfExists, String tableName, String host,
+                String dbname,
+                String user, String password)
+        {
+            int tryCount = this.tryCount;
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    LOGGER.debug("init federated[{},{},{},{}]...",host,user,dbname,tableName);
+                    federated.initOfMysql(dbSource, dropTableIfExists, tableName, host,
+                            dbname, user, password);
+                    LOGGER.debug("init federated[{},{},{},{}] success!",host,user,dbname,tableName);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug("init federated[{},{},{},{}] fail!",host,user,dbname,tableName);
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                    if (tryDelay > 0)
+                    {
+                        try
+                        {
+                            Thread.sleep(tryDelay);
+                        } catch (InterruptedException e1)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    static class FederatedImplInner implements Federated
     {
 
         private void checkEmpty(Object object, String err)
@@ -128,7 +218,7 @@ class FederatedGen implements AutoSetGen
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-        Federated federated = new FederatedImpl();
+        Federated federated = null;
 
         if (field.isAnnotationPresent(FederatedOption.class))
         {
@@ -157,28 +247,10 @@ class FederatedGen implements AutoSetGen
 
             int tryCount = federatedOptionOfClass != null && federatedOptionOfClass
                     .tryCount() != 0 ? federatedOptionOfClass.tryCount() : federatedOption.tryCount();
-            if (tryCount < 0)
-            {
-                tryCount = 0;
-            }
-            tryCount++;
+            int tryDelay=federatedOptionOfClass!=null?federatedOptionOfClass.tryDelay():federatedOption.tryDelay();
 
-            while (tryCount-- > 0)
-            {
-                try
-                {
-                    federated.init(dbSource, dropIfExists != 0, tableName, jdbcUrl, driverClass, connectionUrl);
-                    break;
-                } catch (Exception e)
-                {
-                    LOGGER.debug(e.getMessage(), e);
-                    if (tryCount <= 0)
-                    {
-                        break;
-                    }
-                }
-            }
-
+            federated = new FederatedImpl(tryCount,tryDelay);
+            federated.init(dbSource, dropIfExists != 0, tableName, jdbcUrl, driverClass, connectionUrl);
         } else if (field.isAnnotationPresent(FederatedMysqlOption.class))
         {
             if (dbSource == null)
@@ -211,30 +283,10 @@ class FederatedGen implements AutoSetGen
 
             int tryCount = mysqlOptionOfClass != null && mysqlOptionOfClass
                     .tryCount() != 0 ? mysqlOptionOfClass.tryCount() : mysqlOption.tryCount();
-            if (tryCount < 0)
-            {
-                tryCount = 0;
-            }
-            tryCount++;
-
-            while (tryCount-- > 0)
-            {
-                try
-                {
-                    federated.initOfMysql(dbSource, dropIfExists != 0, tableName, host,
-                            dbName, user, password);
-                    break;
-                } catch (Exception e)
-                {
-                    LOGGER.debug(e.getMessage(), e);
-                    if (tryCount <= 0)
-                    {
-                        break;
-                    }
-                }
-            }
-
-
+            int tryDelay = mysqlOptionOfClass!=null?mysqlOptionOfClass.tryDelay():mysqlOption.tryDelay();
+            federated = new FederatedImpl(tryCount,tryDelay);
+            federated.initOfMysql(dbSource, dropIfExists != 0, tableName, host,
+                    dbName, user, password);
         }
         return federated;
     }

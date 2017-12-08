@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.db.AdvancedQuery;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import com.alibaba.fastjson.JSONObject;
@@ -43,7 +44,7 @@ import com.alibaba.fastjson.JSONObject;
  * </pre>
  * Created by chenyg on 2017-04-29.
  */
-@AutoSet.AutoSetDefaultDealt(gen = JDaoGen.class)
+@AutoSetDefaultDealt(gen = JDaoGen.class)
 public interface JDao extends JS
 {
 

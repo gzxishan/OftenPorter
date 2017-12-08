@@ -244,12 +244,12 @@ public class SqlCondition extends Condition
         if (operator == IS_NOT_NULL || (cUnit.getParam2() == null && operator == NE && !cUnit.isParam1Value() && cUnit.isParam2Value()))
         {
             stringBuilder.append("is not NULL ");
-            operator=IS_NOT_NULL;
+            //operator=IS_NOT_NULL;
             return;
         } else if (operator == IS_NULL//添加旁边的或者使得当查询条件的value为null时，使用is NULL
                 || (cUnit.getParam2() == null && operator == EQ && !cUnit.isParam1Value() && cUnit.isParam2Value()))
         {
-            operator = IS_NULL;
+            //operator = IS_NULL;
             stringBuilder.append("is NULL ");
             return;
         }

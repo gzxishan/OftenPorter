@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.oftendb.data.impl.MysqlSource;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlHandle;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 public class SqlDBSource extends MysqlSource
 {
@@ -17,6 +18,7 @@ public class SqlDBSource extends MysqlSource
     {
         super((wObject, configed, configing) -> configing.setCollectionName("test1"));
         Connection connection = null;
+        Statement statement = null;
         try
         {
             String initSql =
@@ -28,25 +30,15 @@ public class SqlDBSource extends MysqlSource
                             + "  PRIMARY KEY (`_id`)\n"
                             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8";
             connection = getConn();
-            Statement statement = connection.createStatement();
+             statement = connection.createStatement();
             statement.execute(initSql);
-            statement.close();
         } catch (Exception e)
         {
             e.printStackTrace();
         } finally
         {
-            if (connection != null)
-            {
-                try
-                {
-                    connection.close();
-                } catch (SQLException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            WPTool.close(statement);
+            WPTool.close(connection);
         }
     }
 

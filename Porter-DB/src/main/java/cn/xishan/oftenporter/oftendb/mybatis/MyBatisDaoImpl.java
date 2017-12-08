@@ -8,6 +8,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.File;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     private File mapperFile;
     private String mapperPath;
     private MyBatis.Type type;
-    private long lastModified;
 
 
     public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, Class<?> mapperClass)
@@ -38,175 +38,174 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         this.type = type;
         this.mapperPath = mapperPath;
         this.mapperFile = mapperFile;
-        lastModified = mapperFile.lastModified();
+    }
+
+    @Override
+    public SqlSession getSqlSession(WObject wObject)
+    {
+        SqlSession sqlSession = MyBatisBridge.openSession(wObject, myBatisDaoGen.mybatisConfig);
+        return sqlSession;
     }
 
     @Override
     public <T> T mapper(WObject wObject)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.getMapper((Class<T>) mapperClass);
+        return getSqlSession(wObject).getMapper((Class<T>) mapperClass);
     }
+
+    @Override
+    public Connection getConnection()
+    {
+        return new ConnectionWrap(getSqlSession());
+    }
+
+    @Override
+    public SqlSession getSqlSession()
+    {
+        SqlSession sqlSession = MyBatisBridge._openSession(null, myBatisDaoGen.mybatisConfig);
+
+        return sqlSession;
+    }
+
+    @Override
+    public <T> T mapper(Class<T> clazz)
+    {
+        return getSqlSession().getMapper(clazz);
+    }
+
 
     @Override
     public <T> T selectOne(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectOne(statement);
+        return getSqlSession(wObject).selectOne(statement);
     }
 
     @Override
     public <T> T selectOne(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectOne(statement, parameter);
+        return getSqlSession(wObject).selectOne(statement, parameter);
     }
 
     @Override
     public <E> List<E> selectList(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectList(statement);
+        return getSqlSession(wObject).selectList(statement);
     }
 
     @Override
     public <E> List<E> selectList(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectList(statement, parameter);
+        return getSqlSession(wObject).selectList(statement, parameter);
     }
 
     @Override
     public <E> List<E> selectList(WObject wObject, String statement, Object parameter, RowBounds rowBounds)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectList(statement, parameter, rowBounds);
+        return getSqlSession(wObject).selectList(statement, parameter, rowBounds);
     }
 
     @Override
     public <K, V> Map<K, V> selectMap(WObject wObject, String statement, String mapKey)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectMap(statement, mapKey);
+        return getSqlSession(wObject).selectMap(statement, mapKey);
     }
 
     @Override
     public <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectMap(statement, parameter, mapKey);
+        return getSqlSession(wObject).selectMap(statement, parameter, mapKey);
     }
 
     @Override
     public <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey,
             RowBounds rowBounds)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectMap(statement, parameter, mapKey, rowBounds);
+        return getSqlSession(wObject).selectMap(statement, parameter, mapKey, rowBounds);
     }
 
     @Override
     public <T> Cursor<T> selectCursor(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectCursor(statement);
+        return getSqlSession(wObject).selectCursor(statement);
     }
 
     @Override
     public <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectCursor(statement, parameter);
+        return getSqlSession(wObject).selectCursor(statement, parameter);
     }
 
     @Override
     public <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter, RowBounds rowBounds)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.selectCursor(statement, parameter, rowBounds);
+        return getSqlSession(wObject).selectCursor(statement, parameter, rowBounds);
     }
 
     @Override
     public void select(WObject wObject, String statement, Object parameter, ResultHandler handler)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        sqlSession.select(statement, parameter, handler);
+        getSqlSession(wObject).select(statement, parameter, handler);
     }
 
     @Override
     public void select(WObject wObject, String statement, ResultHandler handler)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        sqlSession.selectCursor(statement, handler);
+        getSqlSession(wObject).selectCursor(statement, handler);
     }
 
     @Override
     public void select(WObject wObject, String statement, Object parameter, RowBounds rowBounds, ResultHandler handler)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        sqlSession.select(statement, parameter, rowBounds, handler);
+        getSqlSession(wObject).select(statement, parameter, rowBounds, handler);
     }
 
     @Override
     public int insert(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.insert(statement);
+        return getSqlSession(wObject).insert(statement);
     }
 
     @Override
     public int insert(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.insert(statement, parameter);
+        return getSqlSession(wObject).insert(statement, parameter);
     }
 
     @Override
     public int update(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.update(statement);
+        return getSqlSession(wObject).update(statement);
     }
 
     @Override
     public int update(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.update(statement, parameter);
+        return getSqlSession(wObject).update(statement, parameter);
     }
 
     @Override
     public int delete(WObject wObject, String statement)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.delete(statement);
+        return getSqlSession(wObject).delete(statement);
     }
 
     @Override
     public int delete(WObject wObject, String statement, Object parameter)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession.delete(statement, parameter);
+        return getSqlSession(wObject).delete(statement, parameter);
     }
 
-    @Override
-    public SqlSession getSqlSession(WObject wObject)
-    {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject);
-        return sqlSession;
-    }
 
     @Override
     public void onBuild() throws Exception
     {
         myBatisDaoGen.loadXml(type, mapperPath, mapperFile);
-        lastModified = mapperFile.lastModified();
     }
 
     @Override
-    public boolean isMapperFileChange()
+    public File getFile()
     {
-        return lastModified!=mapperFile.lastModified();
+        return mapperFile;
     }
 
     @Override

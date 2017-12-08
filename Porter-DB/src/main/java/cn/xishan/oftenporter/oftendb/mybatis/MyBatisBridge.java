@@ -6,6 +6,8 @@ import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.oftendb.db.TransactionConfig;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlTransactionConfig;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.CheckHandle;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
@@ -14,10 +16,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -45,13 +44,12 @@ public class MyBatisBridge
         {
 
             byte[] configData = FileTool.getData(configStream, 1024);
-
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
-                    myBatisOption.checkMapperFileDelaySeconds, configData);
+                    myBatisOption.checkMapperFileChange, configData);
             mSqlSessionFactoryBuilder.build();
 
-            porterConf.addContextAutoSet(MSqlSessionFactoryBuilder.class, mSqlSessionFactoryBuilder);
-            porterConf.addContextAutoSet(MyBatisOption.class, myBatisOption);
+            MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);
+            porterConf.addContextAutoSet(MybatisConfig.class, mybatisConfig);
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -118,23 +116,35 @@ public class MyBatisBridge
 
     }
 
-    static SqlSession openSession(WObject wObject)
+    static SqlSession openSession(@NotNull WObject wObject, MybatisConfig mybatisConfig)
     {
-        SqlSession sqlSession = wObject.getAttribute(SqlSession.class);
+        if (wObject == null)
+        {
+            throw new NullPointerException(WObject.class.getSimpleName() + " is null!");
+        }
+        return _openSession(wObject, mybatisConfig);
+    }
+
+    static SqlSession _openSession(@MayNull WObject wObject, MybatisConfig mybatisConfig)
+    {
+        SqlSession sqlSession = wObject == null ? null : wObject.getAttribute(SqlSession.class);
 
         if (sqlSession == null)
         {
-            MSqlSessionFactoryBuilder sqlSessionFatoryBuilder = wObject.savedObject(MSqlSessionFactoryBuilder.class);
-            MyBatisOption myBatisOption = wObject.savedObject(MyBatisOption.class);
+            MSqlSessionFactoryBuilder sqlSessionFatoryBuilder = mybatisConfig.mSqlSessionFactoryBuilder;
+            MyBatisOption myBatisOption = mybatisConfig.myBatisOption;
             sqlSession = sqlSessionFatoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
-            wObject.setAttribute(SqlSession.class, sqlSession);
+            if (wObject != null)
+            {
+                wObject.setAttribute(SqlSession.class, sqlSession);
+            }
         }
         return sqlSession;
     }
 
     private static DBSource newDBSource(WObject wObject)
     {
-        DBHandle dbHandle = new DBHandleOnlyTS(openSession(wObject));
+        DBHandle dbHandle = new DBHandleOnlyTS(openSession(wObject, wObject.savedObject(MybatisConfig.class)));
         DBSource dbSource = new DBSource()
         {
             @Override

@@ -4,11 +4,12 @@ import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 
 /**
  * Created by 刚帅 on 2016/1/19.
  */
-@AutoSet.AutoSetDefaultDealt(dealt = AutoSetDealtForDBSource.class)
+@AutoSetDefaultDealt(dealt = AutoSetDealtForDBSource.class)
 public interface DBSource
 {
     DBSource newInstance();

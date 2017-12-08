@@ -14,6 +14,7 @@ public class MyBatisOption
      */
     public boolean checkMapperFileChange = false;
 
+    @Deprecated
     public int checkMapperFileDelaySeconds = 30;
 
     /**
