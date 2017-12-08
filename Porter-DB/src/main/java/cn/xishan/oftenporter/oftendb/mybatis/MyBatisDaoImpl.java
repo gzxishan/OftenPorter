@@ -24,7 +24,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     private File mapperFile;
     private String mapperPath;
     private MyBatis.Type type;
-    private long lastModified;
 
 
     public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, Class<?> mapperClass)
@@ -39,7 +38,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         this.type = type;
         this.mapperPath = mapperPath;
         this.mapperFile = mapperFile;
-        lastModified = mapperFile.lastModified();
     }
 
     @Override
@@ -202,13 +200,12 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public void onBuild() throws Exception
     {
         myBatisDaoGen.loadXml(type, mapperPath, mapperFile);
-        lastModified = mapperFile.lastModified();
     }
 
     @Override
-    public boolean isMapperFileChange()
+    public File getFile()
     {
-        return lastModified != mapperFile.lastModified();
+        return mapperFile;
     }
 
     @Override

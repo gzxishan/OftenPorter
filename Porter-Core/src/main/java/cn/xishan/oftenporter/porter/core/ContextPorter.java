@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
+import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -17,32 +18,72 @@ import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class ContextPorter {
+public class ContextPorter implements IOtherStartDestroy
+{
+
+
+    @Override
+    public void addOtherStart(Object object, Method[] starts)
+    {
+        for (Method method : starts)
+        {
+            otherStartList.add(new OtherStartDestroy(object, method));
+        }
+    }
+
+    @Override
+    public void addOtherDestroys(Object object, Method[] destroys)
+    {
+        for (Method method : destroys)
+        {
+            otherDestroyList.add(new OtherStartDestroy(object, method));
+        }
+    }
+
+    class OtherStartDestroy
+    {
+        Object object;
+        Method method;
+
+        public OtherStartDestroy(Object object, Method method)
+        {
+            this.object = object;
+            this.method = method;
+        }
+    }
+
 
     private static final Logger LOGGER = LogUtil.logger(ContextPorter.class);
     private ClassLoader classLoader;
     //接口
     private Map<String, Porter> portMap;
     private Map<Class<?>, CheckPassable> checkPassableForCF;
+    private List<OtherStartDestroy> otherStartList = new ArrayList<>();
+    private List<OtherStartDestroy> otherDestroyList = new ArrayList<>();
+
 
     //private SthDeal sthDeal;
 
-    public ContextPorter() {
+    public ContextPorter()
+    {
         init();
     }
 
-    private void init() {
+    private void init()
+    {
         portMap = new HashMap<>();
     }
 
 
-    public Map<String, Porter> getPortMap() {
+    public Map<String, Porter> getPortMap()
+    {
         return portMap;
     }
 
@@ -52,12 +93,14 @@ public class ContextPorter {
      * @param classLoader
      * @return
      */
-    public ContextPorter setClassLoader(ClassLoader classLoader) {
+    public ContextPorter setClassLoader(ClassLoader classLoader)
+    {
         this.classLoader = classLoader;
         return this;
     }
 
-    public ClassLoader getClassLoader() {
+    public ClassLoader getClassLoader()
+    {
         return classLoader;
     }
 
@@ -65,40 +108,51 @@ public class ContextPorter {
     private ListenerAdder<OnPorterAddListener> listenerAdder;
 
     public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
-                                                 PorterConf porterConf,
-                                                 AutoSetHandle autoSetHandle) throws FatalInitException {
+            PorterConf porterConf,
+            AutoSetHandle autoSetHandle) throws FatalInitException
+    {
         this.porterConf = porterConf;
         this.listenerAdder = listenerAdder;
-
+        autoSetHandle.setIOtherStartDestroy(this);
         //搜索包:最终是搜索Class类
         seek(porterConf.getSeekPackages().getPackages(), autoSetHandle, sthDeal);
 
         //搜索Class类
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
-        for (Class<?> clazz : forSeek) {
+        for (Class<?> clazz : forSeek)
+        {
             LOGGER.debug("may add porter:{}", clazz);
-            try {
+            try
+            {
                 mayAddPorterOfClass(clazz, autoSetHandle, sthDeal);
-            } catch (FatalInitException e) {
+            } catch (FatalInitException e)
+            {
                 throw e;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
 
         //搜索实例
         Set<Object> objectSet = porterConf.getSeekPackages().getObjectsForSeek();
-        for (Object object : objectSet) {
+        for (Object object : objectSet)
+        {
             LOGGER.debug("may add porter:{}:{}", object.getClass(), object);
-            try {
-                if (PortUtil.isPortClass(object.getClass()) && willSeek(object.getClass())) {
+            try
+            {
+                if (PortUtil.isPortClass(object.getClass()) && willSeek(object.getClass()))
+                {
                     addPorter(object.getClass(), object, autoSetHandle, sthDeal);
-                } else {
+                } else
+                {
                     mayAddStaticAutoSet(object.getClass());
                 }
-            } catch (FatalInitException e) {
+            } catch (FatalInitException e)
+            {
                 throw e;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
@@ -112,11 +166,14 @@ public class ContextPorter {
         return checkPassableForCF;
     }
 
-    private void mayAddStaticAutoSet(Class<?> clazz) {
+    private void mayAddStaticAutoSet(Class<?> clazz)
+    {
         Field[] fields = WPTool.getAllFields(clazz);
-        for (int i = 0; i < fields.length; i++) {
+        for (int i = 0; i < fields.length; i++)
+        {
             Field field = fields[i];
-            if (Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(AutoSet.class)) {
+            if (Modifier.isStatic(field.getModifiers()) && field.isAnnotationPresent(AutoSet.class))
+            {
                 porterConf.addStaticAutoSetClasses(clazz);
                 break;
             }
@@ -124,60 +181,76 @@ public class ContextPorter {
     }
 
     private void seek(@NotNull JSONArray packages,
-                      AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException {
-        if (classLoader != null) {
+            AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException
+    {
+        if (classLoader != null)
+        {
             //Thread.currentThread().setContextClassLoader(classLoader);
-            if (classLoader instanceof PackageUtil.IClassLoader) {
+            if (classLoader instanceof PackageUtil.IClassLoader)
+            {
                 PackageUtil.IClassLoader iClassLoader = (PackageUtil.IClassLoader) classLoader;
                 List list = packages;
                 iClassLoader.setPackages(list);
             }
         }
 
-        for (int i = 0; i < packages.size(); i++) {
+        for (int i = 0; i < packages.size(); i++)
+        {
             seekPackage(packages.getString(i), autoSetHandle, sthDeal);
         }
     }
 
 
     private void seekPackage(String packageStr,
-                             AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException {
+            AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException
+    {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
         List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
-        for (int i = 0; i < classeses.size(); i++) {
-            try {
+        for (int i = 0; i < classeses.size(); i++)
+        {
+            try
+            {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
                 mayAddPorterOfClass(clazz, autoSetHandle, sthDeal);
-            } catch (FatalInitException e) {
+            } catch (FatalInitException e)
+            {
                 throw e;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 LOGGER.warn(e.getMessage(), e);
             }
         }
     }
 
-    private boolean willSeek(Class<?> clazz) {
+    private boolean willSeek(Class<?> clazz)
+    {
         boolean willSeek = true;
         Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
-        while (enumeration.hasMoreElements()) {
+        while (enumeration.hasMoreElements())
+        {
             OnPorterAddListener onPorterAddListener = enumeration.nextElement();
-            if (onPorterAddListener.onSeeking(porterConf.getContextName(), clazz)) {
+            if (onPorterAddListener.onSeeking(porterConf.getContextName(), clazz))
+            {
                 willSeek = false;
                 break;
             }
         }
-        if (!willSeek) {
+        if (!willSeek)
+        {
             LOGGER.debug("seek canceled!![{}]", clazz);
         }
         return willSeek;
     }
 
     private void mayAddPorterOfClass(Class<?> clazz, AutoSetHandle autoSetHandle,
-                                     SthDeal sthDeal) throws FatalInitException, Exception {
-        if (PortUtil.isPortClass(clazz) && willSeek(clazz)) {
+            SthDeal sthDeal) throws FatalInitException, Exception
+    {
+        if (PortUtil.isPortClass(clazz) && willSeek(clazz))
+        {
             addPorter(clazz, null, autoSetHandle, sthDeal);
-        } else {
+        } else
+        {
             mayAddStaticAutoSet(clazz);
         }
     }
@@ -194,60 +267,105 @@ public class ContextPorter {
      * @throws Exception
      */
     private void addPorter(Class<?> clazz, Object objectPorter,
-                           AutoSetHandle autoSetHandle,
-                           SthDeal sthDeal) throws FatalInitException, Exception {
+            AutoSetHandle autoSetHandle,
+            SthDeal sthDeal) throws FatalInitException, Exception
+    {
         LOGGER.debug("添加接口：");
         LOGGER.debug("\n\tat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
         Porter porter = sthDeal.porter(clazz, objectPorter, porterConf.getContextName(), autoSetHandle);
-        if (porter != null) {
+        if (porter != null)
+        {
             boolean willAdd = true;
             Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
-            while (enumeration.hasMoreElements()) {
+            while (enumeration.hasMoreElements())
+            {
                 OnPorterAddListener onPorterAddListener = enumeration.nextElement();
-                if (onPorterAddListener.onAdding(porterConf.getContextName(), porter)) {
+                if (onPorterAddListener.onAdding(porterConf.getContextName(), porter))
+                {
                     willAdd = false;
                     break;
                 }
             }
             _PortIn port = porter.getPortIn();
-            if (willAdd) {
+            if (willAdd)
+            {
                 String[] tieds = port.getTiedNames();
-                for (String tiedName : tieds) {
-                    if (portMap.containsKey(tiedName)) {
+                for (String tiedName : tieds)
+                {
+                    if (portMap.containsKey(tiedName))
+                    {
                         LOGGER.warn("class tiedName '{}' added before.(current:{},last:{})", tiedName,
                                 clazz, portMap.get(tiedName).getClazz());
                     }
                     portMap.put(tiedName, porter);
                 }
                 autoSetHandle.getInnerContextBridge().contextAutoSet.put(porter.getClazz().getName(), porter.getObj());
-            } else {
+            } else
+            {
                 LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedNames(), clazz);
             }
         }
     }
 
-    Porter getClassPort(String classTied) {
+    Porter getClassPort(String classTied)
+    {
         return portMap.get(classTied);
     }
 
 
-    public void start(WObject wObject) {
+    public void start(WObject wObject)
+    {
         Iterator<Porter> iterator = portMap.values().iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             iterator.next().start(wObject);
         }
+
+        for (OtherStartDestroy otherStartDestroy : otherStartList)
+        {
+            try
+            {
+                Method method = otherStartDestroy.method;
+                method.setAccessible(true);
+                if (method.getParameterTypes().length > 0)
+                {
+                    method.invoke(otherStartDestroy.object, wObject);
+                } else
+                {
+                    method.invoke(otherStartDestroy.object);
+                }
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
     }
 
-    public void destroy() {
+    public void destroy()
+    {
         Iterator<Porter> iterator = portMap.values().iterator();
-        while (iterator.hasNext()) {
+        while (iterator.hasNext())
+        {
             iterator.next().destroy();
+        }
+        for (OtherStartDestroy otherStartDestroy : otherDestroyList)
+        {
+            try
+            {
+                Method method = otherStartDestroy.method;
+                method.setAccessible(true);
+                method.invoke(otherStartDestroy.object);
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
     }
 
 
-    CheckPassable getCheckPassable(Class<? extends CheckPassable> clazz) {
+    CheckPassable getCheckPassable(Class<? extends CheckPassable> clazz)
+    {
         return checkPassableForCF.get(clazz);
     }
 

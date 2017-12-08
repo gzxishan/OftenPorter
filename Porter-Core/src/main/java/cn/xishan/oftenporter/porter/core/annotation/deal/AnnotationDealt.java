@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -361,7 +363,8 @@ public final class AnnotationDealt
         return _portDestroy;
     }
 
-    public _PortStart portStart(Method method, ObjectGetter objectGetter)
+
+    public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
     {
         PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
         if (portStart == null)
@@ -374,7 +377,59 @@ public final class AnnotationDealt
         return _portStart;
     }
 
-    public _PortOut portOut(Class<?> classPorter,  OutType defaultPoutType)
+    public Method[] getPortStart(Object object)
+    {
+        ObjectGetter objectGetter = () -> object;
+
+        Method[] methods = object.getClass().getMethods();
+        List<_PortStart> list = new ArrayList<>();
+        for (Method method : methods)
+        {
+            if (!Modifier.isAbstract(method.getModifiers()))
+            {
+                _PortStart portStart = portStart(method, objectGetter);
+                if(portStart!=null){
+                    list.add(portStart);
+                }
+            }
+        }
+        _PortStart[] portStarts = list.toArray(new _PortStart[0]);
+        Arrays.sort(portStarts);
+        Method[] starts = new Method[portStarts.length];
+        for (int i = 0; i < portStarts.length; i++)
+        {
+            starts[i] = portStarts[i].porterOfFun.getMethod();
+        }
+        return starts;
+    }
+
+    public Method[] getPortDestroy(Object object)
+    {
+        ObjectGetter objectGetter = () -> object;
+
+        Method[] methods = object.getClass().getMethods();
+        List<_PortDestroy> list = new ArrayList<>();
+        for (Method method : methods)
+        {
+            if (!Modifier.isAbstract(method.getModifiers()))
+            {
+                _PortDestroy portDestroy = portDestroy(method, objectGetter);
+                if(portDestroy!=null){
+                    list.add(portDestroy);
+                }
+            }
+        }
+        _PortDestroy[] portDestroys = list.toArray(new _PortDestroy[0]);
+        Arrays.sort(portDestroys);
+        Method[] destroys = new Method[portDestroys.length];
+        for (int i = 0; i < portDestroys.length; i++)
+        {
+            destroys[i] = portDestroys[i].porterOfFun.getMethod();
+        }
+        return destroys;
+    }
+
+    public _PortOut portOut(Class<?> classPorter, OutType defaultPoutType)
     {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(classPorter, PortOut.class);
@@ -396,7 +451,7 @@ public final class AnnotationDealt
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
 
-        if (portOut == null )
+        if (portOut == null)
         {
             _portOut.outType = classPorter.getPortOut().outType;
         } else if (portOut != null)

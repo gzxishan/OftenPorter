@@ -41,4 +41,10 @@ public @interface FederatedMysqlOption
      * @return
      */
     int tryCount()default 0;
+
+    /**
+     * 重试休眠时间，默认3000毫秒
+     * @return
+     */
+    int tryDelay()default 3000;
 }

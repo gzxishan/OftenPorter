@@ -16,10 +16,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,7 +45,7 @@ public class MyBatisBridge
 
             byte[] configData = FileTool.getData(configStream, 1024);
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
-                    myBatisOption.checkMapperFileDelaySeconds, configData);
+                    myBatisOption.checkMapperFileChange, configData);
             mSqlSessionFactoryBuilder.build();
 
             MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);

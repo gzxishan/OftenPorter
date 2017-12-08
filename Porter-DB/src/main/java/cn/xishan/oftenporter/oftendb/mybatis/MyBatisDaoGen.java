@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -31,6 +32,19 @@ class MyBatisDaoGen implements AutoSetGen
 
     @AutoSet
     Logger LOGGER;
+
+
+    @PortIn.PortStart
+    public void onStart() throws IOException
+    {
+        mybatisConfig.mSqlSessionFactoryBuilder.onStart();
+    }
+
+    @PortIn.PortDestroy
+    public void onDestroy()
+    {
+        mybatisConfig.mSqlSessionFactoryBuilder.onDestroy();
+    }
 
     private String loadXml(MyBatis.Type type, String path) throws IOException
     {

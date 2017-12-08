@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
@@ -40,6 +41,7 @@ public class AutoSetHandle
     private List<IHandle> iHandles = new ArrayList<>(), iHandlesForAutoSetThat = new ArrayList<>();
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
+    private IOtherStartDestroy iOtherStartDestroy;
 
     public static class _SetOkObject implements Comparable<_SetOkObject>
     {
@@ -287,6 +289,11 @@ public class AutoSetHandle
         return new AutoSetHandle(innerContextBridge, thisDelivery, porterData, currentContextName);
     }
 
+
+    public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy)
+    {
+        this.iOtherStartDestroy = iOtherStartDestroy;
+    }
 
     private AutoSetHandle(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData,
             String currentContextName)
@@ -690,9 +697,19 @@ public class AutoSetHandle
         }
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
+        addOtherStartDestroy(autoSetGen);
         doAutoSet(autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field, option);
         return value;
+    }
+
+    private void addOtherStartDestroy(Object object)
+    {
+        if (iOtherStartDestroy != null)
+        {
+            iOtherStartDestroy.addOtherStart(object, innerContextBridge.annotationDealt.getPortStart(object));
+            iOtherStartDestroy.addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object));
+        }
     }
 
     private Object dealtAutoSet(AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
@@ -721,6 +738,7 @@ public class AutoSetHandle
             return value;
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
+        addOtherStartDestroy(autoSetDealt);
         doAutoSet(autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field, value, option);
         return finalValue;
