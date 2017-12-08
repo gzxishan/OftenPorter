@@ -57,7 +57,7 @@ public @interface Parser
      * 用于转换绑定。
      */
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Target({ElementType.TYPE, ElementType.METHOD,ElementType.FIELD})
     @Inherited
     @Documented
     @interface parse
