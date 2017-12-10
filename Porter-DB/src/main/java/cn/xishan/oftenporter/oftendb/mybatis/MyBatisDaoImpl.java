@@ -83,6 +83,17 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return getSqlSession().getMapper(clazz);
     }
 
+    @Override
+    public Connection getConnection(WObject wObject)
+    {
+        return getSqlSession(wObject).getConnection();
+    }
+
+    @Override
+    public <T> T mapper(WObject wObject, Class<T> clazz)
+    {
+        return getSqlSession(wObject).getMapper(clazz);
+    }
 
     @Override
     public <T> T selectOne(WObject wObject, String statement)

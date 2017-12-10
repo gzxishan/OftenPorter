@@ -25,20 +25,35 @@ import java.util.Map;
 @AutoSetDefaultDealt(gen = MyBatisDaoGen.class)
 public interface MyBatisDao
 {
-    SqlSession getSqlSession(WObject wObject);
-
-    <T> T mapper(WObject wObject);
 
     /**
-     * 获得一个新的对象。
+     * 会获取新的sql会话。
      *
      * @return
      */
     SqlSession getSqlSession();
 
+    /**
+     * 会获取新的sql会话。
+     *
+     * @return
+     */
     Connection getConnection();
 
+    Connection getConnection(WObject wObject);
+
+    /**
+     * 会获取新的sql会话。
+     *
+     * @return
+     */
     <T> T mapper(Class<T> clazz);
+
+    SqlSession getSqlSession(WObject wObject);
+
+    <T> T mapper(WObject wObject);
+
+    <T> T mapper(WObject wObject, Class<T> clazz);
 
     <T> T selectOne(WObject wObject, String statement);
 
