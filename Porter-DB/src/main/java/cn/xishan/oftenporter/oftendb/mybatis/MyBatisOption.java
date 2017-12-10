@@ -14,6 +14,11 @@ public class MyBatisOption
      */
     public boolean checkMapperFileChange = false;
 
+    /**
+     * 是否自动注册别名。默认true。
+     */
+    public boolean autoRegisterAlias = true;
+
     @Deprecated
     public int checkMapperFileDelaySeconds = 30;
 

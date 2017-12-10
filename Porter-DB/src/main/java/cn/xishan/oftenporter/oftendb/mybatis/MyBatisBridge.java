@@ -46,8 +46,6 @@ public class MyBatisBridge
             byte[] configData = FileTool.getData(configStream, 1024);
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
                     myBatisOption.checkMapperFileChange, configData);
-            mSqlSessionFactoryBuilder.build();
-
             MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);
             porterConf.addContextAutoSet(MybatisConfig.class, mybatisConfig);
         } catch (Exception e)

@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.ResultHandler;
@@ -8,6 +7,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -19,24 +19,35 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
 {
 
 
-    private Class<?> mapperClass;
     private MyBatisDaoGen myBatisDaoGen;
     private File mapperFile;
-    private String mapperPath;
-    private MyBatis.Type type;
+    private String path;
+    private _MyBatis myBatis;
 
 
-    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, Class<?> mapperClass)
+    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, _MyBatis myBatis, String path)
     {
         this.myBatisDaoGen = myBatisDaoGen;
-        this.mapperClass = mapperClass;
+        this.myBatis = myBatis;
+        this.path = path;
+    }
+
+    private void checkMapperClass()
+    {
+        if (myBatis == null)
+        {
+            throw new NullPointerException("there is no mapper dao class");
+        }
+    }
+
+    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen)
+    {
+        this.myBatisDaoGen = myBatisDaoGen;
     }
 
 
-    void setMapperFile(MyBatis.Type type, String mapperPath, File mapperFile)
+    void setMapperFile(File mapperFile)
     {
-        this.type = type;
-        this.mapperPath = mapperPath;
         this.mapperFile = mapperFile;
     }
 
@@ -50,7 +61,8 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public <T> T mapper(WObject wObject)
     {
-        return getSqlSession(wObject).getMapper((Class<T>) mapperClass);
+        checkMapperClass();
+        return getSqlSession(wObject).getMapper((Class<T>) myBatis.daoClass);
     }
 
     @Override
@@ -63,7 +75,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public SqlSession getSqlSession()
     {
         SqlSession sqlSession = MyBatisBridge._openSession(null, myBatisDaoGen.mybatisConfig);
-
         return sqlSession;
     }
 
@@ -73,6 +84,17 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return getSqlSession().getMapper(clazz);
     }
 
+    @Override
+    public Connection getConnection(WObject wObject)
+    {
+        return getSqlSession(wObject).getConnection();
+    }
+
+    @Override
+    public <T> T mapper(WObject wObject, Class<T> clazz)
+    {
+        return getSqlSession(wObject).getMapper(clazz);
+    }
 
     @Override
     public <T> T selectOne(WObject wObject, String statement)
@@ -197,9 +219,15 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
 
 
     @Override
-    public void onBuild() throws Exception
+    public void onParse() throws IOException
     {
-        myBatisDaoGen.loadXml(type, mapperPath, mapperFile);
+        myBatisDaoGen.loadXml(myBatis, path, mapperFile);
+    }
+
+    @Override
+    public void onBindAlias()
+    {
+        myBatisDaoGen.bindAlias(myBatis);
     }
 
     @Override

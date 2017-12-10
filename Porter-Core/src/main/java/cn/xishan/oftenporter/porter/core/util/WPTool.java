@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.util;
 
 
+import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -403,6 +404,16 @@ public class WPTool
 
         getAllFields(clazz.getSuperclass(), list);
 
+    }
+
+    /**
+     *
+     * @param nameValues 必须是key(String),value(Object),key,value...的形式
+     * @return
+     */
+    public static JSONObject fromArray2JSON(Object ... nameValues){
+        SimpleAppValues simpleAppValues = SimpleAppValues.fromArray(nameValues);
+        return simpleAppValues.toJson();
     }
 
 }
