@@ -36,8 +36,8 @@ class MyBatisDaoGen implements AutoSetGen
     Logger LOGGER;
 
 
-    @PortIn.PortStart
-    public void onStart() throws IOException
+    @PortIn.PortStart(order = 100100)
+    public void onStart() throws Exception
     {
         mybatisConfig.mSqlSessionFactoryBuilder.onStart();
     }
@@ -48,9 +48,37 @@ class MyBatisDaoGen implements AutoSetGen
         mybatisConfig.mSqlSessionFactoryBuilder.onDestroy();
     }
 
-    private String loadXml(_MyBatis myBatis, String path) throws IOException
+    void bindAlias(_MyBatis myBatis)
     {
-        return loadXml(myBatis, path, null);
+        SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
+        Configuration configuration = sqlSessionFactory.getConfiguration();
+        TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
+
+        if (WPTool.notNullAndEmpty(myBatis.daoAlias))
+        {
+            typeAliasRegistry.registerAlias(myBatis.daoAlias, myBatis.daoClass);
+        } else if (myBatis.isAutoAlias)
+        {
+            typeAliasRegistry.registerAlias(myBatis.daoClass);
+        }
+
+        if (!myBatis.entityClass.equals(MyBatis.class))
+        {
+            if (WPTool.notNullAndEmpty(myBatis.entityAlias))
+            {
+                typeAliasRegistry.registerAlias(myBatis.entityAlias, myBatis.entityClass);
+            } else if (myBatis.isAutoAlias)
+            {
+                typeAliasRegistry.registerAlias(myBatis.entityClass);
+            }
+        }
+
+    }
+
+    private String getFileRelativePath(_MyBatis myBatis, String path)
+    {
+        path = PackageUtil.getPathWithRelative('/', mybatisConfig.myBatisOption.rootDir, path, "/");
+        return path;
     }
 
     String loadXml(_MyBatis myBatis, String path, File optionMapperFile) throws IOException
@@ -61,29 +89,13 @@ class MyBatisDaoGen implements AutoSetGen
             SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
 
             Configuration configuration = sqlSessionFactory.getConfiguration();
-            TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
-
-            if (WPTool.notNullAndEmpty(myBatis.daoAlias))
-            {
-                typeAliasRegistry.registerAlias(myBatis.daoAlias, myBatis.daoClass);
-            } else if (myBatis.isAutoAlias)
-            {
-                typeAliasRegistry.registerAlias(myBatis.daoClass);
-            }
-
-            if (!myBatis.entityClass.equals(MyBatis.class))
-            {
-                if (WPTool.notNullAndEmpty(myBatis.entityAlias))
-                {
-                    typeAliasRegistry.registerAlias(myBatis.entityAlias, myBatis.entityClass);
-                } else if (myBatis.isAutoAlias)
-                {
-                    typeAliasRegistry.registerAlias(myBatis.entityClass);
-                }
-            }
 
             if (optionMapperFile != null)
             {
+                if (myBatis.type == MyBatis.Type.RESOURCES)
+                {
+                    path = getFileRelativePath(myBatis, path);
+                }
                 ErrorContext.instance().resource(optionMapperFile.getAbsolutePath());
                 XMLMapperBuilder mapperParser = new XMLMapperBuilder(new FileInputStream(optionMapperFile),
                         configuration,
@@ -92,7 +104,7 @@ class MyBatisDaoGen implements AutoSetGen
                 mapperParser.parse();
             } else if (myBatis.type == MyBatis.Type.RESOURCES)
             {
-                path = PackageUtil.getPathWithRelative('/', mybatisConfig.myBatisOption.rootDir, path, "/");
+                path = getFileRelativePath(myBatis, path);
                 ErrorContext.instance().resource(path);
                 InputStream inputStream = Resources.getResourceAsStream(path);
                 XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, path,
@@ -178,13 +190,12 @@ class MyBatisDaoGen implements AutoSetGen
 
         String path = dir + name;
         LOGGER.debug("mapper={},type={}", path, type);
-        String finalPath = loadXml(myBatis, path);
 
-        MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis);
+        MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);
         if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
-            File file = new File(mybatisConfig.myBatisOption.resourcesDir + finalPath);
-            myBatisDao.setMapperFile(finalPath, file);
+            File file = new File(mybatisConfig.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
+            myBatisDao.setMapperFile(file);
         }
         mybatisConfig.mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;

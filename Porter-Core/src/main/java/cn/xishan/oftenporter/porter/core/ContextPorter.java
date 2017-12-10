@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
@@ -34,7 +36,8 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : starts)
         {
-            otherStartList.add(new OtherStartDestroy(object, method));
+            PortIn.PortStart portStart = AnnoUtil.getAnnotation(method, PortIn.PortStart.class);
+            otherStartList.add(new OtherStartDestroy(object, method, portStart.order()));
         }
     }
 
@@ -43,19 +46,28 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : destroys)
         {
-            otherDestroyList.add(new OtherStartDestroy(object, method));
+            PortIn.PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortIn.PortDestroy.class);
+            otherDestroyList.add(new OtherStartDestroy(object, method, portDestroy.order()));
         }
     }
 
-    class OtherStartDestroy
+    class OtherStartDestroy implements Comparable<OtherStartDestroy>
     {
         Object object;
         Method method;
+        int order;
 
-        public OtherStartDestroy(Object object, Method method)
+        public OtherStartDestroy(Object object, Method method, int order)
         {
             this.object = object;
             this.method = method;
+            this.order = order;
+        }
+
+        @Override
+        public int compareTo(OtherStartDestroy other)
+        {
+            return order - other.order;
         }
     }
 
@@ -316,13 +328,11 @@ public class ContextPorter implements IOtherStartDestroy
 
     public void start(WObject wObject)
     {
-        Iterator<Porter> iterator = portMap.values().iterator();
-        while (iterator.hasNext())
-        {
-            iterator.next().start(wObject);
-        }
 
-        for (OtherStartDestroy otherStartDestroy : otherStartList)
+        OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
+        Arrays.sort(otherStartDestroys);
+
+        for (OtherStartDestroy otherStartDestroy : otherStartDestroys)
         {
             try
             {
@@ -340,6 +350,13 @@ public class ContextPorter implements IOtherStartDestroy
                 LOGGER.error(e.getMessage(), e);
             }
         }
+
+
+        Iterator<Porter> iterator = portMap.values().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next().start(wObject);
+        }
     }
 
     public void destroy()
@@ -349,7 +366,9 @@ public class ContextPorter implements IOtherStartDestroy
         {
             iterator.next().destroy();
         }
-        for (OtherStartDestroy otherStartDestroy : otherDestroyList)
+        OtherStartDestroy[] otherStartDestroys = otherDestroyList.toArray(new OtherStartDestroy[0]);
+        Arrays.sort(otherStartDestroys);
+        for (OtherStartDestroy otherStartDestroy : otherStartDestroys)
         {
             try
             {

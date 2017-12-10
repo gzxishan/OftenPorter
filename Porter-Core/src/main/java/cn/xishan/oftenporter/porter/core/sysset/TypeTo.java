@@ -1,7 +1,11 @@
 package cn.xishan.oftenporter.porter.core.sysset;
 
+import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.ResultCode;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheOne;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -164,27 +168,32 @@ public class TypeTo
                 return enumeration;
             }
         };
-        return parse(clazz, paramSource);
+        return parse(clazz, paramSource, null);
     }
 
     public <T> T parse(Class<T> clazz, WObject wObject) throws RuntimeException
     {
-        return parse(clazz, wObject.getParamSource());
+        return parse(clazz, wObject.getParamSource(), wObject);
     }
 
-    public <T> T parse(Class<T> clazz, ParamSource paramSource) throws RuntimeException
+    public <T> T parse(Class<T> clazz, ParamSource paramSource, @MayNull WObject wObject) throws RuntimeException
     {
 
         try
         {
             CacheOne cache = getCache(clazz);
             Object object = portUtil
-                    .paramDealOne(null, false, innerContextBridge.paramDealt, cache.getOne(), paramSource,
+                    .paramDealOne(wObject, false, innerContextBridge.paramDealt, cache.getOne(), paramSource,
                             innerContextBridge.innerBridge.globalParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason reason = (ParamDealt.FailedReason) object;
-                throw new RuntimeException(reason.desc());
+
+                JResponse jResponse = new JResponse();
+                jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
+                jResponse.setExtra(reason.toJSON());
+
+                throw new WCallException(jResponse);
             }
             return (T) object;
         } catch (RuntimeException e)

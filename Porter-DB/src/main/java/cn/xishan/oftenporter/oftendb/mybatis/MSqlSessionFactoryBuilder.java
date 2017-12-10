@@ -23,7 +23,9 @@ class MSqlSessionFactoryBuilder
 
     interface BuilderListener
     {
-        void onBuild() throws Exception;
+        void onParse() throws Exception;
+
+        void onBindAlias() throws Exception;
 
         boolean willCheckMapperFile();
 
@@ -40,15 +42,16 @@ class MSqlSessionFactoryBuilder
     private boolean isDestroyed = false;
     private boolean isStarted = false;
 
-    public void onStart() throws IOException
+    public void onStart() throws Exception
     {
         if (isStarted)
         {
             return;
         }
+        build();
         isStarted = true;
         isDestroyed = false;
-        if (builderListenerSet.size() == 0&&!checkMapperFileChange)
+        if (builderListenerSet.size() == 0 && !checkMapperFileChange)
         {
             return;
         }
@@ -131,9 +134,9 @@ class MSqlSessionFactoryBuilder
         WPTool.close(watchService);
     }
 
-    public MSqlSessionFactoryBuilder(boolean checkMapperFileChange,byte[] configData)
+    public MSqlSessionFactoryBuilder(boolean checkMapperFileChange, byte[] configData)
     {
-        this.checkMapperFileChange=checkMapperFileChange;
+        this.checkMapperFileChange = checkMapperFileChange;
         this.configData = configData;
     }
 
@@ -144,7 +147,11 @@ class MSqlSessionFactoryBuilder
         this.sqlSessionFactory = sqlSessionFactory;
         for (BuilderListener listener : builderListenerSet)
         {
-            listener.onBuild();
+            listener.onBindAlias();
+        }
+        for (BuilderListener listener : builderListenerSet)
+        {
+            listener.onParse();
         }
     }
 

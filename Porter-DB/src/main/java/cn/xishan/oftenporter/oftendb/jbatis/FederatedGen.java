@@ -7,9 +7,11 @@ import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.mysql.SqlUtil;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -44,6 +46,7 @@ class FederatedGen implements AutoSetGen
                 tryCount = 0;
             }
             this.tryCount = tryCount + 1;
+            this.tryDelay = tryDelay;
             federated = new FederatedImplInner();
         }
 
@@ -57,13 +60,13 @@ class FederatedGen implements AutoSetGen
             {
                 try
                 {
-                    LOGGER.debug("init federated[{},{}]...",tableName,jdbcUrl);
+                    LOGGER.debug("init federated[{},{}]...", tableName, jdbcUrl);
                     federated.init(dbSource, dropTableIfExists, tableName, jdbcUrl, driverClass, connectionUrl);
-                    LOGGER.debug("init federated[{},{}] success!",tableName,jdbcUrl);
+                    LOGGER.debug("init federated[{},{}] success!", tableName, jdbcUrl);
                     break;
                 } catch (Exception e)
                 {
-                    LOGGER.debug("init federated[{},{}] fail!",tableName,jdbcUrl);
+                    LOGGER.debug("init federated[{},{}] fail!", tableName, jdbcUrl);
                     LOGGER.debug(e.getMessage(), e);
                     if (tryCount <= 0)
                     {
@@ -93,14 +96,14 @@ class FederatedGen implements AutoSetGen
             {
                 try
                 {
-                    LOGGER.debug("init federated[{},{},{},{}]...",host,user,dbname,tableName);
+                    LOGGER.debug("init federated[{},{},{},{}]...", host, user, dbname, tableName);
                     federated.initOfMysql(dbSource, dropTableIfExists, tableName, host,
                             dbname, user, password);
-                    LOGGER.debug("init federated[{},{},{},{}] success!",host,user,dbname,tableName);
+                    LOGGER.debug("init federated[{},{},{},{}] success!", host, user, dbname, tableName);
                     break;
                 } catch (Exception e)
                 {
-                    LOGGER.debug("init federated[{},{},{},{}] fail!",host,user,dbname,tableName);
+                    LOGGER.debug("init federated[{},{},{},{}] fail!", host, user, dbname, tableName);
                     LOGGER.debug(e.getMessage(), e);
                     if (tryCount <= 0)
                     {
@@ -247,10 +250,15 @@ class FederatedGen implements AutoSetGen
 
             int tryCount = federatedOptionOfClass != null && federatedOptionOfClass
                     .tryCount() != 0 ? federatedOptionOfClass.tryCount() : federatedOption.tryCount();
-            int tryDelay=federatedOptionOfClass!=null?federatedOptionOfClass.tryDelay():federatedOption.tryDelay();
+            int tryDelay = federatedOptionOfClass != null ? federatedOptionOfClass.tryDelay() : federatedOption
+                    .tryDelay();
 
-            federated = new FederatedImpl(tryCount,tryDelay);
-            federated.init(dbSource, dropIfExists != 0, tableName, jdbcUrl, driverClass, connectionUrl);
+            federated = new FederatedImpl(tryCount, tryDelay);
+
+            params = WPTool
+                    .fromArray2JSON("dropIfExists", dropIfExists != 0, "tableName", tableName, "jdbcUrl", jdbcUrl,
+                            "driverClass", driverClass, "connectionUrl", connectionUrl);
+            isMySql = false;
         } else if (field.isAnnotationPresent(FederatedMysqlOption.class))
         {
             if (dbSource == null)
@@ -283,11 +291,35 @@ class FederatedGen implements AutoSetGen
 
             int tryCount = mysqlOptionOfClass != null && mysqlOptionOfClass
                     .tryCount() != 0 ? mysqlOptionOfClass.tryCount() : mysqlOption.tryCount();
-            int tryDelay = mysqlOptionOfClass!=null?mysqlOptionOfClass.tryDelay():mysqlOption.tryDelay();
-            federated = new FederatedImpl(tryCount,tryDelay);
-            federated.initOfMysql(dbSource, dropIfExists != 0, tableName, host,
-                    dbName, user, password);
+            int tryDelay = mysqlOptionOfClass != null ? mysqlOptionOfClass.tryDelay() : mysqlOption.tryDelay();
+            federated = new FederatedImpl(tryCount, tryDelay);
+            params = WPTool.fromArray2JSON("dropIfExists", dropIfExists != 0, "tableName", tableName,
+                    "host", host, "dbName", dbName, "user", user, "password", password);
+            isMySql = true;
         }
+        this.federated=federated;
         return federated;
+    }
+
+    private Federated federated;
+    private boolean isMySql = false;
+    private JSONObject params;
+
+    @PortIn.PortStart(order = 100150)
+    public void onStart()
+    {
+        if (isMySql)
+        {
+            federated.initOfMysql(dbSource, params.getBooleanValue("dropIfExists"), params.getString("tableName"),
+                    params.getString("host"),
+                    params.getString("dbName"), params.getString("user"), params.getString("password"));
+        } else
+        {
+            federated.init(dbSource, params.getBooleanValue("dropIfExists"), params.getString("tableName"),
+                    params.getString("jdbcUrl"),
+                    params.getString("driverClass"), params.getString("connectionUrl"));
+        }
+        federated = null;
+        params = null;
     }
 }

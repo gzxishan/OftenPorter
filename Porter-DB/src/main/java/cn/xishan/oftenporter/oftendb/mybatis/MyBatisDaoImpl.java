@@ -7,6 +7,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
@@ -20,14 +21,15 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
 
     private MyBatisDaoGen myBatisDaoGen;
     private File mapperFile;
-    private String mapperPath;
+    private String path;
     private _MyBatis myBatis;
 
 
-    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, _MyBatis myBatis)
+    public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, _MyBatis myBatis, String path)
     {
         this.myBatisDaoGen = myBatisDaoGen;
         this.myBatis = myBatis;
+        this.path = path;
     }
 
     private void checkMapperClass()
@@ -44,9 +46,8 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     }
 
 
-    void setMapperFile(String mapperPath, File mapperFile)
+    void setMapperFile(File mapperFile)
     {
-        this.mapperPath = mapperPath;
         this.mapperFile = mapperFile;
     }
 
@@ -218,9 +219,15 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
 
 
     @Override
-    public void onBuild() throws Exception
+    public void onParse() throws IOException
     {
-        myBatisDaoGen.loadXml(myBatis, mapperPath, mapperFile);
+        myBatisDaoGen.loadXml(myBatis, path, mapperFile);
+    }
+
+    @Override
+    public void onBindAlias()
+    {
+        myBatisDaoGen.bindAlias(myBatis);
     }
 
     @Override
