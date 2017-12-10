@@ -15,20 +15,16 @@ public final class _Nece
     PortMethod[] forMethods;
     String[] forClassTieds;
     String[] forFunTieds;
-    boolean forNece;
+    boolean toUnece;
     private boolean isEmpty;
 
     public boolean isNece(WObject wObject)
     {
-
-        if (isEmpty || wObject == null || isIn(wObject))
-        {
-            return forNece;
-        } else
-        {
-            return forNece;
+        if(toUnece&&wObject!=null&&isIn(wObject)){
+            return false;
+        }else{
+            return true;
         }
-
     }
 
     private boolean isIn(WObject wObject)
@@ -54,9 +50,9 @@ public final class _Nece
         return value;
     }
 
-    public boolean forNece()
+    public boolean isToUnece()
     {
-        return forNece;
+        return toUnece;
     }
 
     public PortMethod[] forMethods()

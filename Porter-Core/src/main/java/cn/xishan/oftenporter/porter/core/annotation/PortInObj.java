@@ -48,15 +48,15 @@ public @interface PortInObj
         String value() default "";
 
         /**
+         * 转换为非必需参数。
          * <pre>
-         *     若当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()} ()}中,或以上都为空时。
-         *     1.为true时：注解的变量仍然为必需参数。
-         *     2.为false时：注解的变量变为非必需参数。
+         *     若返回true且当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()} ()}中时:
+         *      注解的变量变为非必需参数。
          * </pre>
          *
-         * @return 默认为true。
+         * @return 默认为false。
          */
-        boolean forNece() default true;
+        boolean toUnece() default false;
 
         PortMethod[] forMethods() default {};
 
