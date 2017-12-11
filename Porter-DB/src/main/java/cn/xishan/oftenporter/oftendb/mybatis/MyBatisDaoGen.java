@@ -173,7 +173,7 @@ class MyBatisDaoGen implements AutoSetGen
 
         _MyBatis myBatis = new _MyBatis(type, dir, name);
         myBatis.daoClass = mapperClass;
-        if (myBatis == null)
+        if (_myBatis == null)
         {
             myBatis.isAutoAlias = false;
             myBatis.daoAlias = "";
