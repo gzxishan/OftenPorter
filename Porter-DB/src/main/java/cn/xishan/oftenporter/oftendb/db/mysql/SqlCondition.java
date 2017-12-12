@@ -1,10 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db.mysql;
 
 
-import cn.xishan.oftenporter.oftendb.db.BaseEasier;
-import cn.xishan.oftenporter.oftendb.db.CUnit;
-import cn.xishan.oftenporter.oftendb.db.Condition;
-import cn.xishan.oftenporter.oftendb.db.Operator;
+import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
@@ -214,9 +211,13 @@ public class SqlCondition extends Condition
 
     private static void checkName(String name)
     {
+
         if (WPTool.isEmpty(name) || name.indexOf('{') >= 0 || name.indexOf('}') >= 0)
         {
             throw new RuntimeException("illegal name of '" + name + "'");
+        } else if (name.indexOf('`') >= 0)
+        {
+            throw new DBException("illegal name:" + name);
         }
     }
 
@@ -237,11 +238,12 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam1());
         } else
         {
-            appendName(cUnit.getParam1(),stringBuilder);
+            appendName(cUnit.getParam1(), stringBuilder);
         }
         stringBuilder.append(" ");
 
-        if (operator == IS_NOT_NULL || (cUnit.getParam2() == null && operator == NE && !cUnit.isParam1Value() && cUnit.isParam2Value()))
+        if (operator == IS_NOT_NULL || (cUnit.getParam2() == null && operator == NE && !cUnit.isParam1Value() && cUnit
+                .isParam2Value()))
         {
             stringBuilder.append("is not NULL ");
             //operator=IS_NOT_NULL;
@@ -339,17 +341,19 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam2());
         } else
         {
-            appendName(cUnit.getParam2(),stringBuilder);
+            appendName(cUnit.getParam2(), stringBuilder);
         }
     }
 
-    static void appendName(Object name,StringBuilder builder){
-        String nameStr= (String) name;
+    static void appendName(Object name, StringBuilder builder)
+    {
+        String nameStr = (String) name;
         checkName(nameStr);
         int dotIndex = nameStr.lastIndexOf('.');
-        if(dotIndex>=0){
-            builder.append(nameStr.substring(0,dotIndex+1));
-            nameStr=nameStr.substring(dotIndex+1);
+        if (dotIndex >= 0)
+        {
+            builder.append(nameStr.substring(0, dotIndex + 1));
+            nameStr = nameStr.substring(dotIndex + 1);
         }
         builder.append("`").append(nameStr).append("`");
     }
