@@ -142,7 +142,11 @@ public class SqliteHandle implements DBHandle
         ContentValues contentValues = new ContentValues(nameValues.size());
         for (int i = 0; i < nameValues.size(); i++)
         {
-            put("`" + nameValues.name(i) + "`", nameValues.value(i), contentValues);
+            String name = nameValues.name(i);
+            if(name.indexOf('`')>=0){
+                throw new DBException("illegal name:"+name);
+            }
+            put("`" + name + "`", nameValues.value(i), contentValues);
         }
         return contentValues;
     }

@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.oftendb.data;
 
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.ExceptDBField;
+import cn.xishan.oftenporter.oftendb.annotation.JsonField;
+import cn.xishan.oftenporter.oftendb.annotation.JsonObj;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
@@ -38,7 +40,7 @@ public class DataUtil
     }
 
     /**
-     * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}
+     * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}、{@linkplain JsonField}、{@linkplain JsonObj}
      * @param filterNullAndEmpty 是否过滤null或空字符串
      * @param isExcept
      * @param keyNames
@@ -56,6 +58,40 @@ public class DataUtil
         }
     }
 
+    private static boolean isJsonFieldOrJson(Object object, Field field,
+            NameValues nameValues) throws IllegalAccessException
+    {
+        if (field.isAnnotationPresent(JsonObj.class))
+        {
+            JsonObj jsonObj = field.getAnnotation(JsonObj.class);
+            String name = jsonObj.value();
+            if (name.equals(""))
+            {
+                name = field.getName();
+            }
+            field.setAccessible(true);
+            Object fieldObj = field.get(object);
+            if (fieldObj != null)
+            {
+                nameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
+            }
+            return true;
+        } else if (field.isAnnotationPresent(JsonObj.class))
+        {
+            JsonObj jsonObj = field.getAnnotation(JsonObj.class);
+            String name = jsonObj.value();
+            if (name.equals(""))
+            {
+                name = field.getName();
+            }
+            field.setAccessible(true);
+            Object fieldObj = field.get(object);
+            nameValues.append(name, fieldObj);
+            return true;
+        }
+        return false;
+    }
+
     private static NameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
             String... keyNames) throws IllegalAccessException
     {
@@ -68,6 +104,10 @@ public class DataUtil
             for (int i = 0; i < fields.length; i++)
             {
                 Field field = fields[i];
+                if (isJsonFieldOrJson(object, field, nameValues))
+                {
+                    continue;
+                }
                 String name = getTiedName(field);
                 if (name == null)
                 {
@@ -93,6 +133,10 @@ public class DataUtil
             for (int i = 0; i < fields.length; i++)
             {
                 Field field = fields[i];
+                if (isJsonFieldOrJson(object, field, nameValues))
+                {
+                    continue;
+                }
                 String name = getTiedName(field);
                 if (name == null)
                 {
