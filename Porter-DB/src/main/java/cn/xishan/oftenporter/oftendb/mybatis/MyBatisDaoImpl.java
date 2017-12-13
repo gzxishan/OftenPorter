@@ -118,7 +118,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     }
 
     @Override
-    public <T> T mapper(Class<T> clazz)
+    public <T> T getMapper(Class<T> clazz)
     {
         LOGGER.debug("will not support the transaction :in {}", MyBatisBridge.class);
         return mapperOther(getSqlSession(), clazz);

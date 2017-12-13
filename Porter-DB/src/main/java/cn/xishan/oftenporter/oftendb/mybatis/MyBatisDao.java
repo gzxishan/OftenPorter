@@ -47,7 +47,7 @@ public interface MyBatisDao
      *
      * @return
      */
-    <T> T mapper(Class<T> clazz);
+    <T> T getMapper(Class<T> clazz);
 
     SqlSession getSqlSession(WObject wObject);
 
