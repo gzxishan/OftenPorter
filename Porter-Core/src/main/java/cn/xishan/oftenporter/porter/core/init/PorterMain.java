@@ -54,28 +54,18 @@ public final class PorterMain {
     public PorterMain(PName pName, CommonMain commonMain) {
         PBridge inner = (request, callback) ->
         {
-            ABOption abOption = request._getABOption_();
-            if (abOption == null) {
-                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
-                request._setABOption_(abOption);
-            }
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
             if (req != null) {
-                doRequest(req, request, resp);
+                doRequest(req, request, resp,true);
             }
         };
         PBridge current = (request, callback) ->
         {
-            ABOption abOption = request._getABOption_();
-            if (abOption == null) {
-                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder._OTHER_BEFORE);
-                request._setABOption_(abOption);
-            }
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
             if (req != null) {
-                doRequest(req, request, resp);
+                doRequest(req, request, resp,false);
             }
         };
 
@@ -295,8 +285,6 @@ public final class PorterMain {
             autoSetHandle.doAutoSetNormal();//变量设置处理
             autoSetHandle.doAutoSetThat();
 
-            sthDeal.dealPortAB(portExecutor.getContext(porterConf.getContextName()), portExecutor);//处理After和Before
-
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
             PRequest request = new PRequest(path);
@@ -375,8 +363,8 @@ public final class PorterMain {
         portExecutor.enableContext(contextName, enable);
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response) {
-        portExecutor.doRequest(req, request, response);
+    public void doRequest(PreRequest req, WRequest request, WResponse response,boolean isInnerRequest) {
+        portExecutor.doRequest(req, request, response,isInnerRequest);
     }
 
     public PreRequest forRequest(WRequest request, WResponse response) {

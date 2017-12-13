@@ -19,7 +19,6 @@ class WObjectImpl extends WObject
 
 
     Context context;
-    ABOption abOption;
     private PName pName;
     private Delivery delivery;
     private ParamSource paramSource;

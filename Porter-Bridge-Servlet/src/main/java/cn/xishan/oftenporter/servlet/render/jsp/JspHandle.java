@@ -2,7 +2,6 @@ package cn.xishan.oftenporter.servlet.render.jsp;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -23,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/27.
  */
-class JspHandle implements AspectFunOperation.Handle<Jsp>
+class JspHandle extends AspectFunOperation.HandleAdapter<Jsp>
 {
 
     static class Cache
@@ -101,11 +100,6 @@ class JspHandle implements AspectFunOperation.Handle<Jsp>
 
     }
 
-    @Override
-    public boolean init(Jsp current, Porter porter)
-    {
-        return false;
-    }
 
     @Override
     public boolean init(Jsp current, PorterOfFun porterOfFun)
@@ -115,20 +109,9 @@ class JspHandle implements AspectFunOperation.Handle<Jsp>
         return true;
     }
 
-    @Override
-    public void onStart(WObject wObject)
-    {
-
-    }
 
     @Override
-    public void onDestroy()
-    {
-
-    }
-
-    @Override
-    public Object invokeMethod(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         Object obj = porterOfFun.invoke(wObject, null);
 

@@ -36,10 +36,6 @@ public class Hello1Porter
 
     @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
             method = PortMethod.POST)
-    @PortIn.Filter(
-            before = @PortIn.Before(funTied = "addBefore", method = PortMethod.POST),
-            after = @PortIn.After(funTied = "addAfter", method = PortMethod.POST)
-    )
     public Object add(WObject wObject)
     {
         wObject.finner[0] = new Date();

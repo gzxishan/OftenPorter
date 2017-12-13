@@ -198,9 +198,9 @@ public abstract class WObject implements IAttribute
      * @param appValues
      * @param callback
      */
-    public void currentRequest(String funTied, AppValues appValues, PCallback callback)
+    public void innerRequest(String funTied, AppValues appValues, PCallback callback)
     {
-        currentRequest(funTied, getRequest().getMethod(), appValues, callback, true);
+        innerRequest(funTied, getRequest().getMethod(), appValues, callback, true);
     }
 
 
@@ -216,7 +216,7 @@ public abstract class WObject implements IAttribute
      * @param callback
      * @param throwWCallException 是否在返回码不为成功时抛出异常。
      */
-    public void currentRequest(String funTied, PortMethod method, AppValues appValues, PCallback callback,
+    public void innerRequest(String funTied, PortMethod method, AppValues appValues, PCallback callback,
             boolean throwWCallException)
     {
         StringBuilder builder = new StringBuilder();
@@ -228,7 +228,7 @@ public abstract class WObject implements IAttribute
         if (throwWCallException)
         {
             Temp temp = new Temp();
-            delivery().currentBridge().request(request, lResponse ->
+            delivery().innerBridge().request(request, lResponse ->
             {
                 Object rs = lResponse.getResponse();
                 if (rs != null && rs instanceof JResponse)
@@ -251,7 +251,7 @@ public abstract class WObject implements IAttribute
             }
         } else
         {
-            delivery().currentBridge().request(request, callback);
+            delivery().innerBridge().request(request, callback);
         }
     }
 

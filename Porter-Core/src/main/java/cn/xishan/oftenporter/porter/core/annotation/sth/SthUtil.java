@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.Context;
-import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.Mixin;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
@@ -308,99 +306,4 @@ class SthUtil
         }
         return null;
     }
-
-    private void addBeforeOrAfters(List<_PortFilterOne> portFilterOneList, Set<Walk<String>> walkSet,
-            PortExecutor portExecutor, _PortFilterOne from,
-            _PortFilterOne current, boolean isBefore) throws FatalInitException
-    {
-        if (from != null)
-        {
-            Walk<String> walk = new Walk<>(from.getPathWithContext() + ":" + from.getMethod().name(),
-                    current.getPathWithContext() + ":" + current.getMethod().name());
-            if (walkSet.contains(walk))
-            {
-                String msg = String
-                        .format("loop=[%s--->%s] exits!", walk.t1, walk.t2);
-                throw new FatalInitException(msg);
-            }
-            walkSet.add(walk);
-        }
-
-        PorterOfFun porterOfFun = portExecutor.getPorterOfFun(current.getPathWithContext(), current.getMethod());
-        if (porterOfFun == null)
-        {
-            String msg = String
-                    .format("Porter '%s:%s' not exist!", current.getPathWithContext(), current.getMethod().name());
-            throw new FatalInitException(msg);
-        }
-
-
-        _PortFilterOne[] portBefores = isBefore ? porterOfFun.getPortBefores() : porterOfFun.getPortAfters();
-        for (int i = 0; i < portBefores.length; i++)
-        {
-            _PortFilterOne before = portBefores[i];
-            addBeforeOrAfters(portFilterOneList, walkSet, portExecutor, current, before, true);
-            portFilterOneList.add(before);
-            addBeforeOrAfters(portFilterOneList, walkSet, portExecutor, current, before, false);
-        }
-
-    }
-
-    void expandPortAB(Context context, PortExecutor portExecutor) throws FatalInitException
-    {
-        for (Porter porter : context.contextPorter.getPortMap().values())
-        {
-            for (PorterOfFun porterOfFun : porter.getFuns().values())
-            {
-                List<_PortFilterOne> portFilterOneListOfBefore = new ArrayList<>();
-                _PortFilterOne[] portBefores = porterOfFun.getPortBefores();
-                Set<Walk<String>> walkSet = new HashSet<>();
-                for (int i = 0; i < portBefores.length; i++)
-                {
-                    _PortFilterOne before = portBefores[i];
-                    addBeforeOrAfters(portFilterOneListOfBefore, walkSet, portExecutor, null, before, true);
-                    portFilterOneListOfBefore.add(before);
-                }
-                porterOfFun.portBefores = portFilterOneListOfBefore.toArray(new _PortFilterOne[0]);
-
-                List<_PortFilterOne> portFilterOneListOfAfter = new ArrayList<>();
-                walkSet.clear();
-                for (_PortFilterOne after : porterOfFun.getPortAfters())
-                {
-                    portFilterOneListOfAfter.add(after);
-                    addBeforeOrAfters(portFilterOneListOfAfter, walkSet, portExecutor, null, after, false);
-                }
-                porterOfFun.portAfters = portFilterOneListOfAfter.toArray(new _PortFilterOne[0]);
-            }
-        }
-    }
-
-
-//    private static void checkLoopMixinParser(Class<?> root) throws FatalInitException
-//    {
-//        Set<Walk> walkedSet = new HashSet<>();
-//        walkedSet.add(new Walk(root, root));
-//        checkLoopMixinParser(root,root,walkedSet);
-//    }
-//    private static void checkLoopMixinParser(Class<?> root, Class<?> clazz,Set<Walk> walkedSet) throws
-// FatalInitException
-//    {
-//        Class<?>[] mixinParsers = getMixinParser(clazz);
-//        for (Class<?> c : mixinParsers)
-//        {
-//            Walk walk = new Walk(root,c);
-//            if (walkedSet.contains(walk))
-//            {
-//                String msg = String.format("Loop MixinParser:top[%s],inner[%s]", root, clazz);
-//                LOGGER.error(msg);
-//                throw new FatalInitException(msg);
-//            } else
-//            {
-//                walkedSet.add(walk);
-//                walkedSet.add(new Walk(c,c));
-//                checkLoopMixinParser(c, c,walkedSet);
-//                checkLoopMixinParser(root, c,walkedSet);
-//            }
-//        }
-//    }
 }

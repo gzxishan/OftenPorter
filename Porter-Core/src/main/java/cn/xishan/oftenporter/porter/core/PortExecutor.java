@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.InObj;
@@ -233,7 +232,7 @@ public class PortExecutor
         return wObject;
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response)
+    public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
     {
         try
         {
@@ -245,17 +244,12 @@ public class PortExecutor
             InnerContextBridge innerContextBridge = context.innerContextBridge;
             UrlDecoder.Result result = req.result;
 
-            ABOption abOption = null;
-            if (request instanceof PRequest)
+
+            if (!isInnerRequest && funPort.getMethodPortIn()
+                    .getPortFunType() == PortFunType.INNER)
             {
-                PRequest pRequest = (PRequest) request;
-                abOption = pRequest._getABOption_();
-                if (funPort.getMethodPortIn()
-                        .getPortFunType() == PortFunType.INNER && (abOption == null || !abOption.isCanInVokeInner()))
-                {
-                    exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
-                    return;
-                }
+                exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
+                return;
             }
 
 
@@ -272,63 +266,6 @@ public class PortExecutor
             {
                 wObject.restValue = result.funTied();
             }
-
-            if (abOption != null)
-            {
-                boolean willFindLast = false;
-                if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_BEFORE)
-                {
-                    if (funPort.getPortBefores().length == 0)
-                    {
-                        abOption = abOption.clone(ABInvokeOrder.ORIGIN_FIRST);
-                    } else
-                    {
-                        abOption = abOption.clone(ABInvokeOrder.OTHER);
-                    }
-                    willFindLast = true;
-                } else if (abOption.abInvokeOrder == ABInvokeOrder._OTHER_AFTER)
-                {
-                    willFindLast = true;
-                }
-                if (willFindLast)
-                {
-                    if (funPort.getPortAfters().length == 0)
-                    {
-                        abOption = abOption
-                                .clone(abOption.abInvokeOrder == ABInvokeOrder.ORIGIN_FIRST ? ABInvokeOrder
-                                        .BOTH_FIRST_LAST : ABInvokeOrder.FINAL_LAST);
-                    } else
-                    {
-                        abOption = abOption.clone(ABInvokeOrder.OTHER);
-                    }
-                }
-                if (!abOption.isFirst())
-                {
-                    wObject._otherObject = abOption._otherObject;
-                }
-            } else
-            {
-                //*********
-                //**初始情况***
-                //*********
-                ABInvokeOrder abInvokeOrder;
-                if (funPort.getPortBefores().length == 0 && funPort.getPortAfters().length == 0)
-                {
-                    abInvokeOrder = ABInvokeOrder.BOTH_FIRST_LAST;
-                } else if (funPort.getPortBefores().length == 0)
-                {
-                    abInvokeOrder = ABInvokeOrder.ORIGIN_FIRST;
-                } else if (funPort.getPortAfters().length == 0)
-                {
-                    abInvokeOrder = ABInvokeOrder.FINAL_LAST;
-                } else
-                {
-                    abInvokeOrder = ABInvokeOrder.OTHER;
-                }
-                abOption = new ABOption(null, PortFunType.DEFAULT, abInvokeOrder);
-            }
-            wObject.abOption = abOption;
-
 
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
@@ -448,8 +385,7 @@ public class PortExecutor
                     allGlobal,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(),
-                            wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
 
                         @Override
@@ -484,8 +420,7 @@ public class PortExecutor
                     DuringType.ON_CONTEXT, contextChecks,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(),
-                            wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
                         @Override
                         public void go(Object failedObject)
@@ -523,7 +458,7 @@ public class PortExecutor
                     DuringType.BEFORE_CLASS,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(), wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
                         @Override
                         public void go(Object failedObject)
@@ -587,14 +522,14 @@ public class PortExecutor
         if (clazzPIn.getChecks().length == 0 && classPort.getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
+            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
                     DuringType.ON_CLASS,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(), wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
                         @Override
                         public void go(Object failedObject)
@@ -605,7 +540,7 @@ public class PortExecutor
                                         innerContextBridge.responseWhenException);
                             } else
                             {
-                                doBefore_beforeFunParamsDealt(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
                             }
                         }
                     }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
@@ -614,29 +549,7 @@ public class PortExecutor
 
     }
 
-    private void doBefore_beforeFunParamsDealt(PorterOfFun funPort, WObjectImpl wObject,
-            Context context, InnerContextBridge innerContextBridge,
-            UrlDecoder.Result result)
-    {
-        if (funPort.getPortBefores().length > 0)
-        {
-            PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
-            portBeforeAfterDealt.startBefore((isOked, object) ->
-            {
-                if (isOked)
-                {
-                    dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
-                } else
-                {
-                    responseObject(wObject, funPort, object, true);
-                }
-            });
-            return;
-        } else
-        {
-            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
-        }
-    }
+
 
     private void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
             Context context, InnerContextBridge innerContextBridge,
@@ -655,8 +568,7 @@ public class PortExecutor
                     DuringType.BEFORE_METHOD,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(),
-                            wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
                         @Override
                         public void go(Object failedObject)
@@ -714,6 +626,7 @@ public class PortExecutor
         }
         //////////////////////////////
 
+        AspectHandleUtil.doHandle(AspectHandleUtil.State.BeforeInvokeOfMethodCheck, wObject, funPort, null);
 
         //函数通过检测,参数已经准备好
         if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
@@ -726,8 +639,7 @@ public class PortExecutor
                     DuringType.ON_METHOD,
                     new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
                             funPort.getObject(), funPort.getMethod(),
-                            funPort.getPortOut().getOutType(),
-                            wObject.abOption)
+                            funPort.getPortOut().getOutType())
                     {
                         @Override
                         public void go(Object failedObject)
@@ -751,124 +663,89 @@ public class PortExecutor
     private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
             InnerContextBridge innerContextBridge, UrlDecoder.Result result)
     {
-        dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                PortBeforeAfterDealt.DoState.DoInvoke, true, null);
-    }
 
-
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge, UrlDecoder.Result result, PortBeforeAfterDealt.DoState doState,
-            boolean isOk, Object returnObject)
-    {
         _PortIn funPIn = funPort.getMethodPortIn();
         try
         {
-            if (!isOk)
+            AspectHandleUtil.doHandle(AspectHandleUtil.State.BeforeInvoke, wObject, funPort, null);
+            Object returnObject;
+            //调用函数
+            if (funPort.getHandles() != null)
             {
-                wObject.getResponse().toErr();
-                responseObject(wObject, funPort, returnObject, true);
-                return;
-            }
-
-
-            if (doState == PortBeforeAfterDealt.DoState.DoInvoke)
-            {
-                //处理AspectFunOperation
-                AspectFunOperation.Handle[] handles = funPort.getHandles();
-                if (handles != null)
-                {
-                    for (AspectFunOperation.Handle handle : handles)
-                    {
-                        returnObject = handle.invokeMethod(wObject, funPort, returnObject);
-                    }
-                } else
-                {
-                    returnObject = funPort.invoke(wObject, null);
-                }
-
-                OutType outType = funPort.getPortOut().getOutType();
-                if (returnObject == null && context.defaultReturnFactory != null)
-                {
-                    if (outType == OutType.VoidReturn)
-                    {
-                        if (funPort.getMethod().getReturnType().equals(Void.TYPE))
-                        {
-                            returnObject = context.defaultReturnFactory
-                                    .getVoidReturn(wObject, funPort.getFinalPorterObject(),
-                                            funPort.getObject(), funPort.getMethod());
-                        }
-                    } else if (outType == OutType.NullReturn)
-                    {
-                        if (!funPort.getMethod().getReturnType().equals(Void.TYPE))
-                        {
-                            returnObject = context.defaultReturnFactory
-                                    .getNullReturn(wObject, funPort.getFinalPorterObject(),
-                                            funPort.getObject(), funPort.getMethod());
-                        }
-                    }
-                }
-                if (outType == OutType.SUCCESS)
-                {
-                    returnObject = JResponse.success(null);
-                }
-                doState = PortBeforeAfterDealt.DoState.DoMethodCheck;
-            }
-
-            if (doState == PortBeforeAfterDealt.DoState.DoMethodCheck)
-            {
-                if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
-                        .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
-                {
-                    doState = PortBeforeAfterDealt.DoState.DoAfter;
-                } else
-                {
-                    Object finalReturnObject = returnObject;
-                    CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(finalReturnObject, result,
-                            funPort.getFinalPorterObject(),
-                            funPort.getObject(),
-                            funPort.getMethod(),
-                            funPort.getPortOut().getOutType(), wObject.abOption)
-                    {
-                        @Override
-                        public void go(Object failedObject)
-                        {
-                            if (failedObject != null)
-                            {
-                                exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
-                            } else
-                            {
-                                dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                                        PortBeforeAfterDealt.DoState.DoAfter, true, finalReturnObject);
-                            }
-                        }
-                    };
-                    PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
-                            DuringType.AFTER_METHOD, checkHandle,
-                            funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
-                            funPIn.getChecks());
-                    portExecutorCheckers.check();
-                    return;
-                }
-            }
-
-            if (doState == PortBeforeAfterDealt.DoState.DoAfter && funPort.getPortAfters().length > 0)
-            {
-                PortBeforeAfterDealt portBeforeAfterDealt = new PortBeforeAfterDealt(wObject, funPort);
-                portBeforeAfterDealt.startAfter((isOked, object) ->
-                {
-                    dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result,
-                            isOked ? PortBeforeAfterDealt.DoState.DoResponse : null, isOked, object);
-                });
-                return;
+                returnObject = AspectHandleUtil.doHandle(AspectHandleUtil.State.Invoke, wObject, funPort, null);
             } else
             {
-                doState = PortBeforeAfterDealt.DoState.DoResponse;
+                returnObject = funPort.invoke(wObject, null);
             }
 
-            if (doState == PortBeforeAfterDealt.DoState.DoResponse)
+
+            AspectHandleUtil.doHandle(AspectHandleUtil.State.AfterInvoke, wObject, funPort, returnObject);
+
+
+            OutType outType = funPort.getPortOut().getOutType();
+            if (returnObject == null && context.defaultReturnFactory != null)
             {
+                if (outType == OutType.VoidReturn)
+                {
+                    if (funPort.getMethod().getReturnType().equals(Void.TYPE))
+                    {
+                        returnObject = context.defaultReturnFactory
+                                .getVoidReturn(wObject, funPort.getFinalPorterObject(),
+                                        funPort.getObject(), funPort.getMethod());
+                    }
+                } else if (outType == OutType.NullReturn)
+                {
+                    if (!funPort.getMethod().getReturnType().equals(Void.TYPE))
+                    {
+                        returnObject = context.defaultReturnFactory
+                                .getNullReturn(wObject, funPort.getFinalPorterObject(),
+                                        funPort.getObject(), funPort.getMethod());
+                    }
+                }
+            }
+            if (outType == OutType.SUCCESS)
+            {
+                returnObject = JResponse.success(null);
+            }
+
+            //调用检测
+
+            if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
+                    .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
+            {
+                AspectHandleUtil
+                        .doHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, returnObject);
                 dealtOfResponse(wObject, funPort, funPort.getPortOut().getOutType(), returnObject);
+            } else
+            {
+                Object finalReturnObject = returnObject;
+                CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(finalReturnObject, result,
+                        funPort.getFinalPorterObject(),
+                        funPort.getObject(),
+                        funPort.getMethod(),
+                        funPort.getPortOut().getOutType())
+                {
+                    @Override
+                    public void go(Object failedObject)
+                    {
+                        AspectHandleUtil
+                                .doHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, finalReturnObject,
+                                        failedObject);
+                        if (failedObject != null)
+                        {
+                            exCheckPassable(wObject, funPort, failedObject,
+                                    innerContextBridge.responseWhenException);
+                        } else
+                        {
+                            dealtOfResponse(wObject, funPort, funPort.getPortOut().getOutType(), finalReturnObject);
+                        }
+                    }
+                };
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
+                        DuringType.AFTER_METHOD, checkHandle,
+                        funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                        funPIn.getChecks());
+                portExecutorCheckers.check();
             }
 
         } catch (Exception e)
@@ -877,6 +754,8 @@ public class PortExecutor
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
+                AspectHandleUtil
+                        .doHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, null, e);
                 exNotNull(wObject, funPort, wObject.getResponse(), ex, responseWhenException);
             } else
             {
@@ -884,11 +763,13 @@ public class PortExecutor
                 CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
                         funPort.getFinalPorterObject(),
                         funPort.getObject(),
-                        funPort.getMethod(), funPort.getPortOut().getOutType(), wObject.abOption)
+                        funPort.getMethod(), funPort.getPortOut().getOutType())
                 {
                     @Override
                     public void go(Object failedObject)
                     {
+                        AspectHandleUtil
+                                .doHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, null, failedObject);
                         if (failedObject != null)
                         {
                             if (!(failedObject instanceof JResponse))
@@ -901,14 +782,15 @@ public class PortExecutor
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
-                            dealtOfResponse(wObject, funPort, OutType.OBJECT, failedObject);
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setDescription(WPTool.getMessage(ex));
                             jResponse.setExtra(ex);
-                            dealtOfResponse(wObject, funPort, OutType.OBJECT, jResponse);
+                            failedObject = jResponse;
                         }
+                        dealtOfResponse(wObject, funPort, OutType.OBJECT, failedObject);
+
                     }
                 };
                 PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,

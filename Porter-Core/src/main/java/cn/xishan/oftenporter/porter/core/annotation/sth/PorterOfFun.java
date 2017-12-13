@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortFilterOne;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -24,14 +23,6 @@ public abstract class PorterOfFun implements ObjectGetter
 
     AspectFunOperation.Handle[] handles;
 
-    /**
-     * 第一个先调用
-     */
-    _PortFilterOne[] portBefores;
-    /**
-     * 第一个先调用
-     */
-    _PortFilterOne[] portAfters;
 
     /**
      * 返回null表示没有切面处理器。
@@ -48,15 +39,6 @@ public abstract class PorterOfFun implements ObjectGetter
         this.handles = handles;
     }
 
-    public _PortFilterOne[] getPortBefores()
-    {
-        return portBefores;
-    }
-
-    public _PortFilterOne[] getPortAfters()
-    {
-        return portAfters;
-    }
 
     public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
     {

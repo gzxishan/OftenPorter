@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.Context;
-import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
@@ -52,39 +50,6 @@ public class SthDeal
         return portStart != null || portDestroy != null;
     }
 
-
-    public void dealPortAB(Context context, PortExecutor portExecutor) throws FatalInitException
-    {
-        SthUtil sthUtil = new SthUtil();
-        sthUtil.expandPortAB(context, portExecutor);
-    }
-
-
-    private void addPortAfterBefore(Porter porter, String currentContextName, String currentClassTied,
-            AutoSetHandle autoSetHandle)
-    {
-        List<_PortFilterOne> portBeforesAll = autoSetHandle.getInnerContextBridge().annotationDealt
-                .portBefores(porter.getClazz(), currentContextName, currentClassTied);
-        List<_PortFilterOne> portAftersAll = autoSetHandle.getInnerContextBridge().annotationDealt
-                .portAfters(porter.getClazz(), currentContextName, currentClassTied);
-        for (PorterOfFun porterOfFun : porter.getFuns().values())
-        {
-            Method method = porterOfFun.method;
-            List<_PortFilterOne> portBefores = autoSetHandle.getInnerContextBridge().annotationDealt
-                    .portBefores(method, currentContextName, currentClassTied);
-            List<_PortFilterOne> portAfters = autoSetHandle.getInnerContextBridge().annotationDealt
-                    .portAfters(method, currentContextName, currentClassTied);
-
-            for (int i = portBeforesAll.size() - 1; i >= 0; i--)
-            {
-                portBefores.add(0, portBeforesAll.get(i));
-            }
-            portAfters.addAll(portAftersAll);
-
-            porterOfFun.portBefores = portBefores.toArray(new _PortFilterOne[0]);
-            porterOfFun.portAfters = portAfters.toArray(new _PortFilterOne[0]);
-        }
-    }
 
 
     public Porter porter(Class<?> clazz, Object object, String currentContextName,
@@ -248,7 +213,6 @@ public class SthDeal
         Arrays.sort(destroys);
         porter.starts = starts;
         porter.destroys = destroys;
-        addPortAfterBefore(porter, currentContextName, currentClassTied, autoSetHandle);
         return porter;
     }
 

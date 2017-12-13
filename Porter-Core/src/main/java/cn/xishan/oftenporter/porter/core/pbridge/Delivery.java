@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.PortFunType;
 public interface Delivery
 {
     /**
-     * 可以访问当前实例的接口,同时也能访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口，且重新构建一个方法调用链。请求格式为/contextName/ClassTied/[funTied
+     * 可以访问当前实例的接口,无法访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口。请求格式为/contextName/ClassTied/[funTied
      * |restValue][?name1=value1&name2=value2...]
      *
      * @return
@@ -16,13 +16,13 @@ public interface Delivery
     PBridge currentBridge();
 
     /**
-     * 可以访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口，且调用的方法处于当前方法调用链中。
+     * 可以访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口。
      * @return
      */
     PBridge innerBridge();
 
     /**
-     * 可以访问到所有可达的框架实例。请求路径必须是fullPath（请求格式为":pname/contextName/ClassTied/[funTied|restValue][?name1=value1&name2
+     * 可以访问到所有可达的框架实例,无法访问{@linkplain PortFunType#INNER PortFunType.INNER}类型的接口。请求路径必须是fullPath（请求格式为":pname/contextName/ClassTied/[funTied|restValue][?name1=value1&name2
      * =value2...]"），即加上pname。
      *
      * @return

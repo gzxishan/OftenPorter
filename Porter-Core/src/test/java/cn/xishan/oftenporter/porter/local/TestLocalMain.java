@@ -103,27 +103,13 @@ public class TestLocalMain {
 
         porterConf.addContextCheck((wObject, type, handle) ->
         {
-            //logger.debug("");
-            if (handle.abOption != null) {
-                //logger.debug("{}",handle.abOption);
-            }
             handle.next();
         });
 
         localMain.startOne(porterConf);
 
 
-        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testVoid"), lResponse -> Assert.assertEquals(Void.TYPE, lResponse.getResponse()));
 
-        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testCVoid"), lResponse -> Assert.assertEquals(Void.TYPE, lResponse.getResponse()));
-
-
-        localMain.getPLinker().currentBridge().request(new PRequest("/Local-1/TestDefaultReturn/testNull"), new PCallback() {
-            @Override
-            public void onResponse(PResponse lResponse) {
-                Assert.assertEquals("null-return", lResponse.getResponse());
-            }
-        });
 
         int n = 1;//00000 ;
         final int threads = Runtime.getRuntime().availableProcessors();
@@ -225,21 +211,6 @@ public class TestLocalMain {
                     bridge.request(new PRequest("/Local-1/Hello/helloMixin"),
                             lResponse -> {
                                 assertEquals("Mixin!", lResponse.getResponse());
-                            });
-
-                    bridge.request(new PRequest("/Local-1/TestAB/main"),
-                            lResponse -> {
-                                Assert.assertTrue(lResponse.getResponse() instanceof Date);
-                            });
-
-                    bridge.request(new PRequest("/Local-1/TestAB/genData"),
-                            lResponse -> {
-
-                            });
-
-                    bridge.request(new PRequest("/Local-1/TestAB/syncData"),
-                            lResponse -> {
-
                             });
 
                     bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")

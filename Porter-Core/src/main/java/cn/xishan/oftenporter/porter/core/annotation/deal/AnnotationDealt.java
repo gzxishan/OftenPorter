@@ -46,43 +46,6 @@ public final class AnnotationDealt
         return new AnnotationDealt(enableDefaultValue);
     }
 
-    public List<_PortFilterOne> portAfters(Class<?> clazz, String currentContext, String currentClassTied)
-    {
-        List<_PortFilterOne> list = new ArrayList<>();
-        if (clazz.isAnnotationPresent(PortIn.After.class))
-        {
-            PortIn.After after = clazz.getAnnotation(PortIn.After.class);
-            list.add(portAfter(after, currentContext, currentClassTied));
-        }
-        if (clazz.isAnnotationPresent(PortIn.Filter.class))
-        {
-            PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
-            for (PortIn.After after : filter.after())
-            {
-                list.add(portAfter(after, currentContext, currentClassTied));
-            }
-        }
-        return list;
-    }
-
-    public List<_PortFilterOne> portAfters(Method method, String currentContext, String currentClassTied)
-    {
-        List<_PortFilterOne> list = new ArrayList<>();
-        if (method.isAnnotationPresent(PortIn.After.class))
-        {
-            PortIn.After after = method.getAnnotation(PortIn.After.class);
-            list.add(portAfter(after, currentContext, currentClassTied));
-        }
-        if (method.isAnnotationPresent(PortIn.Filter.class))
-        {
-            PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
-            for (PortIn.After after : filter.after())
-            {
-                list.add(portAfter(after, currentContext, currentClassTied));
-            }
-        }
-        return list;
-    }
 
     public _SyncPorterOption syncPorterOption(Field field,
             PorterParamGetterImpl porterParamGetter) throws FatalInitException
@@ -120,68 +83,7 @@ public final class AnnotationDealt
 
     }
 
-    private _PortFilterOne portAfter(PortIn.After after, String currentContext, String currentClassTied)
-    {
-        String context = after.context().equals("") ? currentContext : after.context();
-        String classTied = after.classTied().equals("") ? currentClassTied : after.classTied();
-        PortUtil.checkName(context);
-        PortUtil.checkName(classTied);
-        PortUtil.checkName(after.funTied());
-        _PortFilterOne portAfter = new _PortFilterOne(after.method());
-        portAfter.pathWithContext = "/" + context + "/" + classTied + "/" + after.funTied();
-        return portAfter;
-    }
 
-    public List<_PortFilterOne> portBefores(Class<?> clazz, String currentContext, String currentClassTied)
-    {
-        List<_PortFilterOne> list = new ArrayList<>();
-        if (clazz.isAnnotationPresent(PortIn.Before.class))
-        {
-            PortIn.Before before = clazz.getAnnotation(PortIn.Before.class);
-            list.add(portBefore(before, currentContext, currentClassTied));
-        }
-        if (clazz.isAnnotationPresent(PortIn.Filter.class))
-        {
-            PortIn.Filter filter = clazz.getAnnotation(PortIn.Filter.class);
-            for (PortIn.Before before : filter.before())
-            {
-                list.add(portBefore(before, currentContext, currentClassTied));
-            }
-        }
-        return list;
-    }
-
-    public List<_PortFilterOne> portBefores(Method method, String currentContext, String currentClassTied)
-    {
-        List<_PortFilterOne> list = new ArrayList<>();
-        if (method.isAnnotationPresent(PortIn.Before.class))
-        {
-            PortIn.Before before = method.getAnnotation(PortIn.Before.class);
-            list.add(portBefore(before, currentContext, currentClassTied));
-        }
-        if (method.isAnnotationPresent(PortIn.Filter.class))
-        {
-            PortIn.Filter filter = method.getAnnotation(PortIn.Filter.class);
-            for (PortIn.Before before : filter.before())
-            {
-                list.add(portBefore(before, currentContext, currentClassTied));
-            }
-        }
-        return list;
-    }
-
-    private _PortFilterOne portBefore(PortIn.Before before, String currentContext, String currentClassTied)
-    {
-        String context = before.context().equals("") ? currentContext : before.context();
-        String classTied = before.classTied().equals("") ? currentClassTied : before.classTied();
-        PortUtil.checkName(context);
-        PortUtil.checkName(classTied);
-        PortUtil.checkName(before.funTied());
-
-        _PortFilterOne portBefore = new _PortFilterOne(before.method());
-        portBefore.pathWithContext = "/" + context + "/" + classTied + "/" + before.funTied();
-        return portBefore;
-    }
 
 
     public _AutoSet autoSet(Field field)
