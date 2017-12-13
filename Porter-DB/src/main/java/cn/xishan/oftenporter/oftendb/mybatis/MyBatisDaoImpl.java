@@ -5,6 +5,8 @@ import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
 {
 
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyBatisDaoImpl.class);
     private MyBatisDaoGen myBatisDaoGen;
     private File mapperFile;
     private String path;
@@ -78,11 +81,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return sqlSession;
     }
 
-    @Override
-    public <T> T mapper(Class<T> clazz)
-    {
-        return getSqlSession().getMapper(clazz);
-    }
 
     @Override
     public Connection getConnection(WObject wObject)
@@ -93,7 +91,37 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public <T> T mapper(WObject wObject, Class<T> clazz)
     {
-        return getSqlSession(wObject).getMapper(clazz);
+        return mapperOther(getSqlSession(wObject), clazz);
+    }
+
+    private <T> T mapperOther(SqlSession sqlSession, Class<T> otherClass)
+    {
+
+        try
+        {
+            if (!sqlSession.getConfiguration().hasMapper(otherClass))
+            {
+                _MyBatisField myBatisField = new _MyBatisField();
+                myBatisField.value = otherClass;
+                MyBatisDaoImpl myBatisDao = myBatisDaoGen.genObject(myBatisField);
+                myBatisDaoGen.mybatisConfig.mSqlSessionFactoryBuilder.regNewMapper(myBatisDao);
+            }
+            return sqlSession.getMapper(otherClass);
+        } catch (RuntimeException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    @Override
+    public <T> T mapper(Class<T> clazz)
+    {
+        LOGGER.debug("will not support the transaction :in {}", MyBatisBridge.class);
+        return mapperOther(getSqlSession(), clazz);
     }
 
     @Override

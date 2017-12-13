@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,25 +40,38 @@ class MSqlSessionFactoryBuilder
     private boolean checkMapperFileChange;
     private boolean isDestroyed = false;
     private boolean isStarted = false;
+    private boolean needReRegFileCheck = false;
 
-    public void onStart() throws Exception
+
+    synchronized void regNewMapper(BuilderListener builderListener) throws Exception
     {
-        if (isStarted)
+        LOGGER.debug("reg new mapper listener:{}", builderListener);
+        builderListenerSet.add(builderListener);
+        builderListener.onBindAlias();
+        builderListener.onParse();
+
+        if (watchService != null)
         {
-            return;
+            WPTool.close(watchService);
+            watchService = null;
         }
-        build();
-        isStarted = true;
-        isDestroyed = false;
+        needReRegFileCheck = true;
+    }
+
+    private synchronized void regFileCheck() throws Exception
+    {
         if (builderListenerSet.size() == 0 && !checkMapperFileChange)
         {
             return;
         }
-        executorService = Executors.newSingleThreadExecutor(r -> {
-            Thread thread = new Thread(r);
-            thread.setDaemon(true);
-            return thread;
-        });
+        if (executorService == null)
+        {
+            executorService = Executors.newSingleThreadExecutor(r -> {
+                Thread thread = new Thread(r);
+                thread.setDaemon(true);
+                return thread;
+            });
+        }
         watchService = FileSystems.getDefault().newWatchService();
         final Set<String> regedNames = new HashSet<>();
         Set<String> reged = new HashSet<>();
@@ -83,6 +95,7 @@ class MSqlSessionFactoryBuilder
 
 
         executorService.execute(() -> {
+            WatchService watchService = this.watchService;
             while (!isDestroyed)
             {
                 try
@@ -115,14 +128,46 @@ class MSqlSessionFactoryBuilder
                     key.reset();
                 } catch (Exception e)
                 {
-                    LOGGER.error(e.getMessage(), e);
+                    if (!(e instanceof ClosedWatchServiceException))
+                    {
+                        LOGGER.error(e.getMessage(), e);
+                    }
+                    if (isDestroyed || this.watchService == null)
+                    {
+                        LOGGER.debug("closed WatchService!");
+                        break;
+                    }
                 }
 
+            }
+            if (needReRegFileCheck)
+            {
+                needReRegFileCheck = false;
+                LOGGER.debug("will rereg...");
+                try
+                {
+                    regFileCheck();
+                } catch (Exception e)
+                {
+                    LOGGER.error(e.getMessage(), e);
+                }
             }
         });
     }
 
-    public void onDestroy()
+    public synchronized void onStart() throws Exception
+    {
+        if (isStarted)
+        {
+            return;
+        }
+        build();
+        isStarted = true;
+        isDestroyed = false;
+        regFileCheck();
+    }
+
+    public synchronized void onDestroy()
     {
         isDestroyed = true;
         isStarted = false;
@@ -132,6 +177,7 @@ class MSqlSessionFactoryBuilder
             executorService = null;
         }
         WPTool.close(watchService);
+        watchService = null;
     }
 
     public MSqlSessionFactoryBuilder(boolean checkMapperFileChange, byte[] configData)
@@ -140,7 +186,7 @@ class MSqlSessionFactoryBuilder
         this.configData = configData;
     }
 
-    public void build() throws Exception
+    public synchronized void build() throws Exception
     {
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
@@ -155,7 +201,7 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    public void addListener(BuilderListener builderListener)
+    public synchronized void addListener(BuilderListener builderListener)
     {
         builderListenerSet.add(builderListener);
     }

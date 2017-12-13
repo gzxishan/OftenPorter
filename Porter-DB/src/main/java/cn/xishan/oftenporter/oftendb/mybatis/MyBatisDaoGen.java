@@ -132,8 +132,6 @@ class MyBatisDaoGen implements AutoSetGen
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-
-
         MyBatisField myBatisField = field.getAnnotation(MyBatisField.class);
 
         if (myBatisField == null)
@@ -142,8 +140,16 @@ class MyBatisDaoGen implements AutoSetGen
             MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this);
             return myBatisDao;
         }
+        _MyBatisField _myBatisField = new _MyBatisField();
+        _myBatisField.value = myBatisField.value();
+        return genObject(_myBatisField);
+    }
 
-        Class<?> mapperClass = myBatisField.value();
+
+    MyBatisDaoImpl genObject(_MyBatisField myBatisField)
+    {
+
+        Class<?> mapperClass = myBatisField.value;
 
         String dir = "";
         String name = mapperClass.getSimpleName() + ".xml";
