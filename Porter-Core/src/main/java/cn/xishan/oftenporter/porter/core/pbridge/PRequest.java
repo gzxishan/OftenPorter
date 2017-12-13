@@ -15,7 +15,6 @@ public class PRequest implements WRequest
     protected PortMethod method;
     protected Map<String, Object> params;
     protected Object originRequest, originResponse;
-    private ABOption abOption;
 
     public PRequest(PortMethod method, String requestPath)
     {
@@ -44,23 +43,6 @@ public class PRequest implements WRequest
         initOrigin(wObject.getRequest());
     }
 
-    /**
-     * 内部调用！
-     * @param abOption
-     */
-    public void _setABOption_(ABOption abOption)
-    {
-        this.abOption = abOption;
-    }
-
-    /**
-     * 外部调用的，该返回值为空
-     * @return
-     */
-    public ABOption _getABOption_()
-    {
-        return abOption;
-    }
 
     protected void initOrigin(WRequest request)
     {

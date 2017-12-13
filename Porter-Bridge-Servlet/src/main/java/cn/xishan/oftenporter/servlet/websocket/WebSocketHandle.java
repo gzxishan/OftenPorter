@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
-import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -18,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
+class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WebSocket webSocket;
@@ -30,26 +29,9 @@ class WebSocketHandle implements AspectFunOperation.Handle<WebSocket>
         return true;
     }
 
-    @Override
-    public void onStart(WObject wObject)
-    {
-
-    }
 
     @Override
-    public void onDestroy()
-    {
-
-    }
-
-    @Override
-    public boolean init(WebSocket current, Porter porter)
-    {
-        return false;
-    }
-
-    @Override
-    public Object invokeMethod(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         if (webSocket.needConnectingState())
         {

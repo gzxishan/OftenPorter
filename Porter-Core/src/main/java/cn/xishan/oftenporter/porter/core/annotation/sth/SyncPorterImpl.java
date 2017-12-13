@@ -14,7 +14,7 @@ import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
 class SyncPorterImpl implements SyncNotInnerPorter {
     @AutoSet
     Delivery delivery;
-    boolean isInner = true;
+    boolean isInner;
 
     private _SyncPorterOption syncPorterOption;
 
@@ -47,13 +47,13 @@ class SyncPorterImpl implements SyncNotInnerPorter {
             request.setMethod(syncPorterOption.getMethod());
         }
 
-        ABOption abOption = new ABOption(wObject == null ? null : wObject._otherObject,
-                isInner ? PortFunType.INNER : PortFunType.DEFAULT, isInner?ABInvokeOrder.OTHER:ABInvokeOrder._OTHER_BEFORE);
-        abOption.setCanInVokeInner(true);
-        request._setABOption_(abOption);
         request.addParamAll(appValues);
         Temp temp = new Temp();
-        delivery.innerBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+        if(isInner){
+            delivery.innerBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+        }else{
+            delivery.currentBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+        }
         return (T) temp.rs;
     }
 

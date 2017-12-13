@@ -16,16 +16,16 @@ class PortExecutorCheckers extends CheckHandle {
             super(checkHandle);
         }
 
-        public CheckHandleAdapter(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
-            super(urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        public CheckHandleAdapter(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType) {
+            super(urlResult, finalPorterObject, handleObject, handleMethod, outType);
         }
 
-        public CheckHandleAdapter(Object returnObj, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
-            super(returnObj, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        public CheckHandleAdapter(Object returnObj, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType) {
+            super(returnObj, urlResult, finalPorterObject, handleObject, handleMethod, outType);
         }
 
-        public CheckHandleAdapter(Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType, ABOption abOption) {
-            super(exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        public CheckHandleAdapter(Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod, OutType outType) {
+            super(exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType);
         }
 
 

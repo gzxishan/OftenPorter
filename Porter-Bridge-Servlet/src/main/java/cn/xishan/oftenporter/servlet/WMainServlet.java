@@ -213,7 +213,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             {
                 request.setCharacterEncoding(req.context.getContentEncoding());
                 response.setCharacterEncoding(req.context.getContentEncoding());
-                porterMain.doRequest(req, wreq, wresp);
+                porterMain.doRequest(req, wreq, wresp,false);
             }
         }
 

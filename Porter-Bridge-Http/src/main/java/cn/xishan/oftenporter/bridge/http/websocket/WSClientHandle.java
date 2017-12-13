@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
-import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
  */
-class WSClientHandle implements AspectFunOperation.Handle<ClientWebSocket>
+class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WSClientHandle.class);
 
@@ -258,12 +258,6 @@ class WSClientHandle implements AspectFunOperation.Handle<ClientWebSocket>
 
 
     @Override
-    public boolean init(ClientWebSocket current, Porter porter)
-    {
-        return false;
-    }
-
-    @Override
     public boolean init(ClientWebSocket current, PorterOfFun porterOfFun)
     {
         this.porterOfFun = porterOfFun;
@@ -302,7 +296,7 @@ class WSClientHandle implements AspectFunOperation.Handle<ClientWebSocket>
     }
 
     @Override
-    public Object invokeMethod(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         Handle handle = new Handle();
         handle.start(wObject);

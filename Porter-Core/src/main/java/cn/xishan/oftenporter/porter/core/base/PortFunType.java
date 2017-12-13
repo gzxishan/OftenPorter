@@ -1,8 +1,6 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.After;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.Before;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
@@ -19,8 +17,7 @@ public enum PortFunType {
     /**
      * <pre>
      * 只能在{@linkplain SyncPorter SyncPorter}、{@linkplain SyncNotInnerPorter SyncNotInnerPorter}、
-     * {@linkplain Delivery#currentBridge() Delivery.currentBridge()}、{@linkplain Delivery#innerBridge() Delivery.innerBridge()}、
-     * {@linkplain Before Before}或{@linkplain After After}中调用。
+     * {@linkplain Delivery#currentBridge() Delivery.currentBridge()}、{@linkplain Delivery#innerBridge() Delivery.innerBridge()}。
      *
      * </pre>
      */

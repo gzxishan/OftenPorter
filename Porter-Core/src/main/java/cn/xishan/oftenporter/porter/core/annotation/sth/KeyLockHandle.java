@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
+import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/14.
  */
-public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
+public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyLockHandle.class);
 
@@ -30,6 +31,7 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
     private boolean combine;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
+    private final String ATTR_KEY = KeyUtil.random48Key();
 
 
     @Override
@@ -152,7 +154,7 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
     }
 
     @Override
-    public Object invokeMethod(WObject wObject, PorterOfFun fun, Object lastReturn) throws Exception
+    public void beforeInvokeOfMethodCheck(WObject wObject, PorterOfFun porterOfFun)
     {
         List<String> keys = new ArrayList<>();
 
@@ -193,18 +195,19 @@ public class KeyLockHandle implements AspectFunOperation.Handle<KeyLock>
                     WPTool.join(":", locks)
             };
         }
-        try
-        {
-            LOGGER.debug("locking[{}]:{}",wObject.url(),locks);
-            concurrentKeyLock.lock(locks);
-            LOGGER.debug("locked[{}]:{}",wObject.url(),locks);
-            return fun.invoke(wObject, null);
-        } finally
-        {
-            LOGGER.debug("unlocking[{}]:{}",wObject.url(),locks);
-            concurrentKeyLock.unlock(locks);
-            LOGGER.debug("unlocked[{}]:{}",wObject.url(),locks);
-        }
+        wObject.setAttribute(ATTR_KEY,locks);
+        LOGGER.debug("locking[{}]:{}",wObject.url(),locks);
+        concurrentKeyLock.lock(locks);
+        LOGGER.debug("locked[{}]:{}",wObject.url(),locks);
+    }
+
+    @Override
+    public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
+    {
+        String[] locks = wObject.removeAttribute(ATTR_KEY);
+        LOGGER.debug("unlocking[{}]:{}",wObject.url(),locks);
+        concurrentKeyLock.unlock(locks);
+        LOGGER.debug("unlocked[{}]:{}",wObject.url(),locks);
     }
 
     @Override

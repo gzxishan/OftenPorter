@@ -48,26 +48,20 @@ public abstract class CheckHandle
      */
     public final OutType outType;
 
-    /**
-     * 整个时期都不为null,其中的{@linkplain ABOption#portFunType}可能与实际的接口方法的不一致。
-     */
-    public final ABOption abOption;
+
 
     public CheckHandle(CheckHandle checkHandle)
     {
         this(checkHandle.returnObj, checkHandle.exCause, checkHandle.urlResult, checkHandle.finalPorterObject,
-                checkHandle.handleObject, checkHandle.handleMethod, checkHandle.outType, checkHandle.abOption);
+                checkHandle.handleObject, checkHandle.handleMethod, checkHandle.outType);
     }
 
 
     private CheckHandle(Object returnObj, Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject,
             Object handleObject,
-            Object handleMethod, OutType outType, ABOption abOption)
+            Object handleMethod, OutType outType)
     {
-        if (abOption == null)
-        {
-            throw new NullPointerException("abOption is null!");
-        }
+
         this.returnObj = returnObj;
         this.exCause = exCause;
         this.urlResult = urlResult;
@@ -75,25 +69,24 @@ public abstract class CheckHandle
         this.handleObject = handleObject;
         this.handleMethod = handleMethod;
         this.outType = outType;
-        this.abOption = abOption;
     }
 
     public CheckHandle(UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject, Object handleMethod,
-            OutType outType, ABOption abOption)
+            OutType outType)
     {
-        this(null, null, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        this(null, null, urlResult, finalPorterObject, handleObject, handleMethod, outType);
     }
 
     public CheckHandle(Object returnObj, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject,
-            Object handleMethod, OutType outType, ABOption abOption)
+            Object handleMethod, OutType outType)
     {
-        this(returnObj, null, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        this(returnObj, null, urlResult, finalPorterObject, handleObject, handleMethod, outType);
     }
 
     public CheckHandle(Throwable exCause, UrlDecoder.Result urlResult, Object finalPorterObject, Object handleObject,
-            Object handleMethod, OutType outType, ABOption abOption)
+            Object handleMethod, OutType outType)
     {
-        this(null, exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType, abOption);
+        this(null, exCause, urlResult, finalPorterObject, handleObject, handleMethod, outType);
     }
 
 

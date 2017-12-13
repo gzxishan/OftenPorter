@@ -35,7 +35,6 @@ class PRequestWithSource extends PRequest
     PRequestWithSource(PRequest request, WObject wObject)
     {
         super(request.getMethod(), request.getPath(), false);
-        _setABOption_(request._getABOption_());
         initOrigin(request);
         this.request = request;
         this.invokeSource = new InvokeSource(wObject.getPName(), wObject.url().contextName(),

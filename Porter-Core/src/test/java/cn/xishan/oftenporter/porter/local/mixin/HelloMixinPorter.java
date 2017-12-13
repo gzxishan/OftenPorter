@@ -30,7 +30,7 @@ public class HelloMixinPorter
     public String helloMixin(WObject wObject)
     {
 
-        wObject.currentRequest("testCurrent", null, lResponse ->
+        wObject.innerRequest("testCurrent", null, lResponse ->
         {
             if (atomicInteger.incrementAndGet() % 50000 == 1)
             {
