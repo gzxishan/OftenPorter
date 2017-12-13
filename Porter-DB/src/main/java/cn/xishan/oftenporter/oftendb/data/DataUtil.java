@@ -76,17 +76,19 @@ public class DataUtil
                 nameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
             }
             return true;
-        } else if (field.isAnnotationPresent(JsonObj.class))
+        } else if (field.isAnnotationPresent(JsonField.class))
         {
-            JsonObj jsonObj = field.getAnnotation(JsonObj.class);
-            String name = jsonObj.value();
+            JsonField jsonField = field.getAnnotation(JsonField.class);
+            String name = jsonField.value();
             if (name.equals(""))
             {
                 name = field.getName();
             }
             field.setAccessible(true);
             Object fieldObj = field.get(object);
-            nameValues.append(name, fieldObj);
+            if(!jsonField.filterNullAndEmpty()||WPTool.notNullAndEmpty(fieldObj)){
+                nameValues.append(name, fieldObj);
+            }
             return true;
         }
         return false;
