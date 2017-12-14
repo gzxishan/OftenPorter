@@ -68,8 +68,8 @@ public @interface AspectFunOperation
         @Override
         public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
         {
-            LOGGER.debug("not Override.");
-            return null;
+            LOGGER.debug("default invoke.");
+            return porterOfFun.invoke(wObject,null);
         }
 
         @Override
