@@ -201,7 +201,9 @@ class MyBatisDaoGen implements AutoSetGen
         if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
             File file = new File(mybatisConfig.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
-            myBatisDao.setMapperFile(file);
+            if(file.exists()&&file.isFile()){
+                myBatisDao.setMapperFile(file);
+            }
         }
         mybatisConfig.mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
