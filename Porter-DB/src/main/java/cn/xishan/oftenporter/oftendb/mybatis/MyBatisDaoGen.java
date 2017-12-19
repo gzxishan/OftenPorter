@@ -81,7 +81,7 @@ class MyBatisDaoGen implements AutoSetGen
         return path;
     }
 
-    String loadXml(_MyBatis myBatis, String path, File optionMapperFile) throws IOException
+    void loadXml(_MyBatis myBatis, String path, File optionMapperFile) throws IOException
     {
         try
         {
@@ -119,12 +119,14 @@ class MyBatisDaoGen implements AutoSetGen
                         configuration.getSqlFragments());
                 mapperParser.parse();
             }
+        } catch (Exception e)
+        {
+            LOGGER.error(e.getMessage(), e);
         } finally
         {
             ErrorContext.instance().reset();
         }
 
-        return path;
     }
 
 
@@ -136,7 +138,7 @@ class MyBatisDaoGen implements AutoSetGen
 
         if (myBatisField == null)
         {
-            LOGGER.debug("the field {} not annotated with@{}", field, MyBatisField.class.getName());
+            LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
             MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this);
             return myBatisDao;
         }
@@ -179,6 +181,8 @@ class MyBatisDaoGen implements AutoSetGen
 
         _MyBatis myBatis = new _MyBatis(type, dir, name);
         myBatis.daoClass = mapperClass;
+
+        Class<?> entityClass = null;
         if (_myBatis == null)
         {
             myBatis.isAutoAlias = false;
@@ -191,17 +195,19 @@ class MyBatisDaoGen implements AutoSetGen
             myBatis.daoAlias = _myBatis.daoAlias();
             myBatis.entityAlias = _myBatis.entityAlias();
             myBatis.entityClass = _myBatis.entityClass();
+            entityClass = myBatis.entityClass;
         }
 
 
         String path = dir + name;
-        LOGGER.debug("mapper={},type={}", path, type);
+        LOGGER.debug("mapper={},type={},entity={},dao={}", path, type, entityClass, mapperClass);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);
         if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
         {
             File file = new File(mybatisConfig.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
-            if(file.exists()&&file.isFile()){
+            if (file.exists() && file.isFile())
+            {
                 myBatisDao.setMapperFile(file);
             }
         }
