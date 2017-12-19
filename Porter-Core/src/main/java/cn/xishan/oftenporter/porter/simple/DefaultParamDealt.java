@@ -17,12 +17,12 @@ public class DefaultParamDealt implements ParamDealt
     @Override
     public FailedReason deal(WObject wObject, Name[] names, _Nece[] neceDeals, Object[] values, boolean isNecessary,
             ParamSource paramSource,
-            TypeParserStore typeParserStore,String namePrefix)
+            TypeParserStore typeParserStore, String namePrefix)
     {
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
-            Object value = getParam(namePrefix+name.varName, paramSource, typeParserStore.byId(name.typeParserId));
+            Object value = getParam(namePrefix + name.varName, paramSource, typeParserStore.byId(name.typeParserId));
             if (value != null)
             {
                 if (value instanceof FailedReason)
@@ -34,7 +34,7 @@ public class DefaultParamDealt implements ParamDealt
                 }
             } else if (isNecessary && (neceDeals == null || neceDeals[i].isNece(wObject)))
             {
-                return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
+                return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", namePrefix + name.varName);
             }
         }
         return null;

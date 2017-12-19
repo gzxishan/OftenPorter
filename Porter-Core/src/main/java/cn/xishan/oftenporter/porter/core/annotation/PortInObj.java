@@ -50,7 +50,8 @@ public @interface PortInObj
         /**
          * 转换为非必需参数。
          * <pre>
-         *     若返回true且当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()} ()}中时:
+         *     若返回true且当前请求在{@linkplain #forMethods()}、{@linkplain #forClassTieds()} ()}或{@linkplain #forFunTieds()}
+         *     ()}中时:
          *      注解的变量变为非必需参数。
          * </pre>
          *
@@ -113,6 +114,19 @@ public @interface PortInObj
         String value() default "";
 
         boolean filterNullAndEmpty() default false;
+
+        /**
+         * 是否设置内部变量
+         *
+         * @return
+         */
+        boolean willSet() default false;
+
+        /**
+         * 变量名称间的分割符，默认"."
+         * @return
+         */
+        String nameSeparator() default ".";
     }
 
 

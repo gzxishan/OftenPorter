@@ -148,13 +148,15 @@ public class InObjDeal
             Field field = fields[i];
 
             PortInObj.JsonObj jsonObj = field.getAnnotation(PortInObj.JsonObj.class);
-            if (jsonObj != null)
+            if (jsonObj != null && jsonObj.willSet())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool
                         .getCacheOne(field.getType(), innerContextBridge);
                 jsonObjFields.add(field);
                 jsonObjOnes.add(cacheOne.getOne());
-                jsonObjVarnames.add(jsonObj.value().equals("") ? field.getName() : jsonObj.value());
+                String varName = jsonObj.nameSeparator() + (jsonObj.value().equals("") ? field.getName() : jsonObj
+                        .value());
+                jsonObjVarnames.add(varName);
                 field.setAccessible(true);
                 continue;
             }
