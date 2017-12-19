@@ -29,13 +29,14 @@ public interface ParamDealt
      * @param isNecessary     是否是必须参数
      * @param paramSource     参数原
      * @param typeParserStore 类型转换store
+     * @param namePrefix      参数前缀名称
      * @return 转换成功返回null，否则返回对应的错误原因。
      */
 
     FailedReason deal(@MayNull WObject wObject, InNames.Name[] names, @MayNull _Nece[] neceDeals, Object[] values,
             boolean isNecessary,
             ParamSource paramSource,
-            TypeParserStore typeParserStore);
+            TypeParserStore typeParserStore, String namePrefix);
 
 
 }

@@ -249,13 +249,24 @@ public class PortUtil
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
+        return paramDealOne(wObject, ignoreTypeParser, paramDealt, one, paramSource, currentTypeParserStore, "");
+    }
+
+    /**
+     * 返回结果不为null。
+     * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
+     */
+    private Object paramDealOne(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+            ParamSource paramSource,
+            TypeParserStore currentTypeParserStore, String namePrefix)
+    {
         Object obj;
         try
         {
             Object[] neces = PortUtil.newArray(one.inNames.nece);
             Object[] unneces = PortUtil.newArray(one.inNames.unece);
             Object reason = paramDeal(wObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces, paramSource,
-                    currentTypeParserStore);
+                    currentTypeParserStore, namePrefix);
             if (reason == null)
             {
                 Object object = WPTool.newObject(one.clazz);
@@ -272,8 +283,23 @@ public class PortUtil
                         one.unneceObjFields[k].set(object, unneces[k]);
                     }
                 }
-
                 obj = object;
+
+                //转换内嵌对象
+                for (int i = 0; i < one.jsonObjFields.length; i++)
+                {
+
+                    Object fieldObject = paramDealOne(wObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i],
+                            paramSource, currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
+                    if (fieldObject instanceof ParamDealt.FailedReason)
+                    {
+                        obj = fieldObject;
+                        break;
+                    } else
+                    {
+                        one.jsonObjFields[i].set(object, fieldObject);
+                    }
+                }
             } else
             {
                 obj = reason;
@@ -298,6 +324,23 @@ public class PortUtil
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
+        return paramDeal(wObject, ignoreTypeParser, paramDealt, inNames, nece, unece, paramSource,
+                currentTypeParserStore, "");
+    }
+
+
+    /**
+     * 参数处理
+     *
+     * @return 返回null表示转换成功，否则表示失败。
+     */
+    private ParamDealt.FailedReason paramDeal(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt,
+            InNames inNames,
+            Object[] nece,
+            Object[] unece,
+            ParamSource paramSource,
+            TypeParserStore currentTypeParserStore, String namePrefix)
+    {
         ParamDealt.FailedReason reason = null;
         try
         {
@@ -308,25 +351,26 @@ public class PortUtil
                 {
                     if (inNames.neceDeals == null || inNames.neceDeals[i].isNece(wObject))
                     {
-                        nece[i] = paramSource.getNeceParam(names[i].varName);
+                        nece[i] = paramSource.getNeceParam(namePrefix + names[i].varName);
                     } else
                     {
-                        nece[i] = paramSource.getParam(names[i].varName);
+                        nece[i] = paramSource.getParam(namePrefix + names[i].varName);
                     }
                 }
                 names = inNames.unece;
                 for (int i = 0; i < unece.length; i++)
                 {
-                    unece[i] = paramSource.getParam(names[i].varName);
+                    unece[i] = paramSource.getParam(namePrefix + names[i].varName);
                 }
             } else
             {
                 reason = paramDealt.deal(wObject, inNames.nece, inNames.neceDeals, nece, true, paramSource,
-                        currentTypeParserStore);
+                        currentTypeParserStore, namePrefix);
                 if (reason == null)
                 {
                     reason = paramDealt
-                            .deal(wObject, inNames.unece, null, unece, false, paramSource, currentTypeParserStore);
+                            .deal(wObject, inNames.unece, null, unece, false, paramSource, currentTypeParserStore,
+                                    namePrefix);
                 }
             }
         } catch (Exception e)

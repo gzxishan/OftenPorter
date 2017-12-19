@@ -82,6 +82,39 @@ public @interface PortInObj
         String value() default "";
     }
 
+    /**
+     * 用于添加。
+     * Created by https://github.com/CLovinr on 2016/9/9.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface JsonField
+    {
+        /**
+         * 默认为"",表示使用变量名;否则使用该值。
+         */
+        String value() default "";
+
+        boolean filterNullAndEmpty() default false;
+    }
+
+
+    /**
+     * 用于对象转json时。
+     * Created by https://github.com/CLovinr on 2016/9/9.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    public @interface JsonObj
+    {
+        /**
+         * 默认为"",表示使用变量名;否则使用该值。
+         */
+        String value() default "";
+
+        boolean filterNullAndEmpty() default false;
+    }
+
 
     /**
      * 类或接口。对应的类或接口可以使用{@linkplain Parser}或{@linkplain Parser.parse}来绑定类型转换;
