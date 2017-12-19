@@ -116,17 +116,12 @@ public @interface PortInObj
         boolean filterNullAndEmpty() default false;
 
         /**
-         * 是否设置内部变量
+         * 请求时，是否设置内部变量
          *
          * @return
          */
-        boolean willSet() default false;
+        boolean willSetForRequest() default false;
 
-        /**
-         * 变量名称间的分割符，默认"."
-         * @return
-         */
-        String nameSeparator() default ".";
     }
 
 
