@@ -3,13 +3,13 @@ package cn.xishan.oftenporter.oftendb.data;
 
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.ExceptDBField;
-import cn.xishan.oftenporter.oftendb.annotation.JsonField;
-import cn.xishan.oftenporter.oftendb.annotation.JsonObj;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonField;
+import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;

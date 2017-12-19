@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.apt.AutoGen;
@@ -27,8 +28,8 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  */
 public class InObjDeal
 {
-    private  final Logger LOGGER;
-     SthUtil sthUtil;
+    private final Logger LOGGER;
+    SthUtil sthUtil;
 
 
     public InObjDeal()
@@ -40,10 +41,11 @@ public class InObjDeal
     /**
      * 处理接口函数上的对象绑定。
      */
-     InObj dealPortInObj(PortInObjBind.ObjList objList,Method method, InnerContextBridge innerContextBridge) throws Exception
+    InObj dealPortInObj(PortInObjBind.ObjList objList, Method method,
+            InnerContextBridge innerContextBridge) throws Exception
     {
         InObj inObj = null;
-        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(objList,method);
+        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(objList, method);
         if (portInObj != null)
         {
             inObj = dealPortInObj(portInObj, innerContextBridge);
@@ -52,13 +54,13 @@ public class InObjDeal
         return inObj;
     }
 
-     InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+    InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
     {
         _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(clazz);
         return dealPortInObj(portInObj, innerContextBridge);
     }
 
-     InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge) throws Exception
+    InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
         InObj inObj = null;
@@ -79,7 +81,7 @@ public class InObjDeal
     }
 
 
-     One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+    One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
     {
 
         One one;
@@ -125,7 +127,7 @@ public class InObjDeal
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
         //绑定类型转换。
-        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek,true);
+        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek, true);
 
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
@@ -134,12 +136,29 @@ public class InObjDeal
         List<Field> unneces = new ArrayList<>();
         List<Name> unneceNames = new ArrayList<>();
 
+        List<Field> jsonObjFields = new ArrayList<>();
+        List<One> jsonObjOnes = new ArrayList<>();
+        List<String> jsonObjVarnames = new ArrayList<>();
+
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
 
         for (int i = 0; i < fields.length; i++)
         {
             Field field = fields[i];
+
+            PortInObj.JsonObj jsonObj = field.getAnnotation(PortInObj.JsonObj.class);
+            if (jsonObj != null)
+            {
+                CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool
+                        .getCacheOne(field.getType(), innerContextBridge);
+                jsonObjFields.add(field);
+                jsonObjOnes.add(cacheOne.getOne());
+                jsonObjVarnames.add(jsonObj.value().equals("") ? field.getName() : jsonObj.value());
+                field.setAccessible(true);
+                continue;
+            }
+
             Name name;
             field.setAccessible(true);
             List<Name> nameList = null;
@@ -194,17 +213,18 @@ public class InObjDeal
 
         }
         one = new One(clazz,
-                new InNames(neceNames.toArray(new Name[0]),neceDeals.toArray(new _Nece[0]), unneceNames.toArray(new Name[0]), null),
-                neces.toArray(new Field[0]), unneces.toArray(new Field[0]));
+                new InNames(neceNames.toArray(new Name[0]), neceDeals.toArray(new _Nece[0]),
+                        unneceNames.toArray(new Name[0]), null),
+                neces.toArray(new Field[0]), unneces.toArray(new Field[0]), jsonObjFields.toArray(new Field[0]),
+                jsonObjOnes.toArray(new One[0]), jsonObjVarnames.toArray(new String[0]));
 
 
- //       CacheOne cacheOne = new CacheOne(one);
+        //       CacheOne cacheOne = new CacheOne(one);
 //        //获取父类的绑定。
 //        BindFromSuperUtil.bindFromSuperClass(clazz, cacheOne);
 
         return one;
     }
-
 
 
 }

@@ -16,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InnerBridge
 {
     public final Map<String, Object> globalAutoSet;
+    /**
+     * 用于存储全局的类型转换绑定。
+     */
     public final TypeParserStore globalParserStore;
     List<CheckPassable> allGlobalChecksTemp;
     public final CacheTool cacheTool;
