@@ -224,9 +224,9 @@ public class PortExecutor
     }
 
     public WObject forPortInit(PName pName, UrlDecoder.Result result, WRequest request, WResponse response,
-            Context context)
+            Context context, boolean isInnerRequest)
     {
-        WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+        WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
         wObject.setIAttribute(defaultIAttributeFactory);
         wObject.setParamSource(new EmptyParamSource());
         return wObject;
@@ -253,7 +253,7 @@ public class PortExecutor
             }
 
 
-            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context);
+            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
             IAttributeFactory attributeFactory = iAttributeFactory;
             Object originRequest = request.getOriginalRequest();
             if (originRequest != null && originRequest instanceof IAttributeFactory)

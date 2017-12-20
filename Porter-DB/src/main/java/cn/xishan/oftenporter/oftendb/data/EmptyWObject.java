@@ -37,6 +37,12 @@ public class EmptyWObject extends WObject {
     }
 
     @Override
+    public boolean isInnerRequest()
+    {
+        return true;
+    }
+
+    @Override
     public WRequest getRequest() {
         return null;
     }

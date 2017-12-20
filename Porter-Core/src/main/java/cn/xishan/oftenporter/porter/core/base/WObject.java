@@ -68,6 +68,12 @@ public abstract class WObject implements IAttribute
     public abstract ParamSource getParamSource();
 
     /**
+     * 是否是内部请求。
+     * @return
+     */
+    public abstract boolean isInnerRequest();
+
+    /**
      * 获取函数上绑定的对象。
      */
     public abstract <T> T finObject(int index);
