@@ -24,10 +24,12 @@ public class _AutoTransactionCheckPassable implements CheckPassable
     @Override
     public void willPass(WObject wObject, DuringType type, CheckHandle checkHandle)
     {
-        try
+        if (!wObject.isInnerRequest())
         {
-            if (type == DuringType.ON_METHOD)
+            try
             {
+                if (type == DuringType.ON_METHOD)
+                {
                     if (transactionConfirm.needTransaction(wObject, type, checkHandle))
                     {
                         LOGGER.debug("transaction starting...({}:{})", wObject.url(),
@@ -36,8 +38,8 @@ public class _AutoTransactionCheckPassable implements CheckPassable
                         DBCommon.startTransaction(wObject, tConfig.dbSource, tConfig.transactionConfig);
                         LOGGER.debug("transaction started!");
                     }
-            } else if (type == DuringType.AFTER_METHOD)
-            {
+                } else if (type == DuringType.AFTER_METHOD)
+                {
 
                     if (DBCommon.commitTransaction(wObject))
                     {
@@ -48,25 +50,27 @@ public class _AutoTransactionCheckPassable implements CheckPassable
                     }
 
 
-            } else if (type == DuringType.ON_METHOD_EXCEPTION)
-            {
-                if (DBCommon.rollbackTransaction(wObject))
+                } else if (type == DuringType.ON_METHOD_EXCEPTION)
                 {
-                    LOGGER.debug("transaction rollbacked!then closing...({}:{})", wObject.url(),
-                            wObject.getRequest().getMethod());
-                    DBCommon.closeTransaction(wObject);
-                    LOGGER.debug("transaction closed!");
+                    if (DBCommon.rollbackTransaction(wObject))
+                    {
+                        LOGGER.debug("transaction rollbacked!then closing...({}:{})", wObject.url(),
+                                wObject.getRequest().getMethod());
+                        DBCommon.closeTransaction(wObject);
+                        LOGGER.debug("transaction closed!");
+                    }
+                    checkHandle.failed(checkHandle.exCause);
+                    return;
                 }
-                checkHandle.failed(checkHandle.exCause);
+            } catch (Exception e)
+            {
+                LOGGER.debug("need close for some exception...({}:{})", wObject.url(),
+                        wObject.getRequest().getMethod());
+                DBCommon.closeTransaction(wObject);
+                LOGGER.debug("transaction closed in catch!");
+                checkHandle.failed(e);
                 return;
             }
-        } catch (Exception e)
-        {
-            LOGGER.debug("need close for some exception...({}:{})", wObject.url(), wObject.getRequest().getMethod());
-            DBCommon.closeTransaction(wObject);
-            LOGGER.debug("transaction closed in catch!");
-            checkHandle.failed(e);
-            return;
         }
 
         checkHandle.next();

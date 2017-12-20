@@ -289,7 +289,7 @@ public final class PorterMain {
             UrlDecoder.Result result = getUrlDecoder().decode(path);
             PRequest request = new PRequest(path);
             WResponse response = new LocalResponse(lResponse -> {});
-            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context);
+            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
 
             autoSetHandle.invokeSetOk(wObject);
 
@@ -308,7 +308,7 @@ public final class PorterMain {
 
             }
         });
-        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context);
+        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
         contextPorter.start(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());

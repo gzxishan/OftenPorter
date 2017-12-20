@@ -23,15 +23,23 @@ class WObjectImpl extends WObject
     private Delivery delivery;
     private ParamSource paramSource;
     private IAttribute iAttribute;
+    private boolean isInnerRequest;
 
     WObjectImpl(PName pName, UrlDecoder.Result result, WRequest request, WResponse response,
-            Context context)
+            Context context, boolean isInnerRequest)
     {
         this.pName = pName;
         this.result = result;
         this.request = request;
         this.response = response;
         this.context = context;
+        this.isInnerRequest = isInnerRequest;
+    }
+
+    @Override
+    public boolean isInnerRequest()
+    {
+        return isInnerRequest;
     }
 
     void setIAttribute(IAttributeFactory factory)

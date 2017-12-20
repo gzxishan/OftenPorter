@@ -54,6 +54,12 @@ public class ServletWObject extends WObject
     }
 
     @Override
+    public boolean isInnerRequest()
+    {
+        return true;
+    }
+
+    @Override
     public WRequest getRequest()
     {
         return wRequest;
