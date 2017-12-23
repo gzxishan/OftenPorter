@@ -62,6 +62,6 @@ class UIListenerAndCallback implements UIAttrGetter.Listener, PCallback
     {
         UIProvider uiProvider = uiNamesOccurStore.uiProvider;
         uiProvider.getDelivery().currentBridge().request(
-                new PRequest(method, pathPrefix + tiedFun).addParamAll(appValues), this);
+                new PRequest(null,method, pathPrefix + tiedFun).addParamAll(appValues), this);
     }
 }

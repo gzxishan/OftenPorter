@@ -41,4 +41,6 @@ public interface WRequest
      */
     <T> T getOriginalRequest();
 
+    WObject getOriginalWObject();
+
 }

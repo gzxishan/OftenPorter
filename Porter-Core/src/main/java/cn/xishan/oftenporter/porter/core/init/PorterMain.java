@@ -287,7 +287,7 @@ public final class PorterMain {
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
-            PRequest request = new PRequest(path);
+            PRequest request = new PRequest(PortMethod.GET,path);
             WResponse response = new LocalResponse(lResponse -> {});
             WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
 
@@ -301,13 +301,8 @@ public final class PorterMain {
 
         String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class.getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
         UrlDecoder.Result result = getUrlDecoder().decode(path);
-        PRequest request = new PRequest(path);
-        WResponse response = new LocalResponse(new PCallback() {
-            @Override
-            public void onResponse(PResponse lResponse) {
-
-            }
-        });
+        PRequest request = new PRequest(PortMethod.GET,path);
+        WResponse response = new LocalResponse(lResponse -> {});
         WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
         contextPorter.start(wObject);
 

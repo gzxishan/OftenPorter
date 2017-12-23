@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.local.mixin;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
@@ -35,7 +36,7 @@ public class HelloMixinPorter
             if (atomicInteger.incrementAndGet() % 50000 == 1)
             {
                 LogUtil.printErrPosLn(lResponse, ":", atomicInteger.get());
-                delivery.currentBridge().request(new PRequest(
+                delivery.currentBridge().request(new PRequest(PortMethod.GET,
                                 "/" + wObject.url().contextName() + "/" + wObject.url().classTied() + "/testDelivery"),
                         lResponse1 -> LogUtil.printErrPosLn(lResponse1));
             }

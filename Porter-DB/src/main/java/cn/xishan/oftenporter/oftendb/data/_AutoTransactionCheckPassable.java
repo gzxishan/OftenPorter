@@ -24,7 +24,7 @@ public class _AutoTransactionCheckPassable implements CheckPassable
     @Override
     public void willPass(WObject wObject, DuringType type, CheckHandle checkHandle)
     {
-        if (!wObject.isInnerRequest())
+        if (wObject.isTopRequest())
         {
             try
             {
