@@ -245,6 +245,12 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return getSqlSession(wObject).delete(statement, parameter);
     }
 
+    @Override
+    public void close(WObject wObject)
+    {
+        getSqlSession(wObject).close();
+    }
+
 
     @Override
     public void onParse() throws IOException

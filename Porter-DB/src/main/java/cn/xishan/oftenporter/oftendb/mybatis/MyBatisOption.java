@@ -1,5 +1,9 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import com.alibaba.fastjson.JSONObject;
+import org.apache.ibatis.datasource.DataSourceFactory;
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
+
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
@@ -19,13 +23,15 @@ public class MyBatisOption
      */
     public boolean autoRegisterAlias = true;
 
-    @Deprecated
-    public int checkMapperFileDelaySeconds = 30;
-
     /**
      * 资源根目录，主要用于开发阶段。
      */
     public String resourcesDir;
+
+    /**
+     * 用于配置数据源:其中dsFactory为{@linkplain DataSourceFactory}的实现类。
+     */
+    public JSONObject dataSource;
 
     public MyBatisOption(String rootDir)
     {

@@ -134,7 +134,7 @@ public class TestLocalMain {
 
             logger.debug("**************AutoSet delay test******************");
             localMain.getPLinker().currentBridge()
-                    .request(new PRequest("/Local-1/Delay/test"), lResponse -> logger.debug("{}", lResponse));
+                    .request(new PRequest(PortMethod.GET,"/Local-1/Delay/test"), lResponse -> logger.debug("{}", lResponse));
 
             try {
                 hotTest(logger, localMain);
@@ -167,7 +167,7 @@ public class TestLocalMain {
         conf.setContextName("hot-test");
         commonMain.startOne(conf);
         commonMain.getPLinker().currentBridge()
-                .request(new PRequest("/hot-test/Hot/show"), lResponse -> logger.debug(lResponse.toString()));
+                .request(new PRequest(PortMethod.GET,"/hot-test/Hot/show"), lResponse -> logger.debug(lResponse.toString()));
         commonMain.destroyOne("hot-test");
         //////////////////////////////////////
         FileTool.write2File(getClass().getResourceAsStream("/hot/hot2.jar"), clazzFile, true);
@@ -177,7 +177,7 @@ public class TestLocalMain {
         conf.setContextName("hot-test");
         commonMain.startOne(conf);
         commonMain.getPLinker().currentBridge()
-                .request(new PRequest("/hot-test/Hot/show"), lResponse -> logger.debug(lResponse.toString()));
+                .request(new PRequest(PortMethod.GET,"/hot-test/Hot/show"), lResponse -> logger.debug(lResponse.toString()));
     }
 
     private void exe(final ExecutorService executorService, final int n, final PBridge bridge, final Listener listener) {
@@ -188,7 +188,7 @@ public class TestLocalMain {
         for (int i = 0; i < n; i++) {
 
             if (executorService == null) {
-                bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
+                bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
                                 .addParam("myAge", 22),
                         lResponse -> assertEquals("小明+22", lResponse.getResponse()));
             } else {
@@ -196,7 +196,7 @@ public class TestLocalMain {
                 {
                     long time = System.nanoTime();
 
-                    bridge.request(new PRequest("/Local-1/Hello/parseObject").addParam("title", "转换成对象")
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/parseObject").addParam("title", "转换成对象")
                                     .addParam("comments", "['c1','c2']")
                                     .addParam("content", "this is content!")
                                     .addParam("time", String.valueOf(System.currentTimeMillis()))
@@ -208,32 +208,32 @@ public class TestLocalMain {
                                                 .getResponse() instanceof Article);
                             });
 
-                    bridge.request(new PRequest("/Local-1/Hello/helloMixin"),
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/helloMixin"),
                             lResponse -> {
                                 assertEquals("Mixin!", lResponse.getResponse());
                             });
 
-                    bridge.request(new PRequest("/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
                                     .addParam("myAge", 22),
                             lResponse -> assertEquals("小明+22", lResponse.getResponse()));
 
-                    bridge.request(new PRequest("/Local-1/Hello/").addParam("sex", "男").addParam("name", "name2")
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/").addParam("sex", "男").addParam("name", "name2")
                             .addParam("myAge", 10), lResponse -> assertEquals("=男", lResponse.getResponse()));
 
 
                     bridge.request(
-                            new PRequest("/Local-1/Hello").setMethod(PortMethod.POST).addParam("name", "name3")
+                            new PRequest(PortMethod.GET,"/Local-1/Hello").setMethod(PortMethod.POST).addParam("name", "name3")
                                     .addParam("myAge", 10).addParam("sex", "0"),
                             lResponse -> assertEquals(":0", lResponse.getResponse()));
 
-                    bridge.request(new PRequest("/Local-1/Hello/hihihi").setMethod(PortMethod.POST)
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/Hello/hihihi").setMethod(PortMethod.POST)
                                     .addParam("name", "name4")
                                     .addParam("myAge", 10).addParam("sex", "0"),
                             lResponse -> assertEquals("hihihi:0", lResponse.getResponse()));
 
-                    bridge.request(new PRequest("/Local-1/My2/hello"),
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/My2/hello"),
                             lResponse -> assertEquals("My2Porter", lResponse.getResponse()));
-                    bridge.request(new PRequest("/Local-1/My/hello").addParam("name", "Demo001"),
+                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/My/hello").addParam("name", "Demo001"),
                             lResponse -> assertTrue(lResponse.getResponse() instanceof IDemo));
                     dtime.addAndGet(System.nanoTime() - time);
                     if (count.incrementAndGet() == n) {

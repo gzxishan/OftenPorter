@@ -27,7 +27,7 @@ public interface MyBatisDao
 {
 
     /**
-     * 会获取新的sql会话。
+     * 会获取新的sql会话,记得手动关闭。
      *
      * @return
      */
@@ -49,6 +49,10 @@ public interface MyBatisDao
      */
     <T> T getMapper(Class<T> clazz);
 
+    /**
+     * @param wObject 如果是自己构建的，需要手动关闭会话。
+     * @return
+     */
     SqlSession getSqlSession(WObject wObject);
 
     <T> T mapper(WObject wObject);
@@ -101,6 +105,14 @@ public interface MyBatisDao
     int delete(WObject wObject, String statement);
 
     int delete(WObject wObject, String statement, Object parameter);
+
+
+    /**
+     * 注意：使用自己生成的{@linkplain WObject}需要手动关闭，归还连接。
+     *
+     * @param wObject
+     */
+    void close(WObject wObject);
 
 
 }

@@ -45,7 +45,7 @@ public class MyBatisBridge
 
             byte[] configData = FileTool.getData(configStream, 1024);
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
-                    myBatisOption.checkMapperFileChange, configData);
+                    myBatisOption, configData);
             MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);
             porterConf.addContextAutoSet(MybatisConfig.class, mybatisConfig);
         } catch (Exception e)
@@ -125,7 +125,7 @@ public class MyBatisBridge
 
     static SqlSession _openSession(@MayNull WObject wObject, MybatisConfig mybatisConfig)
     {
-        SqlSession sqlSession = wObject == null ? null : wObject.getAttribute(SqlSession.class);
+        SqlSession sqlSession = wObject == null ? null : wObject.original().getAttribute(SqlSession.class);
 
         if (sqlSession == null)
         {
@@ -135,6 +135,16 @@ public class MyBatisBridge
             if (wObject != null)
             {
                 wObject.setAttribute(SqlSession.class, sqlSession);
+                if (wObject.isSupportAfterInvokeListener())
+                {
+                    wObject.addAfterInvokeListener(object -> {
+                        SqlSession session = wObject.getAttribute(SqlSession.class);
+                        if (session != null)
+                        {
+                            session.close();
+                        }
+                    });
+                }
             }
         }
         return sqlSession;

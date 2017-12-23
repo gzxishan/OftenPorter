@@ -34,7 +34,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
     WServletRequest(IAttributeFactory iAttributeFactory, HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
-        super(method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
+        super(null,method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
                 false);
         this.iAttributeFactory = iAttributeFactory;
         this.request = request;

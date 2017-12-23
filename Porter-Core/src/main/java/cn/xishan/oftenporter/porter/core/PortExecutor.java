@@ -234,6 +234,7 @@ public class PortExecutor
 
     public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
     {
+        WObjectImpl wObject = null;
         try
         {
 
@@ -253,7 +254,7 @@ public class PortExecutor
             }
 
 
-            WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
+            wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
             IAttributeFactory attributeFactory = iAttributeFactory;
             Object originRequest = request.getOriginalRequest();
             if (originRequest != null && originRequest instanceof IAttributeFactory)
@@ -294,6 +295,11 @@ public class PortExecutor
             }
             close(response);
 
+        }finally
+        {
+            if(wObject!=null){
+                wObject.invokeAfterInvokeListeners();
+            }
         }
     }
 

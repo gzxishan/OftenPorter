@@ -34,8 +34,8 @@ public class DBCommon {
 
     private JResponse commonDealt(WObject wObject, Dealt dealt, DBSource dbSource) {
         DBCommon common;
-        if (wObject._otherObject != null && wObject._otherObject instanceof TransactionHandle) {
-            CommonTransactionHandle<DBCommon> handle = (CommonTransactionHandle) wObject._otherObject;
+        if (wObject.original()._otherObject != null && wObject.original()._otherObject instanceof TransactionHandle) {
+            CommonTransactionHandle<DBCommon> handle = (CommonTransactionHandle) wObject.original()._otherObject;
             handle.check();
             common = handle.common();
         } else {

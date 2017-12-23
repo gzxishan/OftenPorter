@@ -1,8 +1,14 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.ibatis.datasource.DataSourceFactory;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,7 +48,8 @@ class MSqlSessionFactoryBuilder
     private boolean isDestroyed = false;
     private boolean isStarted = false;
     private boolean needReRegFileCheck = false;
-
+    private JSONObject dataSourceConf;
+    private Environment environment;
 
     synchronized void regNewMapper(BuilderListener builderListener) throws Exception
     {
@@ -180,9 +188,10 @@ class MSqlSessionFactoryBuilder
         watchService = null;
     }
 
-    public MSqlSessionFactoryBuilder(boolean checkMapperFileChange, byte[] configData)
+    public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
-        this.checkMapperFileChange = checkMapperFileChange;
+        this.dataSourceConf = myBatisOption.dataSource;
+        this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
     }
 
@@ -190,6 +199,39 @@ class MSqlSessionFactoryBuilder
     {
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
+
+        if (dataSourceConf != null)
+        {
+            JSONObject dataSourceConf = this.dataSourceConf;
+            this.dataSourceConf = null;
+
+            Class<?> clazz = PackageUtil.newClass(dataSourceConf.getString("dsFactory"), null);
+            DataSourceFactory factory = (DataSourceFactory) WPTool.newObject(clazz);
+
+            Properties properties = new Properties();
+            for (String key : dataSourceConf.keySet())
+            {
+                if ("dsFactory".equals(key))
+                {
+                    continue;
+                }
+                properties.setProperty(key, dataSourceConf.getString(key));
+            }
+            factory.setProperties(properties);
+
+            Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
+            builder.transactionFactory(new JdbcTransactionFactory());
+            builder.dataSource(factory.getDataSource());
+            this.environment = builder.build();
+        }
+
+        if (environment != null)
+        {
+            Configuration configuration = sqlSessionFactory.getConfiguration();
+            configuration.setEnvironment(environment);
+        }
+
+
         this.sqlSessionFactory = sqlSessionFactory;
         for (BuilderListener listener : builderListenerSet)
         {

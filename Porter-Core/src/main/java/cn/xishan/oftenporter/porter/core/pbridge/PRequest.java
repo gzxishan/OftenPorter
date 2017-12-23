@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.pbridge;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.*;
 
 import java.util.Enumeration;
@@ -15,15 +17,40 @@ public class PRequest implements WRequest
     protected PortMethod method;
     protected Map<String, Object> params;
     protected Object originRequest, originResponse;
+    private WObject originalObject;
 
-    public PRequest(PortMethod method, String requestPath)
+    public PRequest(@MayNull WObject originalObject, PortMethod method, String requestPath)
     {
-        this(method, requestPath, true);
+        this(originalObject, method, requestPath, true);
     }
 
 
-    protected PRequest(PortMethod method, String requestPath, boolean initMap)
+    public PRequest(PortMethod method, String requestPath)
     {
+        this(null, method, requestPath, true);
+    }
+
+    /**
+     * GET请求
+     *
+     * @param requestPath
+     */
+    public PRequest(String requestPath)
+    {
+        this(PortMethod.GET, requestPath);
+    }
+
+    protected PRequest(@MayNull WObject originalObject, PortMethod method, String requestPath, boolean initMap)
+    {
+        if (originalObject != null)
+        {
+            WObject wObject = originalObject.getRequest().getOriginalWObject();
+            if (wObject != null)
+            {
+                originalObject = wObject;
+            }
+        }
+        this.originalObject = originalObject;
         this.method = method;
         this.requestPath = requestPath;
         if (initMap)
@@ -32,15 +59,16 @@ public class PRequest implements WRequest
         }
     }
 
-    public PRequest(WObject wObject, String requestPath)
+    public PRequest(@NotNull WObject wObject, String requestPath)
     {
-        this(wObject.getRequest().getMethod(), requestPath, true);
-        Enumeration<Map.Entry<String,Object>> e = wObject.getParamSource().params();
-        while (e.hasMoreElements()){
-            Map.Entry<String,Object> entry = e.nextElement();
-            params.put(entry.getKey(),entry.getValue());
+        this(wObject, wObject.getRequest().getMethod(), requestPath, true);
+        Enumeration<Map.Entry<String, Object>> e = originalObject.getParamSource().params();
+        while (e.hasMoreElements())
+        {
+            Map.Entry<String, Object> entry = e.nextElement();
+            params.put(entry.getKey(), entry.getValue());
         }
-        initOrigin(wObject.getRequest());
+        initOrigin(originalObject.getRequest());
     }
 
 
@@ -50,20 +78,22 @@ public class PRequest implements WRequest
         this.originResponse = request.getOriginalResponse();
     }
 
-    public PRequest(String requestPath)
-    {
-        this(PortMethod.GET, requestPath);
-    }
 
+    @Override
+    public WObject getOriginalWObject()
+    {
+        return originalObject;
+    }
 
     public PRequest withNewPath(String newPath)
     {
-        return withNewPath(newPath, getMethod(), this, false);
+        return withNewPath(originalObject, newPath, getMethod(), this, false);
     }
 
-    public static PRequest withNewPath(String newPath, PortMethod method, WRequest wRequest, boolean willCloneParamsMap)
+    public static PRequest withNewPath(WObject originalObject, String newPath, PortMethod method, WRequest wRequest,
+            boolean willCloneParamsMap)
     {
-        PRequest request = new PRequest(method, newPath, willCloneParamsMap);
+        PRequest request = new PRequest(originalObject, method, newPath, willCloneParamsMap);
         request.originRequest = wRequest.getOriginalRequest();
         request.originResponse = wRequest.getOriginalResponse();
         if (willCloneParamsMap)
@@ -129,7 +159,8 @@ public class PRequest implements WRequest
 
     public synchronized PRequest addParamAll(Map<String, Object> paramMap)
     {
-        if(paramMap!=null){
+        if (paramMap != null)
+        {
             params.putAll(paramMap);
         }
         return this;

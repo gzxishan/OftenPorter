@@ -69,9 +69,15 @@ public abstract class WObject implements IAttribute
 
     /**
      * 是否是内部请求。
+     *
      * @return
      */
     public abstract boolean isInnerRequest();
+
+    public boolean isTopRequest()
+    {
+        return original() == this;
+    }
 
     /**
      * 获取函数上绑定的对象。
@@ -229,7 +235,7 @@ public abstract class WObject implements IAttribute
         UrlDecoder.Result result = url();
         builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
         builder.append(funTied == null ? "" : funTied);
-        PRequest request = PRequest.withNewPath(builder.toString(), method, getRequest(), true);
+        PRequest request = PRequest.withNewPath(this, builder.toString(), method, getRequest(), true);
         request.addParamAll(appValues);
         if (throwWCallException)
         {
@@ -296,6 +302,32 @@ public abstract class WObject implements IAttribute
     public <T> T removeAttribute(Class<T> clazz)
     {
         return removeAttribute(clazz.getName());
+    }
+
+
+    /**
+     * 接口调用完后（包括成功或失败）的回调
+     */
+    public interface AfterInvokeListener
+    {
+        void afterInvoke(WObject wObject);
+    }
+
+    public boolean isSupportAfterInvokeListener()
+    {
+        return false;
+    }
+
+    public void addAfterInvokeListener(AfterInvokeListener afterInvokeListener)
+    {
+
+    }
+
+    public WObject original()
+    {
+        WRequest request = getRequest();
+        WObject originalObject = request == null ? null : request.getOriginalWObject();
+        return originalObject == null ? this : originalObject;
     }
 
 }

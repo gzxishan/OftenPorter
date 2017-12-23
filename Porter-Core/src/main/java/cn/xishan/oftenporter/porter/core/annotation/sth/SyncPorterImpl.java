@@ -41,7 +41,7 @@ class SyncPorterImpl implements SyncNotInnerPorter {
     public <T> T request(WObject wObject, AppValues appValues) {
         PRequest request;
         if (wObject == null) {
-            request = new PRequest(syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
+            request = new PRequest(null,syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
         } else {
             request = new PRequest(wObject, syncPorterOption.getPathWithContext());
             request.setMethod(syncPorterOption.getMethod());
