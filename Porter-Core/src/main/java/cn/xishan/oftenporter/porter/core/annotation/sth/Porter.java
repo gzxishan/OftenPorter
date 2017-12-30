@@ -4,15 +4,13 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
-import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.TiedType;
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -269,6 +267,71 @@ public final class Porter
         }
 
         return porterOfFun;
+    }
+
+    public void dealInNames(TypeParserStore typeParserStore)
+    {
+        //处理dealtFor
+
+        if (inObj != null)
+        {
+            for (One one : inObj.ones)
+            {
+                dealInNames(one.inNames, typeParserStore);
+            }
+        }
+
+
+        InNames inNames = getPortIn().getInNames();
+        dealInNames(inNames, typeParserStore);
+        if (mixins != null)
+        {
+            for (Porter porter : mixins)
+            {
+                if (porter.inObj != null)
+                {
+                    for (One one : porter.inObj.ones)
+                    {
+                        dealInNames(one.inNames, typeParserStore);
+                    }
+                }
+                dealInNames(porter.getPortIn().getInNames(), typeParserStore);
+            }
+        }
+        for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
+        {
+            PorterOfFun porterOfFun = entry.getValue();
+            if (porterOfFun.inObj != null)
+            {
+                for (One one : porterOfFun.inObj.ones)
+                {
+                    dealInNames(one.inNames, typeParserStore);
+                }
+            }
+            dealInNames(porterOfFun.getMethodPortIn().getInNames(), typeParserStore);
+        }
+    }
+
+    private void dealInNames(InNames inNames, TypeParserStore typeParserStore)
+    {
+        dealInNames(inNames.nece, typeParserStore);
+        dealInNames(inNames.unece, typeParserStore);
+    }
+
+    private void dealInNames(InNames.Name[] names, TypeParserStore typeParserStore)
+    {
+        for (InNames.Name name : names)
+        {
+            if (name.typeParserId == null)
+            {
+                name.typeParserId = ObjectParser.ID;//用于支持StringParser的参数
+            }
+            ITypeParser typeParser = typeParserStore.byId(name.typeParserId);
+            if (typeParser != null)
+            {
+                name.doDealtFor(typeParser);
+            }
+        }
     }
 
     public void start(WObject wObject)

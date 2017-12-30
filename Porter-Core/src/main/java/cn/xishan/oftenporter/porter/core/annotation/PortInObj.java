@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.apt.AutoGen;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 
 import java.lang.annotation.*;
@@ -18,6 +19,7 @@ import java.lang.annotation.*;
  *     String getName();
  *     boolean isOk();
  * }
+ * 3. <strong>参数的配置参数：</strong>{@linkplain Nece#value()}和{@linkplain UnNece#value()}支持{@linkplain ITypeParserOption}
  * </pre>
  * <pre>
  * <strong>注意：</strong>1.对于此方式注解的绑定类，对应的field使用{@linkplain Parser}或{@linkplain Parser.parse}来手动绑定类型转换，可以注解在类或field上.
