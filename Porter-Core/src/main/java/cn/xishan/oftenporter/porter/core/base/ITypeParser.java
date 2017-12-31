@@ -13,7 +13,20 @@ import java.util.Map;
 public interface ITypeParser
 {
 
-    ParseResult parse(@NotNull String name, @NotNull Object value);
+    /**
+     * @param name         参数名
+     * @param value        参数值
+     * @param parserOption 额外选项
+     * @return
+     */
+    ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption);
+
+    /**
+     * 初始化框架时会调用，不保证对所有的都进行调用。
+     *
+     * @param parserOption
+     */
+    <T> T dealtFor(@NotNull ITypeParserOption parserOption);
 
     /**
      * 每一个TypeParser都会被放到一个全局的Store中，此id就是唯一对应的键值。

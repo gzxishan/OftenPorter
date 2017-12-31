@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 
 /**
  * 用于存储参数的名称
@@ -8,6 +9,48 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
  */
 public class InNames
 {
+    private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = new ITypeParserOption()
+    {
+        @Override
+        public String getNameConfig()
+        {
+            return null;
+        }
+
+        @Override
+        public void setData(Object data)
+        {
+
+        }
+
+        @Override
+        public Object getData()
+        {
+            return null;
+        }
+    };
+    private static final ITypeParserOption EMPTY_TYPE_PARSER_OPTION = new ITypeParserOption()
+    {
+        @Override
+        public String getNameConfig()
+        {
+            return "";
+        }
+
+        @Override
+        public void setData(Object data)
+        {
+
+        }
+
+        @Override
+        public Object getData()
+        {
+            return null;
+        }
+    };
+
+
     public static class Name
     {
         /**
@@ -19,10 +62,66 @@ public class InNames
          */
         public String typeParserId;
 
+        public final ITypeParserOption parserOption;
+
         public Name(String varName, String typeParserId)
         {
+            int index1 = varName.indexOf('(');
+            int index2 = varName.lastIndexOf(')');
+            if (index1 != -1 || index2 != -1)
+            {
+                if (index1 == -1 || index2 == -1 || index1 > index2)
+                {
+                    throw new InitException("varname config error:" + varName);
+                }
+                String varConfig = varName.substring(index1 + 1, index2).trim();
+                if (varConfig.equals(""))
+                {
+                    this.parserOption = EMPTY_TYPE_PARSER_OPTION;
+                } else
+                {
+                    this.parserOption = new ITypeParserOption()
+                    {
+                        private Object data;
+
+                        @Override
+                        public String getNameConfig()
+                        {
+                            return varConfig;
+                        }
+
+                        @Override
+                        public synchronized void setData(Object data)
+                        {
+                            this.data = data;
+                        }
+
+                        @Override
+                        public synchronized Object getData()
+                        {
+                            return data;
+                        }
+                    };
+                }
+                varName = varName.substring(0, index1);
+            } else
+            {
+                this.parserOption = NULL_TYPE_PARSER_OPTION;
+            }
+
             this.varName = varName;
-            this.typeParserId = typeParserId;
+            if (typeParserId != null)
+            {
+                this.typeParserId = typeParserId;
+            }
+        }
+
+        public void doDealtFor(ITypeParser typeParser)
+        {
+            if (parserOption != NULL_TYPE_PARSER_OPTION && parserOption != EMPTY_TYPE_PARSER_OPTION)
+            {
+                typeParser.dealtFor(parserOption);
+            }
         }
     }
 
@@ -54,6 +153,7 @@ public class InNames
 
 
     private static final Name[] EMPTY = new Name[0];
+
 
     public static InNames temp(Name name)
     {

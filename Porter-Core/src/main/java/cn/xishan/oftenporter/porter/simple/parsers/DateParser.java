@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
 
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,7 +14,7 @@ public class DateParser extends TypeParser {
     private final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public ParseResult parse(String name, Object value) {
+    public ParseResult parse(String name, Object value,ITypeParserOption option) {
         ParseResult result;
         try {
             Object v;

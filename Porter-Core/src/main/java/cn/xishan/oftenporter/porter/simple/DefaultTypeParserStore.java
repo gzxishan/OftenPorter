@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.TypeParserStore;
+import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultTypeParserStore implements TypeParserStore
 {
     private Map<String, ITypeParser> map = new ConcurrentHashMap<>();
+
+
+    public DefaultTypeParserStore()
+    {
+        putParser(new ObjectParser());
+    }
 
     @Override
     public ITypeParser byId(String id)

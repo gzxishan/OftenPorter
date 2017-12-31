@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 
 /**
  * <br>
@@ -12,5 +13,11 @@ abstract class TypeParser implements ITypeParser
     public String id()
     {
         return getClass().getName();
+    }
+
+    @Override
+    public <T> T dealtFor(ITypeParserOption parserOption)
+    {
+        return null;
     }
 }

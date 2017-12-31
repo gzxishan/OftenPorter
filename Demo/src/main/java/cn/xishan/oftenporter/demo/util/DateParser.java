@@ -5,6 +5,7 @@ import java.util.Date;
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 
 public class DateParser implements ITypeParser {
 
@@ -14,7 +15,7 @@ public class DateParser implements ITypeParser {
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value) {
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption) {
         ParseResult result;
         try {
             Object v;
@@ -32,6 +33,12 @@ public class DateParser implements ITypeParser {
         }
 
         return result;
+    }
+
+    @Override
+    public <T> T dealtFor(ITypeParserOption parserOption)
+    {
+        return null;
     }
 
     @Override

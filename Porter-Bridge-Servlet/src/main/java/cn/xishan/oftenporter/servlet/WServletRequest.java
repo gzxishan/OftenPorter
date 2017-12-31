@@ -34,7 +34,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
     WServletRequest(IAttributeFactory iAttributeFactory, HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
-        super(null,method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
+        super(null, method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
                 false);
         this.iAttributeFactory = iAttributeFactory;
         this.request = request;
@@ -154,6 +154,16 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
         return getHostFromURL(url, false);
     }
 
+    public static String getPathFromURL(CharSequence url)
+    {
+        if (url == null)
+        {
+            return null;
+        }
+        String host = getHostFromURL(url);
+        return url.subSequence(host.length(), url.length()).toString();
+    }
+
     /**
      * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
      *
@@ -202,6 +212,6 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
     @Override
     public IAttribute getIAttribute(WObject wObject)
     {
-        return iAttributeFactory==null?null:iAttributeFactory.getIAttribute(wObject);
+        return iAttributeFactory == null ? null : iAttributeFactory.getIAttribute(wObject);
     }
 }

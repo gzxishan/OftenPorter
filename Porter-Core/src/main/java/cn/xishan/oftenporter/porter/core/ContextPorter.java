@@ -175,8 +175,14 @@ public class ContextPorter implements IOtherStartDestroy
         this.porterConf = null;
         this.listenerAdder = null;
 
+        for(Map.Entry<String,Porter> entry:portMap.entrySet()){
+            entry.getValue().dealInNames(autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore);
+        }
+
         return checkPassableForCF;
     }
+
+
 
     private void mayAddStaticAutoSet(Class<?> clazz)
     {

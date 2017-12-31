@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -22,7 +24,7 @@ abstract class DateParser_ extends TypeParser
     }
 
     @Override
-    public ParseResult parse(String name, Object value)
+    public ParseResult parse(String name, Object value,ITypeParserOption parserOption)
     {
         ParseResult result;
         try

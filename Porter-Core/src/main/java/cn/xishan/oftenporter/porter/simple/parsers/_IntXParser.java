@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 
 /**
  *
@@ -16,7 +17,7 @@ class _IntXParser extends TypeParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
     {
         ParseResult result;
         try

@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 
@@ -13,9 +14,9 @@ import java.util.ArrayList;
 public class ArrayListArrParser extends JSONArrayParser
 {
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
     {
-        ParseResult result = super.parse(name, value);
+        ParseResult result = super.parse(name, value,parserOption);
         try
         {
             if (result.isLegal())

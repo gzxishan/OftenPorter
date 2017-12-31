@@ -22,7 +22,8 @@ public class DefaultParamDealt implements ParamDealt
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
-            Object value = getParam(namePrefix + name.varName, paramSource, typeParserStore.byId(name.typeParserId));
+            Object value = getParam(namePrefix + name.varName, paramSource, typeParserStore.byId(name.typeParserId),
+                    name.parserOption);
             if (value != null)
             {
                 if (value instanceof FailedReason)
@@ -41,13 +42,13 @@ public class DefaultParamDealt implements ParamDealt
     }
 
     public Object getParam(String name, ParamSource paramSource,
-            ITypeParser typeParser)
+            ITypeParser typeParser, ITypeParserOption parserOption)
     {
 
         Object v = paramSource.getParam(name);
         if (!WPTool.isEmpty(v) && typeParser != null)
         {
-            ITypeParser.ParseResult parseResult = typeParser.parse(name, v);
+            ITypeParser.ParseResult parseResult = typeParser.parse(name, v, parserOption);
             if (parseResult.isLegal())
             {
                 Object obj = parseResult.getValue();

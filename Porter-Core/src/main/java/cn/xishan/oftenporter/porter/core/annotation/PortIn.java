@@ -11,6 +11,9 @@ import java.lang.annotation.*;
  * 1.用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
  * <br>
  * 2.返回值见{@linkplain PortOut}
+ * <pre>
+ *     <strong>参数的配置参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
+ * </pre>
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
 @Retention(RetentionPolicy.RUNTIME)
