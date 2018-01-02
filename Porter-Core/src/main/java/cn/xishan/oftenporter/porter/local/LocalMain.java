@@ -109,6 +109,12 @@ public class LocalMain implements CommonMain
     }
 
     @Override
+    public String getDefaultTypeParserId()
+    {
+        return null;
+    }
+
+    @Override
     public PorterConf newPorterConf()
     {
         return porterMain.newPorterConf();

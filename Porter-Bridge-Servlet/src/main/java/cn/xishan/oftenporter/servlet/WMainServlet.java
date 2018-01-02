@@ -408,6 +408,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
         return porterMain.getPorterData();
     }
 
+    @Override
+    public String getDefaultTypeParserId()
+    {
+        return null;
+    }
+
 
     @Override
     public void destroy()

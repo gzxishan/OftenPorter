@@ -1,10 +1,10 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,8 @@ public class IntParser extends TypeParser
     private static final Pattern PATTERN_IN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)}$");
     private static final Pattern PATTERN_IN_INNER = Pattern.compile("(-?[\\d]+),?");
 
-    private static final Pattern PATTERN_RANGE = Pattern.compile("^(range|-range)([(\\[])(-?[\\d]*),(-?[\\d]*)([)\\]])$");
+    private static final Pattern PATTERN_RANGE = Pattern
+            .compile("^(range|-range)([(\\[])(-?[\\d]*),(-?[\\d]*)([)\\]])$");
 
     public static class VarConfigRangeDealt
     {
@@ -72,7 +73,7 @@ public class IntParser extends TypeParser
                     isInRange = value > from;
                 }
             }
-            if (isInRange&&to != null)
+            if (isInRange && to != null)
             {
                 if (containsRight)
                 {
@@ -164,7 +165,7 @@ public class IntParser extends TypeParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull Object dealt)
     {
         ParseResult result;
         try
@@ -172,13 +173,12 @@ public class IntParser extends TypeParser
             Object v;
             if (value instanceof Integer)
             {
-                v = (Integer) value;
+                v = value;
             } else
             {
                 v = Integer.parseInt(value.toString());
             }
 
-            Object dealt = dealtFor(parserOption);
             if (dealt != null)
             {
                 if (dealt instanceof VarConfigInDealt)
@@ -202,25 +202,16 @@ public class IntParser extends TypeParser
 
 
     @Override
-    public Object dealtFor(ITypeParserOption parserOption)
+    public Object initFor(ITypeParserOption parserOption)
     {
         String varConfig = parserOption.getNameConfig();
-        if (WPTool.isEmpty(varConfig))
+        Object dealt = null;
+        if (varConfig.startsWith("-in") || varConfig.startsWith("in"))
         {
-            return null;
-        }
-
-        Object dealt = parserOption.getData();
-        if (dealt == null)
+            dealt = new VarConfigInDealt(this, varConfig);
+        } else
         {
-            if (varConfig.startsWith("-in") || varConfig.startsWith("in"))
-            {
-                dealt = new VarConfigInDealt(this, varConfig);
-            } else
-            {
-                dealt = new VarConfigRangeDealt(this, varConfig);
-            }
-            parserOption.setData(dealt);
+            dealt = new VarConfigRangeDealt(this, varConfig);
         }
 
         return dealt;

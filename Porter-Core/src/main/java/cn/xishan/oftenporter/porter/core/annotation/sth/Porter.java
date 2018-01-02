@@ -324,7 +324,7 @@ public final class Porter
         {
             if (name.typeParserId == null)
             {
-                name.typeParserId = ObjectParser.ID;//用于支持StringParser的参数
+                name.typeParserId = typeParserStore.getDefaultTypeParserId();
             }
             ITypeParser typeParser = typeParserStore.byId(name.typeParserId);
             if (typeParser != null)

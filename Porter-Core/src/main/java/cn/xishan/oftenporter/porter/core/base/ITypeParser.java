@@ -1,32 +1,52 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+import cn.xishan.oftenporter.porter.core.init.CommonMain;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 类型转换。
+ * <pre>
+ *     可以通过覆写{@linkplain CommonMain#getDefaultTypeParserId()}来改变默认的类型转换。
+ * </pre>
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public interface ITypeParser
+public interface ITypeParser<D>
 {
 
-    /**
-     * @param name         参数名
-     * @param value        参数值
-     * @param parserOption 额外选项
-     * @return
-     */
-    ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption);
+    abstract class Adapter<D> implements ITypeParser<D>
+    {
+        @Override
+        public String id()
+        {
+            return getClass().getName();
+        }
+
+        @Override
+        public Object initFor(ITypeParserOption parserOption)
+        {
+            return null;
+        }
+    }
 
     /**
-     * 初始化框架时会调用，不保证对所有的都进行调用。
+     * @param name  参数名
+     * @param value 参数值
+     * @param dealt 由{@linkplain #initFor(ITypeParserOption)}返回的操作实例。
+     * @return
+     */
+    ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull D dealt);
+
+    /**
+     * 初始化框架时会调用。
      *
      * @param parserOption
      */
-    <T> T dealtFor(@NotNull ITypeParserOption parserOption);
+    Object initFor(@NotNull ITypeParserOption parserOption);
 
     /**
      * 每一个TypeParser都会被放到一个全局的Store中，此id就是唯一对应的键值。

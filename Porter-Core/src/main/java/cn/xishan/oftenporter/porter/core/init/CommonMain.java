@@ -79,4 +79,11 @@ public interface CommonMain
 
     PorterData getPorterData();
 
+    /**
+     * 全局的。
+     *
+     * @return
+     */
+    String getDefaultTypeParserId();
+
 }

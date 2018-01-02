@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheTool;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.TypeParserStore;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultTypeParserStore;
 
 import java.util.List;
@@ -24,10 +25,14 @@ public class InnerBridge
     public final CacheTool cacheTool;
 
 
-    public InnerBridge()
+    public InnerBridge(String defaultTypeParserId)
     {
         this.globalAutoSet = new ConcurrentHashMap<>();
-        this.globalParserStore = new DefaultTypeParserStore();
+        DefaultTypeParserStore typeParserStore = new DefaultTypeParserStore();
+        if(WPTool.notNullAndEmpty(defaultTypeParserId)){
+            typeParserStore.setDefaultTypeParser(defaultTypeParserId);
+        }
+        this.globalParserStore=typeParserStore;
         this.allGlobalChecksTemp = new Vector<>();
         this.cacheTool = new CacheTool();
     }

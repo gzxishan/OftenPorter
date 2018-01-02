@@ -4,7 +4,6 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +19,7 @@ import java.util.regex.Pattern;
  * </pre>
  * Created by 宇宙之灵 on 2015/9/14.
  */
-public class StringParser extends TypeParser
+public class StringParser extends TypeParser<StringParser.VarConfigDealt>
 {
 
     private static final Pattern PATTERN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)}$");
@@ -105,26 +104,22 @@ public class StringParser extends TypeParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, VarConfigDealt varConfigDealt)
     {
         value = String.valueOf(value);
-        if (WPTool.notNullAndEmpty(parserOption.getNameConfig()))
-        {
-            value = this.dealtFor(parserOption).getValue((String) value);
+        if(varConfigDealt!=null){
+            value = varConfigDealt.getValue((String) value);
         }
         return new ParseResult(value);
     }
 
 
     @Override
-    public VarConfigDealt dealtFor(ITypeParserOption parserOption)
+    public VarConfigDealt initFor(ITypeParserOption parserOption)
     {
-        VarConfigDealt varConfigDealt = parserOption.getData();
-        if (varConfigDealt == null)
-        {
-            varConfigDealt = new VarConfigDealt(this, parserOption.getNameConfig());
-            parserOption.setData(varConfigDealt);
-        }
+        VarConfigDealt varConfigDealt;
+        varConfigDealt = new VarConfigDealt(this, parserOption.getNameConfig());
+
         return varConfigDealt;
     }
 }
