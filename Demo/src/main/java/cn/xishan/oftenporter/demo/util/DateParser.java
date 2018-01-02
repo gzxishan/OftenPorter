@@ -3,11 +3,11 @@ package cn.xishan.oftenporter.demo.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 
-public class DateParser implements ITypeParser {
+public class DateParser extends ITypeParser.Adapter {
 
 
     public DateParser() {
@@ -15,7 +15,7 @@ public class DateParser implements ITypeParser {
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption) {
+    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt) {
         ParseResult result;
         try {
             Object v;
@@ -33,17 +33,6 @@ public class DateParser implements ITypeParser {
         }
 
         return result;
-    }
-
-    @Override
-    public <T> T dealtFor(ITypeParserOption parserOption)
-    {
-        return null;
-    }
-
-    @Override
-    public String id() {
-        return getClass().getName();
     }
 
 }

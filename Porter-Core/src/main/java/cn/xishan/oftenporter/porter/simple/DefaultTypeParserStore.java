@@ -14,11 +14,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultTypeParserStore implements TypeParserStore
 {
     private Map<String, ITypeParser> map = new ConcurrentHashMap<>();
-
+    private String defaultTypeParser = ObjectParser.ID;//用于支持StringParser的参数
 
     public DefaultTypeParserStore()
     {
         putParser(new ObjectParser());
+    }
+
+    public void setDefaultTypeParser(String defaultTypeParser)
+    {
+        this.defaultTypeParser = defaultTypeParser;
+    }
+
+    @Override
+    public String getDefaultTypeParserId()
+    {
+        return defaultTypeParser;
     }
 
     @Override

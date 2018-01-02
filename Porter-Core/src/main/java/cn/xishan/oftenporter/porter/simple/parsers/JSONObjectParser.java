@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
@@ -14,7 +15,7 @@ public class JSONObjectParser extends TypeParser
 {
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
+    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt)
     {
         ParseResult result;
         try

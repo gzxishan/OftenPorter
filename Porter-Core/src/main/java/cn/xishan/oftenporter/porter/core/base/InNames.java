@@ -9,46 +9,8 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
  */
 public class InNames
 {
-    private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = new ITypeParserOption()
-    {
-        @Override
-        public String getNameConfig()
-        {
-            return null;
-        }
-
-        @Override
-        public void setData(Object data)
-        {
-
-        }
-
-        @Override
-        public Object getData()
-        {
-            return null;
-        }
-    };
-    private static final ITypeParserOption EMPTY_TYPE_PARSER_OPTION = new ITypeParserOption()
-    {
-        @Override
-        public String getNameConfig()
-        {
-            return "";
-        }
-
-        @Override
-        public void setData(Object data)
-        {
-
-        }
-
-        @Override
-        public Object getData()
-        {
-            return null;
-        }
-    };
+    private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = () -> null;
+    private static final ITypeParserOption EMPTY_TYPE_PARSER_OPTION = () -> "";
 
 
     public static class Name
@@ -62,7 +24,8 @@ public class InNames
          */
         public String typeParserId;
 
-        public final ITypeParserOption parserOption;
+        private ITypeParserOption parserOption;
+        private Object dealt;
 
         public Name(String varName, String typeParserId)
         {
@@ -80,28 +43,7 @@ public class InNames
                     this.parserOption = EMPTY_TYPE_PARSER_OPTION;
                 } else
                 {
-                    this.parserOption = new ITypeParserOption()
-                    {
-                        private Object data;
-
-                        @Override
-                        public String getNameConfig()
-                        {
-                            return varConfig;
-                        }
-
-                        @Override
-                        public synchronized void setData(Object data)
-                        {
-                            this.data = data;
-                        }
-
-                        @Override
-                        public synchronized Object getData()
-                        {
-                            return data;
-                        }
-                    };
+                    this.parserOption = () -> varConfig;
                 }
                 varName = varName.substring(0, index1);
             } else
@@ -116,11 +58,17 @@ public class InNames
             }
         }
 
+        public <D> D getDealt()
+        {
+            return (D) dealt;
+        }
+
         public void doDealtFor(ITypeParser typeParser)
         {
             if (parserOption != NULL_TYPE_PARSER_OPTION && parserOption != EMPTY_TYPE_PARSER_OPTION)
             {
-                typeParser.dealtFor(parserOption);
+                dealt = typeParser.initFor(parserOption);
+                parserOption = null;
             }
         }
     }

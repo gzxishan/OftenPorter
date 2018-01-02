@@ -7,6 +7,12 @@ public interface TypeParserStore
 {
     ITypeParser byId(String id);
 
+    /**
+     * 获得默认的。
+     * @return
+     */
+    String getDefaultTypeParserId();
+
     void putParser(ITypeParser typeParser);
 
     boolean contains(ITypeParser typeParser);

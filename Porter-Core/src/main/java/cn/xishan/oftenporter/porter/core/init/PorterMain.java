@@ -88,7 +88,7 @@ public final class PorterMain {
      */
     private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge) {
         synchronized (PorterMain.class) {
-            this.innerBridge = new InnerBridge();
+            this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
             listenerAdder = new ListenerAdderImpl();
             pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
             pLinker.setPorterAttr(contextName ->

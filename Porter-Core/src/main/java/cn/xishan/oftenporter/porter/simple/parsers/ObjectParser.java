@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -21,11 +22,11 @@ public class ObjectParser extends StringParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @NotNull ITypeParserOption parserOption)
+    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull VarConfigDealt varConfigDealt)
     {
-        if (WPTool.notNullAndEmpty(parserOption.getNameConfig()))
+        if (varConfigDealt!=null)
         {
-            value = this.dealtFor(parserOption).getValue(String.valueOf(value));
+            value = varConfigDealt.getValue(String.valueOf(value));
         }
         return new ParseResult(value);
     }
