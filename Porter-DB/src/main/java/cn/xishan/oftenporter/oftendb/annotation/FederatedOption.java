@@ -25,19 +25,29 @@ public @interface FederatedOption
 
     /**
      * -1表示默认，0表示false，非0表示true
+     *
      * @return
      */
     int dropIfExists() default -1;
 
     /**
      * 操作失败的尝试次数
+     *
      * @return
      */
-    int tryCount()default 0;
+    int tryCount() default 0;
 
     /**
      * 重试休眠时间，默认3000毫秒
+     *
      * @return
      */
-    int tryDelay()default 3000;
+    int tryDelay() default 3000;
+
+    /**
+     * 是否自动初始化
+     *
+     * @return -1表示默认，0表示false，非0表示true
+     */
+    int isAutoInit() default -1;
 }

@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -33,99 +34,29 @@ class FederatedGen implements AutoSetGen
     @AutoSet
     Logger LOGGER;
 
-    class FederatedImpl implements Federated
-    {
-        private int tryCount;
-        private int tryDelay;
-        private Federated federated;
 
-        public FederatedImpl(int tryCount, int tryDelay)
+    static class FederatedImplInner extends Federated.Adapter
+    {
+
+        private boolean isAutoInit;
+
+
+        public FederatedImplInner(boolean isAutoInit)
         {
-            if (tryCount < 0)
-            {
-                tryCount = 0;
-            }
-            this.tryCount = tryCount + 1;
-            this.tryDelay = tryDelay;
-            federated = new FederatedImplInner();
+            this.isAutoInit = isAutoInit;
         }
 
         @Override
-        public void init(DBSource dbSource, boolean dropTableIfExists, String tableName, String jdbcUrl,
-                String driverClass,
-                String connectionUrl)
+        public boolean isAutoInit()
         {
-            int tryCount = this.tryCount;
-            while (tryCount-- > 0)
-            {
-                try
-                {
-                    LOGGER.debug("init federated[{},{}]...", tableName, jdbcUrl);
-                    federated.init(dbSource, dropTableIfExists, tableName, jdbcUrl, driverClass, connectionUrl);
-                    LOGGER.debug("init federated[{},{}] success!", tableName, jdbcUrl);
-                    break;
-                } catch (Exception e)
-                {
-                    LOGGER.debug("init federated[{},{}] fail!", tableName, jdbcUrl);
-                    LOGGER.debug(e.getMessage(), e);
-                    if (tryCount <= 0)
-                    {
-                        break;
-                    }
-                    if (tryDelay > 0)
-                    {
-                        try
-                        {
-                            Thread.sleep(tryDelay);
-                        } catch (InterruptedException e1)
-                        {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    }
-                }
-            }
+            return isAutoInit;
         }
 
         @Override
-        public void initOfMysql(DBSource dbSource, boolean dropTableIfExists, String tableName, String host,
-                String dbname,
-                String user, String password)
+        public void doInit()
         {
-            int tryCount = this.tryCount;
-            while (tryCount-- > 0)
-            {
-                try
-                {
-                    LOGGER.debug("init federated[{},{},{},{}]...", host, user, dbname, tableName);
-                    federated.initOfMysql(dbSource, dropTableIfExists, tableName, host,
-                            dbname, user, password);
-                    LOGGER.debug("init federated[{},{},{},{}] success!", host, user, dbname, tableName);
-                    break;
-                } catch (Exception e)
-                {
-                    LOGGER.debug("init federated[{},{},{},{}] fail!", host, user, dbname, tableName);
-                    LOGGER.debug(e.getMessage(), e);
-                    if (tryCount <= 0)
-                    {
-                        break;
-                    }
-                    if (tryDelay > 0)
-                    {
-                        try
-                        {
-                            Thread.sleep(tryDelay);
-                        } catch (InterruptedException e1)
-                        {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-    static class FederatedImplInner implements Federated
-    {
+        }
 
         private void checkEmpty(Object object, String err)
         {
@@ -217,12 +148,243 @@ class FederatedGen implements AutoSetGen
         }
     }
 
+    class FederatedImpl implements Federated
+    {
+        private boolean isMySql;
+        private int tryCount;
+        private int tryDelay;
+        private Federated federated;
+        private DBSource dbSource;
+        private boolean dropTableIfExists;
+        private String tableName;
+        private String jdbcUrl;
+        private String driverClass;
+        private String connectionUrl;
+        boolean hasStart = false;
+
+
+        private String host;
+        private String dbname;
+        private String user;
+        private String password;
+        private IOnStart onStart;
+
+        @Override
+        public IOnStart getOnStartListener()
+        {
+            return onStart;
+        }
+
+        @Override
+        public void setOnStartListener(IOnStart onStartListener)
+        {
+            this.onStart = onStartListener;
+            if (hasStart && onStartListener != null)
+            {
+                onStartListener.onStart(this);
+            }
+        }
+
+        public void setMySql(boolean mySql)
+        {
+            isMySql = mySql;
+        }
+
+        public void setTryCount(int tryCount)
+        {
+            this.tryCount = tryCount;
+        }
+
+        public void setTryDelay(int tryDelay)
+        {
+            this.tryDelay = tryDelay;
+        }
+
+        public void setDbSource(DBSource dbSource)
+        {
+            this.dbSource = dbSource;
+        }
+
+        public void setDropTableIfExists(boolean dropTableIfExists)
+        {
+            this.dropTableIfExists = dropTableIfExists;
+        }
+
+        public void setTableName(String tableName)
+        {
+            this.tableName = tableName;
+        }
+
+        public void setJdbcUrl(String jdbcUrl)
+        {
+            this.jdbcUrl = jdbcUrl;
+        }
+
+        public void setDriverClass(String driverClass)
+        {
+            this.driverClass = driverClass;
+        }
+
+        public void setConnectionUrl(String connectionUrl)
+        {
+            this.connectionUrl = connectionUrl;
+        }
+
+        public void setHost(String host)
+        {
+            this.host = host;
+        }
+
+        public void setDbname(String dbname)
+        {
+            this.dbname = dbname;
+        }
+
+        public void setUser(String user)
+        {
+            this.user = user;
+        }
+
+        public void setPassword(String password)
+        {
+            this.password = password;
+        }
+
+        public FederatedImpl(int tryCount, int tryDelay, boolean isAutoInit)
+        {
+            if (tryCount < 0)
+            {
+                tryCount = 0;
+            }
+            this.tryCount = tryCount + 1;
+            this.tryDelay = tryDelay;
+            federated = new FederatedImplInner(isAutoInit);
+        }
+
+        @Override
+        public boolean isAutoInit()
+        {
+            return federated.isAutoInit();
+        }
+
+        @Override
+        public void doInit()
+        {
+            if (isMySql)
+            {
+                initOfMysql();
+            } else
+            {
+                init();
+            }
+        }
+
+        @Override
+        public void init(DBSource dbSource, boolean dropTableIfExists, String tableName, String jdbcUrl,
+                String driverClass,
+                String connectionUrl)
+        {
+            isMySql = false;
+            this.dbSource = dbSource;
+            this.dropTableIfExists = dropTableIfExists;
+            this.tableName = tableName;
+            this.jdbcUrl = jdbcUrl;
+            this.driverClass = driverClass;
+            this.connectionUrl = connectionUrl;
+        }
+
+        private void init()
+        {
+
+            int tryCount = this.tryCount;
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    LOGGER.debug("init federated[{},{}]...", tableName, jdbcUrl);
+                    federated.init(dbSource, dropTableIfExists, tableName, jdbcUrl, driverClass, connectionUrl);
+                    LOGGER.debug("init federated[{},{}] success!", tableName, jdbcUrl);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug("init federated[{},{}] fail!", tableName, jdbcUrl);
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                    if (tryDelay > 0)
+                    {
+                        try
+                        {
+                            Thread.sleep(tryDelay);
+                        } catch (InterruptedException e1)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void initOfMysql(DBSource dbSource, boolean dropTableIfExists, String tableName, String host,
+                String dbname,
+                String user, String password)
+        {
+            isMySql = true;
+            this.dbSource = dbSource;
+            this.dropTableIfExists = dropTableIfExists;
+            this.tableName = tableName;
+            this.host = host;
+            this.dbname = dbname;
+            this.user = user;
+            this.password = password;
+
+        }
+
+        private void initOfMysql()
+        {
+            int tryCount = this.tryCount;
+            while (tryCount-- > 0)
+            {
+                try
+                {
+                    LOGGER.debug("init federated[{},{},{},{}]...", host, user, dbname, tableName);
+                    federated.initOfMysql(dbSource, dropTableIfExists, tableName, host,
+                            dbname, user, password);
+                    LOGGER.debug("init federated[{},{},{},{}] success!", host, user, dbname, tableName);
+                    break;
+                } catch (Exception e)
+                {
+                    LOGGER.debug("init federated[{},{},{},{}] fail!", host, user, dbname, tableName);
+                    LOGGER.debug(e.getMessage(), e);
+                    if (tryCount <= 0)
+                    {
+                        break;
+                    }
+                    if (tryDelay > 0)
+                    {
+                        try
+                        {
+                            Thread.sleep(tryDelay);
+                        } catch (InterruptedException e1)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
     @Override
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-        Federated federated = null;
-
+        FederatedImpl federated;
+        JSONObject params;
         if (field.isAnnotationPresent(FederatedOption.class))
         {
             if (dbSource == null)
@@ -253,7 +415,11 @@ class FederatedGen implements AutoSetGen
             int tryDelay = federatedOptionOfClass != null ? federatedOptionOfClass.tryDelay() : federatedOption
                     .tryDelay();
 
-            federated = new FederatedImpl(tryCount, tryDelay);
+            int isAutoInit = federatedOptionOfClass != null && federatedOptionOfClass
+                    .isAutoInit() != -1 ? federatedOptionOfClass.isAutoInit() : federatedOption.isAutoInit();
+
+
+            federated = new FederatedImpl(tryCount, tryDelay, isAutoInit != 0);
 
             params = WPTool
                     .fromArray2JSON("dropIfExists", dropIfExists != 0, "tableName", tableName, "jdbcUrl", jdbcUrl,
@@ -292,22 +458,20 @@ class FederatedGen implements AutoSetGen
             int tryCount = mysqlOptionOfClass != null && mysqlOptionOfClass
                     .tryCount() != 0 ? mysqlOptionOfClass.tryCount() : mysqlOption.tryCount();
             int tryDelay = mysqlOptionOfClass != null ? mysqlOptionOfClass.tryDelay() : mysqlOption.tryDelay();
-            federated = new FederatedImpl(tryCount, tryDelay);
+
+            int isAutoInit = mysqlOptionOfClass != null && mysqlOptionOfClass
+                    .isAutoInit() != -1 ? mysqlOptionOfClass.isAutoInit() : mysqlOption.isAutoInit();
+
+            federated = new FederatedImpl(tryCount, tryDelay, isAutoInit != 0);
             params = WPTool.fromArray2JSON("dropIfExists", dropIfExists != 0, "tableName", tableName,
                     "host", host, "dbName", dbName, "user", user, "password", password);
             isMySql = true;
+        } else
+        {
+            throw new InitException(field + " not annotated with @" + FederatedOption.class
+                    .getSimpleName() + " or @" + FederatedMysqlOption.class.getSimpleName());
         }
-        this.federated=federated;
-        return federated;
-    }
 
-    private Federated federated;
-    private boolean isMySql = false;
-    private JSONObject params;
-
-    @PortIn.PortStart(order = 100150)
-    public void onStart()
-    {
         if (isMySql)
         {
             federated.initOfMysql(dbSource, params.getBooleanValue("dropIfExists"), params.getString("tableName"),
@@ -319,7 +483,35 @@ class FederatedGen implements AutoSetGen
                     params.getString("jdbcUrl"),
                     params.getString("driverClass"), params.getString("connectionUrl"));
         }
+
+
+        this.federated = federated;
+
+        return federated;
+    }
+
+    private FederatedImpl federated;
+    private boolean isMySql = false;
+
+
+    @PortIn.PortStart(order = 100150)
+    public void onStart()
+    {
+        if (federated == null)
+        {
+            return;
+        }
+        if (federated.isAutoInit())
+        {
+            federated.doInit();
+        } else if (federated.getOnStartListener() != null)
+        {
+            federated.hasStart = true;
+            federated.getOnStartListener().onStart(federated);
+        } else
+        {
+            federated.hasStart = true;
+        }
         federated = null;
-        params = null;
     }
 }
