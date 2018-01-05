@@ -47,4 +47,10 @@ public @interface FederatedMysqlOption
      * @return
      */
     int tryDelay()default 3000;
+
+    /**
+     * 是否自动初始化
+     * @return -1表示默认，0表示false，非0表示true
+     */
+    int isAutoInit()default -1;
 }
