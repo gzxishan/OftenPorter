@@ -14,11 +14,18 @@ import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
+import com.alibaba.fastjson.JSONObject;
+import org.apache.ibatis.datasource.DataSourceFactory;
+import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 
 /**
@@ -27,6 +34,49 @@ import java.io.InputStream;
 public class MyBatisBridge
 {
 
+    /**
+     * @param propertiesJson dsType{@linkplain DataSource}实现类.
+     * @return
+     */
+    public static DataSource buildDataSource(JSONObject propertiesJson)
+    {
+        String dsType = (String) propertiesJson.remove("dsType");
+        Properties properties = new Properties();
+        for (String key : propertiesJson.keySet())
+        {
+            properties.setProperty(key, propertiesJson.getString(key));
+        }
+        return buildDataSource(dsType, properties);
+    }
+
+
+    private static class TempFactory extends UnpooledDataSourceFactory
+    {
+        public TempFactory(DataSource dataSource)
+        {
+            super.dataSource = dataSource;
+        }
+    }
+
+    /**
+     * @param dataSourceClass {@linkplain DataSource}实现类.
+     * @param properties
+     * @return
+     */
+    public static DataSource buildDataSource(String dataSourceClass, Properties properties)
+    {
+        try
+        {
+            Class<?> clazz = PackageUtil.newClass(dataSourceClass, null);
+            DataSource dataSource = (DataSource) WPTool.newObject(clazz);
+            DataSourceFactory factory = new TempFactory(dataSource);
+            factory.setProperties(properties);
+            return factory.getDataSource();
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
 
     public static void init(PorterConf porterConf, MyBatisOption myBatisOption, String resourcePath) throws IOException
     {

@@ -29,7 +29,7 @@ public class MyBatisOption
     public String resourcesDir;
 
     /**
-     * 用于配置数据源:其中dsFactory为{@linkplain DataSourceFactory}的实现类。
+     * 用于配置数据源:其中dsType为{@linkplain javax.sql.DataSource}的实现类。
      */
     public JSONObject dataSource;
 
