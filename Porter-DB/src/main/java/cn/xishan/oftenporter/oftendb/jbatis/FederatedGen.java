@@ -185,11 +185,6 @@ class FederatedGen implements AutoSetGen
             }
         }
 
-        public void setMySql(boolean mySql)
-        {
-            isMySql = mySql;
-        }
-
         public void setTryCount(int tryCount)
         {
             this.tryCount = tryCount;
@@ -200,7 +195,7 @@ class FederatedGen implements AutoSetGen
             this.tryDelay = tryDelay;
         }
 
-        public void setDbSource(DBSource dbSource)
+        public void setDBSource(DBSource dbSource)
         {
             this.dbSource = dbSource;
         }
@@ -235,7 +230,7 @@ class FederatedGen implements AutoSetGen
             this.host = host;
         }
 
-        public void setDbname(String dbname)
+        public void setDBName(String dbname)
         {
             this.dbname = dbname;
         }

@@ -1,9 +1,7 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -16,7 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -205,23 +202,23 @@ class MSqlSessionFactoryBuilder
             JSONObject dataSourceConf = this.dataSourceConf;
             this.dataSourceConf = null;
 
-            Class<?> clazz = PackageUtil.newClass(dataSourceConf.getString("dsFactory"), null);
-            DataSourceFactory factory = (DataSourceFactory) WPTool.newObject(clazz);
-
-            Properties properties = new Properties();
-            for (String key : dataSourceConf.keySet())
-            {
-                if ("dsFactory".equals(key))
-                {
-                    continue;
-                }
-                properties.setProperty(key, dataSourceConf.getString(key));
-            }
-            factory.setProperties(properties);
+//            Class<?> clazz = PackageUtil.newClass(dataSourceConf.getString("dsFactory"), null);
+//            DataSourceFactory factory = (DataSourceFactory) WPTool.newObject(clazz);
+//
+//            Properties properties = new Properties();
+//            for (String key : dataSourceConf.keySet())
+//            {
+//                if ("dsFactory".equals(key))
+//                {
+//                    continue;
+//                }
+//                properties.setProperty(key, dataSourceConf.getString(key));
+//            }
+//            factory.setProperties(properties);
 
             Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
             builder.transactionFactory(new JdbcTransactionFactory());
-            builder.dataSource(factory.getDataSource());
+            builder.dataSource(MyBatisBridge.buildDataSource(dataSourceConf));
             this.environment = builder.build();
         }
 

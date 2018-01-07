@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.oftendb.jbatis;
 import cn.xishan.oftenporter.oftendb.annotation.FederatedMysqlOption;
 import cn.xishan.oftenporter.oftendb.annotation.FederatedOption;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 
 /**
@@ -28,13 +27,12 @@ public interface Federated
 
     void doInit();
 
-    public void setMySql(boolean mySql);
 
     public void setTryCount(int tryCount);
 
     public void setTryDelay(int tryDelay);
 
-    public void setDbSource(DBSource dbSource);
+    public void setDBSource(DBSource dbSource);
 
     public void setDropTableIfExists(boolean dropTableIfExists);
 
@@ -48,7 +46,7 @@ public interface Federated
 
     public void setHost(String host);
 
-    public void setDbname(String dbname);
+    public void setDBName(String dbname);
 
     public void setUser(String user);
 
@@ -74,11 +72,6 @@ public interface Federated
 
         }
 
-        @Override
-        public void setMySql(boolean mySql)
-        {
-
-        }
 
         @Override
         public void setTryCount(int tryCount)
@@ -93,7 +86,7 @@ public interface Federated
         }
 
         @Override
-        public void setDbSource(DBSource dbSource)
+        public void setDBSource(DBSource dbSource)
         {
 
         }
@@ -135,7 +128,7 @@ public interface Federated
         }
 
         @Override
-        public void setDbname(String dbname)
+        public void setDBName(String dbname)
         {
 
         }
