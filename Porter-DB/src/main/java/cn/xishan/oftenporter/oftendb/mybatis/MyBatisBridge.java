@@ -35,6 +35,7 @@ public class MyBatisBridge
 {
 
     /**
+     * 见{@linkplain MyBatisOption#dataSource}
      * @param propertiesJson dsType{@linkplain DataSource}实现类.
      * @return
      */
@@ -44,6 +45,9 @@ public class MyBatisBridge
         Properties properties = new Properties();
         for (String key : propertiesJson.keySet())
         {
+            if(key.endsWith("--ignore")){
+                continue;
+            }
             properties.setProperty(key, propertiesJson.getString(key));
         }
         return buildDataSource(dsType, properties);
