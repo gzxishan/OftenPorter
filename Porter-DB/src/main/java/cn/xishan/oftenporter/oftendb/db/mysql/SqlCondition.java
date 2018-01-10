@@ -315,18 +315,27 @@ public class SqlCondition extends Condition
         } else if (operator == LIKE)
         {
             stringBuilder.append("LIKE");
-        } else if (operator == SUBSTR)
+        } else if (operator == SUBSTR||operator==NOTSUBSTR)
         {
+            if(operator==NOTSUBSTR){
+                stringBuilder.append("NOT ");
+            }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
             args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
-        } else if (operator == STARTSWITH)
+        } else if (operator == STARTSWITH||operator==NOTSTARTSWITH)
         {
+            if(operator==NOTSTARTSWITH){
+                stringBuilder.append("NOT ");
+            }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
             args.add(SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
-        } else if (operator == ENDSSWITH)
+        } else if (operator == ENDSSWITH||operator==NOTENDSSWITH)
         {
+            if(operator==NOTENDSSWITH){
+                stringBuilder.append("NOT ");
+            }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
             args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + ""));
             return;

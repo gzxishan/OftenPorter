@@ -177,23 +177,45 @@ public class MongoCondition extends Condition
             baseObject.put(CUnit.getParam1(), new BasicDBObject(operator == IN ? "$in" : "$nin", dbList));
             return;
 
-        } else if (operator == SUBSTR && object2 != null)
+        } else if ((operator == SUBSTR || operator == NOTSUBSTR) && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+            DBObject dbObject = baseObject;
+            if (operator == NOTSUBSTR)
+            {
+                DBObject dbObject1 = new BasicDBObject();
+                dbObject.put("$not", dbObject1);
+                dbObject = dbObject1;
+            }
+            dbObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
                     : object2) + "")));
             return;
-        } else if (operator == STARTSWITH && object2 != null)
+        } else if ((operator == STARTSWITH || operator == NOTSTARTSWITH) && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject
-                    .put(CUnit.getParam1(), new BasicDBObject("$regex", "^" + Util.regexFilter((c.isPrimitive() ? object2
-                            : object2) + "")));
+            DBObject dbObject = baseObject;
+            if (operator == NOTSTARTSWITH)
+            {
+                DBObject dbObject1 = new BasicDBObject();
+                dbObject.put("$not", dbObject1);
+                dbObject = dbObject1;
+            }
+            dbObject
+                    .put(CUnit.getParam1(),
+                            new BasicDBObject("$regex", "^" + Util.regexFilter((c.isPrimitive() ? object2
+                                    : object2) + "")));
             return;
-        } else if (operator == ENDSSWITH && object2 != null)
+        } else if ((operator == ENDSSWITH || operator == NOTENDSSWITH) && object2 != null)
         {
             Class<?> c = object2.getClass();
-            baseObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
+            DBObject dbObject = baseObject;
+            if (operator == NOTENDSSWITH)
+            {
+                DBObject dbObject1 = new BasicDBObject();
+                dbObject.put("$not", dbObject1);
+                dbObject = dbObject1;
+            }
+            dbObject.put(CUnit.getParam1(), new BasicDBObject("$regex", Util.regexFilter((c.isPrimitive() ? object2
                     : object2) + "") + "$"));
             return;
         } else if (operator == EQ)

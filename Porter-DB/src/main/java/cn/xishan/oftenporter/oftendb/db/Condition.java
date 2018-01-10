@@ -52,22 +52,37 @@ public abstract class Condition implements ToFinal
     public static final Operator SUBSTR = new MyOperator("SUBSTR");
 
     /**
+     * 不存在子串
+     */
+    public static final Operator NOTSUBSTR = new MyOperator("NOTSUBSTR");
+
+    /**
      * 以内容开头
      */
     public static final Operator STARTSWITH = new MyOperator("STARTSWITH");
 
     /**
+     * 不以内容开头
+     */
+    public static final Operator NOTSTARTSWITH = new MyOperator("NOTSTARTSWITH");
+
+    /**
      * 以内容结尾
      */
     public static final Operator ENDSSWITH = new MyOperator("ENDSSWITH");
+    /**
+     * 不以内容结尾
+     */
+    public static final Operator NOTENDSSWITH = new MyOperator("NOTENDSSWITH");
+
 
     /**
-     * 或者,对应于{@linkplain #put(Operator, Condition)},使得put变成逻辑或连接。
+     * 或者,对应于{@linkplain #append(Operator, Condition)},使得put变成逻辑或连接。
      */
     public static final Operator OR = new MyOperator("OR");
 
     /**
-     * 非,对应于{@linkplain #put(Operator, Condition)},使得条件结果整体取反。
+     * 非,对应于{@linkplain #append(Operator, Condition)},使得条件结果整体取反。
      */
     public static final Operator NOT = new MyOperator("NOT");
 
