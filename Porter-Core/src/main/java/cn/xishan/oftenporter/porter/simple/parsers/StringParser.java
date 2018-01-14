@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class StringParser extends TypeParser<StringParser.VarConfigDealt>
 {
 
-    private static final Pattern PATTERN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)}$");
+    private static final Pattern PATTERN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)\\}$");
     private static final Pattern PATTERN_INNER = Pattern.compile("(('[^']*')|([^',]*))(:(('[^']*')|([^',]*)))?,?");
 
     public static class VarConfigDealt
