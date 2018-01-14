@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class IntParser extends TypeParser
 {
 
-    private static final Pattern PATTERN_IN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)}$");
+    private static final Pattern PATTERN_IN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)\\}$");
     private static final Pattern PATTERN_IN_INNER = Pattern.compile("(-?[\\d]+),?");
 
     private static final Pattern PATTERN_RANGE = Pattern
