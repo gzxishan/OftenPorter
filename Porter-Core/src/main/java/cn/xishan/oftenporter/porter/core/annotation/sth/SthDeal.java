@@ -352,7 +352,7 @@ public class SthDeal
                             continue;
                         }
                         lastFun = childrenWithMethod
-                                .put(tiedName + "/" + portMethod.name(), porterOfFun);
+                                .put(tiedName + Porter.TIED_KEY_SEPARATOR + portMethod.name(), porterOfFun);
                         if (LOGGER.isDebugEnabled() && willLog)
                         {
                             LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
