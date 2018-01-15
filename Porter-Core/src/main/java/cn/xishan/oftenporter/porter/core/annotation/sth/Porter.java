@@ -10,7 +10,6 @@ import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
@@ -41,10 +40,12 @@ public final class Porter
 
     WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
 
+    public static final String TIED_KEY_SEPARATOR = ":";
+
     _PortStart[] starts;
     _PortDestroy[] destroys;
     /**
-     * {"funTied/method"或者"method":PorterOfFun}
+     * {"funTied:method"或者"method":PorterOfFun}
      */
     Map<String, PorterOfFun> childrenWithMethod;
     Porter[] mixins;
@@ -241,14 +242,14 @@ public final class Porter
 //
 //            case FORCE_REST:
 //            case REST:
-//                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+//                porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
 //                if (porterOfFun == null)
 //                {
 //                    porterOfFun = childrenWithMethod.get(method.name());
 //                }
 //                break;
 //            case DEFAULT:
-//                porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+//                porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
 //                if(porterOfFun==null){
 //                    porterOfFun = childrenWithMethod.get(method.name());
 //                }
@@ -260,7 +261,7 @@ public final class Porter
 //            porterOfFun = null;
 //        }
 
-        porterOfFun = childrenWithMethod.get(funTied + "/" + method.name());
+        porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
         if (porterOfFun == null)
         {
             porterOfFun = childrenWithMethod.get(method.name());
