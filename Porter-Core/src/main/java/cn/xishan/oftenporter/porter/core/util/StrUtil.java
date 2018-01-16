@@ -38,6 +38,26 @@ public class StrUtil
         return args;
     }
 
+    /**
+     * 得到target在strs中的位置。
+     * @param target
+     * @param strs
+     * @return 未找到返回-1，找到返回对应索引。
+     */
+    public static int indexOf(String target, String... strs)
+    {
+        int index = -1;
+        for (int i = 0; i < strs.length; i++)
+        {
+            if (strs[i].equals(target))
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
     public static String[] newArray(String... args)
     {
         String[] as = new String[args.length];

@@ -10,6 +10,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import java.util.List;
+import java.util.Map;
 
 public class MongoCondition extends Condition
 {
@@ -97,6 +98,19 @@ public class MongoCondition extends Condition
         } else if (operator == OR)
         {
             baseObject.put("$or", condition.toDBList());
+        } else if (operator == AND)
+        {
+            DBObject andCondition = (DBObject) condition.toFinalObject();
+            Map<String, Object> andMap = andCondition == null ? null : andCondition.toMap();
+            if (andMap != null && andMap.size() > 0)
+            {
+                BasicDBList dbList = new BasicDBList();
+                baseObject.put("$and", dbList);
+                for (Map.Entry<String, Object> entry : andMap.entrySet())
+                {
+                    dbList.add(new BasicDBObject(entry.getKey(), entry.getValue()));
+                }
+            }
         } else if (operator instanceof MOperator._Operator)
         {
             baseObject.put(operator.toString(), condition.toFinalObject());

@@ -51,7 +51,7 @@ public class SqlCondition extends Condition
         for (int i = 0; i < size(); i++)
         {
             Operator operator = getOperator(i);
-            if (operator == NOT || operator == OR)
+            if (operator == NOT || operator == OR||operator==AND)
             {
                 deal2(operator, get(i), stringBuilder, args);
             } else
@@ -116,10 +116,12 @@ public class SqlCondition extends Condition
         if (operator == NOT)
         {
             stringBuilder.append(" NOT ");
-
         } else if (operator == OR)
         {
             condition.isAnd = false;
+        } else if (operator == AND)
+        {
+            condition.isAnd = true;
         } else
         {
             throw new ConditionException("the operator should be " + NOT
@@ -315,25 +317,28 @@ public class SqlCondition extends Condition
         } else if (operator == LIKE)
         {
             stringBuilder.append("LIKE");
-        } else if (operator == SUBSTR||operator==NOTSUBSTR)
+        } else if (operator == SUBSTR || operator == NOTSUBSTR)
         {
-            if(operator==NOTSUBSTR){
+            if (operator == NOTSUBSTR)
+            {
                 stringBuilder.append("NOT ");
             }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
             args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
-        } else if (operator == STARTSWITH||operator==NOTSTARTSWITH)
+        } else if (operator == STARTSWITH || operator == NOTSTARTSWITH)
         {
-            if(operator==NOTSTARTSWITH){
+            if (operator == NOTSTARTSWITH)
+            {
                 stringBuilder.append("NOT ");
             }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
             args.add(SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
-        } else if (operator == ENDSSWITH||operator==NOTENDSSWITH)
+        } else if (operator == ENDSSWITH || operator == NOTENDSSWITH)
         {
-            if(operator==NOTENDSSWITH){
+            if (operator == NOTENDSSWITH)
+            {
                 stringBuilder.append("NOT ");
             }
             stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");

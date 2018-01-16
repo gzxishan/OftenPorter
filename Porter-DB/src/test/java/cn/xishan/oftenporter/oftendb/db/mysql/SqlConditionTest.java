@@ -20,16 +20,24 @@ public class SqlConditionTest
     public void test()
     {
         SqlCondition sqlCondition = new SqlCondition();
-        sqlCondition.append(Condition.ENDSSWITH,new CUnit("type","%.jpg"));
-        sqlCondition.append(Condition.STARTSWITH,new CUnit("name","[chen]"));
-        sqlCondition.append(Condition.EQ,new CUnit("pid",null));
-        sqlCondition.append(Condition.IN,new CUnit("t1.age",new String[]{"12","23","26"}));
-        sqlCondition.append(Condition.IN,new CUnit("agex", Arrays.asList(new String[]{"12","23","26"})));
-        sqlCondition.append(Condition.IN,new CUnit("age2","19"));
+        sqlCondition.append(Condition.ENDSSWITH, new CUnit("type", "%.jpg"));
+        sqlCondition.append(Condition.STARTSWITH, new CUnit("name", "[chen]"));
+        sqlCondition.append(Condition.EQ, new CUnit("pid", null));
+        sqlCondition.append(Condition.IN, new CUnit("t1.age", new String[]{"12", "23", "26"}));
+        sqlCondition.append(Condition.IN, new CUnit("agex", Arrays.asList(new String[]{"12", "23", "26"})));
+        sqlCondition.append(Condition.IN, new CUnit("age2", "19"));
+
+        SqlCondition or = new SqlCondition();
+        sqlCondition.append(Condition.OR, or);
+        SqlCondition andInOr = new SqlCondition();
+        or.append(Condition.AND, andInOr);
+        andInOr.append("t1", 2);
+        andInOr.append("t2", 3);
+        or.append("t3", 0);
 
         Object[] as = (Object[]) sqlCondition.toFinalObject();
         LogUtil.printErrPos(as[0]);
-        LogUtil.printErrPos((Object[])as[1]);
+        LogUtil.printErrPos((Object[]) as[1]);
     }
 
 } 

@@ -77,9 +77,14 @@ public abstract class Condition implements ToFinal
 
 
     /**
-     * 或者,对应于{@linkplain #append(Operator, Condition)},使得put变成逻辑或连接。
+     * 或者,对应于{@linkplain #append(Operator, Condition)},使得put变成逻辑or连接。
      */
     public static final Operator OR = new MyOperator("OR");
+
+    /**
+     * 且,对应于{@linkplain #append(Operator, Condition)},使得put变成逻辑and连接。
+     */
+    public static final Operator AND = new MyOperator("AND");
 
     /**
      * 非,对应于{@linkplain #append(Operator, Condition)},使得条件结果整体取反。
@@ -243,7 +248,6 @@ public abstract class Condition implements ToFinal
     }
 
 
-
     /**
      * 默认为逻辑与。
      *
@@ -255,7 +259,7 @@ public abstract class Condition implements ToFinal
     {
         isNull(operator);
         isNull(cUnit);
-        if (operator == NOT || operator == OR)
+        if (operator == NOT || operator == OR || operator == AND)
         {
             throw new IllegalArgumentException("the operator should not be " + operator);
         }
@@ -271,18 +275,17 @@ public abstract class Condition implements ToFinal
     }
 
 
-
     /**
-     * @param operator  使用{@linkplain #OR}、{@linkplain #NOT}等.
+     * @param operator  使用{@linkplain #OR}、{@linkplain #NOT}、{@linkplain #AND}等.
      * @param condition
      */
     public Condition append(Operator operator, Condition condition)
     {
         isNull(operator);
         isNull(condition);
-        if (operator != NOT && operator != OR)
+        if (operator != NOT && operator != OR && operator != AND)
         {
-            throw new IllegalArgumentException("the operator should be " + operator);
+            throw new IllegalArgumentException("the operator should not be " + operator);
         }
         operators.add(operator);
         list.add(condition);
