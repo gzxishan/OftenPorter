@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,118 @@ import java.util.Map;
  */
 public final class Porter
 {
+
+    public static interface Fun
+    {
+        Object getFinalPorterObject();
+
+        InObj getInObj();
+
+        Method getMethod();
+
+        /**
+         * 得到函数所在的对象实例。
+         *
+         * @return
+         */
+        Object getObject();
+
+        OutType getOutType();
+
+        InNames getInNames();
+
+        PortMethod getPortMethod();
+
+        TiedType getTiedType();
+
+        PortFunType getPortFunType();
+
+        String getTiedName();
+    }
+
+    private static class FunImpl implements Fun
+    {
+        String tiedName;
+        PortMethod portMethod;
+        PorterOfFun fun;
+
+        public FunImpl(String tiedNameWithMethod, PorterOfFun fun)
+        {
+            int index = tiedNameWithMethod.indexOf(TIED_KEY_SEPARATOR);
+            if (index >= 0)
+            {
+                this.tiedName = tiedNameWithMethod.substring(0, index);
+                portMethod = PortMethod.valueOf(tiedNameWithMethod.substring(index + 1));
+            } else
+            {
+                this.tiedName = "";
+                portMethod = PortMethod.valueOf(tiedNameWithMethod);
+            }
+
+            this.fun = fun;
+        }
+
+        @Override
+        public PortMethod getPortMethod()
+        {
+            return portMethod;
+        }
+
+        @Override
+        public Object getFinalPorterObject()
+        {
+            return fun.getFinalPorterObject();
+        }
+
+        @Override
+        public InObj getInObj()
+        {
+            return fun.getInObj();
+        }
+
+        @Override
+        public Method getMethod()
+        {
+            return fun.getMethod();
+        }
+
+        @Override
+        public Object getObject()
+        {
+            return fun.getObject();
+        }
+
+        @Override
+        public OutType getOutType()
+        {
+            return fun.getPortOut().getOutType();
+        }
+
+        @Override
+        public InNames getInNames()
+        {
+            return fun.getMethodPortIn().getInNames();
+        }
+
+
+        @Override
+        public TiedType getTiedType()
+        {
+            return fun.getMethodPortIn().getTiedType();
+        }
+
+        @Override
+        public PortFunType getPortFunType()
+        {
+            return fun.getMethodPortIn().getPortFunType();
+        }
+
+        @Override
+        public String getTiedName()
+        {
+            return tiedName;
+        }
+    }
 
     Class[] superGenericClasses;
 
@@ -164,13 +277,18 @@ public final class Porter
     }
 
     /**
-     * 获取绑定的函数：{"funTied/method"或者"method":PorterOfFun}
+     * 获取绑定的函数：{"funTied:method"或者"method":Fun}
      *
      * @return
      */
-    public Map<String, PorterOfFun> getFuns()
+    public Map<String, Fun> getFuns()
     {
-        return childrenWithMethod;
+        Map<String, Fun> map = new HashMap<>(childrenWithMethod.size());
+        for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
+        {
+            map.put(entry.getKey(), new FunImpl(entry.getKey(), entry.getValue()));
+        }
+        return map;
     }
 
 
