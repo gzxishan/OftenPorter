@@ -122,7 +122,7 @@ public class SthDeal
 
         try
         {
-            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge);
+            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge,autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -193,7 +193,7 @@ public class SthDeal
                 continue;
             }
             backableSeek.push();
-            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek);
+            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek,autoSetHandle);
             backableSeek.pop();
             if (porterOfFun != null)
             {
@@ -374,7 +374,7 @@ public class SthDeal
     }
 
     private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,
-            BackableSeek backableSeek)
+            BackableSeek backableSeek,AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
@@ -420,7 +420,7 @@ public class SthDeal
 
             porterOfFun.inObj = inObjDeal
                     .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
-                            innerContextBridge);
+                            innerContextBridge,autoSetHandle);
             porterOfFun.portOut = annotationDealt.portOut(porter, method);
 
             return porterOfFun;

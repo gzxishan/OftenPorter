@@ -357,8 +357,13 @@ public class ContextPorter implements IOtherStartDestroy
             }
         }
 
-
         Iterator<Porter> iterator = portMap.values().iterator();
+        while (iterator.hasNext())
+        {
+            iterator.next().initIInObjHandle();
+        }
+
+         iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
             iterator.next().start(wObject);

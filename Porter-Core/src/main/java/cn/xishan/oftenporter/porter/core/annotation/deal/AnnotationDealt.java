@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
@@ -82,8 +83,6 @@ public final class AnnotationDealt
         }
 
     }
-
-
 
 
     public _AutoSet autoSet(Field field)
@@ -178,10 +177,37 @@ public final class AnnotationDealt
             return null;
         }
 
-        _PortInObj _portInObj = new _PortInObj();
-        _portInObj.value = classList.toArray(new Class[0]);
+        _PortInObj _portInObj = newPortInObj(classList.toArray(new Class[0]),method);
         return _portInObj;
 
+    }
+
+    private _PortInObj newPortInObj(Class<?>[] _classes,Method method)
+    {
+        _PortInObj.CLASS[] classes = new _PortInObj.CLASS[_classes.length];
+        for (int i = 0; i < classes.length; i++)
+        {
+            Class<?> clazz = _classes[i];
+            PortInObj.InObjDealt inObjDealt = AnnoUtil.getAnnotation(clazz, PortInObj.InObjDealt.class);
+            if (inObjDealt != null)
+            {
+                Class<? extends PortInObj.IInObjHandle> handleClass = inObjDealt.handle();
+                try
+                {
+                    classes[i] = new _PortInObj.CLASS(clazz,method, inObjDealt.option(), WPTool.newObject(handleClass));
+                } catch (Exception e)
+                {
+                    throw new InitException(e);
+                }
+            } else
+            {
+                classes[i] = new _PortInObj.CLASS(clazz);
+            }
+        }
+
+        _PortInObj _portInObj = new _PortInObj();
+        _portInObj.value = classes;
+        return _portInObj;
     }
 
     public _PortInObj portInObj(Class<?> clazz)
@@ -191,8 +217,7 @@ public final class AnnotationDealt
         {
             return null;
         }
-        _PortInObj _portInObj = new _PortInObj();
-        _portInObj.value = portInObj.value();
+        _PortInObj _portInObj = newPortInObj(portInObj.value(),null);
         return _portInObj;
     }
 
@@ -290,7 +315,8 @@ public final class AnnotationDealt
             if (!Modifier.isAbstract(method.getModifiers()))
             {
                 _PortStart portStart = portStart(method, objectGetter);
-                if(portStart!=null){
+                if (portStart != null)
+                {
                     list.add(portStart);
                 }
             }
@@ -316,7 +342,8 @@ public final class AnnotationDealt
             if (!Modifier.isAbstract(method.getModifiers()))
             {
                 _PortDestroy portDestroy = portDestroy(method, objectGetter);
-                if(portDestroy!=null){
+                if (portDestroy != null)
+                {
                     list.add(portDestroy);
                 }
             }

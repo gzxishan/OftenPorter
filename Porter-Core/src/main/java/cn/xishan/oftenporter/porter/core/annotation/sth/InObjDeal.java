@@ -42,25 +42,27 @@ public class InObjDeal
      * 处理接口函数上的对象绑定。
      */
     InObj dealPortInObj(PortInObjBind.ObjList objList, Method method,
-            InnerContextBridge innerContextBridge) throws Exception
+            InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
         InObj inObj = null;
         _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(objList, method);
         if (portInObj != null)
         {
-            inObj = dealPortInObj(portInObj, innerContextBridge);
+            inObj = dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
         }
 
         return inObj;
     }
 
-    InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+    InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge,
+            AutoSetHandle autoSetHandle) throws Exception
     {
         _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(clazz);
-        return dealPortInObj(portInObj, innerContextBridge);
+        return dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
     }
 
-    InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge) throws Exception
+    InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge,
+            AutoSetHandle autoSetHandle) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
         InObj inObj = null;
@@ -68,12 +70,18 @@ public class InObjDeal
         if (portInObj != null)
         {
 
-            Class<?>[] types = portInObj.getValue();
+            _PortInObj.CLASS[] types = portInObj.getValue();
             One[] ones = new One[types.length];
             for (int i = 0; i < types.length; i++)
             {
-                ones[i] = bindOne(types[i], innerContextBridge);
-                cacheTool.put(types[i], new CacheOne(ones[i]));
+                _PortInObj.CLASS clzz = types[i];
+                ones[i] = bindOne(clzz.clazz, innerContextBridge);
+                ones[i].setInObjClazz(clzz);
+                cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
+                if (clzz.inObjHandle != null)
+                {
+                    autoSetHandle.addAutoSetsForNotPorter(new Object[]{clzz.inObjHandle});
+                }
             }
             inObj = new InObj(ones);
         }
