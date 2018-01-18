@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortInObj.IInObjHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
@@ -35,6 +36,7 @@ import java.lang.annotation.*;
  *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},
  *     这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
  *     6.{@linkplain Handle}
+ *     7.{@linkplain IInObjHandle}
  * </pre>
  * <pre>
  * 内置对象:
@@ -54,8 +56,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface AutoSet
 {
-
-
 
 
     /**
@@ -78,7 +78,6 @@ public @interface AutoSet
          */
         int priority() default 0;
     }
-
 
 
     enum Range

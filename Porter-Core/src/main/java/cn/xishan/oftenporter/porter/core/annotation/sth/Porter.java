@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortDestroy;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
@@ -456,6 +453,30 @@ public final class Porter
     public void start(WObject wObject)
     {
         start(wObject, false);
+    }
+
+    public void initIInObjHandle()
+    {
+        initIInObjHandle(inObj);
+        for (PorterOfFun fun : childrenWithMethod.values())
+        {
+            initIInObjHandle(fun.getInObj());
+        }
+    }
+
+    private void initIInObjHandle(InObj inObj)
+    {
+        if(inObj==null){
+            return;
+        }
+        for (One one : inObj.ones)
+        {
+            _PortInObj.CLASS clazz = one.getInObjClazz();
+            if (clazz != null)
+            {
+                clazz.init();
+            }
+        }
     }
 
     private void start(WObject wObject, boolean isMixin)
