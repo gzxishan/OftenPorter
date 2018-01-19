@@ -38,6 +38,54 @@ import java.lang.reflect.Method;
 @Documented
 public @interface PortInObj
 {
+
+    /**
+     * 从类的@{@linkplain PortInObj.OnPorter}上获取对象绑定，且可以获取子类，但优先选择更亲的类。
+     * <pre>
+     *     如:
+     *     class A{}
+     *     class B extends A{};
+     *     class FatherPorter{
+     *          &#64;PortIn
+     *          &#64;PortInObj({SomeClass.class})
+     *          &#64;PortInObj.FromPorter({A.class})
+     *          public   void fun(WObject wObject){
+     *              SomeClass mSomeClass = wObject.finObject(0);
+     *              A a = wObject.finObject(1);//对于ChildPorter,具体实例是B;对于Child2Porter,具体实例是A;
+     *          }
+     *     }
+     *
+     *     &#64;PortInObj({B.class})
+     *     class ChildPorter extends FatherPorter{
+     *
+     *
+     *     }
+     *
+     *      &#64;PortInObj({A.class,B.class})
+     *     class Child2Porter extends FatherPorter{
+     *
+     *
+     *     }
+     * </pre>
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Inherited
+    @Documented
+    @interface FromPorter
+    {
+        Class<?>[] value() default {};
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Inherited
+    @Documented
+    @interface OnPorter
+    {
+        Class<?>[] value() default {};
+    }
+
     /**
      * 对私有字段也有效。
      */
@@ -133,6 +181,7 @@ public @interface PortInObj
 
     /**
      * 每一个绑定对应一个此handle。
+     *
      * @param <T>
      */
     public interface IInObjHandle<T>
@@ -142,14 +191,14 @@ public @interface PortInObj
          *
          * @param option
          */
-        public void init(String option,Method method);
+        public void init(String option, Method method);
 
         /**
          * 初始化,在接口开始({@linkplain PortStart})前调用。
          *
          * @param option
          */
-        public void init(String option,Class<?> clazz);
+        public void init(String option, Class<?> clazz);
 
         /**
          * 可以返回{@linkplain FailedReason}.

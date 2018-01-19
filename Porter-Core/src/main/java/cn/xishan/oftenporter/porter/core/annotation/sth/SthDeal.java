@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObjBind;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -418,9 +417,8 @@ public class SthDeal
                         BackableSeek.SeekType.NotAdd_Bind);
             }
 
-            porterOfFun.inObj = inObjDeal
-                    .dealPortInObj(porter.getClazz().getAnnotation(PortInObjBind.ObjList.class), method,
-                            innerContextBridge,autoSetHandle);
+
+            porterOfFun.inObj = inObjDeal.dealPortInObj(porter.getClazz(), method,innerContextBridge,autoSetHandle);
             porterOfFun.portOut = annotationDealt.portOut(porter, method);
 
             return porterOfFun;

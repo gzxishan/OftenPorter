@@ -141,48 +141,76 @@ public final class AnnotationDealt
         return _unNece;
     }
 
-    public _PortInObj portInObj(PortInObjBind.ObjList objList, Method method)
+    public _PortInObj portInObj(Class<?> porterClass, Method method)
     {
         List<Class> classList = new ArrayList<>();
 
         PortInObj portInObj = AnnoUtil.getAnnotation(method, PortInObj.class);
+        PortInObj.FromPorter fromPorter = AnnoUtil.getAnnotation(method, PortInObj.FromPorter.class);
+        PortInObj.OnPorter onPorter = AnnoUtil.getAnnotation(porterClass, PortInObj.OnPorter.class);
         if (portInObj != null)
         {
             WPTool.addAll(classList, portInObj.value());
         }
 
-
-        if (objList != null)
+        if (fromPorter != null)
         {
-            PortInObjBind portInObjBind = AnnoUtil.getAnnotation(method, PortInObjBind.class);
-            if (portInObjBind != null)
+            if (onPorter == null)
             {
-                String[] bindNames = portInObjBind.value();
-                for (int i = 0; i < bindNames.length; i++)
+
+                if (fromPorter.value().length > 0)
+                    LOGGER.warn("need @{}.{} in [{}] for method with @", PortInObj.class.getSimpleName(),
+                            PortInObj.OnPorter.class.getSimpleName(),
+                            porterClass.getName(), PortInObj.FromPorter.class.getSimpleName());
+//                    throw new InitException("need @" + PortInObj.class.getSimpleName() + "." + PortInObj.OnPorter
+// .class
+//                            .getSimpleName() + " in [" + porterClass
+//                            .getName() + "] for method with @" + PortInObj.FromPorter.class.getSimpleName());
+            } else
+            {
+                Class<?>[] fclasses = fromPorter.value();
+                Class<?>[] pclasses = onPorter.value();
+                for (int i = 0; i < fclasses.length; i++)
                 {
-                    for (PortInObjBind.Obj obj : objList.value())
+                    int index = -1;
+                    int n = Integer.MAX_VALUE;
+                    //寻找最亲的
+                    for (int k = 0; k < pclasses.length; k++)
                     {
-                        if (obj.name().equals(bindNames[i]))
+                        int _n = WPTool.subclassOf(pclasses[k], fclasses[i]);
+                        if (_n >= 0 && _n < n)
                         {
-                            classList.add(obj.clazz());
-                            break;
+                            n = _n;
+                            index = k;
                         }
+                    }
+                    if (index == -1)
+                    {
+                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + PortInObj.class
+                                .getSimpleName() + "." + PortInObj.OnPorter.class
+                                .getSimpleName() + " in [" + porterClass
+                                .getName() + "] for method with @" + PortInObj.FromPorter.class.getSimpleName());
+                    }else{
+                        classList.add(pclasses[i]);
                     }
                 }
             }
         }
+
+
 
         if (classList.size() == 0)
         {
             return null;
         }
 
-        _PortInObj _portInObj = newPortInObj(classList.toArray(new Class[0]),method);
+        _PortInObj _portInObj = newPortInObj(classList.toArray(new Class[0]), method);
         return _portInObj;
 
     }
 
-    private _PortInObj newPortInObj(Class<?>[] _classes,Method method)
+
+    private _PortInObj newPortInObj(Class<?>[] _classes, Method method)
     {
         _PortInObj.CLASS[] classes = new _PortInObj.CLASS[_classes.length];
         for (int i = 0; i < classes.length; i++)
@@ -194,7 +222,8 @@ public final class AnnotationDealt
                 Class<? extends PortInObj.IInObjHandle> handleClass = inObjDealt.handle();
                 try
                 {
-                    classes[i] = new _PortInObj.CLASS(clazz,method, inObjDealt.option(), WPTool.newObject(handleClass));
+                    classes[i] = new _PortInObj.CLASS(clazz, method, inObjDealt.option(),
+                            WPTool.newObject(handleClass));
                 } catch (Exception e)
                 {
                     throw new InitException(e);
@@ -217,7 +246,7 @@ public final class AnnotationDealt
         {
             return null;
         }
-        _PortInObj _portInObj = newPortInObj(portInObj.value(),null);
+        _PortInObj _portInObj = newPortInObj(portInObj.value(), null);
         return _portInObj;
     }
 
