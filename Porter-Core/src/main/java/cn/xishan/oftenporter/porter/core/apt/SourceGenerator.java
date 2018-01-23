@@ -1,18 +1,14 @@
 package cn.xishan.oftenporter.porter.core.apt;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
-import cn.xishan.oftenporter.porter.core.util.FileTool;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import java.awt.*;
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
