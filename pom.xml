@@ -21,6 +21,8 @@
         <module>Porter-Bridge-Http</module>
         <module>Porter-UIBinder</module>
         <module>Demo</module>
+        <module>Porter-DB-Droid</module>
+        <module>Porter-UIBinder-FX</module>
     </modules>
 
     <dependencies>
@@ -43,6 +45,15 @@
 
     <dependencyManagement>
         <dependencies>
+
+            <!-- https://mvnrepository.com/artifact/com.google.android/android -->
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>4.0.1.2</version>
+                <scope>provided</scope>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
             <dependency>
                 <groupId>com.alibaba</groupId>
