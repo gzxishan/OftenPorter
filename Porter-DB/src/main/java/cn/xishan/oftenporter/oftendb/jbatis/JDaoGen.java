@@ -16,6 +16,7 @@ import javax.script.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Map;
 
 /**
  * Created by chenyg on 2017-04-29.
@@ -161,6 +162,12 @@ class JDaoGen implements AutoSetGen
         }
         SimpleBindings bindings = new SimpleBindings();
         _JsInterface jsInterface = new _JsInterface(dbSource, jDaoOption.tableNamePrefix);
+
+        if (jDaoOption.injectInterfaces != null)
+        {
+            bindings.putAll(jDaoOption.injectInterfaces);
+        }
+
         bindings.put("jdaoBridge", jsInterface);
         bindings.put("jdao", jsInterface);
 

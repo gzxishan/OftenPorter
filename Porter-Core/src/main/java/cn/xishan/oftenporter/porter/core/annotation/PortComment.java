@@ -10,10 +10,18 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Inherited
 @Documented
-public @interface PortComment {
+public @interface PortComment
+{
     String name() default "";
 
     String desc() default "";
 
     String auth() default "";
+
+    /**
+     * 读写标识，默认为""。
+     *
+     * @return
+     */
+    String rw() default "";
 }

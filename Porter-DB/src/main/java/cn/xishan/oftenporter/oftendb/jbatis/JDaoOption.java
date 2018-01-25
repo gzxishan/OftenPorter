@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.jbatis;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Created by chenyg on 2017-04-29.
@@ -24,6 +25,11 @@ public class JDaoOption
      * 待注入的脚本。
      */
     public String injectScript;
+
+    /**
+     * 待注入的对象,key为js端访问的变量。
+     */
+    public Map<String,Object> injectInterfaces;
 
     /**
      * 全局注入的Java对象,名称见{@linkplain #globalInjectObjectName}。
