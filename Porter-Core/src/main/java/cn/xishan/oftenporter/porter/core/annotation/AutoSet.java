@@ -25,6 +25,7 @@ import java.lang.annotation.*;
  *     注意:
  *     1.递归扫描时会忽略对所有以"java."的类。
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描
+ *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
  * </pre>
  * 从这些途径会触发AutoSet:
  * <pre>
@@ -121,6 +122,14 @@ public @interface AutoSet
      * @return
      */
     Range range() default Range.Context;
+
+    /**
+     * 是否在被设置的变量不为null、且{@linkplain #range()}为{@linkplain Range#Global}或{@linkplain Range#Context}时，
+     * 存储变量以供其他地方进行变量的自动设置。
+     *
+     * @return 默认为true。
+     */
+    boolean notNullPut() default true;
 
     String option() default "";
 
