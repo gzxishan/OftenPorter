@@ -549,35 +549,35 @@ public class AutoSetHandle
                 Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
                 f.setAccessible(true);
                 Object value = f.get(currentObject);
-
-
                 if (isDefaultAutoSetObject(f, porter, currentObjectClass, currentObject, autoSet))
                 {
                     continue;
                 }
-                if (value == null)
+
+
+                String keyName;
+                Class<?> mayNew = null;
+                Class<?> classClass = autoSet.classValue();
+                if (classClass.equals(AutoSet.class))
                 {
-                    String keyName;
-                    Class<?> mayNew = null;
-                    Class<?> classClass = autoSet.classValue();
-                    if (classClass.equals(AutoSet.class))
-                    {
-                        keyName = autoSet.value();
-                    } else
-                    {
-                        keyName = classClass.getName();
-                        mayNew = classClass;
-                    }
-                    if ("".equals(keyName))
-                    {
-                        keyName = fieldType.getName();
-                    }
-                    if (mayNew == null)
-                    {
-                        mayNew = fieldType;
-                    }
+                    keyName = autoSet.value();
+                } else
+                {
+                    keyName = classClass.getName();
+                    mayNew = classClass;
+                }
+                if ("".equals(keyName))
+                {
+                    keyName = fieldType.getName();
+                }
+                if (mayNew == null)
+                {
+                    mayNew = fieldType;
+                }
 
-
+                boolean isNull = value == null;
+                if (isNull)
+                {
                     switch (autoSet.range())
                     {
                         case Global:
@@ -611,7 +611,7 @@ public class AutoSetHandle
                     {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
                     }
-                    value = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
+
                     if (value == null)
                     {
                         if (!autoSet.nullAble())
@@ -619,11 +619,36 @@ public class AutoSetHandle
                             thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
                             break;
                         }
+                    } else
+                    {
+                        doAutoSet(value, value);//递归：设置被设置的变量。
                     }
-                }
-                if (value != null)
+                } else
                 {
-                    doAutoSet(value, value);//递归：设置被设置的变量。
+                    LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
+                    //！！！忽略了非null的成员
+                }
+
+                value = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
+                if (value == null && !autoSet.nullAble())
+                {
+                    thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
+                    break;
+                }
+                if (!isNull && autoSet.notNullPut())
+                {
+                    switch (autoSet.range())
+                    {
+
+                        case Global:
+                            globalAutoSet.put(keyName, value);
+                            break;
+                        case Context:
+                            contextAutoSet.put(keyName, value);
+                            break;
+                        case New:
+                            break;
+                    }
                 }
                 f.set(currentObject, value);
                 if (LOGGER.isDebugEnabled())
