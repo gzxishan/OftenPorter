@@ -16,6 +16,7 @@ import javax.script.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,20 +30,24 @@ class JDaoGen implements AutoSetGen
     @AutoSet
     DBSource dbSource;
 
-    private static ScriptEngineManager scriptEngineManager;
+    private static ScriptEngineManager _scriptEngineManager;
     private static int count = 0;
 
 
     public JDaoGen()
     {
+       getScriptEngineManager();
+    }
+
+    static ScriptEngineManager getScriptEngineManager(){
         synchronized (JDaoGen.class)
         {
 
             try
             {
-                if (scriptEngineManager == null)
+                if (_scriptEngineManager == null)
                 {
-                    scriptEngineManager = new ScriptEngineManager();
+                    _scriptEngineManager = new ScriptEngineManager();
                 }
             } catch (Exception e)
             {
@@ -50,6 +55,7 @@ class JDaoGen implements AutoSetGen
             }
 
         }
+        return _scriptEngineManager;
     }
 
     static class Path
@@ -65,7 +71,7 @@ class JDaoGen implements AutoSetGen
         {
             if (WPTool.notNullAndEmpty(jDaoOption.globalInjectObject))
             {
-                scriptEngineManager.getBindings().put(jDaoOption.globalInjectObjectName, jDaoOption.globalInjectObject);
+                _scriptEngineManager.getBindings().put(jDaoOption.globalInjectObjectName, jDaoOption.globalInjectObject);
             }
         }
     }
@@ -146,30 +152,42 @@ class JDaoGen implements AutoSetGen
     {
         synchronized (JDaoGen.class)
         {
-            if (count == 0 && scriptEngineManager != null)
+            if (count == 0 && _scriptEngineManager != null)
             {
-                scriptEngineManager = null;
+                _scriptEngineManager = null;
             }
         }
     }
 
+
     static Invocable getJsInvocable(String script, DBSource dbSource, JDaoOption jDaoOption) throws Exception
     {
-        ScriptEngine scriptEngine = scriptEngineManager.getEngineByExtension("js");
-        if (jDaoOption.injectScript != null)
-        {
-            tryCompileScript(scriptEngine, jDaoOption.injectScript);
-        }
-        SimpleBindings bindings = new SimpleBindings();
-        _JsInterface jsInterface = new _JsInterface(dbSource, jDaoOption.tableNamePrefix);
-
+        Map<String, Object> injectInterfaces = new HashMap<>();
         if (jDaoOption.injectInterfaces != null)
         {
-            bindings.putAll(jDaoOption.injectInterfaces);
+            injectInterfaces.putAll(jDaoOption.injectInterfaces);
+        }
+        _JsInterface jsInterface = new _JsInterface(dbSource, jDaoOption.tableNamePrefix);
+        injectInterfaces.put("jdaoBridge", jsInterface);
+        injectInterfaces.put("jdao", jsInterface);
+        return getJsInvocable(script, jDaoOption.injectScript, injectInterfaces);
+    }
+
+    static Invocable getJsInvocable(String script, String injectScript,
+            Map<String, Object> injectInterfaces) throws Exception
+    {
+        ScriptEngine scriptEngine = getScriptEngineManager().getEngineByExtension("js");
+        if (injectScript != null)
+        {
+            tryCompileScript(scriptEngine, injectScript);
+        }
+        SimpleBindings bindings = new SimpleBindings();
+
+        if (injectInterfaces != null)
+        {
+            bindings.putAll(injectInterfaces);
         }
 
-        bindings.put("jdaoBridge", jsInterface);
-        bindings.put("jdao", jsInterface);
 
         scriptEngine.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
         tryCompileScript(scriptEngine, script);
