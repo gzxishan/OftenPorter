@@ -36,6 +36,7 @@ public class MyBatisBridge
 
     /**
      * 见{@linkplain MyBatisOption#dataSource}
+     *
      * @param propertiesJson dsType{@linkplain DataSource}实现类.
      * @return
      */
@@ -45,7 +46,8 @@ public class MyBatisBridge
         Properties properties = new Properties();
         for (String key : propertiesJson.keySet())
         {
-            if(key.endsWith("--ignore")){
+            if (key.endsWith("--ignore"))
+            {
                 continue;
             }
             properties.setProperty(key, propertiesJson.getString(key));
@@ -101,6 +103,10 @@ public class MyBatisBridge
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
                     myBatisOption, configData);
             MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);
+            if (myBatisOption.resourcesDir != null && !myBatisOption.resourcesDir.endsWith("/"))
+            {
+                myBatisOption.resourcesDir += "/";
+            }
             porterConf.addContextAutoSet(MybatisConfig.class, mybatisConfig);
         } catch (Exception e)
         {
