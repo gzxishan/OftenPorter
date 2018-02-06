@@ -38,6 +38,10 @@ public class MyBatisOption
 
     public MyBatisOption(String rootDir)
     {
+        if (!rootDir.endsWith("/"))
+        {
+            rootDir += "/";
+        }
         this.rootDir = rootDir;
     }
 }
