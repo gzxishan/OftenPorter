@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
+
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;

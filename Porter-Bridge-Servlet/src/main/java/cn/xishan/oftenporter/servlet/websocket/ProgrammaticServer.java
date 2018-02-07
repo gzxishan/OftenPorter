@@ -37,6 +37,20 @@ public class ProgrammaticServer extends Endpoint
         HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
 
         WebSocket webSocket = (WebSocket) httpSession.getAttribute(WebSocket.class.getName());
+        if (webSocket.maxBinaryBuffer() > 0)
+        {
+            session.setMaxBinaryMessageBufferSize(webSocket.maxBinaryBuffer());
+        }
+        if (webSocket.maxTextBuffer() > 0)
+        {
+            session.setMaxTextMessageBufferSize(webSocket.maxTextBuffer());
+        }
+
+        if (webSocket.maxIdleTime() > 0)
+        {
+            session.setMaxIdleTimeout(webSocket.maxIdleTime());
+        }
+
         if (webSocket.isPartial())
         {
             switch (webSocket.stringType())
