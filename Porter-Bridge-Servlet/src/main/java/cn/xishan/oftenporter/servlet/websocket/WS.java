@@ -58,7 +58,7 @@ public abstract class WS
 
     public void close(CloseReason closeReason) throws IOException
     {
-        HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
+        HttpSession httpSession = getHttpSession();
         httpSession.removeAttribute(WObject.class.getName());
         httpSession.removeAttribute(PorterOfFun.class.getName());
         httpSession.removeAttribute(WebSocket.class.getName());
@@ -81,6 +81,35 @@ public abstract class WS
                 return (T) value;
             }
         };
+    }
+
+
+    public WS putAttribute(Class<?> clazzKey, Object vlaue)
+    {
+        return putAttribute(clazzKey.getName(), vlaue);
+    }
+
+    public WS putAttribute(String key, Object vlaue)
+    {
+        session.getUserProperties().put(key, vlaue);
+        return this;
+    }
+
+    public <T> T getAttribute(Class<?> clazzKey)
+    {
+        return getAttribute(clazzKey.getName());
+    }
+
+    public HttpSession getHttpSession()
+    {
+        return getAttribute(HttpSession.class);
+    }
+
+
+    public <T> T getAttribute(String key)
+    {
+        Object v = session.getUserProperties().get(key);
+        return (T) v;
     }
 
 

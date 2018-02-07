@@ -4,20 +4,20 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.*;
+import javax.servlet.http.*;
 import java.io.IOException;
+import java.util.EnumSet;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
+public class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WebSocket webSocket;
@@ -80,5 +80,33 @@ class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
     public OutType getOutType()
     {
         return OutType.NO_RESPONSE;
+    }
+
+
+    public static void handleWS(ServletContext servletContext)
+    {
+        try
+        {
+            //对jetty的修复。
+            String clazz = "org.eclipse.jetty.websocket.server.WebSocketUpgradeFilter";
+            String key = clazz;
+            servletContext.removeAttribute(key);
+            Class<?> filterClazz = PackageUtil.newClass(clazz, null);
+            if (filterClazz == null)
+            {
+                LOGGER.debug("{} is null.", clazz);
+                return;
+            }
+            Filter filter = (Filter) WPTool.newObject(filterClazz);
+            String pathSpc =  XSServletWSConfig.WS_PATH;
+            FilterRegistration.Dynamic dynamic = servletContext.addFilter(WebSocketHandle.class.getName(), filter);
+            dynamic.setAsyncSupported(true);
+            //支持DispatcherType.FORWARD方式，跳转到对应的websocket上。
+            dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false,
+                    pathSpc);
+        } catch (Exception e)
+        {
+            LOGGER.debug("handle jetty error:{}", e);
+        }
     }
 }

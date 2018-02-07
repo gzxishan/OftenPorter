@@ -10,9 +10,11 @@ import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
+import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -220,6 +222,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
     }
 
+    @Override
+    public void init(ServletConfig config) throws ServletException
+    {
+        WebSocketHandle.handleWS(config.getServletContext());
+        super.init(config);
+    }
 
     /**
      * 先调用。
