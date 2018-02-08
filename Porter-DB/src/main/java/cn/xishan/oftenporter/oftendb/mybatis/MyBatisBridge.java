@@ -42,6 +42,7 @@ public class MyBatisBridge
      */
     public static DataSource buildDataSource(JSONObject propertiesJson)
     {
+        propertiesJson = new JSONObject(propertiesJson);
         String dsType = (String) propertiesJson.remove("dsType");
         Properties properties = new Properties();
         for (String key : propertiesJson.keySet())
