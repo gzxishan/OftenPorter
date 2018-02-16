@@ -585,8 +585,11 @@ public class AutoSetHandle
                             value = globalAutoSet.get(keyName);
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
-                                value = WPTool.newObject(mayNew);
+                                value = WPTool.newObjectMayNull(mayNew);
                                 globalAutoSet.put(keyName, value);
+                                if(value==null){
+                                    LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                                }
                             }
                         }
                         break;
@@ -595,14 +598,20 @@ public class AutoSetHandle
                             value = contextAutoSet.get(keyName);
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
-                                value = WPTool.newObject(mayNew);
+                                value = WPTool.newObjectMayNull(mayNew);
                                 contextAutoSet.put(keyName, value);
+                                if(value==null){
+                                    LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                                }
                             }
                         }
                         break;
                         case New:
                         {
-                            value = WPTool.newObject(mayNew);
+                            value = WPTool.newObjectMayNull(mayNew);
+                            if(value==null){
+                                LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                            }
                         }
                         break;
                     }
