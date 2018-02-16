@@ -209,6 +209,27 @@ public class WPTool
     }
 
     /**
+     * 通过反射构建一个实例，若没有无参构造函数则返回null。
+     *
+     * @param clazz
+     * @param <T>
+     * @return
+     */
+    public static <T> T newObjectMayNull(
+            Class<T> clazz) throws IllegalAccessException, InvocationTargetException,
+            InstantiationException
+    {
+        try
+        {
+            T t = newObject(clazz);
+            return t;
+        } catch (NoSuchMethodException e)
+        {
+            return null;
+        }
+    }
+
+    /**
      * 获取异常描述。
      *
      * @param throwable
@@ -407,11 +428,11 @@ public class WPTool
     }
 
     /**
-     *
      * @param nameValues 必须是key(String),value(Object),key,value...的形式
      * @return
      */
-    public static JSONObject fromArray2JSON(Object ... nameValues){
+    public static JSONObject fromArray2JSON(Object... nameValues)
+    {
         SimpleAppValues simpleAppValues = SimpleAppValues.fromArray(nameValues);
         return simpleAppValues.toJson();
     }
