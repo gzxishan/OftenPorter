@@ -168,20 +168,22 @@ public class IdGen
         }
     }
 
-    public static long num64ToNum10(String num64){
+    public static long num64ToNum10(String num64)
+    {
         char[] cs = num64.toCharArray();
-        long v=0;
-        long b=1;
+        long v = 0;
+        long b = 1;
         int blen = BASE.length;
-        for (int i = cs.length-1;i>=0; i--)
+        for (int i = cs.length - 1; i >= 0; i--)
         {
             char c = cs[i];
-            int index = Arrays.binarySearch(BASE,c);
-            if(index<0){
-                throw new RuntimeException("illegal char:"+c);
+            int index = Arrays.binarySearch(BASE, c);
+            if (index < 0)
+            {
+                throw new RuntimeException("illegal char:" + c);
             }
-            v+=index*b;
-            b*=blen;
+            v += index * b;
+            b *= blen;
         }
         return v;
     }
@@ -233,6 +235,7 @@ public class IdGen
         final int blen = base.length;
         final int len = randlen;
         Random rand = new Random();
+        nums[nums.length - 1]++;//确保一定会增加
         for (int i = 0, ni = nums.length - 1; i < len; i++, ni--)
         {
             nums[ni] += rand.nextInt(blen);
