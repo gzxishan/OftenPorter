@@ -30,6 +30,10 @@ public class IdGenTest
     public void testNum10ToNum64(){
         Assert.assertEquals("10",IdGen.num10ToNum64(64));
         Assert.assertEquals("1~",IdGen.num10ToNum64(64+63));
+
+        Assert.assertEquals(64,IdGen.num64ToNum10(IdGen.num10ToNum64(64)));
+        long time = System.currentTimeMillis();
+        Assert.assertEquals(time,IdGen.num64ToNum10(IdGen.num10ToNum64(time)));
     }
 
     @Test

@@ -168,6 +168,24 @@ public class IdGen
         }
     }
 
+    public static long num64ToNum10(String num64){
+        char[] cs = num64.toCharArray();
+        long v=0;
+        long b=1;
+        int blen = BASE.length;
+        for (int i = cs.length-1;i>=0; i--)
+        {
+            char c = cs[i];
+            int index = Arrays.binarySearch(BASE,c);
+            if(index<0){
+                throw new RuntimeException("illegal char:"+c);
+            }
+            v+=index*b;
+            b*=blen;
+        }
+        return v;
+    }
+
     public static String num10ToNum64(long value)
     {
         if (value < 0)
