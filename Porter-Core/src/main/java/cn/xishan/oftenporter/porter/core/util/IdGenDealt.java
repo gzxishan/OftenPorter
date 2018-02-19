@@ -32,7 +32,7 @@ class IdGenDealt implements AutoSetGen
             mac = 0;
         }
         String mchid = IdGen.num10ToNum64(mac);
-        idGen = new IdGen(8, mchid.toCharArray(), true);
+        idGen = new IdGen(8, 4, "i".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
         return idGen;
     }
 
