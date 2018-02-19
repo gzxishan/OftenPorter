@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Random;
  * id字符集:0-9A-Z_a-z~
  * </p>
  * <p>
- * 使用@{@linkplain AutoSet}注解时，设置的实例为new IdGen(8,[由最大网卡mac得到的8为字符],true),生成id长度为27个字符,见{@linkplain #getDefault()}。
+ * 使用@{@linkplain AutoSet}注解时，其中机器id为最大网卡mac得到的8为字符,生成id长度为28个字符,见{@linkplain #getDefault()}。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/16.
@@ -39,51 +40,109 @@ public class IdGen
         Arrays.sort(BASE);
     }
 
+    interface IRand
+    {
+        int nextInt(int n);
+    }
+
+    interface IRandBuilder
+    {
+        IRand build();
+    }
+
     private char[] base = BASE;
     private int[] nums;
     private char[] idchars;
     private int idindex;
 
-    private int randlen = 4;//随机值位数
+    private int randlen;//随机值位数
     private int datelen = 7;//日期所占位数
     private static long lastTime;
     private static final Object KEY = new Object();
     private int count;
+    private IRandBuilder iRandBuilder;
 
     /**
+     * 随机长度为4.
+     *
      * @param len         设定长度。
      * @param mchid       机器id。
      * @param rightOrLeft 机器id是拼接在右边还是左边。
      */
     public IdGen(int len, @MayNull char[] mchid, boolean rightOrLeft)
     {
-        len += randlen;
-        //System.out.println(new String(base));
-        if (mchid != null)
+        this(len, 4, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, getDefaultBuilder());
+    }
+
+    static IRandBuilder getDefaultBuilder()
+    {
+        IRandBuilder builder = new IRandBuilder()
         {
-            for (int i = 0; i < mchid.length; i++)
+            Random random = new Random();
+            IRand iRand = n -> random.nextInt(n);
+            long lastTime = System.currentTimeMillis();
+
+            void init()
             {
-                if (Arrays.binarySearch(base, mchid[i]) < 0)
+                if (System.currentTimeMillis() - lastTime >= 10 * 60 * 1000)
                 {
-                    throw new RuntimeException("unknown char:" + mchid[i]);
+                    random = new SecureRandom();
+                    lastTime = System.currentTimeMillis();
                 }
             }
-            idchars = new char[datelen + len + mchid.length];
-            int mi = idchars.length - mchid.length;
-            for (int i = 0; i < mchid.length; i++)
+
+            @Override
+            public IRand build()
             {
-                int index = rightOrLeft ? mi + i : i;
-                idchars[index] = mchid[i];
+                init();
+                return iRand;
             }
+        };
+        return builder;
+    }
+
+    /**
+     * @param len          设定长度
+     * @param randlen
+     * @param mchidLeft
+     * @param mchidRight
+     * @param iRandBuilder
+     */
+    public IdGen(int len, int randlen, @MayNull char[] mchidLeft, @MayNull char[] mchidRight, IRandBuilder iRandBuilder)
+    {
+        len += randlen;
+        this.randlen = randlen;
+        this.iRandBuilder = iRandBuilder;
+        if (mchidLeft != null || mchidRight != null)
+        {
+            idchars = new char[datelen + len + (mchidLeft == null ? 0 : mchidLeft.length) + (mchidRight == null ? 0 :
+                    mchidRight.length)];
+
+            if (mchidLeft != null)
+            {
+                for (int i = 0; i < mchidLeft.length; i++)
+                {
+                    idchars[i] = mchidLeft[i];
+                }
+            }
+            if (mchidRight != null)
+            {
+                int mi = idchars.length - mchidRight.length;
+                for (int i = 0; i < mchidRight.length; i++)
+                {
+                    idchars[mi + i] = mchidRight[i];
+                }
+            }
+
         } else
         {
             idchars = new char[datelen + len];
         }
 
         nums = new int[len];
-        if (!rightOrLeft && mchid != null)
+        if (mchidLeft != null)
         {
-            idindex = mchid.length;
+            idindex = mchidLeft.length;
         } else
         {
             idindex = 0;
@@ -92,7 +151,42 @@ public class IdGen
     }
 
     /**
-     * 生成的id字符长度为27个。
+     * @param specLen     指定长度
+     * @param randBits    随机数位数
+     * @param mchid       机器id
+     * @param rightOrLeft
+     * @return
+     */
+    public static IdGen getSecureRand(int specLen, int randBits, char[] mchid, boolean rightOrLeft)
+    {
+        IRandBuilder builder = new IRandBuilder()
+        {
+            SecureRandom secureRandom = new SecureRandom();
+            IRand iRand = n -> secureRandom.nextInt(n);
+            long lastTime = System.currentTimeMillis();
+
+            void init()
+            {
+                if (System.currentTimeMillis() - lastTime >= 10 * 60 * 1000)
+                {
+                    secureRandom = new SecureRandom();
+                    lastTime = System.currentTimeMillis();
+                }
+            }
+
+            @Override
+            public IRand build()
+            {
+                init();
+                return iRand;
+            }
+        };
+        IdGen idGen = new IdGen(specLen, randBits, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, builder);
+        return idGen;
+    }
+
+    /**
+     * 生成的id字符长度为28个，其中机器id由最大网卡mac得到的8为字符,并且字符串以i开头。
      *
      * @return
      */
@@ -234,7 +328,7 @@ public class IdGen
         }
         final int blen = base.length;
         final int len = randlen;
-        Random rand = new Random();
+        IRand rand = iRandBuilder.build();
         nums[nums.length - 1]++;//确保一定会增加
         for (int i = 0, ni = nums.length - 1; i < len; i++, ni--)
         {
