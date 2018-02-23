@@ -106,6 +106,9 @@ public class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
                     pathSpc);
         } catch (Exception e)
         {
+            if(e instanceof ClassNotFoundException){
+                return;
+            }
             LOGGER.debug("handle jetty error:{}", e);
         }
     }
