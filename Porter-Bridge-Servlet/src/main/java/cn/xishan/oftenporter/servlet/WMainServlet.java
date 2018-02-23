@@ -24,16 +24,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue][?name1
- * =value1
- * &name2=value2...]
- * <pre>
- *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符,x可含"/")的形式,如"/op-porter/*"
- *     初始参数有：
- *     pname:框架实例名称，默认为"WMainServlet".
- *     responseWhenException:默认为true。
- * </pre>
+ * 请使用{@linkplain StartupServlet}
  */
+@Deprecated
 public class WMainServlet extends HttpServlet implements CommonMain
 {
     private static final long serialVersionUID = 1L;
@@ -243,7 +236,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             pname = getInitParameter("pname");
             if (WPTool.isEmpty(pname))
             {
-                pname = WMainServlet.class.getSimpleName();
+                pname = getClass().getSimpleName();
             }
         }
 

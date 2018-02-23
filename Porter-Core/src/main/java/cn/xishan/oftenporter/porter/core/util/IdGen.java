@@ -52,7 +52,7 @@ public class IdGen
     private char[] base = BASE;
     private int[] nums;
     private char[] idchars;
-    private int idindex;
+    private int dateindex,idindex;
 
     private int randlen;//随机值位数
     private int datelen = 7;//日期所占位数
@@ -141,12 +141,12 @@ public class IdGen
         nums = new int[len];
         if (mchidLeft != null)
         {
-            idindex = mchidLeft.length;
+            dateindex = mchidLeft.length;
         } else
         {
-            idindex = 0;
+            dateindex=0;
         }
-        idindex += datelen;
+        idindex=dateindex+datelen;
     }
 
     /**
@@ -257,7 +257,7 @@ public class IdGen
     private void initTime()
     {
         String times = getTimeId(true);
-        System.arraycopy(times.toCharArray(), 0, idchars, 0, datelen);
+        System.arraycopy(times.toCharArray(), 0, idchars, dateindex, datelen);
     }
 
     public String getTimeId(boolean isSecond)

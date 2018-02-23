@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.xishan.oftenporter.porter.core.base.CheckHandle;
+import cn.xishan.oftenporter.servlet.StartupServlet;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import cn.xishan.oftenporter.servlet.WMainServlet;
  */
 @WebServlet(name = "PorterServlet", urlPatterns = "/S/*", loadOnStartup = 5,
         initParams = {@WebInitParam(name = "pname", value = "Servlet1")})
-public class MyWMainServlet extends WMainServlet
+public class MyWMainServlet extends StartupServlet
 {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER =
@@ -53,9 +54,8 @@ public class MyWMainServlet extends WMainServlet
     }
 
     @Override
-    public void init() throws ServletException
+    public void onStart()
     {
-        super.init();
         PropertyConfigurator
                 .configure(getClass().getResource("/log4j.properties"));
         PorterConf porterConf = newPorterConf();

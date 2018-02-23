@@ -54,5 +54,6 @@ public class IdGenTest
     @Test
     public void testDefault(){
         Assert.assertTrue(IdGen.getDefault().nextId().length()==28);
+        LogUtil.printPosLn(IdGen.getDefault().nextId());
     }
 }
