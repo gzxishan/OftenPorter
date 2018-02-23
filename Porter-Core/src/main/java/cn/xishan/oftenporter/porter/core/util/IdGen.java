@@ -4,11 +4,9 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
+import java.net.NetworkInterface;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * <p>
@@ -18,7 +16,7 @@ import java.util.Random;
  * 生成的id长度=7位时间戳(启动或达到21亿次时的时间戳)+设定长度+4位随机+提供的mchid长度
  * </p>
  * <p>
- * id字符集:0-9A-Z_a-z~
+ * id字符集:[0-9A-Z_a-z~]
  * </p>
  * <p>
  * 使用@{@linkplain AutoSet}注解时，其中机器id为最大网卡mac得到的8为字符,生成id长度为28个字符,见{@linkplain #getDefault()}。
@@ -30,6 +28,7 @@ import java.util.Random;
 public class IdGen
 {
     private static final char[] BASE;
+    private static IdGen DEFAULT_ID_GEN;
 
     static
     {
@@ -103,10 +102,10 @@ public class IdGen
 
     /**
      * @param len          设定长度
-     * @param randlen
-     * @param mchidLeft
-     * @param mchidRight
-     * @param iRandBuilder
+     * @param randlen      随机位数
+     * @param mchidLeft    左侧填充的字符
+     * @param mchidRight   右侧填充的字符
+     * @param iRandBuilder 用于生成随机数
      */
     public IdGen(int len, int randlen, @MayNull char[] mchidLeft, @MayNull char[] mchidRight, IRandBuilder iRandBuilder)
     {
@@ -154,7 +153,7 @@ public class IdGen
      * @param specLen     指定长度
      * @param randBits    随机数位数
      * @param mchid       机器id
-     * @param rightOrLeft
+     * @param rightOrLeft mchid是填充在右侧还是左侧
      * @return
      */
     public static IdGen getSecureRand(int specLen, int randBits, char[] mchid, boolean rightOrLeft)
@@ -186,13 +185,57 @@ public class IdGen
     }
 
     /**
-     * 生成的id字符长度为28个，其中机器id由最大网卡mac得到的8为字符,并且字符串以i开头。
+     * 生成的id字符长度为28个，其中机器id由最大网卡mac得到的8为字符,并且字符串以x开头。
      *
      * @return
      */
-    public static IdGen getDefault()
+    public static synchronized IdGen getDefault()
     {
-        return IdGenDealt.getDefault();
+        if (DEFAULT_ID_GEN != null)
+        {
+            return DEFAULT_ID_GEN;
+        }
+        long mac = getMac();
+        if (mac == -1)
+        {
+            mac = 0;
+        }
+        String mchid = IdGen.num10ToNum64(mac);
+        DEFAULT_ID_GEN = new IdGen(8, 4, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        return DEFAULT_ID_GEN;
+    }
+
+    private static long getMac()
+    {
+        long mac = -1;
+        try
+        {
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
+
+            while (enumeration.hasMoreElements())
+            {
+                NetworkInterface networkInterface = enumeration.nextElement();
+                if (networkInterface != null)
+                {
+                    byte[] bytes = networkInterface.getHardwareAddress();
+                    if (bytes == null)
+                    {
+                        continue;
+                    }
+                    long s = BytesTool.readUnShort(bytes, 0);
+                    long i = BytesTool.readInt(bytes, 2);
+                    long l = (s << 32) | i;
+                    if (l > mac)
+                    {
+                        mac = l;
+                    }
+                }
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return mac;
     }
 
     public static void setLastTime(long lastTime)
