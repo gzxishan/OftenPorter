@@ -4,7 +4,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 /**
- * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue][?name1
+ * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue][=*=][?name1
  * =value1
  * &name2=value2...]
  * <pre>

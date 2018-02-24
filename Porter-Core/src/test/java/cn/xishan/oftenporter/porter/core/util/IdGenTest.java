@@ -19,10 +19,10 @@ public class IdGenTest
         long t=System.nanoTime();
         idGen.nextIds(ids,N);
         float total = (System.nanoTime()-t)*1.0f/1000000000*1000;
-		for(int i=0;i<ids.size();i++){
-			String id = ids.get(i);
-			System.out.println(i+":"+id);
-		}
+//		for(int i=0;i<ids.size();i++){
+//			String id = ids.get(i);
+//			System.out.println(i+":"+id);
+//		}
         System.out.println("total="+total+"ms,dt="+total/N);
     }
 
@@ -34,10 +34,10 @@ public class IdGenTest
         long t=System.nanoTime();
         idGen.nextIds(ids,N);
         float total = (System.nanoTime()-t)*1.0f/1000000000*1000;
-		/*for(int i=0;i<ids.size();i++){
-			String id = ids.get(i);
-			System.out.println(i+":"+id);
-		}*/
+//		for(int i=0;i<ids.size();i++){
+//			String id = ids.get(i);
+//			System.out.println(i+":"+id);
+//		}
         System.out.println("secure:total="+total+"ms,dt="+total/N);
     }
 

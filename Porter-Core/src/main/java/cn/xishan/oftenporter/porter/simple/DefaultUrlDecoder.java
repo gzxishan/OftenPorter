@@ -11,13 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 简单的地址解析器:/contextName/classTied/funTied?name1=value1&name2=value2
+ * 简单的地址解析器:/contextName/classTied/[funTied|restValue][=*=参数][?name1=value1&name2=value2]
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
 public class DefaultUrlDecoder implements UrlDecoder
 {
     private String encoding;
-    private  final Logger LOGGER = LogUtil.logger(DefaultUrlDecoder.class);
+    private final Logger LOGGER = LogUtil.logger(DefaultUrlDecoder.class);
+
+    public static final String STAR_PARAM_KEY = "=*=";
 
     public DefaultUrlDecoder(String encoding)
     {
@@ -35,6 +37,15 @@ public class DefaultUrlDecoder implements UrlDecoder
         {
             return null;
         }
+
+        int starParamIndex = tiedPath.indexOf(STAR_PARAM_KEY);
+        String starParam = null;
+        if (starParamIndex > 0)
+        {
+            starParam = tiedPath.substring(starParamIndex + STAR_PARAM_KEY.length());
+            tiedPath = tiedPath.substring(0, starParamIndex);
+        }
+
         int forwardSlash = tiedPath.indexOf('/', 1);
         String contextName, classTied, funTied;
 
@@ -79,6 +90,10 @@ public class DefaultUrlDecoder implements UrlDecoder
         {
             params = new HashMap<>(0);
         }
+        if (starParam != null)
+        {
+            params.put(STAR_PARAM_KEY, starParam);
+        }
         DefaultUrlResult result = new DefaultUrlResult(params, contextName, classTied, funTied);
         return result;
     }
@@ -90,7 +105,7 @@ public class DefaultUrlDecoder implements UrlDecoder
      * @param urlEncoding 编码那个是
      * @return 解析的map。
      */
-    public  Map<String, Object> decodeParam(String content, String urlEncoding)
+    public Map<String, Object> decodeParam(String content, String urlEncoding)
     {
         Map<String, Object> params;
         params = new HashMap<>();
