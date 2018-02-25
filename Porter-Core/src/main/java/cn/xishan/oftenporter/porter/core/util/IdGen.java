@@ -4,31 +4,36 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
+import java.io.Serializable;
 import java.net.NetworkInterface;
 import java.security.SecureRandom;
 import java.util.*;
 
 /**
  * <p>
- * 用于生成唯一的、趋势递增的、每次具有千万个随机范围的id，假定应用启动间隔时间至少1秒。
+ * 用于生成唯一的、趋势递增的、具有随机范围的id，假定应用启动间隔时间至少1秒。
  * </p>
  * <p>
- * 生成的id长度=7位时间戳(启动或达到21亿次时的时间戳)+设定长度+4位随机+提供的mchid长度
+ * 生成的id长度=[左填充位长度]+[秒级日期位长度(启动或达到最大设定数时的时间戳)]+[设定长度]+[随机位长度]+[右填充位长度]
  * </p>
  * <p>
  * id字符集:[0-9A-Z_a-z~]
  * </p>
  * <p>
- * 使用@{@linkplain AutoSet}注解时，其中机器id为最大网卡mac得到的8为字符,生成id长度为28个字符,见{@linkplain #getDefault()}。
+ * 使用@{@linkplain AutoSet}注解时，默认生成的实例见{@linkplain #getDefault()}。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/16.
  */
 @AutoSetDefaultDealt(gen = IdGenDealt.class)
-public class IdGen
+public class IdGen implements Serializable
 {
+
+    private static final long serialVersionUID = -8251636420192526844L;
+
     private static final char[] BASE;
     private static IdGen DEFAULT_ID_GEN;
+
 
     static
     {
@@ -39,12 +44,12 @@ public class IdGen
         Arrays.sort(BASE);
     }
 
-    interface IRand
+    public interface IRand extends Serializable
     {
         int nextInt(int n);
     }
 
-    interface IRandBuilder
+    public interface IRandBuilder extends Serializable
     {
         IRand build();
     }
@@ -52,17 +57,16 @@ public class IdGen
     private char[] base = BASE;
     private int[] nums;
     private char[] idchars;
-    private int dateindex,idindex;
+    private int dateindex, idindex;
 
     private int randlen;//随机值位数
-    private int datelen = 7;//日期所占位数
+    private int datelen;//日期所占位数
     private static long lastTime;
     private static final Object KEY = new Object();
-    private int count;
     private IRandBuilder iRandBuilder;
 
     /**
-     * 随机长度为4.
+     * 日期长度为7、随机长度为4.
      *
      * @param len         设定长度。
      * @param mchid       机器id。
@@ -70,15 +74,25 @@ public class IdGen
      */
     public IdGen(int len, @MayNull char[] mchid, boolean rightOrLeft)
     {
-        this(len, 4, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, getDefaultBuilder());
+        this(7, len, 4, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, getDefaultBuilder());
     }
 
-    static IRandBuilder getDefaultBuilder()
+    public static IRandBuilder getDefaultBuilder()
     {
         IRandBuilder builder = new IRandBuilder()
         {
+            private static final long serialVersionUID = 5391777136533634204L;
             Random random = new Random();
-            IRand iRand = n -> random.nextInt(n);
+            IRand iRand = new IRand()
+            {
+                private static final long serialVersionUID = 6139967705065877083L;
+
+                @Override
+                public int nextInt(int n)
+                {
+                    return random.nextInt(n);
+                }
+            };
             long lastTime = System.currentTimeMillis();
 
             void init()
@@ -100,16 +114,60 @@ public class IdGen
         return builder;
     }
 
+    public static IRandBuilder getDefaultSecureBuilder()
+    {
+        IRandBuilder builder = new IRandBuilder()
+        {
+            private static final long serialVersionUID = 563785586169515068L;
+            SecureRandom secureRandom = new SecureRandom();
+            IRand iRand = new IRand()
+            {
+                private static final long serialVersionUID = 9152457555149315327L;
+
+                @Override
+                public int nextInt(int n)
+                {
+                    return secureRandom.nextInt(n);
+                }
+            };
+            long lastTime = System.currentTimeMillis();
+
+            void init()
+            {
+                if (System.currentTimeMillis() - lastTime >= 10 * 60 * 1000)
+                {
+                    secureRandom = new SecureRandom();
+                    lastTime = System.currentTimeMillis();
+                }
+            }
+
+            @Override
+            public IRand build()
+            {
+                init();
+                return iRand;
+            }
+        };
+        return builder;
+    }
+
     /**
+     * @param datelen      日期所占位数，5~16
      * @param len          设定长度
      * @param randlen      随机位数
      * @param mchidLeft    左侧填充的字符
      * @param mchidRight   右侧填充的字符
      * @param iRandBuilder 用于生成随机数
      */
-    public IdGen(int len, int randlen, @MayNull char[] mchidLeft, @MayNull char[] mchidRight, IRandBuilder iRandBuilder)
+    public IdGen(int datelen, int len, int randlen, @MayNull char[] mchidLeft, @MayNull char[] mchidRight,
+            IRandBuilder iRandBuilder)
     {
+        if (datelen < 5 || datelen > 16)
+        {
+            throw new IllegalArgumentException("datelen range:5~16");
+        }
         len += randlen;
+        this.datelen = datelen;
         this.randlen = randlen;
         this.iRandBuilder = iRandBuilder;
         if (mchidLeft != null || mchidRight != null)
@@ -144,9 +202,10 @@ public class IdGen
             dateindex = mchidLeft.length;
         } else
         {
-            dateindex=0;
+            dateindex = 0;
         }
-        idindex=dateindex+datelen;
+        idindex = dateindex + datelen;
+        initTime();
     }
 
     /**
@@ -156,36 +215,19 @@ public class IdGen
      * @param rightOrLeft mchid是填充在右侧还是左侧
      * @return
      */
-    public static IdGen getSecureRand(int specLen, int randBits, char[] mchid, boolean rightOrLeft)
+    public static IdGen getSecureRand(int datelen, int specLen, int randBits, char[] mchid, boolean rightOrLeft)
     {
-        IRandBuilder builder = new IRandBuilder()
-        {
-            SecureRandom secureRandom = new SecureRandom();
-            IRand iRand = n -> secureRandom.nextInt(n);
-            long lastTime = System.currentTimeMillis();
-
-            void init()
-            {
-                if (System.currentTimeMillis() - lastTime >= 10 * 60 * 1000)
-                {
-                    secureRandom = new SecureRandom();
-                    lastTime = System.currentTimeMillis();
-                }
-            }
-
-            @Override
-            public IRand build()
-            {
-                init();
-                return iRand;
-            }
-        };
-        IdGen idGen = new IdGen(specLen, randBits, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, builder);
+        IRandBuilder builder = getDefaultSecureBuilder();
+        IdGen idGen = new IdGen(datelen, specLen, randBits, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null,
+                builder);
         return idGen;
     }
 
     /**
-     * 生成的id字符长度为28个，其中机器id由最大网卡mac得到的8为字符,并且字符串以x开头。
+     * 生成的id字符长度为(21个字符):[x][6位秒级日期][5位设定长度][3位随机位][6位最大网卡mac]。
+     * <p>
+     * <strong>注意</strong>：mac地址的高位的3个字节中只取了中间的那个字节。
+     * </p>
      *
      * @return
      */
@@ -201,7 +243,7 @@ public class IdGen
             mac = 0;
         }
         String mchid = IdGen.num10ToNum64(mac);
-        DEFAULT_ID_GEN = new IdGen(8, 4, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        DEFAULT_ID_GEN = new IdGen(6, 5, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
         return DEFAULT_ID_GEN;
     }
 
@@ -222,9 +264,9 @@ public class IdGen
                     {
                         continue;
                     }
-                    long s = BytesTool.readUnShort(bytes, 0);
+                    long s = bytes[1] & 0xFF;//BytesTool.readUnShort(bytes, 0);
                     long i = BytesTool.readInt(bytes, 2);
-                    long l = (s << 32) | i;
+                    long l = (s << 24) | i;
                     if (l > mac)
                     {
                         mac = l;
@@ -305,6 +347,85 @@ public class IdGen
         }
     }
 
+    /**
+     * @param num64
+     * @param value 可以为负数
+     * @return
+     */
+    public static String num64AddNum10(String num64, long value)
+    {
+        char[] cs = num64.toCharArray();
+        int blen = BASE.length;
+        int[] nums = new int[cs.length];
+        for (int i = 0; i < nums.length; i++)
+        {
+            char c = cs[i];
+            int index = Arrays.binarySearch(BASE, c);
+            if (index < 0)
+            {
+                throw new RuntimeException("illegal char:" + c);
+            }
+            nums[i] = index;
+        }
+
+        int k = nums.length - 1;
+        boolean isAdd = value >= 0;
+        if (!isAdd)
+        {
+            value = -value;
+        }
+        while (k >= 0)
+        {
+            int m = (int) (value % blen);
+            if (isAdd)
+            {
+                nums[k--] += m;
+            } else
+            {
+                nums[k--] -= m;
+            }
+            value /= blen;
+            if (value == 0)
+            {
+                break;
+            }
+        }
+        if (isAdd)
+        {
+            for (int i = nums.length - 1; i > 0; i--)
+            {
+                if (nums[i] >= blen)
+                {
+                    nums[i - 1]++;
+                    nums[i] -= blen;
+                }
+            }
+            if (nums[0] >= blen)
+            {//处理溢出
+                nums[0] = 0;
+            }
+        } else
+        {
+            for (int i = nums.length - 1; i > 0; i--)
+            {
+                if (nums[i] < 0)
+                {
+                    nums[i - 1]--;
+                    nums[i] += blen;
+                }
+            }
+            if (nums[0] >= blen)
+            {//处理溢出
+                nums[0] = blen - 1;
+            }
+        }
+        for (int i = 0; i < nums.length; i++)
+        {
+            cs[i] = BASE[nums[i]];
+        }
+        return new String(cs);
+    }
+
     public static long num64ToNum10(String num64)
     {
         char[] cs = num64.toCharArray();
@@ -325,6 +446,10 @@ public class IdGen
         return v;
     }
 
+    /**
+     * @param value 必须大于等于0
+     * @return
+     */
     public static String num10ToNum64(long value)
     {
         if (value < 0)
@@ -361,14 +486,6 @@ public class IdGen
 
     public synchronized String nextId()
     {
-        if ((count++) % 2100000000 == 0)
-        {
-            initTime();
-            if (count > 1)
-            {
-                count = 0;
-            }
-        }
         final int blen = base.length;
         final int len = randlen;
         IRand rand = iRandBuilder.build();
@@ -385,15 +502,21 @@ public class IdGen
                 nums[i] -= blen;
             }
         }
-        if (nums[0] >= blen)
-        {
-            nums[0] = 0;
-            initTime();
-        }
         for (int i = 0, ci = idindex; i < nums.length; i++, ci++)
         {
             idchars[ci] = base[nums[i]];
         }
-        return new String(idchars);
+        String id = new String(idchars);
+
+        if (nums[0] >= blen)
+        {
+            int length = nums.length - randlen;
+            for (int i = 0; i < length; i++)
+            {
+                nums[i] = 0;
+            }
+            initTime();
+        }
+        return id;
     }
 }
