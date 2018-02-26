@@ -224,10 +224,7 @@ public class IdGen implements Serializable
     }
 
     /**
-     * 生成的id字符长度为(21个字符):[x][6位秒级日期][5位设定长度][3位随机位][6位最大网卡mac]。
-     * <p>
-     * <strong>注意</strong>：mac地址的高位的3个字节中只取了中间的那个字节。
-     * </p>
+     * 生成的id字符长度为(21个字符):[6位秒级日期][4位设定长度][3位随机位][8位最大网卡（已启动）mac]。
      *
      * @return
      */
@@ -242,8 +239,8 @@ public class IdGen implements Serializable
         {
             mac = 0;
         }
-        String mchid = IdGen.num10ToNum64(mac);
-        DEFAULT_ID_GEN = new IdGen(6, 5, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        String mchid = IdGen.num10ToNum64(mac, 8);
+        DEFAULT_ID_GEN = new IdGen(6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
         return DEFAULT_ID_GEN;
     }
 
@@ -257,20 +254,17 @@ public class IdGen implements Serializable
             while (enumeration.hasMoreElements())
             {
                 NetworkInterface networkInterface = enumeration.nextElement();
-                if (networkInterface != null)
+                byte[] bytes = networkInterface.getHardwareAddress();
+                if (bytes == null||!networkInterface.isUp())
                 {
-                    byte[] bytes = networkInterface.getHardwareAddress();
-                    if (bytes == null)
-                    {
-                        continue;
-                    }
-                    long s = bytes[1] & 0xFF;//BytesTool.readUnShort(bytes, 0);
-                    long i = BytesTool.readInt(bytes, 2);
-                    long l = (s << 24) | i;
-                    if (l > mac)
-                    {
-                        mac = l;
-                    }
+                    continue;
+                }
+                long s = BytesTool.readUnShort(bytes, 0);
+                long i = 0xFFFFFFFFL & BytesTool.readInt(bytes, 2);
+                long l = (s << 32) | i;
+                if (l > mac)
+                {
+                    mac = l;
                 }
             }
         } catch (Exception e)
@@ -452,6 +446,16 @@ public class IdGen implements Serializable
      */
     public static String num10ToNum64(long value)
     {
+        return num10ToNum64(value, 0);
+    }
+
+    /**
+     * @param value    必须大于等于0
+     * @param minCount 最低位数,0表示忽略，不足的左边补0
+     * @return
+     */
+    public static String num10ToNum64(long value, int minCount)
+    {
         if (value < 0)
         {
             throw new IllegalArgumentException("the value have to be positive!");
@@ -468,10 +472,26 @@ public class IdGen implements Serializable
                 break;
             }
         }
-        char[] cs = new char[list.size()];
-        for (int i = 0, k = cs.length - 1; i < cs.length; i++, k--)
+        int len;
+        if (minCount > 0 && list.size() < minCount)
+        {
+            len = minCount;
+        } else
+        {
+            len = list.size();
+        }
+        char[] cs = new char[len];
+        for (int i = 0, k = cs.length - 1; i < list.size(); i++, k--)
         {
             cs[k] = BASE[list.get(i)];
+        }
+        if (len > list.size())
+        {
+            len -= list.size();
+            for (int i = 0; i < len; i++)
+            {
+                cs[i] = BASE[0];
+            }
         }
         return new String(cs);
     }
