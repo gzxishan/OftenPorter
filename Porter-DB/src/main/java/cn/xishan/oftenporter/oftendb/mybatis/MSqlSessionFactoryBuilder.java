@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -14,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +48,7 @@ class MSqlSessionFactoryBuilder
     private boolean isStarted = false;
     private boolean needReRegFileCheck = false;
     private JSONObject dataSourceConf;
+    private List<Interceptor> interceptors;
     private Environment environment;
 
     synchronized void regNewMapper(BuilderListener builderListener) throws Exception
@@ -63,6 +66,7 @@ class MSqlSessionFactoryBuilder
         needReRegFileCheck = true;
     }
 
+    //检测文件修改
     private synchronized void regFileCheck() throws Exception
     {
         if (builderListenerSet.size() == 0 && !checkMapperFileChange)
@@ -190,6 +194,7 @@ class MSqlSessionFactoryBuilder
         this.dataSourceConf = myBatisOption.dataSource;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
+        this.interceptors=myBatisOption.interceptors;
     }
 
     public synchronized void build() throws Exception
@@ -226,6 +231,11 @@ class MSqlSessionFactoryBuilder
         {
             Configuration configuration = sqlSessionFactory.getConfiguration();
             configuration.setEnvironment(environment);
+            if(interceptors!=null){
+                for(Interceptor interceptor:interceptors){
+                    configuration.addInterceptor(interceptor);
+                }
+            }
         }
 
 
