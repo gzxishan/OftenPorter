@@ -407,8 +407,7 @@ public class SthDeal
             inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
             TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
-            boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),
-                    typeParserStore, backableSeek);
+            boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),typeParserStore, backableSeek);
 
             if (!hasBinded)
             {
@@ -417,10 +416,8 @@ public class SthDeal
                         BackableSeek.SeekType.NotAdd_Bind);
             }
 
-
             porterOfFun.inObj = inObjDeal.dealPortInObj(porter.getClazz(), method,innerContextBridge,autoSetHandle);
             porterOfFun.portOut = annotationDealt.portOut(porter, method);
-
             return porterOfFun;
         } catch (Exception e)
         {

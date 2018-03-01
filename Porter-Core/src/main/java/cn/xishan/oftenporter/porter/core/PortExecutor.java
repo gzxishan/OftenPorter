@@ -720,12 +720,9 @@ public class PortExecutor
             {
                 if (outType == OutType.VoidReturn)
                 {
-                    if (funPort.getMethod().getReturnType().equals(Void.TYPE))
-                    {
-                        returnObject = context.defaultReturnFactory
-                                .getVoidReturn(wObject, funPort.getFinalPorterObject(),
-                                        funPort.getObject(), funPort.getMethod());
-                    }
+                    returnObject = context.defaultReturnFactory
+                            .getVoidReturn(wObject, funPort.getFinalPorterObject(),
+                                    funPort.getObject(), funPort.getMethod());
                 } else if (outType == OutType.NullReturn)
                 {
                     if (!funPort.getMethod().getReturnType().equals(Void.TYPE))

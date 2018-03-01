@@ -3,6 +3,10 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
+import org.apache.ibatis.plugin.Interceptor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -36,6 +40,8 @@ public class MyBatisOption
      */
     public JSONObject dataSource;
 
+    public List<Interceptor> interceptors;
+
     public MyBatisOption(String rootDir)
     {
         if (!rootDir.endsWith("/"))
@@ -43,5 +49,14 @@ public class MyBatisOption
             rootDir += "/";
         }
         this.rootDir = rootDir;
+    }
+
+    public void addInterceptor(Interceptor interceptor)
+    {
+        if (interceptors == null)
+        {
+            interceptors = new ArrayList<>();
+        }
+        interceptors.add(interceptor);
     }
 }

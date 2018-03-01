@@ -190,13 +190,13 @@ public final class AnnotationDealt
                                 .getSimpleName() + "." + PortInObj.OnPorter.class
                                 .getSimpleName() + " in [" + porterClass
                                 .getName() + "] for method with @" + PortInObj.FromPorter.class.getSimpleName());
-                    }else{
+                    } else
+                    {
                         classList.add(pclasses[i]);
                     }
                 }
             }
         }
-
 
 
         if (classList.size() == 0)
@@ -409,18 +409,18 @@ public final class AnnotationDealt
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
 
-        if (portOut == null)
-        {
-            _portOut.outType = classPorter.getPortOut().outType;
-        } else if (portOut != null)
+        if (portOut != null)
         {
             _portOut.outType = portOut.value();
-        } else if (method.getReturnType().equals(Void.TYPE))
-        {
-            _portOut.outType = OutType.NO_RESPONSE;
         } else
         {
-            _portOut.outType = OutType.AUTO;
+            if (method.getReturnType().equals(Void.TYPE))
+            {
+                _portOut.outType = OutType.VoidReturn;
+            } else
+            {
+                _portOut.outType = OutType.AUTO;
+            }
         }
         return _portOut;
     }
