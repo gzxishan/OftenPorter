@@ -32,7 +32,7 @@ public class IdGen implements Serializable
     private static final long serialVersionUID = -8251636420192526844L;
 
     private static final char[] BASE;
-    private static IdGen DEFAULT_ID_GEN;
+    private static IdGen DEFAULT_ID_GEN, DEFAULT_ID_GEN_X;
 
 
     static
@@ -244,6 +244,27 @@ public class IdGen implements Serializable
         return DEFAULT_ID_GEN;
     }
 
+    /**
+     * 生成的id字符长度为(22个字符):[x][6位秒级日期][4位设定长度][3位随机位][8位最大网卡（已启动）mac]。
+     *
+     * @return
+     */
+    public static synchronized IdGen getDefaultWithX()
+    {
+        if (DEFAULT_ID_GEN_X != null)
+        {
+            return DEFAULT_ID_GEN_X;
+        }
+        long mac = getMac();
+        if (mac == -1)
+        {
+            mac = 0;
+        }
+        String mchid = IdGen.num10ToNum64(mac, 8);
+        DEFAULT_ID_GEN_X = new IdGen(6, 4, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        return DEFAULT_ID_GEN_X;
+    }
+
     private static long getMac()
     {
         long mac = -1;
@@ -255,7 +276,7 @@ public class IdGen implements Serializable
             {
                 NetworkInterface networkInterface = enumeration.nextElement();
                 byte[] bytes = networkInterface.getHardwareAddress();
-                if (bytes == null||!networkInterface.isUp())
+                if (bytes == null || !networkInterface.isUp())
                 {
                     continue;
                 }
