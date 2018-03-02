@@ -81,7 +81,15 @@ public class PortExecutor
 
     public void setIAttributeFactory(IAttributeFactory iAttributeFactory)
     {
-        this.iAttributeFactory = iAttributeFactory;
+        final IAttributeFactory finalIAttributeFactory = iAttributeFactory;
+        this.iAttributeFactory = wObject -> {
+            IAttribute attribute = finalIAttributeFactory.getIAttribute(wObject);
+            if (attribute == null)
+            {
+                attribute = defaultIAttributeFactory.getIAttribute(wObject);
+            }
+            return attribute;
+        };
     }
 
     private Logger logger(WObject wObject)
