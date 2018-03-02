@@ -357,7 +357,7 @@ public final class PorterMain
         porterConf.initOk();
         LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
 
-
+        LOGGER.debug("*********************************");
         LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
         for (PortIniter portIniter : portIniterList)
         {
