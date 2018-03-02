@@ -26,7 +26,8 @@ import java.util.*;
  * </pre>
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public final class PorterMain {
+public final class PorterMain
+{
     private PortExecutor portExecutor;
 
     private boolean isInit;
@@ -39,11 +40,15 @@ public final class PorterMain {
     private Logger LOGGER;
     private static String currentPNameForLogger;
 
-    static {
-        if (!LogUtil.isDefaultLogger) {
-            LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener() {
+    static
+    {
+        if (!LogUtil.isDefaultLogger)
+        {
+            LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
+            {
                 @Override
-                public Logger getLogger(String name) {
+                public Logger getLogger(String name)
+                {
                     return LoggerFactory
                             .getLogger(currentPNameForLogger == null ? name : name + "." + currentPNameForLogger);
                 }
@@ -51,21 +56,24 @@ public final class PorterMain {
         }
     }
 
-    public PorterMain(PName pName, CommonMain commonMain) {
+    public PorterMain(PName pName, CommonMain commonMain)
+    {
         PBridge inner = (request, callback) ->
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
-            if (req != null) {
-                doRequest(req, request, resp,true);
+            if (req != null)
+            {
+                doRequest(req, request, resp, true);
             }
         };
         PBridge current = (request, callback) ->
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
-            if (req != null) {
-                doRequest(req, request, resp,false);
+            if (req != null)
+            {
+                doRequest(req, request, resp, false);
             }
         };
 
@@ -77,7 +85,8 @@ public final class PorterMain {
      * @param currentBridge 只能访问当前实例的bridge。
      * @param innerBridge
      */
-    public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge) {
+    public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    {
         initPorterMain(pName, commonMain, currentBridge, innerBridge);
     }
 
@@ -86,8 +95,10 @@ public final class PorterMain {
      * @param currentBridge 只能访问当前实例的bridge。
      * @param innerBridge
      */
-    private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge) {
-        synchronized (PorterMain.class) {
+    private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    {
+        synchronized (PorterMain.class)
+        {
             this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
             listenerAdder = new ListenerAdderImpl();
             pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
@@ -95,7 +106,8 @@ public final class PorterMain {
             {
                 Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
                 ClassLoader classLoader = null;
-                if (context != null) {
+                if (context != null)
+                {
                     classLoader = context.contextPorter.getClassLoader();
                 }
                 return classLoader;
@@ -107,7 +119,8 @@ public final class PorterMain {
         }
     }
 
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder() {
+    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    {
         return listenerAdder;
     }
 
@@ -117,34 +130,41 @@ public final class PorterMain {
      * @param pName
      * @return
      */
-    public synchronized static CommonMain getMain(String pName) {
+    public synchronized static CommonMain getMain(String pName)
+    {
         return commonMainHashMap.get(pName);
     }
 
-    public PorterConf newPorterConf() {
+    public PorterConf newPorterConf()
+    {
         return new PorterConf();
     }
 
 
-    public synchronized void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException {
-        if (innerBridge.allGlobalChecksTemp == null) {
+    public synchronized void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException
+    {
+        if (innerBridge.allGlobalChecksTemp == null)
+        {
             throw new RuntimeException("just for the time when has no context!");
         }
         innerBridge.allGlobalChecksTemp.add(checkPassable);
     }
 
-    public synchronized void init(ResponseHandle responseHandle,UrlDecoder urlDecoder, boolean responseWhenException) {
-        if (isInit) {
+    public synchronized void init(ResponseHandle responseHandle, UrlDecoder urlDecoder, boolean responseWhenException)
+    {
+        if (isInit)
+        {
             throw new RuntimeException("already init!");
         }
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
-        portExecutor = new PortExecutor(responseHandle,pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
+        portExecutor = new PortExecutor(responseHandle, pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
         porterData = new PorterDataImpl(portExecutor);
         currentPNameForLogger = null;
     }
 
-    public UrlDecoder getUrlDecoder() {
+    public UrlDecoder getUrlDecoder()
+    {
         return portExecutor.getUrlDecoder();
     }
 
@@ -153,29 +173,37 @@ public final class PorterMain {
         portExecutor.setIAttributeFactory(iAttributeFactory);
     }
 
-    public PLinker getPLinker() {
+    public PLinker getPLinker()
+    {
         return pLinker;
     }
 
-    private void checkInit() {
-        if (!isInit) {
+    private void checkInit()
+    {
+        if (!isInit)
+        {
             throw new RuntimeException("not init!");
         }
     }
 
-    public synchronized void addGlobalTypeParser(ITypeParser typeParser) {
+    public synchronized void addGlobalTypeParser(ITypeParser typeParser)
+    {
         innerBridge.globalParserStore.putParser(typeParser);
     }
 
-    public synchronized void addGlobalAutoSet(String name, Object object) {
+    public synchronized void addGlobalAutoSet(String name, Object object)
+    {
         Object last = innerBridge.globalAutoSet.put(name, object);
-        if (last != null) {
+        if (last != null)
+        {
             LOGGER.warn("the global object named '{}' added before [{}]", name, last);
         }
     }
 
-    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls) {
-        if (alls == null) {
+    private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls)
+    {
+        if (alls == null)
+        {
             return;
         }
         LOGGER.debug("add doGlobalCheckAutoSet...");
@@ -187,12 +215,16 @@ public final class PorterMain {
      *
      * @param bridge
      */
-    public synchronized void startOne(PorterBridge bridge) {
+    public synchronized void startOne(PorterBridge bridge)
+    {
         LogUtil.LogKey logKey = new LogUtil.LogKey(KeyUtil.random48Key());
-        try {
-            if (WPTool.isEmpty(bridge.contextName())) {
+        try
+        {
+            if (WPTool.isEmpty(bridge.contextName()))
+            {
                 throw new RuntimeException("Context name is empty!");
-            } else if (portExecutor.containsContext(bridge.contextName())) {
+            } else if (portExecutor.containsContext(bridge.contextName()))
+            {
                 throw new RuntimeException("Context named '" + bridge.contextName() + "' already exist!");
             }
             LogUtil.setOrRemoveOnGetLoggerListener(logKey,
@@ -202,20 +234,25 @@ public final class PorterMain {
             currentPNameForLogger = getPLinker().currentPName().getName();
             _startOne(bridge);
             currentPNameForLogger = null;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw e;
-        } finally {
+        } finally
+        {
             LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
         }
     }
 
-    public PorterData getPorterData() {
+    public PorterData getPorterData()
+    {
         return porterData;
     }
 
-    private void _startOne(PorterBridge bridge) {
+    private void _startOne(PorterBridge bridge)
+    {
         CheckPassable[] alls = null;
-        if (innerBridge.allGlobalChecksTemp != null) {//全局检测，在没有启动任何context时有效。
+        if (innerBridge.allGlobalChecksTemp != null)
+        {//全局检测，在没有启动任何context时有效。
             alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
             innerBridge.allGlobalChecksTemp = null;
             portExecutor.initAllGlobalChecks(alls);
@@ -248,10 +285,14 @@ public final class PorterMain {
 
         Map<Class<?>, CheckPassable> classCheckPassableMap;
         SthDeal sthDeal = new SthDeal();
+        List<PortIniter> portIniterList = new ArrayList<>();
 
-        try {
-            classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle);
-        } catch (Exception e) {
+        try
+        {
+
+            classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
+        } catch (Exception e)
+        {
             throw new Error(WPTool.getCause(e));
         }
 
@@ -281,19 +322,22 @@ public final class PorterMain {
         Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
                 porterCheckPassables);
 
-        try {
+        try
+        {
             autoSetHandle.doAutoSetNormal();//变量设置处理
             autoSetHandle.doAutoSetThat();
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
-            PRequest request = new PRequest(PortMethod.GET,path);
-            WResponse response = new LocalResponse(lResponse -> {});
-            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
+            PRequest request = new PRequest(PortMethod.GET, path);
+            WResponse response = new LocalResponse(lResponse -> {
+            });
+            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context, true);
 
             autoSetHandle.invokeSetOk(wObject);
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new Error(WPTool.getCause(e));
         }
 
@@ -301,9 +345,10 @@ public final class PorterMain {
 
         String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class.getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
         UrlDecoder.Result result = getUrlDecoder().decode(path);
-        PRequest request = new PRequest(PortMethod.GET,path);
-        WResponse response = new LocalResponse(lResponse -> {});
-        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context,true);
+        PRequest request = new PRequest(PortMethod.GET, path);
+        WResponse response = new LocalResponse(lResponse -> {
+        });
+        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context, true);
         contextPorter.start(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
@@ -312,17 +357,27 @@ public final class PorterMain {
         porterConf.initOk();
         LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
 
+
+        LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
+        for (PortIniter portIniter : portIniterList)
+        {
+            portIniter.init(this.getPLinker());
+        }
+        LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
     }
 
     /**
      * 销毁所有的，以后不能再用。
      */
-    public void destroyAll() {
-        synchronized (PorterMain.class) {
+    public void destroyAll()
+    {
+        synchronized (PorterMain.class)
+        {
             checkInit();
             LOGGER.debug("[{}] destroyAll...", getPLinker().currentPName());
             Iterator<Context> iterator = portExecutor.contextIterator();
-            while (iterator.hasNext()) {
+            while (iterator.hasNext())
+            {
                 Context context = iterator.next();
                 context.setEnable(false);
                 destroyOne(context);
@@ -334,9 +389,11 @@ public final class PorterMain {
     }
 
 
-    private void destroyOne(Context context) {
+    private void destroyOne(Context context)
+    {
         checkInit();
-        if (context != null && context.stateListenerForAll != null) {
+        if (context != null && context.stateListenerForAll != null)
+        {
             String contextName = context.getName();
             StateListener stateListenerForAll = context.stateListenerForAll;
             LOGGER.debug("Context [{}] beforeDestroy...", contextName);
@@ -347,22 +404,26 @@ public final class PorterMain {
         }
     }
 
-    public synchronized void destroyOne(String contextName) {
+    public synchronized void destroyOne(String contextName)
+    {
         checkInit();
         Context context = portExecutor.removeContext(contextName);
         destroyOne(context);
     }
 
-    public synchronized void enableContext(String contextName, boolean enable) {
+    public synchronized void enableContext(String contextName, boolean enable)
+    {
         checkInit();
         portExecutor.enableContext(contextName, enable);
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response,boolean isInnerRequest) {
-        portExecutor.doRequest(req, request, response,isInnerRequest);
+    public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
+    {
+        portExecutor.doRequest(req, request, response, isInnerRequest);
     }
 
-    public PreRequest forRequest(WRequest request, WResponse response) {
+    public PreRequest forRequest(WRequest request, WResponse response)
+    {
         PreRequest preRequest = portExecutor.forRequest(request, response);
         return preRequest;
     }

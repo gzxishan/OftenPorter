@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
+import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -121,13 +122,13 @@ public class ContextPorter implements IOtherStartDestroy
 
     public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
             PorterConf porterConf,
-            AutoSetHandle autoSetHandle) throws FatalInitException
+            AutoSetHandle autoSetHandle, List<PortIniter> portIniterList) throws FatalInitException
     {
         this.porterConf = porterConf;
         this.listenerAdder = listenerAdder;
         autoSetHandle.setIOtherStartDestroy(this);
         //搜索包:最终是搜索Class类
-        seek(porterConf.getSeekPackages().getPackages(), autoSetHandle, sthDeal);
+        seek(porterConf.getSeekPackages().getPackages(), autoSetHandle, sthDeal, portIniterList);
 
         //搜索Class类
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
@@ -136,7 +137,7 @@ public class ContextPorter implements IOtherStartDestroy
             LOGGER.debug("may add porter:{}", clazz);
             try
             {
-                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal);
+                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal, portIniterList);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -155,7 +156,7 @@ public class ContextPorter implements IOtherStartDestroy
             {
                 if (PortUtil.isPortClass(object.getClass()) && willSeek(object.getClass()))
                 {
-                    addPorter(object.getClass(), object, autoSetHandle, sthDeal);
+                    addPorter(object.getClass(), object, autoSetHandle, sthDeal, portIniterList);
                 } else
                 {
                     mayAddStaticAutoSet(object.getClass());
@@ -175,13 +176,19 @@ public class ContextPorter implements IOtherStartDestroy
         this.porterConf = null;
         this.listenerAdder = null;
 
-        for(Map.Entry<String,Porter> entry:portMap.entrySet()){
+        for (Map.Entry<String, Porter> entry : portMap.entrySet())
+        {
             entry.getValue().dealInNames(autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore);
         }
 
+
+        PortIniter[] portIniters = portIniterList.toArray(new PortIniter[0]);
+        Arrays.sort(portIniters);//排序
+        portIniterList.clear();
+        WPTool.addAll(portIniterList, portIniters);
+
         return checkPassableForCF;
     }
-
 
 
     private void mayAddStaticAutoSet(Class<?> clazz)
@@ -199,7 +206,7 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
     private void seek(@NotNull JSONArray packages,
-            AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException
+            AutoSetHandle autoSetHandle, SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -214,13 +221,13 @@ public class ContextPorter implements IOtherStartDestroy
 
         for (int i = 0; i < packages.size(); i++)
         {
-            seekPackage(packages.getString(i), autoSetHandle, sthDeal);
+            seekPackage(packages.getString(i), autoSetHandle, sthDeal, portIniterList);
         }
     }
 
 
     private void seekPackage(String packageStr,
-            AutoSetHandle autoSetHandle, SthDeal sthDeal) throws FatalInitException
+            AutoSetHandle autoSetHandle, SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException
     {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -230,7 +237,7 @@ public class ContextPorter implements IOtherStartDestroy
             try
             {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal);
+                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal, portIniterList);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -262,11 +269,11 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
     private void mayAddPorterOfClass(Class<?> clazz, AutoSetHandle autoSetHandle,
-            SthDeal sthDeal) throws FatalInitException, Exception
+            SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException, Exception
     {
         if (PortUtil.isPortClass(clazz) && willSeek(clazz))
         {
-            addPorter(clazz, null, autoSetHandle, sthDeal);
+            addPorter(clazz, null, autoSetHandle, sthDeal, portIniterList);
         } else
         {
             mayAddStaticAutoSet(clazz);
@@ -286,7 +293,7 @@ public class ContextPorter implements IOtherStartDestroy
      */
     private void addPorter(Class<?> clazz, Object objectPorter,
             AutoSetHandle autoSetHandle,
-            SthDeal sthDeal) throws FatalInitException, Exception
+            SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException, Exception
     {
         LOGGER.debug("添加接口：");
         LOGGER.debug("\n\tat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
@@ -322,6 +329,12 @@ public class ContextPorter implements IOtherStartDestroy
             } else
             {
                 LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedNames(), clazz);
+            }
+
+            Iterator<Porter> it = portMap.values().iterator();
+            while (it.hasNext())
+            {
+                it.next().seekPortInit(porterConf.getContextName(), portIniterList);
             }
         }
     }
@@ -363,7 +376,7 @@ public class ContextPorter implements IOtherStartDestroy
             iterator.next().initIInObjHandle();
         }
 
-         iterator = portMap.values().iterator();
+        iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
             iterator.next().start(wObject);
