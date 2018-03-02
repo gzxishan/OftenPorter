@@ -12,10 +12,7 @@ import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.sysset.PorterData;
-import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
-import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
+import cn.xishan.oftenporter.porter.core.sysset.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -587,8 +584,9 @@ public class AutoSetHandle
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
                                 globalAutoSet.put(keyName, value);
-                                if(value==null){
-                                    LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                                if (value == null)
+                                {
+                                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                                 }
                             }
                         }
@@ -600,8 +598,9 @@ public class AutoSetHandle
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
                                 contextAutoSet.put(keyName, value);
-                                if(value==null){
-                                    LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                                if (value == null)
+                                {
+                                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                                 }
                             }
                         }
@@ -609,8 +608,9 @@ public class AutoSetHandle
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
-                            if(value==null){
-                                LOGGER.debug("there is no zero-args constructor:{}",mayNew);
+                            if (value == null)
+                            {
+                                LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                             }
                         }
                         break;
@@ -797,10 +797,11 @@ public class AutoSetHandle
         } else if (typeName.equals(Logger.class.getName()))
         {
             sysset = LogUtil.logger(currentObjectClass);
-        } else if (typeName.equals(SyncPorter.class.getName()) || typeName.equals(SyncNotInnerPorter.class.getName()))
+        } else if (typeName.equals(SyncPorter.class.getName()) || typeName.equals(SyncNotInnerPorter.class.getName()) ||
+                typeName.equals(SyncPorterThrows.class.getName()))
         {
 
-            boolean isInner = typeName.equals(SyncPorter.class.getName());
+            boolean isInner = !typeName.equals(SyncNotInnerPorter.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(currentContextName);
@@ -818,6 +819,10 @@ public class AutoSetHandle
                     .syncPorterOption(f, porterParamGetter);
             porterParamGetter.check();
             sysset = new SyncPorterImpl(syncPorterOption, isInner);
+            if (typeName.equals(SyncPorterThrows.class.getName()))
+            {
+                sysset = new SyncPorterThrowsImpl((SyncPorterImpl) sysset);
+            }
         } else if (typeName.equals(Delivery.class.getName()))
         {
             String pName = autoSet.value();
