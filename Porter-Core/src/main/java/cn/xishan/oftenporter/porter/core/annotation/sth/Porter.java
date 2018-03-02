@@ -1,9 +1,13 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.init.PortIniter;
+import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -13,10 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -466,7 +467,8 @@ public final class Porter
 
     private void initIInObjHandle(InObj inObj)
     {
-        if(inObj==null){
+        if (inObj == null)
+        {
             return;
         }
         for (One one : inObj.ones)
@@ -577,5 +579,95 @@ public final class Porter
 //        portIn = null;
 //        inObj=null;
 //        autoSetUtil=null;
+    }
+
+
+    class PortIniterImpl extends PortIniter
+    {
+
+        PortMethod method;
+        String path, fkey;
+        PResponse result;
+
+        public PortIniterImpl(String path, String fkey, int order, PortMethod method)
+        {
+            super(path + ":" + method.name(), order);
+            this.path = path;
+            this.fkey = fkey + ":" + method.name();
+            this.method = method;
+        }
+
+        @Override
+        public synchronized void init(Delivery delivery) throws InitException
+        {
+            PRequest request = new PRequest(path);
+            result = null;
+            request.setMethod(method);
+            delivery.innerBridge().request(request, lResponse -> result = lResponse);
+            childrenWithMethod.remove(fkey);//移除
+            LOGGER.debug("removed:{}:{}", path, method);
+            if (result != null)
+            {
+                if (!result.isOk())
+                {
+                    throw new InitException("init fail for '" + path + "':" + result.getResponse());
+                }
+                Object rs = result.getResponse();
+                if (rs != null && (rs instanceof JResponse) && ((JResponse) rs).isNotSuccess())
+                {
+                    throw new InitException("init fail for '" + path + "':" + rs);
+                }
+            }
+        }
+    }
+
+    public void seekPortInit(String contextName,List<PortIniter> portIniterList){
+
+        Iterator<PorterOfFun> iterator = childrenWithMethod.values().iterator();
+        while (iterator.hasNext()){
+            PorterOfFun porterOfFun = iterator.next();
+            PortInit portInit = AnnoUtil.getAnnotation(porterOfFun.getMethod(), PortInit.class);
+            PortIniter portIniter = newIniter(porterOfFun,portInit,porterOfFun.getMethodPortIn().getTiedType(),contextName);
+            if(portIniter!=null){
+                portIniterList.remove(portIniter);
+                portIniterList.add(portIniter);
+            }
+        }
+    }
+
+    private PortIniter newIniter(PorterOfFun porterOfFun, @MayNull PortInit portInit, TiedType tiedType, String contextName)
+    {
+        if (portInit == null)
+        {
+            return null;
+        }
+
+        if (porterOfFun.getMethodPortIn().getMethods().length > 1)
+        {
+            throw new InitException("methods length > 1 for @" + PortInit.class.getSimpleName());
+        }
+        if (porterOfFun.getMethodPortIn().getTiedNames().length > 1)
+        {
+            throw new InitException("tieds length > 1 for @" + PortInit.class.getSimpleName());
+        }
+        String path = null, fkey = null;
+        PortMethod method = porterOfFun.getMethodPortIn().getMethods()[0];
+        String classTied = this.getPortIn().getTiedNames()[0];
+        String funTied = porterOfFun.getMethodPortIn().getTiedNames()[0];
+
+        switch (tiedType)
+        {
+            case REST:
+            case FORCE_REST:
+                path = "/" + contextName + "/" + classTied + "/";
+                fkey = "";
+                break;
+            case DEFAULT:
+                path = "/" + contextName + "/" + classTied + "/" + funTied;
+                fkey = funTied;
+                break;
+        }
+        PortIniter portIniter = new PortIniterImpl(path, fkey, portInit.order(), method);
+        return portIniter;
     }
 }

@@ -38,7 +38,7 @@ public @interface PortIn
     @interface PortDestroy
     {
         /**
-         * 在接口类中被调用的顺序,或者在飞porter接口中的顺序.
+         * 在接口类中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
          *
          * @return
          */
@@ -61,7 +61,7 @@ public @interface PortIn
     @interface PortStart
     {
         /**
-         * 在接口类中被调用的顺序,或者在飞porter接口中的顺序.
+         * 在接口类中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
          *
          * @return
          */

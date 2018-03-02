@@ -1,11 +1,13 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
+import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -48,7 +50,6 @@ public class SthDeal
         }
         return portStart != null || portDestroy != null;
     }
-
 
 
     public Porter porter(Class<?> clazz, Object object, String currentContextName,
@@ -121,7 +122,7 @@ public class SthDeal
 
         try
         {
-            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge,autoSetHandle);
+            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge, autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -192,7 +193,7 @@ public class SthDeal
                 continue;
             }
             backableSeek.push();
-            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek,autoSetHandle);
+            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek, autoSetHandle);
             backableSeek.pop();
             if (porterOfFun != null)
             {
@@ -300,12 +301,11 @@ public class SthDeal
     private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
             boolean isMixin)
     {
-        PorterOfFun lastFun = null;
+        PorterOfFun lastFun;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
         Method method = porterOfFun.getMethod();
 
         PortFunType portFunType = porterOfFun.getMethodPortIn().getPortFunType();
-
         switch (tiedType)
         {
 
@@ -373,7 +373,7 @@ public class SthDeal
     }
 
     private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,
-            BackableSeek backableSeek,AutoSetHandle autoSetHandle)
+            BackableSeek backableSeek, AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
@@ -407,7 +407,7 @@ public class SthDeal
             inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
             TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
-            boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(),typeParserStore, backableSeek);
+            boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(), typeParserStore, backableSeek);
 
             if (!hasBinded)
             {
@@ -416,7 +416,7 @@ public class SthDeal
                         BackableSeek.SeekType.NotAdd_Bind);
             }
 
-            porterOfFun.inObj = inObjDeal.dealPortInObj(porter.getClazz(), method,innerContextBridge,autoSetHandle);
+            porterOfFun.inObj = inObjDeal.dealPortInObj(porter.getClazz(), method, innerContextBridge, autoSetHandle);
             porterOfFun.portOut = annotationDealt.portOut(porter, method);
             return porterOfFun;
         } catch (Exception e)
