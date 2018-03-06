@@ -52,11 +52,4 @@ public @interface MyBatis
 
     Class<?> entityClass() default MyBatis.class;
 
-    /**
-     * //TODO
-     * 当前的表名，通过${tableName}或#{tableName}来引用
-     *
-     * @return
-     */
-    String tableName() default "";
 }
