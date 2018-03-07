@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.xishan.oftenporter</groupId>
-    <artifactId>Parent</artifactId>
+    <artifactId>OftenPorter</artifactId>
     <version>1.0.4</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <name>Parent</name>
+    <name>OftenPorter</name>
 
     <modules>
         <module>Porter-Core</module>

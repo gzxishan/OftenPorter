@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>cn.xishan.oftenporter</groupId>
-        <artifactId>Parent</artifactId>
+        <artifactId>OftenPorter</artifactId>
         <version>1.0.4</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
