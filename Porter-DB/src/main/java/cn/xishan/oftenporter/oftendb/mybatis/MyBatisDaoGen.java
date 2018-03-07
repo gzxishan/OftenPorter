@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
@@ -74,7 +75,7 @@ class MyBatisDaoGen implements AutoSetGen
             typeAliasRegistry.registerAlias(myBatis.daoClass);
         }
 
-        if (!myBatis.entityClass.equals(MyBatis.class))
+        if (!myBatis.entityClass.equals(MyBatisMapper.class))
         {
             if (WPTool.notNullAndEmpty(myBatis.entityAlias))
             {
@@ -145,13 +146,13 @@ class MyBatisDaoGen implements AutoSetGen
 
             if (optionMapperFile != null)
             {
-                if (myBatis.type == MyBatis.Type.RESOURCES)
+                if (myBatis.type == MyBatisMapper.Type.RESOURCES)
                 {
                     path = getFileRelativePath(myBatis, path);
                 }
                 ErrorContext.instance().resource(optionMapperFile.getAbsolutePath());
                 xmlData = FileTool.getData(new FileInputStream(optionMapperFile), 2048);
-            } else if (myBatis.type == MyBatis.Type.RESOURCES)
+            } else if (myBatis.type == MyBatisMapper.Type.RESOURCES)
             {
                 path = getFileRelativePath(myBatis, path);
                 ErrorContext.instance().resource(path);
@@ -220,56 +221,88 @@ class MyBatisDaoGen implements AutoSetGen
         String dir = "";
         String name = mapperClass.getSimpleName() + ".xml";
 
-        MyBatis _myBatis = AnnoUtil.getAnnotation(mapperClass, MyBatis.class);
-
-        MyBatis.Type type = MyBatis.Type.RESOURCES;
-
-        String params = null;
-        if (_myBatis != null)
+        MyBatisMapper.Type theType = MyBatisMapper.Type.RESOURCES;
+        MyBatis myBatis1;
+        MyBatisMapper myBatis2;
+        String[] params = null;
         {
-            type = _myBatis.type();
-            if (!_myBatis.dir().equals(""))
+            myBatis1 = AnnoUtil.getAnnotation(mapperClass, MyBatis.class);
+            if (myBatis1 != null)
             {
-                dir = _myBatis.dir();
+                theType = myBatis1
+                        .type() == MyBatis.Type.RESOURCES ? MyBatisMapper.Type.RESOURCES : MyBatisMapper.Type.URL;
+                if (!myBatis1.dir().equals(""))
+                {
+                    dir = myBatis1.dir();
+                }
+                if (!myBatis1.name().equals(""))
+                {
+                    name = myBatis1.name();
+                }
+                params = myBatis1.params();
             }
-            if (!_myBatis.name().equals(""))
+            if (!dir.equals("") && !dir.endsWith("/"))
             {
-                name = _myBatis.name();
+                dir += "/";
             }
-            params = _myBatis.params();
+        }
+
+        {
+            myBatis2 = AnnoUtil.getAnnotation(mapperClass, MyBatisMapper.class);
+            if (myBatis2 != null)
+            {
+                theType = myBatis2.type();
+                if (!myBatis2.dir().equals(""))
+                {
+                    dir = myBatis2.dir();
+                }
+                if (!myBatis2.name().equals(""))
+                {
+                    name = myBatis2.name();
+                }
+                params = myBatis2.params();
+            }
+            if (!dir.equals("") && !dir.endsWith("/"))
+            {
+                dir += "/";
+            }
         }
 
 
-        if (!dir.equals("") && !dir.endsWith("/"))
-        {
-            dir += "/";
-        }
-
-        _MyBatis myBatis = new _MyBatis(type, dir, name);
+        _MyBatis myBatis = new _MyBatis(theType, dir, name);
         myBatis.daoClass = mapperClass;
 
         Class<?> entityClass = null;
-        if (_myBatis == null)
+
+        if (myBatis2 != null)
+        {
+            myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
+            myBatis.daoAlias = myBatis2.daoAlias();
+            myBatis.entityAlias = myBatis2.entityAlias();
+            myBatis.entityClass = myBatis2.entityClass();
+            entityClass = myBatis.entityClass;
+        } else if (myBatis1 != null)
+        {
+            myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
+            myBatis.daoAlias = myBatis1.daoAlias();
+            myBatis.entityAlias = myBatis1.entityAlias();
+            myBatis.entityClass = myBatis1.entityClass();
+            entityClass = myBatis.entityClass;
+        } else
         {
             myBatis.isAutoAlias = false;
             myBatis.daoAlias = "";
             myBatis.entityAlias = "";
-            myBatis.entityClass = MyBatis.class;
-        } else
-        {
-            myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
-            myBatis.daoAlias = _myBatis.daoAlias();
-            myBatis.entityAlias = _myBatis.entityAlias();
-            myBatis.entityClass = _myBatis.entityClass();
-            entityClass = myBatis.entityClass;
+            myBatis.entityClass = MyBatisMapper.class;
         }
+
         myBatis.init(params);
 
         String path = dir + name;
-        LOGGER.debug("mapper={},type={},entity={},dao={}", path, type, entityClass, mapperClass);
+        LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);
-        if (mybatisConfig.myBatisOption.resourcesDir != null && type == MyBatis.Type.RESOURCES)
+        if (mybatisConfig.myBatisOption.resourcesDir != null && theType == MyBatisMapper.Type.RESOURCES)
         {
             File file = new File(mybatisConfig.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
             if (file.exists() && file.isFile())

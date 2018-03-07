@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
@@ -24,7 +24,7 @@ class _MyBatis
 
     private static final Logger LOGGER = LogUtil.logger(_MyBatis.class);
 
-    MyBatis.Type type;
+    MyBatisMapper.Type type;
     String dir;
     String name;
     Class<?> daoClass;
@@ -36,14 +36,14 @@ class _MyBatis
 
     private Map<String, Object> xmlParamsMap;
 
-    public _MyBatis(MyBatis.Type type, String dir, String name)
+    public _MyBatis(MyBatisMapper.Type type, String dir, String name)
     {
         this.type = type;
         this.dir = dir;
         this.name = name;
     }
 
-    public void init(String params)
+    public void init(String[] params)
     {
         Map<String, Object> map = new HashMap<>();
 
@@ -52,18 +52,25 @@ class _MyBatis
         {
             if (params != null)
             {
-                JSONObject jsonObject = JSON.parseObject(params);
-                if (jsonObject != null)
+                for (String param : params)
                 {
-                    map.putAll(jsonObject);
+                    JSONObject jsonObject = JSON.parseObject(param);
+                    if (jsonObject != null)
+                    {
+                        map.putAll(jsonObject);
+                    }
                 }
             }
             if (myBatisParams != null)
             {
-                JSONObject jsonObject = JSON.parseObject(myBatisParams.value());
-                if (jsonObject != null)
+                String[] vals = myBatisParams.value();
+                for (String str : vals)
                 {
-                    map.putAll(jsonObject);
+                    JSONObject jsonObject = JSON.parseObject(str);
+                    if (jsonObject != null)
+                    {
+                        map.putAll(jsonObject);
+                    }
                 }
             }
         }
@@ -99,13 +106,14 @@ class _MyBatis
                     {
                         break;
                     }
-                    int index2 = sql.indexOf(keySuffix, index+keyPrefix.length());
+                    int index2 = sql.indexOf(keySuffix, index + keyPrefix.length());
                     if (index2 == -1)
                     {
                         throw new RuntimeException("illegal format:" + sql.substring(index));
                     }
-                    JSONObject params = JSON.parseObject(sql.substring(index+keyPrefix.length(),index2));
-                    if(params!=null){
+                    JSONObject params = JSON.parseObject(sql.substring(index + keyPrefix.length(), index2));
+                    if (params != null)
+                    {
                         localParams.putAll(params);
                     }
                     sql = sql.substring(0, index) + sql.substring(index2 + keySuffix.length());

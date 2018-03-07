@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import java.lang.annotation.*;
 
 /**
- * <p>注解在Dao上,请使用@{@linkplain MyBatisMapper}代替该注解</p>
+ * <p>注解在Dao上</p>
  *
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
@@ -13,8 +13,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 @Inherited
-@Deprecated
-public @interface MyBatis
+public @interface MyBatisMapper
 {
     enum Type
     {
@@ -51,7 +50,7 @@ public @interface MyBatis
      */
     String entityAlias() default "";
 
-    Class<?> entityClass() default MyBatis.class;
+    Class<?> entityClass() default MyBatisMapper.class;
 
     /**
      * json格式，会被@{@linkplain MyBatisParams}覆盖。
