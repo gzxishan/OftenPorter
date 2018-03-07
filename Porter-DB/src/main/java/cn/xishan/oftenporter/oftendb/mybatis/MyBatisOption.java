@@ -6,7 +6,9 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.plugin.Interceptor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -42,6 +44,11 @@ public class MyBatisOption
 
     public List<Interceptor> interceptors;
 
+    /**
+     * 用于添加静态函数到mybatis中。通过${java::keyName.staticFunName(args)}调用,且只支持在mapper文件中调用。
+     */
+    public Map<String, Class<?>> javaFuns;
+
     public MyBatisOption(String rootDir)
     {
         if (!rootDir.endsWith("/"))
@@ -49,6 +56,15 @@ public class MyBatisOption
             rootDir += "/";
         }
         this.rootDir = rootDir;
+    }
+
+    public void addJavaFuns(String name, Class<?> clazz)
+    {
+        if (javaFuns == null)
+        {
+            javaFuns = new HashMap<>();
+        }
+        javaFuns.put(name, clazz);
     }
 
     public void addInterceptor(Interceptor interceptor)

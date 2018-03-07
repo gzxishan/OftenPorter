@@ -12,8 +12,8 @@ import java.util.concurrent.Executor;
  */
 class ConnectionWrap implements Connection
 {
-    private SqlSession sqlSession;
-    private Connection connection;
+    protected SqlSession sqlSession;
+    protected Connection connection;
 
     public ConnectionWrap(SqlSession sqlSession)
     {
