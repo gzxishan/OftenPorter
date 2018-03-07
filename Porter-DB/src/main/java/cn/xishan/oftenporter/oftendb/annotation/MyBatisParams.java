@@ -29,5 +29,5 @@ import java.lang.annotation.*;
 @Inherited
 public @interface MyBatisParams
 {
-    String value();
+    String[] value();
 }
