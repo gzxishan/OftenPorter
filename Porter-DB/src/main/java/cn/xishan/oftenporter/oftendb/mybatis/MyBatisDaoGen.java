@@ -124,7 +124,7 @@ class MyBatisDaoGen implements AutoSetGen
                 }
                 stringBuilder.append(xml.substring(0, index + 2));
                 stringBuilder.append("@").append(className).append("@");
-                xml = xml.substring(index2+1);
+                xml = xml.substring(index2 + 1);
             }
             stringBuilder.append(xml);
             xml = stringBuilder.toString();
@@ -165,9 +165,7 @@ class MyBatisDaoGen implements AutoSetGen
                 xmlData = FileTool.getData(inputStream, 2048);
             }
 
-            if (myBatis.sizeOfXmlParams() > 0 || methodMap != null && methodMap.size() > 0)
             {
-
                 DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
                 Document doc = documentBuilder.parse(new ByteArrayInputStream(xmlData));

@@ -3,10 +3,16 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +21,9 @@ import java.util.Map;
  */
 class _MyBatis
 {
+
+    private static final Logger LOGGER = LogUtil.logger(_MyBatis.class);
+
     MyBatis.Type type;
     String dir;
     String name;
@@ -69,34 +78,125 @@ class _MyBatis
 
     public String replaceSqlParams(String sql)
     {
-        if (xmlParamsMap.size() == 0)
-        {
-            return sql;
-        }
 
-        for (Map.Entry<String, Object> entry : xmlParamsMap.entrySet())
+        int loopCount = 0;
+        Map<String, Object> localParams = new HashMap<>(xmlParamsMap);
+        while (true)
         {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            if (value == null)
+            if (loopCount > 1000)
             {
-                continue;
+                throw new RuntimeException("too much replace for " + daoClass);
             }
-            key = "${" + key + "}";
-            StringBuilder stringBuilder = new StringBuilder();
-            while (true)
+            boolean found = false;
             {
-                int index = sql.indexOf(key);
-                if (index == -1)
+
+                for (int i = 0; i < 2; i++)
                 {
-                    break;
+                    do
+                    {
+                        String keyPrefix;
+                        String keySuffix = "-->";
+
+                        if (i == 0)
+                        {//classpath:
+                            keyPrefix = "<!--$classpath:";
+                        } else
+                        {//file:
+                            keyPrefix = "<!--$file:";
+                        }
+                        int index = sql.indexOf(keyPrefix);
+                        if (index == -1)
+                        {
+                            break;
+                        }
+                        int index2 = sql.indexOf(keySuffix, index);
+                        if (index2 == -1)
+                        {
+                            throw new RuntimeException("illegal format:" + sql.substring(index));
+                        }
+                        found = true;
+                        String content;
+                        String path = sql.substring(index + keyPrefix.length(), index2);
+                        int indexX = path.indexOf("!");
+                        if (indexX > 0)
+                        {
+                            JSONObject params = JSON.parseObject(path.substring(indexX + 1));
+                            path = path.substring(0, indexX);
+                            if (params != null)
+                            {
+                                localParams.putAll(params);
+                            }
+                        }
+                        path = path.trim();
+                        if (i == 0)
+                        {//classpath:
+                            LOGGER.debug("load classpath content from:"+path);
+                            path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
+                            if (!path.startsWith("/"))
+                            {
+                                path = "/" + path;
+                            }
+
+                            try
+                            {
+                                content = FileTool.getString(daoClass.getResourceAsStream(path), 1024, "utf-8");
+                            } catch (IOException e)
+                            {
+                                throw new RuntimeException(e);
+                            }
+                        } else
+                        {//file:
+                            LOGGER.debug("load file content from:"+path);
+                            try
+                            {
+                                content = FileTool.getString(new FileInputStream(path), 1024, "utf-8");
+                            } catch (IOException e)
+                            {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                        sql = sql.substring(0, index) +
+                                content +
+                                sql.substring(index2 + keySuffix.length());
+                    } while (false);
                 }
-                stringBuilder.append(sql.substring(0, index));
-                stringBuilder.append(String.valueOf(value));
-                sql = sql.substring(index + key.length());
+
             }
-            stringBuilder.append(sql);
-            sql = stringBuilder.toString();
+
+            for (Map.Entry<String, Object> entry : localParams.entrySet())
+            {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (value == null)
+                {
+                    continue;
+                }
+                key = "${" + key + "}";
+                StringBuilder stringBuilder = new StringBuilder();
+                while (true)
+                {
+                    int index = sql.indexOf(key);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    found = true;
+                    stringBuilder.append(sql.substring(0, index));
+                    stringBuilder.append(String.valueOf(value));
+                    sql = sql.substring(index + key.length());
+                }
+                stringBuilder.append(sql);
+                sql = stringBuilder.toString();
+            }
+
+            if (!found)
+            {
+                break;
+            } else
+            {
+                loopCount++;
+            }
         }
 
         return sql;
