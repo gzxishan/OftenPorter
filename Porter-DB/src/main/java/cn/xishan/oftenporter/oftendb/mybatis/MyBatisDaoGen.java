@@ -286,7 +286,8 @@ class MyBatisDaoGen implements AutoSetGen
             myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
             myBatis.daoAlias = myBatis1.daoAlias();
             myBatis.entityAlias = myBatis1.entityAlias();
-            myBatis.entityClass = myBatis1.entityClass();
+            myBatis.entityClass = myBatis1.entityClass().equals(MyBatis.class) ? MyBatisMapper.class : myBatis1
+                    .entityClass();
             entityClass = myBatis.entityClass;
         } else
         {
