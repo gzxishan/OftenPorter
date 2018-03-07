@@ -51,4 +51,11 @@ public @interface MyBatis
     String entityAlias() default "";
 
     Class<?> entityClass() default MyBatis.class;
+
+    /**
+     * json格式，会被@{@linkplain MyBatisParams}覆盖。
+     *
+     * @return
+     */
+    String params() default "";
 }
