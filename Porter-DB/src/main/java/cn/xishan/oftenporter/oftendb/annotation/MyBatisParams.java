@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * <p>
- * 说明：只支持在mapper文件中调用
+ * 说明：只支持在mapper文件中调用，通过$[key]来引用
  * </p>
  * <ol>
  * <li>
@@ -17,7 +17,7 @@ import java.lang.annotation.*;
  * &#60;!--$json:JsonString--&#62;表示导入配置,会覆盖之前的同名参数
  * </li>
  * <li>
- * json格式的字符串{key:value}，在mybatis动态sql中通过${key}来引用.
+ * value为json格式的字符串{key:value}.
  * </li>
  * </ol>
  * <p>注解在Dao上</p>

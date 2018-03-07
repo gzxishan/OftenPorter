@@ -196,7 +196,7 @@ class _MyBatis
                 {
                     continue;
                 }
-                key = "${" + key + "}";
+                key = "$[" + key + "]";
                 StringBuilder stringBuilder = new StringBuilder();
                 while (true)
                 {
