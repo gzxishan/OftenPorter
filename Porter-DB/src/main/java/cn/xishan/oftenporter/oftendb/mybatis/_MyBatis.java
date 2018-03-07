@@ -88,6 +88,30 @@ class _MyBatis
                 throw new RuntimeException("too much replace for " + daoClass);
             }
             boolean found = false;
+
+            {
+                String keyPrefix = "<!--$json:";
+                String keySuffix = "-->";
+                do
+                {
+                    int index = sql.indexOf(keyPrefix);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    int index2 = sql.indexOf(keySuffix, index+keyPrefix.length());
+                    if (index2 == -1)
+                    {
+                        throw new RuntimeException("illegal format:" + sql.substring(index));
+                    }
+                    JSONObject params = JSON.parseObject(sql.substring(index+keyPrefix.length(),index2));
+                    if(params!=null){
+                        localParams.putAll(params);
+                    }
+                    sql = sql.substring(0, index) + sql.substring(index2 + keySuffix.length());
+                } while (false);
+            }
+
             {
 
                 for (int i = 0; i < 2; i++)
@@ -109,7 +133,7 @@ class _MyBatis
                         {
                             break;
                         }
-                        int index2 = sql.indexOf(keySuffix, index);
+                        int index2 = sql.indexOf(keySuffix, index + keyPrefix.length());
                         if (index2 == -1)
                         {
                             throw new RuntimeException("illegal format:" + sql.substring(index));
@@ -130,7 +154,7 @@ class _MyBatis
                         path = path.trim();
                         if (i == 0)
                         {//classpath:
-                            LOGGER.debug("load classpath content from:"+path);
+                            LOGGER.debug("load classpath content from:" + path);
                             path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
                             if (!path.startsWith("/"))
                             {
@@ -146,7 +170,7 @@ class _MyBatis
                             }
                         } else
                         {//file:
-                            LOGGER.debug("load file content from:"+path);
+                            LOGGER.debug("load file content from:" + path);
                             try
                             {
                                 content = FileTool.getString(new FileInputStream(path), 1024, "utf-8");
