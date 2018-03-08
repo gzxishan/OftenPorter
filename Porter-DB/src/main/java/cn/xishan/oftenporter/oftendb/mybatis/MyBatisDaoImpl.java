@@ -265,9 +265,10 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     }
 
     @Override
-    public File getFile()
+    public void listenFiles(MSqlSessionFactoryBuilder.FileListener fileListener) throws Exception
     {
-        return mapperFile;
+        fileListener.onGetFiles(new File[]{mapperFile});
+        myBatis.setFileListener(fileListener, myBatisDaoGen.mybatisConfig.myBatisOption);
     }
 
     @Override

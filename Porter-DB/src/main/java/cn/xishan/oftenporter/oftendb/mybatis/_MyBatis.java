@@ -11,9 +11,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +38,8 @@ class _MyBatis
     boolean isAutoAlias;
 
     private Map<String, Object> xmlParamsMap;
+    private MSqlSessionFactoryBuilder.FileListener fileListener;
+    private List<String> paths;
 
     public _MyBatis(MyBatisMapper.Type type, String dir, String name)
     {
@@ -43,10 +48,22 @@ class _MyBatis
         this.name = name;
     }
 
+
+    public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener,
+            MyBatisOption myBatisOption) throws Exception
+    {
+        this.fileListener = fileListener;
+        if (paths != null)
+        {
+            List<File> files = getRelatedFile(paths, myBatisOption.resourcesDir);
+            fileListener.onGetFiles(files.toArray(new File[0]));
+            paths = null;
+        }
+    }
+
     public void init(String[] params)
     {
         Map<String, Object> map = new HashMap<>();
-
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
         {
@@ -83,11 +100,14 @@ class _MyBatis
         return xmlParamsMap.size();
     }
 
-    public String replaceSqlParams(String sql)
+    public String replaceSqlParams(String sql, MyBatisOption myBatisOption) throws Exception
     {
 
         int loopCount = 0;
         Map<String, Object> localParams = new HashMap<>(xmlParamsMap);
+        if(paths==null){
+            paths = new ArrayList<>();
+        }
         while (true)
         {
             if (loopCount > 1000)
@@ -172,6 +192,7 @@ class _MyBatis
                             try
                             {
                                 content = FileTool.getString(daoClass.getResourceAsStream(path), 1024, "utf-8");
+                                paths.add("classpath:" + path);
                             } catch (IOException e)
                             {
                                 throw new RuntimeException(e);
@@ -182,6 +203,7 @@ class _MyBatis
                             try
                             {
                                 content = FileTool.getString(new FileInputStream(path), 1024, "utf-8");
+                                paths.add("file:" + path);
                             } catch (IOException e)
                             {
                                 throw new RuntimeException(e);
@@ -231,6 +253,38 @@ class _MyBatis
             }
         }
 
+        if (fileListener != null)
+        {
+            setFileListener(fileListener, myBatisOption);
+        }
+
         return sql;
+    }
+
+    List<File> getRelatedFile(List<String> paths, String resourceDir)
+    {
+        if (resourceDir != null && !resourceDir.endsWith("/"))
+        {
+            resourceDir += "/";
+        }
+        List<File> list = new ArrayList<>(paths.size() + 1);
+
+        for (String path : paths)
+        {
+            File file = null;
+            if (path.startsWith("file:"))
+            {
+                file = new File(path.substring(5));
+            } else if (path.startsWith("classpath:") && resourceDir != null)
+            {
+                file = new File(resourceDir + path.substring(10));
+            }
+            if (file != null && file.exists() && file.isFile())
+            {
+                list.add(file);
+            }
+        }
+
+        return list;
     }
 }

@@ -26,6 +26,11 @@ import java.util.concurrent.Executors;
 class MSqlSessionFactoryBuilder
 {
 
+    interface FileListener
+    {
+        void onGetFiles(File[] files) throws Exception;
+    }
+
     interface BuilderListener
     {
         void onParse() throws Exception;
@@ -34,7 +39,8 @@ class MSqlSessionFactoryBuilder
 
         boolean willCheckMapperFile();
 
-        File getFile();
+        void listenFiles(FileListener fileListener) throws Exception;
+
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MSqlSessionFactoryBuilder.class);
@@ -81,45 +87,66 @@ class MSqlSessionFactoryBuilder
                 return thread;
             });
         }
-        watchService = FileSystems.getDefault().newWatchService();
-        final Set<String> regedNames = new HashSet<>();
+        this.watchService = FileSystems.getDefault().newWatchService();
+
+        final WatchService finalWatchService = this.watchService;
+        final boolean[] state = {true};
+        //final Set<String> regedNames = new HashSet<>();
         Set<String> reged = new HashSet<>();
+        FileListener fileListener = files -> {
+            if (files == null || !state[0])
+            {
+                return;
+            }
+            for (File file : files)
+            {
+                //regedNames.add(file.getAbsolutePath());
+                File dir = file.getParentFile();
+                if (reged.contains(dir.getAbsolutePath()))
+                {
+                    continue;
+                }
+                reged.add(dir.getAbsolutePath());
+                LOGGER.debug("listen change of dir:{}", dir);
+                synchronized (this)
+                {
+                    Paths.get(dir.getAbsolutePath()).register(finalWatchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                }
+            }
+        };
+
+
         for (BuilderListener listener : builderListenerSet)
         {
             if (listener.willCheckMapperFile())
             {
-                File file = listener.getFile();
-                regedNames.add(file.getName());
-                file = file.getParentFile();
-                if (reged.contains(file.getAbsolutePath()))
-                {
-                    continue;
-                }
-
-                reged.add(file.getAbsolutePath());
-                LOGGER.debug("reg change:{}", file);
-                Paths.get(file.getAbsolutePath()).register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                listener.listenFiles(fileListener);
             }
         }
 
 
         executorService.execute(() -> {
-            WatchService watchService = this.watchService;
             while (!isDestroyed)
             {
                 try
                 {
                     boolean willBuild = false;
-                    WatchKey key = watchService.take();
+                    WatchKey key = finalWatchService.take();
                     for (WatchEvent<?> event : key.pollEvents())
                     {
-                        LOGGER.debug("change event:{}-->{}", event.context(), event.kind());
                         Path path = (Path) event.context();
-                        if (regedNames.contains(path.getFileName().toString()))
+                        if (LOGGER.isDebugEnabled())
                         {
-                            willBuild = true;
-                            break;
+                            LOGGER.debug("change event:{}-->{}", path.toAbsolutePath(), event.kind());
                         }
+//                        String filePath = path.toAbsolutePath().toFile().getAbsolutePath();
+//                        if (regedNames.contains(filePath))
+//                        {
+//                            willBuild = true;
+//                            break;
+//                        }
+                        willBuild = true;
+                        break;
                     }
                     if (willBuild)
                     {
@@ -132,6 +159,9 @@ class MSqlSessionFactoryBuilder
                         {
                             LOGGER.error(e.getMessage(), e);
                         }
+                        state[0] = false;
+                        needReRegFileCheck=true;
+                        break;
                     }
                     // 重设WatchKey
                     key.reset();
@@ -141,7 +171,7 @@ class MSqlSessionFactoryBuilder
                     {
                         LOGGER.error(e.getMessage(), e);
                     }
-                    if (isDestroyed || this.watchService == null)
+                    if (isDestroyed || MSqlSessionFactoryBuilder.this.watchService == null)
                     {
                         LOGGER.debug("closed WatchService!");
                         break;
@@ -149,6 +179,7 @@ class MSqlSessionFactoryBuilder
                 }
 
             }
+
             if (needReRegFileCheck)
             {
                 needReRegFileCheck = false;
@@ -162,6 +193,7 @@ class MSqlSessionFactoryBuilder
                 }
             }
         });
+
     }
 
     public synchronized void onStart() throws Exception
@@ -194,7 +226,7 @@ class MSqlSessionFactoryBuilder
         this.dataSourceConf = myBatisOption.dataSource;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
-        this.interceptors=myBatisOption.interceptors;
+        this.interceptors = myBatisOption.interceptors;
     }
 
     public synchronized void build() throws Exception
@@ -206,21 +238,6 @@ class MSqlSessionFactoryBuilder
         {
             JSONObject dataSourceConf = this.dataSourceConf;
             this.dataSourceConf = null;
-
-//            Class<?> clazz = PackageUtil.newClass(dataSourceConf.getString("dsFactory"), null);
-//            DataSourceFactory factory = (DataSourceFactory) WPTool.newObject(clazz);
-//
-//            Properties properties = new Properties();
-//            for (String key : dataSourceConf.keySet())
-//            {
-//                if ("dsFactory".equals(key))
-//                {
-//                    continue;
-//                }
-//                properties.setProperty(key, dataSourceConf.getString(key));
-//            }
-//            factory.setProperties(properties);
-
             Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
             builder.transactionFactory(new JdbcTransactionFactory());
             builder.dataSource(MyBatisBridge.buildDataSource(dataSourceConf));
@@ -231,13 +248,14 @@ class MSqlSessionFactoryBuilder
         {
             Configuration configuration = sqlSessionFactory.getConfiguration();
             configuration.setEnvironment(environment);
-            if(interceptors!=null){
-                for(Interceptor interceptor:interceptors){
+            if (interceptors != null)
+            {
+                for (Interceptor interceptor : interceptors)
+                {
                     configuration.addInterceptor(interceptor);
                 }
             }
         }
-
 
         this.sqlSessionFactory = sqlSessionFactory;
         for (BuilderListener listener : builderListenerSet)

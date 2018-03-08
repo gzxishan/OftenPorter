@@ -17,15 +17,13 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
-import org.w3c.dom.Document;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -94,9 +92,9 @@ class MyBatisDaoGen implements AutoSetGen
         return path;
     }
 
-    String replaceParams(_MyBatis myBatis, String xml)
+    String replaceParams(_MyBatis myBatis, String xml) throws Exception
     {
-        xml = myBatis.replaceSqlParams(xml);
+        xml = myBatis.replaceSqlParams(xml, mybatisConfig.myBatisOption);
         if (methodMap != null && methodMap.size() > 0)
         {
 
@@ -167,10 +165,27 @@ class MyBatisDaoGen implements AutoSetGen
             }
 
             {
-                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-                Document doc = documentBuilder.parse(new ByteArrayInputStream(xmlData));
-                String encoding = doc.getXmlEncoding();
+//                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+//                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+//                Document doc = documentBuilder.parse(new ByteArrayInputStream(xmlData));
+                String encoding = null;
+
+                BufferedReader bufferedReader = new BufferedReader(
+                        new InputStreamReader(new ByteArrayInputStream(xmlData)));
+                String line = bufferedReader.readLine();
+                bufferedReader.close();
+                if (line != null)
+                {//读取第一行的xml编码方式。
+                    Pattern encodingPattern = Pattern
+                            .compile("encoding([\\s]*)=([\\s]*)(['\"])([^\\r\\n'\"]+)(['\"])",
+                                    Pattern.CASE_INSENSITIVE);
+                    Matcher matcher = encodingPattern.matcher(line);
+                    if (matcher.find())
+                    {
+                        encoding = matcher.group(4);
+                    }
+                }
+
                 if (encoding == null)
                 {
                     encoding = "utf-8";
