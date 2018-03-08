@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 请使用{@linkplain StartupServlet}
@@ -47,7 +48,8 @@ public class WMainServlet extends HttpServlet implements CommonMain
         public IAttribute getIAttribute(WObject wObject)
         {
             Object req = wObject.getRequest().getOriginalRequest();
-            if(req==null||!(req instanceof HttpServletRequest)){
+            if (req == null || !(req instanceof HttpServletRequest))
+            {
                 return null;
             }
             HttpServletRequest request = (HttpServletRequest) req;
@@ -95,7 +97,6 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
     public WMainServlet(String pname, boolean responseWhenException)
     {
-        //this.urlPatternPrefix = urlPatternPrefix;
         this.pname = pname;
         this.urlEncoding = "utf-8";
         this.responseWhenException = responseWhenException;
@@ -208,7 +209,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             {
                 request.setCharacterEncoding(req.context.getContentEncoding());
                 response.setCharacterEncoding(req.context.getContentEncoding());
-                porterMain.doRequest(req, wreq, wresp,false);
+                porterMain.doRequest(req, wreq, wresp, false);
             }
         }
 
