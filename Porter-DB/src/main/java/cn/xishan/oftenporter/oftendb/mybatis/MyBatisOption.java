@@ -1,8 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.ibatis.datasource.DataSourceFactory;
-import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.plugin.Interceptor;
 
 import java.util.ArrayList;
@@ -15,6 +13,9 @@ import java.util.Map;
  */
 public class MyBatisOption
 {
+    /**
+     * 在资源目录下的子目录
+     */
     public String rootDir;
 
     public boolean autoCommit = true;
@@ -30,7 +31,7 @@ public class MyBatisOption
     public boolean autoRegisterAlias = true;
 
     /**
-     * 资源根目录，主要用于开发阶段。
+     * 资源目录所对应的系统文件，主要用于开发阶段。
      */
     public String resourcesDir;
 
