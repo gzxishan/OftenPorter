@@ -209,6 +209,7 @@ public class IdGen implements Serializable
     }
 
     /**
+     * @param datelen     日期所占位数，5~16
      * @param specLen     指定长度
      * @param randBits    随机数位数
      * @param mchid       机器id
@@ -234,12 +235,7 @@ public class IdGen implements Serializable
         {
             return DEFAULT_ID_GEN;
         }
-        long mac = getMac();
-        if (mac == -1)
-        {
-            mac = 0;
-        }
-        String mchid = IdGen.num10ToNum64(mac, 8);
+        String mchid = getNetMac();
         DEFAULT_ID_GEN = new IdGen(6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
         return DEFAULT_ID_GEN;
     }
@@ -255,14 +251,25 @@ public class IdGen implements Serializable
         {
             return DEFAULT_ID_GEN_X;
         }
+        String mchid = getNetMac();
+        DEFAULT_ID_GEN_X = new IdGen(6, 4, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        return DEFAULT_ID_GEN_X;
+    }
+
+    /**
+     * 根据可用网卡中的最大mac地址生成,8个字符长度
+     *
+     * @return
+     */
+    public static String getNetMac()
+    {
         long mac = getMac();
         if (mac == -1)
         {
             mac = 0;
         }
         String mchid = IdGen.num10ToNum64(mac, 8);
-        DEFAULT_ID_GEN_X = new IdGen(6, 4, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
-        return DEFAULT_ID_GEN_X;
+        return mchid;
     }
 
     private static long getMac()
