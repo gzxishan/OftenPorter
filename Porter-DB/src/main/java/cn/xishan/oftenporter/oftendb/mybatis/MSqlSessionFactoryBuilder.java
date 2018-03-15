@@ -11,6 +11,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
@@ -146,14 +147,13 @@ class MSqlSessionFactoryBuilder
 //                            break;
 //                        }
                         willBuild = true;
-                        break;
+                        //break;
                     }
                     if (willBuild)
                     {
                         try
                         {
                             LOGGER.debug("start reload mybatis...");
-                            Thread.sleep(1000);
                             build();
                             LOGGER.debug("reload mybatis complete!");
                         } catch (Exception e)
@@ -161,7 +161,9 @@ class MSqlSessionFactoryBuilder
                             LOGGER.error(e.getMessage(), e);
                         }
                         state[0] = false;
-                        needReRegFileCheck=true;
+                        needReRegFileCheck = true;
+                        watchService.close();
+                        MSqlSessionFactoryBuilder.this.watchService=null;
                         break;
                     }
                     // 重设WatchKey
@@ -235,28 +237,33 @@ class MSqlSessionFactoryBuilder
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
 
-        if (dataSourceConf != null)
-        {
-            JSONObject dataSourceConf = this.dataSourceConf;
-            this.dataSourceConf = null;
-            Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
-            builder.transactionFactory(new JdbcTransactionFactory());
-            builder.dataSource(MyBatisBridge.buildDataSource(dataSourceConf));
-            this.environment = builder.build();
-        }
-
+        DataSource dataSource = null;
         if (environment != null)
         {
-            Configuration configuration = sqlSessionFactory.getConfiguration();
-            configuration.setEnvironment(environment);
-            if (interceptors != null)
+            dataSource = environment.getDataSource();
+        }
+
+        JSONObject dataSourceConf = this.dataSourceConf;
+        Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
+        builder.transactionFactory(new JdbcTransactionFactory());
+        if (dataSource == null)
+        {
+            dataSource = MyBatisBridge.buildDataSource(dataSourceConf);
+        }
+        builder.dataSource(dataSource);
+        this.environment = builder.build();
+
+
+        Configuration configuration = sqlSessionFactory.getConfiguration();
+        configuration.setEnvironment(environment);
+        if (interceptors != null)
+        {
+            for (Interceptor interceptor : interceptors)
             {
-                for (Interceptor interceptor : interceptors)
-                {
-                    configuration.addInterceptor(interceptor);
-                }
+                configuration.addInterceptor(interceptor);
             }
         }
+
 
         this.sqlSessionFactory = sqlSessionFactory;
         for (BuilderListener listener : builderListenerSet)
