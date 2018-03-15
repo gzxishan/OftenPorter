@@ -153,6 +153,7 @@ class MSqlSessionFactoryBuilder
                         try
                         {
                             LOGGER.debug("start reload mybatis...");
+                            Thread.sleep(1000);
                             build();
                             LOGGER.debug("reload mybatis complete!");
                         } catch (Exception e)
