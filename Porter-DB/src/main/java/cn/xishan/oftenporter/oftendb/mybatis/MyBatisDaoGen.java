@@ -94,7 +94,7 @@ class MyBatisDaoGen implements AutoSetGen
 
     String replaceParams(_MyBatis myBatis, String xml) throws Exception
     {
-        xml = myBatis.replaceSqlParams(xml, mybatisConfig.myBatisOption);
+        xml = myBatis.replaceSqlParams(xml);
         if (methodMap != null && methodMap.size() > 0)
         {
 
@@ -284,7 +284,7 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
 
-        _MyBatis myBatis = new _MyBatis(theType, dir, name);
+        _MyBatis myBatis = new _MyBatis(theType, mybatisConfig.myBatisOption.resourcesDir, name);
         myBatis.daoClass = mapperClass;
 
         Class<?> entityClass = null;
@@ -312,9 +312,10 @@ class MyBatisDaoGen implements AutoSetGen
             myBatis.entityClass = MyBatisMapper.class;
         }
 
+        String path = dir + name;
+        myBatis.path=path;
         myBatis.init(params);
 
-        String path = dir + name;
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);

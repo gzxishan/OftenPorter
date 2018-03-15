@@ -28,8 +28,9 @@ class _MyBatis
     private static final Logger LOGGER = LogUtil.logger(_MyBatis.class);
 
     MyBatisMapper.Type type;
-    String dir;
+    String resourceDir;
     String name;
+    String path;
     Class<?> daoClass;
     String daoAlias;
     String entityAlias;
@@ -41,21 +42,24 @@ class _MyBatis
     private MSqlSessionFactoryBuilder.FileListener fileListener;
     private List<String> paths;
 
-    public _MyBatis(MyBatisMapper.Type type, String dir, String name)
+    public _MyBatis(MyBatisMapper.Type type, String resourceDir, String name)
     {
+        if (resourceDir != null && !resourceDir.endsWith("/"))
+        {
+            resourceDir += "/";
+        }
         this.type = type;
-        this.dir = dir;
+        this.resourceDir = resourceDir;
         this.name = name;
     }
 
 
-    public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener,
-            MyBatisOption myBatisOption) throws Exception
+    public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener) throws Exception
     {
         this.fileListener = fileListener;
         if (paths != null)
         {
-            List<File> files = getRelatedFile(paths, myBatisOption.resourcesDir);
+            List<File> files = getRelatedFile(paths);
             fileListener.onGetFiles(files.toArray(new File[0]));
             paths = null;
         }
@@ -64,9 +68,10 @@ class _MyBatis
     public void init(String[] params)
     {
         Map<String, Object> map = new HashMap<>();
-        if(!entityClass.equals(MyBatisMapper.class)){
-            map.put("entity",entityClass.getSimpleName());
-            map.put("entityClass",entityClass.getName());
+        if (!entityClass.equals(MyBatisMapper.class))
+        {
+            map.put("entity", entityClass.getSimpleName());
+            map.put("entityClass", entityClass.getName());
         }
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
@@ -99,18 +104,17 @@ class _MyBatis
         this.xmlParamsMap = map;
     }
 
-    public int sizeOfXmlParams()
-    {
-        return xmlParamsMap.size();
-    }
-
-    public String replaceSqlParams(String sql, MyBatisOption myBatisOption) throws Exception
+    public String replaceSqlParams(String sql) throws Exception
     {
 
         int loopCount = 0;
         Map<String, Object> localParams = new HashMap<>(xmlParamsMap);
-        if(paths==null){
+        if (paths == null)
+        {
             paths = new ArrayList<>();
+        } else
+        {
+            paths.clear();
         }
         while (true)
         {
@@ -186,7 +190,7 @@ class _MyBatis
                         path = path.trim();
                         if (i == 0)
                         {//classpath:
-                            LOGGER.debug("load classpath content from:" + path);
+                            LOGGER.debug("[{}]load classpath content from:{}", this.path, path);
                             path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
                             if (!path.startsWith("/"))
                             {
@@ -195,7 +199,19 @@ class _MyBatis
 
                             try
                             {
-                                content = FileTool.getString(daoClass.getResourceAsStream(path), 1024, "utf-8");
+                                File file = null;
+                                if (resourceDir != null)
+                                {
+                                    String filePath = resourceDir + path;
+                                    file = new File(filePath);
+                                }
+                                if (file != null && file.exists() && file.isFile())
+                                {
+                                    content = FileTool.getString(file, 1024, "utf-8");
+                                } else
+                                {
+                                    content = FileTool.getString(daoClass.getResourceAsStream(path), 1024, "utf-8");
+                                }
                                 paths.add("classpath:" + path);
                             } catch (IOException e)
                             {
@@ -203,7 +219,7 @@ class _MyBatis
                             }
                         } else
                         {//file:
-                            LOGGER.debug("load file content from:" + path);
+                            LOGGER.debug("[{}]load file content from:", this.path, path);
                             try
                             {
                                 content = FileTool.getString(new FileInputStream(path), 1024, "utf-8");
@@ -259,18 +275,19 @@ class _MyBatis
 
         if (fileListener != null)
         {
-            setFileListener(fileListener, myBatisOption);
+            setFileListener(fileListener);
         }
 
         return sql;
     }
 
-    List<File> getRelatedFile(List<String> paths, String resourceDir)
+    List<File> getRelatedFile(List<String> paths)
     {
-        if (resourceDir != null && !resourceDir.endsWith("/"))
+        if (resourceDir == null)
         {
-            resourceDir += "/";
+            return new ArrayList<>(0);
         }
+
         List<File> list = new ArrayList<>(paths.size() + 1);
 
         for (String path : paths)
