@@ -64,6 +64,10 @@ class _MyBatis
     public void init(String[] params)
     {
         Map<String, Object> map = new HashMap<>();
+        if(!entityClass.equals(MyBatisMapper.class)){
+            map.put("entity",entityClass.getSimpleName());
+            map.put("entityClass",entityClass.getName());
+        }
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
         {

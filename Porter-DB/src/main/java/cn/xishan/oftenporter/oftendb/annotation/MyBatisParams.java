@@ -19,6 +19,9 @@ import java.lang.annotation.*;
  * <li>
  * value为json格式的字符串{key:value}.
  * </li>
+ * <li>
+ * <strong>默认参数:</strong>如果设置了{@linkplain MyBatisMapper#entityClass()},entity为当前实体类简单名称，entityClass为当前实体类名
+ * </li>
  * </ol>
  * <p>注解在Dao上</p>
  * Created by chenyg on 2018-03-06.
@@ -29,5 +32,9 @@ import java.lang.annotation.*;
 @Inherited
 public @interface MyBatisParams
 {
+    /**
+     * 每一个为json格式
+     * @return
+     */
     String[] value();
 }
