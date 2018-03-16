@@ -21,6 +21,11 @@ public class MyBatisOption
     public boolean autoCommit = true;
 
     /**
+     * 是否允许mapper中的id覆盖，默认true。
+     */
+    public boolean enableMapperOverride=true;
+
+    /**
      * 是否检测mapper文件变动,主要用于开发阶段,默认false。
      */
     public boolean checkMapperFileChange = false;

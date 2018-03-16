@@ -46,6 +46,7 @@ class MSqlSessionFactoryBuilder
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MSqlSessionFactoryBuilder.class);
     private byte[] configData;
+    private boolean enableMapperOverride;
     private SqlSessionFactory sqlSessionFactory;
     private Set<BuilderListener> builderListenerSet = new HashSet<>();
     private ExecutorService executorService;
@@ -227,6 +228,7 @@ class MSqlSessionFactoryBuilder
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
         this.dataSourceConf = myBatisOption.dataSource;
+        this.enableMapperOverride=myBatisOption.enableMapperOverride;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
         this.interceptors = myBatisOption.interceptors;
@@ -236,6 +238,12 @@ class MSqlSessionFactoryBuilder
     {
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
+
+        if(enableMapperOverride){
+            Configuration configuration = sqlSessionFactory.getConfiguration();
+            ConfigurationEnableIdOverride configurationEnableIdOverride = new ConfigurationEnableIdOverride(configuration.getEnvironment());
+            sqlSessionFactory=new SqlSessionFactoryBuilder().build(configurationEnableIdOverride);
+        }
 
         DataSource dataSource = null;
         if (environment != null)
