@@ -152,6 +152,7 @@ class MSqlSessionFactoryBuilder
                     }
                     if (willBuild)
                     {
+                        Thread.sleep(1000);
                         try
                         {
                             LOGGER.debug("start reload mybatis...");
