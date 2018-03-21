@@ -20,7 +20,12 @@ import java.lang.annotation.*;
  * value为json格式的字符串{key:value}.
  * </li>
  * <li>
- * <strong>默认参数:</strong>如果设置了{@linkplain MyBatisMapper#entityClass()},entity为当前实体类简单名称，entityClass为当前实体类名
+ * <strong>默认参数:</strong>
+ * <ul>
+ * <li>如果设置了{@linkplain MyBatisMapper#entityClass()},$[entity]为当前实体类简单名称(如User)，$[entityClass]为当前实体类名(如cn.xishan.xxx
+ * .entity.User)</li>
+ * <li>$[mapperDao]为当前接口类简单名称，$[mapperDaoClass]为当前接口类类名</li>
+ * </ul>
  * </li>
  * </ol>
  * <p>注解在Dao上</p>
@@ -34,6 +39,7 @@ public @interface MyBatisParams
 {
     /**
      * 每一个为json格式
+     *
      * @return
      */
     String[] value();

@@ -5,7 +5,8 @@ import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import java.lang.annotation.*;
 
 /**
- * <p>注解在Dao上</p>
+ * <p>注解在Dao上.</p>
+ * <p>见：{@linkplain MyBatisParams}</p>
  *
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
@@ -37,7 +38,7 @@ public @interface MyBatisMapper
     Type type() default Type.RESOURCES;
 
     /**
-     * 为空时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias};没有该注解时，不会自动注册别名。
+     * 为空时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias}决定;没有该注解时，不会自动注册别名。
      *
      * @return
      */

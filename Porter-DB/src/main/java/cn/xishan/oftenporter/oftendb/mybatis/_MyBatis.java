@@ -73,6 +73,9 @@ class _MyBatis
             map.put("entity", entityClass.getSimpleName());
             map.put("entityClass", entityClass.getName());
         }
+        map.put("mapperDao", daoClass.getSimpleName());
+        map.put("mapperDaoClass", daoClass.getName());
+
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
         {
