@@ -165,7 +165,7 @@ class MSqlSessionFactoryBuilder
                         state[0] = false;
                         needReRegFileCheck = true;
                         watchService.close();
-                        MSqlSessionFactoryBuilder.this.watchService=null;
+                        MSqlSessionFactoryBuilder.this.watchService = null;
                         break;
                     }
                     // 重设WatchKey
@@ -229,7 +229,7 @@ class MSqlSessionFactoryBuilder
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
         this.dataSourceConf = myBatisOption.dataSource;
-        this.enableMapperOverride=myBatisOption.enableMapperOverride;
+        this.enableMapperOverride = myBatisOption.enableMapperOverride;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
         this.interceptors = myBatisOption.interceptors;
@@ -237,13 +237,12 @@ class MSqlSessionFactoryBuilder
 
     public synchronized void build() throws Exception
     {
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
+        SqlSessionFactory _sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
-
-        if(enableMapperOverride){
-            Configuration configuration = sqlSessionFactory.getConfiguration();
-            ConfigurationEnableIdOverride configurationEnableIdOverride = new ConfigurationEnableIdOverride(configuration.getEnvironment());
-            sqlSessionFactory=new SqlSessionFactoryBuilder().build(configurationEnableIdOverride);
+        Configuration configuration = _sqlSessionFactory.getConfiguration();
+        if (enableMapperOverride)
+        {
+            ConfigurationHandle.setForOverride(configuration);
         }
 
         DataSource dataSource = null;
@@ -263,7 +262,6 @@ class MSqlSessionFactoryBuilder
         this.environment = builder.build();
 
 
-        Configuration configuration = sqlSessionFactory.getConfiguration();
         configuration.setEnvironment(environment);
         if (interceptors != null)
         {
@@ -273,8 +271,7 @@ class MSqlSessionFactoryBuilder
             }
         }
 
-
-        this.sqlSessionFactory = sqlSessionFactory;
+        this.sqlSessionFactory = _sqlSessionFactory;
         for (BuilderListener listener : builderListenerSet)
         {
             listener.onBindAlias();
