@@ -35,7 +35,7 @@ public class InNames
             {
                 if (index1 == -1 || index2 == -1 || index1 > index2)
                 {
-                    throw new InitException("varname config error:" + varName);
+                    throw new InitException("var name config error:" + varName);
                 }
                 String varConfig = varName.substring(index1 + 1, index2).trim();
                 if (varConfig.equals(""))
