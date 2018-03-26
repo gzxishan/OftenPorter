@@ -2,12 +2,9 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
-import cn.xishan.oftenporter.porter.core.apt.AutoGen;
-import cn.xishan.oftenporter.porter.core.apt.PorterProcessor;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.parsers.ParserUtil;
 import org.slf4j.Logger;
@@ -92,40 +89,7 @@ public class InObjDeal
     {
 
         One one;
-        if (Modifier.isInterface(clazz.getModifiers()))
-        {
-            if (clazz.isAnnotationPresent(AutoGen.class))
-            {
-                AutoGen autoGen = clazz.getAnnotation(AutoGen.class);
-                String name;
-                Class<?> key = autoGen.classValue();
-                if (key.equals(AutoGen.class))
-                {
-                    name = autoGen.value();
-                } else
-                {
-                    name = key.getName();
-                }
-                if ("".equals(name))
-                {
-                    clazz = PackageUtil
-                            .newClass(clazz.getName() + PorterProcessor.SUFFIX, innerContextBridge.classLoader);
-                } else
-                {
-                    Class<?> c = innerContextBridge.autoGenImplMap.get(name);
-                    if (c == null)
-                    {
-                        throw new RuntimeException("not find interface implementation of " + clazz);
-                    } else
-                    {
-                        clazz = c;
-                    }
-                }
-            } else
-            {
-                throw new RuntimeException("interface have to be with annotation @" + AutoGen.class.getSimpleName());
-            }
-        } else if (Modifier.isAbstract(clazz.getModifiers()))
+        if (Modifier.isInterface(clazz.getModifiers()) || Modifier.isAbstract(clazz.getModifiers()))
         {//若是接口，执行此句也会为true。
             throw new RuntimeException("abstract class is not supported!(" + clazz + ")");
         }

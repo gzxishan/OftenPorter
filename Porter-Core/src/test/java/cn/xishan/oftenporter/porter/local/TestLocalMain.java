@@ -8,13 +8,10 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.local.porter.Article;
-import cn.xishan.oftenporter.porter.local.porter.Demo;
-import cn.xishan.oftenporter.porter.local.porter.IDemo;
 import cn.xishan.oftenporter.porter.local.porter.User;
 import cn.xishan.oftenporter.porter.local.porter2.My2Porter;
 import cn.xishan.oftenporter.porter.local.porter2.MyPorter;
 import org.apache.log4j.PropertyConfigurator;
-import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +19,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -54,7 +49,7 @@ public class TestLocalMain {
         porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".porter3");
         porterConf.getSeekPackages().addClassPorter(My2Porter.class)
                 .addObjectPorter(new MyPorter("Hello MyPorter!"));
-        porterConf.addContextAutoGenImpl(IDemo.class.getName(), Demo.class);
+
         //porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
 
@@ -233,8 +228,7 @@ public class TestLocalMain {
 
                     bridge.request(new PRequest(PortMethod.GET,"/Local-1/My2/hello"),
                             lResponse -> assertEquals("My2Porter", lResponse.getResponse()));
-                    bridge.request(new PRequest(PortMethod.GET,"/Local-1/My/hello").addParam("name", "Demo001"),
-                            lResponse -> assertTrue(lResponse.getResponse() instanceof IDemo));
+
                     dtime.addAndGet(System.nanoTime() - time);
                     if (count.incrementAndGet() == n) {
                         listener.onEnd(dtime.get(), n);

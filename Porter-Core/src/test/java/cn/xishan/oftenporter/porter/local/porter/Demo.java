@@ -5,12 +5,12 @@ import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/14.
  */
-public class Demo implements IDemo
+public class Demo
 {
     @PortInObj.Nece("name")
     private String name;
 
-    @Override
+
     public String getName()
     {
         return name;

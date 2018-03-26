@@ -6,13 +6,27 @@
 
     <groupId>cn.xishan.oftenporter</groupId>
     <artifactId>OftenPorter</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <name>OftenPorter</name>
+
+
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Releases</name>
+            <url>https://m2.xishankeji.com/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Snapshots</name>
+            <url>https://m2.xishankeji.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <modules>
         <module>Porter-Core</module>
@@ -87,13 +101,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>user-release</id>
-            <name>User Project Release</name>
-            <url>http://192.168.0.8:8081/nexus/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
     <build>
         <plugins>
             <plugin><!-- 用于导出源码 -->
