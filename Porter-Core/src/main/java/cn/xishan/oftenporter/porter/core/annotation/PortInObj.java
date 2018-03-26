@@ -4,7 +4,6 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.apt.AutoGen;
 import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.base.ParamDealt.FailedReason;
@@ -18,13 +17,6 @@ import java.lang.reflect.Method;
  * <pre>
  * 一、用于自动生成类或接口对象。对于该方式的参数类型绑定是全局的，例如有一个类A，其所有字段的{@linkplain ITypeParser}在一个地方被绑定了，那么在另一个地方则无需进行绑定。
  * 1.对于类，必须是非抽象类且含有无参构造函数。
- * 2.对于接口是以下形式:(默认为必需参数,需要用到Annotation Processor机制，见{@linkplain AutoGen})
- * 以get或is开头的变量名是去掉get或is再把第一个字符变为小写。
- * &#64;AutoGen
- * interface IDemo{
- *     String getName();
- *     boolean isOk();
- * }
  * 二、 <strong>参数的配置参数：</strong>{@linkplain Nece#value()}和{@linkplain UnNece#value()}支持{@linkplain ITypeParserOption}
  * 三、<strong>注意：</strong>1.对于此方式注解的绑定类，对应的field使用{@linkplain Parser}或{@linkplain Parser.parse}来手动绑定类型转换，可以注解在类或field上.
  * .如果field已经被绑定了转换类型，则此field（加了{@linkplain Nece}或{@linkplain UnNece}的）不会进行自动绑定。
