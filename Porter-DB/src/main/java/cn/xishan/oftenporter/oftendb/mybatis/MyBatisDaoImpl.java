@@ -27,7 +27,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     private String path;
     private _MyBatis myBatis;
 
-
     public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, _MyBatis myBatis, String path)
     {
         this.myBatisDaoGen = myBatisDaoGen;

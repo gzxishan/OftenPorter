@@ -15,9 +15,7 @@ import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -58,6 +56,8 @@ class MSqlSessionFactoryBuilder
     private JSONObject dataSourceConf;
     private List<Interceptor> interceptors;
     private Environment environment;
+
+    Map<String, String> methodMap;
 
     synchronized void regNewMapper(BuilderListener builderListener) throws Exception
     {
@@ -233,6 +233,14 @@ class MSqlSessionFactoryBuilder
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
         this.interceptors = myBatisOption.interceptors;
+        if (myBatisOption.javaFuns != null)
+        {
+            methodMap = new HashMap<>();
+            for (Map.Entry<String, Class<?>> entry : myBatisOption.javaFuns.entrySet())
+            {
+                methodMap.put(entry.getKey(), entry.getValue().getName());
+            }
+        }
     }
 
     public synchronized void build() throws Exception
