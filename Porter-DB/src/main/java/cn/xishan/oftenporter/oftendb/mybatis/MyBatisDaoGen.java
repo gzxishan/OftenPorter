@@ -17,6 +17,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
+
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
@@ -36,20 +37,12 @@ class MyBatisDaoGen implements AutoSetGen
     @AutoSet
     Logger LOGGER;
 
-    Map<String, String> methodMap;
+
 
 
     @PortIn.PortStart(order = 100100)
     public void onStart() throws Exception
     {
-        if (mybatisConfig.myBatisOption.javaFuns != null)
-        {
-            methodMap = new HashMap<>();
-            for (Map.Entry<String, Class<?>> entry : mybatisConfig.myBatisOption.javaFuns.entrySet())
-            {
-                methodMap.put(entry.getKey(), entry.getValue().getName());
-            }
-        }
         mybatisConfig.mSqlSessionFactoryBuilder.onStart();
     }
 
@@ -95,6 +88,7 @@ class MyBatisDaoGen implements AutoSetGen
     String replaceParams(_MyBatis myBatis, String xml) throws Exception
     {
         xml = myBatis.replaceSqlParams(xml);
+        Map<String, String> methodMap=mybatisConfig.mSqlSessionFactoryBuilder.methodMap;
         if (methodMap != null && methodMap.size() > 0)
         {
 
@@ -313,7 +307,7 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
         String path = dir + name;
-        myBatis.path=path;
+        myBatis.path = path;
         myBatis.init(params);
 
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);
