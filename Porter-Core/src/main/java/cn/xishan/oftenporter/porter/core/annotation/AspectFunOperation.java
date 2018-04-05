@@ -11,8 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.*;
 
 /**
- * 注解在类上时，无法控制混入接口。
- *
+ * 注解在注解上。
+ *<ol>
+ *     <li>被修饰的注解，可以注解在函数或类上。</li>
+ *     <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解，</li>
+ *</ol>
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
+import cn.xishan.oftenporter.porter.core.base.InNames;
+import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 import java.lang.reflect.InvocationTargetException;
@@ -21,8 +23,20 @@ public abstract class PorterOfFun implements ObjectGetter
     InObj inObj;
     Porter porter;
 
-    AspectFunOperation.Handle[] handles;
+    private AspectFunOperation.Handle[] handles;
 
+
+    public final boolean isInner()
+    {
+        PortFunType portFunType = portIn.getPortFunType();
+        return portFunType == PortFunType.INNER || portFunType == PortFunType.FAST_INNER;
+    }
+
+    public final boolean isFastInner()
+    {
+        PortFunType portFunType = portIn.getPortFunType();
+        return portFunType == PortFunType.FAST_INNER;
+    }
 
     /**
      * 返回null表示没有切面处理器。
@@ -83,7 +97,8 @@ public abstract class PorterOfFun implements ObjectGetter
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public Object invoke(WObject wObject, Object[] optionArgs) throws InvocationTargetException, IllegalAccessException
+    public final Object invoke(WObject wObject,
+            Object[] optionArgs) throws InvocationTargetException, IllegalAccessException
     {
         Method javaMethod = getMethod();
         if (optionArgs != null)

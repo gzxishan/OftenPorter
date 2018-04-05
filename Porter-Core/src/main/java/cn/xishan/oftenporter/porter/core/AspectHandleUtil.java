@@ -22,7 +22,7 @@ class AspectHandleUtil
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AspectHandleUtil.class);
 
-    public static Object tryDoHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
+    public static final Object tryDoHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
             Object failedObject)
 
     {
@@ -36,7 +36,7 @@ class AspectHandleUtil
         }
     }
 
-    public static Object doHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
+    public static final Object doHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
             Object failedObject) throws Exception
     {
         //处理AspectFunOperation

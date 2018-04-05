@@ -1,13 +1,11 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
-import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
-import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -106,10 +104,10 @@ public class SthDeal
             IPorter iPorter = (IPorter) porter.object;
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
-        //TODO 处理类上的AspectFunOperation
+        //处理类上的AspectFunOperation
         List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
                 clazz.getDeclaredAnnotations(), porter,
-                null);
+                null,null);
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
@@ -221,7 +219,7 @@ public class SthDeal
     {
         Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
         List<AspectFunOperation.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
-                classHandles);
+                classHandles,porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
         {
             porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
@@ -237,13 +235,13 @@ public class SthDeal
      */
     private List<AspectFunOperation.Handle> seekAspectFunOperation(AutoSetHandle setHandle, Annotation[] annotations,
             Object object,
-            List<AspectFunOperation.Handle> _handles)
+            List<AspectFunOperation.Handle> _handles, AspectPosition aspectPosition)
     {
         // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
 
         List<AspectFunOperation.Handle> handles = new ArrayList<>();
 
-        if (_handles != null)
+        if (_handles != null && aspectPosition == AspectPosition.BEFORE)
         {
             handles.addAll(_handles);
         }
@@ -293,6 +291,11 @@ public class SthDeal
                     throw new InitException(e);
                 }
             }
+        }
+
+        if (_handles != null && aspectPosition == AspectPosition.AFTER)
+        {
+            handles.addAll(_handles);
         }
 
         return handles;
@@ -377,53 +380,52 @@ public class SthDeal
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
-        if (portIn == null)
+        PorterOfFun porterOfFun = null;
+        if (portIn != null)
         {
-            return null;
-        }
-        try
-        {
-
-            method.setAccessible(true);
-            Class<?>[] parameters = method.getParameterTypes();
+            try
+            {
+                method.setAccessible(true);
+                Class<?>[] parameters = method.getParameterTypes();
 //            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-            PorterOfFun porterOfFun = new PorterOfFun()
-            {
-                @Override
-                public Object getObject()
+                porterOfFun = new PorterOfFun()
                 {
-                    return porter.getObj();
+                    @Override
+                    public Object getObject()
+                    {
+                        return porter.getObj();
+                    }
+                };
+                porterOfFun.method = method;
+                porterOfFun.porter = porter;
+                porterOfFun.portIn = portIn;
+                porterOfFun.argCount = parameters.length;
+
+                inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+                TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
+                boolean hasBinded = SthUtil
+                        .bindParserAndParse(method, annotationDealt, portIn.getInNames(), typeParserStore,
+                                backableSeek);
+
+                if (!hasBinded)
+                {
+                    //当函数上没有转换注解、而类上有时，加上此句是确保类上的转换对函数有想
+                    SthUtil.bindTypeParser(portIn.getInNames(), null, typeParserStore, backableSeek,
+                            BackableSeek.SeekType.NotAdd_Bind);
                 }
-            };
-            porterOfFun.method = method;
-            porterOfFun.porter = porter;
-            porterOfFun.portIn = portIn;
-            porterOfFun.argCount = parameters.length;
-
-
-            inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
-
-            TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
-            boolean hasBinded = SthUtil.bindParserAndParse(method, annotationDealt, portIn.getInNames(), typeParserStore, backableSeek);
-
-            if (!hasBinded)
+                porterOfFun.inObj = inObjDeal
+                        .dealPortInObj(porter.getClazz(), method, innerContextBridge, autoSetHandle);
+                porterOfFun.portOut = annotationDealt.portOut(porter, method);
+            } catch (Exception e)
             {
-                //当函数上没有转换注解、而类上有时，加上此句是确保类上的转换对函数有想
-                SthUtil.bindTypeParser(portIn.getInNames(), null, typeParserStore, backableSeek,
-                        BackableSeek.SeekType.NotAdd_Bind);
+                LOGGER.warn(e.getMessage(), e);
+                porterOfFun = null;
             }
-
-            porterOfFun.inObj = inObjDeal.dealPortInObj(porter.getClazz(), method, innerContextBridge, autoSetHandle);
-            porterOfFun.portOut = annotationDealt.portOut(porter, method);
-            return porterOfFun;
-        } catch (Exception e)
-        {
-            LOGGER.warn(e.getMessage(), e);
-            return null;
         }
+        return porterOfFun;
 
     }
 
