@@ -16,10 +16,12 @@ public final class _PortIn
     boolean ignoreTypeParser;
 
     PortFunType portFunType;
+    AspectPosition aspectPosition;
 
-    public _PortIn(PortFunType portFunType, String[] ignoredFunTieds)
+    public _PortIn(PortFunType portFunType,AspectPosition aspectPosition, String[] ignoredFunTieds)
     {
         this.portFunType = portFunType;
+        this.aspectPosition=aspectPosition;
         this.ignoredFunTieds = ignoredFunTieds;
     }
 
@@ -31,6 +33,11 @@ public final class _PortIn
     public PortFunType getPortFunType()
     {
         return portFunType;
+    }
+
+    public AspectPosition getAspectPosition()
+    {
+        return aspectPosition;
     }
 
     public TiedType getTiedType()

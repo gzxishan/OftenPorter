@@ -441,7 +441,7 @@ public final class AnnotationDealt
         {
             return null;
         }
-        _PortIn _portIn = new _PortIn(portIn.portFunType(), portIn.ignoredFunTieds());
+        _PortIn _portIn = new _PortIn(portIn.portFunType(),null, portIn.ignoredFunTieds());
         _portIn.tiedNames = PortUtil.tieds(portIn, clazz, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
@@ -470,8 +470,9 @@ public final class AnnotationDealt
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-            _portInOfMethod = new _PortIn(PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType()),
-                    portIn.ignoredFunTieds());
+
+            PortFunType portFunType = PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType());
+            _portInOfMethod = new _PortIn(portFunType,portIn.aspectOfClassPosition(),portIn.ignoredFunTieds());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
 
             if (_portInOfMethod.getTiedType().isRest())

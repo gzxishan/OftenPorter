@@ -25,9 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class PortExecutor
+public final class PortExecutor
 {
-
 
     private final Logger _LOGGER;
     private Map<String, Context> contextMap = new ConcurrentHashMap<>();
@@ -241,7 +240,7 @@ public class PortExecutor
         return wObject;
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
+    public final void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
     {
         WObjectImpl wObject = null;
         try
@@ -255,8 +254,7 @@ public class PortExecutor
             UrlDecoder.Result result = req.result;
 
 
-            if (!isInnerRequest && funPort.getMethodPortIn()
-                    .getPortFunType() == PortFunType.INNER)
+            if (!isInnerRequest && funPort.isInner())
             {
                 exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
                 return;
@@ -279,8 +277,15 @@ public class PortExecutor
 
             ParamSource paramSource = getParamSource(wObject, classPort, funPort);
             wObject.setParamSource(paramSource);
-            //全局通过检测
-            dealtOfGlobalCheck(context, funPort, wObject, innerContextBridge, result);
+
+            if (isInnerRequest && funPort.isFastInner())
+            {
+                dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, true);
+            } else
+            {
+                //全局通过检测
+                dealtOfGlobalCheck(context, wObject, funPort, innerContextBridge, result);
+            }
         } catch (Exception e)
         {
             Throwable ex = getCause(e);
@@ -313,7 +318,7 @@ public class PortExecutor
         }
     }
 
-    private void exNotFoundFun(WRequest request, WResponse response, UrlDecoder.Result result,
+    private final void exNotFoundFun(WRequest request, WResponse response, UrlDecoder.Result result,
             boolean responseWhenException)
     {
         response.toErr();
@@ -326,7 +331,7 @@ public class PortExecutor
         close(response);
     }
 
-    private void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException)
+    private final void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException)
     {
         response.toErr();
         if (responseWhenException)
@@ -409,7 +414,7 @@ public class PortExecutor
         return reason;
     }
 
-    private final void dealtOfGlobalCheck(Context context, PorterOfFun funPort, WObjectImpl wObject,
+    private final void dealtOfGlobalCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
             InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -417,7 +422,7 @@ public class PortExecutor
 
         if (allGlobal.length == 0)
         {
-            dealtOfContextCheck(context, funPort, wObject, innerContextBridge, result);
+            dealtOfContextCheck(context, wObject, funPort, innerContextBridge, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, wObject,
@@ -437,7 +442,7 @@ public class PortExecutor
                                         innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfContextCheck(context, funPort, wObject, innerContextBridge, result);
+                                dealtOfContextCheck(context, wObject, funPort, innerContextBridge, result);
                             }
                         }
                     });
@@ -446,8 +451,8 @@ public class PortExecutor
 
     }
 
-    private final void dealtOfContextCheck(Context context, PorterOfFun funPort,
-            WObjectImpl wObject, InnerContextBridge innerContextBridge,
+    private final void dealtOfContextCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
+            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         CheckPassable[] contextChecks = context.contextChecks;
@@ -591,7 +596,7 @@ public class PortExecutor
     }
 
 
-    private void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
+    private final void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
             Context context, InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
@@ -601,7 +606,7 @@ public class PortExecutor
         if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
+            dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, false);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -619,7 +624,7 @@ public class PortExecutor
                                         innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfFunParam(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, false);
                             }
                         }
                     }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
@@ -630,9 +635,9 @@ public class PortExecutor
     }
 
 
-    private void dealtOfFunParam(PorterOfFun funPort, WObjectImpl wObject,
-            Context context, InnerContextBridge innerContextBridge,
-            UrlDecoder.Result result)
+    private final void dealtOfFunParam(Context context, WObjectImpl wObject, PorterOfFun funPort,
+            InnerContextBridge innerContextBridge,
+            UrlDecoder.Result result, boolean isFastInner)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
         //函数参数初始化
@@ -670,10 +675,10 @@ public class PortExecutor
         AspectHandleUtil.tryDoHandle(AspectHandleUtil.State.BeforeInvokeOfMethodCheck, wObject, funPort, null, null);
 
         //函数通过检测,参数已经准备好
-        if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
+        if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
+            dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result, isFastInner);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -691,7 +696,7 @@ public class PortExecutor
                                         innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result);
+                                dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result, false);
                             }
                         }
                     }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
@@ -701,8 +706,8 @@ public class PortExecutor
 
     }
 
-    private void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge, UrlDecoder.Result result)
+    private final void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
+            InnerContextBridge innerContextBridge, UrlDecoder.Result result, boolean isFastInner)
     {
 
         _PortIn funPIn = funPort.getMethodPortIn();
@@ -748,7 +753,7 @@ public class PortExecutor
 
             //调用检测
 
-            if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
+            if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
                 AspectHandleUtil
@@ -887,7 +892,7 @@ public class PortExecutor
 ////////////////////////////////////////////////
     //////////////////////////////////////////
 
-    private void dealtOfResponse(WObjectImpl wObject, PorterOfFun porterOfFun, OutType outType, Object rs)
+    private final void dealtOfResponse(WObjectImpl wObject, PorterOfFun porterOfFun, OutType outType, Object rs)
     {
         switch (outType)
         {
@@ -964,7 +969,8 @@ public class PortExecutor
     }
 
 
-    private void exCheckPassable(WObject wObject, PorterOfFun porterOfFun, Object obj, boolean responseWhenException)
+    private final void exCheckPassable(WObject wObject, PorterOfFun porterOfFun, Object obj,
+            boolean responseWhenException)
     {
         wObject.getResponse().toErr();
         Logger LOGGER = logger(wObject);
