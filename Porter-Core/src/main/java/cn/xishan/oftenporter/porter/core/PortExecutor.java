@@ -954,7 +954,19 @@ public final class PortExecutor
 
     private final void close(WObject wObject)
     {
-        WPTool.close(wObject.getResponse());
+        WResponse response = wObject.getResponse();
+        try
+        {
+            response.close();
+        } catch (Exception e)
+        {
+            Logger logger = logger(wObject);
+            if (logger.isErrorEnabled())
+            {
+                logger(wObject).error(wObject.url() + ":" + e.getMessage(), e);
+            }
+        }
+
     }
 
     private void close(WResponse response)
