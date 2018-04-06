@@ -86,7 +86,8 @@ public class DataUtil
             }
             field.setAccessible(true);
             Object fieldObj = field.get(object);
-            if(!jsonField.filterNullAndEmpty()||WPTool.notNullAndEmpty(fieldObj)){
+            if (!jsonField.filterNullAndEmpty() || WPTool.notNullAndEmpty(fieldObj))
+            {
                 nameValues.append(name, fieldObj);
             }
             return true;
@@ -186,6 +187,15 @@ public class DataUtil
             if (!dbField.value().equals(""))
             {
                 name = dbField.value();
+            }
+        }
+
+        if (name != null)
+        {
+            int index = name.indexOf('(');
+            if (index >= 0)//去除参数。
+            {
+                name = name.substring(0, index);
             }
         }
 
