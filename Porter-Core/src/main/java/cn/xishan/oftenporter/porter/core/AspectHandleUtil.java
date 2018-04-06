@@ -65,16 +65,16 @@ class AspectHandleUtil
                     }
                     return returnObject;
                 case AfterInvoke:
-                    for (AspectFunOperation.Handle handle : handles)
+                    for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handle.afterInvoke(wObject, funPort, returnObject);
+                        handles[i].afterInvoke(wObject, funPort, returnObject);
                     }
                     break;
 
                 case OnFinal:
-                    for (AspectFunOperation.Handle handle : handles)
+                    for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handle.onFinal(wObject, funPort, returnObject, failedObject);
+                        handles[i].onFinal(wObject, funPort, returnObject, failedObject);
                     }
                     break;
             }
