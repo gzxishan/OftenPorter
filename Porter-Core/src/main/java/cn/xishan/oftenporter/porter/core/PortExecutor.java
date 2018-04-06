@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -91,7 +92,7 @@ public final class PortExecutor
         };
     }
 
-    private Logger logger(WObject wObject)
+    private final Logger logger(WObject wObject)
     {
         return wObject == null ? _LOGGER : LogUtil.logger(wObject, PortExecutor.class);
     }
@@ -293,7 +294,13 @@ public final class PortExecutor
             Logger LOGGER = logger(null);
             if (LOGGER.isWarnEnabled())
             {
-                LOGGER.warn(ex.getMessage(), ex);
+                if (ex instanceof WCallException)
+                {
+                    LOGGER.warn(ex.getMessage(), ex);
+                } else
+                {
+                    LOGGER.warn(ex.getMessage(), ex);
+                }
             }
             if (responseWhenException)
             {
@@ -802,7 +809,12 @@ public final class PortExecutor
                 exNotNull(wObject, funPort, wObject.getResponse(), ex, responseWhenException);
             } else
             {
-                logger(wObject).warn(ex.getMessage(), ex);
+                Logger logger = logger(wObject);
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn(ex.getMessage(), ex);
+                }
+
                 CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
                         funPort.getFinalPorterObject(),
                         funPort.getObject(),
@@ -954,11 +966,18 @@ public final class PortExecutor
             boolean responseWhenException)
     {
         response.toErr();
-        Logger LOGGER = logger(wObject);
-        if (LOGGER.isWarnEnabled())
+        Logger logger = logger(wObject);
+        if (logger.isWarnEnabled())
         {
-            LOGGER.warn((wObject.url() + ":") + throwable.getMessage(), throwable);
+            if (throwable instanceof WCallException)
+            {
+                logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
+            } else
+            {
+                logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
+            }
         }
+
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
@@ -1052,8 +1071,17 @@ public final class PortExecutor
         } catch (IOException e)
         {
             Throwable ex = getCause(e);
-            Logger LOGGER = logger(wObject);
-            LOGGER.warn(ex.getMessage(), ex);
+            Logger logger = logger(wObject);
+            if (logger.isWarnEnabled())
+            {
+                if (ex instanceof WCallException)
+                {
+                    logger.warn(ex.getMessage(), ex);
+                } else
+                {
+                    logger.warn(ex.getMessage(), ex);
+                }
+            }
         }
     }
 
@@ -1076,8 +1104,17 @@ public final class PortExecutor
         } catch (IOException e)
         {
             Throwable ex = getCause(e);
-            Logger LOGGER = logger(null);
-            LOGGER.warn(ex.getMessage(), ex);
+            Logger logger = logger(null);
+            if (logger.isWarnEnabled())
+            {
+                if (ex instanceof WCallException)
+                {
+                    logger.warn(ex.getMessage(), ex);
+                } else
+                {
+                    logger.warn(ex.getMessage(), ex);
+                }
+            }
         }
     }
 
