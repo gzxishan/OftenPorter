@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.local.mixin;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.MinxinOnly;
+import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Created by https://github.com/CLovinr on 2017/1/20.
  */
 @PortIn
-@MinxinOnly
+@MixinOnly
 public class HelloMixinPorter
 {
     @AutoSet("P1")

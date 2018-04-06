@@ -167,4 +167,10 @@ public @interface PortIn
      */
     AspectPosition aspectOfClassPosition() default AspectPosition.BEFORE;
 
+    /**
+     *
+     * @return
+     */
+    boolean enableMixinTo()default true;
+
 }

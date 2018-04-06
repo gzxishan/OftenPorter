@@ -2,9 +2,11 @@ package cn.xishan.oftenporter.porter.core;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal._MinxinPorter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
@@ -72,6 +74,28 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
+    public static final class SrcPorter
+    {
+        Class<?> clazz;
+        Object object;
+
+        public SrcPorter(Class<?> clazz, Object object)
+        {
+            this.clazz = clazz;
+            this.object = object;
+        }
+
+        public Class<?> getClazz()
+        {
+            return clazz;
+        }
+
+        public Object getObject()
+        {
+            return object;
+        }
+    }
+
 
     private static final Logger LOGGER = LogUtil.logger(ContextPorter.class);
     private ClassLoader classLoader;
@@ -120,24 +144,30 @@ public class ContextPorter implements IOtherStartDestroy
     private PorterConf porterConf;
     private ListenerAdder<OnPorterAddListener> listenerAdder;
 
+    private Map<Class, SrcPorter> class_porterMap;
+    private Map<Class, Set<_MinxinPorter>> mixinToMap;//key为被混入的接口。
+
+
     public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
             PorterConf porterConf,
             AutoSetHandle autoSetHandle, List<PortIniter> portIniterList) throws FatalInitException
     {
         this.porterConf = porterConf;
         this.listenerAdder = listenerAdder;
-        autoSetHandle.setIOtherStartDestroy(this);
-        //搜索包:最终是搜索Class类
-        seek(porterConf.getSeekPackages().getPackages(), autoSetHandle, sthDeal, portIniterList);
+        class_porterMap = new HashMap<>();
+        mixinToMap = new HashMap<>();
 
-        //搜索Class类
+        autoSetHandle.setIOtherStartDestroy(this);
+        // 1/3:搜索包:最终是搜索Class类
+        seek(porterConf.getSeekPackages().getPackages());
+
+        // 2/3:搜索Class类
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
         for (Class<?> clazz : forSeek)
         {
-            LOGGER.debug("may add porter:{}", clazz);
             try
             {
-                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal, portIniterList);
+                mayAddPorterOfClass(clazz, null);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -147,20 +177,13 @@ public class ContextPorter implements IOtherStartDestroy
             }
         }
 
-        //搜索实例
+        // 3/3:搜索实例
         Set<Object> objectSet = porterConf.getSeekPackages().getObjectsForSeek();
         for (Object object : objectSet)
         {
-            LOGGER.debug("may add porter:{}:{}", object.getClass(), object);
             try
             {
-                if (PortUtil.isPortClass(object.getClass()) && willSeek(object.getClass()))
-                {
-                    addPorter(object.getClass(), object, autoSetHandle, sthDeal, portIniterList);
-                } else
-                {
-                    mayAddStaticAutoSet(object.getClass());
-                }
+                mayAddPorterOfClass(object.getClass(), object);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -169,6 +192,28 @@ public class ContextPorter implements IOtherStartDestroy
                 LOGGER.warn(e.getMessage(), e);
             }
         }
+
+
+        try
+        {
+            //添加接口
+            LOGGER.debug("添加接口开始:{}**********************[", autoSetHandle.getContextName());
+            for (Map.Entry<Class, SrcPorter> entry : class_porterMap.entrySet())
+            {
+                SrcPorter porter = entry.getValue();
+                addPorter(porter, autoSetHandle, sthDeal, portIniterList);
+            }
+            LOGGER.debug("添加接口完毕:{}*****************************]", autoSetHandle.getContextName());
+            class_porterMap = null;
+            mixinToMap = null;
+        } catch (FatalInitException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            LOGGER.warn(e.getMessage(), e);
+        }
+
 
         this.checkPassableForCF = autoSetHandle.getInnerContextBridge().checkPassableForCFTemps;
         autoSetHandle.getInnerContextBridge().checkPassableForCFTemps = null;
@@ -205,8 +250,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    private void seek(@NotNull JSONArray packages,
-            AutoSetHandle autoSetHandle, SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException
+    private void seek(@NotNull JSONArray packages) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -221,13 +265,12 @@ public class ContextPorter implements IOtherStartDestroy
 
         for (int i = 0; i < packages.size(); i++)
         {
-            seekPackage(packages.getString(i), autoSetHandle, sthDeal, portIniterList);
+            seekPackage(packages.getString(i));
         }
     }
 
 
-    private void seekPackage(String packageStr,
-            AutoSetHandle autoSetHandle, SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException
+    private void seekPackage(String packageStr) throws FatalInitException
     {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -237,7 +280,7 @@ public class ContextPorter implements IOtherStartDestroy
             try
             {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                mayAddPorterOfClass(clazz, autoSetHandle, sthDeal, portIniterList);
+                mayAddPorterOfClass(clazz, null);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -268,15 +311,38 @@ public class ContextPorter implements IOtherStartDestroy
         return willSeek;
     }
 
-    private void mayAddPorterOfClass(Class<?> clazz, AutoSetHandle autoSetHandle,
-            SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException, Exception
+    private void mayAddPorterOfClass(Class<?> clazz, Object objectPorter) throws FatalInitException, Exception
     {
-        if (PortUtil.isPortClass(clazz) && willSeek(clazz))
+        if (PortUtil.isJustPortInClass(clazz) && willSeek(clazz))
         {
-            addPorter(clazz, null, autoSetHandle, sthDeal, portIniterList);
+            LOGGER.debug("will add porter:{}({})", clazz, objectPorter);
+            class_porterMap.put(clazz, new SrcPorter(clazz, objectPorter));
+            //addPorter(clazz, objectPorter, autoSetHandle, sthDeal, portIniterList);
+        } else if (!isMixinTo(clazz, objectPorter))
+        {
+            LOGGER.debug("will do static @{}:{}", AutoSet.class.getSimpleName(), clazz);
+            mayAddStaticAutoSet(clazz);
+        }
+    }
+
+    private boolean isMixinTo(Class<?> clazz, Object objectPorter)
+    {
+        MixinTo mixinTo = AnnoUtil.getAnnotation(clazz, MixinTo.class);
+        if (mixinTo != null)
+        {
+            _MinxinPorter minxinPorter = new _MinxinPorter(clazz, objectPorter, mixinTo.override());
+            Set<_MinxinPorter> set = mixinToMap.get(mixinTo.porter());
+            if (set == null)
+            {
+                set = new HashSet<>();
+                mixinToMap.put(mixinTo.porter(), set);
+            }
+            LOGGER.debug("add to mixinToMap:{}", clazz);
+            set.add(minxinPorter);
+            return true;
         } else
         {
-            mayAddStaticAutoSet(clazz);
+            return false;
         }
     }
 
@@ -284,21 +350,20 @@ public class ContextPorter implements IOtherStartDestroy
     /**
      * 添加接口！！！！！
      *
-     * @param clazz
-     * @param objectPorter
+     * @param srcPorter
      * @param autoSetHandle
      * @param sthDeal
      * @throws FatalInitException
      * @throws Exception
      */
-    private void addPorter(Class<?> clazz, Object objectPorter,
-            AutoSetHandle autoSetHandle,
+    private void addPorter(SrcPorter srcPorter, AutoSetHandle autoSetHandle,
             SthDeal sthDeal, List<PortIniter> portIniterList) throws FatalInitException, Exception
     {
-        LOGGER.debug("添加接口：");
-        LOGGER.debug("\n\tat " + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
+        Class clazz = srcPorter.getClazz();
+        LOGGER.debug("添加接口：{}", clazz);
+        //LOGGER.debug("\n\t\t\t\t\t" + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
-        Porter porter = sthDeal.porter(clazz, objectPorter, porterConf.getContextName(), autoSetHandle);
+        Porter porter = sthDeal.porter(srcPorter, mixinToMap, porterConf.getContextName(), autoSetHandle);
         if (porter != null)
         {
             boolean willAdd = true;

@@ -12,6 +12,12 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
-public @interface MinxinOnly
+public @interface MixinOnly
 {
+    /**
+     * 是否覆盖，默认为false。
+     *
+     * @return
+     */
+    boolean override() default false;
 }

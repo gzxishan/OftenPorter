@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.ContextPorter;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -50,10 +51,12 @@ public class SthDeal
     }
 
 
-    public Porter porter(Class<?> clazz, Object object, String currentContextName,
+    public Porter porter(ContextPorter.SrcPorter srcPorter,
+            Map<Class, Set<_MinxinPorter>> mixinToMap,
+            String currentContextName,
             AutoSetHandle autoSetHandle) throws FatalInitException
     {
-        return porter(clazz, object, currentContextName, null, autoSetHandle, false, null);
+        return porter(srcPorter, mixinToMap, currentContextName, null, autoSetHandle, false, null);
     }
 
 
@@ -63,11 +66,13 @@ public class SthDeal
      *
      * </pre>
      */
-    private Porter porter(Class<?> clazz, Object object, String currentContextName, String currentClassTied,
+    private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MinxinPorter>> mixinToMap,
+            String currentContextName, String currentClassTied,
             AutoSetHandle autoSetHandle,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws FatalInitException
 
     {
+        Class clazz = srcPorter.getClazz();
         if (isMixin)
         {
             LOGGER.debug("***********For mixin:{}***********start:", clazz);
@@ -94,7 +99,7 @@ public class SthDeal
 
         porter.portOut = annotationDealt.portOut(clazz,
                 autoSetHandle.getInnerContextBridge().defaultOutType);
-        porter.object = object;
+        porter.object = srcPorter.getObject();
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
         porter.doAutoSet();
@@ -107,16 +112,18 @@ public class SthDeal
         //处理类上的AspectFunOperation
         List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
                 clazz.getDeclaredAnnotations(), porter,
-                null,null);
+                null, null);
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
 
         //对MixinParser指定的类的Parser和Parser.parse的处理
         inObjDeal.sthUtil
-                .bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
+                .bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
+                        mixinToMap);
         //对Parser和Parser.parse的处理
-        inObjDeal.sthUtil.bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin);
+        inObjDeal.sthUtil
+                .bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
 
         try
         {
@@ -128,19 +135,52 @@ public class SthDeal
 
         wholeClassCheckPassableGetter.addAll(portIn.getCheckPassablesForWholeClass());
 
+
+        List<_PortStart> portStarts = new ArrayList<>();
+        List<_PortDestroy> portDestroys = new ArrayList<>();
+
+        /////处理自身接口----开始
+        Method[] methods = WPTool.getAllPublicMethods(clazz);
+        ObjectGetter objectGetter = () -> porter.getObj();
+        for (Method method : methods)
+        {
+
+            if (mayAddStartOrDestroy(method, objectGetter, portStarts, portDestroys, annotationDealt))
+            {
+                method.setAccessible(true);
+                continue;
+            }
+            backableSeek.push();
+            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek, autoSetHandle);
+            backableSeek.pop();
+            if (porterOfFun != null)
+            {
+//                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
+//                //设置方法的TiedType
+//                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
+                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin, !isMixin);
+
+                //扫描AspectFunOperation
+                seekAspectFunOperation(autoSetHandle, porterOfFun, classHandles);
+            }
+        }
+        //处理自身接口----结束
+
+
         /////处理混入接口------开始：
-        //先处理混入接口，这样当前接口类的接口方法优先
-        Class<?>[] mixins = SthUtil.getMixin(clazz);
+        //后处理混入接口，这样可以控制override
+        _MinxinPorter[] mixins = SthUtil.getMixin(clazz, mixinToMap);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
         //List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
-        for (Class c : mixins)
+        for (_MinxinPorter minxinPorter : mixins)
         {
-            if (!PortUtil.isMixinPortClass(c))
+            if (!PortUtil.isMixinPortClass(minxinPorter.getClazz()))
             {
                 continue;
             }
-            Porter mixinPorter = porter(c, null, currentContextName, currentClassTied, autoSetHandle, true,
-                    wholeClassCheckPassableGetter);
+            Porter mixinPorter = porter(new ContextPorter.SrcPorter(minxinPorter.getClazz(), minxinPorter.getObject()),
+                    mixinToMap, currentContextName, currentClassTied,
+                    autoSetHandle, true, wholeClassCheckPassableGetter);
             if (mixinPorter == null)
             {
                 continue;
@@ -150,7 +190,7 @@ public class SthDeal
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
             while (mixinIt.hasNext())
             {
-                putFun(mixinIt.next(), childrenWithMethod, true, true);
+                putFun(mixinIt.next(), childrenWithMethod, true, true, minxinPorter.isOverride());
             }
             mixinPorter.finalObject = porter.getObj();
             mixinPorter.childrenWithMethod.clear();
@@ -176,35 +216,6 @@ public class SthDeal
         }
         ////////处理混入接口------结束
 
-
-        List<_PortStart> portStarts = new ArrayList<>();
-        List<_PortDestroy> portDestroys = new ArrayList<>();
-
-        Method[] methods = WPTool.getAllPublicMethods(clazz);
-        ObjectGetter objectGetter = () -> porter.getObj();
-        for (Method method : methods)
-        {
-
-            if (mayAddStartOrDestroy(method, objectGetter, portStarts, portDestroys, annotationDealt))
-            {
-                method.setAccessible(true);
-                continue;
-            }
-            backableSeek.push();
-            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek, autoSetHandle);
-            backableSeek.pop();
-            if (porterOfFun != null)
-            {
-//                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
-//                //设置方法的TiedType
-//                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
-                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin);
-
-                //扫描AspectFunOperation
-                seekAspectFunOperation(autoSetHandle, porterOfFun, classHandles);
-            }
-        }
-
         _PortStart[] starts = portStarts.toArray(new _PortStart[0]);
         _PortDestroy[] destroys = portDestroys.toArray(new _PortDestroy[0]);
         Arrays.sort(starts);
@@ -219,7 +230,7 @@ public class SthDeal
     {
         Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
         List<AspectFunOperation.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
-                classHandles,porterOfFun.getMethodPortIn().getAspectPosition());
+                classHandles, porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
         {
             porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
@@ -302,7 +313,7 @@ public class SthDeal
     }
 
     private void putFun(PorterOfFun porterOfFun, Map<String, PorterOfFun> childrenWithMethod, boolean willLog,
-            boolean isMixin)
+            boolean isMixin, boolean override)
     {
         PorterOfFun lastFun;
         TiedType tiedType = porterOfFun.getMethodPortIn().getTiedType();
@@ -318,17 +329,28 @@ public class SthDeal
                 PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
                 for (PortMethod portMethod : portMethods)
                 {
-                    lastFun = childrenWithMethod.put(portMethod.name(), porterOfFun);
-                    if (LOGGER.isDebugEnabled() && willLog)
+                    String key = portMethod.name();
+                    if (!childrenWithMethod.containsKey(key) || override)
                     {
-                        LOGGER.debug("add-rest:{} (outType={},portFunType={},function={}{})",
-                                portMethod, porterOfFun.getPortOut().getOutType(), portFunType, method.getName(),
-                                isMixin ? ",from " + method.getDeclaringClass() : "");
-                    }
-                    if (lastFun != null && LOGGER.isDebugEnabled())
+                        lastFun = childrenWithMethod.put(key, porterOfFun);
+                        if (LOGGER.isDebugEnabled() && willLog)
+                        {
+                            LOGGER.debug("add-rest:{} (outType={},portFunType={},function={}{})",
+                                    portMethod, porterOfFun.getPortOut().getOutType(), portFunType, method.getName(),
+                                    isMixin ? ",from " + method.getDeclaringClass() : "");
+                        }
+                        if (lastFun != null && LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("overrided:{}", lastFun.getMethod());
+                        }
+                    } else
                     {
-                        LOGGER.debug("overrided:{}", lastFun.getMethod());
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("ignore:{}", porterOfFun.getMethod());
+                        }
                     }
+
                 }
             }
 
@@ -353,19 +375,29 @@ public class SthDeal
                             }
                             continue;
                         }
-                        lastFun = childrenWithMethod
-                                .put(tiedName + Porter.TIED_KEY_SEPARATOR + portMethod.name(), porterOfFun);
-                        if (LOGGER.isDebugEnabled() && willLog)
+                        String key = tiedName + Porter.TIED_KEY_SEPARATOR + portMethod.name();
+                        if (!childrenWithMethod.containsKey(key) || override)
                         {
-                            LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
-                                    tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
-                                    method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                            lastFun = childrenWithMethod.put(key, porterOfFun);
+                            if (LOGGER.isDebugEnabled() && willLog)
+                            {
+                                LOGGER.debug("add:{},{} (outType={},portFunType={},jmethod={}{})",
+                                        tiedName, portMethod, porterOfFun.getPortOut().getOutType(), portFunType,
+                                        method.getName(), isMixin ? ",from " + method.getDeclaringClass() : "");
+                            }
+
+                            if (lastFun != null && LOGGER.isDebugEnabled())
+                            {
+                                LOGGER.debug("overrided:{}", lastFun.getMethod());
+                            }
+                        } else
+                        {
+                            if (LOGGER.isDebugEnabled())
+                            {
+                                LOGGER.debug("ignore:{}", porterOfFun.getMethod());
+                            }
                         }
 
-                        if (lastFun != null && LOGGER.isDebugEnabled())
-                        {
-                            LOGGER.debug("overrided:{}", lastFun.getMethod());
-                        }
                     }
                 }
 

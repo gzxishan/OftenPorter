@@ -25,7 +25,7 @@ import java.util.List;
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
 @PortIn
-@MinxinOnly
+@MixinOnly
 public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
@@ -437,11 +437,12 @@ public final class AnnotationDealt
         if (portIn == null && isMixin)
         {
             portIn = AnnotationDealt.class.getAnnotation(PortIn.class);
-        } else if (portIn == null || (!isMixin && clazz.isAnnotationPresent(MinxinOnly.class)))
+        } else if (portIn == null || (!isMixin && AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class)))
         {
             return null;
         }
-        _PortIn _portIn = new _PortIn(portIn.portFunType(),null, portIn.ignoredFunTieds());
+        _PortIn _portIn = new _PortIn(portIn.portFunType(), null, portIn.ignoredFunTieds(), portIn.enableMixinTo());
         _portIn.tiedNames = PortUtil.tieds(portIn, clazz, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
@@ -472,7 +473,8 @@ public final class AnnotationDealt
 //            }
 
             PortFunType portFunType = PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType());
-            _portInOfMethod = new _PortIn(portFunType,portIn.aspectOfClassPosition(),portIn.ignoredFunTieds());
+            _portInOfMethod = new _PortIn(portFunType, portIn.aspectOfClassPosition(), portIn.ignoredFunTieds(),
+                    portIn.enableMixinTo());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
 
             if (_portInOfMethod.getTiedType().isRest())
