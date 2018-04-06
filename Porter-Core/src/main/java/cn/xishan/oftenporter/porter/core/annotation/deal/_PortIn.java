@@ -14,15 +14,17 @@ public final class _PortIn
     Class<? extends CheckPassable>[] checks, checksForWholeClass;
     private TiedType tiedType;
     boolean ignoreTypeParser;
+    boolean enableMixinTo;
 
     PortFunType portFunType;
     AspectPosition aspectPosition;
 
-    public _PortIn(PortFunType portFunType,AspectPosition aspectPosition, String[] ignoredFunTieds)
+    public _PortIn(PortFunType portFunType,AspectPosition aspectPosition, String[] ignoredFunTieds,boolean enableMixinTo)
     {
         this.portFunType = portFunType;
         this.aspectPosition=aspectPosition;
         this.ignoredFunTieds = ignoredFunTieds;
+        this.enableMixinTo=enableMixinTo;
     }
 
     public String[] getIgnoredFunTieds()
@@ -59,6 +61,11 @@ public final class _PortIn
     public PortMethod[] getMethods()
     {
         return methods;
+    }
+
+    public boolean isEnableMixinTo()
+    {
+        return enableMixinTo;
     }
 
     public InNames getInNames()

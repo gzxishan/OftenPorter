@@ -1,7 +1,9 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.Mixin;
+import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
 import cn.xishan.oftenporter.porter.core.annotation.Parser;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -30,11 +32,12 @@ class SthUtil
      * 对MixinParser指定的类的{@linkplain Parser}和{@linkplain Parser.parse}的处理
      */
     void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
-            BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
+            BackableSeek backableSeek, boolean needCheckLoop,
+            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
     {
         if (needCheckLoop)
         {
-            checkLoopMixin(clazz, false);
+            checkLoopMixin(clazz, false, mixinToMap);
         }
         Class<?>[] cs = getMixinParser(clazz);
         for (Class<?> c : cs)
@@ -44,7 +47,7 @@ class SthUtil
                     innerContextBridge.innerBridge.globalParserStore,
                     backableSeek, BackableSeek.SeekType.Add_NotBind);
             //递归
-            bindParserAndParseWithMixin(c, innerContextBridge, inNames, backableSeek, needCheckLoop);
+            bindParserAndParseWithMixin(c, innerContextBridge, inNames, backableSeek, needCheckLoop, mixinToMap);
         }
 
     }
@@ -70,11 +73,12 @@ class SthUtil
      * @return 有其中一个注解，返回true；否则返回false。
      */
     boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
-            BackableSeek backableSeek, boolean needCheckLoop) throws FatalInitException
+            BackableSeek backableSeek, boolean needCheckLoop,
+            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
     {
         if (needCheckLoop)
         {
-            checkLoopMixin(clazz, true);//防止循环混入
+            checkLoopMixin(clazz, true, mixinToMap);//防止循环混入
         }
         return bindParserAndParse(innerContextBridge.annotationDealt.parser(clazz),
                 innerContextBridge.annotationDealt.parse(clazz), inNames,
@@ -242,16 +246,33 @@ class SthUtil
     }
 
 
-    static Class<?>[] getMixin(Class<?> clazz)
+    static _MinxinPorter[] getMixin(Class<?> clazz, Map<Class, Set<_MinxinPorter>> mixinToMap)
     {
+        List<_MinxinPorter> list = new ArrayList<>(1);
         if (clazz.isAnnotationPresent(Mixin.class))
         {
             Mixin mixin = clazz.getAnnotation(Mixin.class);
-            return mixin.value().length > 0 ? mixin.value() : mixin.porters();
-        } else
-        {
-            return new Class[0];
+            Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
+            for (Class c : classes)
+            {
+                MixinOnly mixinOnly = AnnoUtil.getAnnotation(c, MixinOnly.class);
+                list.add(new _MinxinPorter(c, null, mixinOnly != null && mixinOnly.override()));
+            }
         }
+
+        if (isEnableMixinTo(clazz) && mixinToMap.containsKey(clazz))
+        {
+            Set<_MinxinPorter> set = mixinToMap.get(clazz);
+            list.addAll(set);
+        }
+
+        return list.toArray(new _MinxinPorter[0]);
+    }
+
+    private static boolean isEnableMixinTo(Class<?> clazz)
+    {
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
+        return portIn != null && portIn.enableMixinTo();
     }
 
 
@@ -260,10 +281,11 @@ class SthUtil
      *
      * @param root
      */
-    private void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser) throws FatalInitException
+    private void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser,
+            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
     {
         Set<Walk<Class>> walkedSet = new HashSet<>();
-        String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser);
+        String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser, mixinToMap);
         if (loopMsg != null)
         {
             throw new FatalInitException(loopMsg);
@@ -280,27 +302,52 @@ class SthUtil
      * @throws FatalInitException
      */
     private String checkLoopMixin(Class<?> from, Set<Walk<Class>> walkedSet,
-            boolean isMixinOrMixinParser) throws FatalInitException
+            boolean isMixinOrMixinParser, Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
     {
-        Class<?>[] mixins = isMixinOrMixinParser ? getMixin(from) : getMixinParser(from);
-        for (Class<?> to : mixins)
+        if (isMixinOrMixinParser)
         {
-            Walk<Class> walk = new Walk<>(from, to);
-            if (walkedSet.contains(walk))
+            _MinxinPorter[] mixins = getMixin(from, mixinToMap);
+            for (_MinxinPorter minxinPorter : mixins)
             {
-                String msg = String.format("Loop %s:[%s]->[%s]",
-                        isMixinOrMixinParser ? Mixin.class.getSimpleName() : Parser.MixinParser.class.getSimpleName(),
-                        from, to);
-                LOGGER.warn(msg);
-                return msg;
-            } else
-            {
-                walkedSet.add(walk);
-                String msg = checkLoopMixin(to, walkedSet, isMixinOrMixinParser);
-                if (msg != null)
+                Class to = minxinPorter.getClazz();
+                Walk<Class> walk = new Walk<>(from, to);
+                if (walkedSet.contains(walk))
                 {
-                    LOGGER.warn("Walk:[{}]->[{}]", from, to);
+                    String msg = String.format("Loop %s:[%s]->[%s]", Mixin.class.getSimpleName(), from, to);
+                    LOGGER.warn(msg);
                     return msg;
+                } else
+                {
+                    walkedSet.add(walk);
+                    String msg = checkLoopMixin(to, walkedSet, isMixinOrMixinParser, mixinToMap);
+                    if (msg != null)
+                    {
+                        LOGGER.warn("Walk:[{}]->[{}]", from, to);
+                        return msg;
+                    }
+                }
+            }
+        } else
+        {
+            Class<?>[] mixins = getMixinParser(from);
+            for (Class<?> to : mixins)
+            {
+                Walk<Class> walk = new Walk<>(from, to);
+                if (walkedSet.contains(walk))
+                {
+                    String msg = String
+                            .format("Loop %s:[%s]->[%s]", Parser.MixinParser.class.getSimpleName(), from, to);
+                    LOGGER.warn(msg);
+                    return msg;
+                } else
+                {
+                    walkedSet.add(walk);
+                    String msg = checkLoopMixin(to, walkedSet, isMixinOrMixinParser, mixinToMap);
+                    if (msg != null)
+                    {
+                        LOGGER.warn("Walk:[{}]->[{}]", from, to);
+                        return msg;
+                    }
                 }
             }
         }

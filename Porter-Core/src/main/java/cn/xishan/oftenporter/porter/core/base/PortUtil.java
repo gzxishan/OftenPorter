@@ -1,9 +1,11 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
-import cn.xishan.oftenporter.porter.core.annotation.MinxinOnly;
+import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
+import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -11,7 +13,6 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -189,9 +190,10 @@ public class PortUtil
      * @param clazz 要判断的类。
      * @return
      */
-    public static boolean isPortClass(Class<?> clazz)
+    public static boolean isJustPortInClass(Class<?> clazz)
     {
-        return !Modifier.isAbstract(clazz.getModifiers()) && clazz.isAnnotationPresent(PortIn.class);
+        return !Modifier.isAbstract(clazz.getModifiers()) && clazz.isAnnotationPresent(PortIn.class) && !AnnoUtil
+                .isOneOfAnnotationsPresent(clazz,MixinOnly.class, MixinTo.class);
     }
 
 
@@ -203,8 +205,9 @@ public class PortUtil
      */
     public static boolean isMixinPortClass(Class<?> clazz)
     {
-        return !Modifier.isAbstract(clazz.getModifiers()) && (clazz.isAnnotationPresent(PortIn.class) || clazz
-                .isAnnotationPresent(MinxinOnly.class));
+
+        return !Modifier.isAbstract(clazz.getModifiers()) && AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class, MixinTo.class);
     }
 
     /**

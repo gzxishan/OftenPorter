@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.xishan.oftenporter.porter.core.base.InNames.Name;
@@ -98,7 +99,7 @@ public class InObjDeal
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
         //绑定类型转换。
-        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek, true);
+        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek, true, Collections.emptyMap());
 
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
