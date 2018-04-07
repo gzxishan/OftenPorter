@@ -311,7 +311,7 @@ public final class Porter
     }
 
 
-    void doAutoSet()
+    void addAutoSet()
     {
         if (object == null)
         {
