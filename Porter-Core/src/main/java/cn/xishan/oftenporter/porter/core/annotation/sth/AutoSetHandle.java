@@ -36,6 +36,7 @@ public class AutoSetHandle
     private Delivery thisDelivery;
     private PorterData porterData;
     private List<IHandle> iHandles = new ArrayList<>(), iHandlesForAutoSetThat = new ArrayList<>();
+    private Map<Class, Porter> porterMap = new HashMap<>();
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
     private IOtherStartDestroy iOtherStartDestroy;
@@ -354,6 +355,7 @@ public class AutoSetHandle
     public synchronized void addAutoSetForPorter(Porter porter)
     {
         iHandles.add(new Handle_doAutoSetForPorter(porter));
+        porterMap.put(porter.getClazz(), porter);
         //doAutoSet(object, autoSetMixinMap);
     }
 
@@ -377,6 +379,7 @@ public class AutoSetHandle
                 setOkObject.invoke(wObject);
             }
             this.setOkObjects.clear();
+            this.porterMap = null;
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -594,6 +597,14 @@ public class AutoSetHandle
                         case Context:
                         {
                             value = contextAutoSet.get(keyName);
+                            if (value == null)
+                            {
+                                Porter thePorter = porterMap.get(mayNew);
+                                if (thePorter != null)
+                                {
+                                    value = thePorter.getObj();
+                                }
+                            }
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);

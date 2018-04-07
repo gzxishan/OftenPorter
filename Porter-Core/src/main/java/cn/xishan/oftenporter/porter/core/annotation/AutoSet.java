@@ -90,9 +90,9 @@ public @interface AutoSet
          */
         Global,
         /**
-         * 表示使用当前context全局实例。若不存在，则会尝试反射创建，并加入到context的全局map中。
+         * 表示使用当前context全局实例。若不存在，会先尝试查找PortIn接口实例，最后会尝试反射创建、并加入到context的全局map中。
          * <br>
-         * {@linkplain PorterConf#addContextAutoSet(String, Object)}
+         * 另见{@linkplain PorterConf#addContextAutoSet(String, Object)}
          */
         Context,
         /**

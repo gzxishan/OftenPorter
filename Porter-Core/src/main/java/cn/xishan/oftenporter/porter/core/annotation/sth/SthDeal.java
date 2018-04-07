@@ -102,7 +102,7 @@ public class SthDeal
         porter.object = srcPorter.getObject();
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
-        porter.doAutoSet();
+        porter.addAutoSet();
         porter.finalObject = porter.getObj();
         if (porter.object instanceof IPorter)
         {
