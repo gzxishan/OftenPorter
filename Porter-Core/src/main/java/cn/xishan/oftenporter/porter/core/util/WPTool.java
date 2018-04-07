@@ -102,7 +102,7 @@ public class WPTool
      * @param ts
      * @param <T>
      */
-    public static <T> void addAll(List<T> list, T... ts)
+    public static final <T> void addAll(List<T> list, T... ts)
     {
         for (T t : ts)
         {
@@ -110,7 +110,7 @@ public class WPTool
         }
     }
 
-    public static <T> void addAll(Set<T> set, T... ts)
+    public static final <T> void addAll(Set<T> set, T... ts)
     {
         for (T t : ts)
         {

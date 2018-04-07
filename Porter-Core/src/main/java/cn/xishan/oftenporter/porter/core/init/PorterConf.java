@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
@@ -17,13 +18,12 @@ public class PorterConf
 {
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
-    private Set<StateListener> stateListenerSet;
+    private List<StateListener> stateListenerList;
 
     private List<CheckPassable> contextChecks;
     private List<CheckPassable> porterCheckPassableList;
 
     private Map<String, Object> contextAutoSetMap;
-    private Map<String, Class<?>> contextAutoGenImplMap;
     private ClassLoader classLoader;
     private boolean responseWhenException = true;
     private boolean enablePortInTiedNameDefault = true;
@@ -42,12 +42,11 @@ public class PorterConf
     PorterConf()
     {
         seekPackages = new SeekPackages();
-        stateListenerSet = new HashSet<>();
+        stateListenerList = new ArrayList<>();
         contextChecks = new ArrayList<>();
         porterCheckPassableList = new ArrayList<>();
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
-        contextAutoGenImplMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
@@ -78,7 +77,7 @@ public class PorterConf
     }
 
     /**
-     * 用于扫描包中含有{@linkplain AutoSet.AutoSetSeek}注解的类，进而注入里面的变量。
+     * 用于扫描包中含有{@linkplain AutoSetSeek}注解的类，进而注入里面的变量。
      *
      * @param autoSetSeekPackages
      */
@@ -152,11 +151,7 @@ public class PorterConf
     }
 
     /**
-     * 除了{@linkplain DuringType#ON_GLOBAL DuringType.ON_GLOBAL
-     * }和{@linkplain DuringType#ON_CONTEXT DuringType.ON_CONTEXT}的所有时期都会调用它,并且该检测最先被调用。
-     *
-     * @param forAllCheckPassable
-     * @see #addPorterCheck(CheckPassable)
+     * 请使用{@linkplain #addPorterCheck(CheckPassable)}
      */
     @Deprecated
     public void addForAllCheckPassable(CheckPassable forAllCheckPassable)
@@ -165,14 +160,16 @@ public class PorterConf
     }
 
     /**
-     * <pre>
-     * 走的流程为:{@linkplain DuringType#BEFORE_CLASS}--{@linkplain DuringType#ON_CLASS}--{@linkplain
-     * DuringType#BEFORE_METHOD
-     * }--{@linkplain DuringType#ON_METHOD}--{@linkplain DuringType#AFTER_METHOD
-     * }或{@linkplain DuringType#ON_METHOD_EXCEPTION}
-     *
-     * 见：{@linkplain PortIn#checks()}和{@linkplain PortIn#checksForWholeClass()}
-     * </pre>
+     * <p>
+     * 走的流程为:{@linkplain DuringType#BEFORE_CLASS}--&gt;{@linkplain DuringType#ON_CLASS}--&gt;{@linkplain
+     * DuringType#BEFORE_METHOD}--&gt;{@linkplain DuringType#ON_METHOD}--&gt;
+     * {@linkplain DuringType#AFTER_METHOD}或{@linkplain DuringType#ON_METHOD_EXCEPTION}
+     * <br>
+     * 另见：{@linkplain PortIn#checks()}和{@linkplain PortIn#checksForWholeClass()}
+     * </p>
+     * <p>
+     * <strong>注意：调用顺序见{@linkplain DuringType}</strong>
+     * </p>
      *
      * @param checkPassable
      */
@@ -266,52 +263,38 @@ public class PorterConf
         addContextAutoSet(clazz.getName(), object);
     }
 
-    /**
-     * 用于添加接口实现.
-     *
-     * @param name      名称
-     * @param implClass 实现类。
-     */
-    public void addContextAutoGenImpl(String name, Class<?> implClass)
-    {
-        contextAutoGenImplMap.put(name, implClass);
-    }
-
-    /**
-     * 效果同{@linkplain #addContextAutoGenImpl(String, Class) addContextAutoGenImpl(clazz.getName(), Class)}
-     *
-     * @param clazz
-     * @param implClass
-     */
-    public void addContextAutoGenImpl(Class<?> clazz, Class<?> implClass)
-    {
-        contextAutoGenImplMap.put(clazz.getName(), implClass);
-    }
-
-    public Map<String, Class<?>> getContextAutoGenImplMap()
-    {
-        return contextAutoGenImplMap;
-    }
 
     public boolean isResponseWhenException()
     {
         return responseWhenException;
     }
 
+    /**
+     * 发生异常时，是否响应错误结果，默认值为true。
+     *
+     * @param responseWhenException 是否响应错误结果
+     */
+    public void setResponseWhenException(boolean responseWhenException)
+    {
+        this.responseWhenException = responseWhenException;
+    }
 
     public SeekPackages getSeekPackages()
     {
         return seekPackages;
     }
 
+    /**
+     * <strong>重要:</strong>{@linkplain StateListener}
+     */
     public void addStateListener(StateListener stateListener)
     {
         checkInited();
-        stateListenerSet.add(stateListener);
+        stateListenerList.add(stateListener);
     }
 
     /**
-     * 添加针对{@linkplain DuringType#ON_CONTEXT}有效的全局检测对象。
+     * 添加针对{@linkplain DuringType#ON_CONTEXT}有效的全局检测对象,按顺序调用。
      *
      * @param checkPassable
      */
@@ -341,10 +324,10 @@ public class PorterConf
         return contextAutoSetMap;
     }
 
-    public Set<StateListener> getStateListenerSet()
+    public List<StateListener> getStateListenerList()
     {
         checkInited();
-        return stateListenerSet;
+        return stateListenerList;
     }
 
     public InitParamSource getUserInitParam()
@@ -366,8 +349,7 @@ public class PorterConf
         classLoader = null;
         contextChecks = null;
         contextAutoSetMap = null;
-        contextAutoGenImplMap = null;
-        stateListenerSet = null;
+        stateListenerList = null;
         porterCheckPassableList = null;
         autoSetSeekPackages = null;
         paramSourceHandleManager = null;

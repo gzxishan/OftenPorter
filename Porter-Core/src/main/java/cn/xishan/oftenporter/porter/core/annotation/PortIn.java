@@ -139,14 +139,27 @@ public @interface PortIn
     String[] ignoredFunTieds() default {};
 
     /**
-     * 设置检测类型(对类或函数阶段有效，但对混入接口无效。)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
+     * <ol>
+     * <li>
+     * 注解在类上时，对应的阶段有{@linkplain DuringType#BEFORE_CLASS},{{@linkplain DuringType#ON_CLASS},
+     * {@linkplain DuringType#BEFORE_METHOD},
+     * {@linkplain DuringType#ON_METHOD},{@linkplain DuringType#ON_METHOD_EXCEPTION}
+     * </li>
+     * <li>
+     * 注解在函数上时，对应的阶段有{@linkplain DuringType#BEFORE_METHOD},
+     * * {@linkplain DuringType#ON_METHOD},{@linkplain DuringType#ON_METHOD_EXCEPTION}
+     * </li>
+     * </ol>
+     * <strong>注意：</strong>在{@linkplain #checksForWholeClass()}之后添加,对混入接口无效。
      */
     Class<? extends CheckPassable>[] checks() default {};
 
     /**
-     * 设置检测类型(对类和函数阶段有效，且对混入接口也有效)。会依此进行检测，有一个不通过则表示访问不通过。对应的类必须有无参构造函数。
+     * 只对类上的注解有效，对应的阶段有{@linkplain DuringType#BEFORE_CLASS},{@linkplain DuringType#ON_CLASS},
+     * {@linkplain DuringType#BEFORE_METHOD},
+     * {@linkplain DuringType#ON_METHOD},{@linkplain DuringType#ON_METHOD_EXCEPTION}
      * <br>
-     * <strong>注意：</strong>只对类有效，且在{@linkplain #checks()}之前被调用。
+     * <strong>注意：</strong>在{@linkplain #checks()}之前添加,对混入接口也有效。
      */
     Class<? extends CheckPassable>[] checksForWholeClass() default {};
 

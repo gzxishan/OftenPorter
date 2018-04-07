@@ -12,10 +12,11 @@ import java.lang.annotation.*;
 
 /**
  * 注解在注解上。
- *<ol>
- *     <li>被修饰的注解，可以注解在函数或类上。</li>
- *     <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解，</li>
- *</ol>
+ * <ol>
+ * <li>被修饰的注解，可以注解在函数或类上。</li>
+ * <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解，</li>
+ * </ol>
+ *
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -72,7 +73,7 @@ public @interface AspectFunOperation
         public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
         {
             LOGGER.debug("default invoke.");
-            return porterOfFun.invoke(wObject,null);
+            return porterOfFun.invoke(wObject, null);
         }
 
         @Override
@@ -97,6 +98,9 @@ public @interface AspectFunOperation
 
     /**
      * 执行的顺序:{@linkplain #beforeInvokeOfMethodCheck(WObject, PorterOfFun)}--{@linkplain #beforeInvoke(WObject, PorterOfFun)}--{@linkplain #invoke(WObject, PorterOfFun, Object)}--{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}--{@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}
+     * <p>
+     * 其中除了{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}与{@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}是逆序调用，其余的是顺序调用。
+     * </p>
      *
      * @param <T>
      */

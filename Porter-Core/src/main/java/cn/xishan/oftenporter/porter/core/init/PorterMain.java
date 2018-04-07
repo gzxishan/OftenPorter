@@ -140,7 +140,11 @@ public final class PorterMain
         return new PorterConf();
     }
 
-
+    /**
+     * 添加针对{@linkplain DuringType#ON_GLOBAL}有效的全局检测对象,按顺序调用。
+     *
+     * @param checkPassable
+     */
     public synchronized void addGlobalCheck(CheckPassable checkPassable) throws RuntimeException
     {
         if (innerBridge.allGlobalChecksTemp == null)
@@ -158,7 +162,8 @@ public final class PorterMain
         }
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
-        portExecutor = new PortExecutor(responseHandle, pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
+        portExecutor = new PortExecutor(responseHandle, pLinker.currentPName(), pLinker, urlDecoder,
+                responseWhenException);
         porterData = new PorterDataImpl(portExecutor);
         currentPNameForLogger = null;
     }
@@ -264,18 +269,18 @@ public final class PorterMain
         contextPorter.setClassLoader(porterConf.getClassLoader());
 
         InnerContextBridge innerContextBridge = new InnerContextBridge(porterConf.getClassLoader(), innerBridge,
-                porterConf.getContextAutoSetMap(), porterConf.getContextAutoGenImplMap(),
-                porterConf.isEnableTiedNameDefault(), bridge, porterConf.getDefaultPortOutType(), porterConf.isResponseWhenException());
+                porterConf.getContextAutoSetMap(), porterConf.isEnableTiedNameDefault(), bridge,
+                porterConf.getDefaultPortOutType(), porterConf.isResponseWhenException());
 
         AutoSetHandle autoSetHandle = AutoSetHandle
                 .newInstance(innerContextBridge, getPLinker(), porterData, porterConf.getContextName());
 
         LOGGER.debug("do autoSet StateListener...");
-        Set<StateListener> stateListenerSet = porterConf.getStateListenerSet();
-        autoSetHandle.addAutoSetsForNotPorter(stateListenerSet.toArray(new StateListener[0]));
+        List<StateListener> stateListenerList = porterConf.getStateListenerList();
+        autoSetHandle.addAutoSetsForNotPorter(stateListenerList.toArray(new StateListener[0]));
 
         LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
-        StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerSet);
+        StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerList);
         ParamSourceHandleManager paramSourceHandleManager = bridge.paramSourceHandleManager();
 
         stateListenerForAll.beforeSeek(porterConf.getUserInitParam(), porterConf, paramSourceHandleManager);
@@ -290,7 +295,8 @@ public final class PorterMain
         try
         {
 
-            classCheckPassableMap = contextPorter.initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
+            classCheckPassableMap = contextPorter
+                    .initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
         } catch (Exception e)
         {
             throw new Error(WPTool.getCause(e));
@@ -319,20 +325,22 @@ public final class PorterMain
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
-        Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll, innerContextBridge, contextChecks,
-                porterCheckPassables);
+        Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll,
+                innerContextBridge, contextChecks, porterCheckPassables);
 
         try
         {
             autoSetHandle.doAutoSetNormal();//变量设置处理
             autoSetHandle.doAutoSetThat();
 
-            String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class.getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
+            String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class
+                    .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
             PRequest request = new PRequest(PortMethod.GET, path);
             WResponse response = new LocalResponse(lResponse -> {
             });
-            WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context, true);
+            WObject wObject = portExecutor
+                    .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
 
             autoSetHandle.invokeSetOk(wObject);
 
@@ -343,12 +351,14 @@ public final class PorterMain
 
         LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
 
-        String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class.getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
+        String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class
+                .getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
         UrlDecoder.Result result = getUrlDecoder().decode(path);
         PRequest request = new PRequest(PortMethod.GET, path);
         WResponse response = new LocalResponse(lResponse -> {
         });
-        WObject wObject = portExecutor.forPortInit(getPLinker().currentPName(), result, request, response, context, true);
+        WObject wObject = portExecutor
+                .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
         contextPorter.start(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
