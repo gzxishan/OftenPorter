@@ -17,7 +17,7 @@ import java.util.*;
  * 生成的id长度=[左填充位长度]+[秒级日期位长度(启动或达到最大设定数时的时间戳)]+[设定长度]+[随机位长度]+[右填充位长度]
  * </p>
  * <p>
- * id字符集:[0-9A-Z_a-z~]
+ * id字符集:[0-9A-Z_a-z]
  * </p>
  * <p>
  * 使用@{@linkplain AutoSet}注解时，默认生成的实例见{@linkplain #getDefault()}。
@@ -39,7 +39,7 @@ public class IdGen implements Serializable
     {
         BASE = ("0123456789" +
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "_~" +
+                "_" +
                 "abcdefghijklmnopqrstuvwxyz").toCharArray();
         Arrays.sort(BASE);
     }
@@ -268,7 +268,7 @@ public class IdGen implements Serializable
         {
             mac = 0;
         }
-        String mchid = IdGen.num10ToNum64(mac, 8);
+        String mchid = IdGen.num10ToNum6X(mac, 8);
         return mchid;
     }
 
@@ -370,13 +370,13 @@ public class IdGen implements Serializable
     }
 
     /**
-     * @param num64
+     * @param num6X
      * @param value 可以为负数
      * @return
      */
-    public static String num64AddNum10(String num64, long value)
+    public static String num6XAddNum10(String num6X, long value)
     {
-        char[] cs = num64.toCharArray();
+        char[] cs = num6X.toCharArray();
         int blen = BASE.length;
         int[] nums = new int[cs.length];
         for (int i = 0; i < nums.length; i++)
@@ -448,9 +448,9 @@ public class IdGen implements Serializable
         return new String(cs);
     }
 
-    public static long num64ToNum10(String num64)
+    public static long num6XToNum10(String num6X)
     {
-        char[] cs = num64.toCharArray();
+        char[] cs = num6X.toCharArray();
         long v = 0;
         long b = 1;
         int blen = BASE.length;
@@ -472,9 +472,9 @@ public class IdGen implements Serializable
      * @param value 必须大于等于0
      * @return
      */
-    public static String num10ToNum64(long value)
+    public static String num10ToNum6X(long value)
     {
-        return num10ToNum64(value, 0);
+        return num10ToNum6X(value, 0);
     }
 
     /**
@@ -482,7 +482,7 @@ public class IdGen implements Serializable
      * @param minCount 最低位数,0表示忽略，不足的左边补0
      * @return
      */
-    public static String num10ToNum64(long value, int minCount)
+    public static String num10ToNum6X(long value, int minCount)
     {
         if (value < 0)
         {

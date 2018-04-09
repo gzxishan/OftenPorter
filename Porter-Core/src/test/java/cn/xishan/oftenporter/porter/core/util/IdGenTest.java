@@ -45,31 +45,31 @@ public class IdGenTest
     }
 
     @Test
-    public void testNum10ToNum64()
+    public void testNum10ToNum6X()
     {
-        Assert.assertEquals("10", IdGen.num10ToNum64(64));
-        Assert.assertEquals("1~", IdGen.num10ToNum64(64 + 63));
+        Assert.assertEquals("10", IdGen.num10ToNum6X(63));
+        Assert.assertEquals("1z", IdGen.num10ToNum6X(63 + 62));
 
-        Assert.assertEquals(64, IdGen.num64ToNum10(IdGen.num10ToNum64(64)));
+        Assert.assertEquals(63, IdGen.num6XToNum10(IdGen.num10ToNum6X(63)));
         long time = System.currentTimeMillis();
-        Assert.assertEquals(time, IdGen.num64ToNum10(IdGen.num10ToNum64(time)));
+        Assert.assertEquals(time, IdGen.num6XToNum10(IdGen.num10ToNum6X(time)));
     }
 
     @Test
-    public void testNum64AddNum10()
+    public void testNum6XAddNum10()
     {
         long value = 9239_969_989_193749_66L;
-        String num64Value = IdGen.num10ToNum64(value);
+        String num6XValue = IdGen.num10ToNum6X(value);
 
         Random random = new Random();
         long t = System.nanoTime();
         for (int i = 0; i < 100000; i++)
         {
             int add = random.nextBoolean() ? random.nextInt() : -random.nextInt();
-            Assert.assertEquals(value + add, IdGen.num64ToNum10(IdGen.num64AddNum10(num64Value, add)));
+            Assert.assertEquals(value + add, IdGen.num6XToNum10(IdGen.num6XAddNum10(num6XValue, add)));
         }
         float total = (System.nanoTime() - t) * 1.0f / 1000000000 * 1000;
-        System.out.println("testNum64AddNum10:" + total + "ms");
+        System.out.println("testNum6XAddNum10:" + total + "ms");
     }
 
     @Test
