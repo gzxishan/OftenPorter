@@ -1,23 +1,17 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
-import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
 
 import java.io.IOException;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-public abstract class WSClient
+public class WSClient
 {
-    public final ClientWebSocket.Type type;
-
-    public final Session session;
-
-    /**
-     * 当{@linkplain ClientWebSocket#isPartial()}为false时，该值始终为true。
-     */
-    public final boolean isLast;
+    ClientWebSocket.Type type;
+    SessionImpl session;
+    boolean isLast;
+    Object object;
 
     /**
      * <pre>
@@ -33,14 +27,46 @@ public abstract class WSClient
      * @param <T>
      * @return
      */
-    public abstract <T> T object();
+    public <T> T object()
+    {
+        return (T) object;
+    }
 
-    public WSClient(ClientWebSocket.Type type, Session session, boolean isLast)
+    public Session session()
+    {
+        return session;
+    }
+
+    public ClientWebSocket.Type type()
+    {
+        return type;
+    }
+
+    /**
+     * @return 当{@linkplain ClientWebSocket#isPartial()}为false时，该值始终为true。
+     */
+    public boolean isLast()
+    {
+        return isLast;
+    }
+
+    public WSClient()
+    {
+    }
+
+    public void setSession(SessionImpl session)
+    {
+        this.session = session;
+    }
+
+    void set(ClientWebSocket.Type type,Object object, boolean isLast)
     {
         this.type = type;
         this.session = session;
+        this.object = object;
         this.isLast = isLast;
     }
+
 
     public void close() throws IOException
     {
@@ -49,19 +75,13 @@ public abstract class WSClient
 
     public void close(ClientCloseReason closeReason) throws IOException
     {
-    }
-
-    static WSClient newWS(ClientWebSocket.Type type, Session session, boolean isLast, Object value)
-    {
-        return new WSClient(type, session, isLast)
+        if (closeReason != null)
         {
-            @Override
-            public <T> T object()
-            {
-                return (T) value;
-            }
-        };
+            session.close(closeReason.getCode(), closeReason.getReason());
+        } else
+        {
+            session.close();
+        }
     }
-
 
 }
