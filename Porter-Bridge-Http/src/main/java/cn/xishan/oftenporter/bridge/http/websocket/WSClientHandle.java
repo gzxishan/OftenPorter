@@ -34,7 +34,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
 
     class Handle implements SessionImpl.OnClose
     {
-        private SessionImpl session;
+        private WSClient wsClient = new WSClient();
         private WSClientConfig wsClientConfig;
         private boolean isDestroyed = false;
         private ScheduledExecutorService scheduledExecutorService;
@@ -46,7 +46,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             try
             {
                 this.wObject = wObject;
-                WSClient wsClient = WSClient.newWS(ClientWebSocket.Type.ON_CONFIG, null, true, null);
+                this.wsClient.set(ClientWebSocket.Type.ON_CONFIG, null, true);
                 WSClientConfig wsClientConfig = (WSClientConfig) porterOfFun
                         .invoke(wObject, new Object[]{wObject, wsClient});
                 this.wsClientConfig = wsClientConfig;
@@ -62,12 +62,12 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     {
                         return;
                     }
-                    if (session == null || session.isClosed())
+                    if (wsClient.session == null || wsClient.session.isClosed())
                     {
                         checkConnect();
-                    } else if (session.webSocketClient.isOpen())
+                    } else if (wsClient.session.webSocketClient.isOpen())
                     {
-                        session.sendPing();
+                        wsClient.session.sendPing();
                     }
                 }, wsClientConfig.initDelay, wsClientConfig.heartDelay, TimeUnit.MILLISECONDS);
             } catch (Exception e)
@@ -80,7 +80,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
         public void onClosed()
         {
             handleSet.remove(this);
-            session = null;
+            wsClient.session = null;
             destroy();
         }
 
@@ -91,10 +91,10 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 return;
             }
             isDestroyed = true;
-            if (session != null)
+            if (wsClient.session != null)
             {
-                session.close();
-                session = null;
+                wsClient.session.close();
+                wsClient.session = null;
             }
             if (scheduledExecutorService != null)
             {
@@ -105,7 +105,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
 
         void checkConnect()
         {
-            if (session == null)
+            if (wsClient.session == null)
             {
                 connect();
             } else
@@ -116,13 +116,13 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
 
         void connect()
         {
-            if (this.session != null && this.session.webSocketClient.isOpen())
+            if (wsClient.session != null && wsClient.session.webSocketClient.isOpen())
             {
                 return;
             }
-            if (this.session != null)
+            if (wsClient.session != null)
             {
-                this.session.close();
+                wsClient.session.close();
             }
             WebSocketClient webSocketClient = new WebSocketClient(URI.create(wsClientConfig.getWSUrl()),
                     new Draft_6455(),
@@ -139,23 +139,23 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     if (obj instanceof byte[])
                     {
                         byte[] bs = (byte[]) obj;
-                        session.send(bs);
+                        wsClient.session.send(bs);
                     } else if (obj instanceof ByteBuffer)
                     {
                         ByteBuffer byteBuffer = (ByteBuffer) obj;
-                        session.send(byteBuffer);
+                        wsClient.session.send(byteBuffer);
                     } else
                     {
-                        session.send(String.valueOf(obj));
+                        wsClient.session.send(String.valueOf(obj));
                     }
                 }
 
                 @Override
                 public void onOpen(ServerHandshake handshakedata)
                 {
-                    WSClient wsClient = WSClient.newWS(ClientWebSocket.Type.ON_OPEN, session, true, null);
                     try
                     {
+                        wsClient.set(ClientWebSocket.Type.ON_OPEN, null, true);
                         Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
@@ -167,9 +167,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 @Override
                 public void onMessage(String message)
                 {
-                    WSClient wsClient = WSClient.newWS(ClientWebSocket.Type.ON_MESSAGE, session, true, message);
                     try
                     {
+                        wsClient.set(ClientWebSocket.Type.ON_MESSAGE, message, true);
                         Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
@@ -181,10 +181,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 @Override
                 public void onMessage(ByteBuffer bytes)
                 {
-                    WSClient wsClient = WSClient
-                            .newWS(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, session, true, bytes);
                     try
                     {
+                        wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, bytes, true);
                         Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
@@ -203,8 +202,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         {
                             ByteBuffer byteBuffer = frame.getPayloadData();
                             CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
-                            WSClient wsClient = WSClient.newWS(ClientWebSocket.Type.ON_PONG, session, true,
-                                    decoder.decode(byteBuffer).toString());
+                            wsClient.set(ClientWebSocket.Type.ON_PONG, decoder.decode(byteBuffer).toString(), true);
                             Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                             maySend(obj);
                         } catch (Exception e)
@@ -217,10 +215,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 @Override
                 public void onClose(int code, String reason, boolean remote)
                 {
-                    WSClient wsClient = WSClient
-                            .newWS(ClientWebSocket.Type.ON_CLOSE, session, true, new ClientCloseReason(code, reason));
                     try
                     {
+                        wsClient.set(ClientWebSocket.Type.ON_CLOSE, new ClientCloseReason(code, reason), true);
                         porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                     } catch (Exception e)
                     {
@@ -235,9 +232,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 @Override
                 public void onError(Exception ex)
                 {
-                    WSClient wsClient = WSClient.newWS(ClientWebSocket.Type.ON_ERROR, session, true, ex);
                     try
                     {
+                        wsClient.set(ClientWebSocket.Type.ON_ERROR, ex, true);
                         porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                     } catch (Exception e)
                     {
@@ -245,7 +242,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     }
                 }
             };
-            this.session = new SessionImpl(webSocketClient, this);
+            wsClient.setSession(new SessionImpl(webSocketClient, this));
             webSocketClient.connect();
         }
 
