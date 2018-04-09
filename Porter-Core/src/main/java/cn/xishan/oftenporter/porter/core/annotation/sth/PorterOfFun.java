@@ -74,12 +74,24 @@ public abstract class PorterOfFun implements ObjectGetter
     }
 
     /**
+     * 见{@linkplain Porter#getFinalPorterObject()}
+     *
      * @return
-     * @see Porter#getFinalPorterObject()
      */
     public Object getFinalPorterObject()
     {
         return porter.getFinalPorterObject();
+    }
+
+
+    /**
+     * 见{@linkplain Porter#getFinalPorter()}
+     *
+     * @return
+     */
+    public Porter getFinalPorter()
+    {
+        return porter.getFinalPorter();
     }
 
     /**

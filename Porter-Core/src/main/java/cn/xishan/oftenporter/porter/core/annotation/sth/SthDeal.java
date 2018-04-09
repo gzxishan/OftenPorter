@@ -52,7 +52,7 @@ public class SthDeal
 
 
     public Porter porter(ContextPorter.SrcPorter srcPorter,
-            Map<Class, Set<_MinxinPorter>> mixinToMap,
+            Map<Class, Set<_MixinPorter>> mixinToMap,
             String currentContextName,
             AutoSetHandle autoSetHandle) throws FatalInitException
     {
@@ -66,7 +66,7 @@ public class SthDeal
      *
      * </pre>
      */
-    private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MinxinPorter>> mixinToMap,
+    private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MixinPorter>> mixinToMap,
             String currentContextName, String currentClassTied,
             AutoSetHandle autoSetHandle,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws FatalInitException
@@ -103,7 +103,6 @@ public class SthDeal
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
         porter.addAutoSet();
-        porter.finalObject = porter.getObj();
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
@@ -169,16 +168,16 @@ public class SthDeal
 
         /////处理混入接口------开始：
         //后处理混入接口，这样可以控制override
-        _MinxinPorter[] mixins = SthUtil.getMixin(clazz, mixinToMap);
+        _MixinPorter[] mixins = SthUtil.getMixin(clazz, mixinToMap);
         List<Porter> mixinList = new ArrayList<>(mixins.length);
         //List<Class<? extends CheckPassable>> mixinCheckForWholeClassList = new ArrayList<>();
-        for (_MinxinPorter minxinPorter : mixins)
+        for (_MixinPorter _mixinPorter : mixins)
         {
-            if (!PortUtil.isMixinPortClass(minxinPorter.getClazz()))
+            if (!PortUtil.isMixinPortClass(_mixinPorter.getClazz()))
             {
                 continue;
             }
-            Porter mixinPorter = porter(new ContextPorter.SrcPorter(minxinPorter.getClazz(), minxinPorter.getObject()),
+            Porter mixinPorter = porter(new ContextPorter.SrcPorter(_mixinPorter.getClazz(), _mixinPorter.getObject()),
                     mixinToMap, currentContextName, currentClassTied,
                     autoSetHandle, true, wholeClassCheckPassableGetter);
             if (mixinPorter == null)
@@ -190,9 +189,10 @@ public class SthDeal
             Iterator<PorterOfFun> mixinIt = mixinChildren.values().iterator();
             while (mixinIt.hasNext())
             {
-                putFun(mixinIt.next(), childrenWithMethod, true, true, minxinPorter.isOverride());
+                putFun(mixinIt.next(), childrenWithMethod, true, true, _mixinPorter.isOverride());
             }
-            mixinPorter.finalObject = porter.getObj();
+            mixinPorter.finalObject = porter.getFinalPorterObject();
+            mixinPorter.finalPorter = porter.getFinalPorter();
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
             autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());
@@ -205,10 +205,7 @@ public class SthDeal
         //实例化经检查对象并添加到map。
         inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
-        if (isMixin)
-        {
-            LOGGER.debug("***********For mixin:{}***********end!", clazz);
-        } else
+        if (!isMixin)
         {
             wholeClassCheckPassableGetter.done();
             inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,

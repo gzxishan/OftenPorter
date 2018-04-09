@@ -149,6 +149,8 @@ public final class Porter
     Object finalObject;
     _PortOut portOut;
 
+    Porter finalPorter;
+
     WholeClassCheckPassableGetter wholeClassCheckPassableGetter;
 
     public static final String TIED_KEY_SEPARATOR = ":";
@@ -167,6 +169,7 @@ public final class Porter
     public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
         this.clazz = clazz;
+        this.finalPorter=this;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
@@ -275,6 +278,15 @@ public final class Porter
     }
 
     /**
+     * 获取最终的接口Porter.
+     * @return
+     */
+    public Porter getFinalPorter()
+    {
+        return finalPorter;
+    }
+
+    /**
      * 获取绑定的函数：{"funTied:method"或者"method":Fun}
      *
      * @return
@@ -318,6 +330,7 @@ public final class Porter
             try
             {
                 object = WPTool.newObject(clazz);
+                finalObject=object;
             } catch (Exception e)
             {
                 throw new InitException(e);
