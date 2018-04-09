@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * 请使用{@linkplain StartupServlet}
@@ -30,6 +30,9 @@ import java.util.Map;
 @Deprecated
 public class WMainServlet extends HttpServlet implements CommonMain
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
+    public static final String SERVLET_NAME_NAME = "cn.xishan.oftenporter.servlet.WMainServlet.name";
+
     private static final long serialVersionUID = 1L;
     private PorterMain porterMain;
     private String pname, urlEncoding;
@@ -216,9 +219,26 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
     }
 
+    private static final Pattern MAPPING_PATTERN = Pattern.compile("(/[^/]+/\\*)|(/\\*)");
+
     @Override
     public void init(ServletConfig config) throws ServletException
     {
+        try
+        {
+            //检查mapping是否正确
+            for (String mapping : config.getServletContext().getServletRegistration(config.getServletName())
+                    .getMappings())
+            {
+                if (!MAPPING_PATTERN.matcher(mapping).find())
+                {
+                    throw new ServletException("illegal mapping:" + mapping);
+                }
+            }
+        } catch (Exception e)
+        {
+            LOGGER.warn(e.getMessage(), e);
+        }
         WebSocketHandle.handleWS(config.getServletContext());
         super.init(config);
     }
@@ -358,8 +378,11 @@ public class WMainServlet extends HttpServlet implements CommonMain
             throw new RuntimeException("Not init!");
         }
         PorterConf porterConf = porterMain.newPorterConf();
-
-        porterConf.addContextAutoSet(ServletContext.class, getServletContext());
+        porterConf.addContextAutoSet(WebSocketHandle.WS_SERVER_CONTAINER_NAME,
+                getServletContext().getAttribute(WebSocketHandle.WS_SERVER_CONTAINER_NAME));
+        porterConf.addContextAutoSet(ServletContext.class, getServletConfig().getServletContext());
+        porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
+        porterConf.addContextAutoSet(WMainServlet.class, this);
 
         return porterConf;
     }

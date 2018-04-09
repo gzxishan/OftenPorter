@@ -2,8 +2,6 @@ package cn.xishan.oftenporter.servlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue

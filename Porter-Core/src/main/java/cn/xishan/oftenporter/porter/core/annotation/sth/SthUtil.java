@@ -33,7 +33,7 @@ class SthUtil
      */
     void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop,
-            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
+            Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
         if (needCheckLoop)
         {
@@ -74,7 +74,7 @@ class SthUtil
      */
     boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop,
-            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
+            Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
         if (needCheckLoop)
         {
@@ -246,9 +246,9 @@ class SthUtil
     }
 
 
-    static _MinxinPorter[] getMixin(Class<?> clazz, Map<Class, Set<_MinxinPorter>> mixinToMap)
+    static _MixinPorter[] getMixin(Class<?> clazz, Map<Class, Set<_MixinPorter>> mixinToMap)
     {
-        List<_MinxinPorter> list = new ArrayList<>(1);
+        List<_MixinPorter> list = new ArrayList<>(1);
         if (clazz.isAnnotationPresent(Mixin.class))
         {
             Mixin mixin = clazz.getAnnotation(Mixin.class);
@@ -256,17 +256,17 @@ class SthUtil
             for (Class c : classes)
             {
                 MixinOnly mixinOnly = AnnoUtil.getAnnotation(c, MixinOnly.class);
-                list.add(new _MinxinPorter(c, null, mixinOnly != null && mixinOnly.override()));
+                list.add(new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override()));
             }
         }
 
         if (isEnableMixinTo(clazz) && mixinToMap.containsKey(clazz))
         {
-            Set<_MinxinPorter> set = mixinToMap.get(clazz);
+            Set<_MixinPorter> set = mixinToMap.get(clazz);
             list.addAll(set);
         }
 
-        return list.toArray(new _MinxinPorter[0]);
+        return list.toArray(new _MixinPorter[0]);
     }
 
     private static boolean isEnableMixinTo(Class<?> clazz)
@@ -282,7 +282,7 @@ class SthUtil
      * @param root
      */
     private void checkLoopMixin(Class<?> root, boolean isMixinOrMixinParser,
-            Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
+            Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
         Set<Walk<Class>> walkedSet = new HashSet<>();
         String loopMsg = checkLoopMixin(root, walkedSet, isMixinOrMixinParser, mixinToMap);
@@ -302,12 +302,12 @@ class SthUtil
      * @throws FatalInitException
      */
     private String checkLoopMixin(Class<?> from, Set<Walk<Class>> walkedSet,
-            boolean isMixinOrMixinParser, Map<Class, Set<_MinxinPorter>> mixinToMap) throws FatalInitException
+            boolean isMixinOrMixinParser, Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
         if (isMixinOrMixinParser)
         {
-            _MinxinPorter[] mixins = getMixin(from, mixinToMap);
-            for (_MinxinPorter minxinPorter : mixins)
+            _MixinPorter[] mixins = getMixin(from, mixinToMap);
+            for (_MixinPorter minxinPorter : mixins)
             {
                 Class to = minxinPorter.getClazz();
                 Walk<Class> walk = new Walk<>(from, to);

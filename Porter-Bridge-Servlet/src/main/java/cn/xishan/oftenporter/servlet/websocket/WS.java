@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+
 import cn.xishan.oftenporter.servlet.websocket.WebSocket.Type;
 
 import javax.servlet.http.HttpSession;
@@ -58,10 +57,6 @@ public abstract class WS
 
     public void close(CloseReason closeReason) throws IOException
     {
-        HttpSession httpSession = getHttpSession();
-        httpSession.removeAttribute(WObject.class.getName());
-        httpSession.removeAttribute(PorterOfFun.class.getName());
-        httpSession.removeAttribute(WebSocket.class.getName());
         if (closeReason != null)
         {
             session.close(closeReason);
@@ -83,19 +78,30 @@ public abstract class WS
         };
     }
 
+    public final <T> T removeAttribute(Class<?> clazzKey)
+    {
+        return removeAttribute(clazzKey.getName());
+    }
 
-    public WS putAttribute(Class<?> clazzKey, Object vlaue)
+    public final <T> T removeAttribute(String key)
+    {
+        return (T) session.getUserProperties().remove(key);
+    }
+
+    public final <T> T putAttribute(Class<?> clazzKey, Object vlaue)
     {
         return putAttribute(clazzKey.getName(), vlaue);
     }
 
-    public WS putAttribute(String key, Object vlaue)
+    /**
+     * @return 返回上一次的属性。
+     */
+    public final <T> T putAttribute(String key, Object vlaue)
     {
-        session.getUserProperties().put(key, vlaue);
-        return this;
+        return (T) session.getUserProperties().put(key, vlaue);
     }
 
-    public <T> T getAttribute(Class<?> clazzKey)
+    public final <T> T getAttribute(Class<?> clazzKey)
     {
         return getAttribute(clazzKey.getName());
     }
@@ -106,7 +112,7 @@ public abstract class WS
     }
 
 
-    public <T> T getAttribute(String key)
+    public final <T> T getAttribute(String key)
     {
         Object v = session.getUserProperties().get(key);
         return (T) v;

@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
-import cn.xishan.oftenporter.porter.core.annotation.deal._MinxinPorter;
+import cn.xishan.oftenporter.porter.core.annotation.deal._MixinPorter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
@@ -145,7 +145,7 @@ public class ContextPorter implements IOtherStartDestroy
     private ListenerAdder<OnPorterAddListener> listenerAdder;
 
     private Map<Class, SrcPorter> class_porterMap;
-    private Map<Class, Set<_MinxinPorter>> mixinToMap;//key为被混入的接口。
+    private Map<Class, Set<_MixinPorter>> mixinToMap;//key为被混入的接口。
 
 
     public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
@@ -330,8 +330,8 @@ public class ContextPorter implements IOtherStartDestroy
         MixinTo mixinTo = AnnoUtil.getAnnotation(clazz, MixinTo.class);
         if (mixinTo != null)
         {
-            _MinxinPorter minxinPorter = new _MinxinPorter(clazz, objectPorter, mixinTo.override());
-            Set<_MinxinPorter> set = mixinToMap.get(mixinTo.porter());
+            _MixinPorter minxinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override());
+            Set<_MixinPorter> set = mixinToMap.get(mixinTo.porter());
             if (set == null)
             {
                 set = new HashSet<>();
