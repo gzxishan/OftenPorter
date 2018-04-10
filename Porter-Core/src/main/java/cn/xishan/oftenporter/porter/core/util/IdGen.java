@@ -20,7 +20,14 @@ import java.util.*;
  * id字符集:[0-9A-Z_a-z]
  * </p>
  * <p>
- * 使用@{@linkplain AutoSet}注解时，默认生成的实例见{@linkplain #getDefault()}。
+ * <strong color='red'>注意：</strong>
+ * <ol>
+ *     <li>开始时间fromTimeMillis作用，是用当前时间减去fromTimeMillis，用得到的差值来计算日期部分。</li>
+ *     <li>日期位的长度datelen决定了最大能表示的时间，如日期位是5，则最大可以表示63x63x63x63x63秒的时间差值（前时间减去fromTimeMillis）</li>
+ * </ol>
+ * </p>
+ * <p>
+ * 使用@{@linkplain AutoSet}注解时，默认生成的实例见{@linkplain #getDefault(long)}。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/16.
@@ -54,6 +61,7 @@ public class IdGen implements Serializable
         IRand build();
     }
 
+    private static final Object KEY = new Object();
     private char[] base = BASE;
     private int[] nums;
     private char[] idchars;
@@ -61,9 +69,9 @@ public class IdGen implements Serializable
 
     private int randlen;//随机值位数
     private int datelen;//日期所占位数
-    private static long lastTime;
-    private static final Object KEY = new Object();
+    private long lastTime;
     private IRandBuilder iRandBuilder;
+    private long fromTimeMillis;
 
     /**
      * 日期长度为7、随机长度为4.
@@ -72,9 +80,9 @@ public class IdGen implements Serializable
      * @param mchid       机器id。
      * @param rightOrLeft 机器id是拼接在右边还是左边。
      */
-    public IdGen(int len, @MayNull char[] mchid, boolean rightOrLeft)
+    public IdGen(long fromTimeMillis, int len, @MayNull char[] mchid, boolean rightOrLeft)
     {
-        this(7, len, 4, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, getDefaultBuilder());
+        this(fromTimeMillis, 7, len, 4, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null, getDefaultBuilder());
     }
 
     public static IRandBuilder getDefaultBuilder()
@@ -152,21 +160,28 @@ public class IdGen implements Serializable
     }
 
     /**
-     * @param datelen      日期所占位数，5~16
-     * @param len          设定长度
-     * @param randlen      随机位数
-     * @param mchidLeft    左侧填充的字符
-     * @param mchidRight   右侧填充的字符
-     * @param iRandBuilder 用于生成随机数
+     * @param fromTimeMillis 开始时间，单位毫秒。
+     * @param datelen        日期所占位数，5~16
+     * @param len            设定长度
+     * @param randlen        随机位数
+     * @param mchidLeft      左侧填充的字符
+     * @param mchidRight     右侧填充的字符
+     * @param iRandBuilder   用于生成随机数
      */
-    public IdGen(int datelen, int len, int randlen, @MayNull char[] mchidLeft, @MayNull char[] mchidRight,
+    public IdGen(long fromTimeMillis, int datelen, int len, int randlen, @MayNull char[] mchidLeft,
+            @MayNull char[] mchidRight,
             IRandBuilder iRandBuilder)
     {
         if (datelen < 5 || datelen > 16)
         {
             throw new IllegalArgumentException("datelen range:5~16");
         }
+        if (System.currentTimeMillis() - fromTimeMillis < 0)
+        {
+            throw new IllegalArgumentException("fromTimeMillis should not great than current time millis!");
+        }
         len += randlen;
+        this.fromTimeMillis = fromTimeMillis;
         this.datelen = datelen;
         this.randlen = randlen;
         this.iRandBuilder = iRandBuilder;
@@ -216,10 +231,12 @@ public class IdGen implements Serializable
      * @param rightOrLeft mchid是填充在右侧还是左侧
      * @return
      */
-    public static IdGen getSecureRand(int datelen, int specLen, int randBits, char[] mchid, boolean rightOrLeft)
+    public static IdGen getSecureRand(long fromTimeMillis, int datelen, int specLen, int randBits, char[] mchid,
+            boolean rightOrLeft)
     {
         IRandBuilder builder = getDefaultSecureBuilder();
-        IdGen idGen = new IdGen(datelen, specLen, randBits, rightOrLeft ? null : mchid, rightOrLeft ? mchid : null,
+        IdGen idGen = new IdGen(fromTimeMillis, datelen, specLen, randBits, rightOrLeft ? null : mchid,
+                rightOrLeft ? mchid : null,
                 builder);
         return idGen;
     }
@@ -229,14 +246,14 @@ public class IdGen implements Serializable
      *
      * @return
      */
-    public static synchronized IdGen getDefault()
+    public static synchronized IdGen getDefault(long fromTimeMillis)
     {
         if (DEFAULT_ID_GEN != null)
         {
             return DEFAULT_ID_GEN;
         }
         String mchid = getNetMac();
-        DEFAULT_ID_GEN = new IdGen(6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
+        DEFAULT_ID_GEN = new IdGen(fromTimeMillis, 6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
         return DEFAULT_ID_GEN;
     }
 
@@ -245,14 +262,15 @@ public class IdGen implements Serializable
      *
      * @return
      */
-    public static synchronized IdGen getDefaultWithX()
+    public static synchronized IdGen getDefaultWithX(long fromTimeMillis)
     {
         if (DEFAULT_ID_GEN_X != null)
         {
             return DEFAULT_ID_GEN_X;
         }
         String mchid = getNetMac();
-        DEFAULT_ID_GEN_X = new IdGen(6, 4, 3, "x".toCharArray(), mchid.toCharArray(), IdGen.getDefaultBuilder());
+        DEFAULT_ID_GEN_X = new IdGen(fromTimeMillis, 6, 4, 3, "x".toCharArray(), mchid.toCharArray(),
+                IdGen.getDefaultBuilder());
         return DEFAULT_ID_GEN_X;
     }
 
@@ -302,22 +320,6 @@ public class IdGen implements Serializable
         return mac;
     }
 
-    public static void setLastTime(long lastTime)
-    {
-        synchronized (KEY)
-        {
-            IdGen.lastTime = lastTime;
-        }
-    }
-
-    public static long getLastTime()
-    {
-        synchronized (KEY)
-        {
-            return lastTime;
-        }
-    }
-
     private void initTime()
     {
         String times = getTimeId(true);
@@ -328,6 +330,10 @@ public class IdGen implements Serializable
     {
         synchronized (KEY)
         {
+            if (System.currentTimeMillis() - fromTimeMillis < 0)
+            {
+                throw new IllegalArgumentException("fromTimeMillis should not great than current time millis!");
+            }
             int sleep = 0;
             long t = System.currentTimeMillis();
             if (isSecond)
@@ -354,14 +360,18 @@ public class IdGen implements Serializable
                 }
                 t = System.currentTimeMillis();
             }
-            long time = t / (isSecond ? 1000 : 1);
+            long dtime = (t - fromTimeMillis) / (isSecond ? 1000 : 1);
             int blen = base.length;
             int dlen = isSecond ? datelen : datelen + 2;
             char[] cs = new char[dlen];
+            for (int i = 0; i < cs.length; i++)
+            {
+                cs[i]=base[0];
+            }
             for (int i = 0, k = dlen - 1; i < dlen; i++, k--)
             {
-                int m = (int) (time % blen);
-                time /= blen;
+                int m = (int) (dtime % blen);
+                dtime /= blen;
                 cs[k] = base[m];
             }
             lastTime = t;
