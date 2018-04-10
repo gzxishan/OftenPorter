@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.Mixin;
-import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
-import cn.xishan.oftenporter.porter.core.annotation.Parser;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -21,11 +18,10 @@ import java.util.*;
  */
 class SthUtil
 {
-    private final Logger LOGGER;
+    private static final Logger LOGGER = LogUtil.logger(SthUtil.class);
 
     public SthUtil()
     {
-        LOGGER = LogUtil.logger(SthUtil.class);
     }
 
     /**
@@ -256,6 +252,12 @@ class SthUtil
             for (Class c : classes)
             {
                 MixinOnly mixinOnly = AnnoUtil.getAnnotation(c, MixinOnly.class);
+                MixinTo mixinTo = AnnoUtil.getAnnotation(c, MixinTo.class);
+                if (mixinTo != null && !mixinTo.enableMixin())
+                {
+                    LOGGER.debug("mixin not enable:[{}] to [{}]", c, clazz);
+                    continue;
+                }
                 list.add(new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override()));
             }
         }

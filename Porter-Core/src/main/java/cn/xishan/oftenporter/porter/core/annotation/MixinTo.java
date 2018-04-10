@@ -16,16 +16,21 @@ import java.lang.annotation.*;
 public @interface MixinTo
 {
     /**
-     * 是否覆盖，默认为true。
+     * 是否覆盖。
      *
-     * @return
+     * @return 默认为true
      */
     boolean override() default true;
 
     /**
-     * 被混入的接口类，还可以是{@linkplain MixinTo}和{@linkplain MixinOnly}接口。
+     * 是否允许被其注解了的接口再被@{@linkplain Mixin}混入。
      *
-     * @return
+     * @return 默认true
+     */
+    boolean enableMixin() default true;
+
+    /**
+     * 被混入的接口类，还可以是{@linkplain MixinTo}和{@linkplain MixinOnly}接口。
      */
     Class<?> porter();
 }
