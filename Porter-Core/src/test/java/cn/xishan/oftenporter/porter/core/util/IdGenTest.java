@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -12,10 +13,19 @@ import java.util.Random;
  */
 public class IdGenTest
 {
+    private static final long FROM_TIME_MILLIS;
+
+    static
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2018, 2 - 1, 16, 00, 00, 00);
+        FROM_TIME_MILLIS = calendar.getTimeInMillis();
+    }
+
     @Test
     public void test()
     {
-        IdGen idGen = new IdGen(8, "oHmKnp".toCharArray(), true);
+        IdGen idGen = new IdGen(FROM_TIME_MILLIS,8, "oHmKnp".toCharArray(), true);
         int N = 100000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
@@ -31,7 +41,7 @@ public class IdGenTest
     @Test
     public void testSecure()
     {
-        IdGen idGen = IdGen.getSecureRand(7, 8, 4, "oHmKnp".toCharArray(), true);
+        IdGen idGen = IdGen.getSecureRand(FROM_TIME_MILLIS,7, 8, 4, "oHmKnp".toCharArray(), true);
         int N = 100000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
@@ -75,11 +85,11 @@ public class IdGenTest
     @Test
     public void testDefault()
     {
-        LogUtil.printPosLn(IdGen.getDefault().nextId());
+        LogUtil.printPosLn(IdGen.getDefault(FROM_TIME_MILLIS).nextId());
         long t = System.nanoTime();
         for (int i = 0; i < 100000; i++)
         {
-            Assert.assertTrue(IdGen.getDefault().nextId().length() == 21);
+            Assert.assertTrue(IdGen.getDefault(FROM_TIME_MILLIS).nextId().length() == 21);
         }
         float total = (System.nanoTime() - t) * 1.0f / 1000000000 * 1000;
         System.out.println("testDefault:" + total + "ms");
