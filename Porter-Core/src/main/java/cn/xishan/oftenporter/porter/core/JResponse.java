@@ -312,11 +312,17 @@ public class JResponse
         }
     }
 
-    /**
-     * 转换为字符串
-     */
+
     @Override
     public String toString()
+    {
+        return toJSON().toString();
+    }
+
+    /**
+     * 转换为json
+     */
+    public JSONObject toJSON()
     {
         JSONObject json = new JSONObject(5);
         ResultCode resultCode = code != null ? code : ResultCode.Other;
@@ -340,7 +346,7 @@ public class JResponse
         }
 
 
-        return json.toString();
+        return json;
     }
 
     public static JResponse success(Object result)
