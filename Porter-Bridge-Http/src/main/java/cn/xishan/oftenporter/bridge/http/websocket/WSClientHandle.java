@@ -114,7 +114,17 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             }
         }
 
-        void connect()
+        void connect(){
+            try
+            {
+                _connect();
+            }catch (Exception e){
+                LOGGER.error(e.getMessage(),e);
+            }
+        }
+
+
+     private   void _connect()
         {
             if (wsClient.session != null && wsClient.session.webSocketClient.isOpen())
             {
