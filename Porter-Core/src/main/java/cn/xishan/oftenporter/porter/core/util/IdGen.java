@@ -22,8 +22,8 @@ import java.util.*;
  * <p>
  * <strong color='red'>注意：</strong>
  * <ol>
- *     <li>开始时间fromTimeMillis作用，是用当前时间减去fromTimeMillis，用得到的差值来计算日期部分。</li>
- *     <li>日期位的长度datelen决定了最大能表示的时间，如日期位是5，则最大可以表示63x63x63x63x63秒的时间差值（前时间减去fromTimeMillis）</li>
+ * <li>开始时间fromTimeMillis作用，是用当前时间减去fromTimeMillis，用得到的差值来计算日期部分。</li>
+ * <li>日期位的长度datelen决定了最大能表示的时间，如日期位是5，则最大可以表示63x63x63x63x63秒的时间差值（约为31年,当前时间减去fromTimeMillis）</li>
  * </ol>
  * </p>
  * <p>
@@ -39,7 +39,6 @@ public class IdGen implements Serializable
     private static final long serialVersionUID = -8251636420192526844L;
 
     private static final char[] BASE;
-    private static IdGen DEFAULT_ID_GEN, DEFAULT_ID_GEN_X;
 
 
     static
@@ -76,9 +75,10 @@ public class IdGen implements Serializable
     /**
      * 日期长度为7、随机长度为4.
      *
-     * @param len         设定长度。
-     * @param mchid       机器id。
-     * @param rightOrLeft 机器id是拼接在右边还是左边。
+     * @param fromTimeMillis 开始时间，单位毫秒。
+     * @param len            设定长度。
+     * @param mchid          机器id。
+     * @param rightOrLeft    机器id是拼接在右边还是左边。
      */
     public IdGen(long fromTimeMillis, int len, @MayNull char[] mchid, boolean rightOrLeft)
     {
@@ -161,7 +161,7 @@ public class IdGen implements Serializable
 
     /**
      * @param fromTimeMillis 开始时间，单位毫秒。
-     * @param datelen        日期所占位数，5~16
+     * @param datelen        日期所占位数，5~9
      * @param len            设定长度
      * @param randlen        随机位数
      * @param mchidLeft      左侧填充的字符
@@ -172,9 +172,9 @@ public class IdGen implements Serializable
             @MayNull char[] mchidRight,
             IRandBuilder iRandBuilder)
     {
-        if (datelen < 5 || datelen > 16)
+        if (datelen < 5 || datelen > 9)
         {
-            throw new IllegalArgumentException("datelen range:5~16");
+            throw new IllegalArgumentException("datelen range:5~9");
         }
         if (System.currentTimeMillis() - fromTimeMillis < 0)
         {
@@ -224,7 +224,7 @@ public class IdGen implements Serializable
     }
 
     /**
-     * @param datelen     日期所占位数，5~16
+     * @param datelen     日期所占位数，5~9
      * @param specLen     指定长度
      * @param randBits    随机数位数
      * @param mchid       机器id
@@ -242,36 +242,58 @@ public class IdGen implements Serializable
     }
 
     /**
-     * 生成的id字符长度为(21个字符):[6位秒级日期][4位设定长度][3位随机位][8位最大网卡（已启动）mac]。
+     * 见{@linkplain #getDefault(long)}
      *
+     * @param fromYear  开始的年
+     * @param fromMonth 开始的月,0~11
      * @return
      */
-    public static synchronized IdGen getDefault(long fromTimeMillis)
+    public static IdGen getDefault(int fromYear, int fromMonth)
     {
-        if (DEFAULT_ID_GEN != null)
-        {
-            return DEFAULT_ID_GEN;
-        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(fromYear, fromMonth, 1, 0, 0, 0);
+        return getDefault(calendar.getTimeInMillis());
+    }
+
+    /**
+     * 生成的id字符长度为(21个字符):[6位秒级日期][4位设定长度][3位随机位][8位最大网卡（已启动）mac]。
+     *
+     * @param fromTimeMillis 开始的日期毫秒数
+     * @return
+     */
+    public static IdGen getDefault(long fromTimeMillis)
+    {
         String mchid = getNetMac();
-        DEFAULT_ID_GEN = new IdGen(fromTimeMillis, 6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
-        return DEFAULT_ID_GEN;
+        IdGen idGen = new IdGen(fromTimeMillis, 6, 4, 3, null, mchid.toCharArray(), IdGen.getDefaultBuilder());
+        return idGen;
+    }
+
+    /**
+     * 见{@linkplain #getDefaultWithX(long)}
+     *
+     * @param fromYear  开始的年
+     * @param fromMonth 开始的月,0~11
+     * @return
+     */
+    public static IdGen getDefaultWithX(int fromYear, int fromMonth)
+    {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(fromYear, fromMonth, 1, 0, 0, 0);
+        return getDefaultWithX(calendar.getTimeInMillis());
     }
 
     /**
      * 生成的id字符长度为(22个字符):[x][6位秒级日期][4位设定长度][3位随机位][8位最大网卡（已启动）mac]。
      *
+     * @param fromTimeMillis 开始的日期毫秒数
      * @return
      */
-    public static synchronized IdGen getDefaultWithX(long fromTimeMillis)
+    public static IdGen getDefaultWithX(long fromTimeMillis)
     {
-        if (DEFAULT_ID_GEN_X != null)
-        {
-            return DEFAULT_ID_GEN_X;
-        }
         String mchid = getNetMac();
-        DEFAULT_ID_GEN_X = new IdGen(fromTimeMillis, 6, 4, 3, "x".toCharArray(), mchid.toCharArray(),
+        IdGen idGen = new IdGen(fromTimeMillis, 6, 4, 3, "x".toCharArray(), mchid.toCharArray(),
                 IdGen.getDefaultBuilder());
-        return DEFAULT_ID_GEN_X;
+        return idGen;
     }
 
     /**
@@ -366,7 +388,7 @@ public class IdGen implements Serializable
             char[] cs = new char[dlen];
             for (int i = 0; i < cs.length; i++)
             {
-                cs[i]=base[0];
+                cs[i] = base[0];
             }
             for (int i = 0, k = dlen - 1; i < dlen; i++, k--)
             {
