@@ -582,14 +582,8 @@ public class IdGen implements Serializable
                 nums[i] -= blen;
             }
         }
-        for (int i = 0, ci = idindex; i < nums.length; i++, ci++)
-        {
-            idchars[ci] = base[nums[i]];
-        }
-        String id = new String(idchars);
-
         if (nums[0] >= blen)
-        {
+        {//最高位数值溢出、增加时间
             int length = nums.length - randlen;
             for (int i = 0; i < length; i++)
             {
@@ -597,6 +591,11 @@ public class IdGen implements Serializable
             }
             initTime();
         }
+        for (int i = 0, ci = idindex; i < nums.length; i++, ci++)
+        {
+            idchars[ci] = base[nums[i]];
+        }
+        String id = new String(idchars);
         return id;
     }
 }
