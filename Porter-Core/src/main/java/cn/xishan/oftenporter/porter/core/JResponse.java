@@ -153,9 +153,21 @@ public class JResponse
      */
     public static JResponse fromJSON(String json) throws JResponseFormatException
     {
+        JSONObject jsonObject = JSON.parseObject(json);
+        return fromJSONObject(jsonObject);
+    }
+
+    /**
+     * 从对应的json转换成JResponse
+     *
+     * @param jsonObject
+     * @return
+     * @throws JResponseFormatException
+     */
+    public static JResponse fromJSONObject(JSONObject jsonObject) throws JResponseFormatException
+    {
         try
         {
-            JSONObject jsonObject = JSON.parseObject(json);
             int code = jsonObject.getIntValue(CODE_FIELD);
             String desc = getString(jsonObject, DESCRIPTION_FIELD);
 
