@@ -356,6 +356,7 @@ public class AutoSetHandle
     {
         iHandles.add(new Handle_doAutoSetForPorter(porter));
         porterMap.put(porter.getClazz(), porter);
+        porterMap.putAll(porter.getMixinToThatCouldSet());
         //doAutoSet(object, autoSetMixinMap);
     }
 
@@ -448,7 +449,7 @@ public class AutoSetHandle
                 continue;
             }
             if (autoSetToThatForMixin.key().equals("") && autoSetToThatForMixin.value()
-                    .equals(AutoSetToThatForMixin.class))
+                    .equals(AutoSet.class))
             {
                 throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
                         .getSimpleName() + " is empty  for field '" + field + "'");
@@ -471,10 +472,13 @@ public class AutoSetHandle
             {
                 continue;
             }
-
+            field.setAccessible(true);
+            if(field.get(objectForSet)!=null){//忽略不为null的
+                continue;
+            }
 
             Object value;
-            if (autoSetThatForMixin.value().equals(AutoSetThatForMixin.class) && autoSetThatForMixin.key().equals(""))
+            if (autoSetThatForMixin.value().equals(AutoSet.class) && autoSetThatForMixin.key().equals(""))
             {
                 value = objectForGet;
             } else
@@ -496,8 +500,9 @@ public class AutoSetHandle
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-
-            field.setAccessible(true);
+            if(!WPTool.isAssignable(value.getClass(),field.getType())){//忽略非继承关系的。
+                continue;
+            }
             field.set(objectForSet, value);
             LOGGER.debug("AutoSet.AutoSetThatForMixin:[{}] with [{}]", field, value);
         }

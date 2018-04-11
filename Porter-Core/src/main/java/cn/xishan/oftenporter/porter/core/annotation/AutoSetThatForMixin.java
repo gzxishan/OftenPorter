@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface AutoSetThatForMixin
 {
-    Class<?> value() default AutoSetThatForMixin.class;
+    Class<?> value() default AutoSet.class;
 
     String key() default "";
 

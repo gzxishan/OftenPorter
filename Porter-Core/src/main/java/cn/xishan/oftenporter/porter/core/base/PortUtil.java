@@ -1,10 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
-import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
-import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -193,9 +190,21 @@ public class PortUtil
     public static boolean isJustPortInClass(Class<?> clazz)
     {
         return !Modifier.isAbstract(clazz.getModifiers()) && clazz.isAnnotationPresent(PortIn.class) && !AnnoUtil
-                .isOneOfAnnotationsPresent(clazz,MixinOnly.class, MixinTo.class);
+                .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class);
     }
 
+
+    public static Class getMixinToContextSetKey(Class clazz)
+    {
+        MixinTo mixinTo = AnnoUtil.getAnnotation(clazz, MixinTo.class);
+        if (mixinTo != null && !AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
+        {
+            return mixinTo.toContextSetWithClassKey();
+        } else
+        {
+            return null;
+        }
+    }
 
     /**
      * 判断是否是接口类。

@@ -169,7 +169,7 @@ public final class Porter
     public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
         this.clazz = clazz;
-        this.finalPorter=this;
+        this.finalPorter = this;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
@@ -279,6 +279,7 @@ public final class Porter
 
     /**
      * 获取最终的接口Porter.
+     *
      * @return
      */
     public Porter getFinalPorter()
@@ -330,7 +331,7 @@ public final class Porter
             try
             {
                 object = WPTool.newObject(clazz);
-                finalObject=object;
+                finalObject = object;
             } catch (Exception e)
             {
                 throw new InitException(e);
@@ -634,21 +635,26 @@ public final class Porter
         }
     }
 
-    public void seekPortInit(String contextName,List<PortIniter> portIniterList){
+    public void seekPortInit(String contextName, List<PortIniter> portIniterList)
+    {
 
         Iterator<PorterOfFun> iterator = childrenWithMethod.values().iterator();
-        while (iterator.hasNext()){
+        while (iterator.hasNext())
+        {
             PorterOfFun porterOfFun = iterator.next();
             PortInit portInit = AnnoUtil.getAnnotation(porterOfFun.getMethod(), PortInit.class);
-            PortIniter portIniter = newIniter(porterOfFun,portInit,porterOfFun.getMethodPortIn().getTiedType(),contextName);
-            if(portIniter!=null){
+            PortIniter portIniter = newIniter(porterOfFun, portInit, porterOfFun.getMethodPortIn().getTiedType(),
+                    contextName);
+            if (portIniter != null)
+            {
                 portIniterList.remove(portIniter);
                 portIniterList.add(portIniter);
             }
         }
     }
 
-    private PortIniter newIniter(PorterOfFun porterOfFun, @MayNull PortInit portInit, TiedType tiedType, String contextName)
+    private PortIniter newIniter(PorterOfFun porterOfFun, @MayNull PortInit portInit, TiedType tiedType,
+            String contextName)
     {
         if (portInit == null)
         {
@@ -682,5 +688,28 @@ public final class Porter
         }
         PortIniter portIniter = new PortIniterImpl(path, fkey, portInit.order(), method);
         return portIniter;
+    }
+
+    public Map<Class, Porter> getMixinToThatCouldSet()
+    {
+        Map<Class, Porter> map = new HashMap<>();
+        getMixinToThatCouldSet(map);
+        return map;
+    }
+
+    void getMixinToThatCouldSet(Map<Class, Porter> map)
+    {
+        if(mixins==null){
+            return;
+        }
+        for (Porter porter : mixins)
+        {
+            Class key = PortUtil.getMixinToContextSetKey(porter.getClazz());
+            if (key != null)
+            {
+                map.put(key, porter);
+            }
+            porter.getMixinToThatCouldSet(map);
+        }
     }
 }
