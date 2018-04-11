@@ -85,11 +85,12 @@ public class IdGenTest
     @Test
     public void testDefault()
     {
-        LogUtil.printPosLn(IdGen.getDefault(FROM_TIME_MILLIS).nextId());
+        IdGen idGen = IdGen.getDefault(FROM_TIME_MILLIS);
+        LogUtil.printPosLn(idGen.nextId());
         long t = System.nanoTime();
         for (int i = 0; i < 100000; i++)
         {
-            Assert.assertTrue(IdGen.getDefault(FROM_TIME_MILLIS).nextId().length() == 21);
+            Assert.assertTrue(idGen.nextId().length() == 21);
         }
         float total = (System.nanoTime() - t) * 1.0f / 1000000000 * 1000;
         System.out.println("testDefault:" + total + "ms");
