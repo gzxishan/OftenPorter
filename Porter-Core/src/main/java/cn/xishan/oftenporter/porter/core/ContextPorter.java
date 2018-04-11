@@ -331,11 +331,11 @@ public class ContextPorter implements IOtherStartDestroy
         if (mixinTo != null)
         {
             _MixinPorter minxinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override());
-            Set<_MixinPorter> set = mixinToMap.get(mixinTo.porter());
+            Set<_MixinPorter> set = mixinToMap.get(mixinTo.toPorter());
             if (set == null)
             {
                 set = new HashSet<>();
-                mixinToMap.put(mixinTo.porter(), set);
+                mixinToMap.put(mixinTo.toPorter(), set);
             }
             LOGGER.debug("add to mixinToMap:{}", clazz);
             set.add(minxinPorter);

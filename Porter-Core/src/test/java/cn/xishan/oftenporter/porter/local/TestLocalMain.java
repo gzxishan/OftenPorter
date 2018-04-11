@@ -120,7 +120,7 @@ public class TestLocalMain
         localMain.startOne(porterConf);
 
 
-        int n = 1;//00000 ;
+        int n = 10 * 10000;
         final int threads = Runtime.getRuntime().availableProcessors();
 
         ExecutorService executorService = Executors.newFixedThreadPool(threads, r ->
@@ -137,8 +137,8 @@ public class TestLocalMain
         {
 
             logger.debug("**************************************");
-            logger.debug("threads={},n={}:total={}ms,average={}ms", threads, N, 1.0 * totalDtime / 1000000,
-                    1.0d * totalDtime / 1000000 / N);
+            logger.debug("threads={},n={}:total={}ms,average={}ms", threads, N, 1.0f * totalDtime,
+                    1.0f * totalDtime / N);
             logger.debug("**************************************");
 
             logger.debug("**************AutoSet delay test******************");
@@ -215,7 +215,7 @@ public class TestLocalMain
             {
                 executorService.execute(() ->
                 {
-                    long time = System.nanoTime();
+                    long time = System.currentTimeMillis();
 
                     bridge.request(new PRequest(PortMethod.GET, "/Local-1/Hello/parseObject").addParam("title", "转换成对象")
                                     .addParam("comments", "['c1','c2']")
@@ -263,7 +263,7 @@ public class TestLocalMain
                     bridge.request(new PRequest(PortMethod.GET, "/Local-1/My2/hello"),
                             lResponse -> assertEquals("My2Porter", lResponse.getResponse()));
 
-                    dtime.addAndGet(System.nanoTime() - time);
+                    dtime.addAndGet(System.currentTimeMillis() - time);
                     if (count.incrementAndGet() == n)
                     {
                         listener.onEnd(dtime.get(), n);

@@ -32,5 +32,11 @@ public @interface MixinTo
     /**
      * 被混入的接口类，还可以是{@linkplain MixinTo}和{@linkplain MixinOnly}接口。
      */
-    Class<?> porter();
+    Class<?> toPorter();
+
+    /**
+     * 用于添加到context set列表。
+     * @return 通过class设置key。
+     */
+    Class<?> toContextSetWithClassKey() default AutoSet.class;
 }
