@@ -29,6 +29,13 @@ public @interface SyncPorterOption
     String classTied() default "";
 
     /**
+     * 用于获取类绑定名，优先于{@linkplain #classTied()}。
+     *
+     * @return
+     */
+    Class<?> porter() default SyncPorterOption.class;
+
+    /**
      * 为空时，绑定名等于变量名。
      *
      * @return

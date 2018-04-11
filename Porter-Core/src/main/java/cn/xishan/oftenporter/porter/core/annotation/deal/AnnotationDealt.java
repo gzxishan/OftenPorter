@@ -57,7 +57,16 @@ public final class AnnotationDealt
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
-            String classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
+            String classTied;
+            if (!SyncPorterOption.class.equals(option.porter()))
+            {
+                classTied = PortUtil.tied(option.porter());
+            } else
+            {
+                classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
+            }
+
+
             String funTied = option.funTied().equals("") ? field.getName() : option.funTied();
             porterParamGetter.setContext(context);
             porterParamGetter.setClassTied(classTied);
