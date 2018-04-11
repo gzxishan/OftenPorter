@@ -26,7 +26,7 @@ public class IdGenTest
     public void test()
     {
         IdGen idGen = new IdGen(FROM_TIME_MILLIS,8, "oHmKnp".toCharArray(), true);
-        int N = 100000;
+        int N = 100*10000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
         idGen.nextIds(ids, N);
@@ -42,7 +42,7 @@ public class IdGenTest
     public void testSecure()
     {
         IdGen idGen = IdGen.getSecureRand(FROM_TIME_MILLIS,7, 8, 4, "oHmKnp".toCharArray(), true);
-        int N = 100000;
+        int N = 100*10000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
         idGen.nextIds(ids, N);
@@ -73,7 +73,8 @@ public class IdGenTest
 
         Random random = new Random();
         long t = System.nanoTime();
-        for (int i = 0; i < 100000; i++)
+        int N = 100*10000;
+        for (int i = 0; i < N; i++)
         {
             int add = random.nextBoolean() ? random.nextInt() : -random.nextInt();
             Assert.assertEquals(value + add, IdGen.num6XToNum10(IdGen.num6XAddNum10(num6XValue, add)));
@@ -88,7 +89,8 @@ public class IdGenTest
         IdGen idGen = IdGen.getDefault(FROM_TIME_MILLIS);
         LogUtil.printPosLn(idGen.nextId());
         long t = System.nanoTime();
-        for (int i = 0; i < 100000; i++)
+        int N = 100*10000;
+        for (int i = 0; i < N; i++)
         {
             Assert.assertTrue(idGen.nextId().length() == 21);
         }

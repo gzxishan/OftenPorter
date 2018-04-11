@@ -35,12 +35,8 @@ import java.util.*;
 @AutoSetDefaultDealt(gen = IdGenDealt.class)
 public class IdGen implements Serializable
 {
-
     private static final long serialVersionUID = -8251636420192526844L;
-
     private static final char[] BASE;
-
-
     static
     {
         BASE = ("0123456789" +
@@ -162,7 +158,7 @@ public class IdGen implements Serializable
     /**
      * @param fromTimeMillis 开始时间，单位毫秒。
      * @param datelen        日期所占位数，5~9
-     * @param len            设定长度
+     * @param len            设定长度,表示每秒不休眠能够生成的id数、当超过这个数量时可能会休眠最多1秒的时间（以更新日期位）
      * @param randlen        随机位数
      * @param mchidLeft      左侧填充的字符
      * @param mchidRight     右侧填充的字符
@@ -327,8 +323,8 @@ public class IdGen implements Serializable
                 {
                     continue;
                 }
-                long s = BytesTool.readUnShort(bytes, 0);
-                long i = 0xFFFFFFFFL & BytesTool.readInt(bytes, 2);
+                long s = readUnShortBigEndian(bytes, 0);
+                long i = 0xFFFFFFFFL & readIntBigEndian(bytes, 2);
                 long l = (s << 32) | i;
                 if (l > mac)
                 {
@@ -340,6 +336,19 @@ public class IdGen implements Serializable
             e.printStackTrace();
         }
         return mac;
+    }
+
+    private static int readIntBigEndian(byte[] data, int offset)
+    {
+        int n = ((data[offset + 3] & 0xFF) | ((data[offset + 2] & 0xFF) << 8)
+                | ((data[offset + 1] & 0xFF) << 16) | ((data[offset] & 0xFF) << 24));
+        return n;
+    }
+
+    private static int readUnShortBigEndian(byte[] data, int offset)
+    {
+        int n = ((data[offset + 1] & 0xFF)) | ((data[offset] & 0xFF) << 8);
+        return n;
     }
 
     private void initTime()
