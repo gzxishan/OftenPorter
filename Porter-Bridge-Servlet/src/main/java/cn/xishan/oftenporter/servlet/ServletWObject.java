@@ -107,6 +107,11 @@ public class ServletWObject extends WObject
         return result;
     }
 
+    public void setResult(UrlDecoder.Result result)
+    {
+        this.result = result;
+    }
+
     /**
      * 返回空.
      *

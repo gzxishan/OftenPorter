@@ -38,11 +38,6 @@ public abstract class StartupServlet extends WMainServlet
         super(pname, responseWhenException);
     }
 
-    @Override
-    public final void init(ServletConfig config) throws ServletException
-    {
-        super.init(config);
-    }
 
     protected CustomServletPath[] getCustomServletPaths()
     {

@@ -108,6 +108,19 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
     }
 
     /**
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, boolean)}。
+     *
+     * @param wObject
+     * @param funTied 若为null，则使用当前的。
+     * @return
+     */
+    public static String getPortUrl(WObject wObject, String classTied, String funTied, boolean http2Https)
+    {
+        return getPortUrl(wObject, null, null, classTied, funTied, http2Https);
+    }
+
+
+    /**
      * 获得接口地址。<strong>注意：</strong>Servlet转接会出错。
      *
      * @param wObject
