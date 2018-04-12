@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 /**
  * 可用于{@linkplain SyncPorter SyncPorter}
+ *
  * @author Created by https://github.com/CLovinr on 2017/6/9.
  */
 public class ServletWObject extends WObject
@@ -24,10 +25,15 @@ public class ServletWObject extends WObject
 
     public ServletWObject(HttpServletRequest request, HttpServletResponse response)
     {
+        this(request, null, response);
+    }
+
+    public ServletWObject(HttpServletRequest request, String path, HttpServletResponse response)
+    {
         this("", "", "");
-        wRequest = new WServletRequest(null,request,"",response,PortMethod.DEFAULT);
-        wResponse=new WServletResponse(response);
-        paramSource=new DefaultParamSource(wRequest);
+        wRequest = new WServletRequest(null, request, path, response, PortMethod.DEFAULT);
+        wResponse = new WServletResponse(response);
+        paramSource = new DefaultParamSource(wRequest);
         paramSource.setUrlResult(result);
     }
 
