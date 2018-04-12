@@ -51,4 +51,18 @@ public @interface PortComment
      * @return
      */
     String rw() default "";
+
+    /**
+     * 必须参数列表
+     *
+     * @return
+     */
+    String[] nece() default {};
+
+    /**
+     * 非必须参数列表
+     *
+     * @return
+     */
+    String[] unece() default {};
 }
