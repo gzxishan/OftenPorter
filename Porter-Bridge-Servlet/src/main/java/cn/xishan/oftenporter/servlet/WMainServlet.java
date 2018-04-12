@@ -167,23 +167,24 @@ public class WMainServlet extends HttpServlet implements CommonMain
     }
 
     /**
-     * 处理请求
+     * 处理请求。
      *
      * @param request
-     * @param path     当为null时，使用request.getRequestURI().substring(request.getContextPath().length()
-     *                 + request
-     *                 .getServletPath().length())
-     * @param response
-     * @param method
+     * @param path    当为null时，使用request.getRequestURI().substring(request.getContextPath().length()+ request
+     *                .getServletPath().length())
      * @throws IOException
      */
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             PortMethod method) throws IOException
     {
+        WServletResponse wresp = new WServletResponse(response);
+        doRequest(request, path, response, wresp, method);
+    }
 
+    public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
+            WResponse wResponse, PortMethod method) throws IOException
+    {
         WServletRequest wreq = new WServletRequest(attributeFactory, request, path, response, method);
-        final WServletResponse wresp = new WServletResponse(response);
-
         if (wreq.getPath().startsWith("/="))
         {
             wreq.setRequestPath(":" + wreq.getPath().substring(2));
@@ -196,23 +197,23 @@ public class WMainServlet extends HttpServlet implements CommonMain
                     {
                         try
                         {
-                            wresp.write(obj);
+                            wResponse.write(obj);
                         } catch (IOException e)
                         {
                             e.printStackTrace();
                         }
                     }
-                    WPTool.close(wresp);
+                    WPTool.close(wResponse);
                 }
             });
         } else
         {
-            PreRequest req = porterMain.forRequest(wreq, wresp);
+            PreRequest req = porterMain.forRequest(wreq, wResponse);
             if (req != null)
             {
                 request.setCharacterEncoding(req.context.getContentEncoding());
                 response.setCharacterEncoding(req.context.getContentEncoding());
-                porterMain.doRequest(req, wreq, wresp, false);
+                porterMain.doRequest(req, wreq, wResponse, false);
             }
         }
 
