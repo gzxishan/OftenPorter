@@ -96,7 +96,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
 
 
     /**
-     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, boolean)}。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject,String, String, String, String, String, boolean)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
@@ -104,11 +104,11 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
      */
     public static String getPortUrl(WObject wObject, String funTied, boolean http2Https)
     {
-        return getPortUrl(wObject, null, null, null, funTied, http2Https);
+        return getPortUrl(wObject,null, null, null, null, funTied, http2Https);
     }
 
     /**
-     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, boolean)}。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String,String, String, String, String, boolean)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
@@ -116,7 +116,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
      */
     public static String getPortUrl(WObject wObject, String classTied, String funTied, boolean http2Https)
     {
-        return getPortUrl(wObject, null, null, classTied, funTied, http2Https);
+        return getPortUrl(wObject,null, null, null, classTied, funTied, http2Https);
     }
 
 
@@ -131,7 +131,8 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
      * @param http2Https  是否http变成成https
      * @return
      */
-    public static String getPortUrl(WObject wObject, String pname, String contextName, String classTied, String funTied,
+    public static String getPortUrl(WObject wObject, String urlPrefix, String pname, String contextName,
+            String classTied, String funTied,
             boolean http2Https)
     {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
@@ -142,7 +143,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
             host = "https:" + host.substring("http:".length());
         }
         stringBuilder.append(host);
-        stringBuilder.append(WMainServlet.getUriPrefix(request));
+        stringBuilder.append(urlPrefix != null ? urlPrefix : WMainServlet.getUriPrefix(request));
         if (pname != null)
         {
             stringBuilder.append("/=").append(pname);
