@@ -459,6 +459,11 @@ public final class AnnotationDealt
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
         _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
+        _portIn.toPorterKey = portIn.toPorterKey();
+        if (_portIn.toPorterKey.equals(PortIn.class))
+        {
+            _portIn.toPorterKey = clazz;
+        }
 
         if (LOGGER.isDebugEnabled() && !isMixin)
         {
