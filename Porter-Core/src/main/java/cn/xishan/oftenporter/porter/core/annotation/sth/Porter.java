@@ -331,12 +331,12 @@ public final class Porter
             try
             {
                 object = WPTool.newObject(clazz);
-                finalObject = object;
             } catch (Exception e)
             {
                 throw new InitException(e);
             }
         }
+        finalObject = object;
         autoSetHandle.addAutoSetForPorter(this);
     }
 
@@ -366,32 +366,7 @@ public final class Porter
 
     public PorterOfFun getChild(String funTied, PortMethod method)
     {
-        PorterOfFun porterOfFun;
-//        switch (classTiedType)
-//        {
-//
-//            case FORCE_REST:
-//            case REST:
-//                porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
-//                if (porterOfFun == null)
-//                {
-//                    porterOfFun = childrenWithMethod.get(method.name());
-//                }
-//                break;
-//            case DEFAULT:
-//                porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
-//                if(porterOfFun==null){
-//                    porterOfFun = childrenWithMethod.get(method.name());
-//                }
-//                break;
-//        }
-
-//        if (porterOfFun != null && porterOfFun.getMethodPortIn().getMethod() != method)
-//        {
-//            porterOfFun = null;
-//        }
-
-        porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
+        PorterOfFun porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
         if (porterOfFun == null)
         {
             porterOfFun = childrenWithMethod.get(method.name());
@@ -468,6 +443,7 @@ public final class Porter
     public void start(WObject wObject)
     {
         start(wObject, false);
+        autoSetHandle=null;
     }
 
     public void initIInObjHandle()
@@ -699,7 +675,8 @@ public final class Porter
 
     void getMixinToThatCouldSet(Map<Class, Porter> map)
     {
-        if(mixins==null){
+        if (mixins == null)
+        {
             return;
         }
         for (Porter porter : mixins)

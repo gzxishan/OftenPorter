@@ -187,4 +187,10 @@ public @interface PortIn
      */
     boolean enableMixinTo() default true;
 
+    /**
+     *对类有效，设置之后，通过该key来{@linkplain AutoSet}，从而得到当前的接口实例。
+     * @return
+     */
+    Class<?> toPorterKey()default PortIn.class;
+
 }

@@ -53,7 +53,7 @@ public class PortUtil
                 {
                     throw new InitException("default value is not enable for " + clazz);
                 }
-                name = tied(clazz);
+                name = tiedIgnorePortIn(clazz);
             }
             names[i] = checkTied(name);
         }
@@ -155,15 +155,25 @@ public class PortUtil
             {
                 throw new InitException("default value is not enable for " + clazz);
             }
-            return tied(clazz);
+            return tiedIgnorePortIn(clazz);
         } else
         {
             return checkTied(name);
         }
     }
 
-
     public static String tied(Class<?> clazz)
+    {
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
+        String tiedName = portIn != null ? tied(portIn) : null;
+        if (WPTool.isEmpty(tiedName))
+        {
+            tiedName = tiedIgnorePortIn(clazz);
+        }
+        return tiedName;
+    }
+
+    public static String tiedIgnorePortIn(Class<?> clazz)
     {
         String className = clazz.getSimpleName();
         if (className.endsWith("WPort"))

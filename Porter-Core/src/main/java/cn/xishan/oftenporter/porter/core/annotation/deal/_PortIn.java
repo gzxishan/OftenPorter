@@ -19,12 +19,19 @@ public final class _PortIn
     PortFunType portFunType;
     AspectPosition aspectPosition;
 
+    Class<?> toPorterKey;
+
     public _PortIn(PortFunType portFunType,AspectPosition aspectPosition, String[] ignoredFunTieds,boolean enableMixinTo)
     {
         this.portFunType = portFunType;
         this.aspectPosition=aspectPosition;
         this.ignoredFunTieds = ignoredFunTieds;
         this.enableMixinTo=enableMixinTo;
+    }
+
+    public Class<?> getToPorterKey()
+    {
+        return toPorterKey;
     }
 
     public String[] getIgnoredFunTieds()

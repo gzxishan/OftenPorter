@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -355,7 +356,7 @@ public class AutoSetHandle
     public synchronized void addAutoSetForPorter(Porter porter)
     {
         iHandles.add(new Handle_doAutoSetForPorter(porter));
-        porterMap.put(porter.getClazz(), porter);
+        porterMap.put(porter.getPortIn().getToPorterKey(), porter);
         porterMap.putAll(porter.getMixinToThatCouldSet());
         //doAutoSet(object, autoSetMixinMap);
     }
