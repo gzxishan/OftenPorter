@@ -84,7 +84,7 @@ public final class AnnotationDealt
             String classTied = porterParamGetter.getClassTied();
             String funTied = field.getName();
             porterParamGetter.setContext(context);
-            porterParamGetter.setClassTied(classTied);
+            porterParamGetter.setClassTied(classTied);//用于检测名称是否合法
             porterParamGetter.setFunTied(funTied);
             syncPorterOption.method = PortMethod.GET;
             LOGGER.debug("Field[{}] not annotated with {}", field, SyncPorterOption.class.getName());
