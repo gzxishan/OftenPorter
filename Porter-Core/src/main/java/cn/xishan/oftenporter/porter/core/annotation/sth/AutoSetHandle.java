@@ -473,7 +473,8 @@ public class AutoSetHandle
                 continue;
             }
             field.setAccessible(true);
-            if(field.get(objectForSet)!=null){//忽略不为null的
+            if (field.get(objectForSet) != null)
+            {//忽略不为null的
                 continue;
             }
 
@@ -500,7 +501,8 @@ public class AutoSetHandle
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-            if(!WPTool.isAssignable(value.getClass(),field.getType())){//忽略非继承关系的。
+            if (!WPTool.isAssignable(value.getClass(), field.getType()))
+            {//忽略非继承关系的。
                 continue;
             }
             field.set(objectForSet, value);
@@ -554,7 +556,7 @@ public class AutoSetHandle
                 Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
                 f.setAccessible(true);
                 Object value = f.get(currentObject);
-                if (isDefaultAutoSetObject(f, porter, currentObjectClass, currentObject, autoSet))
+                if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet))
                 {
                     continue;
                 }
@@ -797,7 +799,7 @@ public class AutoSetHandle
     /**
      * 是否是默认工具类。
      */
-    private boolean isDefaultAutoSetObject(Field f, Porter porter, Class<?> currentObjectClass,
+    private boolean isDefaultAutoSetObject(Field f, Porter porter, Object finalObject, Class<?> currentObjectClass,
             @MayNull Object currentObject, AutoSet autoSet) throws IllegalAccessException, FatalInitException,
             NoSuchMethodException, InstantiationException, InvocationTargetException
 
@@ -827,12 +829,18 @@ public class AutoSetHandle
                 LOGGER.debug("auto set {} in not porter[{}]",
                         (isInner ? SyncPorter.class : SyncNotInnerPorter.class).getSimpleName(), currentObjectClass);
                 //throw new FatalInitException(SyncPorter.class.getSimpleName() + "just allowed in porter!");
+                if (!f.isAnnotationPresent(SyncPorterOption.class) && finalObject != null)
+                {
+                    porterParamGetter.setClassTied(PortUtil.tied(finalObject.getClass()));
+                }
             } else
             {
                 porterParamGetter.setClassTied(PortUtil.tied(porter.getFinalPorterObject().getClass()));
             }
+
             _SyncPorterOption syncPorterOption = innerContextBridge.annotationDealt
                     .syncPorterOption(f, porterParamGetter);
+
             porterParamGetter.check();
             sysset = new SyncPorterImpl(syncPorterOption, isInner);
             if (typeName.equals(SyncPorterThrows.class.getName()))
