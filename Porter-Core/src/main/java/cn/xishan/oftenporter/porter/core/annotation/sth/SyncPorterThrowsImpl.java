@@ -37,13 +37,28 @@ class SyncPorterThrowsImpl implements SyncPorterThrows
         {
             return null;
         }
-        if (t instanceof Throwable)
+        if (t instanceof WCallException)
+        {
+            throw (WCallException) t;
+        } else if (t instanceof Throwable)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setExCause((Throwable) t);
             throw new WCallException(jResponse);
         } else if (t instanceof JResponse && ((JResponse) t).isNotSuccess())
         {
+            JResponse jResponse = (JResponse) t;
+            Throwable throwable = jResponse.getExCause();
+            if (throwable != null)
+            {
+                try
+                {
+                    throw throwable;
+                } catch (Throwable e)
+                {
+                    e.printStackTrace();
+                }
+            }
             throw new WCallException((JResponse) t);
         } else
         {

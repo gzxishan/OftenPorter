@@ -833,6 +833,7 @@ public final class PortExecutor
                                 if (failedObject instanceof Throwable)
                                 {
                                     jResponse.setDescription(WPTool.getMessage((Throwable) failedObject));
+                                    jResponse.setExCause((Throwable) failedObject);
                                 }
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
@@ -841,6 +842,7 @@ public final class PortExecutor
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                             jResponse.setDescription(WPTool.getMessage(ex));
+                            jResponse.setExCause(ex);
                             jResponse.setExtra(ex);
                             failedObject = jResponse;
                         }
@@ -994,6 +996,7 @@ public final class PortExecutor
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(WPTool.getMessage(throwable));
+            jResponse.setExCause(throwable);
             doFinalWrite(wObject, porterOfFun, jResponse);
         }
         close(response);
