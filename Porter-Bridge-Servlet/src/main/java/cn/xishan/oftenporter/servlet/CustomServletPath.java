@@ -68,6 +68,7 @@ public class CustomServletPath
         ServletRegistration.Dynamic dynamic = servletContext
                 .addServlet(urlPattern + "---->" + pathPrefix, customServlet);
         LOGGER.debug("bind custom path:{}---->{}", urlPattern, pathPrefix);
+        dynamic.setAsyncSupported(true);
         dynamic.addMapping(urlPattern);
     }
 

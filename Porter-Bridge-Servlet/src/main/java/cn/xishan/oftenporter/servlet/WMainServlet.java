@@ -35,8 +35,8 @@ public class WMainServlet extends HttpServlet implements CommonMain
 
     private static final long serialVersionUID = 1L;
     private PorterMain porterMain;
-    private String pname, urlEncoding;
-    private Boolean responseWhenException;
+    protected String pname, urlEncoding;
+    protected Boolean responseWhenException;
     protected MultiPartOption multiPartOption = null;
     protected ResponseHandle responseHandle;
 
@@ -231,6 +231,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             for (String mapping : config.getServletContext().getServletRegistration(config.getServletName())
                     .getMappings())
             {
+                LOGGER.debug("mapping:{}", mapping);
                 if (!MAPPING_PATTERN.matcher(mapping).find())
                 {
                     throw new ServletException("illegal mapping:" + mapping);
@@ -274,33 +275,6 @@ public class WMainServlet extends HttpServlet implements CommonMain
             }
 
         }
-
-//
-//        PBridge inner = (request, callback) ->
-//        {
-//            LocalResponse resp = new LocalResponse(callback);
-//            ABOption abOption = request._getABOption_();
-//            if (abOption == null)
-//            {
-//                abOption = new ABOption(null, PortFunType.INNER, ABInvokeOrder.OTHER);
-//                request._setABOption_(abOption);
-//            }
-//            PreRequest req = porterMain.forRequest(request, resp);
-//            if (req != null)
-//            {
-//                porterMain.doRequest(req, request, resp);
-//            }
-//        };
-//
-//        PBridge current = (request, callback) ->
-//        {
-//            LocalResponse resp = new LocalResponse(callback);
-//            PreRequest req = porterMain.forRequest(request, resp);
-//            if (req != null)
-//            {
-//                porterMain.doRequest(req, request, resp);
-//            }
-//        };
         porterMain = new PorterMain(new PName(pname), this);
         if (responseWhenException == null)
         {

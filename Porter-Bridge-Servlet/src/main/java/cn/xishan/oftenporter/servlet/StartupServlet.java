@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.servlet;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 /**
@@ -23,6 +22,7 @@ import javax.servlet.ServletException;
  */
 public abstract class StartupServlet extends WMainServlet
 {
+    boolean isStarted = false;
 
     public StartupServlet()
     {
@@ -59,6 +59,7 @@ public abstract class StartupServlet extends WMainServlet
         }
 
         onStart();
+        isStarted = true;
     }
 
     public abstract void onStart();
