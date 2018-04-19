@@ -190,7 +190,8 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
     public void onStartup(Set<Class<?>> servletInitializerClasses,
             ServletContext servletContext) throws ServletException
     {
-        if(servletInitializerClasses.size()==0){
+        if (servletInitializerClasses == null || servletInitializerClasses.size() == 0)
+        {
             return;
         }
         StartupServletImpl startupServlet = new StartupServletImpl(servletContext, servletInitializerClasses);
