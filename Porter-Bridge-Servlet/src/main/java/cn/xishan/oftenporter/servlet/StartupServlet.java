@@ -17,6 +17,9 @@ import javax.servlet.ServletException;
  * 自定义链接映射({@linkplain CustomServletPath#CustomServletPath(String, String, Class) CustomServletPath})
  * ：重写{@linkplain #getCustomServletPaths()}
  * </p>
+ * <p>
+ * <strong>另见</strong>{@linkplain OPServletInitializer}
+ * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/23.
  */

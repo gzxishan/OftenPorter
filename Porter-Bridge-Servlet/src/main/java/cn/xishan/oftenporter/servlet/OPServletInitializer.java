@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import javax.servlet.ServletContext;
 
 /**
+ * 通过实现该接口，可以启动框架。
  * <p>
  * 访问地址格式为：http(s)://host:port/servletContextPath/opContext/classTied/funTied
  * </p>
@@ -15,16 +16,8 @@ import javax.servlet.ServletContext;
  */
 public interface OPServletInitializer
 {
-    interface Builder
+    interface BuilderBefore
     {
-        PorterConf newPorterConf();
-
-        void startOne(PorterConf porterConf);
-
-        void setCustomServletPaths(CustomServletPath... customServletPaths);
-
-        void setMultiPartOption(MultiPartOption multiPartOption);
-
         void setPName(String pName);
 
         String getPName();
@@ -33,10 +26,22 @@ public interface OPServletInitializer
 
         boolean isDoPUT();
 
-        PLinker getPLinker();
+        void setMultiPartOption(MultiPartOption multiPartOption);
     }
 
-    void beforeStart(ServletContext servletContext);
+    interface Builder
+    {
+        PorterConf newPorterConf();
+
+        void startOne(PorterConf porterConf);
+
+        void setCustomServletPaths(CustomServletPath... customServletPaths);
+
+        PLinker getPLinker();
+
+    }
+
+    void beforeStart(ServletContext servletContext,BuilderBefore builderBefore);
 
     void onStart(ServletContext servletContext, Builder builder);
 }

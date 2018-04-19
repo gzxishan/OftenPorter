@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +77,8 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         }
     }
 
-    static class StartupServletImpl extends StartupServlet implements OPServletInitializer.Builder
+    static class StartupServletImpl extends StartupServlet implements OPServletInitializer.Builder,
+            OPServletInitializer.BuilderBefore
     {
         private CustomServletPath[] customServletPaths;
         private List<OPServletInitializer> servletInitializerList;
@@ -92,7 +92,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
                 try
                 {
                     OPServletInitializer initializer = (OPServletInitializer) WPTool.newObject(clazz);
-                    initializer.beforeStart(servletContext);
+                    initializer.beforeStart(servletContext, this);
                     servletInitializerList.add(initializer);
                 } catch (Exception e)
                 {
@@ -106,16 +106,17 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         {
             try
             {
+                for (OPServletInitializer initializer : servletInitializerList)
+                {
+                    initializer.onStart(getServletContext(), this);
+                }
+
                 if (customServletPaths != null)
                 {
                     for (CustomServletPath servletPath : customServletPaths)
                     {
                         servletPath.regServlet(this);
                     }
-                }
-                for (OPServletInitializer initializer : servletInitializerList)
-                {
-                    initializer.onStart(getServletContext(), this);
                 }
                 servletInitializerList = null;
             } catch (Exception e)
@@ -190,10 +191,8 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             ServletContext servletContext) throws ServletException
     {
         StartupServletImpl startupServlet = new StartupServletImpl(servletContext, servletInitializerClasses);
-        String urlPattern = "/" + KeyUtil.randomUUID()+".tmp";
         ServletRegistration.Dynamic dynamic = servletContext
-                .addServlet(startupServlet.getClass().getName() + "-" + urlPattern, startupServlet);
-        dynamic.addMapping(urlPattern);
+                .addServlet(startupServlet.toString(), startupServlet);
         dynamic.setAsyncSupported(true);
         dynamic.setLoadOnStartup(1);
     }
