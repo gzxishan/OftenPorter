@@ -936,6 +936,16 @@ public final class PortExecutor
 
             if (object != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
             {
+                JResponse jResponse = (JResponse) object;
+                Throwable throwable = jResponse.getExCause();
+                if (throwable != null && throwable instanceof WCallException)
+                {
+                    JResponse exJR = ((WCallException) throwable).theJResponse();
+                    if (exJR != null)
+                    {
+                        object = exJR;
+                    }
+                }
                 wObject.getResponse().toErr();
                 if (LOGGER.isDebugEnabled())
                 {
