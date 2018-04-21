@@ -80,7 +80,7 @@ public @interface PortIn
      * <pre>
      *     合法的字符是:字母、数字、"-"、"_"、"%"、"."、"$"、"&"、"="
      *     为""的情况下:
-     *     1.如果注解的是类，则绑定名是类名,并且会去掉末尾的"WPort"或"Porter"。
+     *     1.如果注解的是类，则绑定名是类名,并且会去掉末尾的"WPort"或"Porter"。(见{@linkplain IPorter})
      *       如："Hello"="Hello","HelloPorter"="Hello"
      *     2.如果注解的是函数，则绑定名是函数名。
      *     3.不能出现'/'
@@ -188,9 +188,10 @@ public @interface PortIn
     boolean enableMixinTo() default true;
 
     /**
-     *对类有效，设置之后，通过该key来{@linkplain AutoSet}，从而得到当前的接口实例。
+     * 对类有效，设置之后，通过该key来{@linkplain AutoSet}，从而得到当前的接口实例。
+     *
      * @return
      */
-    Class<?> toPorterKey()default PortIn.class;
+    Class<?> toPorterKey() default PortIn.class;
 
 }
