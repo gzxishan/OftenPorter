@@ -33,4 +33,10 @@ public class ClientCloseReason
     {
         this.reason = reason;
     }
+
+    @Override
+    public String toString()
+    {
+        return code + ":" + reason;
+    }
 }

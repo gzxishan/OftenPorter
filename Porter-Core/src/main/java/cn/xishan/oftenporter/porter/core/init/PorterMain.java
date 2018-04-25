@@ -274,6 +274,7 @@ public final class PorterMain
 
         AutoSetHandle autoSetHandle = AutoSetHandle
                 .newInstance(innerContextBridge, getPLinker(), porterData, porterConf.getContextName());
+        autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values().toArray(new Object[0]));
 
         LOGGER.debug("do autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();
