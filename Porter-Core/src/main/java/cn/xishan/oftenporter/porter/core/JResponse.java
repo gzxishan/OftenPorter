@@ -66,6 +66,18 @@ public class JResponse
         setCode(code);
     }
 
+    public JResponse(ResultCode code,String description)
+    {
+        setCode(code);
+        setDescription(description);
+    }
+
+    public JResponse(int code,String description)
+    {
+        setCode(code);
+        setDescription(description);
+    }
+
     public JResponse()
     {
 
