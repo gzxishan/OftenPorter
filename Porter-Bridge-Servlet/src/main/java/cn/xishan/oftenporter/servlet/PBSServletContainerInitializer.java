@@ -16,7 +16,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -194,7 +196,16 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         {
             return;
         }
-        StartupServletImpl startupServlet = new StartupServletImpl(servletContext, servletInitializerClasses);
+        Set<Class<?>> initialClasses = new HashSet<>();
+        for(Class<?> c:servletInitializerClasses){
+            if(!Modifier.isAbstract(c.getModifiers())){
+                initialClasses.add(c);
+            }
+        }
+        if(initialClasses.size()==0){
+            return;
+        }
+        StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
         ServletRegistration.Dynamic dynamic = servletContext
                 .addServlet(startupServlet.toString(), startupServlet);
         dynamic.setAsyncSupported(true);
