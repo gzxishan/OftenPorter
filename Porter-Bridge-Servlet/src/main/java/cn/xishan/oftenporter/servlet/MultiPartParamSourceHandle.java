@@ -76,7 +76,10 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             {
                 return null;
             }
-        } else if (!ServletFileUpload.isMultipartContent(request))
+        } else if (!ServletFileUpload.isMultipartContent(request) ||
+                porterFun.isAnnotationPresent(IgnoreDefaultMultipart.class) ||
+                porterClass.isAnnotationPresent(IgnoreDefaultMultipart.class)
+                )
         {
             return null;
         }
