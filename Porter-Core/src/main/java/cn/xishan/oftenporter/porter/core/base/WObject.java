@@ -9,6 +9,9 @@ import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 接口中间对象。
  * Created by https://github.com/CLovinr on 2016/7/23.
@@ -55,6 +58,8 @@ public abstract class WObject implements IAttribute
      */
     @Deprecated
     public Object _otherObject;
+
+    private Map<String, Object> requestDataMap = null;
 
     public abstract WRequest getRequest();
 
@@ -328,6 +333,42 @@ public abstract class WObject implements IAttribute
         WRequest request = getRequest();
         WObject originalObject = request == null ? null : request.getOriginalWObject();
         return originalObject == null ? this : originalObject;
+    }
+
+    /**
+     * 设置数据，只对当前请求有效。
+     *
+     * @param name
+     * @param value
+     */
+    public <T> T putRequestData(String name, Object value)
+    {
+        WObject wObject = original();
+        if (wObject.requestDataMap == null)
+        {
+            wObject.requestDataMap = new HashMap<>();
+        }
+        return (T) wObject.requestDataMap.put(name, value);
+    }
+
+    public <T> T getRequestData(String name)
+    {
+        WObject wObject = original();
+        if (wObject.requestDataMap == null)
+        {
+            return null;
+        }
+        return (T) wObject.requestDataMap.get(name);
+    }
+
+    public <T> T removeRequestData(String name)
+    {
+        WObject wObject = original();
+        if (wObject.requestDataMap == null)
+        {
+            return null;
+        }
+        return (T) wObject.requestDataMap.remove(name);
     }
 
 }
