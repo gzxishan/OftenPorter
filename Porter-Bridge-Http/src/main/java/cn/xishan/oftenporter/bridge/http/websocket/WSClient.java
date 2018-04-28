@@ -14,15 +14,30 @@ public class WSClient
     Object object;
 
     /**
-     * <pre>
-     *     返回值类型:
-     *     1.{@linkplain ClientWebSocket.Type#ON_OPEN}:null
-     *     2.{@linkplain ClientWebSocket.Type#ON_MESSAGE}:String
-     *     3.{@linkplain ClientWebSocket.Type#ON_ERROR}:Throwable
-     *     4.{@linkplain ClientWebSocket.Type#ON_CLOSE}:{@linkplain ClientCloseReason}
-     *     5.{@linkplain ClientWebSocket.Type#ON_PONG}:{@linkplain String}
-     *     7.{@linkplain ClientWebSocket.Type#ON_BINARY_BYTE_BUFFER}:{@linkplain java.nio.ByteBuffer}
-     * </pre>
+     * 返回值类型:
+     * <ol>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_OPEN}:null
+     * </li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_MESSAGE}:String
+     * </li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_ERROR}:Throwable
+     * </li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_CLOSE}:{@linkplain ClientCloseReason}
+     * </li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_PING}:{@linkplain java.nio.ByteBuffer}
+     * *</li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_PONG}:{@linkplain java.nio.ByteBuffer}
+     * </li>
+     * <li>
+     * {@linkplain ClientWebSocket.Type#ON_BINARY_BYTE_BUFFER}:{@linkplain java.nio.ByteBuffer}
+     * </li>
+     * </ol>
      *
      * @param <T>
      * @return
@@ -59,7 +74,7 @@ public class WSClient
         this.session = session;
     }
 
-    void set(ClientWebSocket.Type type,Object object, boolean isLast)
+    void set(ClientWebSocket.Type type, Object object, boolean isLast)
     {
         this.type = type;
         this.session = session;

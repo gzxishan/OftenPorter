@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -114,17 +112,19 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             }
         }
 
-        void connect(){
+        void connect()
+        {
             try
             {
                 _connect();
-            }catch (Exception e){
-                LOGGER.error(e.getMessage(),e);
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
 
-     private   void _connect()throws Exception
+        private void _connect() throws Exception
         {
             if (wsClient.session != null && wsClient.session.webSocketClient.isOpen())
             {
@@ -211,8 +211,31 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         try
                         {
                             ByteBuffer byteBuffer = frame.getPayloadData();
-                            CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
-                            wsClient.set(ClientWebSocket.Type.ON_PONG, decoder.decode(byteBuffer).toString(), true);
+                            wsClient.set(ClientWebSocket.Type.ON_PONG, byteBuffer, frame.isFin());
+                            Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                            maySend(obj);
+                        } catch (Exception e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+                    } else if (frame.getOpcode() == Framedata.Opcode.PING)
+                    {
+                        try
+                        {
+                            ByteBuffer byteBuffer = frame.getPayloadData();
+                            wsClient.set(ClientWebSocket.Type.ON_PING, byteBuffer, frame.isFin());
+                            Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                            maySend(obj);
+                        } catch (Exception e)
+                        {
+                            throw new RuntimeException(e);
+                        }
+                    } else if (frame.getOpcode() == Framedata.Opcode.CONTINUOUS)
+                    {
+                        try
+                        {
+                            ByteBuffer byteBuffer = frame.getPayloadData();
+                            wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, byteBuffer, frame.isFin());
                             Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
                             maySend(obj);
                         } catch (Exception e)

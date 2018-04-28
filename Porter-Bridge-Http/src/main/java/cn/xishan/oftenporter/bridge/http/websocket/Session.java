@@ -21,6 +21,8 @@ public interface Session
 
     public void sendPing();
 
+    public void sendPong(ByteBuffer data);
+
     public void send(String text);
 
     public void send(ByteBuffer byteBuffer);

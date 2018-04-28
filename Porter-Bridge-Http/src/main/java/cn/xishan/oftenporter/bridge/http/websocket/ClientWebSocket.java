@@ -15,56 +15,20 @@ import java.lang.annotation.*;
 public @interface ClientWebSocket
 {
     /**
-     * 支持返回消息的有：{@linkplain #ON_OPEN},{@linkplain #ON_MESSAGE},{@linkplain #ON_PONG},{@linkplain #ON_BINARY_BYTE_BUFFER}
+     * 支持返回消息的有：{@linkplain #ON_OPEN},{@linkplain #ON_MESSAGE},{@linkplain #ON_PING},{@linkplain #ON_PONG},
+     * {@linkplain #ON_BINARY_BYTE_BUFFER}
      */
     public enum Type
     {
+        /**
+         * 需要返回{@linkplain WSClientConfig}配置。
+         */
         ON_CONFIG,
-        ON_OPEN, ON_MESSAGE, ON_PONG, ON_ERROR, ON_CLOSE,
+        ON_OPEN, ON_MESSAGE,
+        ON_PONG, ON_PING,
+        ON_ERROR, ON_CLOSE,
         ON_BINARY_BYTE_BUFFER
     }
-
-    public enum StringType
-    {
-        STRING, READER
-    }
-
-    public enum BinaryType
-    {
-        /**
-         * {@linkplain java.nio.ByteBuffer}
-         */
-        BYTE_BUFFER,
-        /**
-         * byte[]
-         */
-        BYTE_ARRAY,
-        /**
-         * {@linkplain java.io.InputStream}
-         */
-        INPUT_STREAM
-    }
-
-    /**
-     * 是否是部分消息模式，默认false。
-     *
-     * @return
-     */
-    boolean isPartial() default false;
-
-    /**
-     * 二进制的类型，默认{@linkplain BinaryType#BYTE_BUFFER}
-     *
-     * @return
-     */
-    BinaryType binaryType() default BinaryType.BYTE_BUFFER;
-
-    /**
-     * 字符串类型，默认{@linkplain StringType#STRING}
-     *
-     * @return
-     */
-    StringType stringType() default StringType.STRING;
 
     boolean autoStart() default true;
 }
