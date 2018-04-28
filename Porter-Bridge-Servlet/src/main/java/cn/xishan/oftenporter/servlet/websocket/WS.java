@@ -48,7 +48,7 @@ public abstract class WS
      * <pre>
      *     返回值类型:
      *     0.{@linkplain Type#ON_CONNECTING}:{@linkplain Connecting}
-     *     1.{@linkplain Type#ON_OPEN}:null
+     *     1.{@linkplain Type#ON_OPEN}:{@linkplain WSConfig}
      *     2.{@linkplain Type#ON_MESSAGE}:String
      *     3.{@linkplain Type#ON_ERROR}:Throwable
      *     4.{@linkplain Type#ON_CLOSE}:{@linkplain CloseReason}

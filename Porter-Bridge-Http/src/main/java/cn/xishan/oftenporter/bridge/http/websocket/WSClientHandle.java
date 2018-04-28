@@ -124,7 +124,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
         }
 
 
-     private   void _connect()
+     private   void _connect()throws Exception
         {
             if (wsClient.session != null && wsClient.session.webSocketClient.isOpen())
             {
@@ -253,7 +253,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 }
             };
             wsClient.setSession(new SessionImpl(webSocketClient, this));
-            webSocketClient.connect();
+            webSocketClient.connectBlocking();
         }
 
 
