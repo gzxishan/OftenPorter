@@ -249,8 +249,10 @@ class SthUtil
         {
             Mixin mixin = clazz.getAnnotation(Mixin.class);
             Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
+            int k=-1;
             for (Class c : classes)
             {
+                k++;
                 MixinOnly mixinOnly = AnnoUtil.getAnnotation(c, MixinOnly.class);
                 MixinTo mixinTo = AnnoUtil.getAnnotation(c, MixinTo.class);
                 if (mixinTo != null && !mixinTo.enableMixin())
@@ -258,7 +260,12 @@ class SthUtil
                     LOGGER.debug("mixin not enable:[{}] to [{}]", c, clazz);
                     continue;
                 }
-                list.add(new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override()));
+                _MixinPorter mixinPorter = new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override());
+                if(list.contains(mixinPorter)){
+                    LOGGER.debug("mixin ignore for duplicate:index={},[{}] to [{}]",k, c, clazz);
+                    continue;
+                }
+                list.add(mixinPorter);
             }
         }
 
