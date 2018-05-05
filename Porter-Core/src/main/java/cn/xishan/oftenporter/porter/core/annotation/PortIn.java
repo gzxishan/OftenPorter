@@ -4,6 +4,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 import java.lang.annotation.*;
 
@@ -23,6 +24,16 @@ import java.lang.annotation.*;
 public @interface PortIn
 {
 
+    /**
+     * 注解在接口类上，用于添加变量(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@{@linkplain AutoSet}获取.
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Documented
+    @interface ContextSet
+    {
+        String value();
+    }
 
     /**
      * 用于标记函数(public)，在销毁时调用。

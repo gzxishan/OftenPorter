@@ -358,6 +358,28 @@ public class AutoSetHandle
         iHandles.add(new Handle_doAutoSetForPorter(porter));
         porterMap.put(porter.getPortIn().getToPorterKey(), porter);
         porterMap.putAll(porter.getMixinToThatCouldSet());
+
+        List<PortIn.ContextSet> contextSets = AnnoUtil.getAnnotationsWithSuper(porter.getClazz(), PortIn.ContextSet.class);
+        for (PortIn.ContextSet contextSet : contextSets)
+        {
+            if (WPTool.isEmpty(contextSet.value()))
+            {
+                if (LOGGER.isWarnEnabled())
+                {
+                    LOGGER.warn("@{} value of {} is empty!", PortIn.ContextSet.class.getSimpleName(),
+                            porter.getClazz());
+                }
+                continue;
+            }
+            Object last = innerContextBridge.contextAutoSet.put(contextSet.value(), porter.getObj());
+            if (last != null && LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("override by @{}:key={},newValue={},oldValue={}", PortIn.ContextSet.class.getSimpleName(),
+                        contextSet.value(),
+                        porter.getObj(), last);
+            }
+        }
+
         //doAutoSet(object, autoSetMixinMap);
     }
 
