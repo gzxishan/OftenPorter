@@ -28,6 +28,10 @@ public class SqlCondition extends Condition
 
     public static final Operator IS_NOT_NULL = new MyOperator("is not NULL");
 
+    public static final Operator FALSE = new MyOperator("FALSE");
+
+
+    public static final Operator TRUE = new MyOperator("TRUE");
 
     /**
      * 返回为一个Object[]{whereSql,args}
@@ -51,7 +55,7 @@ public class SqlCondition extends Condition
         for (int i = 0; i < size(); i++)
         {
             Operator operator = getOperator(i);
-            if (operator == NOT || operator == OR||operator==AND)
+            if (operator == NOT || operator == OR || operator == AND)
             {
                 deal2(operator, get(i), stringBuilder, args);
             } else
@@ -195,7 +199,13 @@ public class SqlCondition extends Condition
         {
             return operator;
         }
-        if (op.equals("like"))
+        if (op.equals("true"))
+        {
+            operator = TRUE;
+        } else if (op.equals("false"))
+        {
+            operator = FALSE;
+        } else if (op.equals("like"))
         {
             operator = LIKE;
         } else if (op.equals("is null"))
@@ -255,6 +265,14 @@ public class SqlCondition extends Condition
         {
             //operator = IS_NULL;
             stringBuilder.append("is NULL ");
+            return;
+        } else if (operator == TRUE)
+        {
+            stringBuilder.append("TRUE ");
+            return;
+        } else if (operator == FALSE)
+        {
+            stringBuilder.append("FALSE ");
             return;
         }
 
