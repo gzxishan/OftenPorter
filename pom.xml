@@ -102,6 +102,27 @@
     </dependencyManagement>
 
     <build>
+
+        <pluginManagement>
+            <plugins>
+                <!--
+                               注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。
+                           -->
+                <plugin>
+                    <groupId>net.orfjackal.retrolambda</groupId>
+                    <artifactId>retrolambda-maven-plugin</artifactId>
+                    <version>2.4.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>process-main</goal>
+                                <goal>process-test</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin><!-- 用于导出源码 -->
                 <groupId>org.apache.maven.plugins</groupId>
@@ -135,23 +156,6 @@
                     </compilerArgs>
                 </configuration>
             </plugin>
-            <!--
-                注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。
-            -->
-            <plugin>
-                <groupId>net.orfjackal.retrolambda</groupId>
-                <artifactId>retrolambda-maven-plugin</artifactId>
-                <version>2.4.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process-main</goal>
-                            <goal>process-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
 
             <plugin>
                 <groupId>com.github.wvengen</groupId>

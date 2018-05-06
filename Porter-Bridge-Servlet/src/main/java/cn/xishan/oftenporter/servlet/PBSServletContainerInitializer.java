@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,10 +34,12 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
     static class OPContextServlet extends HttpServlet
     {
         private StartupServlet startupServlet;
+        private OPServletInitializer opServletInitializer;
 
-        public OPContextServlet(StartupServlet startupServlet)
+        public OPContextServlet(StartupServlet startupServlet, OPServletInitializer opServletInitializer)
         {
             this.startupServlet = startupServlet;
+            this.opServletInitializer = opServletInitializer;
         }
 
         @Override
@@ -46,43 +49,35 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             String method = request.getMethod();
             if (method.equals("GET"))
             {
-                doRequest(request, response, PortMethod.GET);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.GET);
             } else if (method.equals("HEAD"))
             {
-                doRequest(request, response, PortMethod.HEAD);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.HEAD);
             } else if (method.equals("POST"))
             {
-                doRequest(request, response, PortMethod.POST);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.POST);
             } else if (method.equals("PUT"))
             {
-                doRequest(request, response, PortMethod.PUT);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.PUT);
             } else if (method.equals("DELETE"))
             {
-                doRequest(request, response, PortMethod.DELETE);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.DELETE);
             } else if (method.equals("OPTIONS"))
             {
-                doRequest(request, response, PortMethod.OPTIONS);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.OPTIONS);
             } else if (method.equals("TRACE"))
             {
-                doRequest(request, response, PortMethod.TARCE);
+                opServletInitializer.onDoRequest(startupServlet, request, response, PortMethod.TARCE);
             } else
             {
                 super.service(request, response);
             }
 
         }
-
-        void doRequest(HttpServletRequest request, HttpServletResponse response, PortMethod method) throws IOException
-        {
-            String path = request.getRequestURI().substring(request.getContextPath().length());
-            startupServlet.doRequest(request, path, response, method);
-        }
     }
 
-    static class StartupServletImpl extends StartupServlet implements OPServletInitializer.Builder,
-            OPServletInitializer.BuilderBefore
+    static class StartupServletImpl extends StartupServlet implements OPServletInitializer.BuilderBefore
     {
-        private CustomServletPath[] customServletPaths;
         private List<OPServletInitializer> servletInitializerList;
 
         public StartupServletImpl(ServletContext servletContext, Set<Class<?>> servletInitializerClasses)
@@ -103,6 +98,58 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             }
         }
 
+        class BuilderImpl implements OPServletInitializer.Builder
+        {
+
+            private OPServletInitializer initializer;
+            private CustomServletPath[] customServletPaths;
+
+            public BuilderImpl(OPServletInitializer initializer)
+            {
+                this.initializer = initializer;
+            }
+
+            @Override
+            public PorterConf newPorterConf()
+            {
+                return StartupServletImpl.this.newPorterConf();
+            }
+
+            @Override
+            public void startOne(PorterConf porterConf)
+            {
+                StartupServletImpl.this.startOne(porterConf);
+                String urlPattern = "/" + porterConf.getContextName() + "/*";
+                ServletContext servletContext = getServletContext();
+                HttpServlet httpServlet = new OPContextServlet(StartupServletImpl.this, initializer);
+                ServletRegistration.Dynamic dynamic = servletContext
+                        .addServlet(httpServlet.getClass().getName() + "-" + porterConf.getContextName(),
+                                httpServlet);
+                LOGGER.debug("mapping:{}", urlPattern);
+                dynamic.addMapping(urlPattern);
+                dynamic.setLoadOnStartup(1);
+                if (customServletPaths != null)
+                {
+                    for (CustomServletPath servletPath : customServletPaths)
+                    {
+                        servletPath.regServlet(StartupServletImpl.this);
+                    }
+                }
+            }
+
+            @Override
+            public void setCustomServletPaths(CustomServletPath... customServletPaths)
+            {
+                this.customServletPaths = customServletPaths;
+            }
+
+            @Override
+            public PLinker getPLinker()
+            {
+                return StartupServletImpl.this.getPLinker();
+            }
+        }
+
         @Override
         public void onStart()
         {
@@ -110,15 +157,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             {
                 for (OPServletInitializer initializer : servletInitializerList)
                 {
-                    initializer.onStart(getServletContext(), this);
-                }
-
-                if (customServletPaths != null)
-                {
-                    for (CustomServletPath servletPath : customServletPaths)
-                    {
-                        servletPath.regServlet(this);
-                    }
+                    initializer.onStart(getServletContext(), new BuilderImpl(initializer));
                 }
                 servletInitializerList = null;
             } catch (Exception e)
@@ -131,22 +170,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         public void startOne(PorterConf porterConf)
         {
             super.startOne(porterConf);
-            String urlPattern = "/" + porterConf.getContextName() + "/*";
-            ServletContext servletContext = getServletContext();
-            HttpServlet httpServlet = new OPContextServlet(this);
 
-            ServletRegistration.Dynamic dynamic = servletContext
-                    .addServlet(httpServlet.getClass().getName() + "-" + porterConf.getContextName(),
-                            httpServlet);
-            LOGGER.debug("mapping:{}", urlPattern);
-            dynamic.addMapping(urlPattern);
-            dynamic.setLoadOnStartup(1);
-        }
-
-        @Override
-        public void setCustomServletPaths(CustomServletPath... customServletPaths)
-        {
-            this.customServletPaths = customServletPaths;
         }
 
         @Override
@@ -197,12 +221,15 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             return;
         }
         Set<Class<?>> initialClasses = new HashSet<>();
-        for(Class<?> c:servletInitializerClasses){
-            if(!Modifier.isAbstract(c.getModifiers())){
+        for (Class<?> c : servletInitializerClasses)
+        {
+            if (!Modifier.isAbstract(c.getModifiers()))
+            {
                 initialClasses.add(c);
             }
         }
-        if(initialClasses.size()==0){
+        if (initialClasses.size() == 0)
+        {
             return;
         }
         StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);

@@ -61,20 +61,22 @@
 
         <!--用于适配jetty的websocket-->
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty</groupId>-->
-            <!--<artifactId>jetty-server</artifactId>-->
-            <!--<version>9.4.8.v20171121</version>-->
-            <!--<scope>provided</scope>-->
+        <!--<groupId>org.eclipse.jetty</groupId>-->
+        <!--<artifactId>jetty-server</artifactId>-->
+        <!--<version>9.4.8.v20171121</version>-->
+        <!--<scope>provided</scope>-->
         <!--</dependency>-->
 
         <!--<dependency>-->
-            <!--<groupId>org.eclipse.jetty.websocket</groupId>-->
-            <!--<artifactId>websocket-server</artifactId>-->
-            <!--<version>9.4.8.v20171121</version>-->
-            <!--<scope>provided</scope>-->
+        <!--<groupId>org.eclipse.jetty.websocket</groupId>-->
+        <!--<artifactId>websocket-server</artifactId>-->
+        <!--<version>9.4.8.v20171121</version>-->
+        <!--<scope>provided</scope>-->
         <!--</dependency>-->
 
 
-
     </dependencies>
+    <build>
+
+    </build>
 </project>

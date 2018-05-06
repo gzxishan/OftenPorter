@@ -1,10 +1,14 @@
 package cn.xishan.oftenporter.servlet;
 
 
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 通过实现该接口，可以启动框架。
@@ -41,7 +45,14 @@ public interface OPServletInitializer
 
     }
 
-    void beforeStart(ServletContext servletContext,BuilderBefore builderBefore);
+    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore);
 
     void onStart(ServletContext servletContext, Builder builder);
+
+    default void onDoRequest(StartupServlet startupServlet, HttpServletRequest request, HttpServletResponse response,
+            PortMethod method) throws IOException
+    {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        startupServlet.doRequest(request, path, response, method);
+    }
 }

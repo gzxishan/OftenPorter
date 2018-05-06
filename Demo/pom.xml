@@ -58,6 +58,10 @@
                     <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>net.orfjackal.retrolambda</groupId>
+                <artifactId>retrolambda-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 </project>
