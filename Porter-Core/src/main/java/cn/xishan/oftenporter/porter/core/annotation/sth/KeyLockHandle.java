@@ -29,6 +29,7 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
     private String[] locks, neceLocks, uneceLocks;
     private KeyLock.LockType[] lockTypes;
     private boolean combine;
+    private String valueForUneceEmpty = null;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
     private final String ATTR_KEY = KeyUtil.random48Key();
@@ -44,6 +45,10 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
     {
         synchronized (KeyLockHandle.class)
         {
+            if (WPTool.notNullAndEmpty(keyLock.valueForUneceEmpty()))
+            {
+                valueForUneceEmpty = keyLock.valueForUneceEmpty();
+            }
             if (WPTool.notNullAndEmpty(keyLock.lockPrefix()))
             {
                 lockPrefix = keyLock.lockPrefix();
@@ -179,6 +184,10 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
                     for (String uneceName : uneceLocks)
                     {
                         String key = wObject.unece(uneceName);
+                        if (valueForUneceEmpty != null && WPTool.isEmpty(key))
+                        {
+                            key = valueForUneceEmpty;
+                        }
                         if (WPTool.notNullAndEmpty(key))
                         {
                             keys.add(lockPrefix == null ? key : lockPrefix + key);
@@ -195,19 +204,19 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
                     WPTool.join(":", locks)
             };
         }
-        wObject.setAttribute(ATTR_KEY,locks);
-        LOGGER.debug("locking[{}]:{}",wObject.url(),locks);
+        wObject.setAttribute(ATTR_KEY, locks);
+        LOGGER.debug("locking[{}]:{}", wObject.url(), locks);
         concurrentKeyLock.lock(locks);
-        LOGGER.debug("locked[{}]:{}",wObject.url(),locks);
+        LOGGER.debug("locked[{}]:{}", wObject.url(), locks);
     }
 
     @Override
     public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
         String[] locks = wObject.removeAttribute(ATTR_KEY);
-        LOGGER.debug("unlocking[{}]:{}",wObject.url(),locks);
+        LOGGER.debug("unlocking[{}]:{}", wObject.url(), locks);
         concurrentKeyLock.unlock(locks);
-        LOGGER.debug("unlocked[{}]:{}",wObject.url(),locks);
+        LOGGER.debug("unlocked[{}]:{}", wObject.url(), locks);
     }
 
     @Override
