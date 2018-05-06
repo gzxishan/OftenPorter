@@ -204,19 +204,25 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
                     WPTool.join(":", locks)
             };
         }
-        wObject.setAttribute(ATTR_KEY, locks);
         LOGGER.debug("locking[{}]:{}", wObject.url(), locks);
         concurrentKeyLock.lock(locks);
         LOGGER.debug("locked[{}]:{}", wObject.url(), locks);
+        wObject.putRequestData(ATTR_KEY, locks);
     }
 
     @Override
     public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
-        String[] locks = wObject.removeAttribute(ATTR_KEY);
-        LOGGER.debug("unlocking[{}]:{}", wObject.url(), locks);
-        concurrentKeyLock.unlock(locks);
-        LOGGER.debug("unlocked[{}]:{}", wObject.url(), locks);
+        String[] locks = wObject.removeRequestData(ATTR_KEY);
+        if (locks == null)
+        {
+            LOGGER.warn("locks key is null from requestData:attr key={}", ATTR_KEY);
+        } else
+        {
+            LOGGER.debug("unlocking[{}]:{}", wObject.url(), locks);
+            concurrentKeyLock.unlock(locks);
+            LOGGER.debug("unlocked[{}]:{}", wObject.url(), locks);
+        }
     }
 
     @Override

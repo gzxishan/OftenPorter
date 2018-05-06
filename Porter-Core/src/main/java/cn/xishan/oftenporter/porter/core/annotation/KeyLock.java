@@ -85,8 +85,8 @@ public @interface KeyLock
     /**
      * 是否把最终获得的key按顺序合并成一个。
      *
-     * @return
+     * @return 默认false
      */
-    boolean combining();
+    boolean combining() default false;
 
 }
