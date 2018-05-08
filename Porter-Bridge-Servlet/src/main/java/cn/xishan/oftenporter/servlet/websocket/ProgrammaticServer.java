@@ -33,30 +33,34 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig)
     {
-        WSConfig wsConfig = new WSConfig();
-        doInvoke(session, WebSocket.Type.ON_OPEN, true, wsConfig);
-        HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
 
+        HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
         WebSocket webSocket = (WebSocket) httpSession.getAttribute(WebSocket.class.getName());
 
-        int maxBinaryBuffer = wsConfig.getMaxBinaryBuffer() > 0 ? wsConfig.getMaxBinaryBuffer() : webSocket
-                .maxBinaryBuffer();
+        WSConfig wsConfig = new WSConfig();
+        wsConfig.setMaxBinaryBuffer(webSocket.maxBinaryBuffer());
+        wsConfig.setMaxTextBuffer(webSocket.maxTextBuffer());
+        wsConfig.setMaxIdleTime(webSocket.maxIdleTime());
+        wsConfig.setPartial(webSocket.isPartial());
+        doInvoke(session, WebSocket.Type.ON_OPEN, true, wsConfig);
+
+        int maxBinaryBuffer = wsConfig.getMaxBinaryBuffer();
         if (maxBinaryBuffer > 0)
         {
             session.setMaxBinaryMessageBufferSize(maxBinaryBuffer);
         }
-        int maxTextBuffer = wsConfig.getMaxTextBuffer() > 0 ? wsConfig.getMaxTextBuffer() : webSocket.maxTextBuffer();
+        int maxTextBuffer = wsConfig.getMaxTextBuffer();
         if (maxTextBuffer > 0)
         {
             session.setMaxTextMessageBufferSize(maxTextBuffer);
         }
-        long maxIdleTime = wsConfig.getMaxIdleTime() > 0 ? wsConfig.getMaxIdleTime() : webSocket.maxIdleTime();
+        long maxIdleTime = wsConfig.getMaxIdleTime();
         if (maxIdleTime > 0)
         {
             session.setMaxIdleTimeout(maxIdleTime);
         }
 
-        if (wsConfig.isPartial() || webSocket.isPartial())
+        if (wsConfig.isPartial())
         {
             switch (webSocket.stringType())
             {
