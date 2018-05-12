@@ -13,6 +13,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
 import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -436,6 +437,18 @@ public class ContextPorter implements IOtherStartDestroy
         }
 
         Iterator<Porter> iterator = portMap.values().iterator();
+        try
+        {
+            while (iterator.hasNext())
+            {
+                iterator.next().initArgumentsFactory();
+            }
+        }catch (Exception e){
+            throw new InitException(e);
+        }
+
+
+        iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
             iterator.next().initIInObjHandle();

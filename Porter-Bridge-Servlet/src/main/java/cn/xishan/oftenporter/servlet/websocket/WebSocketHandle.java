@@ -3,27 +3,20 @@ package cn.xishan.oftenporter.servlet.websocket;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.servlet.StartupServlet;
-import cn.xishan.oftenporter.servlet.WMainServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.websocket.server.ServerContainer;
-import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
@@ -186,7 +179,7 @@ public class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
                 }
 
             });
-            porterOfFun.invoke(wObject, new Object[]{wObject, ws});
+            porterOfFun.invoke(new Object[]{wObject, ws});
         } else
         {
             doConnect(wObject, porterOfFun);

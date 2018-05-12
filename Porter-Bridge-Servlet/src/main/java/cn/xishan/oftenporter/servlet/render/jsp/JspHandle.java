@@ -113,7 +113,7 @@ class JspHandle extends AspectFunOperation.HandleAdapter<Jsp>
     @Override
     public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
-        Object obj = porterOfFun.invoke(wObject, null);
+        Object obj = porterOfFun.invokeByHandleArgs(wObject, lastReturn);
 
         String _page;
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();

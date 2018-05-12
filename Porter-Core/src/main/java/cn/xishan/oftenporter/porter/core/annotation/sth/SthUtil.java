@@ -213,6 +213,7 @@ class SthUtil
             typeParser = WPTool.newObject(clazz);
         } catch (Exception e)
         {
+            LOGGER.warn(e.getMessage(),e);
             return null;
         }
         String id = typeParser.id();

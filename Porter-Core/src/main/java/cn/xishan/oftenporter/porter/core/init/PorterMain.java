@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
+import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public final class PorterMain
 
     private Logger LOGGER;
     private static String currentPNameForLogger;
+    private IArgumentsFactory defaultArgumentsFactory = new DefaultArgumentsFactory();
 
     static
     {
@@ -272,8 +274,15 @@ public final class PorterMain
                 porterConf.getContextAutoSetMap(), porterConf.isEnableTiedNameDefault(), bridge,
                 porterConf.getDefaultPortOutType(), porterConf.isResponseWhenException());
 
+        IArgumentsFactory argumentsFactory = porterConf.getArgumentsFactory();
+        if (argumentsFactory == null)
+        {
+            argumentsFactory = defaultArgumentsFactory;
+        }
+
         AutoSetHandle autoSetHandle = AutoSetHandle
-                .newInstance(innerContextBridge, getPLinker(), porterData, porterConf.getContextName());
+                .newInstance(argumentsFactory, innerContextBridge, getPLinker(), porterData,
+                        porterConf.getContextName());
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values().toArray(new Object[0]));
 
         LOGGER.debug("do autoSet StateListener...");
@@ -295,7 +304,6 @@ public final class PorterMain
 
         try
         {
-
             classCheckPassableMap = contextPorter
                     .initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
         } catch (Exception e)

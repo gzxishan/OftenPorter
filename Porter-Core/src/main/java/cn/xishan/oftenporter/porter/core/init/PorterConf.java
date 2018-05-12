@@ -37,6 +37,7 @@ public class PorterConf
 
     private DefaultReturnFactory defaultReturnFactory;
     private OutType defaultPortOutType;
+    private IArgumentsFactory iArgumentsFactory;
 
 
     PorterConf()
@@ -336,6 +337,18 @@ public class PorterConf
         return userInitParam;
     }
 
+
+    public IArgumentsFactory getArgumentsFactory()
+    {
+        return iArgumentsFactory;
+    }
+
+    public void setArgumentsFactory(IArgumentsFactory iArgumentsFactory)
+    {
+        checkInited();
+        this.iArgumentsFactory = iArgumentsFactory;
+    }
+
     public ParamSourceHandleManager getParamSourceHandleManager()
     {
         return paramSourceHandleManager;
@@ -354,5 +367,6 @@ public class PorterConf
         autoSetSeekPackages = null;
         paramSourceHandleManager = null;
         defaultReturnFactory = null;
+        iArgumentsFactory = null;
     }
 }

@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
+import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -34,6 +35,7 @@ public class AutoSetHandle
     private final Logger LOGGER;
 
     private InnerContextBridge innerContextBridge;
+    private IArgumentsFactory argumentsFactory;
     private Delivery thisDelivery;
     private PorterData porterData;
     private List<IHandle> iHandles = new ArrayList<>(), iHandlesForAutoSetThat = new ArrayList<>();
@@ -282,10 +284,10 @@ public class AutoSetHandle
         }
     }
 
-    public static AutoSetHandle newInstance(InnerContextBridge innerContextBridge, Delivery thisDelivery,
+    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory,InnerContextBridge innerContextBridge, Delivery thisDelivery,
             PorterData porterData, String currentContextName)
     {
-        return new AutoSetHandle(innerContextBridge, thisDelivery, porterData, currentContextName);
+        return new AutoSetHandle(argumentsFactory,innerContextBridge, thisDelivery, porterData, currentContextName);
     }
 
 
@@ -294,9 +296,10 @@ public class AutoSetHandle
         this.iOtherStartDestroy = iOtherStartDestroy;
     }
 
-    private AutoSetHandle(InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData,
+    private AutoSetHandle(IArgumentsFactory argumentsFactory,InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData,
             String currentContextName)
     {
+        this.argumentsFactory=argumentsFactory;
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
@@ -307,6 +310,11 @@ public class AutoSetHandle
     public InnerContextBridge getInnerContextBridge()
     {
         return innerContextBridge;
+    }
+
+    public IArgumentsFactory getArgumentsFactory()
+    {
+        return argumentsFactory;
     }
 
     public String getContextName()

@@ -22,13 +22,25 @@ public class ParserUtil
     }
 
     /**
+     * 见{@linkplain #getTypeParser(Class, boolean)}
+     *
+     * @param type
+     * @throws ClassNotFoundException
+     */
+    public static Class<? extends ITypeParser> getTypeParser(Class<?> type) throws ClassNotFoundException
+    {
+        return getTypeParser(type, true);
+    }
+
+    /**
      * 根据类型得到转换类。
      *
      * @param type 当前的类型
      * @return 转类型
      * @throws ClassNotFoundException 未找到匹配的。
      */
-    public static Class<? extends ITypeParser> getTypeParser(Class<?> type) throws ClassNotFoundException
+    public static Class<? extends ITypeParser> getTypeParser(Class<?> type,
+            boolean notFoundThrows) throws ClassNotFoundException
     {
         Class<? extends ITypeParser> clazz = null;
         if (type.isPrimitive())
@@ -75,17 +87,17 @@ public class ParserUtil
             } else if (type == String.class)
             {
                 clazz = StringParser.class;
-            }
-            else if(type==String[].class){
+            } else if (type == String[].class)
+            {
                 clazz = StringArrayParser.class;
-            }
-            else if (type == Map.class)
+            } else if (type == Map.class)
             {
                 clazz = JSON2MapParser.class;
             } else if (type == File.class)
             {
                 clazz = FileParser.class;
-            }else if(type== Date.class){
+            } else if (type == Date.class)
+            {
                 clazz = DateTime2MinitueParser.class;
             }
             //////////
@@ -115,7 +127,7 @@ public class ParserUtil
                 clazz = DoubleParser.class;
             }
         }
-        if (clazz == null)
+        if (clazz == null && notFoundThrows)
         {
             throw new ClassNotFoundException(TypeParser.class.getName() + " for " + type + " is not found!");
         } else

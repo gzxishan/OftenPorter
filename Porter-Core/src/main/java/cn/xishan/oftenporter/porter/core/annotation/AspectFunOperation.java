@@ -73,7 +73,7 @@ public @interface AspectFunOperation
         public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
         {
             LOGGER.debug("default invoke.");
-            return porterOfFun.invoke(wObject, null);
+            return porterOfFun.invokeByHandleArgs(wObject, lastReturn);
         }
 
         @Override

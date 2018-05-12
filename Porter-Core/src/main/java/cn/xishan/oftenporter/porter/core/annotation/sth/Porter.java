@@ -165,14 +165,19 @@ public final class Porter
 
     InObj inObj;
     private AutoSetHandle autoSetHandle;
+    private IArgumentsFactory iArgumentsFactory;
+    private TypeParserStore typeParserStore;
 
-    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
+    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter,
+            IArgumentsFactory argumentsFactory)
     {
         this.clazz = clazz;
         this.finalPorter = this;
+        this.typeParserStore = autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
+        this.iArgumentsFactory = argumentsFactory;
         try
         {
             initSuperGenericClasses();
@@ -428,22 +433,42 @@ public final class Porter
     {
         for (InNames.Name name : names)
         {
-            if (name.typeParserId == null)
-            {
-                name.typeParserId = typeParserStore.getDefaultTypeParserId();
-            }
-            ITypeParser typeParser = typeParserStore.byId(name.typeParserId);
-            if (typeParser != null)
-            {
-                name.doDealtFor(typeParser);
-            }
+            dealName(name);
+        }
+    }
+
+    public InNames.Name getName(String varName, Class<?> type) throws ClassNotFoundException
+    {
+        InNames.Name theName = InObjDeal.getName(varName, type, typeParserStore,false);
+        dealName(theName);
+        return theName;
+    }
+
+    private void dealName(InNames.Name name)
+    {
+        if (name.typeParserId == null)
+        {
+            name.typeParserId = typeParserStore.getDefaultTypeParserId();
+        }
+        ITypeParser typeParser = typeParserStore.byId(name.typeParserId);
+        if (typeParser != null)
+        {
+            name.doDealtFor(typeParser);
         }
     }
 
     public void start(WObject wObject)
     {
         start(wObject, false);
-        autoSetHandle=null;
+        autoSetHandle = null;
+    }
+
+    public void initArgumentsFactory() throws Exception
+    {
+        for (PorterOfFun fun : childrenWithMethod.values())
+        {
+            iArgumentsFactory.initArgsHandle(fun, typeParserStore);
+        }
     }
 
     public void initIInObjHandle()
@@ -494,6 +519,7 @@ public final class Porter
             try
             {
                 PorterOfFun porterOfFun = starts[i].getPorterOfFun();
+
                 Method method = porterOfFun.getMethod();
                 Class<?>[] parameters = method.getParameterTypes();
                 if (parameters.length == 1)
@@ -671,6 +697,11 @@ public final class Porter
         Map<Class, Porter> map = new HashMap<>();
         getMixinToThatCouldSet(map);
         return map;
+    }
+
+    public final IArgumentsFactory getArgumentsFactory()
+    {
+        return iArgumentsFactory;
     }
 
     void getMixinToThatCouldSet(Map<Class, Porter> map)

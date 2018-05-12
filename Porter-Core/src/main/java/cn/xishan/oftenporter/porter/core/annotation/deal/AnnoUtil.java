@@ -90,6 +90,18 @@ public final class AnnoUtil
         return t;
     }
 
+    public static <T extends Annotation> T getAnnotation(Annotation[] annotations, Class<T> annotationClass)
+    {
+        for (Annotation annotation : annotations)
+        {
+            if (annotation.annotationType().equals(annotationClass))
+            {
+                return (T) annotation;
+            }
+        }
+        return null;
+    }
+
     /**
      * 获取类及其父类上的所有指定注解。
      *
@@ -109,7 +121,7 @@ public final class AnnoUtil
             {
                 arrayList.add(t);
             }
-            c=c.getSuperclass();
+            c = c.getSuperclass();
             if (c == null || c.equals(Object.class))
             {
                 break;

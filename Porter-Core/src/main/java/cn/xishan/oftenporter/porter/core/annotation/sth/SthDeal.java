@@ -93,7 +93,8 @@ public class SthDeal
             currentClassTied = portIn.getTiedNames()[0];
         }
 
-        Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter);
+        Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter,
+                autoSetHandle.getArgumentsFactory());
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
@@ -420,7 +421,7 @@ public class SthDeal
 //            {
 //                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
 //            }
-                porterOfFun = new PorterOfFun()
+                porterOfFun = new PorterOfFun(method)
                 {
                     @Override
                     public Object getObject()
@@ -428,7 +429,6 @@ public class SthDeal
                         return porter.getObj();
                     }
                 };
-                porterOfFun.method = method;
                 porterOfFun.porter = porter;
                 porterOfFun.portIn = portIn;
                 porterOfFun.argCount = parameters.length;

@@ -10,19 +10,30 @@ import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import javax.servlet.AsyncContext;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 参数支持:{@linkplain #NAME_REQUEST},{@linkplain #NAME_RESPONSE},{@linkplain #NAME_SERVLET_CONTEXT},
+ * {@linkplain #NAME_SESSION}
+ */
 public final class WServletRequest extends PRequest implements IAttributeFactory
 {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private IAttributeFactory iAttributeFactory;
+
+    public static final String NAME_SERVLET_CONTEXT = ServletContext.class.getName();
+    public static final String NAME_SESSION = HttpSession.class.getName();
+    public static final String NAME_REQUEST = HttpServletRequest.class.getName();
+    public static final String NAME_RESPONSE = HttpServletResponse.class.getName();
 
     /**
      * @param request
@@ -70,7 +81,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
             while (e.hasMoreElements())
             {
                 String name = e.nextElement();
-                String value = getParameter(name);
+                Object value = getParameter(name);
                 if (WPTool.notNullAndEmpty(value))
                 {
                     params.put(name, value);
@@ -81,10 +92,29 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
     }
 
     @Override
-    public String getParameter(String name)
+    public Object getParameter(String name)
     {
         String[] values = request.getParameterValues(name);
-        return values == null || values.length == 0 ? null : values[0];
+        Object v = values == null || values.length == 0 ? null : values[0];
+
+        if (v == null)
+        {
+            if (NAME_REQUEST.equals(name))
+            {
+                v = request;
+            } else if (NAME_RESPONSE.equals(name))
+            {
+                v = response;
+            } else if (NAME_SERVLET_CONTEXT.equals(name))
+            {
+                v = request.getServletContext();
+            } else if (NAME_SESSION.equals(name))
+            {
+                v = request.getSession();
+            }
+        }
+
+        return v;
     }
 
 
@@ -96,7 +126,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
 
 
     /**
-     * 获得接口地址。见{@linkplain #getPortUrl(WObject,String, String, String, String, String, boolean)}。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, String, boolean)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
@@ -104,11 +134,11 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
      */
     public static String getPortUrl(WObject wObject, String funTied, boolean http2Https)
     {
-        return getPortUrl(wObject,null, null, null, null, funTied, http2Https);
+        return getPortUrl(wObject, null, null, null, null, funTied, http2Https);
     }
 
     /**
-     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String,String, String, String, String, boolean)}。
+     * 获得接口地址。见{@linkplain #getPortUrl(WObject, String, String, String, String, String, boolean)}。
      *
      * @param wObject
      * @param funTied 若为null，则使用当前的。
@@ -116,7 +146,7 @@ public final class WServletRequest extends PRequest implements IAttributeFactory
      */
     public static String getPortUrl(WObject wObject, String classTied, String funTied, boolean http2Https)
     {
-        return getPortUrl(wObject,null, null, null, classTied, funTied, http2Https);
+        return getPortUrl(wObject, null, null, null, classTied, funTied, http2Https);
     }
 
 

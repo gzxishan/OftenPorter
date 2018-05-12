@@ -211,6 +211,12 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
     }
 
     @Override
+    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    {
+        return lastReturn;
+    }
+
+    @Override
     public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
         String[] locks = wObject.removeRequestData(ATTR_KEY);

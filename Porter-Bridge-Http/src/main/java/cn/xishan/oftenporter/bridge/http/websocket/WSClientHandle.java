@@ -46,7 +46,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 this.wObject = wObject;
                 this.wsClient.set(ClientWebSocket.Type.ON_CONFIG, null, true);
                 WSClientConfig wsClientConfig = (WSClientConfig) porterOfFun
-                        .invoke(wObject, new Object[]{wObject, wsClient});
+                        .invoke(new Object[]{wObject, wsClient});
                 this.wsClientConfig = wsClientConfig;
 
                 scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -166,7 +166,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_OPEN, null, true);
-                        Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                        Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -180,7 +180,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_MESSAGE, message, true);
-                        Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                        Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -194,7 +194,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, bytes, true);
-                        Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                        Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -212,7 +212,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         {
                             ByteBuffer byteBuffer = frame.getPayloadData();
                             wsClient.set(ClientWebSocket.Type.ON_PONG, byteBuffer, frame.isFin());
-                            Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                            Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                             maySend(obj);
                         } catch (Exception e)
                         {
@@ -224,7 +224,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         {
                             ByteBuffer byteBuffer = frame.getPayloadData();
                             wsClient.set(ClientWebSocket.Type.ON_PING, byteBuffer, frame.isFin());
-                            Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                            Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                             maySend(obj);
                         } catch (Exception e)
                         {
@@ -236,7 +236,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         {
                             ByteBuffer byteBuffer = frame.getPayloadData();
                             wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, byteBuffer, frame.isFin());
-                            Object obj = porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                            Object obj = porterOfFun.invoke(new Object[]{wObject, wsClient});
                             maySend(obj);
                         } catch (Exception e)
                         {
@@ -251,7 +251,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_CLOSE, new ClientCloseReason(code, reason), true);
-                        porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                        porterOfFun.invoke(new Object[]{wObject, wsClient});
                     } catch (Exception e)
                     {
                         LOGGER.debug(e.getMessage(), e);
@@ -268,7 +268,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_ERROR, ex, true);
-                        porterOfFun.invoke(wObject, new Object[]{wObject, wsClient});
+                        porterOfFun.invoke(new Object[]{wObject, wsClient});
                     } catch (Exception e)
                     {
                         throw new RuntimeException(e);

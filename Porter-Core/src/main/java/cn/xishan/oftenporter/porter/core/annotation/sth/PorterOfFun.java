@@ -3,9 +3,11 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
-import cn.xishan.oftenporter.porter.core.base.InNames;
+import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
+import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory.IArgsHandle;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,6 +27,11 @@ public abstract class PorterOfFun implements ObjectGetter
 
     private AspectFunOperation.Handle[] handles;
 
+
+    public PorterOfFun(Method method)
+    {
+        this.method = method;
+    }
 
     public final boolean isInner()
     {
@@ -56,7 +63,7 @@ public abstract class PorterOfFun implements ObjectGetter
 
     public static PorterOfFun withMethodAndObject(Method method, ObjectGetter objectGetter)
     {
-        PorterOfFun porterOfFun = new PorterOfFun()
+        PorterOfFun porterOfFun = new PorterOfFun(method)
         {
             @Override
             public Object getObject()
@@ -64,7 +71,6 @@ public abstract class PorterOfFun implements ObjectGetter
                 return objectGetter.getObject();
             }
         };
-        porterOfFun.method = method;
         return porterOfFun;
     }
 
@@ -109,6 +115,7 @@ public abstract class PorterOfFun implements ObjectGetter
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
+    @Deprecated
     public final Object invoke(WObject wObject,
             Object[] optionArgs) throws InvocationTargetException, IllegalAccessException
     {
@@ -123,6 +130,60 @@ public abstract class PorterOfFun implements ObjectGetter
         {
             return javaMethod.invoke(getObject(), wObject);
         }
+    }
+
+
+    /**
+     * 调用函数
+     *
+     * @param args 参数列表
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public final Object invoke(Object... args) throws InvocationTargetException, IllegalAccessException
+    {
+        Method javaMethod = getMethod();
+        return javaMethod.invoke(getObject(), args);
+    }
+
+
+    /**
+     * 函数的参数列表为()或(WObject)
+     *
+     * @param wObject
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public final Object invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException
+    {
+        Method javaMethod = getMethod();
+        if (getArgCount() == 0)
+        {
+            return javaMethod.invoke(getObject());
+        } else
+        {
+            return javaMethod.invoke(getObject(), wObject);
+        }
+    }
+
+    /**
+     * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)}.
+     *
+     * @param wObject
+     * @param args
+     * @return
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     */
+    public final Object invokeByHandleArgs(WObject wObject,
+            Object... args) throws Exception
+    {
+        Method javaMethod = getMethod();
+        IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
+        IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
+        Object[] finalArgs = argsHandle.getInvokeArgs(wObject, javaMethod, args);
+        return javaMethod.invoke(getObject(), finalArgs);
     }
 
     public _PortOut getPortOut()
@@ -150,7 +211,7 @@ public abstract class PorterOfFun implements ObjectGetter
      *
      * @return
      */
-    public int getArgCount()
+    public final int getArgCount()
     {
         return argCount;
     }
@@ -170,6 +231,12 @@ public abstract class PorterOfFun implements ObjectGetter
         }
         PorterOfFun fun = (PorterOfFun) obj;
         return method.equals(fun.method);
+    }
+
+    @Override
+    public String toString()
+    {
+        return method.toString();
     }
 
     public void startHandles(WObject wObject)

@@ -41,7 +41,7 @@ public class DefaultParamDealt implements ParamDealt
         return null;
     }
 
-    public Object getParam(String name, ParamSource paramSource,
+    public static Object getParam(String name, ParamSource paramSource,
             ITypeParser typeParser, Object dealt)
     {
 

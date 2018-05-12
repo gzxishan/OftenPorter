@@ -170,7 +170,7 @@ public class InObjDeal
                     LOGGER.debug("{} for field [{}] is null,now try auto...", ITypeParser.class.getSimpleName(), field);
                     try
                     {
-                        typeParser = ParserUtil.getTypeParser(field.getType());
+                        typeParser = ParserUtil.getTypeParser(field.getType(), true);
                         LOGGER.debug("auto get:[{}]", typeParser);
                         String typeId = SthUtil.putTypeParser(typeParser, typeParserStore);
                         name = new Name(nameStr, typeId);
@@ -198,6 +198,20 @@ public class InObjDeal
 //        BindFromSuperUtil.bindFromSuperClass(clazz, cacheOne);
 
         return one;
+    }
+
+    public static Name getName(String nameStr, Class<?> type, TypeParserStore typeParserStore,
+            boolean notFoundThrows) throws
+            ClassNotFoundException
+    {
+        Class<? extends ITypeParser> typeParser = ParserUtil.getTypeParser(type, notFoundThrows);
+        String typeId = null;
+        if (typeParser != null)
+        {
+            typeId = SthUtil.putTypeParser(typeParser, typeParserStore);
+        }
+        Name name = new Name(nameStr, typeId);
+        return name;
     }
 
 

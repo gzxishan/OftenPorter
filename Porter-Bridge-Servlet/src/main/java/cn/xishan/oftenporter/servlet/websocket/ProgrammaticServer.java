@@ -23,7 +23,7 @@ public class ProgrammaticServer extends Endpoint
             WObject wObject = (WObject) httpSession.getAttribute(WObject.class.getName());
             PorterOfFun porterOfFun = (PorterOfFun) httpSession.getAttribute(PorterOfFun.class.getName());
 
-            porterOfFun.invoke(wObject, new Object[]{wObject, WS.newWS(type, session, isLast, value)});
+            porterOfFun.invoke(new Object[]{wObject, WS.newWS(type, session, isLast, value)});
         } catch (Exception e)
         {
             throw new WCallException(e);

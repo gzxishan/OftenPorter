@@ -728,7 +728,7 @@ public final class PortExecutor
                 returnObject = AspectHandleUtil.doHandle(AspectHandleUtil.State.Invoke, wObject, funPort, null, null);
             } else
             {
-                returnObject = funPort.invoke(wObject, null);
+                returnObject = funPort.invokeByHandleArgs(wObject);
             }
 
 
