@@ -353,6 +353,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             throw new RuntimeException("Not init!");
         }
         PorterConf porterConf = porterMain.newPorterConf();
+        porterConf.setArgumentsFactory(new DefaultArgumentsFactory());
         porterConf.addContextAutoSet(WebSocketHandle.WS_SERVER_CONTAINER_NAME,
                 getServletContext().getAttribute(WebSocketHandle.WS_SERVER_CONTAINER_NAME));
         porterConf.addContextAutoSet(ServletContext.class, getServletConfig().getServletContext());

@@ -21,6 +21,10 @@ import javax.servlet.ServletException;
  * <strong>另见</strong>{@linkplain OPServletInitializer}
  * </p>
  *
+ * <p>
+ * 默认支持的形式参数：HttpServletRequest,HttpServletResponse,HttpSession,ServletContext。见{@linkplain DefaultArgumentsFactory}
+ * </p>
+ *
  * @author Created by https://github.com/CLovinr on 2018/2/23.
  */
 public abstract class StartupServlet extends WMainServlet
