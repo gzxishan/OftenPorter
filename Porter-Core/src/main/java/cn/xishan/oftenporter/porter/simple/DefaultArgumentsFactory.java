@@ -8,15 +8,11 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
-import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -156,12 +152,19 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         @Override
         public Object[] getInvokeArgs(WObject wObject, Method method, Object[] args)
         {
-            Map<String, Object> map = new HashMap<>();
-            for (Object arg : args)
+            Map<String, Object> map;
+            if (args.length == 0)
             {
-                if (arg != null)
+                map = Collections.emptyMap();
+            } else
+            {
+                map = new HashMap<>(6);
+                for (Object arg : args)
                 {
-                    map.put(arg.getClass().getName(), arg);
+                    if (arg != null)
+                    {
+                        map.put(arg.getClass().getName(), arg);
+                    }
                 }
             }
             Object[] newArgs = new Object[argHandles.length];
@@ -175,7 +178,6 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
 
     private Map<PorterOfFun, IArgsHandle> handleMap = new ConcurrentHashMap<>();
-    private ConcurrentKeyLock<PorterOfFun> keyLock = new ConcurrentKeyLock<>();
 
     public DefaultArgumentsFactory()
     {
@@ -184,23 +186,6 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     @Override
     public void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
     {
-//        IArgsHandle handle = handleMap.get(porterOfFun);
-//        if (handle == null)
-//        {
-//            keyLock.lock(porterOfFun);
-//            try
-//            {
-//                handle = handleMap.get(porterOfFun);
-//                if (handle == null)
-//                {
-//                    handle = new IArgsHandleImpl(porterOfFun, typeParserStore);
-//                    handleMap.put(porterOfFun, handle);
-//                }
-//            } finally
-//            {
-//                keyLock.unlock(porterOfFun);
-//            }
-//        }
         IArgsHandle handle = new IArgsHandleImpl(porterOfFun, typeParserStore);
         handleMap.put(porterOfFun, handle);
     }
