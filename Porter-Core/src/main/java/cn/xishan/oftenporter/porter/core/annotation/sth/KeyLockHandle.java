@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
@@ -208,6 +209,12 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
         concurrentKeyLock.lock(locks);
         LOGGER.debug("locked[{}]:{}", wObject.url(), locks);
         wObject.putRequestData(ATTR_KEY, locks);
+    }
+
+    @Override
+    public boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
+    {
+        return false;
     }
 
     @Override

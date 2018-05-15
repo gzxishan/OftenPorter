@@ -94,6 +94,12 @@ public @interface AspectFunOperation
             LOGGER.debug("not Override.");
             return null;
         }
+
+        @Override
+        public boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
+        {
+            return true;
+        }
     }
 
     /**
@@ -181,6 +187,14 @@ public @interface AspectFunOperation
          */
         @MayNull
         OutType getOutType();
+
+        /**
+         * 是否需要调用{@linkplain #invoke(WObject, PorterOfFun, Object)}
+         *
+         * @param wObject
+         * @return
+         */
+        boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn);
     }
 
     Class<? extends Handle> handle();

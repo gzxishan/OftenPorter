@@ -59,11 +59,23 @@ class AspectHandleUtil
                     }
                     break;
                 case Invoke:
+                {
+                    boolean hasInvoked = false;
                     for (AspectFunOperation.Handle handle : handles)
                     {
-                        returnObject = handle.invoke(wObject, funPort, returnObject);
+                        if (handle.needInvoke(wObject,funPort,returnObject))
+                        {
+                            hasInvoked = true;
+                            returnObject = handle.invoke(wObject, funPort, returnObject);
+                        }
+                    }
+                    if (!hasInvoked)
+                    {
+                        returnObject = funPort.invokeByHandleArgs(wObject);
                     }
                     return returnObject;
+                }
+
                 case AfterInvoke:
                     for (int i = handles.length - 1; i >= 0; i--)
                     {
