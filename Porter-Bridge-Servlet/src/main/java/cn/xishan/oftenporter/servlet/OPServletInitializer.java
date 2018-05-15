@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public interface OPServletInitializer
     void onStart(ServletContext servletContext, Builder builder);
 
     default void onDoRequest(StartupServlet startupServlet, HttpServletRequest request, HttpServletResponse response,
-            PortMethod method) throws IOException
+            PortMethod method) throws IOException,ServletException
     {
         String path = request.getRequestURI().substring(request.getContextPath().length());
         startupServlet.doRequest(request, path, response, method);
