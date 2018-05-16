@@ -83,18 +83,37 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     static class NeceArgHandle implements ArgHandle
     {
         private InNames.Name name;
+        private String className;
         private TypeParserStore typeParserStore;
 
-        public NeceArgHandle(InNames.Name name, TypeParserStore typeParserStore)
+        public NeceArgHandle(InNames.Name name, String className, TypeParserStore typeParserStore)
         {
             this.name = name;
+            this.className = className;
             this.typeParserStore = typeParserStore;
+        }
+
+        private final Object get(Map<String, Object> optionArgMap)
+        {
+            Object v;
+            if (className != null)
+            {
+                v = optionArgMap.get(className);
+                if (v == null)
+                {
+                    v = optionArgMap.get(name.varName);
+                }
+            } else
+            {
+                v = optionArgMap.get(name.varName);
+            }
+            return v;
         }
 
         @Override
         public final Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
         {
-            Object v = optionArgMap.get(name);
+            Object v = get(optionArgMap);
             if (v == null)
             {
                 v = DefaultParamDealt.getParam(name.varName, wObject.getParamSource(),
@@ -119,18 +138,37 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     static class UneceArgHandle implements ArgHandle
     {
         private InNames.Name name;
+        private String className;
         private TypeParserStore typeParserStore;
 
-        public UneceArgHandle(InNames.Name name, TypeParserStore typeParserStore)
+        public UneceArgHandle(InNames.Name name, String className, TypeParserStore typeParserStore)
         {
             this.name = name;
+            this.className = className;
             this.typeParserStore = typeParserStore;
+        }
+
+        private final Object get(Map<String, Object> optionArgMap)
+        {
+            Object v;
+            if (className != null)
+            {
+                v = optionArgMap.get(className);
+                if (v == null)
+                {
+                    v = optionArgMap.get(name.varName);
+                }
+            } else
+            {
+                v = optionArgMap.get(name.varName);
+            }
+            return v;
         }
 
         @Override
         public final Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
         {
-            Object v = optionArgMap.get(name.varName);
+            Object v = get(optionArgMap);
             if (v == null)
             {
                 v = DefaultParamDealt.getParam(name.varName, wObject.getParamSource(),
@@ -202,9 +240,11 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     Parameter parameter = parameters[i];
                     name = parameter.getName();
                 }
+                boolean hasParam = neceParam != null || uneceParam != null;
                 InNames.Name theName = porterOfFun.getPorter().getName(name, type);
-                ArgHandle argHandle = neceParam != null ? new NeceArgHandle(theName,
-                        typeParserStore) : new UneceArgHandle(theName, typeParserStore);
+                ArgHandle argHandle = neceParam != null ? new NeceArgHandle(theName, hasParam ? null : type.getName(),
+                        typeParserStore) : new UneceArgHandle(theName, hasParam ? null : type.getName(),
+                        typeParserStore);
                 argHandleList.add(argHandle);
             }
             this.argHandles = argHandleList.toArray(new ArgHandle[0]);
