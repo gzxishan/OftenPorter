@@ -3,8 +3,9 @@ package cn.xishan.oftenporter.porter.core;
 import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
+
+
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/13.
@@ -20,7 +21,6 @@ class AspectHandleUtil
         OnFinal
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AspectHandleUtil.class);
 
     public static final Object tryDoHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
             Object failedObject)
@@ -29,10 +29,12 @@ class AspectHandleUtil
         try
         {
             return doHandle(state, wObject, funPort, returnObject, failedObject);
-        } catch (Exception e)
+        }catch (WCallException e){
+            throw e;
+        }
+        catch (Exception e)
         {
-            LOGGER.error(e.getMessage(), e);
-            return null;
+            throw new WCallException(e);
         }
     }
 
