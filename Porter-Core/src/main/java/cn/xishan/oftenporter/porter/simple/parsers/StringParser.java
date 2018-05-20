@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
  *     6.date-minute表示"yyyy-MM-dd HH:mm"格式的日期
  *     7.date-time表示"yyyy-MM-dd HH:mm:ss""格式的日期
  *     8.date-month表示"yyyy-MM"格式的日期
+ *     9.$reg:xxxx表示正则表达式
  * </pre>
  * Created by 宇宙之灵 on 2015/9/14.
  */
@@ -156,6 +157,34 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
         } else if (config.equals("date-minute"))
         {
             stringDealt = newDateDealt("yyyy-MM-dd HH:mm");
+        } else if (config.startsWith("$reg:"))
+        {
+            stringDealt = new StringDealt()
+            {
+                Pattern pattern = Pattern.compile(config.substring(5));
+
+                @Override
+                public ParseResult getValue(ITypeParser iTypeParser, Object value)
+                {
+                    ParseResult result;
+                    try
+                    {
+                        value = String.valueOf(value);
+                        Matcher matcher = pattern.matcher((String) value);
+                        if (matcher.find())
+                        {
+                            result = new ParseResult(value);
+                        } else
+                        {
+                            result = ParserUtil.failed(iTypeParser, "illegal value:" + value);
+                        }
+                    } catch (Exception e)
+                    {
+                        result = ParserUtil.failed(iTypeParser, e.getMessage());
+                    }
+                    return result;
+                }
+            };
         } else
         {
             stringDealt = new VarConfigDealt(parserOption.getNameConfig());
