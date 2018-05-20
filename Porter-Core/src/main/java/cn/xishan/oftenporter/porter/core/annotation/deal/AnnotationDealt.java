@@ -480,11 +480,6 @@ public final class AnnotationDealt
         PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
         if (portIn != null)
         {
-//            Class<?>[] parameters = method.getParameterTypes();
-//            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
-//            {
-//                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
-//            }
 
             PortFunType portFunType = PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType());
             _portInOfMethod = new _PortIn(portFunType, portIn.aspectOfClassPosition(), portIn.ignoredFunTieds(),
@@ -517,6 +512,9 @@ public final class AnnotationDealt
 
     public void setTiedType(_PortIn portIn, TiedType tiedType)
     {
+        if(tiedType==null){
+            return;
+        }
         portIn.setTiedType(tiedType);
     }
 }

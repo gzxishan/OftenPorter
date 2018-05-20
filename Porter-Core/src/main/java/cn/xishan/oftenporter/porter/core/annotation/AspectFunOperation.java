@@ -2,9 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +88,20 @@ public @interface AspectFunOperation
 
         @Override
         public OutType getOutType()
+        {
+            LOGGER.debug("not Override.");
+            return null;
+        }
+
+        @Override
+        public PortFunType getPortFunType()
+        {
+            LOGGER.debug("not Override.");
+            return null;
+        }
+
+        @Override
+        public TiedType getTiedType()
         {
             LOGGER.debug("not Override.");
             return null;
@@ -187,6 +199,16 @@ public @interface AspectFunOperation
          */
         @MayNull
         OutType getOutType();
+
+        /**
+         * 修改类或函数的。
+         * @return
+         */
+        @MayNull
+        PortFunType getPortFunType();
+
+        @MayNull
+        TiedType getTiedType();
 
         /**
          * 是否需要调用{@linkplain #invoke(WObject, PorterOfFun, Object)}

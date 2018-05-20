@@ -29,6 +29,14 @@ public final class _PortIn
         this.enableMixinTo=enableMixinTo;
     }
 
+    public void setPortFunType(PortFunType portFunType)
+    {
+        if(portFunType==null){
+            return;
+        }
+        this.portFunType = PortFunType.type(this.portFunType, portFunType);
+    }
+
     public Class<?> getToPorterKey()
     {
         return toPorterKey;

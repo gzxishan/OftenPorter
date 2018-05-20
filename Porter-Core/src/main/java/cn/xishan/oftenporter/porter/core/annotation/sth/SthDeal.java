@@ -158,10 +158,11 @@ public class SthDeal
 //                TiedType tiedType = TiedType.type(portIn.getTiedType(), porterOfFun.getMethodPortIn().getTiedType());
 //                //设置方法的TiedType
 //                annotationDealt.setTiedType(porterOfFun.getMethodPortIn(), tiedType);
-                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin, !isMixin);
 
                 //扫描AspectFunOperation
                 seekAspectFunOperation(autoSetHandle, porterOfFun, classHandles);
+
+                putFun(porterOfFun, childrenWithMethod, !isMixin, isMixin, !isMixin);
             }
         }
         //处理自身接口----结束
@@ -249,6 +250,7 @@ public class SthDeal
         // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
 
         List<AspectFunOperation.Handle> handles = new ArrayList<>();
+        AnnotationDealt annotationDealt = setHandle.getInnerContextBridge().annotationDealt;
 
         if (_handles != null && aspectPosition == AspectPosition.BEFORE)
         {
@@ -258,48 +260,47 @@ public class SthDeal
         for (Annotation annotation : annotations)
         {
             Class<? extends Annotation> atype = annotation.annotationType();
-            if (!atype.isAnnotationPresent(AspectFunOperation.class))
+            AspectFunOperation aspectFunOperation = AnnoUtil
+                    .getAnnotation(atype, AspectFunOperation.class);
+            if (aspectFunOperation == null)
             {
                 continue;
             }
-            AspectFunOperation aspectFunOperation = AnnoUtil
-                    .getAnnotation(atype, AspectFunOperation.class);
-            if (aspectFunOperation != null)
-            {
-                try
-                {
-                    AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
-                    if (object instanceof PorterOfFun)
-                    {
-                        PorterOfFun porterOfFun = (PorterOfFun) object;
-                        if (handle.init(annotation, porterOfFun))
-                        {
-                            if (handle.getOutType() != null)
-                            {
-                                porterOfFun.portOut._setOutType(handle.getOutType());
-                            }
-                            handles.add(handle);
-                            setHandle.addAutoSetsForNotPorter(new Object[]{handle});
-                        }
-                    } else
-                    {
-                        Porter porter = (Porter) object;
-                        if (handle.init(annotation, porter))
-                        {
-                            if (handle.getOutType() != null)
-                            {
-                                porter.portOut._setOutType(handle.getOutType());
-                            }
-                            handles.add(handle);
-                            setHandle.addAutoSetsForNotPorter(new Object[]{handle});
-                        }
-                    }
 
-                } catch (Exception e)
+            try
+            {
+                AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
+                if (object instanceof PorterOfFun)
                 {
-                    throw new InitException(e);
+                    PorterOfFun porterOfFun = (PorterOfFun) object;
+                    if (handle.init(annotation, porterOfFun))
+                    {
+                        porterOfFun.portOut._setOutType(handle.getOutType());
+                        porterOfFun.portIn.setPortFunType(handle.getPortFunType());
+                        annotationDealt.setTiedType(porterOfFun.portIn,
+                                TiedType.typeForFun(porterOfFun.portIn.getTiedType(), handle.getTiedType()));
+                        handles.add(handle);
+                        setHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                    }
+                } else
+                {
+                    Porter porter = (Porter) object;
+                    if (handle.init(annotation, porter))
+                    {
+                        porter.portOut._setOutType(handle.getOutType());
+                        porter.portIn.setPortFunType(handle.getPortFunType());
+                        annotationDealt.setTiedType(porter.portIn,
+                                TiedType.typeForFun(porter.portIn.getTiedType(), handle.getTiedType()));
+                        handles.add(handle);
+                        setHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                    }
                 }
+
+            } catch (Exception e)
+            {
+                throw new InitException(e);
             }
+
         }
 
         if (_handles != null && aspectPosition == AspectPosition.AFTER)
@@ -417,10 +418,7 @@ public class SthDeal
             {
                 method.setAccessible(true);
                 Class<?>[] parameters = method.getParameterTypes();
-//            if (parameters.length > 1 || parameters.length == 1 && !WObject.class.equals(parameters[0]))
-//            {
-//                throw new IllegalArgumentException("the parameter list of " + method + " is illegal!");
-//            }
+
                 porterOfFun = new PorterOfFun(method)
                 {
                     @Override
