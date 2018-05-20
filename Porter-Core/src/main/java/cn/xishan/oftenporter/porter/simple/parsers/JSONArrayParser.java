@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 
+import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -14,7 +15,12 @@ import com.alibaba.fastjson.JSONException;
 public class JSONArrayParser extends TypeParser
 {
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull Object dealt)
+    {
+        return parse(this, value);
+    }
+
+    static ParseResult parse(ITypeParser typeParser, @NotNull Object value)
     {
         ParseResult result;
         try
@@ -31,7 +37,7 @@ public class JSONArrayParser extends TypeParser
             result = new ParseResult(v);
         } catch (JSONException e)
         {
-            result = ParserUtil.failed(this,e.getMessage());;
+            result = ParserUtil.failed(typeParser, e.getMessage());
         }
         return result;
     }

@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+
 /**
  * <pre>
  *  1.对于声明的参数名可以添加参数，格式为:1)"varName"、2)"varName()"、3)"varName( varConfigContent )".
@@ -11,6 +13,8 @@ package cn.xishan.oftenporter.porter.core.base;
  */
 public interface ITypeParserOption
 {
-    String getNameConfig();
 
+    @NotNull
+    String getNameConfig();
 }
+

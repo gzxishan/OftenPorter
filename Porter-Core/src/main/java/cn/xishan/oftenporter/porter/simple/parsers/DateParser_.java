@@ -11,20 +11,15 @@ import java.util.Date;
 abstract class DateParser_ extends TypeParser
 {
 
-    private SimpleDateFormat format;
+    private String format;
 
-    public DateParser_(SimpleDateFormat format)
+    public DateParser_(String format)
     {
         this.format = format;
     }
 
-    public DateParser_(String format)
-    {
-        this(new SimpleDateFormat(format));
-    }
-
     @Override
-    public ParseResult parse(String name, Object value,@MayNull Object dealt)
+    public ParseResult parse(String name, Object value, @MayNull Object dealt)
     {
         ParseResult result;
         try
@@ -38,9 +33,8 @@ abstract class DateParser_ extends TypeParser
                 v = new Date((long) value);
             } else
             {
-                synchronized (format){
-                    v = format.parse(String.valueOf(value));
-                }
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+                v = simpleDateFormat.parse(String.valueOf(value));
             }
 
             result = new ParseResult(v);

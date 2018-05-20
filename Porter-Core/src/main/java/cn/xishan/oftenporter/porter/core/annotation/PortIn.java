@@ -5,16 +5,27 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
+import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
 
 import java.lang.annotation.*;
 
 /**
- * 1.用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
- * <br>
- * 2.返回值见{@linkplain PortOut}
- * <pre>
- *     <strong>参数的配置参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
- * </pre>
+ * <ol>
+ * <li>
+ * 用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
+ * </li>
+ * <li>
+ * 返回值见{@linkplain PortOut}
+ * </li>
+ * <li>
+ * <strong>参数的配置参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
+ * </li>
+ * <li>
+ * 参数处理见:{@linkplain Parser},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等
+ * </li>
+ * </ol>
+ * <p>
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -136,7 +147,7 @@ public @interface PortIn
     PortMethod method() default PortMethod.DEFAULT;
 
     /**
-     * 是否忽略所在类（或函数）的类型转换，默认为false。当为true时，将跳过{@linkplain cn.xishan.oftenporter.porter.core.base.ITypeParser}转换。
+     * 是否忽略所在类（或函数）的类型转换，默认为false。当为true时，将跳过{@linkplain ITypeParser}转换。
      *
      * @return
      */

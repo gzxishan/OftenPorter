@@ -22,13 +22,17 @@ public class ObjectParser extends StringParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull VarConfigDealt varConfigDealt)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull StringDealt stringDealt)
     {
-        if (varConfigDealt!=null)
+        ParseResult parseResult;
+        if (stringDealt != null)
         {
-            value = varConfigDealt.getValue(String.valueOf(value));
+            parseResult = stringDealt.getValue(this, value);
+        } else
+        {
+            parseResult = new ParseResult(value);
         }
-        return new ParseResult(value);
+        return parseResult;
     }
 
 

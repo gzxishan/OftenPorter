@@ -26,7 +26,7 @@ public class CharParser extends TypeParser
             result = new ParseResult(v);
         } catch (NumberFormatException e)
         {
-            result = ParserUtil.failed(this,e.getMessage());;
+            result = ParserUtil.failed(this,e.getMessage());
         }
         return result;
     }
