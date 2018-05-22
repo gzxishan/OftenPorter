@@ -11,7 +11,7 @@ import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 public class BooleanParser extends TypeParser
 {
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt)
+    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull Object dealt)
     {
         ParseResult result;
         try
@@ -27,8 +27,14 @@ public class BooleanParser extends TypeParser
             result = new ParseResult(v);
         } catch (NumberFormatException e)
         {
-            result = ParserUtil.failed(this,e.getMessage());
+            result = ParserUtil.failed(this, e.getMessage());
         }
         return result;
+    }
+
+    @Override
+    public ParseResult parseEmpty(String name, Object dealt)
+    {
+        return new ParseResult(false);
     }
 }

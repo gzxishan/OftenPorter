@@ -25,6 +25,9 @@ import java.util.regex.Pattern;
  *     7.date-time表示"yyyy-MM-dd HH:mm:ss""格式的日期
  *     8.date-month表示"yyyy-MM"格式的日期
  *     9.$reg:xxxx表示正则表达式
+ *     10.bool表示boolean值，且当为false、0或空时、结果为false，其余为true
+ *     11.int与long分别表示为int与long型
+ *     12.float与double分别表示为float与double型
  * </pre>
  * Created by 宇宙之灵 on 2015/9/14.
  */
@@ -37,6 +40,11 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     static interface StringDealt
     {
         ParseResult getValue(ITypeParser iTypeParser, Object value);
+    }
+
+    static interface StringEmptyableDealt extends StringDealt
+    {
+        ParseResult getValueForEmpty(ITypeParser iTypeParser);
     }
 
     public static class VarConfigDealt implements StringDealt
@@ -130,6 +138,16 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
         return parseResult;
     }
 
+    @Override
+    public ParseResult parseEmpty(String name, StringDealt dealt)
+    {
+        if (dealt != null && dealt instanceof StringEmptyableDealt)
+        {
+            StringEmptyableDealt stringEmptyableDealt = (StringEmptyableDealt) dealt;
+            return stringEmptyableDealt.getValueForEmpty(this);
+        }
+        return null;
+    }
 
     @Override
     public StringDealt initFor(ITypeParserOption parserOption)
@@ -157,6 +175,102 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
         } else if (config.equals("date-minute"))
         {
             stringDealt = newDateDealt("yyyy-MM-dd HH:mm");
+        } else if (config.equals("int"))
+        {
+            stringDealt = (iTypeParser, value) -> {
+                ParseResult result;
+                try
+                {
+                    if (!(value instanceof Integer))
+                    {
+                        value = Integer.parseInt(String.valueOf(value));
+                    }
+                    result = new ParseResult(value);
+                } catch (Exception e)
+                {
+                    result = ParserUtil.failed(iTypeParser, e.getMessage());
+                }
+                return result;
+            };
+        } else if (config.equals("long"))
+        {
+            stringDealt = (iTypeParser, value) -> {
+                ParseResult result;
+                try
+                {
+                    if (!(value instanceof Long))
+                    {
+                        value = Long.parseLong(String.valueOf(value));
+                    }
+                    result = new ParseResult(value);
+                } catch (Exception e)
+                {
+                    result = ParserUtil.failed(iTypeParser, e.getMessage());
+                }
+                return result;
+            };
+        } else if (config.equals("float"))
+        {
+            stringDealt = (iTypeParser, value) -> {
+                ParseResult result;
+                try
+                {
+                    if (!(value instanceof Float))
+                    {
+                        value = Float.parseFloat(String.valueOf(value));
+                    }
+                    result = new ParseResult(value);
+                } catch (Exception e)
+                {
+                    result = ParserUtil.failed(iTypeParser, e.getMessage());
+                }
+                return result;
+            };
+        } else if (config.equals("double"))
+        {
+            stringDealt = (iTypeParser, value) -> {
+                ParseResult result;
+                try
+                {
+                    if (!(value instanceof Double))
+                    {
+                        value = Double.parseDouble(String.valueOf(value));
+                    }
+                    result = new ParseResult(value);
+                } catch (Exception e)
+                {
+                    result = ParserUtil.failed(iTypeParser, e.getMessage());
+                }
+                return result;
+            };
+        } else if (config.equals("bool"))
+        {
+            stringDealt = new StringEmptyableDealt()
+            {
+                @Override
+                public ParseResult getValueForEmpty(ITypeParser iTypeParser)
+                {
+                    return new ParseResult(false);
+                }
+
+                @Override
+                public ParseResult getValue(ITypeParser iTypeParser, Object value)
+                {
+                    ParseResult result;
+                    try
+                    {
+                        if (!(value instanceof Boolean))
+                        {
+                            value = !(value.equals("false") || value.equals("0"));
+                        }
+                        result = new ParseResult(value);
+                    } catch (Exception e)
+                    {
+                        result = ParserUtil.failed(iTypeParser, e.getMessage());
+                    }
+                    return result;
+                }
+            };
         } else if (config.startsWith("$reg:"))
         {
             stringDealt = new StringDealt()

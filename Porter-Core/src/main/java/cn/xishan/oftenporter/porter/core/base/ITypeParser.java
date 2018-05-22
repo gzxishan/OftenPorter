@@ -31,15 +31,32 @@ public interface ITypeParser<D>
         {
             return null;
         }
+
+        @Override
+        public ParseResult parseEmpty(String name, D dealt)
+        {
+            return null;
+        }
     }
 
     /**
      * @param name  参数名
      * @param value 参数值
      * @param dealt 由{@linkplain #initFor(ITypeParserOption)}返回的操作实例。
-     * @return
+     * @return 返回值不为null。
      */
+    @NotNull
     ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull D dealt);
+
+    /**
+     * 当值为空时的处理
+     *
+     * @param name  参数名
+     * @param dealt 由{@linkplain #initFor(ITypeParserOption)}返回的操作实例。
+     * @return 返回值可以为null。
+     */
+    @MayNull
+    ParseResult parseEmpty(@NotNull String name, @MayNull D dealt);
 
     /**
      * 初始化框架时会调用。

@@ -46,28 +46,54 @@ public class DefaultParamDealt implements ParamDealt
     {
 
         Object v = paramSource.getParam(name);
-        if (!WPTool.isEmpty(v) && typeParser != null)
+        if (typeParser != null)
         {
-            ITypeParser.ParseResult parseResult = typeParser.parse(name, v, dealt);
-            if (parseResult.isLegal())
+            if (WPTool.isEmpty(v))
             {
-                Object obj = parseResult.getValue();
-                if (obj instanceof ITypeParser.DecodeParams)
+                ITypeParser.ParseResult parseResult = typeParser.parseEmpty(name, dealt);
+                if (parseResult != null)
                 {
-                    ITypeParser.DecodeParams decodeParams = (ITypeParser.DecodeParams) obj;
-                    Map<String, Object> map = decodeParams.getParams();
-                    paramSource.putNewParams(map);
-                    v = map.get(name);
-                } else
-                {
-                    v = obj;
+                    if (parseResult.isLegal())
+                    {
+                        Object obj = parseResult.getValue();
+                        if (obj instanceof ITypeParser.DecodeParams)
+                        {
+                            ITypeParser.DecodeParams decodeParams = (ITypeParser.DecodeParams) obj;
+                            Map<String, Object> map = decodeParams.getParams();
+                            paramSource.putNewParams(map);
+                            v = map.get(name);
+                        } else
+                        {
+                            v = obj;
+                        }
+                    } else
+                    {
+                        return DefaultFailedReason.illegalParams(parseResult.getFailedDesc(), name);
+                    }
                 }
             } else
             {
-                return DefaultFailedReason.illegalParams(parseResult.getFailedDesc(), name);
+                ITypeParser.ParseResult parseResult = typeParser.parse(name, v, dealt);
+                if (parseResult.isLegal())
+                {
+                    Object obj = parseResult.getValue();
+                    if (obj instanceof ITypeParser.DecodeParams)
+                    {
+                        ITypeParser.DecodeParams decodeParams = (ITypeParser.DecodeParams) obj;
+                        Map<String, Object> map = decodeParams.getParams();
+                        paramSource.putNewParams(map);
+                        v = map.get(name);
+                    } else
+                    {
+                        v = obj;
+                    }
+                } else
+                {
+                    return DefaultFailedReason.illegalParams(parseResult.getFailedDesc(), name);
+                }
             }
         }
-        if ("".equals(v))
+        if (v != null && (v instanceof CharSequence) && v.equals(""))
         {
             v = null;
         }
