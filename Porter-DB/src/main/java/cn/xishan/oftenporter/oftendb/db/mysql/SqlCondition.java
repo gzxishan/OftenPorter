@@ -244,15 +244,19 @@ public class SqlCondition extends Condition
         dealNames(cUnit);// @Key注解的处理
 
         link(stringBuilder);//and或or
-        if (cUnit.isParam1Value())
+
+        if (!(operator == TRUE || operator == FALSE))
         {
-            stringBuilder.append("{").append(args.size()).append("}");
-            args.add(cUnit.getParam1());
-        } else
-        {
-            appendName(cUnit.getParam1(), stringBuilder);
+            if (cUnit.isParam1Value())
+            {
+                stringBuilder.append("{").append(args.size()).append("}");
+                args.add(cUnit.getParam1());
+            } else
+            {
+                appendName(cUnit.getParam1(), stringBuilder);
+            }
+            stringBuilder.append(" ");
         }
-        stringBuilder.append(" ");
 
         if (operator == IS_NOT_NULL || (cUnit.getParam2() == null && operator == NE && !cUnit.isParam1Value() && cUnit
                 .isParam2Value()))
