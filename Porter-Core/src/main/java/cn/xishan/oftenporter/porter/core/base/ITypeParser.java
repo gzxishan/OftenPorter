@@ -39,13 +39,29 @@ public interface ITypeParser<D>
             return null;
         }
 
+        /**
+         * @param wObject
+         * @param name    参数名
+         * @param value   参数值
+         * @param dealt   由{@linkplain #initFor(ITypeParserOption)}返回的操作实例。
+         * @return
+         */
         @Override
         public ParseResult parse(WObject wObject, String name, Object value, D dealt)
         {
             return parse(name, value, dealt);
         }
 
+        /**
+         * 使用{@linkplain #parse(WObject, String, Object, Object)}
+         *
+         * @param name
+         * @param value
+         * @param dealt
+         * @return
+         */
         @Override
+        @Deprecated
         public ParseResult parse(String name, Object value, D dealt)
         {
             return ITypeParser.ParseResult.failed(getClass().getSimpleName() + ":see parse(...)");
