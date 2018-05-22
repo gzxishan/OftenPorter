@@ -116,7 +116,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Object v = get(optionArgMap);
             if (v == null)
             {
-                v = DefaultParamDealt.getParam(name.varName, wObject.getParamSource(),
+                v = DefaultParamDealt.getParam(wObject, name.varName, wObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
                 if (v == null)
                 {
@@ -171,7 +171,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Object v = get(optionArgMap);
             if (v == null)
             {
-                v = DefaultParamDealt.getParam(name.varName, wObject.getParamSource(),
+                v = DefaultParamDealt.getParam(wObject, name.varName, wObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
             }
             if (v instanceof ParamDealt.FailedReason)

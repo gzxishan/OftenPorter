@@ -22,7 +22,8 @@ public class DefaultParamDealt implements ParamDealt
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
-            Object value = getParam(namePrefix + name.varName, paramSource, typeParserStore.byId(name.typeParserId),
+            Object value = getParam(wObject, namePrefix + name.varName, paramSource,
+                    typeParserStore.byId(name.typeParserId),
                     name.getDealt());
             if (value != null)
             {
@@ -41,7 +42,7 @@ public class DefaultParamDealt implements ParamDealt
         return null;
     }
 
-    public static Object getParam(String name, ParamSource paramSource,
+    public static Object getParam(WObject wObject, String name, ParamSource paramSource,
             ITypeParser typeParser, Object dealt)
     {
 
@@ -50,7 +51,7 @@ public class DefaultParamDealt implements ParamDealt
         {
             if (WPTool.isEmpty(v))
             {
-                ITypeParser.ParseResult parseResult = typeParser.parseEmpty(name, dealt);
+                ITypeParser.ParseResult parseResult = typeParser.parseEmpty(wObject, name, dealt);
                 if (parseResult != null)
                 {
                     if (parseResult.isLegal())
@@ -73,7 +74,7 @@ public class DefaultParamDealt implements ParamDealt
                 }
             } else
             {
-                ITypeParser.ParseResult parseResult = typeParser.parse(name, v, dealt);
+                ITypeParser.ParseResult parseResult = typeParser.parse(wObject, name, v, dealt);
                 if (parseResult.isLegal())
                 {
                     Object obj = parseResult.getValue();

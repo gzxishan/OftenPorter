@@ -4,6 +4,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
  * boolean类型
@@ -33,7 +34,7 @@ public class BooleanParser extends TypeParser
     }
 
     @Override
-    public ParseResult parseEmpty(String name, Object dealt)
+    public ParseResult parseEmpty(WObject wObject, String name, Object dealt)
     {
         return new ParseResult(false);
     }
