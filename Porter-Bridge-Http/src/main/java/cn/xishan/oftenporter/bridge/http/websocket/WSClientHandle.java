@@ -300,9 +300,12 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
     {
         if (clientWebSocket.autoStart())
         {
-            SyncOption syncOption = new SyncOption(porterOfFun.getMethodPortIn().getMethods()[0],
-                    porterOfFun.getMethodPortIn().getTiedNames()[0]);
-            wObject.newSyncPorter(syncOption).request(wObject);
+            for (int i = 0; i < clientWebSocket.startCount(); i++)
+            {
+                SyncOption syncOption = new SyncOption(porterOfFun.getMethodPortIn().getMethods()[0],
+                        porterOfFun.getMethodPortIn().getTiedNames()[0]);
+                wObject.newSyncPorter(syncOption).request(wObject);
+            }
         }
 
     }

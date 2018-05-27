@@ -31,4 +31,11 @@ public @interface ClientWebSocket
     }
 
     boolean autoStart() default true;
+
+    /**
+     * 自动开始的次数
+     *
+     * @return
+     */
+    int startCount() default 1;
 }

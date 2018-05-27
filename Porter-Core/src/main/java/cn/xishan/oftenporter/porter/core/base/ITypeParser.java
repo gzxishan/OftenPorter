@@ -4,7 +4,6 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
-import cn.xishan.oftenporter.porter.simple.parsers.ParserUtil;
 
 import java.util.HashMap;
 import java.util.Map;
