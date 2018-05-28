@@ -10,7 +10,6 @@ public class WSClient
 {
     ClientWebSocket.Type type;
     SessionImpl session;
-    boolean isLast;
     Object object;
 
     /**
@@ -28,9 +27,6 @@ public class WSClient
      * <li>
      * {@linkplain ClientWebSocket.Type#ON_CLOSE}:{@linkplain ClientCloseReason}
      * </li>
-     * <li>
-     * {@linkplain ClientWebSocket.Type#ON_PING}:{@linkplain java.nio.ByteBuffer}
-     * *</li>
      * <li>
      * {@linkplain ClientWebSocket.Type#ON_PONG}:{@linkplain java.nio.ByteBuffer}
      * </li>
@@ -57,13 +53,6 @@ public class WSClient
         return type;
     }
 
-    /**
-     * @return 当{@linkplain ClientWebSocket#isPartial()}为false时，该值始终为true。
-     */
-    public boolean isLast()
-    {
-        return isLast;
-    }
 
     public WSClient()
     {
@@ -74,12 +63,10 @@ public class WSClient
         this.session = session;
     }
 
-    void set(ClientWebSocket.Type type, Object object, boolean isLast)
+    void set(ClientWebSocket.Type type, Object object)
     {
         this.type = type;
-        this.session = session;
         this.object = object;
-        this.isLast = isLast;
     }
 
 

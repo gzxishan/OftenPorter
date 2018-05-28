@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 public @interface ClientWebSocket
 {
     /**
-     * 支持返回消息的有：{@linkplain #ON_OPEN},{@linkplain #ON_MESSAGE},{@linkplain #ON_PING},{@linkplain #ON_PONG},
+     * 支持返回消息的有：{@linkplain #ON_OPEN},{@linkplain #ON_MESSAGE},{@linkplain #ON_PONG},
      * {@linkplain #ON_BINARY_BYTE_BUFFER}
      */
     public enum Type
@@ -25,7 +25,7 @@ public @interface ClientWebSocket
          */
         ON_CONFIG,
         ON_OPEN, ON_MESSAGE,
-        ON_PONG, ON_PING,
+        ON_PONG,
         ON_ERROR, ON_CLOSE,
         ON_BINARY_BYTE_BUFFER
     }
