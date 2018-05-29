@@ -11,16 +11,12 @@ public abstract class WSClientConfig
 
     public int retryDelay = 5000;
 
-    public int retryTimes = 20;
+    /**
+     * 小于0表示无限重试
+     */
+    public int retryTimes = -1;
 
     public int connectTimeout = 10 * 1000;
-
-    /**
-     * 等于0表示不主动发送ping
-     */
-    public int heartDelay = 0;
-
-    public int heartTimeout = 15 * 1000;
 
     public Integer connectionLostTimeoutSecond = null;
 

@@ -37,6 +37,8 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
         private boolean isDestroyed = false;
         private ScheduledExecutorService scheduledExecutorService;
         private WObject wObject;
+        private long lastRetryTime;
+        private int retriedCount;
 
         void start(WObject wObject)
         {
@@ -63,7 +65,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     }
                     if (wsClient.session == null || wsClient.session.isClosed())
                     {
-                        checkConnect();
+                        doConnect();
                     } else if (wsClient.session.webSocketClient.isOpen())
                     {
                         LOGGER.debug("send ping...");
@@ -71,17 +73,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         LOGGER.debug("send ping ok!");
                     }
                 };
+                scheduledExecutorService
+                        .schedule(runnable, wsClientConfig.initDelay, TimeUnit.MILLISECONDS);
 
-                if (wsClientConfig.heartDelay > 0)
-                {
-                    scheduledExecutorService
-                            .scheduleWithFixedDelay(runnable, wsClientConfig.initDelay, wsClientConfig.heartDelay,
-                                    TimeUnit.MILLISECONDS);
-                } else
-                {
-                    scheduledExecutorService
-                            .schedule(runnable, wsClientConfig.initDelay, TimeUnit.MILLISECONDS);
-                }
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
@@ -98,7 +92,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
 
         void destroy()
         {
-            if (!isDestroyed)
+            if (isDestroyed)
             {
                 return;
             }
@@ -115,16 +109,45 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             }
         }
 
-        void checkConnect()
+        void doConnect()
         {
             if (wsClient.session == null)
             {
                 connect();
             } else
             {
-                scheduledExecutorService.schedule(() -> connect(), wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
+                //重试
+                if (wsClientConfig.retryTimes < 0 || hasRetryTimes())
+                {
+                    lastRetryTime = System.currentTimeMillis();
+                    scheduledExecutorService.schedule(this::connect, wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
+                }
+
             }
         }
+
+        private boolean hasRetryTimes()
+        {
+            if (wsClientConfig.retryTimes < 0)
+            {
+                return true;
+            }
+
+            if (System.currentTimeMillis() - lastRetryTime > wsClientConfig.retryDelay * 10)
+            {
+                retriedCount = 0;
+            }
+
+            if (retriedCount++ < wsClientConfig.retryTimes)
+            {
+                return true;
+            } else
+            {
+                return true;
+            }
+
+        }
+
 
         void connect()
         {
@@ -245,7 +268,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         LOGGER.debug(e.getMessage(), e);
                     } finally
                     {
-                        checkConnect();
+                        doConnect();
                     }
 
                 }
