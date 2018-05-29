@@ -264,6 +264,10 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 }
             };
             wsClient.setSession(new SessionImpl(webSocketClient, this));
+            if (wsClientConfig.connectionLostTimeoutSecond != null)
+            {
+                webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
+            }
             webSocketClient.connectBlocking();
         }
 

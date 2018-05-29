@@ -22,6 +22,8 @@ public abstract class WSClientConfig
 
     public int heartTimeout = 15 * 1000;
 
+    public Integer connectionLostTimeoutSecond = null;
+
 
     public abstract String getWSUrl();
 
