@@ -15,7 +15,10 @@ public abstract class WSClientConfig
 
     public int connectTimeout = 10 * 1000;
 
-    public int heartDelay = 60 * 1000;
+    /**
+     * 等于0表示不主动发送ping
+     */
+    public int heartDelay = 0;
 
     public int heartTimeout = 15 * 1000;
 

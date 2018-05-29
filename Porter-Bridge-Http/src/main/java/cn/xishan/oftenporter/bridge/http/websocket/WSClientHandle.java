@@ -55,7 +55,8 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     return thread;
                 });
 
-                scheduledExecutorService.scheduleWithFixedDelay(() -> {
+
+                Runnable runnable = () -> {
                     if (isDestroyed)
                     {
                         return;
@@ -69,7 +70,18 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         wsClient.session.sendPing();
                         LOGGER.debug("send ping ok!");
                     }
-                }, wsClientConfig.initDelay, wsClientConfig.heartDelay, TimeUnit.MILLISECONDS);
+                };
+
+                if (wsClientConfig.heartDelay > 0)
+                {
+                    scheduledExecutorService
+                            .scheduleWithFixedDelay(runnable, wsClientConfig.initDelay, wsClientConfig.heartDelay,
+                                    TimeUnit.MILLISECONDS);
+                } else
+                {
+                    scheduledExecutorService
+                            .schedule(runnable, wsClientConfig.initDelay, TimeUnit.MILLISECONDS);
+                }
             } catch (Exception e)
             {
                 throw new RuntimeException(e);
