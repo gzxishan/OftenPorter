@@ -121,6 +121,9 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 {
                     lastRetryTime = System.currentTimeMillis();
                     scheduledExecutorService.schedule(this::connect, wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
+                } else
+                {
+                    LOGGER.debug("stop retry!");
                 }
 
             }
