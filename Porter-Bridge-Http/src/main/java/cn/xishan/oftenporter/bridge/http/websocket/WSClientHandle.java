@@ -80,9 +80,6 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
         @Override
         public void onClosed()
         {
-            handleSet.remove(this);
-            wsClient.session = null;
-            destroy();
         }
 
         void destroy()
@@ -119,6 +116,8 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 } else
                 {
                     LOGGER.warn("stop retry!");
+                    handleSet.remove(this);
+                    wsClient.session = null;
                     destroy();
                 }
 

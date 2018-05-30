@@ -9,7 +9,7 @@ public abstract class WSClientConfig
 {
     public int initDelay = 0;
 
-    public int retryDelay = 5000;
+    public int retryDelay = 20000;
 
     /**
      * 小于0表示无限重试
