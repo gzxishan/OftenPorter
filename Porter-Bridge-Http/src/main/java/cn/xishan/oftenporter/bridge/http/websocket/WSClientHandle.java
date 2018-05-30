@@ -68,8 +68,8 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                         doConnect();
                     }
                 };
-                scheduledExecutorService
-                        .schedule(runnable, wsClientConfig.initDelay, TimeUnit.MILLISECONDS);
+                scheduledExecutorService.scheduleAtFixedRate(runnable, wsClientConfig.initDelay,
+                        wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
 
             } catch (Exception e)
             {
@@ -119,6 +119,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                 } else
                 {
                     LOGGER.warn("stop retry!");
+                    destroy();
                 }
 
             }
