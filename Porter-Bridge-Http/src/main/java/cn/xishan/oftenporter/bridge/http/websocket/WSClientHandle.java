@@ -66,11 +66,6 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     if (wsClient.session == null || wsClient.session.isClosed())
                     {
                         doConnect();
-                    } else if (wsClient.session.webSocketClient.isOpen())
-                    {
-                        LOGGER.debug("send ping...");
-                        wsClient.session.sendPing();
-                        LOGGER.debug("send ping ok!");
                     }
                 };
                 scheduledExecutorService
@@ -123,7 +118,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
                     scheduledExecutorService.schedule(this::connect, wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
                 } else
                 {
-                    LOGGER.debug("stop retry!");
+                    LOGGER.warn("stop retry!");
                 }
 
             }
