@@ -206,7 +206,7 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
             };
         }
         LOGGER.debug("locking[{}]:{}", wObject.url(), locks);
-        concurrentKeyLock.lock(locks);
+        concurrentKeyLock.locks(locks);
         LOGGER.debug("locked[{}]:{}", wObject.url(), locks);
         wObject.putRequestData(ATTR_KEY, locks);
     }
@@ -233,7 +233,7 @@ public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
         } else
         {
             LOGGER.debug("unlocking[{}]:{}", wObject.url(), locks);
-            concurrentKeyLock.unlock(locks);
+            concurrentKeyLock.unlocks(locks);
             LOGGER.debug("unlocked[{}]:{}", wObject.url(), locks);
         }
     }
