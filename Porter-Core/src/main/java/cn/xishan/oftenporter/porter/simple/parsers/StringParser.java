@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  *     1.in{'str1'[:'value1'],'str2[:value2]',...},表示其中一个值为有效值,其中单引号“'”和[:value]可选，表示最终结果会被转换成该值.
  *     2.-in表示in反面,其中[:value]将无效.
  *     3.[]表示数组，会转换成string数组;array表示json数组
- *     4.json表示接送对象
+ *     4.json表示json对象
  *     5.date表示"yyyy-MM-dd"格式的日期
  *     6.date-minute表示"yyyy-MM-dd HH:mm"格式的日期
  *     7.date-time表示"yyyy-MM-dd HH:mm:ss""格式的日期
