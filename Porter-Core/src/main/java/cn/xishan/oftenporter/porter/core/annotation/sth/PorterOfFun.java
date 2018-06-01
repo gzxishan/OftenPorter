@@ -186,6 +186,13 @@ public abstract class PorterOfFun implements ObjectGetter
         return javaMethod.invoke(getObject(), finalArgs);
     }
 
+    public boolean hasParameterType(WObject wObject, Class type)
+    {
+        IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
+        IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
+        return argsHandle.hasParameterType(wObject, getMethod(), type);
+    }
+
     public _PortOut getPortOut()
     {
         return portOut;

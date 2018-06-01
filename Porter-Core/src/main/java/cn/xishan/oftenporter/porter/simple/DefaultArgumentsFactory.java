@@ -144,6 +144,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     static class IArgsHandleImpl implements IArgsHandle
     {
         private ArgHandle[] argHandles;
+        private Set<Class> types;
 
         public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws ClassNotFoundException
         {
@@ -153,10 +154,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Parameter[] parameters = method.getParameters();
 
             List<ArgHandle> argHandleList = new ArrayList<>();
+            this.types = new HashSet<>(methodArgTypes.length);
 
             for (int i = 0; i < methodArgTypes.length; i++)
             {
                 Class<?> type = methodArgTypes[i];
+                this.types.add(type);
                 if (type.equals(WObject.class))
                 {
                     argHandleList.add(new WObjectArgHandle());
@@ -187,6 +190,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 argHandleList.add(argHandle);
             }
             this.argHandles = argHandleList.toArray(new ArgHandle[0]);
+        }
+
+        @Override
+        public boolean hasParameterType(WObject wObject, Method method, Class<?> type)
+        {
+            return types.contains(type);
         }
 
         @Override
@@ -231,7 +240,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     }
 
     @Override
-    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun) throws Exception
+    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
     {
         IArgsHandle handle = handleMap.get(porterOfFun);
         return handle;

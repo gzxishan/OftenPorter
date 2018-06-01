@@ -29,6 +29,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     interface ArgHandle
     {
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
+
     }
 
     static class RequestArgHandle implements ArgHandle
@@ -189,6 +190,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     static class IArgsHandleImpl implements IArgsHandle
     {
         private ArgHandle[] argHandles;
+        private Set<Class> types;
 
         public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws ClassNotFoundException
         {
@@ -198,10 +200,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Parameter[] parameters = method.getParameters();
 
             List<ArgHandle> argHandleList = new ArrayList<>();
+            this.types = new HashSet<>(methodArgTypes.length);
 
             for (int i = 0; i < methodArgTypes.length; i++)
             {
                 Class<?> type = methodArgTypes[i];
+                this.types.add(type);
                 if (type.equals(WObject.class))
                 {
                     argHandleList.add(new WObjectArgHandle());
@@ -251,6 +255,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
+        public boolean hasParameterType(WObject wObject, Method method, Class<?> type)
+        {
+            return types.contains(type);
+        }
+
+        @Override
         public Object[] getInvokeArgs(WObject wObject, Method method, Object[] args)
         {
             Map<String, Object> map;
@@ -292,7 +302,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     }
 
     @Override
-    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun) throws Exception
+    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
     {
         IArgsHandle handle = handleMap.get(porterOfFun);
         return handle;

@@ -24,6 +24,8 @@ public interface IArgumentsFactory
     interface IArgsHandle
     {
         Object[] getInvokeArgs(WObject wObject, Method method, Object[] args);
+
+        boolean hasParameterType(WObject wObject,Method method,Class<?> type);
     }
 
     /**
@@ -34,11 +36,6 @@ public interface IArgumentsFactory
      */
     void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception;
 
-    /**
-     * 启动时会调用一次。
-     *
-     * @param porterOfFun
-     * @return
-     */
-    IArgsHandle getArgsHandle(PorterOfFun porterOfFun) throws Exception;
+
+    IArgsHandle getArgsHandle(PorterOfFun porterOfFun);
 }
