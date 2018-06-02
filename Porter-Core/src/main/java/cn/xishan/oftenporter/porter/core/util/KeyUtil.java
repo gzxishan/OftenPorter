@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class KeyUtil
     public static String random48Key(){
         char[] cs = new char[48];
         String uuid = randomUUID();
-        String md5_16=HashUtil.md5_16(randomUUID().getBytes());
+        String md5_16=HashUtil.md5_16(randomUUID().getBytes(Charset.defaultCharset()));
         int minLen=md5_16.length();
         for (int i = 0,j=0,k=0; k < cs.length;k++)
         {
@@ -46,7 +47,7 @@ public class KeyUtil
         byte bytes[] = secureRandomKeyBytes(initLength);
         String str1 = HashUtil.sha1(bytes);
         String str2 = UUID.randomUUID().toString();
-        return HashUtil.sha256((str1 + str2).getBytes());
+        return HashUtil.sha256((str1 + str2).getBytes(Charset.defaultCharset()));
     }
 
     public static byte[] secureRandomKeyBytes(int length)

@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
-import cn.xishan.oftenporter.porter.core.init.IAttribute;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
@@ -16,7 +15,7 @@ import java.util.Map;
  * 接口中间对象。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public abstract class WObject implements IAttribute
+public abstract class WObject
 {
 
 
@@ -293,23 +292,6 @@ public abstract class WObject implements IAttribute
         return (SyncNotInnerPorter) syncOption.build(this, false);
     }
 
-
-    public IAttribute setAttribute(Class<?> clazz, Object value)
-    {
-        return setAttribute(clazz.getName(), value);
-    }
-
-    public <T> T getAttribute(Class<T> clazz)
-    {
-        return getAttribute(clazz.getName());
-    }
-
-    public <T> T removeAttribute(Class<T> clazz)
-    {
-        return removeAttribute(clazz.getName());
-    }
-
-
     /**
      * 接口调用完后（包括成功或失败）的回调
      */
@@ -335,11 +317,21 @@ public abstract class WObject implements IAttribute
         return originalObject == null ? this : originalObject;
     }
 
+
+    /**
+     * 见{@linkplain #putRequestData(String, Object)}
+     */
+    public <T> T putRequestData(Class<?> clazz, Object value)
+    {
+        return putRequestData(clazz.getName(), value);
+    }
+
     /**
      * 设置数据，只对当前请求有效。
      *
-     * @param name
-     * @param value
+     * @param name  属性名
+     * @param value 属性值
+     * @return 返回上一次的值
      */
     public <T> T putRequestData(String name, Object value)
     {
@@ -349,6 +341,11 @@ public abstract class WObject implements IAttribute
             wObject.requestDataMap = new HashMap<>();
         }
         return (T) wObject.requestDataMap.put(name, value);
+    }
+
+    public <T> T getRequestData(Class<T> clazz)
+    {
+        return getRequestData(clazz.getName());
     }
 
     public <T> T getRequestData(String name)

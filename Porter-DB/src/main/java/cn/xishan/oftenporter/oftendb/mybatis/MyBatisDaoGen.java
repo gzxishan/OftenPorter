@@ -165,7 +165,7 @@ class MyBatisDaoGen implements AutoSetGen
                 String encoding = null;
 
                 BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(new ByteArrayInputStream(xmlData)));
+                        new InputStreamReader(new ByteArrayInputStream(xmlData),Charset.defaultCharset()));
                 String line = bufferedReader.readLine();
                 bufferedReader.close();
                 if (line != null)

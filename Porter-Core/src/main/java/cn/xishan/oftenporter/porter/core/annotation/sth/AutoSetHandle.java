@@ -624,10 +624,11 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
-                                globalAutoSet.put(keyName, value);
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                                }else{
+                                    globalAutoSet.put(keyName, value);
                                 }
                             }
                         }

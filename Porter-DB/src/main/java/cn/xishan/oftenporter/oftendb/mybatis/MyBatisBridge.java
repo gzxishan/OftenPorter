@@ -188,7 +188,7 @@ public class MyBatisBridge
 
     static SqlSession _openSession(@MayNull WObject wObject, MybatisConfig mybatisConfig)
     {
-        SqlSession sqlSession = wObject == null ? null : wObject.original().getAttribute(SqlSession.class);
+        SqlSession sqlSession = wObject == null ? null : wObject.original().getRequestData(SqlSession.class);
 
         if (sqlSession == null)
         {
@@ -197,11 +197,11 @@ public class MyBatisBridge
             sqlSession = sqlSessionFatoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
             if (wObject != null)
             {
-                wObject.setAttribute(SqlSession.class, sqlSession);
+                wObject.putRequestData(SqlSession.class, sqlSession);
                 if (wObject.isSupportAfterInvokeListener())
                 {
                     wObject.addAfterInvokeListener(object -> {
-                        SqlSession session = wObject.getAttribute(SqlSession.class);
+                        SqlSession session = wObject.getRequestData(SqlSession.class);
                         if (session != null)
                         {
                             session.close();

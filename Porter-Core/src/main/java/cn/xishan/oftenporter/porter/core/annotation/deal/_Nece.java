@@ -16,7 +16,6 @@ public final class _Nece
     String[] forClassTieds;
     String[] forFunTieds;
     boolean toUnece;
-    private boolean isEmpty;
 
     public boolean isNece(WObject wObject)
     {
@@ -72,7 +71,6 @@ public final class _Nece
 
     void init()
     {
-        isEmpty = forFunTieds.length == 0 && forMethods.length == 0 && forClassTieds.length == 0;
         Arrays.sort(forMethods);
         Arrays.sort(forClassTieds);
         Arrays.sort(forFunTieds);

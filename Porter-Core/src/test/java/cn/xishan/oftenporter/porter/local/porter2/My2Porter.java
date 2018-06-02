@@ -28,7 +28,7 @@ public class My2Porter
     @PortInit(order = 1)
     public void init1(WObject wObject)
     {
-        wObject.setAttribute("name","tome");
+        wObject.putRequestData("name","tome");
         LogUtil.printErrPos();
     }
 

@@ -55,7 +55,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    class OtherStartDestroy implements Comparable<OtherStartDestroy>
+    static class OtherStartDestroy implements Comparable<OtherStartDestroy>
     {
         Object object;
         Method method;
@@ -443,7 +443,8 @@ public class ContextPorter implements IOtherStartDestroy
             {
                 iterator.next().initArgumentsFactory();
             }
-        }catch (Exception e){
+        } catch (Exception e)
+        {
             throw new InitException(e);
         }
 

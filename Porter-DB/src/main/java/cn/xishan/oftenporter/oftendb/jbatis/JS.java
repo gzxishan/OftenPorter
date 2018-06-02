@@ -26,6 +26,7 @@ public interface JS
 
         public Builder(String name, String script)
         {
+            this.name=name;
             this.script = script;
             interfaces = new HashMap<>();
         }

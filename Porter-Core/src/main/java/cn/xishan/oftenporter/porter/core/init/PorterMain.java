@@ -175,11 +175,6 @@ public final class PorterMain
         return portExecutor.getUrlDecoder();
     }
 
-    public void setIAttributeFactory(IAttributeFactory iAttributeFactory)
-    {
-        portExecutor.setIAttributeFactory(iAttributeFactory);
-    }
-
     public PLinker getPLinker()
     {
         return pLinker;

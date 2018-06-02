@@ -18,7 +18,6 @@ import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +38,6 @@ public final class PortExecutor
     private DeliveryBuilder deliveryBuilder;
     private PortUtil portUtil;
     private ResponseHandle responseHandle;
-    private IAttributeFactory iAttributeFactory, defaultIAttributeFactory;
 
     public PortExecutor(ResponseHandle responseHandle, PName pName, PLinker pLinker, UrlDecoder urlDecoder,
             boolean responseWhenException)
@@ -51,46 +49,9 @@ public final class PortExecutor
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
         deliveryBuilder = DeliveryBuilder.getBuilder(true, pLinker);
-        defaultIAttributeFactory = wObject -> new IAttribute()
-        {
-            HashMap<String, Object> attrsMap = new HashMap<>();
-
-            @Override
-            public IAttribute setAttribute(String key, Object value)
-            {
-                attrsMap.put(key, value);
-                return this;
-            }
-
-            @Override
-            public <T> T getAttribute(String key)
-            {
-                Object obj = attrsMap.get(key);
-                return (T) obj;
-            }
-
-            @Override
-            public <T> T removeAttribute(String key)
-            {
-                Object obj = attrsMap.remove(key);
-                return (T) obj;
-            }
-        };
-        iAttributeFactory = defaultIAttributeFactory;
     }
 
-    public void setIAttributeFactory(IAttributeFactory iAttributeFactory)
-    {
-        final IAttributeFactory finalIAttributeFactory = iAttributeFactory;
-        this.iAttributeFactory = wObject -> {
-            IAttribute attribute = finalIAttributeFactory.getIAttribute(wObject);
-            if (attribute == null)
-            {
-                attribute = defaultIAttributeFactory.getIAttribute(wObject);
-            }
-            return attribute;
-        };
-    }
+
 
     private final Logger logger(WObject wObject)
     {
@@ -236,7 +197,6 @@ public final class PortExecutor
             Context context, boolean isInnerRequest)
     {
         WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
-        wObject.setIAttribute(defaultIAttributeFactory);
         wObject.setParamSource(new EmptyParamSource());
         return wObject;
     }
@@ -261,16 +221,7 @@ public final class PortExecutor
                 return;
             }
 
-
             wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
-            IAttributeFactory attributeFactory = iAttributeFactory;
-            Object originRequest = request.getOriginalRequest();
-            if (originRequest != null && originRequest instanceof IAttributeFactory)
-            {
-                attributeFactory = (IAttributeFactory) originRequest;
-            }
-            wObject.setIAttribute(attributeFactory);
-
             if (funPort.getMethodPortIn().getTiedType().isRest())
             {
                 wObject.restValue = result.funTied();

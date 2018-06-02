@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 public class Base64
 {
@@ -35,7 +36,7 @@ public class Base64
                 n += offset;
                 offset = n % EVERY;
                 n -= offset;
-                bos.write(decode(new String(buf, 0, n)));
+                bos.write(decode(new String(buf, 0, n,Charset.defaultCharset())));
                 for (int i = 0; i < offset; i++)
                 {
                     buf[i] = buf[n + i];
@@ -68,7 +69,7 @@ public class Base64
     {
 
         private final static byte[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-                .getBytes();
+                .getBytes(Charset.defaultCharset());
 
         private static int[] toInt = new int[128];
 
@@ -111,7 +112,7 @@ public class Base64
                 case 2:
                     ar[--a] = '=';
             }
-            return new String(ar);
+            return new String(ar,Charset.defaultCharset());
         }
 
 

@@ -585,16 +585,6 @@ public final class Porter
                 LOGGER.warn(e.getMessage(), e);
             }
         }
-//        childrenWithMethod.clear();
-//        childrenWithMethod=null;
-//        mixins = null;
-//        destroys = null;
-//        starts = null;
-//        object = null;
-//        clazz = null;
-//        portIn = null;
-//        inObj=null;
-//        autoSetUtil=null;
     }
 
 
