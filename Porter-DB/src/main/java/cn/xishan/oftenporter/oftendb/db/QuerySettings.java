@@ -1,6 +1,9 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +20,37 @@ public class QuerySettings
         {
             this.name = name;
             this.n = n;
+        }
+    }
+
+    public QuerySettings()
+    {
+    }
+
+    /**
+     * settings格式：
+     * settings.skip:int
+     * settings.limit:int
+     * settings.order:[name,-1|0|1,...]
+     *
+     * @param settings
+     */
+    public QuerySettings(JSONObject settings)
+    {
+        this.skip = settings.getInteger("skip");
+        this.limit = settings.getInteger("limit");
+        JSONArray order = settings.getJSONArray("order");
+        if (order != null)
+        {
+            for (int i = 0; i < order.size(); i += 2)
+            {
+                String name = order.getString(i);
+                int n = order.getIntValue(i + 1);
+                if (i == 1 || i == -1)
+                {
+                    appendOrder(name, n);
+                }
+            }
         }
     }
 
@@ -50,11 +84,20 @@ public class QuerySettings
     }
 
     /**
+     * 使用{@linkplain #appendOrder(String, int)}
+     */
+    @Deprecated
+    public QuerySettings putOrder(String name, int n)
+    {
+        return appendOrder(name, n);
+    }
+
+    /**
      * @param name
      * @param n    其中1为升序排列，而-1是用于降序排列
      * @return
      */
-    public QuerySettings putOrder(String name, int n)
+    public QuerySettings appendOrder(String name, int n)
     {
         orders.add(new Order(name, n));
         return this;

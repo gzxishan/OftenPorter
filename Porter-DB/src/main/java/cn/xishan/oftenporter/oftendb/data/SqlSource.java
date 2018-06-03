@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.oftendb.data;
 
+import cn.xishan.oftenporter.oftendb.db.DBException;
+
 import java.sql.Connection;
 
 /**
@@ -7,5 +9,5 @@ import java.sql.Connection;
  */
 public interface SqlSource
 {
-    Connection getConnection();
+    Connection getConnection() throws DBException;
 }

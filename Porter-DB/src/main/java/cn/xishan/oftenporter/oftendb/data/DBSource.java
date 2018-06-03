@@ -13,16 +13,27 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 public interface DBSource
 {
     DBSource newInstance();
+
     DBSource newInstance(ConfigToDo configToDo);
+
     /**
      * 新建一个条件
      *
      * @return Condition
      */
     Condition newCondition();
+
     void afterClose(DBHandle dbHandle);
 
+    /**
+     * 得到一个新的连接。
+     *
+     * @return
+     * @throws DBException
+     */
     DBHandle getDBHandle() throws DBException;
+
     Configed getConfiged();
+
     ConfigToDo getConfigToDo();
 }
