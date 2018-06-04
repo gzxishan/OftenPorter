@@ -11,8 +11,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * 2.设置PortIn.tiedType=false，使得接口类中，只有REST类型的接口函数有效。
  * </pre>
  * 
- * @author https://github.com/CLovinr <br>
- *         2016年9月16日 下午4:57:02
+ * @author https://github.com/CLovinr 2016年9月16日 下午4:57:02
  *
  */
 @PortIn(tiedType = TiedType.REST)

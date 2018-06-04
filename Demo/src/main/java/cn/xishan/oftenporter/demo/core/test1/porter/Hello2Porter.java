@@ -9,8 +9,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * 1.通过{@linkplain PortIn#method()}设置请求方法
  * </pre>
  * 
- * @author https://github.com/CLovinr <br>
- *         2016年9月11日 下午6:17:49
+ * @author https://github.com/CLovinr 2016年9月11日 下午6:17:49
  *
  */
 @PortIn

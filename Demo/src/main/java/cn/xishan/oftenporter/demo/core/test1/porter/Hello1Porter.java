@@ -9,8 +9,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * 1.PortIn放在类上：value为""，则类绑定名见{@linkplain PortIn#value()}
  * </pre>
  * 
- * @author https://github.com/CLovinr <br>
- *         2016年9月16日 下午4:15:04
+ * @author https://github.com/CLovinr 2016年9月16日 下午4:15:04
  *
  */
 @PortIn(nece={"sth"})

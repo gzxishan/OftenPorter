@@ -10,8 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
  * 1.PortIn.checks会根据顺序依次被调用
  * </pre>
  * 
- * @author https://github.com/CLovinr <br>
- *         2016年9月16日 下午5:33:24
+ * @author https://github.com/CLovinr 2016年9月16日 下午5:33:24
  *
  */
 @PortIn(checks = { ClassCheckPassable.class, ClassCheckPassable2.class })
