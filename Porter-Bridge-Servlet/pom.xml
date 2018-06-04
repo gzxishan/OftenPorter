@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.xishan.oftenporter</groupId>
+        <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
         <version>1.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -35,7 +35,7 @@
         <!--end-->
 
         <dependency>
-            <groupId>cn.xishan.oftenporter</groupId>
+            <groupId>${parent.groupId}</groupId>
             <artifactId>Porter-Core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

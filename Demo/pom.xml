@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <artifactId>OftenPorter</artifactId>
-        <groupId>cn.xishan.oftenporter</groupId>
+        <groupId>com.xishankeji</groupId>
         <version>1.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -18,12 +18,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>cn.xishan.oftenporter</groupId>
+            <groupId>${parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>cn.xishan.oftenporter</groupId>
+            <groupId>${parent.groupId}</groupId>
             <artifactId>Porter-DB</artifactId>
             <version>${parent.version}</version>
         </dependency>
@@ -40,7 +40,7 @@
             <version>1.7.21</version>
         </dependency>
         <dependency>
-            <groupId>cn.xishan.oftenporter</groupId>
+            <groupId>${parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Http</artifactId>
             <version>${parent.version}</version>
         </dependency>

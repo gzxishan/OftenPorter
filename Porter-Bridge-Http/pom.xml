@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>cn.xishan.oftenporter</groupId>
+        <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
         <version>1.0.5-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -37,7 +37,7 @@
             <version>2.7.5</version>
         </dependency>
         <dependency>
-            <groupId>cn.xishan.oftenporter</groupId>
+            <groupId>${parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.xishan.oftenporter</groupId>
+    <groupId>com.xishankeji</groupId>
     <artifactId>OftenPorter</artifactId>
     <version>1.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -242,17 +242,23 @@
                     </plugin>
                     <!-- Javadoc -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.9.1</version>
                         <executions>
                             <execution>
-                                <phase>package</phase>
+                                <id>attach-javadocs</id>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <encoding>UTF-8</encoding>
+                                </configuration>
                             </execution>
                         </executions>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
                     </plugin>
                     <!-- GPG -->
                     <plugin>
