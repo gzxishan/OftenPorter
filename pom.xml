@@ -253,6 +253,7 @@
                                 </goals>
                                 <configuration>
                                     <encoding>UTF-8</encoding>
+                                    <additionalparam>-Xdoclint:none</additionalparam>
                                 </configuration>
                             </execution>
                         </executions>
