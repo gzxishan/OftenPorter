@@ -13,20 +13,50 @@
     </properties>
 
     <name>OftenPorter</name>
+    <description>light weight url-porter framework</description>
+    <url>https://github.com/gzxishan/OftenPorter</url>
 
 
     <distributionManagement>
-        <repository>
-            <id>releases</id>
-            <name>Releases</name>
-            <url>https://m2.xishankeji.com/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <name>Snapshots</name>
-            <url>https://m2.xishankeji.com/repository/maven-snapshots/</url>
-        </snapshotRepository>
+        <!--<repository>-->
+        <!--<id>releases</id>-->
+        <!--<name>Releases</name>-->
+        <!--<url>https://m2.xishankeji.com/repository/maven-releases/</url>-->
+        <!--</repository>-->
+        <!--<snapshotRepository>-->
+        <!--<id>snapshots</id>-->
+        <!--<name>Snapshots</name>-->
+        <!--<url>https://m2.xishankeji.com/repository/maven-snapshots/</url>-->
+        <!--</snapshotRepository>-->
+
     </distributionManagement>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>chenyg</name>
+            <email>zggzcyg@qq.com</email>
+            <organization>GuiZhouXiShanTechnology</organization>
+            <organizationUrl>http://www.xishankeji.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>
+            scm:git:https://github.com/gzxishan/OftenPorter.git
+        </connection>
+        <developerConnection>
+            scm:git:https://github.com/gzxishan/OftenPorter.git
+        </developerConnection>
+        <url>https://github.com/gzxishan/OftenPorter</url>
+        <tag>v1.0.5-SNAPSHOT</tag>
+    </scm>
 
     <modules>
         <module>Porter-Core</module>
@@ -105,9 +135,7 @@
 
         <pluginManagement>
             <plugins>
-                <!--
-                               注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。
-                           -->
+                <!--注意：如果是java8以下的环境，请设置jdk为低版本的，防止引入java8的api。-->
                 <plugin>
                     <groupId>net.orfjackal.retrolambda</groupId>
                     <artifactId>retrolambda-maven-plugin</artifactId>
@@ -190,8 +218,69 @@
                 </dependencies>
             </plugin>
 
-
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.4</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- GPG -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>sonatype</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>sonatype</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
 </project>
