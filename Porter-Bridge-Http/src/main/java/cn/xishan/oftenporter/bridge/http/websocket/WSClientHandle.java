@@ -169,7 +169,8 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             {
                 wsClient.session.close();
             }
-            WebSocketClient webSocketClient = new WebSocketClient(URI.create(wsClientConfig.getWSUrl()),
+            String wsUrl=wsClientConfig.getWSUrl();
+            WebSocketClient webSocketClient = new WebSocketClient(URI.create(wsUrl),
                     new Draft_6455(),
                     wsClientConfig.getConnectHeaders(), wsClientConfig.connectTimeout)
             {
@@ -289,6 +290,7 @@ class WSClientHandle extends AspectFunOperation.HandleAdapter<ClientWebSocket>
             {
                 webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
             }
+            LOGGER.debug("connect to WebSocket server...:{}",wsUrl);
             webSocketClient.connectBlocking();
         }
 

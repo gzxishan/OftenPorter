@@ -7,8 +7,14 @@ import java.util.Map;
  */
 public abstract class WSClientConfig
 {
+    /**
+     * 单位毫秒
+     */
     public int initDelay = 0;
 
+    /**
+     * 单位毫秒
+     */
     public int retryDelay = 20000;
 
     /**
@@ -16,6 +22,9 @@ public abstract class WSClientConfig
      */
     public int retryTimes = -1;
 
+    /**
+     * 单位毫秒
+     */
     public int connectTimeout = 10 * 1000;
 
     public Integer connectionLostTimeoutSecond = null;

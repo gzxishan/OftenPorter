@@ -57,6 +57,9 @@ public class WSConfig
         return maxIdleTime;
     }
 
+    /**
+     * 单位毫秒
+     */
     public void setMaxIdleTime(long maxIdleTime)
     {
         this.maxIdleTime = maxIdleTime;

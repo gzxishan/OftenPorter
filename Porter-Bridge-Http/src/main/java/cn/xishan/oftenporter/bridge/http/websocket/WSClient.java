@@ -77,6 +77,9 @@ public class WSClient
 
     public void close(ClientCloseReason closeReason) throws IOException
     {
+        if(session==null){
+            return;
+        }
         if (closeReason != null)
         {
             session.close(closeReason.getCode(), closeReason.getReason());

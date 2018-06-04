@@ -95,5 +95,8 @@ public @interface WebSocket
 
     int maxTextBuffer() default -1;
 
+    /**
+     * 单位毫秒
+     */
     long maxIdleTime() default -1;
 }
