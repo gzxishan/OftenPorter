@@ -15,7 +15,7 @@ public class Main1 {
 
     public static void main(String[] args) {
 
-        /**
+        /*
          * 1.PortOut:用于标记输出类型
          * 2.所有时期的{@linkplain cn.xishan.oftenporter.porter.core.base.CheckPassable}
          */

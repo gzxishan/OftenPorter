@@ -3,7 +3,7 @@
     <parent>
         <artifactId>OftenPorter</artifactId>
         <groupId>com.xishankeji</groupId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.5-beta1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -18,12 +18,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
             <version>${parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-DB</artifactId>
             <version>${parent.version}</version>
         </dependency>
@@ -40,7 +40,7 @@
             <version>1.7.21</version>
         </dependency>
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Http</artifactId>
             <version>${parent.version}</version>
         </dependency>
@@ -58,10 +58,10 @@
                     <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>net.orfjackal.retrolambda</groupId>
-                <artifactId>retrolambda-maven-plugin</artifactId>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>net.orfjackal.retrolambda</groupId>-->
+                <!--<artifactId>retrolambda-maven-plugin</artifactId>-->
+            <!--</plugin>-->
         </plugins>
     </build>
 </project>

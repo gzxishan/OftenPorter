@@ -17,7 +17,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
 public class Main1 {
 
     public static void main(String[] args) {
-        /**
+        /*
          * 1.Parser:转换数据类型,简单使用。
          */
         final Logger logger = LoggerFactory.getLogger(Main1.class);

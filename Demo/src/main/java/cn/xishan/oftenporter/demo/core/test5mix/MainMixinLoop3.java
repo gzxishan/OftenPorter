@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class MainMixinLoop3
 {
     public static void main(String[] args) {
-        /**
+        /*
          * 1.测试{@linkplain cn.xishan.oftenporter.porter.core.annotation.Mixin},自己混入自己
          */
         final Logger logger = LoggerFactory.getLogger(MainMixinLoop3.class);

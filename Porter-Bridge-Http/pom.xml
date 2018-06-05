@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.5-beta1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -37,7 +37,7 @@
             <version>2.7.5</version>
         </dependency>
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
             <version>${project.parent.version}</version>
             <optional>true</optional>

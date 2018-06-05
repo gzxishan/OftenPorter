@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.5-beta1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -35,7 +35,7 @@
         <!--end-->
 
         <dependency>
-            <groupId>${parent.groupId}</groupId>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

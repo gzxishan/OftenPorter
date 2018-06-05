@@ -16,7 +16,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
 public class Main2 {
 
     public static void main(String[] args) {
-        /**
+        /*
          * 1.CheckPassable:用于认证检测
          */
 

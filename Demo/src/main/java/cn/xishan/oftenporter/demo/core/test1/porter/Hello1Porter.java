@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * <pre>
  * 1.PortIn放在类上：value为""，则类绑定名见{@linkplain PortIn#value()}
  * </pre>
- * 
+ *
  * @author https://github.com/CLovinr 2016年9月16日 下午4:15:04
  *
  */
@@ -27,7 +27,7 @@ public class Hello1Porter
      * 2.unnece表示非必需参数
      * 3.value为""的情况下，表示函数绑定名为函数名，即say
      * </pre>
-     * 
+     *
      * @param wObject
      * @return
      */
@@ -39,7 +39,7 @@ public class Hello1Porter
 	 * 2.通过WObject.cu获取类接口的非必需参数值.
 	 * 3.通过WObject.fn获取接口函数的必需参数值.
 	 * 4.通过WObject.fu获取接口函数的非必需参数值.
-	 * 
+	 *
 	 * 各个参数值的索引是与声明顺序一致的。
 	 */
 	Object sth = wObject.cn[0];

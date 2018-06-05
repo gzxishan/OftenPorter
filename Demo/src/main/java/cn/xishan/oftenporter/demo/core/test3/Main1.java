@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
 public class Main1 {
 
     public static void main(String[] args) {
-        /**
+        /*
          * <pre>
          * 1.PortStart:用于在框架Context启动时调用
          * 2.PortDestroy:用于在框架Context关闭时调用

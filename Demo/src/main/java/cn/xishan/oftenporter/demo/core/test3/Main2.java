@@ -10,7 +10,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
 public class Main2 {
 
     public static void main(String[] args) {
-        /**
+        /*
          * <pre>
          * 1.StateListener:用于监听框架Context的状态。
          * </pre>

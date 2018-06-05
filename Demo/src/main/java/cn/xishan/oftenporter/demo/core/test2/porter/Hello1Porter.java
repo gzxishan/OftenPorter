@@ -37,7 +37,7 @@ class Hello1Porter
 	try
 	{
 	    wObject.getResponse().write("self:" + name);
-	    /**
+	    /*
 	     * 对于OutType.NoResponse,需要手动关闭。
 	     */
 	    wObject.getResponse().close();
