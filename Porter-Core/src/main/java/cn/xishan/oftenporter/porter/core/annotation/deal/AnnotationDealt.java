@@ -106,6 +106,7 @@ public final class AnnotationDealt
                 Resource resource = field.getAnnotation(Resource.class);
                 if (resource != null)
                 {
+                    LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
                     _AutoSet _autoSet = new _AutoSet();
                     _autoSet.value = resource.name();
                     _autoSet.nullAble = true;
