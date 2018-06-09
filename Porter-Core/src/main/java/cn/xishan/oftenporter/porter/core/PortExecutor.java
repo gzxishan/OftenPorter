@@ -978,7 +978,7 @@ public final class PortExecutor
             doFinalWrite(wObject, porterOfFun, obj);
         } else if (responseWhenException)
         {
-            JResponse jResponse = new JResponse(ResultCode.ACCESS_DENIED);
+            JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(String.valueOf(obj));
             doFinalWrite(wObject, porterOfFun, jResponse);
         }

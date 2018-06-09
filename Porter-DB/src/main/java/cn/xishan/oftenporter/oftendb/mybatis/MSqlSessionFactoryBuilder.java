@@ -54,6 +54,7 @@ class MSqlSessionFactoryBuilder
     private boolean isStarted = false;
     private boolean needReRegFileCheck = false;
     private JSONObject dataSourceConf;
+    private DataSource dataSourceObject;
     private List<Interceptor> interceptors;
     private Environment environment;
 
@@ -228,7 +229,11 @@ class MSqlSessionFactoryBuilder
 
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
-        this.dataSourceConf = myBatisOption.dataSource;
+        this.dataSourceObject = myBatisOption.dataSourceObject;
+        if (dataSourceObject == null)
+        {
+            this.dataSourceConf = myBatisOption.dataSource;
+        }
         this.enableMapperOverride = myBatisOption.enableMapperOverride;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
@@ -264,9 +269,10 @@ class MSqlSessionFactoryBuilder
         builder.transactionFactory(new JdbcTransactionFactory());
         if (dataSource == null)
         {
-            dataSource = MyBatisBridge.buildDataSource(dataSourceConf);
+            dataSource = dataSourceObject != null ? dataSourceObject : MyBatisBridge.buildDataSource(dataSourceConf);
         }
         builder.dataSource(dataSource);
+
         this.environment = builder.build();
 
 

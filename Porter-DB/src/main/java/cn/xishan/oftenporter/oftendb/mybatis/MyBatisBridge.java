@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.base.CheckHandle;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -33,6 +34,27 @@ import java.util.Properties;
  */
 public class MyBatisBridge
 {
+
+    private static MybatisConfig mybatisConfig;
+
+    static void start()
+    {
+        mybatisConfig.start();
+    }
+
+    static void destroy()
+    {
+        mybatisConfig.start();
+    }
+
+    static MybatisConfig.MOption getMOption(String source)
+    {
+        if (mybatisConfig == null)
+        {
+            throw new InitException("not init!");
+        }
+        return mybatisConfig.getOption(source);
+    }
 
     /**
      * 见{@linkplain MyBatisOption#dataSource}
@@ -93,7 +115,7 @@ public class MyBatisBridge
         init(porterConf, myBatisOption, in);
     }
 
-    public static void init(PorterConf porterConf, MyBatisOption myBatisOption, InputStream configStream)
+    public synchronized static void init(PorterConf porterConf, MyBatisOption myBatisOption, InputStream configStream)
     {
         if (myBatisOption == null)
         {
@@ -105,12 +127,16 @@ public class MyBatisBridge
             byte[] configData = FileTool.getData(configStream, 1024);
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
                     myBatisOption, configData);
-            MybatisConfig mybatisConfig = new MybatisConfig(myBatisOption, mSqlSessionFactoryBuilder);
+            if (mybatisConfig == null)
+            {
+                mybatisConfig = new MybatisConfig();
+            }
+
             if (myBatisOption.resourcesDir != null && !myBatisOption.resourcesDir.endsWith("/"))
             {
                 myBatisOption.resourcesDir += "/";
             }
-            porterConf.addContextAutoSet(MybatisConfig.class, mybatisConfig);
+            mybatisConfig.put(myBatisOption, mSqlSessionFactoryBuilder);
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -120,7 +146,7 @@ public class MyBatisBridge
 
     public static void startTransaction(WObject wObject, SqlTransactionConfig sqlTransactionConfig)
     {
-        DBCommon.startTransaction(wObject, newDBSource(wObject), sqlTransactionConfig);
+        DBCommon.startTransaction(wObject, newDBSource(wObject, MyBatisOption.DEFAULT_SOURCE), sqlTransactionConfig);
     }
 
     public static boolean rollbackTransaction(WObject wObject)
@@ -138,7 +164,7 @@ public class MyBatisBridge
         return DBCommon.closeTransaction(wObject);
     }
 
-    public static TransactionHandle<Void> getTransactionHandle(WObject wObject)
+    public static TransactionHandle<Void> getTransactionHandle(WObject wObject, String source)
     {
         TransactionHandle<Void> handle = new TransactionHandle<Void>()
         {
@@ -151,7 +177,7 @@ public class MyBatisBridge
             @Override
             public void startTransaction(TransactionConfig config) throws DBException
             {
-                DBCommon.startTransaction(wObject, newDBSource(wObject), config);
+                DBCommon.startTransaction(wObject, newDBSource(wObject, source), config);
             }
 
             @Override
@@ -177,24 +203,25 @@ public class MyBatisBridge
 
     }
 
-    static SqlSession openSession(@NotNull WObject wObject, MybatisConfig mybatisConfig)
+    static SqlSession openSession(@NotNull WObject wObject, String source)
     {
         if (wObject == null)
         {
             throw new NullPointerException(WObject.class.getSimpleName() + " is null!");
         }
-        return _openSession(wObject, mybatisConfig);
+        return _openSession(wObject, source);
     }
 
-    static SqlSession _openSession(@MayNull WObject wObject, MybatisConfig mybatisConfig)
+    static SqlSession _openSession(@MayNull WObject wObject, String source)
     {
         SqlSession sqlSession = wObject == null ? null : wObject.original().getRequestData(SqlSession.class);
 
         if (sqlSession == null)
         {
-            MSqlSessionFactoryBuilder sqlSessionFatoryBuilder = mybatisConfig.mSqlSessionFactoryBuilder;
-            MyBatisOption myBatisOption = mybatisConfig.myBatisOption;
-            sqlSession = sqlSessionFatoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
+            MybatisConfig.MOption mOption = getMOption(source);
+            MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
+            MyBatisOption myBatisOption = mOption.myBatisOption;
+            sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
             if (wObject != null)
             {
                 wObject.putRequestData(SqlSession.class, sqlSession);
@@ -213,9 +240,9 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-    private static DBSource newDBSource(WObject wObject)
+    private static DBSource newDBSource(WObject wObject, String source)
     {
-        DBHandle dbHandle = new DBHandleOnlyTS(openSession(wObject, wObject.savedObject(MybatisConfig.class)));
+        DBHandle dbHandle = new DBHandleOnlyTS(openSession(wObject, source));
         DBSource dbSource = new DBSource()
         {
             @Override
@@ -263,7 +290,13 @@ public class MyBatisBridge
         return dbSource;
     }
 
+
     public static CheckPassable autoTransaction(TransactionConfirm confirm)
+    {
+        return autoTransaction(confirm, MyBatisOption.DEFAULT_SOURCE);
+    }
+
+    public static CheckPassable autoTransaction(TransactionConfirm confirm, String source)
     {
 
         TransactionConfirm transactionConfirm = new TransactionConfirm()
@@ -278,7 +311,7 @@ public class MyBatisBridge
             public TConfig getTConfig(WObject wObject, DuringType type, CheckHandle checkHandle)
             {
                 TConfig tConfig = confirm.getTConfig(wObject, type, checkHandle);
-                tConfig.dbSource = newDBSource(wObject);
+                tConfig.dbSource = newDBSource(wObject, source);
                 return tConfig;
             }
         };

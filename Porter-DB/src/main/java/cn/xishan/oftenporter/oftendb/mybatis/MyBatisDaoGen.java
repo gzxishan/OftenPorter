@@ -32,29 +32,32 @@ import java.util.regex.Pattern;
 class MyBatisDaoGen implements AutoSetGen
 {
 
-    @AutoSet
-    MybatisConfig mybatisConfig;
+    String source;
+
     @AutoSet
     Logger LOGGER;
 
 
-
-
     @PortIn.PortStart(order = 100100)
-    public void onStart() throws Exception
+    public void onStart()
     {
-        mybatisConfig.mSqlSessionFactoryBuilder.onStart();
+        MyBatisBridge.start();
+    }
+
+    MybatisConfig.MOption moption()
+    {
+        return MyBatisBridge.getMOption(source);
     }
 
     @PortIn.PortDestroy
     public void onDestroy()
     {
-        mybatisConfig.mSqlSessionFactoryBuilder.onDestroy();
+        MyBatisBridge.destroy();
     }
 
     void bindAlias(_MyBatis myBatis)
     {
-        SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
+        SqlSessionFactory sqlSessionFactory = moption().mSqlSessionFactoryBuilder.getFactory();
         Configuration configuration = sqlSessionFactory.getConfiguration();
         TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
 
@@ -81,14 +84,14 @@ class MyBatisDaoGen implements AutoSetGen
 
     private String getFileRelativePath(_MyBatis myBatis, String path)
     {
-        path = PackageUtil.getPathWithRelative('/', mybatisConfig.myBatisOption.rootDir, path, "/");
+        path = PackageUtil.getPathWithRelative('/', moption().myBatisOption.rootDir, path, "/");
         return path;
     }
 
     String replaceParams(_MyBatis myBatis, String xml) throws Exception
     {
         xml = myBatis.replaceSqlParams(xml);
-        Map<String, String> methodMap=mybatisConfig.mSqlSessionFactoryBuilder.methodMap;
+        Map<String, String> methodMap = moption().mSqlSessionFactoryBuilder.methodMap;
         if (methodMap != null && methodMap.size() > 0)
         {
 
@@ -130,7 +133,7 @@ class MyBatisDaoGen implements AutoSetGen
         try
         {
 
-            SqlSessionFactory sqlSessionFactory = mybatisConfig.mSqlSessionFactoryBuilder.getFactory();
+            SqlSessionFactory sqlSessionFactory = moption().mSqlSessionFactoryBuilder.getFactory();
 
             Configuration configuration = sqlSessionFactory.getConfiguration();
 
@@ -165,7 +168,7 @@ class MyBatisDaoGen implements AutoSetGen
                 String encoding = null;
 
                 BufferedReader bufferedReader = new BufferedReader(
-                        new InputStreamReader(new ByteArrayInputStream(xmlData),Charset.defaultCharset()));
+                        new InputStreamReader(new ByteArrayInputStream(xmlData), Charset.defaultCharset()));
                 String line = bufferedReader.readLine();
                 bufferedReader.close();
                 if (line != null)
@@ -213,8 +216,12 @@ class MyBatisDaoGen implements AutoSetGen
         if (myBatisField == null)
         {
             LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
+            this.source = MyBatisOption.DEFAULT_SOURCE;
             MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this);
             return myBatisDao;
+        } else
+        {
+            this.source = myBatisField.source();
         }
         _MyBatisField _myBatisField = new _MyBatisField();
         _myBatisField.value = myBatisField.value();
@@ -278,21 +285,21 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
 
-        _MyBatis myBatis = new _MyBatis(theType, mybatisConfig.myBatisOption.resourcesDir, name);
+        _MyBatis myBatis = new _MyBatis(theType, moption().myBatisOption.resourcesDir, name);
         myBatis.daoClass = mapperClass;
 
         Class<?> entityClass = null;
 
         if (myBatis2 != null)
         {
-            myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
+            myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
             myBatis.daoAlias = myBatis2.daoAlias();
             myBatis.entityAlias = myBatis2.entityAlias();
             myBatis.entityClass = myBatis2.entityClass();
             entityClass = myBatis.entityClass;
         } else if (myBatis1 != null)
         {
-            myBatis.isAutoAlias = mybatisConfig.myBatisOption.autoRegisterAlias;
+            myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
             myBatis.daoAlias = myBatis1.daoAlias();
             myBatis.entityAlias = myBatis1.entityAlias();
             myBatis.entityClass = myBatis1.entityClass().equals(MyBatis.class) ? MyBatisMapper.class : myBatis1
@@ -313,15 +320,15 @@ class MyBatisDaoGen implements AutoSetGen
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);
-        if (mybatisConfig.myBatisOption.resourcesDir != null && theType == MyBatisMapper.Type.RESOURCES)
+        if (moption().myBatisOption.resourcesDir != null && theType == MyBatisMapper.Type.RESOURCES)
         {
-            File file = new File(mybatisConfig.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
+            File file = new File(moption().myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
             if (file.exists() && file.isFile())
             {
                 myBatisDao.setMapperFile(file);
             }
         }
-        mybatisConfig.mSqlSessionFactoryBuilder.addListener(myBatisDao);
+        moption().mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
     }
 }

@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.oftendb.annotation;
 
+import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,4 +13,11 @@ import java.lang.annotation.*;
 public @interface MyBatisField
 {
     Class<?> value();
+
+    /**
+     * 指定数据源，见{@linkplain MyBatisOption#source}
+     *
+     * @return
+     */
+    String source() default MyBatisOption.DEFAULT_SOURCE;
 }

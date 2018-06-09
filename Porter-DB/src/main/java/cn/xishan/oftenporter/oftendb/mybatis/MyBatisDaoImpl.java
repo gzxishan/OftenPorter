@@ -56,7 +56,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public SqlSession getSqlSession(WObject wObject)
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject, myBatisDaoGen.mybatisConfig);
+        SqlSession sqlSession = MyBatisBridge.openSession(wObject, myBatisDaoGen.source);
         return sqlSession;
     }
 
@@ -76,7 +76,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public SqlSession getSqlSession()
     {
-        SqlSession sqlSession = MyBatisBridge._openSession(null, myBatisDaoGen.mybatisConfig);
+        SqlSession sqlSession = MyBatisBridge._openSession(null, myBatisDaoGen.source);
         return sqlSession;
     }
 
@@ -103,7 +103,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
                 _MyBatisField myBatisField = new _MyBatisField();
                 myBatisField.value = otherClass;
                 MyBatisDaoImpl myBatisDao = myBatisDaoGen.genObject(myBatisField);
-                myBatisDaoGen.mybatisConfig.mSqlSessionFactoryBuilder.regNewMapper(myBatisDao);
+                myBatisDaoGen.moption().mSqlSessionFactoryBuilder.regNewMapper(myBatisDao);
             }
             return sqlSession.getMapper(otherClass);
         } catch (RuntimeException e)

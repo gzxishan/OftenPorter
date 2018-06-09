@@ -1,8 +1,10 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,13 @@ import java.util.Map;
  */
 public class MyBatisOption
 {
+
+    public static final String DEFAULT_SOURCE = "default";
+
+    /**
+     * 指定数据源类型，见{@linkplain MyBatisField#source()}
+     */
+    public String source = DEFAULT_SOURCE;
     /**
      * 在资源目录下的子目录
      */
@@ -23,7 +32,7 @@ public class MyBatisOption
     /**
      * 是否允许mapper中的id覆盖，默认true。
      */
-    public boolean enableMapperOverride=true;
+    public boolean enableMapperOverride = true;
 
     /**
      * 是否检测mapper文件变动,主要用于开发阶段,默认false。
@@ -47,6 +56,11 @@ public class MyBatisOption
      * </pre>
      */
     public JSONObject dataSource;
+
+    /**
+     * 优先级高于{@linkplain #dataSource}
+     */
+    public DataSource dataSourceObject;
 
     public List<Interceptor> interceptors;
 
