@@ -17,6 +17,7 @@ import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import org.slf4j.Logger;
 
+import javax.annotation.Resource;
 import java.lang.annotation.*;
 
 /**
@@ -48,6 +49,39 @@ import java.lang.annotation.*;
  * 5.{@linkplain SyncPorter SyncPorter}
  * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
+ * <p>
+ * 注意，支持@{@linkplain Resource}注解，映射关系如下：
+ * <ol>
+ * <li>
+ * {@linkplain #nullAble()}:true
+ * </li>
+ * <li>
+ * {@linkplain #notNullPut()}:true
+ * </li>
+ * <li>
+ * {@linkplain #value()}:{@linkplain Resource#name()}
+ * </li>
+ * <li>
+ * {@linkplain #classValue()}:{@linkplain Resource#type()}
+ * </li>
+ * <li>
+ * {@linkplain #range()}:
+ * <ol>
+ * <li>
+ * {@linkplain Range#New}:{@linkplain Resource#shareable()}为false时
+ * </li>
+ * <li>
+ * {@linkplain Range#Global}:{@linkplain Resource#authenticationType()} ()
+ * }为{@linkplain Resource.AuthenticationType#CONTAINER}时
+ * </li>
+ * <li>
+ * {@linkplain Range#Context}:{@linkplain Resource#authenticationType()} ()
+ * }为{@linkplain Resource.AuthenticationType#APPLICATION}时
+ * </li>
+ * </ol>
+ * </li>
+ * </ol>
+ * </p>
  * <p>
  * Created by https://github.com/CLovinr on 2016/9/8.
  * //TODO 循环设置的考虑

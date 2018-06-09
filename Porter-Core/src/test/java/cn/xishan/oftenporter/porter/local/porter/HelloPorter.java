@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
 import java.util.Random;
 
 /**
@@ -37,6 +38,9 @@ public class HelloPorter extends SuperSetPorter
 
     @AutoSet(range = AutoSet.Range.New)
     private AutoSetObj autoSetObj3;
+
+    @Resource(shareable = false)
+    private AutoSetObj autoSetObj4;
 
     @AutoSet("globalName")
     private String globalSet;
@@ -87,7 +91,7 @@ public class HelloPorter extends SuperSetPorter
     {
         try
         {
-            LOGGER.debug("{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3, globalSet);
+            LOGGER.debug("{},{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3,autoSetObj4, globalSet);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", "TypeTo转换");
             jsonObject.put("myAge", "19");

@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
+import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
@@ -553,6 +555,7 @@ public class AutoSetHandle
         {
             return;//已经递归扫描过该实例
         }
+        AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
         Field[] fields = WPTool.getAllFields(currentObjectClass);
@@ -562,7 +565,8 @@ public class AutoSetHandle
         for (int i = 0; i < fields.length; i++)
         {
             Field f = fields[i];
-            AutoSet autoSet = f.getAnnotation(AutoSet.class);
+            _AutoSet autoSet = annotationDealt.autoSet(f);
+            //AutoSet autoSet = f.getAnnotation(AutoSet.class);
             if (autoSet == null)
             {
                 continue;
@@ -756,7 +760,7 @@ public class AutoSetHandle
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    private Object genObjectOfAutoSet(AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
+    private Object genObjectOfAutoSet(_AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
             Field field) throws Exception
     {
         Class<? extends AutoSetGen> genClass = autoSet.gen();
@@ -796,7 +800,7 @@ public class AutoSetHandle
         }
     }
 
-    private Object dealtAutoSet(AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
+    private Object dealtAutoSet(_AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
             Object currentObject,
             Field field,
             Object value) throws Exception
@@ -832,8 +836,7 @@ public class AutoSetHandle
      * 是否是默认工具类。
      */
     private boolean isDefaultAutoSetObject(Field f, Porter porter, Object finalObject, Class<?> currentObjectClass,
-            @MayNull Object currentObject, AutoSet autoSet) throws IllegalAccessException, FatalInitException,
-            NoSuchMethodException, InstantiationException, InvocationTargetException
+            @MayNull Object currentObject, _AutoSet autoSet) throws IllegalAccessException, FatalInitException
 
     {
         Object sysset = null;

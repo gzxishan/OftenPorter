@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -99,12 +100,46 @@ public final class AnnotationDealt
         AutoSet autoSet = field.getAnnotation(AutoSet.class);
         if (autoSet == null)
         {
+            try
+            {
+                Class.forName("javax.annotation.Resource");
+                Resource resource = field.getAnnotation(Resource.class);
+                if (resource != null)
+                {
+                    _AutoSet _autoSet = new _AutoSet();
+                    _autoSet.value = resource.name();
+                    _autoSet.nullAble = true;
+                    if (!resource.type().equals(Object.class))
+                    {
+                        _autoSet.classValue = resource.type();
+                    }
+                    if (!resource.shareable())
+                    {
+                        _autoSet.range = AutoSet.Range.New;
+                    } else if (resource.authenticationType() == Resource.AuthenticationType.CONTAINER)
+                    {
+                        _autoSet.range = AutoSet.Range.Global;
+                    } else if (resource.authenticationType() == Resource.AuthenticationType.APPLICATION)
+                    {
+                        _autoSet.range = AutoSet.Range.Context;
+                    }
+                    return _autoSet;
+                }
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
             return null;
         }
         _AutoSet _autoSet = new _AutoSet();
         _autoSet.classValue = autoSet.classValue();
         _autoSet.value = autoSet.value();
         _autoSet.range = autoSet.range();
+        _autoSet.nullAble = autoSet.nullAble();
+        _autoSet.notNullPut = autoSet.notNullPut();
+        _autoSet.dealt = autoSet.dealt();
+        _autoSet.gen = autoSet.gen();
+        _autoSet.option = autoSet.option();
         return _autoSet;
     }
 
@@ -512,7 +547,8 @@ public final class AnnotationDealt
 
     public void setTiedType(_PortIn portIn, TiedType tiedType)
     {
-        if(tiedType==null){
+        if (tiedType == null)
+        {
             return;
         }
         portIn.setTiedType(tiedType);
