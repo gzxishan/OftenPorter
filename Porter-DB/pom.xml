@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.0.5-beta1</version>
+        <version>1.0.5-beta2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -13,6 +13,7 @@
     <packaging>jar</packaging>
 
     <name>Porter-DB</name>
+    <description>数据库持久层模块，支持Mybatis等</description>
     <url>http://maven.apache.org</url>
 
 
