@@ -334,8 +334,10 @@ public final class PorterMain
 
         try
         {
+            LOGGER.debug("start doAutoSet...");
             autoSetHandle.doAutoSetNormal();//变量设置处理
             autoSetHandle.doAutoSetThat();
+            LOGGER.debug("doAutoSetFinished.");
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class
                     .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
@@ -346,6 +348,7 @@ public final class PorterMain
             WObject wObject = portExecutor
                     .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
 
+            LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(wObject);
 
         } catch (Exception e)
