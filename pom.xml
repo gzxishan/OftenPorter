@@ -16,21 +16,6 @@
     <description>light weight url-porter framework</description>
     <url>https://github.com/gzxishan/OftenPorter</url>
 
-
-    <distributionManagement>
-        <!--<repository>-->
-        <!--<id>releases</id>-->
-        <!--<name>Releases</name>-->
-        <!--<url>https://m2.xishankeji.com/repository/maven-releases/</url>-->
-        <!--</repository>-->
-        <!--<snapshotRepository>-->
-        <!--<id>snapshots</id>-->
-        <!--<name>Snapshots</name>-->
-        <!--<url>https://m2.xishankeji.com/repository/maven-snapshots/</url>-->
-        <!--</snapshotRepository>-->
-
-    </distributionManagement>
-
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
