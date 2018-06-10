@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  *     7.date-time表示"yyyy-MM-dd HH:mm:ss""格式的日期
  *     8.date-month表示"yyyy-MM"格式的日期
  *     9.$reg:xxxx表示正则表达式
- *     10.bool表示boolean值，且当为false、0或空时、结果为false，其余为true
+ *     10.bool[:defaultValue]表示boolean值，且当为false、0时、结果为false,当为空时为defaultValue（默认为false），其余为true
  *     11.int与long分别表示为int与long型
  *     12.float与double分别表示为float与double型
  * </pre>
@@ -244,14 +244,16 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
                 }
                 return result;
             };
-        } else if (config.equals("bool"))
+        } else if (config.startsWith("bool"))
         {
+            int index = config.indexOf(":");
+            final boolean defaultValue = index != -1 && Boolean.parseBoolean(config.substring(index + 1));
             stringDealt = new StringEmptyableDealt()
             {
                 @Override
                 public ParseResult getValueForEmpty(ITypeParser iTypeParser)
                 {
-                    return new ParseResult(false);
+                    return new ParseResult(defaultValue);
                 }
 
                 @Override
