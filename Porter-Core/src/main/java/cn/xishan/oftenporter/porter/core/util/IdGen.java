@@ -24,6 +24,7 @@ import java.util.*;
  * <ol>
  * <li>开始时间fromTimeMillis作用，是用当前时间减去fromTimeMillis，用得到的差值来计算日期部分。</li>
  * <li>日期位的长度datelen决定了最大能表示的时间，如日期位是5，则最大可以表示63x63x63x63x63秒的时间差值（约为31年,当前时间减去fromTimeMillis）</li>
+ * <li><strong>作为主键或唯一键：</strong>请确保字段排序规则区分大小写，如mysql设置字段的COLLATE为utf8mb4_bin时内容为大小写敏感的</li>
  * </ol>
  * </p>
  * <p>
