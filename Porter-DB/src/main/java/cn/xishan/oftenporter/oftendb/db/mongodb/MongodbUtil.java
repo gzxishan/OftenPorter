@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.db.mongodb;
 
 
 import cn.xishan.oftenporter.oftendb.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import com.mongodb.*;
 
 import java.lang.annotation.Annotation;
@@ -69,21 +70,15 @@ public class MongodbUtil
 
         try
         {
-            AnnotationSearch.searchPublicFields(new MyConsumer<Field, Exception>()
-            {
-
-                @Override
-                public void accept(Field t) throws Exception
+            AnnotationSearch.searchPublicFields(t -> {
+                DBField DBField = AnnoUtil.getAnnotation(t,DBField.class);
+                if (DBField == null)
                 {
-                    DBField DBField = t.getAnnotation(DBField.class);
-                    if (DBField == null)
-                    {
-                        return;
-                    }
-                    String name = DBField.value().equals("") ? t.getName()
-                            : DBField.value();
-                    collection.createIndex(new BasicDBObject(name, order), basicDBObject);
+                    return;
                 }
+                String name = DBField.value().equals("") ? t.getName()
+                        : DBField.value();
+                collection.createIndex(new BasicDBObject(name, order), basicDBObject);
             }, forSearch, null, annotationClass);
         } catch (Exception e)
         {

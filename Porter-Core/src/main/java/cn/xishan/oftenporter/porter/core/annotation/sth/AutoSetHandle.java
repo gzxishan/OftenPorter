@@ -476,7 +476,7 @@ public class AutoSetHandle
         Field[] fieldsGet = WPTool.getAllFields(objectForGet.getClass());
         for (Field field : fieldsGet)
         {
-            AutoSetToThatForMixin autoSetToThatForMixin = field.getAnnotation(AutoSetToThatForMixin.class);
+            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field,AutoSetToThatForMixin.class);
             if (autoSetToThatForMixin == null)
             {
                 continue;
@@ -500,7 +500,7 @@ public class AutoSetHandle
         Field[] fields = WPTool.getAllFields(objectForSet.getClass());
         for (Field field : fields)
         {
-            AutoSetThatForMixin autoSetThatForMixin = field.getAnnotation(AutoSetThatForMixin.class);
+            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field,AutoSetThatForMixin.class);
             if (autoSetThatForMixin == null)
             {
                 continue;
@@ -737,7 +737,7 @@ public class AutoSetHandle
 
             for (Method method : methods)
             {
-                SetOk setOk = method.getAnnotation(SetOk.class);
+                SetOk setOk = AnnoUtil.getAnnotation(method,SetOk.class);
                 if (setOk != null)
                 {
                     method.setAccessible(true);
@@ -770,8 +770,8 @@ public class AutoSetHandle
             Class<?> objClazz = field.getType();
             if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
             {
-                AutoSetDefaultDealt autoSetDefaultDealt = objClazz
-                        .getAnnotation(AutoSetDefaultDealt.class);
+                AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
+                        .getAnnotation(objClazz,AutoSetDefaultDealt.class);
                 genClass = autoSetDefaultDealt.gen();
                 if ("".equals(option))
                 {
@@ -812,8 +812,8 @@ public class AutoSetHandle
             Class<?> objClazz = field.getType();
             if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
             {
-                AutoSetDefaultDealt autoSetDefaultDealt = objClazz
-                        .getAnnotation(AutoSetDefaultDealt.class);
+                AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
+                        .getAnnotation(objClazz,AutoSetDefaultDealt.class);
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
                 if ("".equals(option))
                 {

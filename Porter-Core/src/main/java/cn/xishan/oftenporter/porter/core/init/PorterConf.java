@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
 
 import java.util.*;
 
@@ -38,6 +39,10 @@ public class PorterConf
     private DefaultReturnFactory defaultReturnFactory;
     private OutType defaultPortOutType;
     private IArgumentsFactory iArgumentsFactory;
+    private boolean enableAnnotationConfigable = true;
+    private Object annotationConfig;
+    private IAnnotationConfigable iAnnotationConfigable;
+    private boolean popIAnnotationConfigable = false;
 
 
     PorterConf()
@@ -49,7 +54,64 @@ public class PorterConf
         userInitParam = new InitParamSourceImpl();
         contextAutoSetMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
+        iAnnotationConfigable = new DefaultAnnotationConfigable();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    public boolean isEnableAnnotationConfigable()
+    {
+        return enableAnnotationConfigable;
+    }
+
+    public void setEnableAnnotationConfigable(boolean enableAnnotationConfigable)
+    {
+        this.enableAnnotationConfigable = enableAnnotationConfigable;
+    }
+
+    public Object getAnnotationConfig()
+    {
+        return annotationConfig;
+    }
+
+    public void setAnnotationConfig(Object annotationConfig)
+    {
+        this.annotationConfig = annotationConfig;
+    }
+
+    /**
+     * 默认为false
+     *
+     * @return
+     */
+    public boolean isPopIAnnotationConfigable()
+    {
+        return popIAnnotationConfigable;
+    }
+
+    /**
+     * 默认为false
+     *
+     * @param popIAnnotationConfigable
+     */
+    public void setPopIAnnotationConfigable(boolean popIAnnotationConfigable)
+    {
+        this.popIAnnotationConfigable = popIAnnotationConfigable;
+    }
+
+    public IAnnotationConfigable getIAnnotationConfigable()
+    {
+        return iAnnotationConfigable;
+    }
+
+    /**
+     * 默认为{@linkplain DefaultAnnotationConfigable},见{@linkplain #setAnnotationConfig(Object)}
+     *
+     * @param iAnnotationConfigable
+     * @param <T>
+     */
+    public <T> void setIAnnotationConfigable(IAnnotationConfigable<T> iAnnotationConfigable)
+    {
+        this.iAnnotationConfigable = iAnnotationConfigable;
     }
 
     /**

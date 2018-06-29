@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.data.AutoSetDealtForDBSource;
 import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.SqlSource;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -221,7 +222,7 @@ class JDaoGen implements AutoSetGen
             try
             {
                 JsBridge jsBridge;
-                JDaoPath jDaoPath = field.getAnnotation(JDaoPath.class);
+                JDaoPath jDaoPath = AnnoUtil.getAnnotation(field,JDaoPath.class);
                 if (field.getType().equals(JS.class))
                 {
                     dbSource = null;

@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.uibinder.core;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 
@@ -82,7 +83,7 @@ public class Prefix
 
     private static String classTied(Class<?> clazz, boolean enableDefaultValue)
     {
-        PortIn portIn = clazz.getAnnotation(PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz,PortIn.class);
         if (portIn == null)
         {
             throw new RuntimeException(

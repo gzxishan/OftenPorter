@@ -119,7 +119,7 @@ public class InObjDeal
         {
             Field field = fields[i];
 
-            PortInObj.JsonObj jsonObj = field.getAnnotation(PortInObj.JsonObj.class);
+            PortInObj.JsonObj jsonObj = AnnoUtil.getAnnotation(field,PortInObj.JsonObj.class);
             if (jsonObj != null && jsonObj.willSetForRequest())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool

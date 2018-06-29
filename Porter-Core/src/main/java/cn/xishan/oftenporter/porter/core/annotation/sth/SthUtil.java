@@ -52,7 +52,7 @@ class SthUtil
     {
         if (clazz.isAnnotationPresent(Parser.MixinParser.class))
         {
-            Parser.MixinParser mixinParser = clazz.getAnnotation(Parser.MixinParser.class);
+            Parser.MixinParser mixinParser = AnnoUtil.getAnnotation(clazz,Parser.MixinParser.class);
             Class<?>[] cs = mixinParser.value();
             cs = cs.length > 0 ? cs : mixinParser.porters();
             return cs;
@@ -248,7 +248,7 @@ class SthUtil
         List<_MixinPorter> list = new ArrayList<>(1);
         if (clazz.isAnnotationPresent(Mixin.class))
         {
-            Mixin mixin = clazz.getAnnotation(Mixin.class);
+            Mixin mixin = AnnoUtil.getAnnotation(clazz,Mixin.class);
             Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
             int k=-1;
             for (Class c : classes)

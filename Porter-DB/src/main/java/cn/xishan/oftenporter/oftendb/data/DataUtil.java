@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonField;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonObj;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -63,7 +64,7 @@ public class DataUtil
     {
         if (field.isAnnotationPresent(JsonObj.class))
         {
-            JsonObj jsonObj = field.getAnnotation(JsonObj.class);
+            JsonObj jsonObj = AnnoUtil.getAnnotation(field,JsonObj.class);
             String name = jsonObj.value();
             if (name.equals(""))
             {
@@ -78,7 +79,7 @@ public class DataUtil
             return true;
         } else if (field.isAnnotationPresent(JsonField.class))
         {
-            JsonField jsonField = field.getAnnotation(JsonField.class);
+            JsonField jsonField = AnnoUtil.getAnnotation(field,JsonField.class);
             String name = jsonField.value();
             if (name.equals(""))
             {
@@ -176,14 +177,14 @@ public class DataUtil
         String name = null;
         if (field.isAnnotationPresent(PortInObj.Nece.class))
         {
-            name = PortUtil.tied(field.getAnnotation(PortInObj.Nece.class), field, true);
+            name = PortUtil.tied(AnnoUtil.getAnnotation(field,PortInObj.Nece.class), field, true);
         } else if (field.isAnnotationPresent(PortInObj.UnNece.class))
         {
-            name = PortUtil.tied(field.getAnnotation(PortInObj.UnNece.class), field, true);
+            name = PortUtil.tied(AnnoUtil.getAnnotation(field,PortInObj.UnNece.class), field, true);
         } else if (field.isAnnotationPresent(DBField.class))
         {
             name = field.getName();
-            DBField dbField = field.getAnnotation(DBField.class);
+            DBField dbField = AnnoUtil.getAnnotation(field,DBField.class);
             if (!dbField.value().equals(""))
             {
                 name = dbField.value();

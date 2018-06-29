@@ -4,6 +4,7 @@ package cn.xishan.oftenporter.oftendb.data;
 import cn.xishan.oftenporter.oftendb.annotation.AnnotationSearch;
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.MyConsumer;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSON;
@@ -84,17 +85,11 @@ public class MyJsonTool
     {
         final JSONObject jsonObject = new JSONObject();
 
-        AnnotationSearch.searchPublicFields(new MyConsumer<Field, Exception>()
-        {
+        AnnotationSearch.searchPublicFields(field -> {
+            field.setAccessible(true);
+            DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
+            jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
 
-            @Override
-            public void accept(Field field) throws Exception
-            {
-                field.setAccessible(true);
-                DBField DBField = field.getAnnotation(DBField.class);
-                jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
-
-            }
         }, object.getClass(), exceptFieldsName, DBField.class);
 
         return jsonObject;

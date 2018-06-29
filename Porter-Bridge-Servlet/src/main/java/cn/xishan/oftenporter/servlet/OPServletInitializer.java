@@ -50,6 +50,10 @@ public interface OPServletInitializer
 
     void onStart(ServletContext servletContext, Builder builder);
 
+    default void onDestroyed(){
+
+    }
+
     default void onDoRequest(StartupServlet startupServlet, HttpServletRequest request, HttpServletResponse response,
             PortMethod method) throws IOException,ServletException
     {

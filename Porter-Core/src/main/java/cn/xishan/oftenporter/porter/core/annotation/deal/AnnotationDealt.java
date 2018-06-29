@@ -56,7 +56,7 @@ public final class AnnotationDealt
         if (field.isAnnotationPresent(SyncPorterOption.class))
         {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
-            SyncPorterOption option = field.getAnnotation(SyncPorterOption.class);
+            SyncPorterOption option = AnnoUtil.getAnnotation(field,SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied;
             if (!SyncPorterOption.class.equals(option.porter()))
@@ -97,13 +97,13 @@ public final class AnnotationDealt
 
     public _AutoSet autoSet(Field field)
     {
-        AutoSet autoSet = field.getAnnotation(AutoSet.class);
+        AutoSet autoSet = AnnoUtil.getAnnotation(field,AutoSet.class);
         if (autoSet == null)
         {
             try
             {
                 Class.forName("javax.annotation.Resource");
-                Resource resource = field.getAnnotation(Resource.class);
+                Resource resource = AnnoUtil.getAnnotation(field,Resource.class);
                 if (resource != null)
                 {
                     LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
@@ -146,7 +146,7 @@ public final class AnnotationDealt
 
     public _Nece nece(Field field)
     {
-        PortInObj.Nece nece = field.getAnnotation(PortInObj.Nece.class);
+        PortInObj.Nece nece = AnnoUtil.getAnnotation(field,PortInObj.Nece.class);
         if (nece == null)
         {
             return null;
@@ -170,7 +170,7 @@ public final class AnnotationDealt
 
     public _UnNece unNece(Field field)
     {
-        PortInObj.UnNece unNece = field.getAnnotation(PortInObj.UnNece.class);
+        PortInObj.UnNece unNece = AnnoUtil.getAnnotation(field,PortInObj.UnNece.class);
         if (unNece == null)
         {
             return null;
@@ -286,7 +286,7 @@ public final class AnnotationDealt
 
     public _PortInObj portInObj(Class<?> clazz)
     {
-        PortInObj portInObj = clazz.getAnnotation(PortInObj.class);
+        PortInObj portInObj = AnnoUtil.getAnnotation(clazz,PortInObj.class);
         if (portInObj == null)
         {
             return null;
@@ -302,7 +302,7 @@ public final class AnnotationDealt
 
     public _Parser parser(Class<?> clazz)
     {
-        return to_parser(clazz.getAnnotation(Parser.class));
+        return to_parser(AnnoUtil.getAnnotation(clazz,Parser.class));
     }
 
     private _Parser to_parser(Parser parser)
@@ -329,7 +329,7 @@ public final class AnnotationDealt
 
     public _parse parse(Field field)
     {
-        return to_parse(field.getAnnotation(Parser.parse.class));
+        return to_parse(AnnoUtil.getAnnotation(field,Parser.parse.class));
     }
 
     private _parse to_parse(Parser.parse parse)
@@ -347,7 +347,7 @@ public final class AnnotationDealt
 
     public _parse parse(Class<?> clazz)
     {
-        return to_parse(clazz.getAnnotation(Parser.parse.class));
+        return to_parse(AnnoUtil.getAnnotation(clazz,Parser.parse.class));
     }
 
     public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter)
@@ -478,10 +478,10 @@ public final class AnnotationDealt
 
     public _PortIn portIn(Class<?> clazz, boolean isMixin)
     {
-        PortIn portIn = clazz.getAnnotation(PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz,PortIn.class);
         if (portIn == null && isMixin)
         {
-            portIn = AnnotationDealt.class.getAnnotation(PortIn.class);
+            portIn = AnnoUtil.getAnnotation(AnnotationDealt.class,PortIn.class);
         } else if (portIn == null || (!isMixin && AnnoUtil
                 .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class)))
         {

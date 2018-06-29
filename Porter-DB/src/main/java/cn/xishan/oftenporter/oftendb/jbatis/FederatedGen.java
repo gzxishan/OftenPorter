@@ -386,7 +386,7 @@ class FederatedGen implements AutoSetGen
             {
                 throw new DBException("dbSource is not set!");
             }
-            FederatedOption federatedOption = field.getAnnotation(FederatedOption.class);
+            FederatedOption federatedOption = AnnoUtil.getAnnotation(field,FederatedOption.class);
 
             FederatedOption federatedOptionOfClass = AnnoUtil.getAnnotation(currentObjectClass, FederatedOption.class);
 
@@ -426,7 +426,7 @@ class FederatedGen implements AutoSetGen
             {
                 throw new DBException("dbSource is not set!");
             }
-            FederatedMysqlOption mysqlOption = field.getAnnotation(FederatedMysqlOption.class);
+            FederatedMysqlOption mysqlOption = AnnoUtil.getAnnotation(field,FederatedMysqlOption.class);
             FederatedMysqlOption mysqlOptionOfClass = AnnoUtil
                     .getAnnotation(currentObjectClass, FederatedMysqlOption.class);
 

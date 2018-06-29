@@ -211,7 +211,7 @@ class MyBatisDaoGen implements AutoSetGen
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-        MyBatisField myBatisField = field.getAnnotation(MyBatisField.class);
+        MyBatisField myBatisField = AnnoUtil.getAnnotation(field,MyBatisField.class);
 
         if (myBatisField == null)
         {

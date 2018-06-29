@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.db;
 
 
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class BaseEasier
         if (field != null && field.isAnnotationPresent(DBField.class))
         {
 
-            DBField DBField = field.getAnnotation(DBField.class);
+            DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
             name = DBField.value().equals("") ? name : DBField.value();
 
         }

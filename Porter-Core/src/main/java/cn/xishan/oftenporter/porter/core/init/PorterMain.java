@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -257,13 +258,18 @@ public final class PorterMain
         {//全局检测，在没有启动任何context时有效。
             alls = innerBridge.allGlobalChecksTemp.toArray(new CheckPassable[0]);
             innerBridge.allGlobalChecksTemp = null;
-            portExecutor.initAllGlobalChecks(alls);
+            portExecutor.setAllGlobalChecks(alls);
         }
         Logger LOGGER = LogUtil.logger(PorterMain.class);
 
         PorterConf porterConf = bridge.porterConf();
         ContextPorter contextPorter = new ContextPorter();
         contextPorter.setClassLoader(porterConf.getClassLoader());
+
+        if (porterConf.isEnableAnnotationConfigable() && porterConf.getIAnnotationConfigable() != null)
+        {
+            AnnoUtil.pushAnnotationConfigable(porterConf.getAnnotationConfig(), porterConf.getIAnnotationConfigable());
+        }
 
         InnerContextBridge innerContextBridge = new InnerContextBridge(porterConf.getClassLoader(), innerBridge,
                 porterConf.getContextAutoSetMap(), porterConf.isEnableTiedNameDefault(), bridge,
@@ -381,6 +387,10 @@ public final class PorterMain
             portIniter.init(this.getPLinker());
         }
         LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
+        if (porterConf.isPopIAnnotationConfigable())
+        {
+            AnnoUtil.popAnnotationConfigable();
+        }
     }
 
     /**

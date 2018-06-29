@@ -4,6 +4,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
 import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
@@ -19,10 +20,13 @@ import java.lang.annotation.*;
  * 返回值见{@linkplain PortOut}
  * </li>
  * <li>
- * <strong>参数的配置参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
+ * <strong>参数的参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
  * </li>
  * <li>
  * 参数处理见:{@linkplain Parser},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等
+ * </li>
+ * <li>
+ * <strong> 配置参数</strong>见:{@linkplain IAnnotationConfigable},如@PortIn("${tiedName}")
  * </li>
  * </ol>
  * <p>

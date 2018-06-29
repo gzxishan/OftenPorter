@@ -58,7 +58,7 @@ public final class PortExecutor
         return wObject == null ? _LOGGER : LogUtil.logger(wObject, PortExecutor.class);
     }
 
-    public void initAllGlobalChecks(CheckPassable[] allGlobalChecks)
+    public void setAllGlobalChecks(CheckPassable[] allGlobalChecks)
     {
         this.allGlobalChecks = allGlobalChecks;
     }

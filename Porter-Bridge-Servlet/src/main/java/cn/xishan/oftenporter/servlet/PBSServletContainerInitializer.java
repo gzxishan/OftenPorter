@@ -159,10 +159,23 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
                 {
                     initializer.onStart(getServletContext(), new BuilderImpl(initializer));
                 }
-                servletInitializerList = null;
             } catch (Exception e)
             {
                 throw new InitException(e);
+            }
+        }
+
+        @Override
+        public void destroy()
+        {
+            super.destroy();
+            for (OPServletInitializer initializer:servletInitializerList){
+                try
+                {
+                    initializer.onDestroyed();
+                }catch (Exception e){
+                    LOGGER.error(e.getMessage(),e);
+                }
             }
         }
 
