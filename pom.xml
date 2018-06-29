@@ -217,6 +217,10 @@
         </plugins>
     </build>
 
+    <!--
+    发布命令：mvn clean deploy -P release-oss
+    https://oss.sonatype.org
+    -->
     <profiles>
         <profile>
             <id>release-oss</id>
