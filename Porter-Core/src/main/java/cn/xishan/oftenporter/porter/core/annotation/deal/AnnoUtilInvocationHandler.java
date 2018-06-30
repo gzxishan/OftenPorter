@@ -46,7 +46,7 @@ class AnnoUtilInvocationHandler implements InvocationHandler
             }
         } else
         {
-            return method.invoke(proxy, args);
+            return method.invoke(origin, args);
         }
     }
 }
