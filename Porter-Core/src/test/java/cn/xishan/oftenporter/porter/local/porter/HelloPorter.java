@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
+import cn.xishan.oftenporter.porter.core.annotation.param.MixinParse;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
@@ -9,7 +11,7 @@ import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
-import cn.xishan.oftenporter.porter.local.mixin.MinxParserTest;
+import cn.xishan.oftenporter.porter.local.mixin.MinxParseTest;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -27,7 +29,7 @@ import java.util.Random;
 @PortIn(tied = "Hello", tiedType = TiedType.REST)
 @PortInObj({User.class})
 @Mixin({HelloMixinPorter.class})
-@Parser.MixinParser({MinxParserTest.class})
+@MixinParse({MinxParseTest.class})
 public class HelloPorter extends SuperSetPorter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);
@@ -59,7 +61,7 @@ public class HelloPorter extends SuperSetPorter
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"}, method = PortMethod.POST)
-    @Parser.parse(paramNames = "sex", parser = IntParser.class)
+    @Parse(paramNames = "sex", parser = IntParser.class)
     public Object sayHelloPost(WObject wObject)
     {
         int sex = (int) wObject.fn[0];
@@ -74,7 +76,7 @@ public class HelloPorter extends SuperSetPorter
     }
 
     @PortIn("parseObject")
-    @Parser.parse(paramNames = "myAge", parser = IntParser.class)
+    @Parse(paramNames = "myAge", parser = IntParser.class)
     @PortInObj({Article.class})
     public Object parseObject(WObject wObject)
     {

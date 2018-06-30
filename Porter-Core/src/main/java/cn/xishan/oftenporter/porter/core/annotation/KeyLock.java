@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation.Handle;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.KeyLockHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
@@ -19,7 +19,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
-@AspectFunOperation(handle = KeyLockHandle.class)
+@AspectOperationOfPortIn(handle = KeyLockHandle.class)
 public @interface KeyLock
 {
 

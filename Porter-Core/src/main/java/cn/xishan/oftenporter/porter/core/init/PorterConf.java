@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
@@ -42,7 +43,7 @@ public class PorterConf
     private boolean enableAnnotationConfigable = true;
     private Object annotationConfig;
     private IAnnotationConfigable iAnnotationConfigable;
-    private boolean popIAnnotationConfigable = false;
+    private boolean isDefaultIAnnotationConfigable=true;
 
 
     PorterConf()
@@ -78,25 +79,16 @@ public class PorterConf
         this.annotationConfig = annotationConfig;
     }
 
-    /**
-     * 默认为false
-     *
-     * @return
-     */
-    public boolean isPopIAnnotationConfigable()
-    {
-        return popIAnnotationConfigable;
-    }
 
     /**
-     * 默认为false
-     *
-     * @param popIAnnotationConfigable
+     * 默认为true,见{@linkplain AnnoUtil#setDefaultConfigable(Object, IAnnotationConfigable)}
+     * @return
      */
-    public void setPopIAnnotationConfigable(boolean popIAnnotationConfigable)
+    public boolean isDefaultIAnnotationConfigable()
     {
-        this.popIAnnotationConfigable = popIAnnotationConfigable;
+        return isDefaultIAnnotationConfigable;
     }
+
 
     public IAnnotationConfigable getIAnnotationConfigable()
     {
@@ -109,9 +101,10 @@ public class PorterConf
      * @param iAnnotationConfigable
      * @param <T>
      */
-    public <T> void setIAnnotationConfigable(IAnnotationConfigable<T> iAnnotationConfigable)
+    public <T> void setIAnnotationConfigable(IAnnotationConfigable<T> iAnnotationConfigable,boolean isDefaultIAnnotationConfigable)
     {
         this.iAnnotationConfigable = iAnnotationConfigable;
+        this.isDefaultIAnnotationConfigable=isDefaultIAnnotationConfigable;
     }
 
     /**

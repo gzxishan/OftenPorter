@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet.render.jsp;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/27.
  */
-class JspHandle extends AspectFunOperation.HandleAdapter<Jsp>
+class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 {
 
     static class Cache

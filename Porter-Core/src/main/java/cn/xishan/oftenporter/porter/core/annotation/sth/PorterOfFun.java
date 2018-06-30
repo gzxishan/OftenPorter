@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
@@ -25,7 +25,7 @@ public abstract class PorterOfFun implements ObjectGetter
     InObj inObj;
     Porter porter;
 
-    private AspectFunOperation.Handle[] handles;
+    private AspectOperationOfPortIn.Handle[] handles;
 
 
     public PorterOfFun(Method method)
@@ -50,12 +50,12 @@ public abstract class PorterOfFun implements ObjectGetter
      *
      * @return
      */
-    public AspectFunOperation.Handle[] getHandles()
+    public AspectOperationOfPortIn.Handle[] getHandles()
     {
         return handles;
     }
 
-    public void setHandles(AspectFunOperation.Handle[] handles)
+    public void setHandles(AspectOperationOfPortIn.Handle[] handles)
     {
         this.handles = handles;
     }
@@ -250,7 +250,7 @@ public abstract class PorterOfFun implements ObjectGetter
     {
         if (handles != null)
         {
-            for (AspectFunOperation.Handle handle : handles)
+            for (AspectOperationOfPortIn.Handle handle : handles)
             {
                 handle.onStart(wObject);
             }
@@ -261,7 +261,7 @@ public abstract class PorterOfFun implements ObjectGetter
     {
         if (handles != null)
         {
-            for (AspectFunOperation.Handle handle : handles)
+            for (AspectOperationOfPortIn.Handle handle : handles)
             {
                 handle.onDestroy();
             }

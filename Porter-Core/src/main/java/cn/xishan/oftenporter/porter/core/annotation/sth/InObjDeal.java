@@ -99,7 +99,7 @@ public class InObjDeal
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
         //绑定类型转换。
-        sthUtil.bindParserAndParse(clazz, innerContextBridge, null, backableSeek, true, Collections.emptyMap());
+        sthUtil.bindParses(clazz, innerContextBridge, null, backableSeek, true, Collections.emptyMap());
 
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
@@ -156,11 +156,11 @@ public class InObjDeal
             if (nameList != null)
             {
                 name = new Name(nameStr, backableSeek.getTypeId(nameStr));
-                _parse parse = annotationDealt.parse(field);
-                if (parse != null)
+                _Parse[] parses = annotationDealt.parses(field);
+                if (parses != null)
                 {
                     InNames temp = InNames.temp(name);
-                    SthUtil.bindTypeParser(temp, parse, typeParserStore, backableSeek,
+                    SthUtil.bindTypeParses(temp, parses, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
 

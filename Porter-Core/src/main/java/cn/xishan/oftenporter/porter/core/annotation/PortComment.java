@@ -26,12 +26,6 @@ public @interface PortComment
      */
     String desc() default "";
 
-    /**
-     * 作者
-     *
-     * @return
-     */
-    String auth() default "";
 
     /**
      * 读写标识，默认为""。

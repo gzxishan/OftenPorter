@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
@@ -42,20 +42,20 @@ class AspectHandleUtil
             Object failedObject) throws Exception
     {
         //处理AspectFunOperation
-        AspectFunOperation.Handle[] handles = funPort.getHandles();
+        AspectOperationOfPortIn.Handle[] handles = funPort.getHandles();
         if (handles != null)
         {
 
             switch (state)
             {
                 case BeforeInvokeOfMethodCheck:
-                    for (AspectFunOperation.Handle handle : handles)
+                    for (AspectOperationOfPortIn.Handle handle : handles)
                     {
                         handle.beforeInvokeOfMethodCheck(wObject, funPort);
                     }
                     break;
                 case BeforeInvoke:
-                    for (AspectFunOperation.Handle handle : handles)
+                    for (AspectOperationOfPortIn.Handle handle : handles)
                     {
                         handle.beforeInvoke(wObject, funPort);
                     }
@@ -63,7 +63,7 @@ class AspectHandleUtil
                 case Invoke:
                 {
                     boolean hasInvoked = false;
-                    for (AspectFunOperation.Handle handle : handles)
+                    for (AspectOperationOfPortIn.Handle handle : handles)
                     {
                         if (handle.needInvoke(wObject,funPort,returnObject))
                         {

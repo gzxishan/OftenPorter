@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet.render.jsp;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.servlet.render.RenderPage;
 
 import java.lang.annotation.*;
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
-@AspectFunOperation(handle = JspHandle.class)
+@AspectOperationOfPortIn(handle = JspHandle.class)
 public @interface Jsp
 {
     /**

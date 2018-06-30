@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.base;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -37,7 +37,7 @@ public enum PortFunType
      * <strong>注意：</strong>
      * <ol>
      * <li>会解析函数上的参数（如{@linkplain PortIn#nece()}、{@linkplain PortInObj}等）,但类上的参数解析会被忽略。</li>
-     * <li>依然会处理{@linkplain AspectFunOperation}</li>
+     * <li>依然会处理{@linkplain AspectOperationOfPortIn}</li>
      * </ol>
      * </p>
      */

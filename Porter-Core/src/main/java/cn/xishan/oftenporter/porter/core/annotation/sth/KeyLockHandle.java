@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.OutType;
@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/14.
  */
-public class KeyLockHandle extends AspectFunOperation.HandleAdapter<KeyLock>
+public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyLockHandle.class);
 

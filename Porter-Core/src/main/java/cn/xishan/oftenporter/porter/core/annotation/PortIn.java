@@ -200,7 +200,7 @@ public @interface PortIn
     PortFunType portFunType() default PortFunType.DEFAULT;
 
     /**
-     * 对接口函数有效,设置类上的被{@linkplain AspectFunOperation}修饰的注解如何添加到接口函数上，默认为{@linkplain AspectPosition#BEFORE}
+     * 对接口函数有效,设置类上的被{@linkplain AspectOperationOfPortIn}修饰的注解如何添加到接口函数上，默认为{@linkplain AspectPosition#BEFORE}
      *
      * @return
      */

@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.ITypeParser;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class _parse
+public final class _Parse
 {
     String[] paramNames;
     String parserName;

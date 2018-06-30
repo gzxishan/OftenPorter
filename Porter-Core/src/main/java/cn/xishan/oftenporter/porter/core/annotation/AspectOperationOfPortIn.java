@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.*;
 
 /**
- * 注解在注解上。
+ * 注解在注解上,最终对PortIn接口函数进行处理。
  * <ol>
  * <li>被修饰的注解，可以注解在函数或类上。</li>
  * <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解，</li>
@@ -21,7 +21,7 @@ import java.lang.annotation.*;
 @Target({ElementType.ANNOTATION_TYPE})
 @Inherited
 @Documented
-public @interface AspectFunOperation
+public @interface AspectOperationOfPortIn
 {
 
     class HandleAdapter<T extends Annotation> implements Handle<T>

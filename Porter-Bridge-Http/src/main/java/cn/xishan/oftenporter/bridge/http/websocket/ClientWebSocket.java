@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 
 import java.lang.annotation.*;
 
@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
-@AspectFunOperation(handle = WSClientHandle.class)
+@AspectOperationOfPortIn(handle = WSClientHandle.class)
 public @interface ClientWebSocket
 {
     /**

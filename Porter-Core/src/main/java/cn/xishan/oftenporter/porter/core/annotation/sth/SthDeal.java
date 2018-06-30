@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.ContextPorter;
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -62,7 +62,7 @@ public class SthDeal
 
     /**
      * <pre>
-     * 1.会处理{@linkplain AspectFunOperation}
+     * 1.会处理{@linkplain AspectOperationOfPortIn}
      *
      * </pre>
      */
@@ -110,20 +110,19 @@ public class SthDeal
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
         //处理类上的AspectFunOperation
-        List<AspectFunOperation.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
+        List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
                 clazz.getDeclaredAnnotations(), porter,
                 null, null);
 
         BackableSeek backableSeek = new BackableSeek();
         backableSeek.push();
 
-        //对MixinParser指定的类的Parser和Parser.parse的处理
+        //对MixinParse指定的类的Parse的处理
+        inObjDeal.sthUtil.bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
+                mixinToMap);
+        //对Parse的处理
         inObjDeal.sthUtil
-                .bindParserAndParseWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
-                        mixinToMap);
-        //对Parser和Parser.parse的处理
-        inObjDeal.sthUtil
-                .bindParserAndParse(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
+                .bindParses(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
 
         try
         {
@@ -225,14 +224,14 @@ public class SthDeal
     }
 
     private void seekAspectFunOperation(AutoSetHandle setHandle, PorterOfFun porterOfFun,
-            List<AspectFunOperation.Handle> classHandles)
+            List<AspectOperationOfPortIn.Handle> classHandles)
     {
         Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
-        List<AspectFunOperation.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
+        List<AspectOperationOfPortIn.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
                 classHandles, porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
         {
-            porterOfFun.setHandles(handles.toArray(new AspectFunOperation.Handle[0]));
+            porterOfFun.setHandles(handles.toArray(new AspectOperationOfPortIn.Handle[0]));
         }
     }
 
@@ -243,13 +242,14 @@ public class SthDeal
      * @param _handles
      * @return 返回一个新的List
      */
-    private List<AspectFunOperation.Handle> seekAspectFunOperation(AutoSetHandle setHandle, Annotation[] annotations,
+    private List<AspectOperationOfPortIn.Handle> seekAspectFunOperation(AutoSetHandle setHandle,
+            Annotation[] annotations,
             Object object,
-            List<AspectFunOperation.Handle> _handles, AspectPosition aspectPosition)
+            List<AspectOperationOfPortIn.Handle> _handles, AspectPosition aspectPosition)
     {
         // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
 
-        List<AspectFunOperation.Handle> handles = new ArrayList<>();
+        List<AspectOperationOfPortIn.Handle> handles = new ArrayList<>();
         AnnotationDealt annotationDealt = setHandle.getInnerContextBridge().annotationDealt;
 
         if (_handles != null && aspectPosition == AspectPosition.BEFORE)
@@ -260,16 +260,16 @@ public class SthDeal
         for (Annotation annotation : annotations)
         {
             Class<? extends Annotation> atype = annotation.annotationType();
-            AspectFunOperation aspectFunOperation = AnnoUtil
-                    .getAnnotation(atype, AspectFunOperation.class);
-            if (aspectFunOperation == null)
+            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil
+                    .getAnnotation(atype, AspectOperationOfPortIn.class);
+            if (aspectOperationOfPortIn == null)
             {
                 continue;
             }
 
             try
             {
-                AspectFunOperation.Handle handle = WPTool.newObject(aspectFunOperation.handle());
+                AspectOperationOfPortIn.Handle handle = WPTool.newObject(aspectOperationOfPortIn.handle());
                 if (object instanceof PorterOfFun)
                 {
                     PorterOfFun porterOfFun = (PorterOfFun) object;
@@ -433,14 +433,13 @@ public class SthDeal
 
                 inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
                 TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
-                boolean hasBinded = SthUtil
-                        .bindParserAndParse(method, annotationDealt, portIn.getInNames(), typeParserStore,
-                                backableSeek);
+                boolean hasBinded = SthUtil.bindParses(method, annotationDealt, portIn.getInNames(), typeParserStore,
+                        backableSeek);
 
                 if (!hasBinded)
                 {
                     //当函数上没有转换注解、而类上有时，加上此句是确保类上的转换对函数有想
-                    SthUtil.bindTypeParser(portIn.getInNames(), null, typeParserStore, backableSeek,
+                    SthUtil.bindTypeParse(portIn.getInNames(), null, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
                 porterOfFun.inObj = inObjDeal

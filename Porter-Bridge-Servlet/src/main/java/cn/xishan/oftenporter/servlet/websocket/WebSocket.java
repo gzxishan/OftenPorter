@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
@@ -28,7 +28,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
-@AspectFunOperation(handle = WebSocketHandle.class)
+@AspectOperationOfPortIn(handle = WebSocketHandle.class)
 public @interface WebSocket
 {
     public enum Type

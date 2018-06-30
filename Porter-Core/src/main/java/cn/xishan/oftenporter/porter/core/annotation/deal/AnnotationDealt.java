@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -295,60 +296,43 @@ public final class AnnotationDealt
         return _portInObj;
     }
 
-    public _Parser parser(Method method)
+    public _Parse[] parses(Method method)
     {
-        return to_parser(AnnoUtil.getAnnotation(method, Parser.class));
+        return to_parses(AnnoUtil.getRepeatableAnnotations(method, Parse.class));
     }
 
-    public _Parser parser(Class<?> clazz)
+    public _Parse[] parses(Class<?> clazz)
     {
-        return to_parser(AnnoUtil.getAnnotation(clazz,Parser.class));
+        return to_parses(AnnoUtil.getRepeatableAnnotations(clazz,Parse.class));
     }
 
-    private _Parser to_parser(Parser parser)
+
+    public _Parse[] parses(Field field)
     {
-        if (parser == null)
+        return to_parses(AnnoUtil.getRepeatableAnnotations(field,Parse.class));
+    }
+
+    private static final _Parse[] EMPTY_PARSES=new _Parse[0];
+    private _Parse[] to_parses(Parse[] parses)
+    {
+        if (parses.length==0)
         {
-            return null;
+            return EMPTY_PARSES;
         }
-        _Parser _parser = new _Parser();
-        _parse[] ps = new _parse[parser.value().length];
-        int i = 0;
-        for (Parser.parse p : parser.value())
+        _Parse[] _ps = new _Parse[parses.length];
+        for (int i = 0; i < _ps.length; i++)
         {
-            ps[i++] = to_parse(p);
+            _Parse _p = new _Parse();
+            _ps[i]=_p;
+            Parse parse = parses[i];
+            _p.paramNames = parse.paramNames();
+            _p.parserName = parse.parserName();
+            _p.parserClass = parse.parser();
         }
-        _parser._parses = ps;
-        return _parser;
+
+        return _ps;
     }
 
-    public _parse parse(Method method)
-    {
-        return to_parse(AnnoUtil.getAnnotation(method, Parser.parse.class));
-    }
-
-    public _parse parse(Field field)
-    {
-        return to_parse(AnnoUtil.getAnnotation(field,Parser.parse.class));
-    }
-
-    private _parse to_parse(Parser.parse parse)
-    {
-        if (parse == null)
-        {
-            return null;
-        }
-        _parse _p = new _parse();
-        _p.paramNames = parse.paramNames();
-        _p.parserName = parse.parserName();
-        _p.parserClass = parse.parser();
-        return _p;
-    }
-
-    public _parse parse(Class<?> clazz)
-    {
-        return to_parse(AnnoUtil.getAnnotation(clazz,Parser.parse.class));
-    }
 
     public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter)
     {

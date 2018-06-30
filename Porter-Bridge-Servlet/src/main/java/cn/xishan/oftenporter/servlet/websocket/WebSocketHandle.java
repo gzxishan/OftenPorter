@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectFunOperation;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -21,7 +21,7 @@ import java.util.EnumSet;
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-public class WebSocketHandle extends AspectFunOperation.HandleAdapter<WebSocket>
+public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSocket>
 {
     public static final String WS_SERVER_CONTAINER_NAME = "javax.websocket.server.ServerContainer";
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);

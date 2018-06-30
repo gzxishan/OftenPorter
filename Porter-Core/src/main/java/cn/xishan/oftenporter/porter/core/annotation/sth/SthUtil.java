@@ -2,6 +2,8 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
+import cn.xishan.oftenporter.porter.core.annotation.param.MixinParse;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
@@ -25,9 +27,9 @@ class SthUtil
     }
 
     /**
-     * 对MixinParser指定的类的{@linkplain Parser}和{@linkplain Parser.parse}的处理
+     * 对MixinParse指定的类的{@linkplain Parse}的处理
      */
-    void bindParserAndParseWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
+    void bindParsesWithMixin(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop,
             Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
@@ -35,26 +37,25 @@ class SthUtil
         {
             checkLoopMixin(clazz, false, mixinToMap);
         }
-        Class<?>[] cs = getMixinParser(clazz);
+        Class<?>[] cs = getMixinParse(clazz);
         for (Class<?> c : cs)
         {
-            bindParserAndParse(innerContextBridge.annotationDealt.parser(c),
-                    innerContextBridge.annotationDealt.parse(c), inNames,
+            bindParses(innerContextBridge.annotationDealt.parses(c), inNames,
                     innerContextBridge.innerBridge.globalParserStore,
                     backableSeek, BackableSeek.SeekType.Add_NotBind);
             //递归
-            bindParserAndParseWithMixin(c, innerContextBridge, inNames, backableSeek, needCheckLoop, mixinToMap);
+            bindParsesWithMixin(c, innerContextBridge, inNames, backableSeek, needCheckLoop, mixinToMap);
         }
 
     }
 
-    private static Class<?>[] getMixinParser(Class<?> clazz)
+    private static Class<?>[] getMixinParse(Class<?> clazz)
     {
-        if (clazz.isAnnotationPresent(Parser.MixinParser.class))
+        if (clazz.isAnnotationPresent(MixinParse.class))
         {
-            Parser.MixinParser mixinParser = AnnoUtil.getAnnotation(clazz,Parser.MixinParser.class);
-            Class<?>[] cs = mixinParser.value();
-            cs = cs.length > 0 ? cs : mixinParser.porters();
+            MixinParse mixinParse = AnnoUtil.getAnnotation(clazz, MixinParse.class);
+            Class<?>[] cs = mixinParse.value();
+            cs = cs.length > 0 ? cs : mixinParse.porters();
             return cs;
         } else
         {
@@ -64,11 +65,11 @@ class SthUtil
 
 
     /**
-     * 对{@linkplain Parser}和{@linkplain Parser.parse}的处理
+     * 对{@linkplain Parse}的处理
      *
      * @return 有其中一个注解，返回true；否则返回false。
      */
-    boolean bindParserAndParse(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
+    boolean bindParses(Class<?> clazz, InnerContextBridge innerContextBridge, InNames inNames,
             BackableSeek backableSeek, boolean needCheckLoop,
             Map<Class, Set<_MixinPorter>> mixinToMap) throws FatalInitException
     {
@@ -76,57 +77,48 @@ class SthUtil
         {
             checkLoopMixin(clazz, true, mixinToMap);//防止循环混入
         }
-        return bindParserAndParse(innerContextBridge.annotationDealt.parser(clazz),
-                innerContextBridge.annotationDealt.parse(clazz), inNames,
+        return bindParses(innerContextBridge.annotationDealt.parses(clazz), inNames,
                 innerContextBridge.innerBridge.globalParserStore,
                 backableSeek, BackableSeek.SeekType.Add_NotBind);
     }
 
     /**
-     * 对{@linkplain Parser}和{@linkplain Parser.parse}的处理
+     * 对{@linkplain Parse}的处理
      *
      * @return 有其中一个注解，返回true；否则返回false。
      */
-    static boolean bindParserAndParse(Method method, AnnotationDealt annotationDealt, InNames inNames,
+    static boolean bindParses(Method method, AnnotationDealt annotationDealt, InNames inNames,
             TypeParserStore typeParserStore, BackableSeek backableSeek)
     {
-        return bindParserAndParse(annotationDealt.parser(method), annotationDealt.parse(method), inNames,
-                typeParserStore, backableSeek, BackableSeek.SeekType.Add_Bind);
+        return bindParses(annotationDealt.parses(method), inNames, typeParserStore, backableSeek,
+                BackableSeek.SeekType.Add_Bind);
     }
 
     /**
-     * 对{@linkplain Parser}和{@linkplain Parser.parse}的处理
+     * 对{@linkplain Parse}的处理
      *
      * @return 有其中一个注解，返回true；否则返回false。
      */
-    private static boolean bindParserAndParse(_Parser parser, _parse parse, InNames inNames,
+    private static boolean bindParses(_Parse[] parses, InNames inNames,
             TypeParserStore typeParserStore, BackableSeek backableSeek, BackableSeek.SeekType seekType)
     {
-        if (parser != null)
-        {
-            SthUtil.bindTypeParsers(inNames, parser, typeParserStore, backableSeek, seekType);
-        }
 
-        if (parse != null)
-        {
-            SthUtil.bindTypeParser(inNames, parse, typeParserStore, backableSeek, seekType);
-        }
-        return parser != null || parse != null;
+        SthUtil.bindTypeParses(inNames, parses, typeParserStore, backableSeek, seekType);
+        return  parses.length > 0;
     }
 
     /**
-     * 查找多个{@linkplain Parser.parse}绑定
+     * 查找多个{@linkplain Parse}绑定
      *
      * @param inNames         输入参数
-     * @param parser
+     * @param parses
      * @param typeParserStore 转换器Store
      * @param backableSeek
      * @param seekType
      */
-    private static void bindTypeParsers(InNames inNames, _Parser parser,
+    static void bindTypeParses(InNames inNames, _Parse[] parses,
             TypeParserStore typeParserStore, BackableSeek backableSeek, BackableSeek.SeekType seekType)
     {
-        _parse[] parses = parser.get_parses();
         if (parses.length == 0)
         {
             return;
@@ -137,12 +129,12 @@ class SthUtil
                 BackableSeek.SeekType.NotAdd_NotBind;
         for (int i = 0; i < parses.length - 1; i++)
         {
-            bindTypeParser(inNames, parses[i], typeParserStore, backableSeek, type);
+            bindTypeParse(inNames, parses[i], typeParserStore, backableSeek, type);
         }
-        bindTypeParser(inNames, parses[parses.length - 1], typeParserStore, backableSeek, seekType);
+        bindTypeParse(inNames, parses[parses.length - 1], typeParserStore, backableSeek, seekType);
     }
 
-    static void bindTypeParser(InNames inNames, _parse parse,
+    static void bindTypeParse(InNames inNames, _Parse parse,
             TypeParserStore typeParserStore, BackableSeek backableSeek, BackableSeek.SeekType seekType)
     {
         if (parse != null)
@@ -213,7 +205,7 @@ class SthUtil
             typeParser = WPTool.newObject(clazz);
         } catch (Exception e)
         {
-            LOGGER.warn(e.getMessage(),e);
+            LOGGER.warn(e.getMessage(), e);
             return null;
         }
         String id = typeParser.id();
@@ -248,9 +240,9 @@ class SthUtil
         List<_MixinPorter> list = new ArrayList<>(1);
         if (clazz.isAnnotationPresent(Mixin.class))
         {
-            Mixin mixin = AnnoUtil.getAnnotation(clazz,Mixin.class);
+            Mixin mixin = AnnoUtil.getAnnotation(clazz, Mixin.class);
             Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
-            int k=-1;
+            int k = -1;
             for (Class c : classes)
             {
                 k++;
@@ -262,8 +254,9 @@ class SthUtil
                     continue;
                 }
                 _MixinPorter mixinPorter = new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override());
-                if(list.contains(mixinPorter)){
-                    LOGGER.debug("mixin ignore for duplicate:index={},[{}] to [{}]",k, c, clazz);
+                if (list.contains(mixinPorter))
+                {
+                    LOGGER.debug("mixin ignore for duplicate:index={},[{}] to [{}]", k, c, clazz);
                     continue;
                 }
                 list.add(mixinPorter);
@@ -339,14 +332,14 @@ class SthUtil
             }
         } else
         {
-            Class<?>[] mixins = getMixinParser(from);
+            Class<?>[] mixins = getMixinParse(from);
             for (Class<?> to : mixins)
             {
                 Walk<Class> walk = new Walk<>(from, to);
                 if (walkedSet.contains(walk))
                 {
                     String msg = String
-                            .format("Loop %s:[%s]->[%s]", Parser.MixinParser.class.getSimpleName(), from, to);
+                            .format("Loop %s:[%s]->[%s]", MixinParse.class.getSimpleName(), from, to);
                     LOGGER.warn(msg);
                     return msg;
                 } else

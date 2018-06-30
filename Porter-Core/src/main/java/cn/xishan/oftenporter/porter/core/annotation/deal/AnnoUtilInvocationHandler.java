@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-06-29.
@@ -46,7 +47,7 @@ class AnnoUtilInvocationHandler implements InvocationHandler
             }
         } else
         {
-            return method.invoke(proxy, args);
+            return method.invoke(origin, args);
         }
     }
 }

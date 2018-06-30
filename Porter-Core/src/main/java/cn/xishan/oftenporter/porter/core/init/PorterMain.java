@@ -269,6 +269,10 @@ public final class PorterMain
         if (porterConf.isEnableAnnotationConfigable() && porterConf.getIAnnotationConfigable() != null)
         {
             AnnoUtil.pushAnnotationConfigable(porterConf.getAnnotationConfig(), porterConf.getIAnnotationConfigable());
+            if (porterConf.isDefaultIAnnotationConfigable())
+            {
+                AnnoUtil.setDefaultConfigable(porterConf.getAnnotationConfig(), porterConf.getIAnnotationConfigable());
+            }
         }
 
         InnerContextBridge innerContextBridge = new InnerContextBridge(porterConf.getClassLoader(), innerBridge,
@@ -387,10 +391,7 @@ public final class PorterMain
             portIniter.init(this.getPLinker());
         }
         LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
-        if (porterConf.isPopIAnnotationConfigable())
-        {
-            AnnoUtil.popAnnotationConfigable();
-        }
+        AnnoUtil.popAnnotationConfigable();
     }
 
     /**
