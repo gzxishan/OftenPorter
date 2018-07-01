@@ -37,9 +37,9 @@ public class ConcurrentKeyLock<K>
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentKeyLock.class);
+    private static final ThreadLocal<Map<Object, LockInfo>> local = ThreadLocal.withInitial(() -> new HashMap<>(5));
 
     private final ConcurrentMap<K, LockInfo> map = new ConcurrentHashMap<>();
-    private final ThreadLocal<Map<K, LockInfo>> local = ThreadLocal.withInitial(() -> new HashMap<>(5));
     private AtomicLong acquireCount = new AtomicLong(0), releaseCount = new AtomicLong(0);
 
     /**

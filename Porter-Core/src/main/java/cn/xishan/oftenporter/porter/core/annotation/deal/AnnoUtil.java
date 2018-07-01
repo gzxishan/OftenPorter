@@ -167,7 +167,7 @@ public final class AnnoUtil
         {
             AnnoUtilInvocationHandler handler = new AnnoUtilInvocationHandler(t, configable.iAnnotationConfigable,
                     configable.config);
-            t = (A) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(), handler);
+            t = (A) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[]{t.annotationType()}, handler);
         }
         return t;
     }

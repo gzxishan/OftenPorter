@@ -26,27 +26,21 @@ class AnnoUtilInvocationHandler implements InvocationHandler
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
-        if (method.getDeclaringClass().equals(origin.annotationType()))
+        Object rs = method.invoke(origin, args);
+        if (rs instanceof String)
         {
-            Object rs = method.invoke(origin, args);
-            if (rs instanceof String)
+            return iAnnotationConfigable.getValue(config, (String) rs);
+        } else if (rs instanceof String[])
+        {
+            String[] strs = (String[]) rs;
+            for (int i = 0; i < strs.length; i++)
             {
-                return iAnnotationConfigable.getValue(config, (String) rs);
-            } else if (rs instanceof String[])
-            {
-                String[] strs = (String[]) rs;
-                for (int i = 0; i < strs.length; i++)
-                {
-                    strs[i] = iAnnotationConfigable.getValue(config, strs[i]);
-                }
-                return strs;
-            } else
-            {
-                return rs;
+                strs[i] = iAnnotationConfigable.getValue(config, strs[i]);
             }
+            return strs;
         } else
         {
-            return method.invoke(origin, args);
+            return rs;
         }
     }
 }
