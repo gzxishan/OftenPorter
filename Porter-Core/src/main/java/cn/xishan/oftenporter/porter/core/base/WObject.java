@@ -54,6 +54,18 @@ public abstract class WObject
 
     private Map<String, Object> requestDataMap = null;
 
+    private static ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
+
+    public WObject()
+    {
+        threadLocal.set(this);
+    }
+
+    public static WObject fromThreadLocal()
+    {
+        return threadLocal.get();
+    }
+
     public abstract WRequest getRequest();
 
     public abstract WResponse getResponse();
@@ -214,10 +226,10 @@ public abstract class WObject
     }
 
 
-    private static class Temp
-    {
-        WCallException exception;
-    }
+//    private static class Temp
+//    {
+//        WCallException exception;
+//    }
 
     /**
      * @param funTied
@@ -237,7 +249,7 @@ public abstract class WObject
         request.addParamAll(appValues);
         if (throwWCallException)
         {
-            Temp temp = new Temp();
+            WCallException[] wCallExceptions = new WCallException[1];
             delivery().innerBridge().request(request, lResponse ->
             {
                 Object rs = lResponse.getResponse();
@@ -246,7 +258,7 @@ public abstract class WObject
                     JResponse jResponse = (JResponse) rs;
                     if (jResponse.isNotSuccess())
                     {
-                        temp.exception = new WCallException(jResponse);
+                        wCallExceptions[0] = new WCallException(jResponse);
                         return;
                     }
                 }
@@ -255,9 +267,9 @@ public abstract class WObject
                     callback.onResponse(lResponse);
                 }
             });
-            if (temp.exception != null)
+            if (wCallExceptions[0] != null)
             {
-                throw temp.exception;
+                throw wCallExceptions[0];
             }
         } else
         {

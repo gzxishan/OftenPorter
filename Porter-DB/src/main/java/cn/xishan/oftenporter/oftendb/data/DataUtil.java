@@ -99,7 +99,7 @@ public class DataUtil
     private static NameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
             String... keyNames) throws IllegalAccessException
     {
-        Field[] fields = WPTool.getAllFields(object.getClass());
+        Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(object));
 
         NameValues nameValues = new NameValues(fields.length);
         nameValues.filterNullAndEmpty(filterNullAndEmpty);
@@ -492,7 +492,7 @@ public class DataUtil
         String tableName;
         Object unit = configed.getUnit();
 
-        String name = unit.getClass().getSimpleName();
+        String name = PortUtil.getRealClass(unit).getSimpleName();
         int index = name.endsWith("Unit") ? name.lastIndexOf("Unit") : -1;
         if (index < 0)
         {

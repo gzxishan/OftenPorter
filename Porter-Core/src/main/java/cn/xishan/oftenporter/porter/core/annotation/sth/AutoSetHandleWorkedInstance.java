@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.base.PortUtil;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,22 +39,17 @@ class AutoSetHandleWorkedInstance
         worked.clear();
     }
 
-    public synchronized Result workInstance(Object object)
+    public synchronized Result workInstance(Object object,AutoSetHandle autoSetHandle,boolean doProxy)throws Exception
     {
         boolean isWorked = false;
         if (object != null)
         {
-            Package pkg = object.getClass().getPackage();
-            if (pkg != null != pkg.getName().startsWith("java."))
+            Package pkg = PortUtil.getRealClass(object).getPackage();
+            if (pkg != null && (pkg.getName().startsWith("java.")||pkg.getName().startsWith("javax.")))
             {
                 isWorked = true;
             } else
             {
-                if (autoSetObjForAspectOfNormal != null)
-                {
-                    object = autoSetObjForAspectOfNormal.doProxy(object);//用于通用的切面操作而进行代理设置
-                }
-
                 List<Object> list = worked.get(object.hashCode());
                 if (list == null)
                 {
@@ -77,6 +74,12 @@ class AutoSetHandleWorkedInstance
             }
 
 
+        }
+        if(doProxy&&!isWorked&&object!=null){
+            if (autoSetObjForAspectOfNormal != null)
+            {
+                object = autoSetObjForAspectOfNormal.doProxy(object,autoSetHandle);//用于通用的切面操作而进行代理设置
+            }
         }
         return new Result(isWorked, object);
     }

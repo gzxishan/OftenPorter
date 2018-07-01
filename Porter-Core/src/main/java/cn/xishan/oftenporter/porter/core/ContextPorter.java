@@ -184,7 +184,7 @@ public class ContextPorter implements IOtherStartDestroy
         {
             try
             {
-                mayAddPorterOfClass(object.getClass(), object);
+                mayAddPorterOfClass(PortUtil.getRealClass(object), object);
             } catch (FatalInitException e)
             {
                 throw e;

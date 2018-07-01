@@ -357,6 +357,11 @@ public final class Porter
         return object;
     }
 
+    public void setObj(Object object)
+    {
+        this.object = object;
+    }
+
     /**
      * 对于rest，会优先获取非{@linkplain TiedType#REST}接口。
      *

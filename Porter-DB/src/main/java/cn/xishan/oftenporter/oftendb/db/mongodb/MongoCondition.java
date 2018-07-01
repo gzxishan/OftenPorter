@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.BaseEasier;
 import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.Operator;
+import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -193,7 +194,7 @@ public class MongoCondition extends Condition
 
         } else if ((operator == SUBSTR || operator == NOTSUBSTR) && object2 != null)
         {
-            Class<?> c = object2.getClass();
+            Class<?> c = PortUtil.getRealClass(object2);
             DBObject dbObject = baseObject;
             if (operator == NOTSUBSTR)
             {
@@ -206,7 +207,7 @@ public class MongoCondition extends Condition
             return;
         } else if ((operator == STARTSWITH || operator == NOTSTARTSWITH) && object2 != null)
         {
-            Class<?> c = object2.getClass();
+            Class<?> c = PortUtil.getRealClass(object2);
             DBObject dbObject = baseObject;
             if (operator == NOTSTARTSWITH)
             {
@@ -221,7 +222,7 @@ public class MongoCondition extends Condition
             return;
         } else if ((operator == ENDSSWITH || operator == NOTENDSSWITH) && object2 != null)
         {
-            Class<?> c = object2.getClass();
+            Class<?> c = PortUtil.getRealClass(object2);
             DBObject dbObject = baseObject;
             if (operator == NOTENDSSWITH)
             {

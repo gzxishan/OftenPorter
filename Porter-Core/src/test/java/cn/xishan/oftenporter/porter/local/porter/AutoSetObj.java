@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,6 +36,7 @@ public class AutoSetObj
     }
 
     @Override
+    @LogMethodInvoke
     public String toString()
     {
         return "id=" + id+","+super.toString();

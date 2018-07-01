@@ -23,7 +23,7 @@ public interface ITypeParser<D>
         @Override
         public String id()
         {
-            return getClass().getName();
+            return PortUtil.getRealClass(this).getName();
         }
 
         @Override
@@ -63,7 +63,7 @@ public interface ITypeParser<D>
         @Deprecated
         public ParseResult parse(String name, Object value, D dealt)
         {
-            return ITypeParser.ParseResult.failed(getClass().getSimpleName() + ":see parse(...)");
+            return ITypeParser.ParseResult.failed(PortUtil.getRealClass(this).getSimpleName() + ":see parse(...)");
         }
     }
 

@@ -218,7 +218,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             pname = getInitParameter("pname");
             if (WPTool.isEmpty(pname))
             {
-                pname = getClass().getSimpleName();
+                pname = PortUtil.getRealClass(this).getSimpleName();
             }
         }
 

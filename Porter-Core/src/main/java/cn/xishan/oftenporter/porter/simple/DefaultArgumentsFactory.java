@@ -197,7 +197,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 {
                     if (arg != null)
                     {
-                        map.put(arg.getClass().getName(), arg);
+                        map.put(PortUtil.getRealClass(arg).getName(), arg);
                     }
                 }
             }

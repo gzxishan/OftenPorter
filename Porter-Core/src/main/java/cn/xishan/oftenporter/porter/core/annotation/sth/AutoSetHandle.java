@@ -95,7 +95,7 @@ public class AutoSetHandle
 
     private interface IHandle
     {
-        void handle() throws FatalInitException;
+        void handle() throws Exception;
     }
 
     /**
@@ -139,16 +139,16 @@ public class AutoSetHandle
             this.objects = objects;
         }
 
-        private void doAutoSetsForNotPorter(Object[] objects) throws FatalInitException
+        private void doAutoSetsForNotPorter(Object[] objects) throws Exception
         {
             for (Object obj : objects)
             {
-                doAutoSet(obj, obj);
+                doAutoSetForCurrent(false,obj, obj);
             }
         }
 
         @Override
-        public void handle() throws FatalInitException
+        public void handle() throws Exception
         {
             this.doAutoSetsForNotPorter(objects);
         }
@@ -220,7 +220,7 @@ public class AutoSetHandle
                         for (int i = 0; i < classeses.size(); i++)
                         {
                             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                            doAutoSet(null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -229,7 +229,7 @@ public class AutoSetHandle
                     for (int k = 0; k < classes.size(); k++)
                     {
                         Class<?> clazz = classes.get(k);
-                        doAutoSet(null, null, clazz, null, RangeType.STATIC);
+                        doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
                     }
                 }
 
@@ -247,7 +247,7 @@ public class AutoSetHandle
                         }
                         if (clazz != null)
                         {
-                            doAutoSet(null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -274,22 +274,25 @@ public class AutoSetHandle
             this.args = args;
         }
 
-        private void doAutoSetForPorter(Porter porter) throws FatalInitException
+        private void doAutoSetForPorter(Porter porter) throws Exception
         {
-            doAutoSet(porter, porter.getFinalPorterObject(), porter.getClazz(), porter.getObj(), RangeType.ALL);
+            Object obj = doAutoSetForCurrent(true,porter, porter.getFinalPorterObject(), porter.getClazz(), porter.getObj(),
+                    RangeType.ALL);
+            porter.setObj(obj);
         }
 
         @Override
-        public void handle() throws FatalInitException
+        public void handle() throws Exception
         {
             this.doAutoSetForPorter((Porter) args[0]);
         }
     }
 
-    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory,InnerContextBridge innerContextBridge, Delivery thisDelivery,
+    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
+            Delivery thisDelivery,
             PorterData porterData, String currentContextName)
     {
-        return new AutoSetHandle(argumentsFactory,innerContextBridge, thisDelivery, porterData, currentContextName);
+        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData, currentContextName);
     }
 
 
@@ -298,10 +301,11 @@ public class AutoSetHandle
         this.iOtherStartDestroy = iOtherStartDestroy;
     }
 
-    private AutoSetHandle(IArgumentsFactory argumentsFactory,InnerContextBridge innerContextBridge, Delivery thisDelivery, PorterData porterData,
+    private AutoSetHandle(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
+            Delivery thisDelivery, PorterData porterData,
             String currentContextName)
     {
-        this.argumentsFactory=argumentsFactory;
+        this.argumentsFactory = argumentsFactory;
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
@@ -348,11 +352,11 @@ public class AutoSetHandle
         for (int i = 0; i < classeses.size(); i++)
         {
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-            doAutoSet(null, null, clazz, null, RangeType.STATIC);
+            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
             if (clazz.isAnnotationPresent(AutoSetSeek.class))
             {
                 Object object = clazz.newInstance();
-                doAutoSet(null, object, clazz, object, RangeType.INSTANCE);
+                doAutoSetForCurrent(true,null, object, clazz, object, RangeType.INSTANCE);
             }
         }
     }
@@ -369,7 +373,8 @@ public class AutoSetHandle
         porterMap.put(porter.getPortIn().getToPorterKey(), porter);
         porterMap.putAll(porter.getMixinToThatCouldSet());
 
-        List<PortIn.ContextSet> contextSets = AnnoUtil.getAnnotationsWithSuper(porter.getClazz(), PortIn.ContextSet.class);
+        List<PortIn.ContextSet> contextSets = AnnoUtil
+                .getAnnotationsWithSuper(porter.getClazz(), PortIn.ContextSet.class);
         for (PortIn.ContextSet contextSet : contextSets)
         {
             if (WPTool.isEmpty(contextSet.value()))
@@ -422,7 +427,8 @@ public class AutoSetHandle
 
     private AutoSetHandleWorkedInstance workedInstance;
 
-    public synchronized void doAutoSetNormal(AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
+    public synchronized void doAutoSetNormal(
+            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
     {
         try
         {
@@ -445,7 +451,8 @@ public class AutoSetHandle
         }
     }
 
-    public synchronized void doAutoSetThat(AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
+    public synchronized void doAutoSetThat(
+            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
     {
         try
         {
@@ -472,10 +479,10 @@ public class AutoSetHandle
     {
         Map<String, Field> fromGet = new HashMap<>();
 
-        Field[] fieldsGet = WPTool.getAllFields(objectForGet.getClass());
+        Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
         for (Field field : fieldsGet)
         {
-            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field,AutoSetToThatForMixin.class);
+            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
             if (autoSetToThatForMixin == null)
             {
                 continue;
@@ -496,10 +503,10 @@ public class AutoSetHandle
             fromGet.put(key, field);
         }
 
-        Field[] fields = WPTool.getAllFields(objectForSet.getClass());
+        Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(objectForSet));
         for (Field field : fields)
         {
-            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field,AutoSetThatForMixin.class);
+            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field, AutoSetThatForMixin.class);
             if (autoSetThatForMixin == null)
             {
                 continue;
@@ -542,20 +549,21 @@ public class AutoSetHandle
         }
     }
 
-    private void doAutoSet(@MayNull Object finalObject, Object currentObject) throws FatalInitException
+    private Object doAutoSetForCurrent(boolean doProxy,@MayNull Object finalObject, Object currentObject) throws Exception
     {
-        doAutoSet(null, finalObject, currentObject.getClass(), currentObject, RangeType.ALL);
+        return doAutoSetForCurrent(doProxy,null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
+                RangeType.ALL);
     }
 
-    private void doAutoSet(Porter porter, @MayNull Object finalObject, Class<?> currentObjectClass,
-            @MayNull Object currentObject, RangeType rangeType) throws FatalInitException
+    private Object doAutoSetForCurrent(boolean doProxy,Porter porter, @MayNull Object finalObject, Class<?> currentObjectClass,
+            @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
-        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject);
+        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject,this,doProxy);
+        currentObject = result.object;
         if (result.isWorked)
         {
-            return;//已经递归扫描过该实例
+            return currentObject;//已经递归扫描过该实例
         }
-        currentObject=result.object;
 
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
@@ -632,7 +640,8 @@ public class AutoSetHandle
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                                }else{
+                                } else
+                                {
                                     globalAutoSet.put(keyName, value);
                                 }
                             }
@@ -685,7 +694,7 @@ public class AutoSetHandle
                         }
                     } else
                     {
-                        doAutoSet(value, value);//递归：设置被设置的变量。
+                        value = doAutoSetForCurrent(true,value, value);//递归：设置被设置的变量。
                     }
                 } else
                 {
@@ -738,7 +747,7 @@ public class AutoSetHandle
 
             for (Method method : methods)
             {
-                SetOk setOk = AnnoUtil.getAnnotation(method,SetOk.class);
+                SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
                 if (setOk != null)
                 {
                     method.setAccessible(true);
@@ -747,6 +756,7 @@ public class AutoSetHandle
             }
 
         }
+        return currentObject;
     }
 
     /**
@@ -772,7 +782,7 @@ public class AutoSetHandle
             if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
             {
                 AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
-                        .getAnnotation(objClazz,AutoSetDefaultDealt.class);
+                        .getAnnotation(objClazz, AutoSetDefaultDealt.class);
                 genClass = autoSetDefaultDealt.gen();
                 if ("".equals(option))
                 {
@@ -787,7 +797,7 @@ public class AutoSetHandle
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
         addOtherStartDestroy(autoSetGen);
-        doAutoSet(autoSetGen, autoSetGen);
+        autoSetGen = (AutoSetGen) doAutoSetForCurrent(true,autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field, option);
         return value;
     }
@@ -814,7 +824,7 @@ public class AutoSetHandle
             if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
             {
                 AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
-                        .getAnnotation(objClazz,AutoSetDefaultDealt.class);
+                        .getAnnotation(objClazz, AutoSetDefaultDealt.class);
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
                 if ("".equals(option))
                 {
@@ -828,7 +838,7 @@ public class AutoSetHandle
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
         addOtherStartDestroy(autoSetDealt);
-        doAutoSet(autoSetDealt, autoSetDealt);
+        autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true,autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field, value, option);
         return finalValue;
     }
@@ -837,7 +847,7 @@ public class AutoSetHandle
      * 是否是默认工具类。
      */
     private boolean isDefaultAutoSetObject(Field f, Porter porter, Object finalObject, Class<?> currentObjectClass,
-            @MayNull Object currentObject, _AutoSet autoSet) throws IllegalAccessException, FatalInitException
+            @MayNull Object currentObject, _AutoSet autoSet) throws Exception
 
     {
         Object sysset = null;
@@ -867,11 +877,11 @@ public class AutoSetHandle
                 //throw new FatalInitException(SyncPorter.class.getSimpleName() + "just allowed in porter!");
                 if (!f.isAnnotationPresent(SyncPorterOption.class) && finalObject != null)
                 {
-                    porterParamGetter.setClassTied(PortUtil.tied(finalObject.getClass()));
+                    porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(finalObject)));
                 }
             } else
             {
-                porterParamGetter.setClassTied(PortUtil.tied(porter.getFinalPorterObject().getClass()));
+                porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(porter.getFinalPorterObject())));
             }
 
             _SyncPorterOption syncPorterOption = innerContextBridge.annotationDealt
@@ -908,7 +918,7 @@ public class AutoSetHandle
         {
             f.set(currentObject, sysset);
             LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
-            doAutoSet(sysset, sysset);//递归：设置被设置的变量。
+            sysset = doAutoSetForCurrent(true,sysset, sysset);//递归：设置被设置的变量。
         }
         return sysset != null;
     }

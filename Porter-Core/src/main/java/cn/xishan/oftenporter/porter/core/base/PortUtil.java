@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -62,6 +63,19 @@ public class PortUtil
         return names;
     }
 
+    public static Class<?> getRealClass(Object object)
+    {
+        if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
+        {
+            AutoSetObjForAspectOfNormal.IOPProxy iopProxy =
+                    (AutoSetObjForAspectOfNormal.IOPProxy) object;
+            return iopProxy.get_R_e_a_l_C_l_a_s_s();
+        } else
+        {
+            return object.getClass();
+        }
+    }
+
     /**
      * 得到函数的绑定名。
      *
@@ -116,20 +130,23 @@ public class PortUtil
     public static String tied(Unece unece, Field field, boolean enableDefaultValue)
     {
         String name = unece.value();
-        String varName= unece.varName();
-        return getTied(unece,name,varName,field,enableDefaultValue);
+        String varName = unece.varName();
+        return getTied(unece, name, varName, field, enableDefaultValue);
     }
 
-    private static String getTied(Object neceOrUnece,String name,String varName,Field field,boolean enableDefaultValue){
-        if (WPTool.isEmptyOfAll(name,varName))
+    private static String getTied(Object neceOrUnece, String name, String varName, Field field,
+            boolean enableDefaultValue)
+    {
+        if (WPTool.isEmptyOfAll(name, varName))
         {
             if (!enableDefaultValue)
             {
                 throw new InitException("default value is not enable for " + neceOrUnece + " in field '" + field + "'");
             }
             name = field.getName();
-        }else if(WPTool.isEmpty(name)){
-            name=varName;
+        } else if (WPTool.isEmpty(name))
+        {
+            name = varName;
         }
         return name;
     }
@@ -137,8 +154,8 @@ public class PortUtil
     public static String tied(Nece nece, Field field, boolean enableDefaultValue)
     {
         String name = nece.value();
-        String varName=nece.varName();
-        return getTied(nece,name,varName,field,enableDefaultValue);
+        String varName = nece.varName();
+        return getTied(nece, name, varName, field, enableDefaultValue);
     }
 
     /**

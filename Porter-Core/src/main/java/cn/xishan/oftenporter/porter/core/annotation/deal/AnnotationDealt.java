@@ -399,7 +399,7 @@ public final class AnnotationDealt
     {
         ObjectGetter objectGetter = () -> object;
 
-        Method[] methods = object.getClass().getMethods();
+        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(object));
         List<_PortStart> list = new ArrayList<>();
         for (Method method : methods)
         {
@@ -426,7 +426,7 @@ public final class AnnotationDealt
     {
         ObjectGetter objectGetter = () -> object;
 
-        Method[] methods = object.getClass().getMethods();
+        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(object));
         List<_PortDestroy> list = new ArrayList<>();
         for (Method method : methods)
         {

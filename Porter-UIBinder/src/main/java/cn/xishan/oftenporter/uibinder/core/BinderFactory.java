@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.uibinder.core;
 
 
+import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.lang.reflect.Constructor;
@@ -85,7 +86,7 @@ public class BinderFactory
 
     public synchronized <T> Binder<T> getBinder(T t)
     {
-        Class<?> clazz = t.getClass();
+        Class<?> clazz = PortUtil.getRealClass(t);
         Constructor<Binder<?>> constructor = cacheConstructorMap.get(clazz);
         if (constructor != null)
         {

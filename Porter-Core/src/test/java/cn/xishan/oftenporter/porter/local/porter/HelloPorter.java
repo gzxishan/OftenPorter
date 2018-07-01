@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
 import cn.xishan.oftenporter.porter.local.mixin.MinxParseTest;
@@ -90,6 +91,7 @@ public class HelloPorter extends SuperSetPorter
 
 
     @PortStart
+    @LogMethodInvoke
     public void onStart()
     {
         try

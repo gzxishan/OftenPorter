@@ -37,8 +37,9 @@ import java.lang.annotation.*;
  *     4.{@linkplain StateListener StateListener}
  *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},
  *     这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
- *     6.{@linkplain Handle}
+ *     6.{@linkplain AspectOperationOfPortIn.Handle}
  *     7.{@linkplain BindEntityDealt}
+ *     8.{@linkplain AspectOperationOfNormal.Handle}
  * </pre>
  * <pre>
  * 内置对象:

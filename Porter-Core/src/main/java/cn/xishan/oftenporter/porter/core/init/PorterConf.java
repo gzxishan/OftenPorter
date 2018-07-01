@@ -325,7 +325,7 @@ public class PorterConf
      */
     public void addContextAutoSet(Object object)
     {
-        addContextAutoSet(object.getClass().getName(), object);
+        addContextAutoSet(PortUtil.getRealClass(object).getName(), object);
     }
 
     /**

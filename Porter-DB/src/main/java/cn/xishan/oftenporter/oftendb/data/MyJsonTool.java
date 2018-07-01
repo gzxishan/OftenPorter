@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.MyConsumer;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.InNames;
+import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -90,7 +91,7 @@ public class MyJsonTool
             DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
             jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
 
-        }, object.getClass(), exceptFieldsName, DBField.class);
+        },PortUtil.getRealClass( object), exceptFieldsName, DBField.class);
 
         return jsonObject;
     }
@@ -120,7 +121,7 @@ public class MyJsonTool
                 jsonObject.put(field.getName(), field.get(object));
 
             }
-        }, object.getClass(), exceptFieldsName, annotations);
+        }, PortUtil.getRealClass(object), exceptFieldsName, annotations);
 
         return jsonObject;
     }
@@ -229,7 +230,7 @@ public class MyJsonTool
                     throw new JSONException("not surportted type:" + type);
                 }
             }
-        }, t.getClass(), exceptFieldsName, annotations);
+        }, PortUtil.getRealClass(t), exceptFieldsName, annotations);
 
     }
 
@@ -293,7 +294,7 @@ public class MyJsonTool
                 }
             };
 
-            AnnotationSearch.searchPublicFields(consumer, object.getClass(), exceptFieldsName, annotations);
+            AnnotationSearch.searchPublicFields(consumer,PortUtil.getRealClass( object), exceptFieldsName, annotations);
             callback.success(jsonObject);
         } catch (Exception e)
         {
@@ -410,7 +411,7 @@ public class MyJsonTool
                 }
             };
 
-            AnnotationSearch.searchPublicFields(consumer, t.getClass(), exceptFieldsName, annotations);
+            AnnotationSearch.searchPublicFields(consumer, PortUtil.getRealClass(t), exceptFieldsName, annotations);
             callback.success(t);
         } catch (Exception e)
         {

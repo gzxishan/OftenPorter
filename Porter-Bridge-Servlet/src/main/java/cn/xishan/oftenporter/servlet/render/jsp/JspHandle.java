@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
+import cn.xishan.oftenporter.porter.core.base.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
@@ -69,8 +70,9 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
         if (useStdTag)
         {
             stdJsp = FileTool.getString(
-                    getClass()
-                            .getResourceAsStream("/" + PackageUtil.getPackageWithRelative(getClass(), "std.jsp", "/")));
+                    PortUtil.getRealClass(this)
+                            .getResourceAsStream("/" + PackageUtil
+                                    .getPackageWithRelative(PortUtil.getRealClass(this), "std.jsp", "/")));
 
             pageEncoding = jsp.pageEncoding().equals("") ? jspOption.pageEncoding : jsp.pageEncoding();
             if (pageEncoding.equals(""))
