@@ -14,7 +14,7 @@ class WObjectImpl extends WObject
     private WRequest request;
     private WResponse response;
     private UrlDecoder.Result result;
-    Object[] finObjs, cinObjs;
+    Object[] fentities, centities;
 
 
     Context context;
@@ -79,18 +79,18 @@ class WObjectImpl extends WObject
     }
 
     @Override
-    public <T> T finObject(int index)
+    public <T> T fentity(int index)
     {
-        Object obj = finObjs[index];
+        Object obj = fentities[index];
         T t = (T) obj;
         return t;
     }
 
 
     @Override
-    public <T> T cinObject(int index)
+    public <T> T centity(int index)
     {
-        Object obj = cinObjs[index];
+        Object obj = centities[index];
         T t = (T) obj;
         return t;
     }

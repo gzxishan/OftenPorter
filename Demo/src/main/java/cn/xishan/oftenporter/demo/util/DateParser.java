@@ -6,6 +6,7 @@ import java.util.Date;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 public class DateParser extends ITypeParser.Adapter {
 
@@ -15,7 +16,7 @@ public class DateParser extends ITypeParser.Adapter {
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt) {
+    public ParseResult parse(WObject wObject,@NotNull String name, @NotNull Object value,@MayNull Object dealt) {
         ParseResult result;
         try {
             Object v;

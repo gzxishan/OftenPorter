@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 
 /**
@@ -106,6 +107,10 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
                         type, _MyBatisDaoProxy.class},
                 (proxy, method, args) -> {
+                    if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
+                    {
+                        return method.invoke(t, args);
+                    }
                     Object rs = method.invoke(t, args);
                     if (sqlSession.getConnection().getAutoCommit())
                     {

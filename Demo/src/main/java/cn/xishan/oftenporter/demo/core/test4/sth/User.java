@@ -1,11 +1,12 @@
 package cn.xishan.oftenporter.demo.core.test4.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.Nece;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.UnNece;
+
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 
 public class User
 {
-    @UnNece
+    @Unece
     public int age;
     @Nece
     private String name;

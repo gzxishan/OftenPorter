@@ -30,7 +30,7 @@ class _MyBatis
     MyBatisMapper.Type type;
     String resourceDir;
     String name;
-    String path;
+   private String path,parentPath;
     Class<?> daoClass;
     String daoAlias;
     String entityAlias;
@@ -53,6 +53,12 @@ class _MyBatis
         this.name = name;
     }
 
+
+    public void setPath(String path)
+    {
+        this.path = path;
+        parentPath=PackageUtil.getPathWithRelative('/',path,"../","/");
+    }
 
     public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener) throws Exception
     {
@@ -153,7 +159,7 @@ class _MyBatis
 
             {
 
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i <=2; i++)
                 {
                     do
                     {
@@ -163,7 +169,10 @@ class _MyBatis
                         if (i == 0)
                         {//classpath:
                             keyPrefix = "<!--$classpath:";
-                        } else
+                        }else if(i==1){
+                            keyPrefix = "<!--$path:";
+                        }
+                        else
                         {//file:
                             keyPrefix = "<!--$file:";
                         }
@@ -191,10 +200,14 @@ class _MyBatis
                             }
                         }
                         path = path.trim();
-                        if (i == 0)
-                        {//classpath:
+                        if (i == 0||i==1)
+                        {//classpath,path
+                            if(i==0){
+                                path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
+                            }else{
+                                path = PackageUtil.getPathWithRelative('/',this.parentPath, path, "/");
+                            }
                             LOGGER.debug("[{}]load classpath content from:{}", this.path, path);
-                            path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
                             if (!path.startsWith("/"))
                             {
                                 path = "/" + path;

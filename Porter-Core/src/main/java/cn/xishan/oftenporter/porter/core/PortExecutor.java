@@ -298,30 +298,30 @@ public final class PortExecutor
     /**
      * 用于处理对象绑定。
      *
-     * @param OPEntities
+     * @param opEntities
      * @param isInClass
      * @param wObjectImpl
      * @param currentTypeParserStore
      * @return
      */
-    private ParamDealt.FailedReason paramDealOfPortInObj(boolean ignoreTypeParser, Context context,
-            OPEntities OPEntities,
+    private ParamDealt.FailedReason paramDealOfPortInEntities(boolean ignoreTypeParser, Context context,
+            OPEntities opEntities,
             boolean isInClass, Porter porter, PorterOfFun porterOfFun,
             WObjectImpl wObjectImpl, TypeParserStore currentTypeParserStore)
     {
         ParamDealt.FailedReason reason = null;
-        if (OPEntities == null)
+        if (opEntities == null)
         {
             return null;
         }
-        One[] ones = OPEntities.ones;
-        Object[] inObjects = new Object[ones.length];
+        One[] ones = opEntities.ones;
+        Object[] entities = new Object[ones.length];
         if (isInClass)
         {
-            wObjectImpl.cinObjs = inObjects;
+            wObjectImpl.centities = entities;
         } else
         {
-            wObjectImpl.finObjs = inObjects;
+            wObjectImpl.fentities = entities;
         }
         for (int i = 0; i < ones.length; i++)
         {
@@ -336,7 +336,7 @@ public final class PortExecutor
                 break;
             } else
             {
-                inObjects[i] = object;
+                entities[i] = object;
             }
         }
         if (reason == null)
@@ -349,14 +349,14 @@ public final class PortExecutor
                 {
                     if (isInClass)
                     {
-                        inObjects[i] = clazz.deal(wObjectImpl, porter, inObjects[i]);
+                        entities[i] = clazz.deal(wObjectImpl, porter, entities[i]);
                     } else
                     {
-                        inObjects[i] = clazz.deal(wObjectImpl, porterOfFun, inObjects[i]);
+                        entities[i] = clazz.deal(wObjectImpl, porterOfFun, entities[i]);
                     }
-                    if (inObjects[i] instanceof ParamDealt.FailedReason)
+                    if (entities[i] instanceof ParamDealt.FailedReason)
                     {
-                        reason = (ParamDealt.FailedReason) inObjects[i];
+                        reason = (ParamDealt.FailedReason) entities[i];
                         break;
                     }
                 }
@@ -505,7 +505,7 @@ public final class PortExecutor
 
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInObj(clazzPIn.ignoreTypeParser(), context, classPort.getInObj(), true, classPort,
+        failedReason = paramDealOfPortInEntities(clazzPIn.ignoreTypeParser(), context, classPort.getInObj(), true, classPort,
                 funPort, wObject,
                 typeParserStore);
         if (failedReason != null)
@@ -614,7 +614,7 @@ public final class PortExecutor
         }
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInObj(funPIn.ignoreTypeParser(), context, funPort.getInObj(), false,
+        failedReason = paramDealOfPortInEntities(funPIn.ignoreTypeParser(), context, funPort.getInObj(), false,
                 funPort.getPorter(), funPort, wObject,
                 typeParserStore);
         if (failedReason != null)

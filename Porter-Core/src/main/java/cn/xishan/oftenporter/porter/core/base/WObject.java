@@ -107,12 +107,12 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
     /**
      * 获取函数上绑定的对象。
      */
-    public abstract <T> T finObject(int index);
+    public abstract <T> T fentity(int index);
 
     /**
      * 获取类上绑定的对象。
      */
-    public abstract <T> T cinObject(int index);
+    public abstract <T> T centity(int index);
 
     /**
      * 见{@linkplain #savedObject(String) savedObject(Class.getName())}.

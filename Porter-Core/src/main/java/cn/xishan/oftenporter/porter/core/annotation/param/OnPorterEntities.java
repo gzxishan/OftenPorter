@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import java.lang.annotation.*;
 
 /**
- * 注解在@{@linkplain PortIn}类上
+ * 注解在@{@linkplain PortIn}类上,提供给{@linkplain FromPorterEntities}
  *
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
-public @interface OnPorterEntity
+public @interface OnPorterEntities
 {
     Class<?>[] value() default {};
 }

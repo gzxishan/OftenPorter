@@ -8,7 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 
 /**
- * 用于动态注解的支持，需要加入资源文件/META-INF/services/cn.xishan.oftenporter.porter.core.advanced
+ * 用于动态注解的支持，需要加入资源文件/OP-INF/cn.xishan.oftenporter.porter.core.advanced
  * .IDynamicAnnotationImprovable，内容为实现类名称(每行一个)
  *
  * @author Created by https://github.com/CLovinr on 2018/7/1.

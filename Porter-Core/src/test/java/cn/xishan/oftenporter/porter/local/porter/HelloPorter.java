@@ -82,8 +82,8 @@ public class HelloPorter extends SuperSetPorter
     @BindEntities({Article.class})
     public Object parseObject(WObject wObject)
     {
-        Article article = wObject.finObject(0);
-        User user = wObject.cinObject(0);
+        Article article = wObject.fentity(0);
+        User user = wObject.centity(0);
         // LOGGER.debug("{}\n{}", article, user);
 
         return random.nextBoolean() ? user : article;

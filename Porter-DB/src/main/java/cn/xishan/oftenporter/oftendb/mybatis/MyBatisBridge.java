@@ -30,6 +30,10 @@ public class MyBatisBridge
 
     static void start()
     {
+        if (mybatisConfig == null)
+        {
+            throw new InitException("not init!");
+        }
         mybatisConfig.start();
     }
 
@@ -149,7 +153,7 @@ public class MyBatisBridge
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
         MyBatisOption myBatisOption = mOption.myBatisOption;
-        SqlSession sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(myBatisOption.autoCommit);
+        SqlSession sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(false);
         ConnectionImpl connection = new ConnectionImpl(sqlSession);
         if (set2Handle)
         {

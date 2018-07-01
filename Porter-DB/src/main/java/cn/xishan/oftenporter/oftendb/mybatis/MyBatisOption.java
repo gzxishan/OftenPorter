@@ -27,8 +27,6 @@ public class MyBatisOption
      */
     public String rootDir;
 
-    public boolean autoCommit = true;
-
     /**
      * 是否允许mapper中的id覆盖，默认true。
      */

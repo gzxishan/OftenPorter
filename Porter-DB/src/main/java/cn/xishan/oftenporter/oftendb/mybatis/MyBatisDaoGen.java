@@ -2,13 +2,11 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
-import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
-import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -16,7 +14,6 @@ import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
@@ -222,7 +219,6 @@ class MyBatisDaoGen implements AutoSetGen
             LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
             this.source = myBatisField != null ? myBatisField.source() : MyBatisOption.DEFAULT_SOURCE;
             myBatisDao = new MyBatisDaoImpl(this);
-            return myBatisDao;
         } else
         {
             this.source = myBatisField.source();
@@ -241,6 +237,9 @@ class MyBatisDaoGen implements AutoSetGen
             Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
                     fieldType
             }, (proxy, method, args) -> {
+                if(!Modifier.isInterface(method.getDeclaringClass().getModifiers())){
+                    return method.invoke(myBatisDao,args);
+                }
                 ConnectionImpl mConnectionImpl = MyBatisBridge.__openSession(source);
                 Object dao = myBatisDao._mapper(mConnectionImpl.getSqlSession(), fieldType);
                 Object rs = method.invoke(dao, args);
@@ -314,7 +313,7 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
         String path = dir + name;
-        myBatis.path = path;
+        myBatis.setPath(getFileRelativePath(myBatis,path));
         myBatis.init(params);
 
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);

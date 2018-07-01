@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <!--<typeAlias type="cn.xishan.web.dp2.modules.user.entity.UserInfo" alias="UserInfo" />-->
+        <!--<typeAlias type="cn.xishan.web.dp2.modules.source.entity.Source" alias="Source" />-->
+
+    </typeAliases>
+    <!--<plugins>-->
+        <!-- com.github.pagehelper为PageHelper类所在包名 -->
+        <!--<plugin interceptor="com.github.pagehelper.PageInterceptor">-->
+        <!--</plugin>-->
+    <!--</plugins>-->
+    <!--<environments default="development">-->
+        <!--<environment id="development">-->
+            <!--<transactionManager type="JDBC"/>-->
+            <!--<dataSource type="POOLED">-->
+                <!--<property name="driver" value="com.mysql.jdbc.Driver"/>-->
+                <!--<property name="url"-->
+                          <!--value="jdbc:mysql://localhost:3306/xs_drivingplatform2?useUnicode=true&amp;characterEncoding=UTF-8"/>-->
+                <!--<property name="username" value="root"/>-->
+                <!--<property name="password" value="123456"/>-->
+            <!--</dataSource>-->
+        <!--</environment>-->
+    <!--</environments>-->
+
+</configuration>

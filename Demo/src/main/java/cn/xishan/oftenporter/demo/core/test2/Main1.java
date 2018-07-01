@@ -26,12 +26,12 @@ public class Main1 {
         // 进行配置
         PorterConf conf = localMain.newPorterConf();
 
-        conf.addForAllCheckPassable((wObject, type, checkHandle) -> {
+        conf.addPorterCheck((wObject, type, checkHandle) -> {
             logger.debug("1:"+type.name());
             checkHandle.next();
         });
 
-        conf.addForAllCheckPassable((wObject, type, checkHandle) -> {
+        conf.addPorterCheck((wObject, type, checkHandle) -> {
             logger.debug("2:"+type.name());
             checkHandle.next();
         });

@@ -3,12 +3,12 @@ package cn.xishan.oftenporter.demo.core.test4.porter;
 import cn.xishan.oftenporter.demo.core.test4.sth.ID;
 import cn.xishan.oftenporter.demo.core.test4.sth.User;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 @PortIn
-@PortInObj(ID.class)
+@BindEntities(ID.class)
 public class BindSth2Porter
 {
     /**
@@ -23,11 +23,11 @@ public class BindSth2Porter
      */
 
     @PortIn(method = PortMethod.POST)
-    @PortInObj({ User.class })
+    @BindEntities({ User.class })
     public Object send(WObject wObject)
     {
-	ID id = wObject.cinObject(0);
-	User user = wObject.finObject(0);
+	ID id = wObject.centity(0);
+	User user = wObject.fentity(0);
 	return user + "," + id;
     }
 

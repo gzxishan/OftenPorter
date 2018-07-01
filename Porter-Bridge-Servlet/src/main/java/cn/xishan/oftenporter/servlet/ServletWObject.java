@@ -79,13 +79,13 @@ public class ServletWObject extends WObject
     }
 
     @Override
-    public <T> T finObject(int index)
+    public <T> T fentity(int index)
     {
         throw new RuntimeException("not allowed");
     }
 
     @Override
-    public <T> T cinObject(int index)
+    public <T> T centity(int index)
     {
         throw new RuntimeException("not allowed");
     }

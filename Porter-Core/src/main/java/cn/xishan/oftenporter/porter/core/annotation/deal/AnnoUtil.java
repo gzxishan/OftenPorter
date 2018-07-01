@@ -59,15 +59,24 @@ public final class AnnoUtil
         Set<IDynamicAnnotationImprovable> iDynamicAnnotationImprovableList = new HashSet<>();
         try
         {
-            Enumeration<URL> enumeration = ClassLoader.getSystemResources(
-                    "/META-INF/services/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable");
+            String path = "OP-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
+            Enumeration<URL> enumeration = Thread.currentThread().getContextClassLoader().getResources(path);
+            if (!enumeration.hasMoreElements())
+            {
+                enumeration = Thread.currentThread().getContextClassLoader().getResources("/" + path);
+            }
             try
             {
                 while (enumeration.hasMoreElements())
                 {
                     String _className = FileTool.getString(enumeration.nextElement().openStream());
+                    if (WPTool.isEmpty(_className))
+                    {
+                        continue;
+                    }
                     String[] classNames = StrUtil.split(_className.trim(), "\n");
-                    for(String className:classNames){
+                    for (String className : classNames)
+                    {
                         IDynamicAnnotationImprovable iDynamicAnnotationImprovable = WPTool.newObject(className);
                         iDynamicAnnotationImprovableList.add(iDynamicAnnotationImprovable);
                     }
@@ -90,8 +99,11 @@ public final class AnnoUtil
                 InvocationHandler invocationHandler)
         {
             Class<A> annotationClass = result.appendAnnotation;
-            A a = (A) Proxy.newProxyInstance(annotationClass.getClassLoader(), annotationClass.getInterfaces(),
+            Object obj = Proxy.newProxyInstance(annotationClass.getClassLoader(), new Class[]{
+                            annotationClass
+                    },
                     invocationHandler);
+            A a = (A) obj;
             return a;
         }
 
@@ -231,7 +243,10 @@ public final class AnnoUtil
         {
             AnnoUtilInvocationHandler handler = new AnnoUtilInvocationHandler(t, configable.iAnnotationConfigable,
                     configable.config);
-            t = (A) Proxy.newProxyInstance(t.getClass().getClassLoader(), t.getClass().getInterfaces(), handler);
+            Object obj = Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[]{
+                    t.annotationType()
+            }, handler);
+            t= (A) obj;
         }
         return t;
     }

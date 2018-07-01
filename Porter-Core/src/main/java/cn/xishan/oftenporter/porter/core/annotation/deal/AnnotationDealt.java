@@ -218,28 +218,28 @@ public final class AnnotationDealt
         List<Class> classList = new ArrayList<>();
 
         BindEntities bindEntities = AnnoUtil.getAnnotation(method, BindEntities.class);
-        FromPorterEntity fromPorterEntity = AnnoUtil.getAnnotation(method, FromPorterEntity.class);
-        OnPorterEntity onPorterEntity = AnnoUtil.getAnnotation(porterClass, OnPorterEntity.class);
+        FromPorterEntities fromPorterEntities = AnnoUtil.getAnnotation(method, FromPorterEntities.class);
+        OnPorterEntities onPorterEntities = AnnoUtil.getAnnotation(porterClass, OnPorterEntities.class);
         if (bindEntities != null)
         {
             WPTool.addAll(classList, bindEntities.value());
         }
 
-        if (fromPorterEntity != null)
+        if (fromPorterEntities != null)
         {
-            if (onPorterEntity == null)
+            if (onPorterEntities == null)
             {
 
-                if (fromPorterEntity.value().length > 0)
+                if (fromPorterEntities.value().length > 0)
                 {
                     LOGGER.warn("need @{}.{} in [{}] for method with @", BindEntities.class.getSimpleName(),
-                            OnPorterEntity.class.getSimpleName(),
-                            porterClass.getName(), FromPorterEntity.class.getSimpleName());
+                            OnPorterEntities.class.getSimpleName(),
+                            porterClass.getName(), FromPorterEntities.class.getSimpleName());
                 }
             } else
             {
-                Class<?>[] fclasses = fromPorterEntity.value();
-                Class<?>[] pclasses = onPorterEntity.value();
+                Class<?>[] fclasses = fromPorterEntities.value();
+                Class<?>[] pclasses = onPorterEntities.value();
                 for (int i = 0; i < fclasses.length; i++)
                 {
                     int index = -1;
@@ -256,10 +256,9 @@ public final class AnnotationDealt
                     }
                     if (index == -1)
                     {
-                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + BindEntities.class
-                                .getSimpleName() + "." + OnPorterEntity.class
+                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + OnPorterEntities.class
                                 .getSimpleName() + " in [" + porterClass
-                                .getName() + "] for method with @" + FromPorterEntity.class.getSimpleName());
+                                .getName() + "] for method with @" + FromPorterEntities.class.getSimpleName());
                     } else
                     {
                         classList.add(pclasses[i]);

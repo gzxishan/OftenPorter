@@ -22,8 +22,6 @@
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis</artifactId>
-            <version>3.4.6</version>
-            <scope>compile</scope>
             <optional>true</optional>
         </dependency>
 

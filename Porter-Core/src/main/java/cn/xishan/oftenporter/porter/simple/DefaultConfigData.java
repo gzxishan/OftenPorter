@@ -23,6 +23,9 @@ public class DefaultConfigData implements IConfigData
 
     public DefaultConfigData(Properties properties)
     {
+        if(properties==null){
+            properties=new Properties();
+        }
         this.properties = properties;
     }
 

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -18,9 +18,9 @@ import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-@Parser({ @Parser.parse(paramNames = "age", parser = IntParser.class) })
-@Parser.parse(paramNames = "sex", parser = StringParser.class)
 @PortIn(value = "", tiedType = TiedType.REST)
+@Parse(paramNames = "age", parser = IntParser.class)
+@Parse(paramNames = "sex", parser = StringParser.class)
 public class HelloPorter
 {
 
@@ -51,13 +51,6 @@ public class HelloPorter
 			/ 1000000.0)+"ms";
     }
 
-    // @PortIn
-    // @PortInObj({ Person.class })
-    // public Object testPerson(WObject wObject)
-    // {
-    // PersonAP person = wObject.finObject(PersonAP.class, 0);
-    // return person.toString();
-    // }
 
     @PortStart
     public void onStart()

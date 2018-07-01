@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.demo.core.test4.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.Parser;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
@@ -18,7 +18,7 @@ import cn.xishan.oftenporter.porter.simple.parsers.ShortParser;
  *
  */
 @PortIn
-@Parser({ @Parser.parse(paramNames = "age", parser = IntParser.class) })
+@Parse(paramNames = "age", parser = IntParser.class)
 public class Hello1Porter
 {
     /**
@@ -31,7 +31,7 @@ public class Hello1Porter
      */
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
-    @Parser({ @Parser.parse(paramNames = "age", parser = ShortParser.class) })
+    @Parse(paramNames = "age", parser = ShortParser.class)
     public Object say(WObject wObject)
     {
 	short age = (short) wObject.fn[0];
