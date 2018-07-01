@@ -3,7 +3,7 @@
     <parent>
         <artifactId>OftenPorter</artifactId>
         <groupId>com.xishankeji</groupId>
-        <version>1.0.5-beta3</version>
+        <version>1.0.5-beta4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
