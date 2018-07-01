@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
+import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -23,66 +23,66 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  *
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public class InObjDeal
+public class OPEntitiesDeal
 {
     private final Logger LOGGER;
     SthUtil sthUtil;
 
 
-    public InObjDeal()
+    public OPEntitiesDeal()
     {
-        LOGGER = LogUtil.logger(InObjDeal.class);
+        LOGGER = LogUtil.logger(OPEntitiesDeal.class);
         sthUtil = new SthUtil();
     }
 
     /**
      * 处理接口函数上的对象绑定。
      */
-    InObj dealPortInObj(Class<?> porterClass, Method method,
+    OPEntities dealPortInObj(Class<?> porterClass, Method method,
             InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
-        InObj inObj = null;
-        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(porterClass, method);
+        OPEntities OPEntities = null;
+        _BindEntities portInObj = innerContextBridge.annotationDealt.portInEntities(porterClass, method);
         if (portInObj != null)
         {
-            inObj = dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
+            OPEntities = dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
         }
 
-        return inObj;
+        return OPEntities;
     }
 
-    InObj dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge,
+    OPEntities dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
-        _PortInObj portInObj = innerContextBridge.annotationDealt.portInObj(clazz);
+        _BindEntities portInObj = innerContextBridge.annotationDealt.portInEntities(clazz);
         return dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
     }
 
-    InObj dealPortInObj(_PortInObj portInObj, InnerContextBridge innerContextBridge,
+    OPEntities dealPortInObj(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
-        InObj inObj = null;
+        OPEntities OPEntities = null;
 
-        if (portInObj != null)
+        if (bindEntities != null)
         {
 
-            _PortInObj.CLASS[] types = portInObj.getValue();
+            _BindEntities.CLASS[] types = bindEntities.getValue();
             One[] ones = new One[types.length];
             for (int i = 0; i < types.length; i++)
             {
-                _PortInObj.CLASS clzz = types[i];
+                _BindEntities.CLASS clzz = types[i];
                 ones[i] = bindOne(clzz.clazz, innerContextBridge);
-                ones[i].setInObjClazz(clzz);
+                ones[i].setEntityClazz(clzz);
                 cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
-                if (clzz.inObjHandle != null)
+                if (clzz.bindEntityDealtHandle != null)
                 {
-                    autoSetHandle.addAutoSetsForNotPorter(new Object[]{clzz.inObjHandle});
+                    autoSetHandle.addAutoSetsForNotPorter(new Object[]{clzz.bindEntityDealtHandle});
                 }
             }
-            inObj = new InObj(ones);
+            OPEntities = new OPEntities(ones);
         }
-        return inObj;
+        return OPEntities;
     }
 
 
@@ -119,7 +119,7 @@ public class InObjDeal
         {
             Field field = fields[i];
 
-            PortInObj.JsonObj jsonObj = AnnoUtil.getAnnotation(field,PortInObj.JsonObj.class);
+            JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
             if (jsonObj != null && jsonObj.willSetForRequest())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool
@@ -139,7 +139,7 @@ public class InObjDeal
             List<Field> fieldList = null;
             String nameStr = null;
             _Nece nece = annotationDealt.nece(field);
-            _UnNece unNece;
+            _Unece unNece;
             if (nece != null)
             {
                 nameStr = nece.getValue();
@@ -157,7 +157,7 @@ public class InObjDeal
             {
                 name = new Name(nameStr, backableSeek.getTypeId(nameStr));
                 _Parse[] parses = annotationDealt.parses(field);
-                if (parses != null)
+                if (parses.length > 0)
                 {
                     InNames temp = InNames.temp(name);
                     SthUtil.bindTypeParses(temp, parses, typeParserStore, backableSeek,
@@ -191,11 +191,6 @@ public class InObjDeal
                         unneceNames.toArray(new Name[0]), null),
                 neces.toArray(new Field[0]), unneces.toArray(new Field[0]), jsonObjFields.toArray(new Field[0]),
                 jsonObjOnes.toArray(new One[0]), jsonObjVarnames.toArray(new String[0]));
-
-
-        //       CacheOne cacheOne = new CacheOne(one);
-//        //获取父类的绑定。
-//        BindFromSuperUtil.bindFromSuperClass(clazz, cacheOne);
 
         return one;
     }

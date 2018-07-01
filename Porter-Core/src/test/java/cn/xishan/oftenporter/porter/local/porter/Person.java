@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 
 /**
  * <br>
@@ -8,9 +9,9 @@ import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
  */
 public class Person extends User
 {
-    @PortInObj.Nece("name")
+    @Nece("name")
     public String name;
-    @PortInObj.Nece("myAge")
+    @Nece("myAge")
     public String myAge;
 
 

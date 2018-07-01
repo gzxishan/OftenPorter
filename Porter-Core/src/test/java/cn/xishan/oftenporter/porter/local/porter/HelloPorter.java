@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.param.MixinParse;
+import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
+import cn.xishan.oftenporter.porter.core.annotation.param.MixinParseFrom;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
@@ -27,9 +28,9 @@ import java.util.Random;
 //        @Parser.parse(paramNames = "age", parser = IntParser.class)
 //})
 @PortIn(tied = "Hello", tiedType = TiedType.REST)
-@PortInObj({User.class})
+@BindEntities({User.class})
 @Mixin({HelloMixinPorter.class})
-@MixinParse({MinxParseTest.class})
+@MixinParseFrom({MinxParseTest.class})
 public class HelloPorter extends SuperSetPorter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);
@@ -77,7 +78,7 @@ public class HelloPorter extends SuperSetPorter
 
     @PortIn("parseObject")
     @Parse(paramNames = "myAge", parser = IntParser.class)
-    @PortInObj({Article.class})
+    @BindEntities({Article.class})
     public Object parseObject(WObject wObject)
     {
         Article article = wObject.finObject(0);

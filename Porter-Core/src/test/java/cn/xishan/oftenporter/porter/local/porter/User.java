@@ -1,15 +1,15 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/8.
  */
 public class User
 {
-    @PortInObj.Nece("name")
+    @Nece("name")
     public String name;
-    @PortInObj.Nece(value = "myAge")
+    @Nece(varName = "myAge")
     public int myAge;
 
     @Override

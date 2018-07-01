@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
-import cn.xishan.oftenporter.porter.core.annotation.param.MixinParse;
+import cn.xishan.oftenporter.porter.core.annotation.param.MixinParseFrom;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
@@ -37,7 +37,7 @@ class SthUtil
         {
             checkLoopMixin(clazz, false, mixinToMap);
         }
-        Class<?>[] cs = getMixinParse(clazz);
+        Class<?>[] cs = getMixinParseFrom(clazz);
         for (Class<?> c : cs)
         {
             bindParses(innerContextBridge.annotationDealt.parses(c), inNames,
@@ -49,13 +49,13 @@ class SthUtil
 
     }
 
-    private static Class<?>[] getMixinParse(Class<?> clazz)
+    private static Class<?>[] getMixinParseFrom(Class<?> clazz)
     {
-        if (clazz.isAnnotationPresent(MixinParse.class))
+        if (clazz.isAnnotationPresent(MixinParseFrom.class))
         {
-            MixinParse mixinParse = AnnoUtil.getAnnotation(clazz, MixinParse.class);
-            Class<?>[] cs = mixinParse.value();
-            cs = cs.length > 0 ? cs : mixinParse.porters();
+            MixinParseFrom mixinParseFrom = AnnoUtil.getAnnotation(clazz, MixinParseFrom.class);
+            Class<?>[] cs = mixinParseFrom.value();
+            cs = cs.length > 0 ? cs : mixinParseFrom.porters();
             return cs;
         } else
         {
@@ -134,7 +134,7 @@ class SthUtil
         bindTypeParse(inNames, parses[parses.length - 1], typeParserStore, backableSeek, seekType);
     }
 
-    static void bindTypeParse(InNames inNames, _Parse parse,
+  public   static void bindTypeParse(InNames inNames, _Parse parse,
             TypeParserStore typeParserStore, BackableSeek backableSeek, BackableSeek.SeekType seekType)
     {
         if (parse != null)
@@ -332,14 +332,14 @@ class SthUtil
             }
         } else
         {
-            Class<?>[] mixins = getMixinParse(from);
+            Class<?>[] mixins = getMixinParseFrom(from);
             for (Class<?> to : mixins)
             {
                 Walk<Class> walk = new Walk<>(from, to);
                 if (walkedSet.contains(walk))
                 {
                     String msg = String
-                            .format("Loop %s:[%s]->[%s]", MixinParse.class.getSimpleName(), from, to);
+                            .format("Loop %s:[%s]->[%s]", MixinParseFrom.class.getSimpleName(), from, to);
                     LOGGER.warn(msg);
                     return msg;
                 } else

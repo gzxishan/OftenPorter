@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -111,32 +113,32 @@ public class PortUtil
         return tieds;
     }
 
-    public static String tied(PortInObj.UnNece unNece, Field field, boolean enableDefaultValue)
+    public static String tied(Unece unece, Field field, boolean enableDefaultValue)
     {
-        String name = unNece.value();
-        if (WPTool.isEmpty(name))
+        String name = unece.value();
+        String varName= unece.varName();
+        return getTied(unece,name,varName,field,enableDefaultValue);
+    }
+
+    private static String getTied(Object neceOrUnece,String name,String varName,Field field,boolean enableDefaultValue){
+        if (WPTool.isEmptyOfAll(name,varName))
         {
             if (!enableDefaultValue)
             {
-                throw new InitException("default value is not enable for " + unNece + " in field '" + field + "'");
+                throw new InitException("default value is not enable for " + neceOrUnece + " in field '" + field + "'");
             }
             name = field.getName();
+        }else if(WPTool.isEmpty(name)){
+            name=varName;
         }
         return name;
     }
 
-    public static String tied(PortInObj.Nece nece, Field field, boolean enableDefaultValue)
+    public static String tied(Nece nece, Field field, boolean enableDefaultValue)
     {
         String name = nece.value();
-        if (WPTool.isEmpty(name))
-        {
-            if (!enableDefaultValue)
-            {
-                throw new InitException("default value is not enable for " + nece + " in field '" + field + "'");
-            }
-            name = field.getName();
-        }
-        return name;
+        String varName=nece.varName();
+        return getTied(nece,name,varName,field,enableDefaultValue);
     }
 
     /**

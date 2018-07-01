@@ -4,9 +4,6 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/1.
@@ -121,32 +118,4 @@ class WObjectImpl extends WObject
         return result;
     }
 
-    private List<AfterInvokeListener> afterInvokeListenerList;
-
-    @Override
-    public boolean isSupportAfterInvokeListener()
-    {
-        return true;
-    }
-
-    @Override
-    public synchronized void addAfterInvokeListener(AfterInvokeListener afterInvokeListener)
-    {
-        if (afterInvokeListenerList == null)
-        {
-            afterInvokeListenerList = new ArrayList<>();
-        }
-        afterInvokeListenerList.add(afterInvokeListener);
-    }
-
-    void invokeAfterInvokeListeners()
-    {
-        if (afterInvokeListenerList != null)
-        {
-            for (AfterInvokeListener listener : afterInvokeListenerList)
-            {
-                listener.afterInvoke(this);
-            }
-        }
-    }
 }

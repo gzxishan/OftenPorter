@@ -117,7 +117,7 @@ public final class AnnoUtil
         }
     }
 
-    public static String tied(_UnNece unNece, Field field, boolean enableDefaultValue)
+    public static String tied(_Unece unNece, Field field, boolean enableDefaultValue)
     {
         String name = unNece.getValue();
         if (WPTool.isEmpty(name))

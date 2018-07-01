@@ -1,11 +1,10 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonObj;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
+import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/3.
@@ -13,7 +12,7 @@ import java.util.Map;
 public class One
 {
     public final Class<?> clazz;
-    private _PortInObj.CLASS inObjClazz;
+    private _BindEntities.CLASS entityClazz;
     /**
      * {@linkplain InNames#inner}无效。
      */
@@ -39,13 +38,13 @@ public class One
         this.jsonObjVarnames = jsonObjVarnames;
     }
 
-    public _PortInObj.CLASS getInObjClazz()
+    public _BindEntities.CLASS getEntityClazz()
     {
-        return inObjClazz;
+        return entityClazz;
     }
 
-    public void setInObjClazz(_PortInObj.CLASS inObjClazz)
+    public void setEntityClazz(_BindEntities.CLASS entityClazz)
     {
-        this.inObjClazz = inObjClazz;
+        this.entityClazz = entityClazz;
     }
 }

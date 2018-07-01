@@ -27,7 +27,6 @@ import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
-import cn.xishan.oftenporter.servlet.WMainServlet;
 
 /**
  * @author https://github.com/CLovinr <br>
@@ -35,13 +34,13 @@ import cn.xishan.oftenporter.servlet.WMainServlet;
  */
 @WebServlet(name = "PorterServlet", urlPatterns = "/S/*", loadOnStartup = 5,
         initParams = {@WebInitParam(name = "pname", value = "Servlet1")})
-public class MyWMainServlet extends StartupServlet
+public class MyOPServlet extends StartupServlet
 {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER =
-            LoggerFactory.getLogger(MyWMainServlet.class);
+            LoggerFactory.getLogger(MyOPServlet.class);
 
-    public MyWMainServlet()
+    public MyOPServlet()
     {
     }
 

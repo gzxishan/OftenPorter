@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -14,7 +15,7 @@ import java.lang.annotation.*;
 /**
  * <ol>
  * <li>
- * 用于标记输入接口。若标记在函数上，要求函数(静态或非静态)必须是public的;若标记在类上，则访问类型可以是任意类型。
+ * 用于标记输入接口。若标记在函数上，函数(静态或非静态)可以是非public的;若标记在类上，则访问类型可以是任意类型。
  * </li>
  * <li>
  * 返回值见{@linkplain PortOut}
@@ -23,7 +24,7 @@ import java.lang.annotation.*;
  * <strong>参数的参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
  * </li>
  * <li>
- * 参数处理见:{@linkplain Parser},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等
+ * 参数处理见:{@linkplain Parse},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等
  * </li>
  * <li>
  * <strong> 配置参数</strong>见:{@linkplain IAnnotationConfigable},如@PortIn("${tiedName}")

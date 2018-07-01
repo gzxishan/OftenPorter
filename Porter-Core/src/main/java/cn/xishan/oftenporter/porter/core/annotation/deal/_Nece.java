@@ -17,6 +17,10 @@ public final class _Nece
     String[] forFunTieds;
     boolean toUnece;
 
+    public _Nece()
+    {
+    }
+
     public boolean isNece(WObject wObject)
     {
         if(toUnece&&wObject!=null&&isIn(wObject)){

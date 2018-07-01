@@ -2,8 +2,8 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.deal._PortInObj;
-import cn.xishan.oftenporter.porter.core.annotation.sth.InObj;
+import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
+import cn.xishan.oftenporter.porter.core.annotation.sth.OPEntities;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -50,7 +50,6 @@ public final class PortExecutor
         this.responseWhenException = responseWhenException;
         deliveryBuilder = DeliveryBuilder.getBuilder(true, pLinker);
     }
-
 
 
     private final Logger logger(WObject wObject)
@@ -267,12 +266,6 @@ public final class PortExecutor
             }
             close(response);
 
-        } finally
-        {
-            if (wObject != null)
-            {
-                wObject.invokeAfterInvokeListeners();
-            }
         }
     }
 
@@ -305,22 +298,22 @@ public final class PortExecutor
     /**
      * 用于处理对象绑定。
      *
-     * @param inObj
+     * @param OPEntities
      * @param isInClass
      * @param wObjectImpl
      * @param currentTypeParserStore
      * @return
      */
-    private ParamDealt.FailedReason paramDealOfPortInObj(boolean ignoreTypeParser, Context context, InObj inObj,
+    private ParamDealt.FailedReason paramDealOfPortInObj(boolean ignoreTypeParser, Context context, OPEntities OPEntities,
             boolean isInClass, Porter porter, PorterOfFun porterOfFun,
             WObjectImpl wObjectImpl, TypeParserStore currentTypeParserStore)
     {
         ParamDealt.FailedReason reason = null;
-        if (inObj == null)
+        if (OPEntities == null)
         {
             return null;
         }
-        One[] ones = inObj.ones;
+        One[] ones = OPEntities.ones;
         Object[] inObjects = new Object[ones.length];
         if (isInClass)
         {
@@ -350,7 +343,7 @@ public final class PortExecutor
             for (int i = 0; i < ones.length; i++)
             {
                 One one = ones[i];
-                _PortInObj.CLASS clazz = one.getInObjClazz();
+                _BindEntities.CLASS clazz = one.getEntityClazz();
                 if (clazz != null)
                 {
                     if (isInClass)
@@ -630,7 +623,8 @@ public final class PortExecutor
         }
         //////////////////////////////
 
-        AspectHandleUtil.tryDoHandle(AspectHandleUtil.State.BeforeInvokeOfMethodCheck, wObject, funPort, null, null);
+        AspectHandleOfPortInUtil
+                .tryDoHandle(AspectHandleOfPortInUtil.State.BeforeInvokeOfMethodCheck, wObject, funPort, null, null);
 
         //函数通过检测,参数已经准备好
         if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
@@ -671,19 +665,22 @@ public final class PortExecutor
         _PortIn funPIn = funPort.getMethodPortIn();
         try
         {
-            AspectHandleUtil.tryDoHandle(AspectHandleUtil.State.BeforeInvoke, wObject, funPort, null, null);
+            AspectHandleOfPortInUtil
+                    .tryDoHandle(AspectHandleOfPortInUtil.State.BeforeInvoke, wObject, funPort, null, null);
             Object returnObject;
             //调用函数
             if (funPort.getHandles() != null)
             {
-                returnObject = AspectHandleUtil.doHandle(AspectHandleUtil.State.Invoke, wObject, funPort, null, null);
+                returnObject = AspectHandleOfPortInUtil
+                        .doHandle(AspectHandleOfPortInUtil.State.Invoke, wObject, funPort, null, null);
             } else
             {
                 returnObject = funPort.invokeByHandleArgs(wObject);
             }
 
 
-            AspectHandleUtil.tryDoHandle(AspectHandleUtil.State.AfterInvoke, wObject, funPort, returnObject, null);
+            AspectHandleOfPortInUtil
+                    .tryDoHandle(AspectHandleOfPortInUtil.State.AfterInvoke, wObject, funPort, returnObject, null);
 
 
             OutType outType = funPort.getPortOut().getOutType();
@@ -714,8 +711,8 @@ public final class PortExecutor
             if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
-                AspectHandleUtil
-                        .tryDoHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, returnObject, null);
+                AspectHandleOfPortInUtil
+                        .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, wObject, funPort, returnObject, null);
                 dealtOfResponse(wObject, funPort, funPort.getPortOut().getOutType(), returnObject);
             } else
             {
@@ -729,8 +726,9 @@ public final class PortExecutor
                     @Override
                     public void go(Object failedObject)
                     {
-                        AspectHandleUtil
-                                .tryDoHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, finalReturnObject,
+                        AspectHandleOfPortInUtil
+                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, wObject, funPort,
+                                        finalReturnObject,
                                         failedObject);
                         if (failedObject != null)
                         {
@@ -755,8 +753,8 @@ public final class PortExecutor
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
-                AspectHandleUtil
-                        .tryDoHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, null, e);
+                AspectHandleOfPortInUtil
+                        .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, wObject, funPort, null, e);
                 exNotNull(wObject, funPort, wObject.getResponse(), ex, responseWhenException);
             } else
             {
@@ -774,8 +772,9 @@ public final class PortExecutor
                     @Override
                     public void go(Object failedObject)
                     {
-                        AspectHandleUtil
-                                .tryDoHandle(AspectHandleUtil.State.OnFinal, wObject, funPort, null, failedObject);
+                        AspectHandleOfPortInUtil
+                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, wObject, funPort, null,
+                                        failedObject);
                         if (failedObject != null)
                         {
                             if (!(failedObject instanceof JResponse))

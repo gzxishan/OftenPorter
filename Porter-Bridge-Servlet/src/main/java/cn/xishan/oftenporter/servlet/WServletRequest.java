@@ -32,7 +32,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     WServletRequest( HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
-        super(null, method, WPTool.notNullAndEmpty(path) ? path : WMainServlet.getPath(request),
+        super(null, method, WPTool.notNullAndEmpty(path) ? path : OPServlet.getPath(request),
                 false);
         this.request = request;
         this.response = response;
@@ -141,7 +141,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
             host = "https:" + host.substring("http:".length());
         }
         stringBuilder.append(host);
-        stringBuilder.append(urlPrefix != null ? urlPrefix : WMainServlet.getUriPrefix(request));
+        stringBuilder.append(urlPrefix != null ? urlPrefix : OPServlet.getUriPrefix(request));
         if (pname != null)
         {
             stringBuilder.append("/=").append(pname);

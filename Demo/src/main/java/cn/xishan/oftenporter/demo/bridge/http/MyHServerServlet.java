@@ -4,14 +4,13 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
-import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
-import cn.xishan.oftenporter.servlet.WMainServlet;
+import cn.xishan.oftenporter.servlet.OPServlet;
 
 @WebServlet(urlPatterns = "/RemoteBridge/*", loadOnStartup = 10,
         initParams = {@WebInitParam(name = "pname", value = "HServer"),
                 @WebInitParam(name = "responseWhenException", value = "true")})
-public class MyHServerServlet extends WMainServlet
+public class MyHServerServlet extends OPServlet
 {
 
     /**

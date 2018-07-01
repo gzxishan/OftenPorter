@@ -1,25 +1,19 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 
-import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.servlet.WMainServlet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.ServerEndpointConfig;
-import java.io.IOException;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 class HttpSessionConfigurator extends ServerEndpointConfig.Configurator
 {
-//    private WMainServlet mainServlet;
+//    private OPServlet mainServlet;
 //
-//    public HttpSessionConfigurator(WMainServlet servlet)
+//    public HttpSessionConfigurator(OPServlet servlet)
 //    {
 //        this.mainServlet = servlet;
 //    }

@@ -52,12 +52,6 @@ public abstract class WObject
      */
     public String restValue;
 
-    /**
-     * 用于其他用处,且为{@linkplain PortFunType#INNER}的情况。
-     */
-    @Deprecated
-    public Object _otherObject;
-
     private Map<String, Object> requestDataMap = null;
 
     public abstract WRequest getRequest();
@@ -290,24 +284,6 @@ public abstract class WObject
     public SyncNotInnerPorter newSyncNotInnerPorter(SyncOption syncOption)
     {
         return (SyncNotInnerPorter) syncOption.build(this, false);
-    }
-
-    /**
-     * 接口调用完后（包括成功或失败）的回调
-     */
-    public interface AfterInvokeListener
-    {
-        void afterInvoke(WObject wObject);
-    }
-
-    public boolean isSupportAfterInvokeListener()
-    {
-        return false;
-    }
-
-    public void addAfterInvokeListener(AfterInvokeListener afterInvokeListener)
-    {
-
     }
 
     public WObject original()

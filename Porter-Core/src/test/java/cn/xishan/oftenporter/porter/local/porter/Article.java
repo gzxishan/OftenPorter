@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import com.alibaba.fastjson.JSONArray;
 
 import java.util.Date;
@@ -10,13 +11,13 @@ import java.util.Date;
  */
 public class Article
 {
-    @PortInObj.Nece("title")
+    @Nece("title")
     private String title;
-    @PortInObj.Nece("time")
+    @Nece("time")
     private long time;
-    @PortInObj.UnNece("content")
+    @Unece("content")
     private String content;
-    @PortInObj.UnNece("comments")
+    @Unece("comments")
     private JSONArray comments;
 
     @Override

@@ -1,10 +1,12 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
@@ -344,9 +346,15 @@ public final class PorterMain
 
         try
         {
+            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal = null;
+            if (porterConf.isEnableAspectOfNormal())
+            {
+                autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal();
+                LOGGER.debug("{} is enabled!",AspectOperationOfNormal.class.getSimpleName());
+            }
             LOGGER.debug("start doAutoSet...");
-            autoSetHandle.doAutoSetNormal();//变量设置处理
-            autoSetHandle.doAutoSetThat();
+            autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
+            autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);
             LOGGER.debug("doAutoSetFinished.");
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class

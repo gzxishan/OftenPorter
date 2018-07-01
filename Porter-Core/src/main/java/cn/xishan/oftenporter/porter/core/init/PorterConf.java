@@ -4,9 +4,10 @@ import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
@@ -43,7 +44,8 @@ public class PorterConf
     private boolean enableAnnotationConfigable = true;
     private Object annotationConfig;
     private IAnnotationConfigable iAnnotationConfigable;
-    private boolean isDefaultIAnnotationConfigable=true;
+    private boolean isDefaultIAnnotationConfigable = true;
+    private boolean enableAspectOfNormal = true;
 
 
     PorterConf()
@@ -57,6 +59,21 @@ public class PorterConf
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    /**
+     * 默认为true。
+     *
+     * @return
+     */
+    public boolean isEnableAspectOfNormal()
+    {
+        return enableAspectOfNormal;
+    }
+
+    public void setEnableAspectOfNormal(boolean enableAspectOfNormal)
+    {
+        this.enableAspectOfNormal = enableAspectOfNormal;
     }
 
     public boolean isEnableAnnotationConfigable()
@@ -82,6 +99,7 @@ public class PorterConf
 
     /**
      * 默认为true,见{@linkplain AnnoUtil#setDefaultConfigable(Object, IAnnotationConfigable)}
+     *
      * @return
      */
     public boolean isDefaultIAnnotationConfigable()
@@ -101,10 +119,11 @@ public class PorterConf
      * @param iAnnotationConfigable
      * @param <T>
      */
-    public <T> void setIAnnotationConfigable(IAnnotationConfigable<T> iAnnotationConfigable,boolean isDefaultIAnnotationConfigable)
+    public <T> void setIAnnotationConfigable(IAnnotationConfigable<T> iAnnotationConfigable,
+            boolean isDefaultIAnnotationConfigable)
     {
         this.iAnnotationConfigable = iAnnotationConfigable;
-        this.isDefaultIAnnotationConfigable=isDefaultIAnnotationConfigable;
+        this.isDefaultIAnnotationConfigable = isDefaultIAnnotationConfigable;
     }
 
     /**
@@ -278,7 +297,7 @@ public class PorterConf
     }
 
     /**
-     * 是否允许{@linkplain PortIn#value()}、{@linkplain PortInObj.Nece#value()}和{@linkplain PortInObj.UnNece#value()}取默认值。默认为true。
+     * 是否允许{@linkplain PortIn#value()}、{@linkplain Nece#value()}和{@linkplain Unece#value()}取默认值。默认为true。
      *
      * @return
      */

@@ -108,6 +108,11 @@ public class InNames
         return new InNames(new Name[]{name}, null, EMPTY, EMPTY);
     }
 
+    public static InNames temp(Name name, _Nece neceDeal)
+    {
+        return new InNames(new Name[]{name}, neceDeal == null ? null : new _Nece[]{neceDeal}, EMPTY, EMPTY);
+    }
+
     public static InNames fromStringArray(String[] nece, String[] unece, String[] inner)
     {
         return new InNames(toNames(nece), null, toNames(unece), toNames(inner));

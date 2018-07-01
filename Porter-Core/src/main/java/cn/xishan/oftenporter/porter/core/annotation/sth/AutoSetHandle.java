@@ -398,7 +398,6 @@ public class AutoSetHandle
         iHandlesForAutoSetThat.add(new Handle_doAutoSetThatOfMixin(porter1, porter2));
     }
 
-
     /**
      * 调用所有的{@linkplain SetOk SetOk}函数。
      */
@@ -423,11 +422,11 @@ public class AutoSetHandle
 
     private AutoSetHandleWorkedInstance workedInstance;
 
-    public synchronized void doAutoSetNormal() throws FatalInitException
+    public synchronized void doAutoSetNormal(AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
     {
         try
         {
-            workedInstance = new AutoSetHandleWorkedInstance();
+            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
             for (int i = 0; i < iHandles.size(); i++)
             {
                 iHandles.get(i).handle();
@@ -446,11 +445,11 @@ public class AutoSetHandle
         }
     }
 
-    public synchronized void doAutoSetThat() throws FatalInitException
+    public synchronized void doAutoSetThat(AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
     {
         try
         {
-            workedInstance = new AutoSetHandleWorkedInstance();
+            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
             for (int i = 0; i < iHandlesForAutoSetThat.size(); i++)
             {
                 iHandlesForAutoSetThat.get(i).handle();
@@ -551,10 +550,13 @@ public class AutoSetHandle
     private void doAutoSet(Porter porter, @MayNull Object finalObject, Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws FatalInitException
     {
-        if (workedInstance.workInstance(currentObject))
+        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject);
+        if (result.isWorked)
         {
             return;//已经递归扫描过该实例
         }
+        currentObject=result.object;
+
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
@@ -566,7 +568,6 @@ public class AutoSetHandle
         {
             Field f = fields[i];
             _AutoSet autoSet = annotationDealt.autoSet(f);
-            //AutoSet autoSet = f.getAnnotation(AutoSet.class);
             if (autoSet == null)
             {
                 continue;
@@ -733,7 +734,7 @@ public class AutoSetHandle
             throw thr;
         } else
         {
-            Method[] methods = WPTool.getAllPublicMethods(currentObjectClass);
+            Method[] methods = WPTool.getAllMethods(currentObjectClass);
 
             for (Method method : methods)
             {

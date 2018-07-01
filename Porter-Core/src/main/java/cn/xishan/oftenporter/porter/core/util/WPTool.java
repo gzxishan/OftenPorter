@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -35,6 +36,17 @@ public class WPTool
         return object == null || (object instanceof CharSequence) && "".equals(String.valueOf(object));
     }
 
+    public static boolean isEmptyOfAll(Object... objects)
+    {
+        for (Object obj : objects)
+        {
+            if (notNullAndEmpty(obj))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * 判断c1是否是c2的子类、子接口或接口实现者。
@@ -408,6 +420,33 @@ public class WPTool
     {
         Method[] methods = clazz.getMethods();
         return methods;
+    }
+
+    /**
+     * 得到所有访问类型的函数（包括父类的）。
+     *
+     * @param clazz
+     * @return
+     */
+    public static Method[] getAllMethods(Class<?> clazz)
+    {
+        Set<Method> set = new HashSet<>();
+        getAllMethods(clazz, set);
+        return set.toArray(new Method[0]);
+    }
+
+    private static void getAllMethods(Class<?> clazz, Set<Method> set)
+    {
+        addAll(set, clazz.getDeclaredMethods());
+        for (Class iclass : clazz.getInterfaces())
+        {
+            getAllMethods(iclass, set);//获取所有接口声明的函数
+        }
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null)
+        {
+            getAllMethods(superClass, set);//获取父类声明的函数
+        }
     }
 
     private static void getAllFields(Class<?> clazz, List<Field> list)

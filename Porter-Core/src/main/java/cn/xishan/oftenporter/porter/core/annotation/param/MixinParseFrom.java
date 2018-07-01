@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
-public @interface MixinParse
+public @interface MixinParseFrom
 {
     /**
      * 将混入这些类的类型绑定。

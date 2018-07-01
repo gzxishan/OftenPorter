@@ -24,12 +24,12 @@ import java.util.*;
 public class SthDeal
 {
     private final Logger LOGGER;
-    private InObjDeal inObjDeal;
+    private OPEntitiesDeal OPEntitiesDeal;
 
     public SthDeal()
     {
         LOGGER = LogUtil.logger(SthDeal.class);
-        inObjDeal = new InObjDeal();
+        OPEntitiesDeal = new OPEntitiesDeal();
     }
 
 
@@ -118,15 +118,15 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParse指定的类的Parse的处理
-        inObjDeal.sthUtil.bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
+        OPEntitiesDeal.sthUtil.bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
                 mixinToMap);
         //对Parse的处理
-        inObjDeal.sthUtil
+        OPEntitiesDeal.sthUtil
                 .bindParses(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
 
         try
         {
-            porter.inObj = inObjDeal.dealPortInObj(clazz, innerContextBridge, autoSetHandle);
+            porter.OPEntities = OPEntitiesDeal.dealPortInObj(clazz, innerContextBridge, autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -139,7 +139,7 @@ public class SthDeal
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
         /////处理自身接口----开始
-        Method[] methods = WPTool.getAllPublicMethods(clazz);
+        Method[] methods = WPTool.getAllMethods(clazz);
         ObjectGetter objectGetter = () -> porter.getObj();
         for (Method method : methods)
         {
@@ -204,12 +204,12 @@ public class SthDeal
         }
 
         //实例化经检查对象并添加到map。
-        inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+        OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
         if (!isMixin)
         {
             wholeClassCheckPassableGetter.done();
-            inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
+            OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
                     wholeClassCheckPassableGetter.getChecksForWholeClass());
         }
         ////////处理混入接口------结束
@@ -431,7 +431,7 @@ public class SthDeal
                 porterOfFun.portIn = portIn;
                 porterOfFun.argCount = parameters.length;
 
-                inObjDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+                OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
                 TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
                 boolean hasBinded = SthUtil.bindParses(method, annotationDealt, portIn.getInNames(), typeParserStore,
                         backableSeek);
@@ -442,7 +442,7 @@ public class SthDeal
                     SthUtil.bindTypeParse(portIn.getInNames(), null, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
-                porterOfFun.inObj = inObjDeal
+                porterOfFun.OPEntities = OPEntitiesDeal
                         .dealPortInObj(porter.getClazz(), method, innerContextBridge, autoSetHandle);
                 porterOfFun.portOut = annotationDealt.portOut(porter, method);
             } catch (Exception e)

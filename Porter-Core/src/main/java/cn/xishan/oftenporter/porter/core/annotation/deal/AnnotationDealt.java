@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
-import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
+import cn.xishan.oftenporter.porter.core.annotation.param.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -57,7 +57,7 @@ public final class AnnotationDealt
         if (field.isAnnotationPresent(SyncPorterOption.class))
         {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
-            SyncPorterOption option = AnnoUtil.getAnnotation(field,SyncPorterOption.class);
+            SyncPorterOption option = AnnoUtil.getAnnotation(field, SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied;
             if (!SyncPorterOption.class.equals(option.porter()))
@@ -98,13 +98,13 @@ public final class AnnotationDealt
 
     public _AutoSet autoSet(Field field)
     {
-        AutoSet autoSet = AnnoUtil.getAnnotation(field,AutoSet.class);
+        AutoSet autoSet = AnnoUtil.getAnnotation(field, AutoSet.class);
         if (autoSet == null)
         {
             try
             {
                 Class.forName("javax.annotation.Resource");
-                Resource resource = AnnoUtil.getAnnotation(field,Resource.class);
+                Resource resource = AnnoUtil.getAnnotation(field, Resource.class);
                 if (resource != null)
                 {
                     LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
@@ -147,18 +147,30 @@ public final class AnnotationDealt
 
     public _Nece nece(Field field)
     {
-        PortInObj.Nece nece = AnnoUtil.getAnnotation(field,PortInObj.Nece.class);
+        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
+        if (nece == null)
+        {
+            return null;
+        }
+        return nece(nece, field.getName());
+    }
+
+    public _Nece nece(Nece nece, String fieldName)
+    {
         if (nece == null)
         {
             return null;
         }
         _Nece _nece = new _Nece();
-        if ("".equals(nece.value()))
+        if (WPTool.isEmptyOfAll(nece.value(), nece.varName()))
         {
-            _nece.value = field.getName();
-        } else
+            _nece.value = fieldName;
+        } else if (WPTool.notNullAndEmpty(nece.value()))
         {
             _nece.value = nece.value();
+        } else
+        {
+            _nece.value = nece.varName();
         }
         _nece.toUnece = nece.toUnece();
         _nece.forMethods = nece.forMethods();
@@ -169,53 +181,64 @@ public final class AnnotationDealt
         return _nece;
     }
 
-    public _UnNece unNece(Field field)
+    public _Unece unNece(Field field)
     {
-        PortInObj.UnNece unNece = AnnoUtil.getAnnotation(field,PortInObj.UnNece.class);
-        if (unNece == null)
+        Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
+        if (unece == null)
         {
             return null;
         }
-        _UnNece _unNece = new _UnNece();
-        if ("".equals(unNece.value()))
-        {
-            _unNece.value = field.getName();
-        } else
-        {
-            _unNece.value = unNece.value();
-        }
-        return _unNece;
+        return unNece(unece, field.getName());
     }
 
-    public _PortInObj portInObj(Class<?> porterClass, Method method)
+    public _Unece unNece(Unece unece, String fieldName)
+    {
+        if (unece == null)
+        {
+            return null;
+        }
+        _Unece _unece = new _Unece();
+
+        if (WPTool.isEmptyOfAll(unece.value(), unece.varName()))
+        {
+            _unece.value = fieldName;
+        } else if (WPTool.notNullAndEmpty(unece.value()))
+        {
+            _unece.value = unece.value();
+        } else
+        {
+            _unece.value = unece.varName();
+        }
+        return _unece;
+    }
+
+    public _BindEntities portInEntities(Class<?> porterClass, Method method)
     {
         List<Class> classList = new ArrayList<>();
 
-        PortInObj portInObj = AnnoUtil.getAnnotation(method, PortInObj.class);
-        PortInObj.FromPorter fromPorter = AnnoUtil.getAnnotation(method, PortInObj.FromPorter.class);
-        PortInObj.OnPorter onPorter = AnnoUtil.getAnnotation(porterClass, PortInObj.OnPorter.class);
-        if (portInObj != null)
+        BindEntities bindEntities = AnnoUtil.getAnnotation(method, BindEntities.class);
+        FromPorterEntity fromPorterEntity = AnnoUtil.getAnnotation(method, FromPorterEntity.class);
+        OnPorterEntity onPorterEntity = AnnoUtil.getAnnotation(porterClass, OnPorterEntity.class);
+        if (bindEntities != null)
         {
-            WPTool.addAll(classList, portInObj.value());
+            WPTool.addAll(classList, bindEntities.value());
         }
 
-        if (fromPorter != null)
+        if (fromPorterEntity != null)
         {
-            if (onPorter == null)
+            if (onPorterEntity == null)
             {
 
-                if (fromPorter.value().length > 0)
-                    LOGGER.warn("need @{}.{} in [{}] for method with @", PortInObj.class.getSimpleName(),
-                            PortInObj.OnPorter.class.getSimpleName(),
-                            porterClass.getName(), PortInObj.FromPorter.class.getSimpleName());
-//                    throw new InitException("need @" + PortInObj.class.getSimpleName() + "." + PortInObj.OnPorter
-// .class
-//                            .getSimpleName() + " in [" + porterClass
-//                            .getName() + "] for method with @" + PortInObj.FromPorter.class.getSimpleName());
+                if (fromPorterEntity.value().length > 0)
+                {
+                    LOGGER.warn("need @{}.{} in [{}] for method with @", BindEntities.class.getSimpleName(),
+                            OnPorterEntity.class.getSimpleName(),
+                            porterClass.getName(), FromPorterEntity.class.getSimpleName());
+                }
             } else
             {
-                Class<?>[] fclasses = fromPorter.value();
-                Class<?>[] pclasses = onPorter.value();
+                Class<?>[] fclasses = fromPorterEntity.value();
+                Class<?>[] pclasses = onPorterEntity.value();
                 for (int i = 0; i < fclasses.length; i++)
                 {
                     int index = -1;
@@ -232,10 +255,10 @@ public final class AnnotationDealt
                     }
                     if (index == -1)
                     {
-                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + PortInObj.class
-                                .getSimpleName() + "." + PortInObj.OnPorter.class
+                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + BindEntities.class
+                                .getSimpleName() + "." + OnPorterEntity.class
                                 .getSimpleName() + " in [" + porterClass
-                                .getName() + "] for method with @" + PortInObj.FromPorter.class.getSimpleName());
+                                .getName() + "] for method with @" + FromPorterEntity.class.getSimpleName());
                     } else
                     {
                         classList.add(pclasses[i]);
@@ -250,25 +273,25 @@ public final class AnnotationDealt
             return null;
         }
 
-        _PortInObj _portInObj = newPortInObj(classList.toArray(new Class[0]), method);
-        return _portInObj;
+        _BindEntities _bindEntities = newPortInObj(classList.toArray(new Class[0]), method);
+        return _bindEntities;
 
     }
 
 
-    private _PortInObj newPortInObj(Class<?>[] _classes, Method method)
+    private _BindEntities newPortInObj(Class<?>[] _classes, Method method)
     {
-        _PortInObj.CLASS[] classes = new _PortInObj.CLASS[_classes.length];
+        _BindEntities.CLASS[] classes = new _BindEntities.CLASS[_classes.length];
         for (int i = 0; i < classes.length; i++)
         {
             Class<?> clazz = _classes[i];
-            PortInObj.InObjDealt inObjDealt = AnnoUtil.getAnnotation(clazz, PortInObj.InObjDealt.class);
-            if (inObjDealt != null)
+            BindEntityDealt bindEntityDealt = AnnoUtil.getAnnotation(clazz, BindEntityDealt.class);
+            if (bindEntityDealt != null)
             {
-                Class<? extends PortInObj.IInObjHandle> handleClass = inObjDealt.handle();
+                Class<? extends BindEntityDealt.IHandle> handleClass = bindEntityDealt.handle();
                 try
                 {
-                    classes[i] = new _PortInObj.CLASS(clazz, method, inObjDealt.option(),
+                    classes[i] = new _BindEntities.CLASS(clazz, method, bindEntityDealt.option(),
                             WPTool.newObject(handleClass));
                 } catch (Exception e)
                 {
@@ -276,24 +299,24 @@ public final class AnnotationDealt
                 }
             } else
             {
-                classes[i] = new _PortInObj.CLASS(clazz);
+                classes[i] = new _BindEntities.CLASS(clazz);
             }
         }
 
-        _PortInObj _portInObj = new _PortInObj();
-        _portInObj.value = classes;
-        return _portInObj;
+        _BindEntities _bindEntities = new _BindEntities();
+        _bindEntities.value = classes;
+        return _bindEntities;
     }
 
-    public _PortInObj portInObj(Class<?> clazz)
+    public _BindEntities portInEntities(Class<?> clazz)
     {
-        PortInObj portInObj = AnnoUtil.getAnnotation(clazz,PortInObj.class);
-        if (portInObj == null)
+        BindEntities bindEntities = AnnoUtil.getAnnotation(clazz, BindEntities.class);
+        if (bindEntities == null)
         {
             return null;
         }
-        _PortInObj _portInObj = newPortInObj(portInObj.value(), null);
-        return _portInObj;
+        _BindEntities _bindEntities = newPortInObj(bindEntities.value(), null);
+        return _bindEntities;
     }
 
     public _Parse[] parses(Method method)
@@ -303,34 +326,44 @@ public final class AnnotationDealt
 
     public _Parse[] parses(Class<?> clazz)
     {
-        return to_parses(AnnoUtil.getRepeatableAnnotations(clazz,Parse.class));
+        return to_parses(AnnoUtil.getRepeatableAnnotations(clazz, Parse.class));
     }
 
 
     public _Parse[] parses(Field field)
     {
-        return to_parses(AnnoUtil.getRepeatableAnnotations(field,Parse.class));
+        Parse parse = AnnoUtil.getAnnotation(field, Parse.class);
+        if (parse == null)
+        {
+            return EMPTY_PARSES;
+        }
+        return to_parses(new Parse[]{parse});
     }
 
-    private static final _Parse[] EMPTY_PARSES=new _Parse[0];
+    private static final _Parse[] EMPTY_PARSES = new _Parse[0];
+
     private _Parse[] to_parses(Parse[] parses)
     {
-        if (parses.length==0)
+        if (parses.length == 0)
         {
             return EMPTY_PARSES;
         }
         _Parse[] _ps = new _Parse[parses.length];
         for (int i = 0; i < _ps.length; i++)
         {
-            _Parse _p = new _Parse();
-            _ps[i]=_p;
-            Parse parse = parses[i];
-            _p.paramNames = parse.paramNames();
-            _p.parserName = parse.parserName();
-            _p.parserClass = parse.parser();
+            _ps[i] = genParse(parses[i]);
         }
 
         return _ps;
+    }
+
+    public _Parse genParse(Parse parse)
+    {
+        _Parse _p = new _Parse();
+        _p.paramNames = parse.paramNames();
+        _p.parserName = parse.parserName();
+        _p.parserClass = parse.parser();
+        return _p;
     }
 
 
@@ -462,10 +495,10 @@ public final class AnnotationDealt
 
     public _PortIn portIn(Class<?> clazz, boolean isMixin)
     {
-        PortIn portIn = AnnoUtil.getAnnotation(clazz,PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         if (portIn == null && isMixin)
         {
-            portIn = AnnoUtil.getAnnotation(AnnotationDealt.class,PortIn.class);
+            portIn = AnnoUtil.getAnnotation(AnnotationDealt.class, PortIn.class);
         } else if (portIn == null || (!isMixin && AnnoUtil
                 .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class)))
         {

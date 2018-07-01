@@ -2,9 +2,10 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.annotation.NeceParam;
-import cn.xishan.oftenporter.porter.core.annotation.UneceParam;
-import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal.*;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
@@ -20,12 +21,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultArgumentsFactory implements IArgumentsFactory
 {
-    interface ArgHandle
+    public interface ArgHandle
     {
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
     }
 
-    static class WObjectArgHandle implements ArgHandle
+    public static class WObjectArgHandle implements ArgHandle
     {
 
         @Override
@@ -35,14 +36,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    static class NeceArgHandle implements ArgHandle
+    public static class NeceArgHandle implements ArgHandle
     {
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
+        private _Nece nece;
 
-        public NeceArgHandle(InNames.Name name, String className, TypeParserStore typeParserStore)
+        public NeceArgHandle(_Nece nece, InNames.Name name, String className, TypeParserStore typeParserStore)
         {
+            this.nece = nece;
             this.name = name;
             this.className = className;
             this.typeParserStore = typeParserStore;
@@ -73,7 +76,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             {
                 v = DefaultParamDealt.getParam(wObject, name.varName, wObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
-                if (v == null)
+                if (v == null && nece.isNece(wObject))
                 {
                     v = DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
                 }
@@ -90,7 +93,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    static class UneceArgHandle implements ArgHandle
+    public static class UneceArgHandle implements ArgHandle
     {
         private InNames.Name name;
         private String className;
@@ -141,56 +144,38 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    static class IArgsHandleImpl implements IArgsHandle
+    public static abstract class IArgsHandleImpl implements IArgsHandle
     {
         private ArgHandle[] argHandles;
         private Set<Class> types;
 
-        public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws ClassNotFoundException
+        public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
         {
             Method method = porterOfFun.getMethod();
             Class<?>[] methodArgTypes = method.getParameterTypes();
             Annotation[][] methodAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
 
+            AnnotationDealt annotationDealt = AnnotationDealt.newInstance(true);
+
             List<ArgHandle> argHandleList = new ArrayList<>();
             this.types = new HashSet<>(methodArgTypes.length);
 
             for (int i = 0; i < methodArgTypes.length; i++)
             {
-                Class<?> type = methodArgTypes[i];
-                this.types.add(type);
-                if (type.equals(WObject.class))
-                {
-                    argHandleList.add(new WObjectArgHandle());
-                    continue;
-                }
-
-                Annotation[] annotations = methodAnnotations[i];
-                NeceParam neceParam = AnnoUtil.getAnnotation(annotations, NeceParam.class);
-                UneceParam uneceParam = AnnoUtil.getAnnotation(annotations, UneceParam.class);
-                String name = "";
-                if (neceParam != null)
-                {
-                    name = neceParam.value();
-                } else if (uneceParam != null)
-                {
-                    name = uneceParam.value();
-                }
-                if (name.equals(""))
-                {
-                    Parameter parameter = parameters[i];
-                    name = parameter.getName();
-                }
-                boolean hasParam = neceParam != null || uneceParam != null;
-                InNames.Name theName = porterOfFun.getPorter().getName(name, type);
-                ArgHandle argHandle = neceParam != null ? new NeceArgHandle(theName, hasParam ? null : type.getName(),
-                        typeParserStore) : new UneceArgHandle(theName, hasParam ? null : type.getName(),
-                        typeParserStore);
+                Class<?> paramType = methodArgTypes[i];
+                this.types.add(paramType);
+                Annotation[] paramAnnotations = methodAnnotations[i];
+                String paramName = parameters[i].getName();
+                ArgHandle argHandle = newHandle(annotationDealt,porterOfFun,typeParserStore,paramType,paramName,paramAnnotations);
                 argHandleList.add(argHandle);
             }
             this.argHandles = argHandleList.toArray(new ArgHandle[0]);
         }
+
+        public abstract ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+                TypeParserStore typeParserStore,
+                Class<?> paramType, String paramName, Annotation[] paramAnnotations) throws Exception;
 
         @Override
         public boolean hasParameterType(WObject wObject, Method method, Class<?> type)
@@ -225,6 +210,63 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
+    public static class IArgsHandleImpl2 extends IArgsHandleImpl
+    {
+
+        public IArgsHandleImpl2(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+        {
+            super(porterOfFun, typeParserStore);
+        }
+
+        @Override
+        public ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+                TypeParserStore typeParserStore,
+                Class<?> paramType, String paramName, Annotation[] paramAnnotations) throws Exception
+        {
+            if (paramType.equals(WObject.class))
+            {
+                return new WObjectArgHandle();
+            }
+
+            _Nece nece = annotationDealt
+                    .nece(AnnoUtil.getAnnotation(paramAnnotations, Nece.class), paramName);
+            _Unece unece = null;
+            if (nece == null)
+            {
+                unece = annotationDealt.unNece(AnnoUtil.getAnnotation(paramAnnotations, Unece.class), paramName);
+            }
+
+            ArgHandle argHandle;
+            String name;
+            Parse parse = AnnoUtil.getAnnotation(paramAnnotations, Parse.class);
+            _Parse _parse = null;
+            if (parse != null)
+            {
+                _parse = annotationDealt.genParse(parse);
+            }
+            if (nece != null)
+            {
+                name = nece.getValue();
+            } else if (unece != null)
+            {
+                name = unece.getValue();
+            } else
+            {
+                name = paramName;
+            }
+
+            InNames.Name theName = porterOfFun.getPorter().getName(name, paramType, _parse, nece);
+            if (nece != null)
+            {
+                argHandle = new NeceArgHandle(nece, theName, paramType.getName(), typeParserStore);
+            } else
+            {
+                argHandle = new UneceArgHandle(theName, paramType.getName(), typeParserStore);
+            }
+            return argHandle;
+        }
+    }
+
 
     private Map<PorterOfFun, IArgsHandle> handleMap = new ConcurrentHashMap<>();
 
@@ -232,15 +274,20 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
     }
 
-    @Override
-    public void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+    public IArgsHandleImpl newIArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
     {
-        IArgsHandle handle = new IArgsHandleImpl(porterOfFun, typeParserStore);
-        handleMap.put(porterOfFun, handle);
+        IArgsHandleImpl handle = new IArgsHandleImpl2(porterOfFun, typeParserStore);
+        return handle;
     }
 
     @Override
-    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
+    public final void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+    {
+        handleMap.put(porterOfFun, newIArgsHandle(porterOfFun, typeParserStore));
+    }
+
+    @Override
+    public final IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
     {
         IArgsHandle handle = handleMap.get(porterOfFun);
         return handle;

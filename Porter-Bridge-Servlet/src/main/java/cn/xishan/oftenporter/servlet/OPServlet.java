@@ -24,14 +24,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-/**
- * 请使用{@linkplain StartupServlet}
- */
-@Deprecated
-public class WMainServlet extends HttpServlet implements CommonMain
+
+public abstract class OPServlet extends HttpServlet implements CommonMain
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
-    public static final String SERVLET_NAME_NAME = "cn.xishan.oftenporter.servlet.WMainServlet.name";
+    private static final Logger LOGGER = LoggerFactory.getLogger(OPServlet.class);
+    public static final String SERVLET_NAME_NAME = "cn.xishan.oftenporter.servlet.OPServlet.name";
 
     private static final long serialVersionUID = 1L;
     private PorterMain porterMain;
@@ -45,7 +42,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
      */
     protected boolean addPutDealt = true;
 
-    public WMainServlet()
+    public OPServlet()
     {
 
     }
@@ -55,12 +52,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
      *
      * @param multiPartOption
      */
-    public WMainServlet(MultiPartOption multiPartOption)
+    public OPServlet(MultiPartOption multiPartOption)
     {
         this.multiPartOption = multiPartOption;
     }
 
-    public WMainServlet(String pname, boolean responseWhenException)
+    public OPServlet(String pname, boolean responseWhenException)
     {
         this.pname = pname;
         this.urlEncoding = "utf-8";
@@ -225,7 +222,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
             }
         }
 
-        Logger LOGGER = LoggerFactory.getLogger(WMainServlet.class);
+        Logger LOGGER = LoggerFactory.getLogger(OPServlet.class);
         LOGGER.debug("******Porter-Bridge-Servlet init******");
 
         if (this.urlEncoding == null)
@@ -277,7 +274,7 @@ public class WMainServlet extends HttpServlet implements CommonMain
     public static String getContextDir()
     {
         // WEB-INF/
-        String path = WMainServlet.getWebInfDir();
+        String path = OPServlet.getWebInfDir();
         path = path.substring(0, path.length() - 8);
         return path;
     }
@@ -314,12 +311,12 @@ public class WMainServlet extends HttpServlet implements CommonMain
             throw new RuntimeException("Not init!");
         }
         PorterConf porterConf = porterMain.newPorterConf();
-        porterConf.setArgumentsFactory(new DefaultArgumentsFactory());
+        porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
         porterConf.addContextAutoSet(WebSocketHandle.WS_SERVER_CONTAINER_NAME,
                 getServletContext().getAttribute(WebSocketHandle.WS_SERVER_CONTAINER_NAME));
         porterConf.addContextAutoSet(ServletContext.class, getServletConfig().getServletContext());
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
-        porterConf.addContextAutoSet(WMainServlet.class, this);
+        porterConf.addContextAutoSet(OPServlet.class, this);
 
         return porterConf;
     }

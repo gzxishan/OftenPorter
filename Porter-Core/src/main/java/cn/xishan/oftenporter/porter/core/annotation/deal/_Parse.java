@@ -11,6 +11,10 @@ public final class _Parse
     String parserName;
     Class<? extends ITypeParser> parserClass;
 
+    public _Parse()
+    {
+    }
+
     public String[] getParamNames()
     {
         return paramNames;

@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.porter.core.base;
 
-import cn.xishan.oftenporter.porter.core.annotation.NeceParam;
-import cn.xishan.oftenporter.porter.core.annotation.UneceParam;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 
 import java.lang.reflect.Method;

@@ -22,12 +22,12 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * 默认支持的形式参数：HttpServletRequest,HttpServletResponse,HttpSession,ServletContext。见{@linkplain DefaultArgumentsFactory}
+ * 默认支持的形式参数：HttpServletRequest,HttpServletResponse,HttpSession,ServletContext。见{@linkplain DefaultServletArgumentsFactory}
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/23.
  */
-public abstract class StartupServlet extends WMainServlet
+public abstract class StartupServlet extends OPServlet
 {
     boolean isStarted = false;
 

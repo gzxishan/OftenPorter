@@ -2,7 +2,6 @@ package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;

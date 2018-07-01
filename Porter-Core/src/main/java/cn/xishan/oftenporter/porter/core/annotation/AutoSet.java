@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.IInObjHandle;
+import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
@@ -38,7 +38,7 @@ import java.lang.annotation.*;
  *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},
  *     这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
  *     6.{@linkplain Handle}
- *     7.{@linkplain IInObjHandle}
+ *     7.{@linkplain BindEntityDealt}
  * </pre>
  * <pre>
  * 内置对象:
@@ -95,7 +95,7 @@ public @interface AutoSet
 
     /**
      * <pre>
-     * 注解在public的函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
+     * 注解在函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
      * <strong>注意：</strong>1.只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
      *        2.函数可以无形参，或者有一个形参WObject。
      *        3.在{@linkplain PortStart PortStart}之前调用。

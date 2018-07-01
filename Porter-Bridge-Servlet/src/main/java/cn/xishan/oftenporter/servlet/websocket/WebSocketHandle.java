@@ -35,7 +35,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 //    @AutoSet(value = StartupServlet.SERVLET_NAME_NAME)
 //    String servletName;
 //    @AutoSet
-//    WMainServlet mainServlet;
+//    OPServlet mainServlet;
     private PorterOfFun thePorterOfFun;
 
     @AutoSet.SetOk

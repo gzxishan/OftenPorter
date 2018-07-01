@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
+import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PortIniter;
@@ -30,7 +31,7 @@ public final class Porter
     {
         Object getFinalPorterObject();
 
-        InObj getInObj();
+        OPEntities getInObj();
 
         Method getMethod();
 
@@ -89,7 +90,7 @@ public final class Porter
         }
 
         @Override
-        public InObj getInObj()
+        public OPEntities getInObj()
         {
             return fun.getInObj();
         }
@@ -163,7 +164,7 @@ public final class Porter
     Map<String, PorterOfFun> childrenWithMethod;
     Porter[] mixins;
 
-    InObj inObj;
+    OPEntities OPEntities;
     private AutoSetHandle autoSetHandle;
     private IArgumentsFactory iArgumentsFactory;
     private TypeParserStore typeParserStore;
@@ -318,9 +319,9 @@ public final class Porter
         return destroys;
     }
 
-    public InObj getInObj()
+    public OPEntities getInObj()
     {
-        return inObj;
+        return OPEntities;
     }
 
     public _PortIn getPortIn()
@@ -384,9 +385,9 @@ public final class Porter
     {
         //处理dealtFor
 
-        if (inObj != null)
+        if (OPEntities != null)
         {
-            for (One one : inObj.ones)
+            for (One one : OPEntities.ones)
             {
                 dealInNames(one.inNames, typeParserStore);
             }
@@ -399,9 +400,9 @@ public final class Porter
         {
             for (Porter porter : mixins)
             {
-                if (porter.inObj != null)
+                if (porter.OPEntities != null)
                 {
-                    for (One one : porter.inObj.ones)
+                    for (One one : porter.OPEntities.ones)
                     {
                         dealInNames(one.inNames, typeParserStore);
                     }
@@ -412,9 +413,9 @@ public final class Porter
         for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
         {
             PorterOfFun porterOfFun = entry.getValue();
-            if (porterOfFun.inObj != null)
+            if (porterOfFun.OPEntities != null)
             {
-                for (One one : porterOfFun.inObj.ones)
+                for (One one : porterOfFun.OPEntities.ones)
                 {
                     dealInNames(one.inNames, typeParserStore);
                 }
@@ -437,9 +438,11 @@ public final class Porter
         }
     }
 
-    public InNames.Name getName(String varName, Class<?> type) throws ClassNotFoundException
+    public InNames.Name getName(String varName, Class<?> type, _Parse parse, _Nece nece) throws ClassNotFoundException
     {
-        InNames.Name theName = InObjDeal.getName(varName, type, typeParserStore,false);
+        InNames.Name theName = OPEntitiesDeal.getName(varName, type, typeParserStore, false);
+        SthUtil.bindTypeParse(InNames.temp(theName, nece), parse, typeParserStore, null,
+                BackableSeek.SeekType.NotAdd_NotBind);
         dealName(theName);
         return theName;
     }
@@ -473,22 +476,22 @@ public final class Porter
 
     public void initIInObjHandle()
     {
-        initIInObjHandle(inObj);
+        initIInObjHandle(OPEntities);
         for (PorterOfFun fun : childrenWithMethod.values())
         {
             initIInObjHandle(fun.getInObj());
         }
     }
 
-    private void initIInObjHandle(InObj inObj)
+    private void initIInObjHandle(OPEntities OPEntities)
     {
-        if (inObj == null)
+        if (OPEntities == null)
         {
             return;
         }
-        for (One one : inObj.ones)
+        for (One one : OPEntities.ones)
         {
-            _PortInObj.CLASS clazz = one.getInObjClazz();
+            _BindEntities.CLASS clazz = one.getEntityClazz();
             if (clazz != null)
             {
                 clazz.init();
