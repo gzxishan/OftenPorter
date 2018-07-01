@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.simple;
 
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 
 import static org.junit.Assert.*;
 

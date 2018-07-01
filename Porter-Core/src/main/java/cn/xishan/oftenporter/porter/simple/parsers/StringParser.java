@@ -2,8 +2,8 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 import java.text.SimpleDateFormat;
@@ -126,7 +126,7 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, StringDealt stringDealt)
+    public ParseResult parse(WObject wObject,@NotNull String name, @NotNull Object value, StringDealt stringDealt)
     {
         ParseResult parseResult;
         if (stringDealt != null)

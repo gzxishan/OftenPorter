@@ -4,14 +4,8 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * <pre>
@@ -30,16 +24,7 @@ public interface MyBatisDao
      *
      * @return
      */
-    SqlSession getSqlSession();
-
-    /**
-     * 会获取新的sql会话。
-     *
-     * @return
-     */
-    Connection getConnection();
-
-    Connection getConnection(WObject wObject);
+    SqlSession getNewSqlSession();
 
     /**
      * 会获取新的sql会话。
@@ -48,70 +33,10 @@ public interface MyBatisDao
      */
     <T> T getMapper(Class<T> clazz);
 
-    /**
-     * @param wObject 如果是自己构建的，需要手动关闭会话。
-     * @return
-     */
-    SqlSession getSqlSession(WObject wObject);
 
     <T> T mapper(WObject wObject);
 
     <T> T mapper(WObject wObject, Class<T> clazz);
-
-    <T> T selectOne(WObject wObject, String statement);
-
-
-    <T> T selectOne(WObject wObject, String statement, Object parameter);
-
-
-    <E> List<E> selectList(WObject wObject, String statement);
-
-
-    <E> List<E> selectList(WObject wObject, String statement, Object parameter);
-
-
-    <E> List<E> selectList(WObject wObject, String statement, Object parameter, RowBounds rowBounds);
-
-
-    <K, V> Map<K, V> selectMap(WObject wObject, String statement, String mapKey);
-
-
-    <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey);
-
-    <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey, RowBounds rowBounds);
-
-    <T> Cursor<T> selectCursor(WObject wObject, String statement);
-
-    <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter);
-
-    <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter, RowBounds rowBounds);
-
-    void select(WObject wObject, String statement, Object parameter, ResultHandler handler);
-
-    void select(WObject wObject, String statement, ResultHandler handler);
-
-    void select(WObject wObject, String statement, Object parameter, RowBounds rowBounds, ResultHandler handler);
-
-    int insert(WObject wObject, String statement);
-
-    int insert(WObject wObject, String statement, Object parameter);
-
-    int update(WObject wObject, String statement);
-
-    int update(WObject wObject, String statement, Object parameter);
-
-
-    int delete(WObject wObject, String statement);
-
-    int delete(WObject wObject, String statement, Object parameter);
-
-
-    /**
-     * 注意：使用自己生成的{@linkplain WObject}需要手动关闭，归还连接。
-     *
-     * @param wObject
-     */
-    void close(WObject wObject);
 
 
 }

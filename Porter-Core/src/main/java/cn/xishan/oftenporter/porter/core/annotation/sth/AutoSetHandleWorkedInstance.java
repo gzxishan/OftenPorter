@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;

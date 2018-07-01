@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
@@ -33,12 +34,19 @@ class WObjectImpl extends WObject
         this.isInnerRequest = isInnerRequest;
     }
 
+    void mayClearThreadLocal()
+    {
+        if (isTopRequest())
+        {
+            clearThreadLocal();
+        }
+    }
+
     @Override
     public boolean isInnerRequest()
     {
         return isInnerRequest;
     }
-
 
 
     void setParamSource(ParamSource paramSource)

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -303,7 +304,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
 
     @Override
-    public boolean init(ClientWebSocket current, PorterOfFun porterOfFun)
+    public boolean init(ClientWebSocket current,IConfigData configData, PorterOfFun porterOfFun)
     {
         this.porterOfFun = porterOfFun;
         this.clientWebSocket = current;

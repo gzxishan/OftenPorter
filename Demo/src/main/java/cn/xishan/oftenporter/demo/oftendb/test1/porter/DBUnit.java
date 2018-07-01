@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.demo.oftendb.test1.porter;
 
-import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.common;
 import cn.xishan.oftenporter.oftendb.db.AdvancedExecutor;
 import cn.xishan.oftenporter.oftendb.jbatis.JDao;

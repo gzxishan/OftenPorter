@@ -1,12 +1,14 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.oftendb.annotation.MyBatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
+import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
+import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -14,14 +16,15 @@ import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
 
 import java.io.*;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.nio.charset.Charset;
-import java.util.HashMap;
+import java.sql.Connection;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -211,21 +214,47 @@ class MyBatisDaoGen implements AutoSetGen
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-        MyBatisField myBatisField = AnnoUtil.getAnnotation(field,MyBatisField.class);
+        MyBatisField myBatisField = AnnoUtil.getAnnotation(field, MyBatisField.class);
 
-        if (myBatisField == null)
+        MyBatisDaoImpl myBatisDao;
+        if (myBatisField == null || Object.class.equals(myBatisField.value()))
         {
             LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
-            this.source = MyBatisOption.DEFAULT_SOURCE;
-            MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this);
+            this.source = myBatisField != null ? myBatisField.source() : MyBatisOption.DEFAULT_SOURCE;
+            myBatisDao = new MyBatisDaoImpl(this);
             return myBatisDao;
         } else
         {
             this.source = myBatisField.source();
+            _MyBatisField _myBatisField = new _MyBatisField();
+            _myBatisField.value = myBatisField.value();
+            myBatisDao = genObject(_myBatisField);
         }
-        _MyBatisField _myBatisField = new _MyBatisField();
-        _myBatisField.value = myBatisField.value();
-        return genObject(_myBatisField);
+        Class fieldType = field.getType();
+        if (!fieldType.equals(MyBatisDao.class))
+        {
+            //代理
+            if (!Modifier.isInterface(fieldType.getModifiers()))
+            {
+                throw new RuntimeException("just support interface,but given " + field);
+            }
+            Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
+                    fieldType
+            }, (proxy, method, args) -> {
+                ConnectionImpl mConnectionImpl = MyBatisBridge.__openSession(source);
+                Object dao = myBatisDao._mapper(mConnectionImpl.getSqlSession(), fieldType);
+                Object rs = method.invoke(dao, args);
+                Connection connection = mConnectionImpl.getConnection();
+                if (connection.getAutoCommit())
+                {
+                    TransactionJDBCHandle.__removeConnection__(source);
+                    connection.close();
+                }
+                return rs;
+            });
+            return proxyObject;
+        }
+        return myBatisDao;
     }
 
 
@@ -238,45 +267,24 @@ class MyBatisDaoGen implements AutoSetGen
         String name = mapperClass.getSimpleName() + ".xml";
 
         MyBatisMapper.Type theType = MyBatisMapper.Type.RESOURCES;
-        MyBatis myBatis1;
-        MyBatisMapper myBatis2;
+        MyBatisMapper myBatisMapper;
         String[] params = null;
-        {
-            myBatis1 = AnnoUtil.getAnnotation(mapperClass, MyBatis.class);
-            if (myBatis1 != null)
-            {
-                theType = myBatis1
-                        .type() == MyBatis.Type.RESOURCES ? MyBatisMapper.Type.RESOURCES : MyBatisMapper.Type.URL;
-                if (!myBatis1.dir().equals(""))
-                {
-                    dir = myBatis1.dir();
-                }
-                if (!myBatis1.name().equals(""))
-                {
-                    name = myBatis1.name();
-                }
-                params = myBatis1.params();
-            }
-            if (!dir.equals("") && !dir.endsWith("/"))
-            {
-                dir += "/";
-            }
-        }
+
 
         {
-            myBatis2 = AnnoUtil.getAnnotation(mapperClass, MyBatisMapper.class);
-            if (myBatis2 != null)
+            myBatisMapper = AnnoUtil.getAnnotation(mapperClass, MyBatisMapper.class);
+            if (myBatisMapper != null)
             {
-                theType = myBatis2.type();
-                if (!myBatis2.dir().equals(""))
+                theType = myBatisMapper.type();
+                if (!myBatisMapper.dir().equals(""))
                 {
-                    dir = myBatis2.dir();
+                    dir = myBatisMapper.dir();
                 }
-                if (!myBatis2.name().equals(""))
+                if (!myBatisMapper.name().equals(""))
                 {
-                    name = myBatis2.name();
+                    name = myBatisMapper.name();
                 }
-                params = myBatis2.params();
+                params = myBatisMapper.params();
             }
             if (!dir.equals("") && !dir.endsWith("/"))
             {
@@ -290,20 +298,12 @@ class MyBatisDaoGen implements AutoSetGen
 
         Class<?> entityClass = null;
 
-        if (myBatis2 != null)
+        if (myBatisMapper != null)
         {
             myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
-            myBatis.daoAlias = myBatis2.daoAlias();
-            myBatis.entityAlias = myBatis2.entityAlias();
-            myBatis.entityClass = myBatis2.entityClass();
-            entityClass = myBatis.entityClass;
-        } else if (myBatis1 != null)
-        {
-            myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
-            myBatis.daoAlias = myBatis1.daoAlias();
-            myBatis.entityAlias = myBatis1.entityAlias();
-            myBatis.entityClass = myBatis1.entityClass().equals(MyBatis.class) ? MyBatisMapper.class : myBatis1
-                    .entityClass();
+            myBatis.daoAlias = myBatisMapper.daoAlias();
+            myBatis.entityAlias = myBatisMapper.entityAlias();
+            myBatis.entityClass = myBatisMapper.entityClass();
             entityClass = myBatis.entityClass;
         } else
         {

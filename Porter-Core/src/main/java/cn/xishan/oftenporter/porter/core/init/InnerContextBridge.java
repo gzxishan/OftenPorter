@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.ParamDealt;
+import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 
 import java.util.HashMap;
 import java.util.Map;

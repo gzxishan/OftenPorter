@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 
 import java.lang.annotation.*;
 

@@ -1,10 +1,11 @@
 package cn.xishan.oftenporter.servlet.render.jsp;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
@@ -104,7 +105,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
 
     @Override
-    public boolean init(Jsp current, PorterOfFun porterOfFun)
+    public boolean init(Jsp current,IConfigData configData, PorterOfFun porterOfFun)
     {
         this.jsp = current;
 

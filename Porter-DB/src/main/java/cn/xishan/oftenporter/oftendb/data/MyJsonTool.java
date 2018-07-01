@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.MyConsumer;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.InNames;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

@@ -6,13 +6,13 @@ import cn.xishan.oftenporter.oftendb.annotation.ExceptDBField;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
-import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonField;
-import cn.xishan.oftenporter.porter.core.annotation.PortInObj.JsonObj;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.param.JsonField;
+import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.base.InNames;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONArray;
@@ -64,7 +64,7 @@ public class DataUtil
     {
         if (field.isAnnotationPresent(JsonObj.class))
         {
-            JsonObj jsonObj = AnnoUtil.getAnnotation(field,JsonObj.class);
+            JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
             String name = jsonObj.value();
             if (name.equals(""))
             {
@@ -79,7 +79,7 @@ public class DataUtil
             return true;
         } else if (field.isAnnotationPresent(JsonField.class))
         {
-            JsonField jsonField = AnnoUtil.getAnnotation(field,JsonField.class);
+            JsonField jsonField = AnnoUtil.getAnnotation(field, JsonField.class);
             String name = jsonField.value();
             if (name.equals(""))
             {
@@ -164,7 +164,7 @@ public class DataUtil
     /**
      * 得到字段的绑定名称,如果含有{@linkplain ExceptDBField}注解则会返回null。
      *
-     * @param field 使用{@linkplain PortInObj.Nece}、{@linkplain DBField}或{@linkplain PortInObj.UnNece
+     * @param field 使用{@linkplain Nece}、{@linkplain DBField}或{@linkplain Unece
      *              }注解标注字段，使用{@linkplain DBField}来映射数据库字段名。
      */
     public static String getTiedName(Field field)
@@ -175,19 +175,28 @@ public class DataUtil
         }
         field.setAccessible(true);
         String name = null;
-        if (field.isAnnotationPresent(PortInObj.Nece.class))
+        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
+        if (nece != null)
         {
-            name = PortUtil.tied(AnnoUtil.getAnnotation(field,PortInObj.Nece.class), field, true);
-        } else if (field.isAnnotationPresent(PortInObj.UnNece.class))
+            name = PortUtil.tied(nece, field, true);
+        } else
         {
-            name = PortUtil.tied(AnnoUtil.getAnnotation(field,PortInObj.UnNece.class), field, true);
-        } else if (field.isAnnotationPresent(DBField.class))
-        {
-            name = field.getName();
-            DBField dbField = AnnoUtil.getAnnotation(field,DBField.class);
-            if (!dbField.value().equals(""))
+            Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
+            if (unece != null)
             {
-                name = dbField.value();
+                name = PortUtil.tied(unece, field, true);
+            }
+        }
+        if (name == null)
+        {
+            DBField dbField = AnnoUtil.getAnnotation(field, DBField.class);
+            if (dbField != null)
+            {
+                name = field.getName();
+                if (!dbField.value().equals(""))
+                {
+                    name = dbField.value();
+                }
             }
         }
 
@@ -461,61 +470,61 @@ public class DataUtil
     }
 
 
-    public JResponse simpleDeal(SimpleDealt simpleDealt, Object... objects)
-    {
-        JResponse jResponse = new JResponse();
-
-        try
-        {
-            simpleDealt.deal(jResponse, objects);
-            jResponse.setCode(ResultCode.SUCCESS);
-        } catch (Exception e)
-        {
-            jResponse.setCode(ResultCode.SERVER_EXCEPTION);
-            jResponse.setDescription(e.toString());
-            simpleDealt.onException(e, jResponse, objects);
-        }
-
-        return jResponse;
-    }
-
-
-    /**
-     * 返回表名，会去掉Porter、Unit、UnitApi、Dao等后缀。
-     *
-     * @param tablePrefix
-     * @param configed
-     * @return
-     */
-    public static String getTableName(String tablePrefix, Configed configed)
-    {
-        String tableName;
-        Object unit = configed.getUnit();
-
-        String name = PortUtil.getRealClass(unit).getSimpleName();
-        int index = name.endsWith("Unit") ? name.lastIndexOf("Unit") : -1;
-        if (index < 0)
-        {
-            index = name.endsWith("Porter") ? name.lastIndexOf("Porter") : -1;
-        }
-
-        if (index < 0)
-        {
-            index = name.endsWith("Dao") ? name.lastIndexOf("Dao") : -1;
-        }
-        if (index < 0)
-        {
-            index = name.endsWith("UnitApi") ? name.lastIndexOf("UnitApi") : -1;
-        }
-        if (index > 0)
-        {
-            tableName = name.substring(0, index);
-        } else
-        {
-            tableName = name;
-        }
-        tableName = tablePrefix + tableName;
-        return tableName;
-    }
+//    public JResponse simpleDeal(SimpleDealt simpleDealt, Object... objects)
+//    {
+//        JResponse jResponse = new JResponse();
+//
+//        try
+//        {
+//            simpleDealt.deal(jResponse, objects);
+//            jResponse.setCode(ResultCode.SUCCESS);
+//        } catch (Exception e)
+//        {
+//            jResponse.setCode(ResultCode.SERVER_EXCEPTION);
+//            jResponse.setDescription(e.toString());
+//            simpleDealt.onException(e, jResponse, objects);
+//        }
+//
+//        return jResponse;
+//    }
+//
+//
+//    /**
+//     * 返回表名，会去掉Porter、Unit、UnitApi、Dao等后缀。
+//     *
+//     * @param tablePrefix
+//     * @param configed
+//     * @return
+//     */
+//    public static String getTableName(String tablePrefix, Configed configed)
+//    {
+//        String tableName;
+//        Object unit = configed.getUnit();
+//
+//        String name = PortUtil.getRealClass(unit).getSimpleName();
+//        int index = name.endsWith("Unit") ? name.lastIndexOf("Unit") : -1;
+//        if (index < 0)
+//        {
+//            index = name.endsWith("Porter") ? name.lastIndexOf("Porter") : -1;
+//        }
+//
+//        if (index < 0)
+//        {
+//            index = name.endsWith("Dao") ? name.lastIndexOf("Dao") : -1;
+//        }
+//        if (index < 0)
+//        {
+//            index = name.endsWith("UnitApi") ? name.lastIndexOf("UnitApi") : -1;
+//        }
+//        if (index > 0)
+//        {
+//            tableName = name.substring(0, index);
+//        } else
+//        {
+//            tableName = name;
+//        }
+//        tableName = tablePrefix + tableName;
+//        return tableName;
+//    }
 
 }

@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
-import cn.xishan.oftenporter.porter.core.base.ParamDealt;
+import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.init.PorterBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 

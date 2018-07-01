@@ -1,6 +1,10 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
+import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
@@ -46,6 +50,7 @@ public class PorterConf
     private IAnnotationConfigable iAnnotationConfigable;
     private boolean isDefaultIAnnotationConfigable = true;
     private boolean enableAspectOfNormal = true;
+    private boolean enableIDynamicAnnotationImprovable = true;
 
 
     PorterConf()
@@ -59,6 +64,21 @@ public class PorterConf
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    /**
+     * 默认为true。
+     *
+     * @return
+     */
+    public boolean isEnableIDynamicAnnotationImprovable()
+    {
+        return enableIDynamicAnnotationImprovable;
+    }
+
+    public void setEnableIDynamicAnnotationImprovable(boolean enableIDynamicAnnotationImprovable)
+    {
+        this.enableIDynamicAnnotationImprovable = enableIDynamicAnnotationImprovable;
     }
 
     /**
@@ -225,14 +245,6 @@ public class PorterConf
         return porterCheckPassableList;
     }
 
-    /**
-     * 请使用{@linkplain #addPorterCheck(CheckPassable)}
-     */
-    @Deprecated
-    public void addForAllCheckPassable(CheckPassable forAllCheckPassable)
-    {
-        porterCheckPassableList.add(forAllCheckPassable);
-    }
 
     /**
      * <p>

@@ -2,7 +2,8 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.annotation.NotNull;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,7 +16,7 @@ public class DateParser extends TypeParser {
     private final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public ParseResult parse(String name, Object value,@MayNull Object dealt) {
+    public ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value, @MayNull Object dealt) {
         ParseResult result;
         try {
             Object v;

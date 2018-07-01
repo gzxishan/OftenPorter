@@ -1,6 +1,9 @@
 package cn.xishan.oftenporter.porter.core;
 
 
+import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
+import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
@@ -143,13 +146,13 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
     private PorterConf porterConf;
-    private ListenerAdder<OnPorterAddListener> listenerAdder;
+    private IListenerAdder<OnPorterAddListener> listenerAdder;
 
     private Map<Class, SrcPorter> class_porterMap;
     private Map<Class, Set<_MixinPorter>> mixinToMap;//key为被混入的接口。
 
 
-    public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, ListenerAdder<OnPorterAddListener> listenerAdder,
+    public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, IListenerAdder<OnPorterAddListener> listenerAdder,
             PorterConf porterConf,
             AutoSetHandle autoSetHandle, List<PortIniter> portIniterList) throws FatalInitException
     {

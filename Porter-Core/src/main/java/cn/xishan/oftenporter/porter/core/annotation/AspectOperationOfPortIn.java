@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -29,14 +30,14 @@ public @interface AspectOperationOfPortIn
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
 
         @Override
-        public boolean init(T current, Porter porter)
+        public boolean init(T current, IConfigData configData,Porter porter)
         {
             LOGGER.debug("not Override.");
             return false;
         }
 
         @Override
-        public boolean init(T current, PorterOfFun porterOfFun)
+        public boolean init(T current,IConfigData configData, PorterOfFun porterOfFun)
         {
             LOGGER.debug("not Override.");
             return false;
@@ -131,7 +132,7 @@ public @interface AspectOperationOfPortIn
          * @param porter
          * @return
          */
-        boolean init(T current, Porter porter);
+        boolean init(T current,IConfigData configData, Porter porter);
 
         /**
          * 注解在函数上的。
@@ -140,7 +141,7 @@ public @interface AspectOperationOfPortIn
          * @param porterOfFun
          * @return
          */
-        boolean init(T current, PorterOfFun porterOfFun);
+        boolean init(T current,IConfigData configData, PorterOfFun porterOfFun);
 
         void onStart(WObject wObject);
 

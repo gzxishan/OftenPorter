@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.PreRequest;
+import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.*;
@@ -292,7 +293,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
     {
         return porterMain.getOnPorterAddListenerAdder();
     }

@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.pbridge;
 
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/18.

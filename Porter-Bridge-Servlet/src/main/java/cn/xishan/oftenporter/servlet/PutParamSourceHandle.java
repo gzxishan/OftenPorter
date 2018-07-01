@@ -5,6 +5,7 @@ package cn.xishan.oftenporter.servlet;
  */
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
+import cn.xishan.oftenporter.porter.core.advanced.ParamSourceHandle;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;

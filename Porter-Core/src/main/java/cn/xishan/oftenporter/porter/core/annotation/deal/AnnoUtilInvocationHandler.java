@@ -1,11 +1,11 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
-import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-06-29.
@@ -14,10 +14,10 @@ class AnnoUtilInvocationHandler implements InvocationHandler
 {
     private Annotation origin;
     private IAnnotationConfigable iAnnotationConfigable;
-    private Object config;
+    private IConfigData config;
 
     public AnnoUtilInvocationHandler(Annotation origin,
-            IAnnotationConfigable iAnnotationConfigable, Object config)
+            IAnnotationConfigable iAnnotationConfigable, IConfigData config)
     {
         this.origin = origin;
         this.iAnnotationConfigable = iAnnotationConfigable;

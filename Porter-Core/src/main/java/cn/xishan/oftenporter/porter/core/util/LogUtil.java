@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import org.slf4j.Logger;

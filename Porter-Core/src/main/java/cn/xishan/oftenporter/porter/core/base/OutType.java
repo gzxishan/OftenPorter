@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 /**

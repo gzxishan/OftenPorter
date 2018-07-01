@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.simple;
 
-import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,11 +17,13 @@ public class DefaultAnnotationConfigableTest
         Properties properties = new Properties();
         properties.setProperty("name","tom");
         properties.setProperty("age","12");
+        IConfigData configData = new DefaultConfigData(properties);
+
         IAnnotationConfigable<Properties> annotationConfigable = new DefaultAnnotationConfigable();
         String value = "${name}";
-        Assert.assertEquals("tom",annotationConfigable.getValue(properties,value));
+        Assert.assertEquals("tom",annotationConfigable.getValue(configData,value));
 
         value = " ${name} age is ${age} ";
-        Assert.assertEquals("tom age is 12",annotationConfigable.getValue(properties,value));
+        Assert.assertEquals("tom age is 12",annotationConfigable.getValue(configData,value));
     }
 }

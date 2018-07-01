@@ -3,9 +3,9 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
-import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
+import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 
@@ -29,7 +29,7 @@ public interface CommonMain
      *
      * @return
      */
-    ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder();
+    IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder();
 
 
     /**

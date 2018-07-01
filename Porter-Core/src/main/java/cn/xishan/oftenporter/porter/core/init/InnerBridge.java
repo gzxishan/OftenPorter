@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheTool;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.TypeParserStore;
+import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultTypeParserStore;
 

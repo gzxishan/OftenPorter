@@ -6,8 +6,8 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
-import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -45,6 +45,16 @@ public class AutoSetHandle
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
     private IOtherStartDestroy iOtherStartDestroy;
+
+    public <T> T getContextObject(Class<?> key)
+    {
+        return getContextObject(key.getName());
+    }
+
+    public <T> T getContextObject(String key)
+    {
+        return (T) innerContextBridge.contextAutoSet.get(key);
+    }
 
     public static class _SetOkObject implements Comparable<_SetOkObject>
     {
@@ -143,7 +153,7 @@ public class AutoSetHandle
         {
             for (Object obj : objects)
             {
-                doAutoSetForCurrent(false,obj, obj);
+                doAutoSetForCurrent(false, obj, obj);
             }
         }
 
@@ -220,7 +230,7 @@ public class AutoSetHandle
                         for (int i = 0; i < classeses.size(); i++)
                         {
                             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -229,7 +239,7 @@ public class AutoSetHandle
                     for (int k = 0; k < classes.size(); k++)
                     {
                         Class<?> clazz = classes.get(k);
-                        doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
+                        doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
                     }
                 }
 
@@ -247,7 +257,7 @@ public class AutoSetHandle
                         }
                         if (clazz != null)
                         {
-                            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -276,7 +286,8 @@ public class AutoSetHandle
 
         private void doAutoSetForPorter(Porter porter) throws Exception
         {
-            Object obj = doAutoSetForCurrent(true,porter, porter.getFinalPorterObject(), porter.getClazz(), porter.getObj(),
+            Object obj = doAutoSetForCurrent(true, porter, porter.getFinalPorterObject(), porter.getClazz(),
+                    porter.getObj(),
                     RangeType.ALL);
             porter.setObj(obj);
         }
@@ -352,11 +363,11 @@ public class AutoSetHandle
         for (int i = 0; i < classeses.size(); i++)
         {
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-            doAutoSetForCurrent(true,null, null, clazz, null, RangeType.STATIC);
+            doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
             if (clazz.isAnnotationPresent(AutoSetSeek.class))
             {
                 Object object = clazz.newInstance();
-                doAutoSetForCurrent(true,null, object, clazz, object, RangeType.INSTANCE);
+                doAutoSetForCurrent(true, null, object, clazz, object, RangeType.INSTANCE);
             }
         }
     }
@@ -549,16 +560,18 @@ public class AutoSetHandle
         }
     }
 
-    private Object doAutoSetForCurrent(boolean doProxy,@MayNull Object finalObject, Object currentObject) throws Exception
+    private Object doAutoSetForCurrent(boolean doProxy, @MayNull Object finalObject,
+            Object currentObject) throws Exception
     {
-        return doAutoSetForCurrent(doProxy,null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
+        return doAutoSetForCurrent(doProxy, null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
                 RangeType.ALL);
     }
 
-    private Object doAutoSetForCurrent(boolean doProxy,Porter porter, @MayNull Object finalObject, Class<?> currentObjectClass,
+    private Object doAutoSetForCurrent(boolean doProxy, Porter porter, @MayNull Object finalObject,
+            Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
-        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject,this,doProxy);
+        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxy);
         currentObject = result.object;
         if (result.isWorked)
         {
@@ -694,7 +707,7 @@ public class AutoSetHandle
                         }
                     } else
                     {
-                        value = doAutoSetForCurrent(true,value, value);//递归：设置被设置的变量。
+                        value = doAutoSetForCurrent(true, value, value);//递归：设置被设置的变量。
                     }
                 } else
                 {
@@ -779,10 +792,9 @@ public class AutoSetHandle
         if (genClass.equals(AutoSetGen.class))
         {
             Class<?> objClazz = field.getType();
-            if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(objClazz);
+            if (autoSetDefaultDealt != null)
             {
-                AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
-                        .getAnnotation(objClazz, AutoSetDefaultDealt.class);
                 genClass = autoSetDefaultDealt.gen();
                 if ("".equals(option))
                 {
@@ -797,7 +809,7 @@ public class AutoSetHandle
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
         addOtherStartDestroy(autoSetGen);
-        autoSetGen = (AutoSetGen) doAutoSetForCurrent(true,autoSetGen, autoSetGen);
+        autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field, option);
         return value;
     }
@@ -821,10 +833,9 @@ public class AutoSetHandle
         if (autoSetDealtClass.equals(AutoSetDealt.class))
         {
             Class<?> objClazz = field.getType();
-            if (objClazz.isAnnotationPresent(AutoSetDefaultDealt.class))
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(objClazz);
+            if (autoSetDefaultDealt != null)
             {
-                AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil
-                        .getAnnotation(objClazz, AutoSetDefaultDealt.class);
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
                 if ("".equals(option))
                 {
@@ -838,7 +849,7 @@ public class AutoSetHandle
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
         addOtherStartDestroy(autoSetDealt);
-        autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true,autoSetDealt, autoSetDealt);
+        autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field, value, option);
         return finalValue;
     }
@@ -918,7 +929,7 @@ public class AutoSetHandle
         {
             f.set(currentObject, sysset);
             LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
-            sysset = doAutoSetForCurrent(true,sysset, sysset);//递归：设置被设置的变量。
+            sysset = doAutoSetForCurrent(true, sysset, sysset);//递归：设置被设置的变量。
         }
         return sysset != null;
     }

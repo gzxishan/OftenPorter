@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.uibinder.core;
 
 
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.lang.reflect.Constructor;

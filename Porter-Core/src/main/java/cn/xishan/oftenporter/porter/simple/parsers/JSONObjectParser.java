@@ -3,8 +3,8 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -16,7 +16,7 @@ public class JSONObjectParser extends TypeParser
 {
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull Object dealt)
+    public ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value, @MayNull Object dealt)
     {
         return parse(this, value);
     }

@@ -14,16 +14,14 @@ import java.io.IOException;
  */
 public abstract class WS
 {
-    @Deprecated
-    public final Type type;
+    private final Type type;
 
     public Type type()
     {
         return type;
     }
 
-    @Deprecated
-    public final Session session;
+    private final Session session;
 
     public Session session()
     {
@@ -33,8 +31,7 @@ public abstract class WS
     /**
      * 当{@linkplain WebSocket#isPartial()}为false时，该值始终为true。
      */
-    @Deprecated
-    public final boolean isLast;
+    private final boolean isLast;
 
     /**
      * 当{@linkplain WebSocket#isPartial()}为false时，该值始终为true。

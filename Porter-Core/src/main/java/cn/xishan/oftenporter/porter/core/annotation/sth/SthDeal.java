@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.ContextPorter;
+import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -118,8 +119,9 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParse指定的类的Parse的处理
-        OPEntitiesDeal.sthUtil.bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
-                mixinToMap);
+        OPEntitiesDeal.sthUtil
+                .bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
+                        mixinToMap);
         //对Parse的处理
         OPEntitiesDeal.sthUtil
                 .bindParses(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
@@ -257,11 +259,10 @@ public class SthDeal
             handles.addAll(_handles);
         }
 
+        IConfigData configData = setHandle.getContextObject(IConfigData.class);
         for (Annotation annotation : annotations)
         {
-            Class<? extends Annotation> atype = annotation.annotationType();
-            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil
-                    .getAnnotation(atype, AspectOperationOfPortIn.class);
+            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil.Advanced.getAspectOperationOfPortIn(annotation);
             if (aspectOperationOfPortIn == null)
             {
                 continue;
@@ -273,7 +274,7 @@ public class SthDeal
                 if (object instanceof PorterOfFun)
                 {
                     PorterOfFun porterOfFun = (PorterOfFun) object;
-                    if (handle.init(annotation, porterOfFun))
+                    if (handle.init(annotation, configData, porterOfFun))
                     {
                         porterOfFun.portOut._setOutType(handle.getOutType());
                         porterOfFun.portIn.setPortFunType(handle.getPortFunType());
@@ -285,7 +286,7 @@ public class SthDeal
                 } else
                 {
                     Porter porter = (Porter) object;
-                    if (handle.init(annotation, porter))
+                    if (handle.init(annotation, configData, porter))
                     {
                         porter.portOut._setOutType(handle.getOutType());
                         porter.portIn.setPortFunType(handle.getPortFunType());

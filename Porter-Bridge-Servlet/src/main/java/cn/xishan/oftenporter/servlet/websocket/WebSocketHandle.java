@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
@@ -54,7 +55,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     }
 
     @Override
-    public boolean init(WebSocket webSocket, PorterOfFun porterOfFun)
+    public boolean init(WebSocket webSocket,IConfigData configData, PorterOfFun porterOfFun)
     {
         this.webSocket = webSocket;
         this.thePorterOfFun = porterOfFun;

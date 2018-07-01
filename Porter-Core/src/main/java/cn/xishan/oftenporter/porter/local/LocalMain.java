@@ -1,5 +1,9 @@
 package cn.xishan.oftenporter.porter.local;
 
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
+import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -61,7 +65,7 @@ public class LocalMain implements CommonMain
     }
 
     @Override
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
     {
         return porterMain.getOnPorterAddListenerAdder();
     }

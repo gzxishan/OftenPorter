@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.demo.core.test1;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
-import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

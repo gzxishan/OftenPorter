@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.

@@ -2,13 +2,12 @@ package cn.xishan.oftenporter.demo.oftendb.base;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 import cn.xishan.oftenporter.oftendb.data.impl.MysqlSource;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.DBHandle;
-import cn.xishan.oftenporter.oftendb.db.mysql.SqlHandle;
+import cn.xishan.oftenporter.oftendb.db.sql.SqlHandle;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 public class SqlDBSource extends MysqlSource

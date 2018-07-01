@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 

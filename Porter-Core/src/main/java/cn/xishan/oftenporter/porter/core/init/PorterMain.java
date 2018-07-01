@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
+import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
@@ -16,6 +17,7 @@ import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
+import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +39,7 @@ public final class PorterMain
     private boolean isInit;
     private InnerBridge innerBridge;
     private PLinker pLinker;
-    private ListenerAdderImpl listenerAdder;
+    private IListenerAdder<OnPorterAddListener> IListenerAdder;
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
@@ -105,7 +107,7 @@ public final class PorterMain
         synchronized (PorterMain.class)
         {
             this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
-            listenerAdder = new ListenerAdderImpl();
+            IListenerAdder = new DefaultListenerAdder<>();
             pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
             pLinker.setPorterAttr(contextName ->
             {
@@ -124,9 +126,9 @@ public final class PorterMain
         }
     }
 
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
+    public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
     {
-        return listenerAdder;
+        return IListenerAdder;
     }
 
     /**
@@ -268,12 +270,15 @@ public final class PorterMain
         ContextPorter contextPorter = new ContextPorter();
         contextPorter.setClassLoader(porterConf.getClassLoader());
 
-        if (porterConf.isEnableAnnotationConfigable() && porterConf.getIAnnotationConfigable() != null)
+        IConfigData iConfigData = porterConf.getIAnnotationConfigable().getConfig(porterConf.getAnnotationConfig());
+        porterConf.addContextAutoSet(IConfigData.class, iConfigData);
+
+        if (porterConf.isEnableAnnotationConfigable())
         {
-            AnnoUtil.pushAnnotationConfigable(porterConf.getAnnotationConfig(), porterConf.getIAnnotationConfigable());
+            AnnoUtil.pushAnnotationConfigable(iConfigData, porterConf.getIAnnotationConfigable());
             if (porterConf.isDefaultIAnnotationConfigable())
             {
-                AnnoUtil.setDefaultConfigable(porterConf.getAnnotationConfig(), porterConf.getIAnnotationConfigable());
+                AnnoUtil.setDefaultConfigable(iConfigData, porterConf.getIAnnotationConfigable());
             }
         }
 
@@ -312,7 +317,7 @@ public final class PorterMain
         try
         {
             classCheckPassableMap = contextPorter
-                    .initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
+                    .initSeek(sthDeal, IListenerAdder, porterConf, autoSetHandle, portIniterList);
         } catch (Exception e)
         {
             throw new Error(WPTool.getCause(e));
@@ -350,7 +355,7 @@ public final class PorterMain
             if (porterConf.isEnableAspectOfNormal())
             {
                 autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal();
-                LOGGER.debug("{} is enabled!",AspectOperationOfNormal.class.getSimpleName());
+                LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
             }
             LOGGER.debug("start doAutoSet...");
             autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理

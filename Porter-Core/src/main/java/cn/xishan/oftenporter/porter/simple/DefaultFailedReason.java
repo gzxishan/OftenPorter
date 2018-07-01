@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.simple;
 
-import cn.xishan.oftenporter.porter.core.base.ParamDealt;
+import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 

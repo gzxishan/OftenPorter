@@ -2,8 +2,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
  * 不做任何类型转换操作,若加变量参数，则与{@linkplain StringParser}相同。
@@ -22,7 +21,7 @@ public class ObjectParser extends StringParser
     }
 
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value, @MayNull StringDealt stringDealt)
+    public ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value, @MayNull StringDealt stringDealt)
     {
         ParseResult parseResult;
         if (stringDealt != null)

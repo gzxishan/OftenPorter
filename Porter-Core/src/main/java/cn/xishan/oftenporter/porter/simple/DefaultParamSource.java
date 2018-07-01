@@ -3,9 +3,9 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.base.ParamDealt;
+import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WRequest;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
@@ -83,7 +83,7 @@ public class DefaultParamSource implements ParamSource {
     }
 
     /**
-     * 添加到{@linkplain cn.xishan.oftenporter.porter.core.base.UrlDecoder.Result}中去。
+     * 添加到{@linkplain UrlDecoder.Result}中去。
      *
      * @param newParams
      */

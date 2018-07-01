@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 
 import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 import java.lang.annotation.*;

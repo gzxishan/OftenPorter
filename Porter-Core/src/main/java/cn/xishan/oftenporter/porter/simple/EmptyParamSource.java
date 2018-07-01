@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 
 import java.util.Enumeration;

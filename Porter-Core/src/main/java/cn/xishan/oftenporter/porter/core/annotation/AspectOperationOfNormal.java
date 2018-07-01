@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * 被注解的注解可以注解在类或函数上（类上的对所有函数有效）。
+ *
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -73,22 +76,25 @@ public @interface AspectOperationOfNormal
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
 
         @Override
-        public boolean init(T current, Object originObject, Method originMethod) throws Exception
+        public boolean init(T current, IConfigData configData, Object originObject,
+                Method originMethod) throws Exception
         {
             LOGGER.debug("not Override.");
             return false;
         }
 
         @Override
-        public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
-                Object[] args, Object lastReturn)
+        public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker,
+                Object[] args, Object lastReturn) throws Throwable
         {
             LOGGER.debug("not Override.");
             return false;
         }
 
         @Override
-        public Object doInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+        public Object doInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker,
                 Object[] args, Object lastReturn) throws Throwable
         {
             LOGGER.debug("not Override.");
@@ -101,6 +107,13 @@ public @interface AspectOperationOfNormal
         {
             LOGGER.debug("not Override.");
             return lastFinalReturn;
+        }
+
+        @Override
+        public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,Object[] args,
+                Throwable throwable) throws Throwable
+        {
+
         }
     }
 
@@ -116,7 +129,7 @@ public @interface AspectOperationOfNormal
      * preInvoke,doInvoke:handleA--handleB--handleC
      * </li>
      * <li>
-     * onEnd:handleC--handleB--handleA
+     * onEnd,onException:handleC--handleB--handleA
      * </li>
      * </ol>
      * </p>
@@ -133,22 +146,28 @@ public @interface AspectOperationOfNormal
          * @param originMethod
          * @return true表示添加，false不添加。
          */
-        boolean init(T current, Object originObject, Method originMethod) throws Exception;
+        boolean init(T current, IConfigData configData, Object originObject, Method originMethod) throws Exception;
 
         /**
          * 是否会调用{@linkplain #doInvoke(WObject, boolean, Object, Method, Invoker, Object[], Object)}
          */
-        boolean preInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+        boolean preInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker,
                 Object[] args,
                 Object lastReturn) throws Throwable;
 
 
-        Object doInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+        Object doInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker,
                 Object[] args,
                 Object lastReturn) throws Throwable;
 
         Object onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
                 Object lastFinalReturn) throws Throwable;
+
+        void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker, Object[] args,
+                Throwable throwable) throws Throwable;
     }
 
     Class<? extends Handle> handle();

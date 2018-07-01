@@ -207,6 +207,20 @@ public class WPTool
     /**
      * 通过反射构建一个实例，必须含有无参构造函数。
      *
+     * @param className
+     * @param <T>
+     * @return
+     */
+    public static <T> T newObject(String className) throws ClassNotFoundException, InvocationTargetException,
+            NoSuchMethodException, InstantiationException, IllegalAccessException
+    {
+        Class<T> clazz = (Class<T>) PackageUtil.newClass(className, null);
+        return newObject(clazz);
+    }
+
+    /**
+     * 通过反射构建一个实例，必须含有无参构造函数。
+     *
      * @param clazz
      * @param <T>
      * @return

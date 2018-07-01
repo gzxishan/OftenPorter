@@ -3,8 +3,8 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
-import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory;
-import cn.xishan.oftenporter.porter.core.base.IArgumentsFactory.IArgsHandle;
+import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
+import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory.IArgsHandle;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -107,30 +107,6 @@ public abstract class PorterOfFun implements ObjectGetter
      */
     @Override
     public abstract Object getObject();
-
-    /**
-     * @param wObject
-     * @param optionArgs 可选参数,为null采用默认的处理。
-     * @return
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     */
-    @Deprecated
-    public final Object invoke(WObject wObject,
-            Object[] optionArgs) throws InvocationTargetException, IllegalAccessException
-    {
-        Method javaMethod = getMethod();
-        if (optionArgs != null)
-        {
-            return javaMethod.invoke(getObject(), optionArgs);
-        } else if (getArgCount() == 0)
-        {
-            return javaMethod.invoke(getObject());
-        } else
-        {
-            return javaMethod.invoke(getObject(), wObject);
-        }
-    }
 
 
     /**

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.simple;
 
-import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -16,27 +17,33 @@ public class DefaultAnnotationConfigable implements IAnnotationConfigable<Proper
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([A-Za-z0-9_.:$#-]+)\\}");
 
     @Override
-    public String getValue(Properties config, String value)
+    public String getValue(IConfigData config, String value)
     {
         if (config != null)
         {
             Matcher matcher = PATTERN.matcher(value);
             if (matcher.find())
             {
-                StringBuilder stringBuilder=new StringBuilder();
-                int from=0;
+                StringBuilder stringBuilder = new StringBuilder();
+                int from = 0;
                 do
                 {
                     String key = matcher.group(1);
-                    String rs = config.getProperty(key, value);
+                    String rs = config.getString(key, value);
                     stringBuilder.append(value, from, matcher.start());
                     stringBuilder.append(rs);
-                    from=matcher.end();
-                }while (matcher.find());
-                stringBuilder.append(value,from,value.length());
-                value=stringBuilder.toString();
+                    from = matcher.end();
+                } while (matcher.find());
+                stringBuilder.append(value, from, value.length());
+                value = stringBuilder.toString();
             }
         }
         return value.trim();
+    }
+
+    @Override
+    public IConfigData getConfig(Properties config)
+    {
+        return new DefaultConfigData(config);
     }
 }

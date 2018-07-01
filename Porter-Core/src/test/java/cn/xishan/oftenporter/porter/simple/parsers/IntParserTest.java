@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import org.junit.Assert;
 import org.junit.Test;
 

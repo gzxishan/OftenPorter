@@ -4,7 +4,7 @@ package cn.xishan.oftenporter.porter.core.annotation.param;
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 
 import java.lang.annotation.*;

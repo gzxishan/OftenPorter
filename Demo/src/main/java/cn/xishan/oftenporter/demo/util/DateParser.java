@@ -5,7 +5,7 @@ import java.util.Date;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 
 public class DateParser extends ITypeParser.Adapter {
 

@@ -1,9 +1,10 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import net.sf.cglib.proxy.*;
@@ -46,10 +47,12 @@ public class AutoSetObjForAspectOfNormal
     public class MethodInterceptorImpl implements MethodInterceptor
     {
         private Object origin;
+        Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap;
 
-        public MethodInterceptorImpl(Object origin)
+        public MethodInterceptorImpl(Object origin, Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap)
         {
             this.origin = origin;
+            this.aspectHandleMap = aspectHandleMap;
         }
 
         @Override
@@ -61,7 +64,7 @@ public class AutoSetObjForAspectOfNormal
             }
 
             WObject wObject = WObject.fromThreadLocal();
-            AspectOperationOfNormal.Handle[] handles = aspectHandleMap.get(method);
+            AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
             boolean isTop = wObject == null || wObject.isTopRequest();
 
             AspectOperationOfNormal.DefaultInvoker invoker = new AspectOperationOfNormal.DefaultInvoker()
@@ -83,32 +86,49 @@ public class AutoSetObjForAspectOfNormal
             };
             Object lastReturn = null;
             boolean isInvoked = false;
-            for (int i = 0; i < handles.length; i++)
+            Throwable throwable = null;
+            try
             {
-                AspectOperationOfNormal.Handle handle = handles[i];
-                if (handle.preInvoke(wObject, isTop, origin, method, invoker, args, lastReturn))
+                for (int i = 0; i < handles.length; i++)
                 {
-                    isInvoked = true;
-                    lastReturn = handle.doInvoke(wObject, isTop, origin, method, invoker, args, lastReturn);
+                    AspectOperationOfNormal.Handle handle = handles[i];
+                    if (handle.preInvoke(wObject, isTop, origin, method, invoker, args, lastReturn))
+                    {
+                        isInvoked = true;
+                        lastReturn = handle.doInvoke(wObject, isTop, origin, method, invoker, args, lastReturn);
+                    }
                 }
-            }
-
-            if (!isInvoked)
+                if (!isInvoked)
+                {
+                    lastReturn = invoker.invoke(args);
+                }
+            } catch (Throwable th)
             {
-                lastReturn = invoker.invoke(args);
+                throwable = th;
             }
 
-            for (int i = handles.length - 1; i >= 0; i--)
+            if (throwable == null)
             {
-                AspectOperationOfNormal.Handle handle = handles[i];
-                lastReturn = handle.onEnd(wObject, isTop, origin, method, invoker, lastReturn);
+                for (int i = handles.length - 1; i >= 0; i--)
+                {
+                    AspectOperationOfNormal.Handle handle = handles[i];
+                    lastReturn = handle.onEnd(wObject, isTop, origin, method, invoker, lastReturn);
+                }
+            } else
+            {
+                for (int i = handles.length - 1; i >= 0; i--)
+                {
+                    AspectOperationOfNormal.Handle handle = handles[i];
+                    handle.onException(wObject, isTop, origin, method,invoker,args, throwable);
+                }
+                throw throwable;
             }
-
             return lastReturn;
         }
     }
 
-    private Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new WeakHashMap<>();
+    private static Set<Method> aspectHandleSet = Collections.newSetFromMap(new WeakHashMap<>());
+    private static Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
     private Object callbackFilter = null;
 
     public AutoSetObjForAspectOfNormal()
@@ -117,58 +137,106 @@ public class AutoSetObjForAspectOfNormal
 
     public Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
+        synchronized (AutoSetObjForAspectOfNormal.class)
+        {
+            if (seekedObjectSet.contains(object))
+            {
+                return object;
+            }
+        }
         if (object instanceof IOPProxy)
         {
             return object;
         }
+        Class<?> clazz = PortUtil.getRealClass(object);
+        IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
+
+        Map<Annotation, AspectOperationOfNormal> classAspectOperationMap = new HashMap<>();
+
+        {
+            Annotation[] annotations = AnnoUtil.getAnnotations(clazz);
+            for (Annotation annotation : annotations)
+            {
+                AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
+                        .getAspectOperationOfNormal(annotation);
+                if (aspectOperationOfNormal != null)
+                {
+                    classAspectOperationMap.put(annotation, aspectOperationOfNormal);
+                }
+            }
+        }
 
 
-        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(object));
+        Method[] methods = WPTool.getAllMethods(clazz);
         boolean existsAspect = false;
-        Map<Method, List<Annotation>> methodTypeMap = new HashMap<>();
+        Map<Method, List<Annotation[]>> methodTypeMap = new WeakHashMap<>();
         for (Method method : methods)
         {
+
             Package pkg = method.getDeclaringClass().getPackage();
             if (pkg != null && (pkg.getName().startsWith("java.") || pkg.getName().startsWith("javax.")))
             {
                 continue;
             }
-            Annotation[] annotations = method.getAnnotations();
-            List<Annotation> list = new ArrayList<>(1);
+            Annotation[] annotations = AnnoUtil.getAnnotations(method);
+            List<Annotation[]> list = new ArrayList<>(1);
             for (Annotation annotation : annotations)
             {
-                Class<?> type = annotation.annotationType();
-                if (type.isAnnotationPresent(AspectOperationOfNormal.class))
+                AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
+                        .getAspectOperationOfNormal(annotation);
+                if (aspectOperationOfNormal == null)
                 {
-                    list.add(annotation);
+                    aspectOperationOfNormal = classAspectOperationMap.get(annotation);//如果函数上不存在指定注解、则获取类上的
+                }
+                if (aspectOperationOfNormal != null)
+                {
+                    list.add(new Annotation[]{
+                            annotation, aspectOperationOfNormal
+                    });
                     existsAspect = true;
                 }
             }
             if (list.size() > 0)
             {
+                synchronized (AutoSetObjForAspectOfNormal.class)
+                {
+                    aspectHandleSet.add(method);
+                }
                 methodTypeMap.put(method, list);
             }
+        }
+
+        synchronized (AutoSetObjForAspectOfNormal.class)
+        {
+            seekedObjectSet.add(object);
         }
 
         if (existsAspect)
         {
             if (this.callbackFilter == null)
             {
-                CallbackFilter callbackFilter = method -> aspectHandleMap.containsKey(method) ? 1 : 0;
+                CallbackFilter callbackFilter = method -> {
+                    synchronized (AutoSetObjForAspectOfNormal.class)
+                    {
+                        return aspectHandleSet.contains(method) ? 1 : 0;
+                    }
+                };
                 this.callbackFilter = callbackFilter;
             }
-            for (Map.Entry<Method, List<Annotation>> entry : methodTypeMap.entrySet())
+            Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
+            for (Map.Entry<Method, List<Annotation[]>> entry : methodTypeMap.entrySet())
             {
-                List<Annotation> annotationList = entry.getValue();
+                List<Annotation[]> annotationList = entry.getValue();
                 List<AspectOperationOfNormal.Handle> handles = new ArrayList<>(annotationList.size());
 
                 for (int i = 0; i < annotationList.size(); i++)
                 {
-                    Annotation annotation = annotationList.get(i);
-                    AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
-                            .getAnnotation(annotation.annotationType(), AspectOperationOfNormal.class);
+                    Annotation annotation = annotationList.get(i)[0];
+                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList
+                            .get(i)[1];
+
                     AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
-                    if (handle.init(annotation, object, entry.getKey()))
+                    if (handle.init(annotation, configData, object, entry.getKey()))
                     {
                         autoSetHandle.addAutoSetsForNotPorter(new Object[]{handle});
                         handles.add(handle);
@@ -182,7 +250,7 @@ public class AutoSetObjForAspectOfNormal
             }
 
             Callback[] callbacks =
-                    new Callback[]{NoOp.INSTANCE, new MethodInterceptorImpl(object)};
+                    new Callback[]{NoOp.INSTANCE, new MethodInterceptorImpl(object, aspectHandleMap)};
 
             Enhancer enhancer = new Enhancer();
             enhancer.setCallbacks(callbacks);

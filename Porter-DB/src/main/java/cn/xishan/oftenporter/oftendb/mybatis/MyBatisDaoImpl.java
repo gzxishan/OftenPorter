@@ -1,18 +1,14 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Proxy;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -53,45 +49,85 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         this.mapperFile = mapperFile;
     }
 
+
     @Override
-    public SqlSession getSqlSession(WObject wObject)
+    public SqlSession getNewSqlSession()
     {
-        SqlSession sqlSession = MyBatisBridge.openSession(wObject, myBatisDaoGen.source);
-        return sqlSession;
+        ConnectionImpl connection = MyBatisBridge.__openSession__(myBatisDaoGen.source, false);
+        return connection.getSqlSession();
     }
+
+    private SqlSession _getSqlSession()
+    {
+        ConnectionImpl connection = MyBatisBridge.__openSession(myBatisDaoGen.source);
+        return connection.getSqlSession();
+    }
+
 
     @Override
     public <T> T mapper(WObject wObject)
     {
         checkMapperClass();
-        return getSqlSession(wObject).getMapper((Class<T>) myBatis.daoClass);
-    }
-
-    @Override
-    public Connection getConnection()
-    {
-        return new ConnectionWrap(getSqlSession());
-    }
-
-    @Override
-    public SqlSession getSqlSession()
-    {
-        SqlSession sqlSession = MyBatisBridge._openSession(null, myBatisDaoGen.source);
-        return sqlSession;
-    }
-
-
-    @Override
-    public Connection getConnection(WObject wObject)
-    {
-        return getSqlSession(wObject).getConnection();
+        T t;
+        SqlSession sqlSession = _getSqlSession();
+        t = sqlSession.getMapper((Class<T>) myBatis.daoClass);
+        t = doProxy(t, sqlSession, myBatis.daoClass);
+        return t;
     }
 
     @Override
     public <T> T mapper(WObject wObject, Class<T> clazz)
     {
-        return mapperOther(getSqlSession(wObject), clazz);
+        T t;
+        SqlSession sqlSession = _getSqlSession();
+        t = mapperOther(sqlSession, clazz);
+        t = doProxy(t, sqlSession, clazz);
+        return t;
     }
+
+    Object _mapper(SqlSession sqlSession, Class<?> clazz)
+    {
+        return mapperOther(sqlSession, clazz);
+    }
+
+    public interface _MyBatisDaoProxy
+    {
+
+    }
+
+
+    private final <T> T doProxy(T t, SqlSession sqlSession, Class<?> type)
+    {
+//        if (!willCheckMapperFile())
+//        {
+//            return t;
+//        }
+        //代理后可支持重新加载mybatis文件
+        Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
+                        type, _MyBatisDaoProxy.class},
+                (proxy, method, args) -> {
+                    Object rs = method.invoke(t, args);
+                    if (sqlSession.getConnection().getAutoCommit())
+                    {
+                        TransactionJDBCHandle.__removeConnection__(myBatisDaoGen.source);
+                        sqlSession.close();
+                    }
+                    return rs;
+                });
+        return (T) proxyT;
+    }
+
+    @Override
+    public <T> T getMapper(Class<T> clazz)
+    {
+        LOGGER.debug("will not support the transaction :in {}", MyBatisBridge.class);
+        T t;
+        SqlSession sqlSession = _getSqlSession();
+        t = mapperOther(sqlSession, clazz);
+        t = doProxy(t, sqlSession, clazz);
+        return t;
+    }
+
 
     private <T> T mapperOther(SqlSession sqlSession, Class<T> otherClass)
     {
@@ -114,140 +150,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
             throw new RuntimeException(e);
         }
 
-    }
-
-    @Override
-    public <T> T getMapper(Class<T> clazz)
-    {
-        LOGGER.debug("will not support the transaction :in {}", MyBatisBridge.class);
-        return mapperOther(getSqlSession(), clazz);
-    }
-
-    @Override
-    public <T> T selectOne(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).selectOne(statement);
-    }
-
-    @Override
-    public <T> T selectOne(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).selectOne(statement, parameter);
-    }
-
-    @Override
-    public <E> List<E> selectList(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).selectList(statement);
-    }
-
-    @Override
-    public <E> List<E> selectList(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).selectList(statement, parameter);
-    }
-
-    @Override
-    public <E> List<E> selectList(WObject wObject, String statement, Object parameter, RowBounds rowBounds)
-    {
-        return getSqlSession(wObject).selectList(statement, parameter, rowBounds);
-    }
-
-    @Override
-    public <K, V> Map<K, V> selectMap(WObject wObject, String statement, String mapKey)
-    {
-        return getSqlSession(wObject).selectMap(statement, mapKey);
-    }
-
-    @Override
-    public <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey)
-    {
-        return getSqlSession(wObject).selectMap(statement, parameter, mapKey);
-    }
-
-    @Override
-    public <K, V> Map<K, V> selectMap(WObject wObject, String statement, Object parameter, String mapKey,
-            RowBounds rowBounds)
-    {
-        return getSqlSession(wObject).selectMap(statement, parameter, mapKey, rowBounds);
-    }
-
-    @Override
-    public <T> Cursor<T> selectCursor(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).selectCursor(statement);
-    }
-
-    @Override
-    public <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).selectCursor(statement, parameter);
-    }
-
-    @Override
-    public <T> Cursor<T> selectCursor(WObject wObject, String statement, Object parameter, RowBounds rowBounds)
-    {
-        return getSqlSession(wObject).selectCursor(statement, parameter, rowBounds);
-    }
-
-    @Override
-    public void select(WObject wObject, String statement, Object parameter, ResultHandler handler)
-    {
-        getSqlSession(wObject).select(statement, parameter, handler);
-    }
-
-    @Override
-    public void select(WObject wObject, String statement, ResultHandler handler)
-    {
-        getSqlSession(wObject).selectCursor(statement, handler);
-    }
-
-    @Override
-    public void select(WObject wObject, String statement, Object parameter, RowBounds rowBounds, ResultHandler handler)
-    {
-        getSqlSession(wObject).select(statement, parameter, rowBounds, handler);
-    }
-
-    @Override
-    public int insert(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).insert(statement);
-    }
-
-    @Override
-    public int insert(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).insert(statement, parameter);
-    }
-
-    @Override
-    public int update(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).update(statement);
-    }
-
-    @Override
-    public int update(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).update(statement, parameter);
-    }
-
-    @Override
-    public int delete(WObject wObject, String statement)
-    {
-        return getSqlSession(wObject).delete(statement);
-    }
-
-    @Override
-    public int delete(WObject wObject, String statement, Object parameter)
-    {
-        return getSqlSession(wObject).delete(statement, parameter);
-    }
-
-    @Override
-    public void close(WObject wObject)
-    {
-        getSqlSession(wObject).close();
     }
 
 

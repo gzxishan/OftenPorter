@@ -2,7 +2,6 @@ package cn.xishan.oftenporter.demo.oftendb.test1.porter;
 
 import java.util.Date;
 
-import cn.xishan.oftenporter.oftendb.data.DBSource;
 import cn.xishan.oftenporter.oftendb.data.common;
 import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;

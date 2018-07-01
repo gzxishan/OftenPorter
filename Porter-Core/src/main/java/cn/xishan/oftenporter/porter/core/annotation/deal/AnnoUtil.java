@@ -1,9 +1,16 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.init.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.*;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -22,9 +30,9 @@ public final class AnnoUtil
     private static class Configable
     {
         IAnnotationConfigable iAnnotationConfigable;
-        Object config;
+        IConfigData config;
 
-        public Configable(Object config, IAnnotationConfigable iAnnotationConfigable)
+        public Configable(IConfigData config, IAnnotationConfigable iAnnotationConfigable)
         {
             this.iAnnotationConfigable = iAnnotationConfigable;
             this.config = config;
@@ -35,6 +43,7 @@ public final class AnnoUtil
     private static final ThreadLocal<Stack<Configable>> threadLocal = new ThreadLocal<>();
     private static Configable defaultConfigable;
     private static Method javaGetAnnotations;
+    private static final IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
 
     static
     {
@@ -46,6 +55,123 @@ public final class AnnoUtil
         {
             LOGGER.warn(e.getMessage(), e);
         }
+
+        Set<IDynamicAnnotationImprovable> iDynamicAnnotationImprovableList = new HashSet<>();
+        try
+        {
+            Enumeration<URL> enumeration = ClassLoader.getSystemResources(
+                    "/META-INF/services/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable");
+            try
+            {
+                while (enumeration.hasMoreElements())
+                {
+                    String _className = FileTool.getString(enumeration.nextElement().openStream());
+                    String[] classNames = StrUtil.split(_className.trim(), "\n");
+                    for(String className:classNames){
+                        IDynamicAnnotationImprovable iDynamicAnnotationImprovable = WPTool.newObject(className);
+                        iDynamicAnnotationImprovableList.add(iDynamicAnnotationImprovable);
+                    }
+                }
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        } catch (Exception e)
+        {
+            LOGGER.error(e.getMessage(), e);
+        }
+        DYNAMIC_ANNOTATION_IMPROVABLES = iDynamicAnnotationImprovableList.toArray(new IDynamicAnnotationImprovable[0]);
+    }
+
+
+    public static class Advanced
+    {
+        private static <A extends Annotation> A proxy(IDynamicAnnotationImprovable.Result<?, A> result,
+                InvocationHandler invocationHandler)
+        {
+            Class<A> annotationClass = result.appendAnnotation;
+            A a = (A) Proxy.newProxyInstance(annotationClass.getClassLoader(), annotationClass.getInterfaces(),
+                    invocationHandler);
+            return a;
+        }
+
+        public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz)
+        {
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.getAnnotation(clazz, AutoSetDefaultDealt.class);
+            if (autoSetDefaultDealt == null)
+            {
+                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+                {
+                    IDynamicAnnotationImprovable.Result<InvocationHandler, AutoSetDefaultDealt> result =
+                            iDynamicAnnotationImprovable.getAutoSetDefaultDealt(clazz);
+                    if (result != null)
+                    {
+                        autoSetDefaultDealt = proxy(result, result.t);
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", AutoSetDefaultDealt.class.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                        break;
+                    }
+                }
+            }
+            return autoSetDefaultDealt;
+        }
+
+        public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation)
+        {
+            Class<? extends Annotation> atype = annotation.annotationType();
+            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil
+                    .getAnnotation(atype, AspectOperationOfPortIn.class);
+            if (aspectOperationOfPortIn == null)
+            {
+                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+                {
+                    IDynamicAnnotationImprovable.Result<InvocationHandler, AspectOperationOfPortIn> result =
+                            iDynamicAnnotationImprovable
+                                    .getAspectOperationOfPortIn(annotation);
+                    if (result != null)
+                    {
+                        aspectOperationOfPortIn = proxy(result, result.t);
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", AspectOperationOfPortIn.class.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                        break;
+                    }
+                }
+            }
+            return aspectOperationOfPortIn;
+        }
+
+        public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation)
+        {
+            Class<? extends Annotation> atype = annotation.annotationType();
+            AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
+                    .getAnnotation(atype, AspectOperationOfNormal.class);
+            if (aspectOperationOfNormal == null)
+            {
+                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+                {
+                    IDynamicAnnotationImprovable.Result<InvocationHandler, AspectOperationOfNormal> result =
+                            iDynamicAnnotationImprovable
+                                    .getAspectOperationOfNormal(annotation);
+                    if (result != null)
+                    {
+                        aspectOperationOfNormal = proxy(result, result.t);
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", AspectOperationOfNormal.class.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                        break;
+                    }
+                }
+            }
+            return aspectOperationOfNormal;
+        }
     }
 
     /**
@@ -54,7 +180,8 @@ public final class AnnoUtil
      * @param config
      * @param iAnnotationConfigable 为null时表示清除默认的。
      */
-    public static synchronized void setDefaultConfigable(Object config, IAnnotationConfigable iAnnotationConfigable)
+    public static synchronized void setDefaultConfigable(IConfigData config,
+            IAnnotationConfigable iAnnotationConfigable)
     {
         if (iAnnotationConfigable == null)
         {
@@ -72,7 +199,8 @@ public final class AnnoUtil
      * @param config
      * @param iAnnotationConfigable
      */
-    public static synchronized void pushAnnotationConfigable(Object config, IAnnotationConfigable iAnnotationConfigable)
+    public static synchronized void pushAnnotationConfigable(IConfigData config,
+            IAnnotationConfigable iAnnotationConfigable)
     {
         if (iAnnotationConfigable == null)
         {
@@ -199,6 +327,11 @@ public final class AnnoUtil
         return as;
     }
 
+    public static <A extends Annotation> A doProxy(A a)
+    {
+        return proxy(a);
+    }
+
     private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass)
     {
         return getAnnotationsByType(obj, annotationClass, annotationClass.isAnnotationPresent(Inherited.class));
@@ -268,6 +401,16 @@ public final class AnnoUtil
             LOGGER.warn(e.getMessage(), e);
             return (A[]) Array.newInstance(annotationClass, 0);
         }
+    }
+
+    public static <A extends Annotation> A[] getAnnotations(Method method)
+    {
+        return (A[]) method.getAnnotations();
+    }
+
+    public static <A extends Annotation> A[] getAnnotations(Class clazz)
+    {
+        return (A[]) clazz.getAnnotations();
     }
 
     public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass)

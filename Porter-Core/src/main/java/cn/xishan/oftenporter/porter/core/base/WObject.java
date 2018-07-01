@@ -1,13 +1,18 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +20,13 @@ import java.util.Map;
  * 接口中间对象。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public abstract class WObject
+public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 {
+
+    public interface IFinalListener
+    {
+        void afterFinal(WObject wObject);
+    }
 
 
     /**
@@ -54,7 +64,7 @@ public abstract class WObject
 
     private Map<String, Object> requestDataMap = null;
 
-    private static ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
 
     public WObject()
     {
@@ -64,6 +74,11 @@ public abstract class WObject
     public static WObject fromThreadLocal()
     {
         return threadLocal.get();
+    }
+
+    protected static void clearThreadLocal()
+    {
+        threadLocal.remove();
     }
 
     public abstract WRequest getRequest();
@@ -356,4 +371,40 @@ public abstract class WObject
         return (T) wObject.requestDataMap.remove(name);
     }
 
+    private IListenerAdder<IFinalListener> listenerAdder;
+
+    private IListenerAdder<IFinalListener> getListenerAdder(IFinalListener finalListener)
+    {
+        WObject wObject = original();
+        if (wObject.listenerAdder == null && finalListener != null)
+        {
+            wObject.listenerAdder = new DefaultListenerAdder<>();
+        }
+        return wObject.listenerAdder;
+    }
+
+
+    @Override
+    public void add(String name, IFinalListener listener)
+    {
+        if (listener == null)
+        {
+            throw new NullPointerException();
+        }
+        getListenerAdder(listener).add(name, listener);
+    }
+
+    @Override
+    public IFinalListener remove(String name)
+    {
+        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(null);
+        return listenerIListenerAdder == null ? null : listenerIListenerAdder.remove(name);
+    }
+
+    @Override
+    public Enumeration<IFinalListener> listeners()
+    {
+        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(null);
+        return listenerIListenerAdder == null ? EnumerationImpl.getEMPTY() : listenerIListenerAdder.listeners();
+    }
 }

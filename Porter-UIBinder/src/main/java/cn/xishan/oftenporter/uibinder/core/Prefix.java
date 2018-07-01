@@ -4,7 +4,7 @@ package cn.xishan.oftenporter.uibinder.core;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
-import cn.xishan.oftenporter.porter.core.base.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 
 /**
  * Created by ZhuiFeng on 2015/6/13.

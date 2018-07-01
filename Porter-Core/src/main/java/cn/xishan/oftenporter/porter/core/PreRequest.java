@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/22.

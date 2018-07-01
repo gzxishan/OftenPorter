@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
@@ -37,7 +38,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
 
 
     @Override
-    public boolean init(KeyLock current, Porter porter)
+    public boolean init(KeyLock current,IConfigData configData, Porter porter)
     {
         return _init(current, porter, null);
     }
@@ -142,7 +143,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     }
 
     @Override
-    public boolean init(KeyLock current, PorterOfFun porterOfFun)
+    public boolean init(KeyLock current,IConfigData configData, PorterOfFun porterOfFun)
     {
         return _init(current, porterOfFun.getPorter(), porterOfFun);
     }

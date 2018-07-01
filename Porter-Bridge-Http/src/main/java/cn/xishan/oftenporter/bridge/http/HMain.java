@@ -3,9 +3,9 @@ package cn.xishan.oftenporter.bridge.http;
 import cn.xishan.oftenporter.porter.core.PorterAttr;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.base.ITypeParser;
-import cn.xishan.oftenporter.porter.core.base.ListenerAdder;
-import cn.xishan.oftenporter.porter.core.base.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
+import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
@@ -164,7 +164,7 @@ public class HMain extends LocalMain {
     }
 
     @Override
-    public ListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder() {
+    public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder() {
         throw new UnsupportedOperationException();
     }
 

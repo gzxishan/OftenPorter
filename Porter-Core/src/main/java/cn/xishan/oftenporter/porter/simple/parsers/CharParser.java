@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/8.
@@ -10,7 +10,7 @@ import cn.xishan.oftenporter.porter.core.base.ITypeParserOption;
 public class CharParser extends TypeParser
 {
     @Override
-    public ParseResult parse(@NotNull String name, @NotNull Object value,@MayNull Object dealt)
+    public ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value,@MayNull Object dealt)
     {
         ParseResult result;
         try
