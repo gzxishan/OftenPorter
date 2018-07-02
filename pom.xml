@@ -48,9 +48,7 @@
         <module>Porter-DB</module>
         <module>Porter-Bridge-Servlet</module>
         <module>Porter-Bridge-Http</module>
-        <module>Porter-UIBinder</module>
         <module>Demo</module>
-        <module>Porter-UIBinder-FX</module>
     </modules>
 
     <dependencies>
