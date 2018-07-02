@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.demo.oftendb.test1.entity;
 
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import com.alibaba.fastjson.JSON;
+
 import java.util.Date;
 
 /**
@@ -8,6 +11,7 @@ import java.util.Date;
 public class Hello
 {
     private String id;
+    @Nece
     private String name;
     private Date createtime;
 
@@ -39,5 +43,11 @@ public class Hello
     public void setCreatetime(Date createtime)
     {
         this.createtime = createtime;
+    }
+
+    @Override
+    public String toString()
+    {
+        return JSON.toJSONString(this);
     }
 }

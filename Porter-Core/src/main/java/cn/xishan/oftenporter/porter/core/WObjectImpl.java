@@ -32,13 +32,14 @@ class WObjectImpl extends WObject
         this.response = response;
         this.context = context;
         this.isInnerRequest = isInnerRequest;
+        threadLocal.set(this);
     }
 
     void mayClearThreadLocal()
     {
         if (isTopRequest())
         {
-            clearThreadLocal();
+            threadLocal.remove();
         }
     }
 

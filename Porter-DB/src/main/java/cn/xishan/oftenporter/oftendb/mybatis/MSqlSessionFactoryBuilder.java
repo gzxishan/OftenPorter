@@ -56,6 +56,7 @@ class MSqlSessionFactoryBuilder
     private JSONObject dataSourceConf;
     private DataSource dataSourceObject;
     private List<Interceptor> interceptors;
+    private MyBatisOption.IMybatisStateListener mybatisStateListener;
     private Environment environment;
 
     Map<String, String> methodMap;
@@ -76,7 +77,7 @@ class MSqlSessionFactoryBuilder
     }
 
     //检测文件修改
-    private synchronized void regFileCheck() throws Exception
+    private synchronized void regFileCheck(boolean isForInit) throws Exception
     {
         if (builderListenerSet.size() == 0 && !checkMapperFileChange)
         {
@@ -192,9 +193,21 @@ class MSqlSessionFactoryBuilder
                 LOGGER.debug("will rereg...");
                 try
                 {
-                    regFileCheck();
+                    if (!isForInit&&mybatisStateListener != null)
+                    {
+                        mybatisStateListener.beforeReload();
+                    }
+                    regFileCheck(false);
+                    if (!isForInit&&mybatisStateListener != null)
+                    {
+                        mybatisStateListener.afterReload();
+                    }
                 } catch (Exception e)
                 {
+                    if (!isForInit&&mybatisStateListener != null)
+                    {
+                        mybatisStateListener.onReloadFailed(e);
+                    }
                     LOGGER.error(e.getMessage(), e);
                 }
             }
@@ -209,9 +222,13 @@ class MSqlSessionFactoryBuilder
             return;
         }
         build();
+        regFileCheck(true);
         isStarted = true;
         isDestroyed = false;
-        regFileCheck();
+        if (mybatisStateListener != null)
+        {
+            mybatisStateListener.onStart();
+        }
     }
 
     public synchronized void onDestroy()
@@ -225,6 +242,10 @@ class MSqlSessionFactoryBuilder
         }
         WPTool.close(watchService);
         watchService = null;
+        if (mybatisStateListener != null)
+        {
+            mybatisStateListener.onDestroy();
+        }
     }
 
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
@@ -238,6 +259,7 @@ class MSqlSessionFactoryBuilder
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;
         this.interceptors = myBatisOption.interceptors;
+        this.mybatisStateListener = myBatisOption.mybatisStateListener;
         if (myBatisOption.javaFuns != null)
         {
             methodMap = new HashMap<>();

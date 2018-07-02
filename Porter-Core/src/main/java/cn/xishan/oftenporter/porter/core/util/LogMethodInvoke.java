@@ -31,7 +31,7 @@ public @interface LogMethodInvoke
 
         @Override
         public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn)
+                AspectOperationOfNormal.Invoker invoker, Object[] args,boolean hasInvoked, Object lastReturn)
         {
             if (LOGGER.isDebugEnabled())
             {

@@ -14,30 +14,81 @@ import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
 public class Main1
 {
 
+    static LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+
     public static void main(String[] args)
     {
-        LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+        Thread thread = new Thread(Main1::init);
+        thread.setDaemon(true);
+        thread.start();
+        try
+        {
+            Thread.sleep(300 * 1000);
+            localMain.destroyAll();
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    static void init()
+    {
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()
                 .addPorters(Main1.class.getPackage().getName() + ".porter");
 
         {
-            MyBatisOption myBatisOption = new MyBatisOption("/oftendb/test1mapper/");
+            MyBatisOption myBatisOption = new MyBatisOption("/oftendb/test1mapper/", true);
             JdbcDataSource jdbcDataSource = new JdbcDataSource();
             jdbcDataSource.setURL("jdbc:h2:~/PorterDemo/oftendb2;MODE=MySQL");
             jdbcDataSource.setUser("sa");
             jdbcDataSource.setPassword("");
             myBatisOption.dataSourceObject = jdbcDataSource;
+            myBatisOption.resourcesDir = new File("Demo/src/main/resources").getAbsolutePath().replace("\\", "/");
+            myBatisOption.mybatisStateListener=new MyBatisOption.IMybatisStateListener()
+            {
+                @Override
+                public void onStart()
+                {
+
+                }
+
+                @Override
+                public void onDestroy()
+                {
+
+                }
+
+                @Override
+                public void beforeReload()
+                {
+
+                }
+
+                @Override
+                public void afterReload()
+                {
+                    LogUtil.printPosLn("***************************************************************");
+                    test();
+                }
+
+                @Override
+                public void onReloadFailed(Throwable throwable)
+                {
+
+                }
+            };
             try
             {
-                MyBatisBridge.init(porterConf,myBatisOption,"mybatis.xml");
+                MyBatisBridge.init(porterConf, myBatisOption, "mybatis.xml");
             } catch (IOException e)
             {
                 throw new RuntimeException(e);
@@ -45,15 +96,19 @@ public class Main1
         }
 
         localMain.startOne(porterConf);
+        test();
+    }
+
+    public static void test()
+    {
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
         PBridge bridge = localMain.getPLinker().currentBridge();
 
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 10; i++)
         {
             bridge.request(new PRequest(PortMethod.POST, "/T1/Hello/add")
-                    .addParam("name", "小明-" + (new Random().nextInt(3))).addParam("age", "21")
-                    .addParam("sex", "男"), lResponse ->
+                    .addParam("name", "小明-" + (new Random().nextInt(3))), lResponse ->
             {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
@@ -97,8 +152,6 @@ public class Main1
                 lResponse -> logger.debug(lResponse.toString()));
         bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/clear"),
                 lResponse -> logger.debug(lResponse.toString()));
-
-        localMain.destroyAll();
 
         Object as = new String[]{"1", "2", "3"};
 

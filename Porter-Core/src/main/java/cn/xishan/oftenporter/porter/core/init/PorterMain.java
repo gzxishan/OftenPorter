@@ -387,9 +387,12 @@ public final class PorterMain
         PRequest request = new PRequest(PortMethod.GET, path);
         WResponse response = new LocalResponse(lResponse -> {
         });
+
         WObject wObject = portExecutor
                 .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
         contextPorter.start(wObject);
+        AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
+        AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);
 
         LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterStart(porterConf.getUserInitParam());

@@ -2,40 +2,48 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 
-import java.util.Enumeration;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
 public class DefaultListenerAdder<T> implements IListenerAdder<T>
 {
-    private Map<String, T> listenerMap;
+
+    private LinkedHashMap<String, T> listeners = new LinkedHashMap<>(5);
 
     public DefaultListenerAdder()
     {
-        this.listenerMap = new LinkedHashMap<>();
     }
 
     @Override
-    public synchronized void add(String name, T listener)
+    public synchronized void addListener(String name, T listener)
     {
-        listenerMap.put(name, listener);
+        listeners.put(name, listener);
     }
 
     @Override
-    public synchronized T remove(String name)
+    public String addListener(T listener)
     {
-        return listenerMap.remove(name);
+        String name = KeyUtil.randomUUID();
+        addListener(name, listener);
+        return name;
     }
 
     @Override
-    public synchronized Enumeration<T> listeners()
+    public synchronized T removeListener(String name)
     {
-        EnumerationImpl<T> enumeration = new EnumerationImpl<>(
-                listenerMap.values().iterator());
-        return enumeration;
+        T t = listeners.remove(name);
+        return t;
+    }
+
+    @Override
+    public synchronized Enumeration<T> listeners(int order)
+    {
+        T[] ts = (T[]) listeners.values().toArray();
+        Enumeration<T> e = EnumerationImpl.fromArray(ts, order >= 0);
+        return e;
     }
 }

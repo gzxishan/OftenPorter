@@ -54,14 +54,14 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public SqlSession getNewSqlSession()
     {
-        ConnectionImpl connection = MyBatisBridge.__openSession__(myBatisDaoGen.source, false);
+        ConnectionWrap connection = MyBatisBridge.__openSession__(myBatisDaoGen.source, false);
         return connection.getSqlSession();
     }
 
-    private SqlSession _getSqlSession()
+    private ConnectionWrap getConnectionWrap()
     {
-        ConnectionImpl connection = MyBatisBridge.__openSession(myBatisDaoGen.source);
-        return connection.getSqlSession();
+        ConnectionWrap connection = MyBatisBridge.__openSession(myBatisDaoGen.source);
+        return connection;
     }
 
 
@@ -70,9 +70,9 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     {
         checkMapperClass();
         T t;
-        SqlSession sqlSession = _getSqlSession();
-        t = sqlSession.getMapper((Class<T>) myBatis.daoClass);
-        t = doProxy(t, sqlSession, myBatis.daoClass);
+        ConnectionWrap connectionWrap = getConnectionWrap();
+        t = connectionWrap.getSqlSession().getMapper((Class<T>) myBatis.daoClass);
+        t = doProxy(t, connectionWrap, myBatis.daoClass);
         return t;
     }
 
@@ -80,9 +80,9 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public <T> T mapper(WObject wObject, Class<T> clazz)
     {
         T t;
-        SqlSession sqlSession = _getSqlSession();
-        t = mapperOther(sqlSession, clazz);
-        t = doProxy(t, sqlSession, clazz);
+        ConnectionWrap connectionWrap = getConnectionWrap();
+        t = mapperOther(connectionWrap.getSqlSession(), clazz);
+        t = doProxy(t, connectionWrap, clazz);
         return t;
     }
 
@@ -97,7 +97,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     }
 
 
-    private final <T> T doProxy(T t, SqlSession sqlSession, Class<?> type)
+    private final <T> T doProxy(T t, ConnectionWrap connectionWrap, Class<?> type)
     {
 //        if (!willCheckMapperFile())
 //        {
@@ -112,10 +112,10 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
                         return method.invoke(t, args);
                     }
                     Object rs = method.invoke(t, args);
-                    if (sqlSession.getConnection().getAutoCommit())
+                    if (connectionWrap.getAutoCommit())
                     {
                         TransactionJDBCHandle.__removeConnection__(myBatisDaoGen.source);
-                        sqlSession.close();
+                        connectionWrap.close();
                     }
                     return rs;
                 });
@@ -127,9 +127,9 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     {
         LOGGER.debug("will not support the transaction :in {}", MyBatisBridge.class);
         T t;
-        SqlSession sqlSession = _getSqlSession();
-        t = mapperOther(sqlSession, clazz);
-        t = doProxy(t, sqlSession, clazz);
+        ConnectionWrap connectionWrap = getConnectionWrap();
+        t = mapperOther(connectionWrap.getSqlSession(), clazz);
+        t = doProxy(t, connectionWrap, clazz);
         return t;
     }
 

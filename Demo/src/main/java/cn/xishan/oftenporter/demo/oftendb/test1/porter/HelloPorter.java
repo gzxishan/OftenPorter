@@ -30,7 +30,7 @@ public class HelloPorter
     @AutoSet
     HelloUnit helloUnit;
 
-    @PortIn(nece = {"name", "age", "sex"}, inner = {"time", "_id"},
+    @PortIn(inner = {"time", "_id"},
             method = PortMethod.POST)
     @BindEntities(Hello.class)
     public void add(WObject wObject)

@@ -74,6 +74,7 @@ class MybatisConfig
     public void put(MyBatisOption myBatisOption,
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder)
     {
+        myBatisOption=myBatisOption.clone();
         MOption mOption = optionMap.put(myBatisOption.source, new MOption(myBatisOption, mSqlSessionFactoryBuilder));
         if (mOption != null)
         {

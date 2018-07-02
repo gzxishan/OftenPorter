@@ -43,6 +43,130 @@ public class AutoSetObjForAspectOfNormal
         METHOD_GET_REAL_CLASS = method;
     }
 
+    static class AspectTask
+    {
+        WObject wObject;
+        AspectOperationOfNormal.Handle[] handles;
+        Object interceptorObj;
+        MethodProxy proxy;
+        Object origin;
+        Method originMethod;
+        Object[] args;
+        boolean isTop;
+
+
+        public AspectTask(WObject wObject,
+                AspectOperationOfNormal.Handle[] handles, Object interceptorObj, MethodProxy proxy, Object origin,
+                Method originMethod, Object[] args)
+        {
+            this.wObject = wObject;
+            this.handles = handles;
+            this.interceptorObj = interceptorObj;
+            this.proxy = proxy;
+            this.origin = origin;
+            this.originMethod = originMethod;
+            this.args = args;
+            this.isTop = wObject == null || wObject.isTopRequest();
+        }
+
+        AspectOperationOfNormal.DefaultInvoker invoker = new AspectOperationOfNormal.DefaultInvoker()
+        {
+            boolean invoked = false;
+
+            @Override
+            public boolean hasInvoked()
+            {
+                return invoked;
+            }
+
+            @Override
+            public Object invoke(Object[] args) throws Throwable
+            {
+                invoked = true;
+                return proxy.invokeSuper(interceptorObj, args);
+            }
+        };
+
+        Object invokeNow() throws Throwable
+        {
+            Throwable throwable = null;
+
+            Object lastReturn = null;
+            boolean isInvoked = false;
+            try
+            {
+                for (int i = 0; i < handles.length; i++)
+                {
+                    AspectOperationOfNormal.Handle handle = handles[i];
+                    if (handle.preInvoke(wObject, isTop, origin, originMethod, invoker, args, isInvoked, lastReturn))
+                    {
+                        isInvoked = true;
+                        lastReturn = handle.doInvoke(wObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                    }
+                }
+                if (!isInvoked)
+                {
+                    lastReturn = invoker.invoke(args);
+                }
+            } catch (Throwable th)
+            {
+                throwable = th;
+            }
+            if (throwable != null)
+            {
+                throw throwable;
+            }
+            return lastReturn;
+        }
+
+        void invokeExceptionNow(Throwable throwable) throws Throwable
+        {
+            for (int i = handles.length - 1; i >= 0; i--)
+            {
+                AspectOperationOfNormal.Handle handle = handles[i];
+                handle.onException(wObject, isTop, origin, originMethod, invoker, args, throwable);
+            }
+        }
+
+        private void invokeEndNow(Object lastReturn) throws Throwable
+        {
+            for (int i = handles.length - 1; i >= 0; i--)
+            {
+                AspectOperationOfNormal.Handle handle = handles[i];
+                lastReturn = handle.onEnd(wObject, isTop, origin, originMethod, invoker, lastReturn);
+            }
+        }
+
+        void invokeEnd(Object lastReturn) throws Throwable
+        {
+            if (wObject == null)
+            {
+                invokeEndNow(lastReturn);
+            } else
+            {
+                wObject.addListener(new WObject.IFinalListener()
+                {
+                    @Override
+                    public void afterFinal(WObject wObject) throws Throwable
+                    {
+                        invokeEndNow(lastReturn);
+                    }
+
+                    @Override
+                    public void beforeFinal(WObject wObject) throws Throwable
+                    {
+
+                    }
+
+                    @Override
+                    public void onFinalException(WObject wObject, Throwable throwable) throws Throwable
+                    {
+                        invokeExceptionNow(throwable);
+                    }
+                });
+            }
+        }
+    }
 
     public class MethodInterceptorImpl implements MethodInterceptor
     {
@@ -56,7 +180,7 @@ public class AutoSetObjForAspectOfNormal
         }
 
         @Override
-        public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable
+        public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable
         {
             if (method.equals(METHOD_GET_REAL_CLASS))
             {
@@ -65,71 +189,30 @@ public class AutoSetObjForAspectOfNormal
 
             WObject wObject = WObject.fromThreadLocal();
             AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
-            boolean isTop = wObject == null || wObject.isTopRequest();
+            AspectTask aspectTask = new AspectTask(wObject, handles, obj, methodProxy, origin, method, args);
 
-            AspectOperationOfNormal.DefaultInvoker invoker = new AspectOperationOfNormal.DefaultInvoker()
-            {
-                boolean invoked = false;
-
-                @Override
-                public boolean hasInvoked()
-                {
-                    return invoked;
-                }
-
-                @Override
-                public Object invoke(Object[] args) throws Throwable
-                {
-                    invoked = true;
-                    return proxy.invokeSuper(obj, args);
-                }
-            };
-            Object lastReturn = null;
-            boolean isInvoked = false;
-            Throwable throwable = null;
             try
             {
-                for (int i = 0; i < handles.length; i++)
-                {
-                    AspectOperationOfNormal.Handle handle = handles[i];
-                    if (handle.preInvoke(wObject, isTop, origin, method, invoker, args, lastReturn))
-                    {
-                        isInvoked = true;
-                        lastReturn = handle.doInvoke(wObject, isTop, origin, method, invoker, args, lastReturn);
-                    }
-                }
-                if (!isInvoked)
-                {
-                    lastReturn = invoker.invoke(args);
-                }
-            } catch (Throwable th)
+                Object lastReturn = aspectTask.invokeNow();
+                aspectTask.invokeEnd(lastReturn);
+                return lastReturn;
+            } catch (Throwable throwable)
             {
-                throwable = th;
-            }
-
-            if (throwable == null)
-            {
-                for (int i = handles.length - 1; i >= 0; i--)
-                {
-                    AspectOperationOfNormal.Handle handle = handles[i];
-                    lastReturn = handle.onEnd(wObject, isTop, origin, method, invoker, lastReturn);
-                }
-            } else
-            {
-                for (int i = handles.length - 1; i >= 0; i--)
-                {
-                    AspectOperationOfNormal.Handle handle = handles[i];
-                    handle.onException(wObject, isTop, origin, method,invoker,args, throwable);
-                }
+                throwable = WPTool.getCause(throwable);
+                aspectTask.invokeExceptionNow(throwable);
                 throw throwable;
             }
-            return lastReturn;
         }
     }
 
     private static Set<Method> aspectHandleSet = Collections.newSetFromMap(new WeakHashMap<>());
     private static Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
     private Object callbackFilter = null;
+
+    static
+    {
+        aspectHandleSet.add(METHOD_GET_REAL_CLASS);
+    }
 
     public AutoSetObjForAspectOfNormal()
     {

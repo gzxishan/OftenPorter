@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
@@ -59,22 +60,22 @@ public final class AnnoUtil
         Set<IDynamicAnnotationImprovable> iDynamicAnnotationImprovableList = new HashSet<>();
         try
         {
-            String path = "OP-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
-            Enumeration<URL> enumeration = Thread.currentThread().getContextClassLoader().getResources(path);
-            if (!enumeration.hasMoreElements())
-            {
-                enumeration = Thread.currentThread().getContextClassLoader().getResources("/" + path);
-            }
+            String path = "/OP-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
+            List<String> dynamics = ResourceUtil.getAbsoluteResourcesString(path, "utf-8");
+//            Enumeration<URL> enumeration = Thread.currentThread().getContextClassLoader().getResources(path);
+//            if (!enumeration.hasMoreElements())
+//            {
+//                enumeration = Thread.currentThread().getContextClassLoader().getResources("/" + path);
+//            }
             try
             {
-                while (enumeration.hasMoreElements())
+                for (String _classNames : dynamics)
                 {
-                    String _className = FileTool.getString(enumeration.nextElement().openStream());
-                    if (WPTool.isEmpty(_className))
+                    if (WPTool.isEmpty(_classNames))
                     {
                         continue;
                     }
-                    String[] classNames = StrUtil.split(_className.trim(), "\n");
+                    String[] classNames = StrUtil.split(_classNames.trim(), "\n");
                     for (String className : classNames)
                     {
                         IDynamicAnnotationImprovable iDynamicAnnotationImprovable = WPTool.newObject(className);
@@ -231,7 +232,7 @@ public final class AnnoUtil
     private static <A extends Annotation> A proxy(A t)
     {
         Stack<Configable> stack = threadLocal.get();
-        Configable configable = stack == null ? null : stack.peek();
+        Configable configable = stack == null||stack.isEmpty() ? null : stack.peek();
         if (configable == null)
         {
             synchronized (AnnoUtil.class)
@@ -246,7 +247,7 @@ public final class AnnoUtil
             Object obj = Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[]{
                     t.annotationType()
             }, handler);
-            t= (A) obj;
+            t = (A) obj;
         }
         return t;
     }

@@ -13,8 +13,21 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
-public class MyBatisOption
+public class MyBatisOption implements Cloneable
 {
+
+    public interface IMybatisStateListener
+    {
+        void onStart();
+
+        void onDestroy();
+
+        void beforeReload();
+
+        void afterReload();
+
+        void onReloadFailed(Throwable throwable);
+    }
 
     public static final String DEFAULT_SOURCE = "default";
 
@@ -36,6 +49,8 @@ public class MyBatisOption
      * 是否检测mapper文件变动,主要用于开发阶段,默认false。
      */
     public boolean checkMapperFileChange = false;
+
+    public IMybatisStateListener mybatisStateListener;
 
     /**
      * 是否自动注册别名。默认true。
@@ -67,13 +82,18 @@ public class MyBatisOption
      */
     public Map<String, Class<?>> javaFuns;
 
-    public MyBatisOption(String rootDir)
+    /**
+     * @param rootDir               资源目录
+     * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
+     */
+    public MyBatisOption(String rootDir, boolean checkMapperFileChange)
     {
         if (!rootDir.endsWith("/"))
         {
             rootDir += "/";
         }
         this.rootDir = rootDir;
+        this.checkMapperFileChange = checkMapperFileChange;
     }
 
     public void addJavaFuns(String name, Class<?> clazz)
@@ -92,5 +112,18 @@ public class MyBatisOption
             interceptors = new ArrayList<>();
         }
         interceptors.add(interceptor);
+    }
+
+    @Override
+    public MyBatisOption clone()
+    {
+        try
+        {
+            MyBatisOption myBatisOption = (MyBatisOption) super.clone();
+            return myBatisOption;
+        } catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

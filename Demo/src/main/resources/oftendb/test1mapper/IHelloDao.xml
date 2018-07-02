@@ -17,12 +17,23 @@
     </update>
 
     <insert id="add" parameterType="Hello">
-        INSERT INTO `$[tableName]` (`id`,`word`) VALUES(#{id},#{word});
+        INSERT INTO `$[tableName]` (`id`,`name`,`createtime`) VALUES(#{id},#{name},#{createtime});
     </insert>
 
-    <delete id="clear">
+    <delete id="clearAll">
         DELETE FROM `$[tableName]`;
     </delete>
 
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM `$[tableName]` WHERE `name`=#{name};
+    </select>
+
+    <select id="listAll" resultType="$[entity]">
+        SELECT * FROM `$[tableName]`;
+    </select>
+
+    <delete id="deleteByName">
+        DELETE FROM `$[tableName]` WHERE `name`=#{name};
+    </delete>
 
 </mapper>

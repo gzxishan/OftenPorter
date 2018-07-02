@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.db.sql.IConnection;
 import org.apache.ibatis.session.SqlSession;
 
 import java.sql.*;
@@ -10,10 +11,12 @@ import java.util.concurrent.Executor;
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/6.
  */
-class ConnectionWrap implements Connection
+class ConnectionWrap implements Connection, IConnection
 {
     protected SqlSession sqlSession;
     protected Connection connection;
+    private int queryTimeoutSeconds = -1;
+    private int transactionCount = 0;
 
     public ConnectionWrap(SqlSession sqlSession)
     {
@@ -21,22 +24,102 @@ class ConnectionWrap implements Connection
         connection = sqlSession.getConnection();
     }
 
+
+    @Override
+    public boolean willStartTransactionOk()
+    {
+        if (transactionCount == 0)
+        {
+            return true;
+        } else
+        {
+            transactionCount++;
+            return false;
+        }
+    }
+
+    @Override
+    public void startTransactionOk()
+    {
+        transactionCount = 1;
+    }
+
+    @Override
+    public boolean willCommit()
+    {
+        if (transactionCount == 1)
+        {
+            return true;
+        } else if (transactionCount > 1)
+        {
+            transactionCount--;
+        }
+        return false;
+    }
+
+
+    @Override
+    public void doCommit() throws SQLException
+    {
+        if (transactionCount != 1)
+        {
+            throw new SQLException("illegal transactionCount:" + transactionCount);
+        }
+        this.commit();
+    }
+
+    @Override
+    public void doRollback() throws SQLException
+    {
+        this.rollback();
+    }
+
+    public void setQueryTimeoutSeconds(int queryTimeoutSeconds)
+    {
+        this.queryTimeoutSeconds = queryTimeoutSeconds;
+    }
+
+    public int getQueryTimeoutSeconds()
+    {
+        return queryTimeoutSeconds;
+    }
+
+    public SqlSession getSqlSession()
+    {
+        return sqlSession;
+    }
+
+    @Override
+    public Connection getConnection()
+    {
+        return this;
+    }
+
+    private final <T extends Statement> T settings(T statement) throws SQLException
+    {
+        if (queryTimeoutSeconds != -1)
+        {
+            statement.setQueryTimeout(queryTimeoutSeconds);
+        }
+        return statement;
+    }
+
     @Override
     public Statement createStatement() throws SQLException
     {
-        return connection.createStatement();
+        return settings(connection.createStatement());
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException
     {
-        return connection.prepareStatement(sql);
+        return settings(connection.prepareStatement(sql));
     }
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException
     {
-        return connection.prepareCall(sql);
+        return settings(connection.prepareCall(sql));
     }
 
     @Override
@@ -138,20 +221,20 @@ class ConnectionWrap implements Connection
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException
     {
-        return connection.createStatement(resultSetType, resultSetConcurrency);
+        return settings(connection.createStatement(resultSetType, resultSetConcurrency));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType,
             int resultSetConcurrency) throws SQLException
     {
-        return connection.prepareStatement(sql, resultSetType, resultSetConcurrency);
+        return settings(connection.prepareStatement(sql, resultSetType, resultSetConcurrency));
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException
     {
-        return connection.prepareCall(sql, resultSetType, resultSetConcurrency);
+        return settings(connection.prepareCall(sql, resultSetType, resultSetConcurrency));
     }
 
     @Override
@@ -206,39 +289,39 @@ class ConnectionWrap implements Connection
     public Statement createStatement(int resultSetType, int resultSetConcurrency,
             int resultSetHoldability) throws SQLException
     {
-        return connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+        return settings(connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency,
             int resultSetHoldability) throws SQLException
     {
-        return connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        return settings(connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability));
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency,
             int resultSetHoldability) throws SQLException
     {
-        return connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+        return settings(connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException
     {
-        return connection.prepareStatement(sql, autoGeneratedKeys);
+        return settings(connection.prepareStatement(sql, autoGeneratedKeys));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException
     {
-        return connection.prepareStatement(sql, columnIndexes);
+        return settings(connection.prepareStatement(sql, columnIndexes));
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException
     {
-        return connection.prepareStatement(sql, columnNames);
+        return settings(connection.prepareStatement(sql, columnNames));
     }
 
     @Override

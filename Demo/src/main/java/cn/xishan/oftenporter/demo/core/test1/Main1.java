@@ -29,7 +29,7 @@ public class Main1 {
         LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
         LogUtil.printPos(PortMethod.valueOf("GET"));
 
-        localMain.getOnPorterAddListenerAdder().add("name1", new OnPorterAddListener()
+        localMain.getOnPorterAddListenerAdder().addListener("name1", new OnPorterAddListener()
         {
             @Override
             public boolean onAdding(String contextName, Porter porter)

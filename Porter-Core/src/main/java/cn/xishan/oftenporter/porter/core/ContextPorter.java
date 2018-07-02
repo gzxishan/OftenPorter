@@ -298,7 +298,7 @@ public class ContextPorter implements IOtherStartDestroy
     private boolean willSeek(Class<?> clazz)
     {
         boolean willSeek = true;
-        Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
+        Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners(1);
         while (enumeration.hasMoreElements())
         {
             OnPorterAddListener onPorterAddListener = enumeration.nextElement();
@@ -371,7 +371,7 @@ public class ContextPorter implements IOtherStartDestroy
         if (porter != null)
         {
             boolean willAdd = true;
-            Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners();
+            Enumeration<OnPorterAddListener> enumeration = listenerAdder.listeners(1);
             while (enumeration.hasMoreElements())
             {
                 OnPorterAddListener onPorterAddListener = enumeration.nextElement();

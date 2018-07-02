@@ -139,22 +139,22 @@ public class MyBatisBridge
     }
 
     @KeepFromProguard
-    static ConnectionImpl __openSession(String source)
+    static ConnectionWrap __openSession(String source)
     {
-        ConnectionImpl connection = (ConnectionImpl) TransactionJDBCHandle.__getConnection__(source);
-        if(connection!=null){
+        ConnectionWrap connection = (ConnectionWrap) TransactionJDBCHandle.__getConnection__(source);
+        if (connection != null)
+        {
             return connection;
         }
         return __openSession__(source, true);
     }
 
-    static ConnectionImpl __openSession__(String source, boolean set2Handle)
+    static ConnectionWrap __openSession__(String source, boolean set2Handle)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
-        MyBatisOption myBatisOption = mOption.myBatisOption;
-        SqlSession sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(false);
-        ConnectionImpl connection = new ConnectionImpl(sqlSession);
+        SqlSession sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(true);
+        ConnectionWrap connection = new ConnectionWrap(sqlSession);
         if (set2Handle)
         {
             TransactionJDBCHandle.__setConnection__(source, connection);

@@ -25,7 +25,18 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     public interface IFinalListener
     {
-        void afterFinal(WObject wObject);
+        void beforeFinal(WObject wObject) throws Throwable;
+
+        /**
+         * 不会调用{@linkplain #afterFinal(WObject)}
+         *
+         * @param wObject
+         * @param throwable
+         * @throws Throwable
+         */
+        void onFinalException(WObject wObject, Throwable throwable) throws Throwable;
+
+        void afterFinal(WObject wObject) throws Throwable;
     }
 
 
@@ -64,21 +75,16 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     private Map<String, Object> requestDataMap = null;
 
-    private static final ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
+    protected static final ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
 
     public WObject()
     {
-        threadLocal.set(this);
+
     }
 
     public static WObject fromThreadLocal()
     {
         return threadLocal.get();
-    }
-
-    protected static void clearThreadLocal()
-    {
-        threadLocal.remove();
     }
 
     public abstract WRequest getRequest();
@@ -373,38 +379,48 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     private IListenerAdder<IFinalListener> listenerAdder;
 
-    private IListenerAdder<IFinalListener> getListenerAdder(IFinalListener finalListener)
+    private IListenerAdder<IFinalListener> getListenerAdder(boolean willCreate)
     {
         WObject wObject = original();
-        if (wObject.listenerAdder == null && finalListener != null)
+        if (wObject.listenerAdder == null && willCreate)
         {
             wObject.listenerAdder = new DefaultListenerAdder<>();
         }
         return wObject.listenerAdder;
     }
 
-
     @Override
-    public void add(String name, IFinalListener listener)
+    public String addListener(IFinalListener listener)
     {
         if (listener == null)
         {
             throw new NullPointerException();
         }
-        getListenerAdder(listener).add(name, listener);
+        return getListenerAdder(true).addListener(listener);
+    }
+
+
+    @Override
+    public void addListener(String name, IFinalListener listener)
+    {
+        if (listener == null)
+        {
+            throw new NullPointerException();
+        }
+        getListenerAdder(true).addListener(name, listener);
     }
 
     @Override
-    public IFinalListener remove(String name)
+    public IFinalListener removeListener(String name)
     {
-        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(null);
-        return listenerIListenerAdder == null ? null : listenerIListenerAdder.remove(name);
+        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(false);
+        return listenerIListenerAdder == null ? null : listenerIListenerAdder.removeListener(name);
     }
 
     @Override
-    public Enumeration<IFinalListener> listeners()
+    public Enumeration<IFinalListener> listeners(int order)
     {
-        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(null);
-        return listenerIListenerAdder == null ? EnumerationImpl.getEMPTY() : listenerIListenerAdder.listeners();
+        IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(false);
+        return listenerIListenerAdder == null ? EnumerationImpl.getEMPTY() : listenerIListenerAdder.listeners(order);
     }
 }

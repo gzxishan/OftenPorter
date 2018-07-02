@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.Charset;
-import java.sql.Connection;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -237,17 +236,17 @@ class MyBatisDaoGen implements AutoSetGen
             Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
                     fieldType
             }, (proxy, method, args) -> {
-                if(!Modifier.isInterface(method.getDeclaringClass().getModifiers())){
-                    return method.invoke(myBatisDao,args);
+                if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
+                {
+                    return method.invoke(myBatisDao, args);
                 }
-                ConnectionImpl mConnectionImpl = MyBatisBridge.__openSession(source);
-                Object dao = myBatisDao._mapper(mConnectionImpl.getSqlSession(), fieldType);
+                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+                Object dao = myBatisDao._mapper(connectionWrap.getSqlSession(), fieldType);
                 Object rs = method.invoke(dao, args);
-                Connection connection = mConnectionImpl.getConnection();
-                if (connection.getAutoCommit())
+                if (connectionWrap.getAutoCommit())
                 {
                     TransactionJDBCHandle.__removeConnection__(source);
-                    connection.close();
+                    connectionWrap.close();
                 }
                 return rs;
             });
@@ -313,7 +312,7 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
         String path = dir + name;
-        myBatis.setPath(getFileRelativePath(myBatis,path));
+        myBatis.setPath(getFileRelativePath(myBatis, path));
         myBatis.init(params);
 
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);

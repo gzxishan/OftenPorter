@@ -4,9 +4,11 @@ import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -18,9 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter<TransactionJDBC>
 {
-    @AutoSet
-    IConfigData configData;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionJDBCHandle.class);
+
     private TransactionJDBC transactionJDBC;
+    private String source;
 
     private static final Method __openSession;
 
@@ -66,29 +69,47 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
         {
             throw new RuntimeException("unknown type:" + transactionJDBC.type());
         }
+        this.source = transactionJDBC.dbSource();
         return configData.getBoolean("enableTransactionJDBC", true);
     }
 
     @Override
     public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-            AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+            AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked,
+            Object lastReturn) throws Throwable
     {
-        if (isTop)
+        IConnection iConnection = threadLocal.get().get(source);
+        if (iConnection == null || iConnection.willStartTransactionOk())
         {
             if ("mybatis".equals(transactionJDBC.type()))
             {
-                __openSession.invoke(null, transactionJDBC.dbSource());
+                LOGGER.debug("open source({}) for mybatis...", source);
+                Object rs = __openSession.invoke(null, source);
+                LOGGER.debug("opened source({}) for mybatis:{}", source, rs);
             }
-        }
-        IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
-        if (iConnection != null)
-        {
+
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("start transaction:source={},queryTimeoutSeconds={},readonly={},level={},method={}.{}",
+                        source, transactionJDBC.queryTimeoutSeconds(), transactionJDBC.readonly(),
+                        transactionJDBC.level(), originMethod.getDeclaringClass().getName(), originMethod.getName());
+            }
+            iConnection = threadLocal.get().get(source);
+            if (transactionJDBC.queryTimeoutSeconds() != -1)
+            {
+                iConnection.setQueryTimeoutSeconds(transactionJDBC.queryTimeoutSeconds());
+            }
             Connection connection = iConnection.getConnection();
             connection.setAutoCommit(false);
             connection.setReadOnly(transactionJDBC.readonly());
             if (transactionJDBC.level() != TransactionJDBC.Level.DEFAULT)
             {
                 connection.setTransactionIsolation(transactionJDBC.level().getLevel());
+            }
+            iConnection.startTransactionOk();
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("start transaction ok:source={},method={}", source, originMethod.getName());
             }
         }
         return false;
@@ -98,15 +119,24 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     public Object onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object lastFinalReturn) throws Throwable
     {
-        if (isTop)
+
+        IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
+        if (iConnection != null)
         {
-            IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
-            if (iConnection != null)
+            if (iConnection.willCommit())
             {
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("commit... transaction:source={},method={}.{}", source,originMethod.getDeclaringClass().getName(), originMethod.getName());
+                }
                 __removeConnection__(transactionJDBC.dbSource());
-                iConnection.getConnection().commit();
+                iConnection.doCommit();
+                LOGGER.debug("commit-ok transaction:source={},method={}", source,originMethod.getName());
             }
+        } else
+        {
+            LOGGER.debug("connection is empty for commit.");
         }
+
 
         return lastFinalReturn;
     }
@@ -115,15 +145,21 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, Throwable throwable) throws Throwable
     {
-        if (isTop)
-        {
-            IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
-            if (iConnection != null)
-            {
-                __removeConnection__(transactionJDBC.dbSource());
-                iConnection.getConnection().rollback();
-            }
-        }
 
+        IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
+        if (iConnection != null)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
+                        originMethod.getDeclaringClass().getName(), originMethod.getName(), WPTool.getCause(throwable).toString());
+            }
+            __removeConnection__(transactionJDBC.dbSource());
+            iConnection.doRollback();
+            LOGGER.debug("rollback-finished transaction:source={},method={}", source, originMethod.getName());
+        } else
+        {
+            LOGGER.debug("connection is empty for rollback.");
+        }
     }
 }

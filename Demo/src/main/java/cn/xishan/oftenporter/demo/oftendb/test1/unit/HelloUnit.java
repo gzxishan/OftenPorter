@@ -3,7 +3,9 @@ package cn.xishan.oftenporter.demo.oftendb.test1.unit;
 import cn.xishan.oftenporter.demo.oftendb.test1.entity.Hello;
 import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.util.IdGen;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,6 +25,8 @@ public class HelloUnit
     @TransactionJDBC
     public void add(Hello hello)
     {
+        hello.setCreatetime(new Date());
+        hello.setId(IdGen.getDefault(2018,5).nextId());
         helloDao.add(hello);
     }
 
