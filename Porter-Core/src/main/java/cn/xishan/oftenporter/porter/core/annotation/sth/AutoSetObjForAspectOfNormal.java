@@ -108,6 +108,12 @@ public class AutoSetObjForAspectOfNormal
                 {
                     lastReturn = invoker.invoke(args);
                 }
+
+                for (int i = handles.length - 1; i >= 0; i--)
+                {
+                    AspectOperationOfNormal.Handle handle = handles[i];
+                    lastReturn = handle.afterInvoke(wObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                }
             } catch (Throwable th)
             {
                 throwable = th;
@@ -133,7 +139,7 @@ public class AutoSetObjForAspectOfNormal
             for (int i = handles.length - 1; i >= 0; i--)
             {
                 AspectOperationOfNormal.Handle handle = handles[i];
-                lastReturn = handle.onEnd(wObject, isTop, origin, originMethod, invoker, lastReturn);
+                handle.onEnd(wObject, isTop, origin, originMethod, invoker, lastReturn);
             }
         }
 

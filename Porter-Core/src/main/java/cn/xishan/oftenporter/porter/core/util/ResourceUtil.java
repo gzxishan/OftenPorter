@@ -43,6 +43,11 @@ public class ResourceUtil
 
     public static Enumeration<URL> getAbsoluteResources(String path) throws IOException
     {
+        return _getAbsoluteResources(path, true);
+    }
+
+    private static Enumeration<URL> _getAbsoluteResources(String path, boolean recursive) throws IOException
+    {
         Enumeration<URL> enumeration = EnumerationImpl.getEMPTY();
         for (ClassLoader classLoader : theClassLoaders)
         {
@@ -52,7 +57,7 @@ public class ResourceUtil
                 break;
             }
         }
-        if (!enumeration.hasMoreElements())
+        if (recursive && !enumeration.hasMoreElements())
         {
             if (path.startsWith("/"))
             {
@@ -61,7 +66,7 @@ public class ResourceUtil
             {
                 path = "/" + path;
             }
-            enumeration = getAbsoluteResources(path);
+            enumeration = _getAbsoluteResources(path, false);
         }
         return enumeration;
     }
@@ -85,6 +90,11 @@ public class ResourceUtil
 
     public static URL getAbsoluteResource(String path)
     {
+        return _getAbsoluteResource(path, true);
+    }
+
+    private static URL _getAbsoluteResource(String path, boolean recursive)
+    {
         URL url = null;
         for (ClassLoader classLoader : theClassLoaders)
         {
@@ -94,7 +104,7 @@ public class ResourceUtil
                 break;
             }
         }
-        if (url == null)
+        if (url == null && recursive)
         {
             if (path.startsWith("/"))
             {
@@ -103,7 +113,7 @@ public class ResourceUtil
             {
                 path = "/" + path;
             }
-            url = getAbsoluteResource(path);
+            url = _getAbsoluteResource(path, false);
         }
         return url;
     }

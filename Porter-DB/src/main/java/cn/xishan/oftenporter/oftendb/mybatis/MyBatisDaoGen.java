@@ -213,16 +213,15 @@ class MyBatisDaoGen implements AutoSetGen
         MyBatisField myBatisField = AnnoUtil.getAnnotation(field, MyBatisField.class);
 
         MyBatisDaoImpl myBatisDao;
-        if (myBatisField == null || Object.class.equals(myBatisField.value()))
+        if (myBatisField == null)
         {
             LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
-            this.source = myBatisField != null ? myBatisField.source() : MyBatisOption.DEFAULT_SOURCE;
+            this.source = MyBatisOption.DEFAULT_SOURCE;
             myBatisDao = new MyBatisDaoImpl(this);
         } else
         {
             this.source = myBatisField.source();
             _MyBatisField _myBatisField = new _MyBatisField();
-            _myBatisField.value = myBatisField.value();
             myBatisDao = genObject(_myBatisField);
         }
         Class fieldType = field.getType();
@@ -233,26 +232,56 @@ class MyBatisDaoGen implements AutoSetGen
             {
                 throw new RuntimeException("just support interface,but given " + field);
             }
-            Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
-                    fieldType
-            }, (proxy, method, args) -> {
-                if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
-                {
-                    return method.invoke(myBatisDao, args);
-                }
-                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
-                Object dao = myBatisDao._mapper(connectionWrap.getSqlSession(), fieldType);
-                Object rs = method.invoke(dao, args);
-                if (connectionWrap.getAutoCommit())
-                {
-                    TransactionJDBCHandle.__removeConnection__(source);
-                    connectionWrap.close();
-                }
-                return rs;
-            });
+//            Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
+//                    fieldType
+//            }, (proxy, method, args) -> {
+//                if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
+//                {
+//                    return method.invoke(myBatisDao, args);
+//                }
+//                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+//                Object dao = myBatisDao._mapper(connectionWrap.getSqlSession(), fieldType);
+//                Object rs = method.invoke(dao, args);
+//                if (connectionWrap.getAutoCommit())
+//                {
+//                    TransactionJDBCHandle.__removeConnection__(source);
+//                    connectionWrap.close();
+//                }
+//                return rs;
+//            });
+            Object proxyObject = doProxy(myBatisDao, fieldType, source);
             return proxyObject;
         }
         return myBatisDao;
+    }
+
+    public interface __MyBatisDaoProxy__
+    {
+
+    }
+
+
+    static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source)
+    {
+        //代理dao后可支持重新加载mybatis文件、支持事务控制等。
+        Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
+                        type, __MyBatisDaoProxy__.class},
+                (proxy, method, args) -> {
+                    if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
+                    {
+                        return method.invoke(myBatisDao, args);
+                    }
+                    ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+                    Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
+                    Object rs = method.invoke(dao, args);
+                    if (connectionWrap.getAutoCommit())
+                    {
+                        TransactionJDBCHandle.__removeConnection__(source);
+                        connectionWrap.close();
+                    }
+                    return rs;
+                });
+        return proxyT;
     }
 
 

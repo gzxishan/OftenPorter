@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.annotation;
 
+import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
@@ -21,37 +22,13 @@ import java.sql.Connection;
 @AspectOperationOfNormal(handle = TransactionJDBCHandle.class)
 public @interface TransactionJDBC
 {
-    /**
-     * 设置事务级别。
-     * 另见{@linkplain Connection#TRANSACTION_READ_UNCOMMITTED},{@linkplain Connection#TRANSACTION_READ_COMMITTED},
-     * {@linkplain Connection#TRANSACTION_REPEATABLE_READ},{@linkplain Connection#TRANSACTION_SERIALIZABLE}
-     */
-    enum Level
-    {
-        DEFAULT(-1),
-        READ_UNCOMMITTED(Connection.TRANSACTION_READ_UNCOMMITTED),
-        READ_COMMITTED(Connection.TRANSACTION_READ_COMMITTED),
-        REPEATABLE_READ(Connection.TRANSACTION_REPEATABLE_READ),
-        SERIALIZABLE(Connection.TRANSACTION_SERIALIZABLE);
-        private int level;
-
-        Level(int level)
-        {
-            this.level = level;
-        }
-
-        public int getLevel()
-        {
-            return level;
-        }
-    }
 
     /**
-     * 事务隔离级别
+     * 事设置务隔离级别
      *
      * @return
      */
-    Level level() default Level.DEFAULT;
+    Isolation level() default Isolation.DEFAULT;
 
     /**
      * 是否只读，默认false
@@ -76,5 +53,12 @@ public @interface TransactionJDBC
      * @return
      */
     int queryTimeoutSeconds() default -1;
+
+    /**
+     * 取值为true、且在porter中调用，则事务的提交在整个请求结束后进行
+     *
+     * @return
+     */
+    boolean endCommit() default true;
 
 }

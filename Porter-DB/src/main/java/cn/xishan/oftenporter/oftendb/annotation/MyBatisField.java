@@ -12,8 +12,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface MyBatisField
 {
-    Class<?> value()default Object.class;
-
     /**
      * 指定数据源，见{@linkplain MyBatisOption#source}
      *

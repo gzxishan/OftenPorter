@@ -17,6 +17,7 @@ class ConnectionWrap implements Connection, IConnection
     protected Connection connection;
     private int queryTimeoutSeconds = -1;
     private int transactionCount = 0;
+    private boolean isEndCommit=false;
 
     public ConnectionWrap(SqlSession sqlSession)
     {
@@ -24,6 +25,17 @@ class ConnectionWrap implements Connection, IConnection
         connection = sqlSession.getConnection();
     }
 
+    @Override
+    public void setEndCommit(boolean endCommit)
+    {
+        isEndCommit = endCommit;
+    }
+
+    @Override
+    public boolean isEndCommit()
+    {
+        return isEndCommit;
+    }
 
     @Override
     public boolean willStartTransactionOk()

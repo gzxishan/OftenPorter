@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db.sql;
 
 import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
+import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
@@ -101,44 +102,57 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             }
             Connection connection = iConnection.getConnection();
             connection.setAutoCommit(false);
-            connection.setReadOnly(transactionJDBC.readonly());
-            if (transactionJDBC.level() != TransactionJDBC.Level.DEFAULT)
-            {
-                connection.setTransactionIsolation(transactionJDBC.level().getLevel());
-            }
             iConnection.startTransactionOk();
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER.debug("start transaction ok:source={},method={}", source, originMethod.getName());
             }
         }
+
+        Connection connection = iConnection.getConnection();
+        connection.setReadOnly(transactionJDBC.readonly());
+        if (transactionJDBC.level() != Isolation.DEFAULT)
+        {
+            connection.setTransactionIsolation(transactionJDBC.level().getLevel());
+        }
+
+        iConnection.setEndCommit(transactionJDBC.endCommit());
         return false;
     }
 
-    @Override
-    public Object onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-            AspectOperationOfNormal.Invoker invoker, Object lastFinalReturn) throws Throwable
+    private void checkCommit(Method originMethod, boolean isAfterOrEnd) throws Throwable
     {
-
         IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
-        if (iConnection != null)
+        if (iConnection != null && (iConnection.isEndCommit() && !isAfterOrEnd || !iConnection
+                .isEndCommit() && isAfterOrEnd))
         {
             if (iConnection.willCommit())
             {
-                if(LOGGER.isDebugEnabled()){
-                    LOGGER.debug("commit... transaction:source={},method={}.{}", source,originMethod.getDeclaringClass().getName(), originMethod.getName());
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("commit... transaction:source={},method={}.{}", source,
+                            originMethod.getDeclaringClass().getName(), originMethod.getName());
                 }
                 __removeConnection__(transactionJDBC.dbSource());
                 iConnection.doCommit();
-                LOGGER.debug("commit-ok transaction:source={},method={}", source,originMethod.getName());
+                LOGGER.debug("commit-ok transaction:source={},method={}", source, originMethod.getName());
             }
-        } else
-        {
-            LOGGER.debug("connection is empty for commit.");
         }
+    }
 
+    @Override
+    public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+            AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+    {
+        checkCommit(originMethod, true);
+        return lastReturn;
+    }
 
-        return lastFinalReturn;
+    @Override
+    public void onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+            AspectOperationOfNormal.Invoker invoker, Object lastFinalReturn) throws Throwable
+    {
+        checkCommit(originMethod, false);
     }
 
     @Override
@@ -152,14 +166,12 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
-                        originMethod.getDeclaringClass().getName(), originMethod.getName(), WPTool.getCause(throwable).toString());
+                        originMethod.getDeclaringClass().getName(), originMethod.getName(),
+                        WPTool.getCause(throwable).toString());
             }
             __removeConnection__(transactionJDBC.dbSource());
             iConnection.doRollback();
             LOGGER.debug("rollback-finished transaction:source={},method={}", source, originMethod.getName());
-        } else
-        {
-            LOGGER.debug("connection is empty for rollback.");
         }
     }
 }

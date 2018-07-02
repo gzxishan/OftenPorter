@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
-import cn.xishan.oftenporter.porter.core.base.WObject;
 import org.apache.ibatis.session.SqlSession;
 
 
@@ -31,12 +30,6 @@ public interface MyBatisDao
      *
      * @return
      */
-    <T> T getMapper(Class<T> clazz);
-
-
-    <T> T mapper(WObject wObject);
-
-    <T> T mapper(WObject wObject, Class<T> clazz);
-
+    <T> T mapper(Class<T> clazz);
 
 }

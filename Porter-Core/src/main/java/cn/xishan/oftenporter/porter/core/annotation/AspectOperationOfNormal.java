@@ -102,11 +102,18 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
-        public Object onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+        public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker, Object[] args, Object lastReturn)throws Throwable
+        {
+            LOGGER.debug("not Override.");
+            return lastReturn;
+        }
+
+        @Override
+        public void onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
                 Object lastFinalReturn) throws Throwable
         {
             LOGGER.debug("not Override.");
-            return lastFinalReturn;
         }
 
         @Override
@@ -130,7 +137,7 @@ public @interface AspectOperationOfNormal
      * preInvoke,doInvoke:handleA--handleB--handleC
      * </li>
      * <li>
-     * onEnd,onException:handleC--handleB--handleA
+     * afterInvoke,onEnd,onException:handleC--handleB--handleA
      * </li>
      * </ol>
      * </p>
@@ -164,7 +171,12 @@ public @interface AspectOperationOfNormal
                 Object[] args,
                 Object lastReturn) throws Throwable;
 
-        Object onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+        Object afterInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker,
+                Object[] args,
+                Object lastReturn) throws Throwable;
+
+        void onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
                 Object lastFinalReturn) throws Throwable;
 
         /**

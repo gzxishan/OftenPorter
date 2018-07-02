@@ -12,6 +12,9 @@ public interface IConnection
 
     void setQueryTimeoutSeconds(int queryTimeoutSeconds);
 
+    void setEndCommit(boolean endCommit);
+    boolean isEndCommit();
+
     /**
      * 防止重复开启事务
      *
