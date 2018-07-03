@@ -47,8 +47,8 @@ public @interface LogMethodInvoke
         }
 
         @Override
-        public void onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                AspectOperationOfNormal.Invoker invoker, Object lastFinalReturn) throws Exception
+        public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
         {
             if (LOGGER.isDebugEnabled())
             {
@@ -63,6 +63,7 @@ public @interface LogMethodInvoke
                 sb.append("ms");
                 LOGGER.debug("{}", sb);
             }
+            return lastReturn;
         }
 
         @Override

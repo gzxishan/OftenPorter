@@ -642,7 +642,7 @@ public final class Porter
         while (iterator.hasNext())
         {
             PorterOfFun porterOfFun = iterator.next();
-            PortInit portInit = AnnoUtil.getAnnotation(porterOfFun.getMethod(), PortInit.class);
+            PortInit portInit = AnnoUtil.Advanced.getAnnotation(porterOfFun.getMethod(), PortInit.class);
             PortIniter portIniter = newIniter(porterOfFun, portInit, porterOfFun.getMethodPortIn().getTiedType(),
                     contextName);
             if (portIniter != null)

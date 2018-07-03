@@ -5,11 +5,6 @@ import java.util.Date;
 import cn.xishan.oftenporter.demo.oftendb.test1.entity.Hello;
 import cn.xishan.oftenporter.demo.oftendb.test1.unit.HelloUnit;
 import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
-import cn.xishan.oftenporter.oftendb.db.CUnit;
-import cn.xishan.oftenporter.oftendb.db.Condition;
-import cn.xishan.oftenporter.oftendb.db.NameValues;
-import cn.xishan.oftenporter.porter.core.JResponse;
-import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
@@ -18,10 +13,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.simple.parsers.JSONArrayParser;
 import cn.xishan.oftenporter.porter.simple.parsers.StringArrayParser;
-import com.alibaba.fastjson.JSONArray;
 
 
 @PortIn

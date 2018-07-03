@@ -88,7 +88,7 @@ public class MyJsonTool
 
         AnnotationSearch.searchPublicFields(field -> {
             field.setAccessible(true);
-            DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
+            DBField DBField = AnnoUtil.Advanced.getAnnotation(field,DBField.class);
             jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
 
         },PortUtil.getRealClass( object), exceptFieldsName, DBField.class);

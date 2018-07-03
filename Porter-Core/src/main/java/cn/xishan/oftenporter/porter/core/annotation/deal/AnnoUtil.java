@@ -9,7 +9,6 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
-import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.reflect.*;
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -44,7 +42,7 @@ public final class AnnoUtil
     private static final ThreadLocal<Stack<Configable>> threadLocal = new ThreadLocal<>();
     private static Configable defaultConfigable;
     private static Method javaGetAnnotations;
-    private static final IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
+    private static IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
 
     static
     {
@@ -62,11 +60,6 @@ public final class AnnoUtil
         {
             String path = "/OP-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
             List<String> dynamics = ResourceUtil.getAbsoluteResourcesString(path, "utf-8");
-//            Enumeration<URL> enumeration = Thread.currentThread().getContextClassLoader().getResources(path);
-//            if (!enumeration.hasMoreElements())
-//            {
-//                enumeration = Thread.currentThread().getContextClassLoader().getResources("/" + path);
-//            }
             try
             {
                 for (String _classNames : dynamics)
@@ -93,6 +86,15 @@ public final class AnnoUtil
         DYNAMIC_ANNOTATION_IMPROVABLES = iDynamicAnnotationImprovableList.toArray(new IDynamicAnnotationImprovable[0]);
     }
 
+    public static IDynamicAnnotationImprovable[] getDynamicAnnotationImprovables()
+    {
+        return DYNAMIC_ANNOTATION_IMPROVABLES;
+    }
+
+    public static void setIDynamicAnnotationImprovables(IDynamicAnnotationImprovable[] dynamicAnnotationImprovables)
+    {
+        DYNAMIC_ANNOTATION_IMPROVABLES = dynamicAnnotationImprovables;
+    }
 
     /**
      * 见{@linkplain IDynamicAnnotationImprovable}
@@ -101,25 +103,23 @@ public final class AnnoUtil
     {
         /**
          * 代理指定的注解，使得注解字串内容支持参数。
-         * @param a
-         * @param <A>
-         * @return
          */
-        public static <A extends Annotation> A doProxy(A a)
+        public static <A extends Annotation> A doProxyForDynamicAttr(A a)
         {
-            return proxyAnnotation(a);
+            return proxyAnnotationForAttr(a);
         }
 
         private static <A extends Annotation> A newProxyAnnotation(IDynamicAnnotationImprovable.Result<?, A> result,
                 InvocationHandler invocationHandler)
         {
             Class<A> annotationClass = result.appendAnnotation;
+            AnnoUtilDynamicHandler handler = new AnnoUtilDynamicHandler(invocationHandler, annotationClass,
+                    result.willHandleCommonMethods());
             Object obj = Proxy.newProxyInstance(annotationClass.getClassLoader(), new Class[]{
-                            annotationClass
-                    },
-                    invocationHandler);
+                    annotationClass
+            }, handler);
             A a = (A) obj;
-            return a;
+            return proxyAnnotationForAttr(a);
         }
 
         /**
@@ -130,7 +130,7 @@ public final class AnnoUtil
          */
         public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz)
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.getAnnotation(clazz, AutoSetDefaultDealt.class);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAnnotation(clazz, AutoSetDefaultDealt.class);
             if (autoSetDefaultDealt == null)
             {
                 for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
@@ -217,6 +217,180 @@ public final class AnnoUtil
             }
             return aspectOperationOfNormal;
         }
+
+        public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType)
+        {
+            Annotation annotationResult = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
+                        iDynamicAnnotationImprovable.getAnnotation(clazz, annotationType);
+                if (result != null)
+                {
+                    annotationResult = newProxyAnnotation(result, result.t);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                iDynamicAnnotationImprovable);
+                    }
+                    break;
+                }
+            }
+            if (annotationResult == null)
+            {
+                annotationResult = AnnoUtil.getAnnotation(clazz, annotationType);
+            }
+            annotationResult = proxyAnnotationForAttr(annotationResult);
+            return (A) annotationResult;
+        }
+
+        public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationType)
+        {
+            Annotation annotationResult = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
+                        iDynamicAnnotationImprovable.getAnnotation(method, annotationType);
+                if (result != null)
+                {
+                    annotationResult = newProxyAnnotation(result, result.t);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                iDynamicAnnotationImprovable);
+                    }
+                    break;
+                }
+            }
+            if (annotationResult == null)
+            {
+                annotationResult = AnnoUtil.getAnnotation(method, annotationType);
+            }
+            annotationResult = proxyAnnotationForAttr(annotationResult);
+            return (A) annotationResult;
+        }
+
+        public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationType)
+        {
+            Annotation annotationResult = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
+                        iDynamicAnnotationImprovable.getAnnotation(field, annotationType);
+                if (result != null)
+                {
+                    annotationResult = newProxyAnnotation(result, result.t);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                iDynamicAnnotationImprovable);
+                    }
+                    break;
+                }
+            }
+            if (annotationResult == null)
+            {
+                annotationResult = AnnoUtil.getAnnotation(field, annotationType);
+            }
+            annotationResult = proxyAnnotationForAttr(annotationResult);
+            return (A) annotationResult;
+        }
+
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz,
+                Class<A> annotationType)
+        {
+            A[] annos = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
+                        iDynamicAnnotationImprovable.getRepeatableAnnotations(clazz, annotationType);
+                if (result != null)
+                {
+                    InvocationHandler[] handlers = result.t;
+                    annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
+                    for (int i = 0; i < handlers.length; i++)
+                    {
+                        A a = newProxyAnnotation(result, handlers[i]);
+                        annos[i] = a;
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                    }
+                    break;
+                }
+            }
+            if (annos == null)
+            {
+                annos = AnnoUtil.getRepeatableAnnotations(clazz, annotationType);
+            }
+            return annos;
+        }
+
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Method method,
+                Class<A> annotationType)
+        {
+            A[] annos = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
+                        iDynamicAnnotationImprovable.getRepeatableAnnotations(method, annotationType);
+                if (result != null)
+                {
+                    InvocationHandler[] handlers = result.t;
+                    annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
+                    for (int i = 0; i < handlers.length; i++)
+                    {
+                        A a = newProxyAnnotation(result, handlers[i]);
+                        annos[i] = a;
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                    }
+                    break;
+                }
+            }
+            if (annos == null)
+            {
+                annos = AnnoUtil.getRepeatableAnnotations(method, annotationType);
+            }
+            return annos;
+        }
+
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Field field,
+                Class<A> annotationType)
+        {
+            A[] annos = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
+                        iDynamicAnnotationImprovable.getRepeatableAnnotations(field, annotationType);
+                if (result != null)
+                {
+                    InvocationHandler[] handlers = result.t;
+                    annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
+                    for (int i = 0; i < handlers.length; i++)
+                    {
+                        A a = newProxyAnnotation(result, handlers[i]);
+                        annos[i] = a;
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
+                                    iDynamicAnnotationImprovable);
+                        }
+                    }
+                    break;
+                }
+            }
+            if (annos == null)
+            {
+                annos = AnnoUtil.Advanced.getRepeatableAnnotations(field, annotationType);
+            }
+            return annos;
+        }
     }
 
     /**
@@ -261,8 +435,17 @@ public final class AnnoUtil
         stack.push(configable);
     }
 
-    private static <A extends Annotation> A proxyAnnotation(A t)
+
+    private static <A extends Annotation> A proxyAnnotationForAttr(A t)
     {
+        if (t instanceof AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_)
+        {
+            LOGGER.debug("already proxyed:{}->{}", t.annotationType(), t);
+            return t;
+        } else if (t == null)
+        {
+            return null;
+        }
         Stack<Configable> stack = threadLocal.get();
         Configable configable = stack == null || stack.isEmpty() ? null : stack.peek();
         if (configable == null)
@@ -272,12 +455,13 @@ public final class AnnoUtil
                 configable = defaultConfigable;
             }
         }
-        if (t != null && configable != null)
+        if (configable != null)
         {
-            AnnoUtilInvocationHandler handler = new AnnoUtilInvocationHandler(t, configable.iAnnotationConfigable,
+            AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable,
                     configable.config);
             Object obj = Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[]{
-                    t.annotationType()
+                    t.annotationType(),
+                    AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
             }, handler);
             t = (A) obj;
         }
@@ -355,14 +539,14 @@ public final class AnnoUtil
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
     {
         A t = getAnnotation(method, annotationClass, annotationClass.isAnnotationPresent(Inherited.class));
-        return proxyAnnotation(t);
+        return proxyAnnotationForAttr(t);
     }
 
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
     {
         A t = clazz.getAnnotation(annotationClass);
-        return proxyAnnotation(t);
+        return proxyAnnotationForAttr(t);
     }
 
     private static <A extends Annotation> A[] getAnnotationsOfProxy(Object obj, Class<A> annotationClass)
@@ -370,7 +554,7 @@ public final class AnnoUtil
         A[] as = getAnnotationsByType(obj, annotationClass);
         for (int i = 0; i < as.length; i++)
         {
-            as[i] = proxyAnnotation(as[i]);
+            as[i] = proxyAnnotationForAttr(as[i]);
         }
         return as;
     }
@@ -475,7 +659,7 @@ public final class AnnoUtil
     public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
     {
         A t = field.getAnnotation(annotationClass);
-        return proxyAnnotation(t);
+        return proxyAnnotationForAttr(t);
     }
 
 
@@ -485,7 +669,7 @@ public final class AnnoUtil
         {
             if (annotation.annotationType().equals(annotationClass))
             {
-                return proxyAnnotation((A) annotation);
+                return proxyAnnotationForAttr((A) annotation);
             }
         }
         return null;
@@ -506,7 +690,7 @@ public final class AnnoUtil
         Class<?> c = clazz;
         while (true)
         {
-            A t = proxyAnnotation(c.getDeclaredAnnotation(annotationClass));
+            A t = proxyAnnotationForAttr(c.getDeclaredAnnotation(annotationClass));
             if (t != null)
             {
                 arrayList.add(t);

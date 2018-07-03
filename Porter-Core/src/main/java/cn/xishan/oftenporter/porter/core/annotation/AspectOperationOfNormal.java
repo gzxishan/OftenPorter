@@ -116,19 +116,6 @@ public @interface AspectOperationOfNormal
 
         }
 
-        @Override
-        public void onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
-                Object lasReturn) throws Throwable
-        {
-            LOGGER.debug("not Override.");
-        }
-
-        @Override
-        public void onEndException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args, Throwable throwable)
-        {
-
-        }
     }
 
 
@@ -185,11 +172,6 @@ public @interface AspectOperationOfNormal
         void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args,Throwable throwable) throws Throwable;
 
-        void onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
-                Object lasReturn) throws Throwable;
-
-        void onEndException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args,Throwable throwable) throws Throwable;
     }
 
     Class<? extends Handle> handle();

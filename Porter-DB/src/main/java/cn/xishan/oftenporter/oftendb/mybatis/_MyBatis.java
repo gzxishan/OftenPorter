@@ -82,7 +82,7 @@ class _MyBatis
         map.put("mapperDao", daoClass.getSimpleName());
         map.put("mapperDaoClass", daoClass.getName());
 
-        MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
+        MyBatisParams myBatisParams = AnnoUtil.Advanced.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
         {
             if (params != null)

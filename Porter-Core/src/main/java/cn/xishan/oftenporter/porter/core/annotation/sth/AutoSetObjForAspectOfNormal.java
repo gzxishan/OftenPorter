@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
@@ -126,56 +125,18 @@ public class AutoSetObjForAspectOfNormal
             return lastReturn;
         }
 
-        void invokeNotEndExceptionNow(Throwable throwable) throws Throwable
-        {
-            Enumeration<AspectOperationOfNormal.Handle> enumeration = EnumerationImpl.fromArray(handles, false);
-            while (enumeration.hasMoreElements())
-            {
-                AspectOperationOfNormal.Handle handle = enumeration.nextElement();
-                handle.onException(wObject, isTop, origin, originMethod, invoker, args, throwable);
-            }
-        }
-
-        private void invokeEndNow(Object lastReturn) throws Throwable
+        void invokeExceptionNow(Throwable throwable)
         {
             for (int i = handles.length - 1; i >= 0; i--)
             {
                 AspectOperationOfNormal.Handle handle = handles[i];
-                handle.onEnd(wObject, isTop, origin, originMethod, invoker, lastReturn);
-            }
-        }
-
-        void invokeEnd(Object lastReturn) throws Throwable
-        {
-            if (wObject == null)
-            {
-                invokeEndNow(lastReturn);
-            } else
-            {
-                wObject.addListener(new WObject.IFinalListener()
+                try
                 {
-                    @Override
-                    public void afterFinal(WObject wObject) throws Throwable
-                    {
-                        invokeEndNow(lastReturn);
-                    }
-
-                    @Override
-                    public void beforeFinal(WObject wObject) throws Throwable
-                    {
-
-                    }
-
-                    @Override
-                    public void onFinalException(WObject wObject, Throwable throwable) throws Throwable
-                    {
-                        for (int i = handles.length - 1; i >= 0; i--)
-                        {
-                            AspectOperationOfNormal.Handle handle = handles[i];
-                            handle.onEndException(wObject, isTop, origin, originMethod, invoker, args, throwable);
-                        }
-                    }
-                });
+                    handle.onException(wObject, isTop, origin, originMethod, invoker, args, throwable);
+                } catch (Throwable e)
+                {
+                    LOGGER.error(e.getMessage(), e);
+                }
             }
         }
     }
@@ -206,11 +167,10 @@ public class AutoSetObjForAspectOfNormal
             try
             {
                 Object lastReturn = aspectTask.invokeNow();
-                aspectTask.invokeEnd(lastReturn);
                 return lastReturn;
             } catch (Throwable throwable)
             {
-                aspectTask.invokeNotEndExceptionNow(throwable);
+                aspectTask.invokeExceptionNow(throwable);
                 throw throwable;
             }
         }
@@ -229,7 +189,7 @@ public class AutoSetObjForAspectOfNormal
     {
     }
 
-    public Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
+    Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
         synchronized (AutoSetObjForAspectOfNormal.class)
         {

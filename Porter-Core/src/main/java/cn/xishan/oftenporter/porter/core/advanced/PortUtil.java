@@ -186,7 +186,7 @@ public class PortUtil
 
     public static String tied(Class<?> clazz)
     {
-        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
+        PortIn portIn = AnnoUtil.Advanced.getAnnotation(clazz, PortIn.class);
         String tiedName = portIn != null ? tied(portIn) : null;
         if (WPTool.isEmpty(tiedName))
         {
@@ -228,7 +228,7 @@ public class PortUtil
 
     public static Class getMixinToContextSetKey(Class clazz)
     {
-        MixinTo mixinTo = AnnoUtil.getAnnotation(clazz, MixinTo.class);
+        MixinTo mixinTo = AnnoUtil.Advanced.getAnnotation(clazz, MixinTo.class);
         if (mixinTo != null && !AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
         {
             return mixinTo.toContextSetWithClassKey();

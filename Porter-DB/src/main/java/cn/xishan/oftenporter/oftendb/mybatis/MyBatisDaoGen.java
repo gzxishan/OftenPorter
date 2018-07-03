@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
@@ -210,7 +211,7 @@ class MyBatisDaoGen implements AutoSetGen
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
             String option) throws Exception
     {
-        MyBatisField myBatisField = AnnoUtil.getAnnotation(field, MyBatisField.class);
+        MyBatisField myBatisField = AnnoUtil.Advanced.getAnnotation(field, MyBatisField.class);
 
         MyBatisDaoImpl myBatisDao;
         if (myBatisField == null)
@@ -255,7 +256,7 @@ class MyBatisDaoGen implements AutoSetGen
         return myBatisDao;
     }
 
-    public interface __MyBatisDaoProxy__
+    interface __MyBatisDaoProxy__
     {
 
     }
@@ -264,23 +265,25 @@ class MyBatisDaoGen implements AutoSetGen
     static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
+        InvocationHandler invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
+        {
+            @Override
+            public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
+            {
+                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+                Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
+                Object rs = method.invoke(dao, args);
+                if (connectionWrap.getAutoCommit())
+                {
+                    TransactionJDBCHandle.__removeConnection__(source);
+                    connectionWrap.close();
+                }
+                return rs;
+            }
+        };
+
         Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
-                        type, __MyBatisDaoProxy__.class},
-                (proxy, method, args) -> {
-                    if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
-                    {
-                        return method.invoke(myBatisDao, args);
-                    }
-                    ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
-                    Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
-                    Object rs = method.invoke(dao, args);
-                    if (connectionWrap.getAutoCommit())
-                    {
-                        TransactionJDBCHandle.__removeConnection__(source);
-                        connectionWrap.close();
-                    }
-                    return rs;
-                });
+                type, __MyBatisDaoProxy__.class}, invocationHandler);
         return proxyT;
     }
 
@@ -299,7 +302,7 @@ class MyBatisDaoGen implements AutoSetGen
 
 
         {
-            myBatisMapper = AnnoUtil.getAnnotation(mapperClass, MyBatisMapper.class);
+            myBatisMapper = AnnoUtil.Advanced.getAnnotation(mapperClass, MyBatisMapper.class);
             if (myBatisMapper != null)
             {
                 theType = myBatisMapper.type();

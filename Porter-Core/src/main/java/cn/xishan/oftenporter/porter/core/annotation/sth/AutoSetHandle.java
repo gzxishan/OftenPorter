@@ -493,7 +493,7 @@ public class AutoSetHandle
         Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
         for (Field field : fieldsGet)
         {
-            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
+            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.Advanced.getAnnotation(field, AutoSetToThatForMixin.class);
             if (autoSetToThatForMixin == null)
             {
                 continue;
@@ -517,7 +517,7 @@ public class AutoSetHandle
         Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(objectForSet));
         for (Field field : fields)
         {
-            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field, AutoSetThatForMixin.class);
+            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.Advanced.getAnnotation(field, AutoSetThatForMixin.class);
             if (autoSetThatForMixin == null)
             {
                 continue;
@@ -760,7 +760,7 @@ public class AutoSetHandle
 
             for (Method method : methods)
             {
-                SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
+                SetOk setOk = AnnoUtil.Advanced.getAnnotation(method, SetOk.class);
                 if (setOk != null)
                 {
                     method.setAccessible(true);
