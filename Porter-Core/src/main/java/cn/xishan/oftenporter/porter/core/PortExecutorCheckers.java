@@ -82,10 +82,11 @@ class PortExecutorCheckers extends CheckHandle
         this.wObject = wObject;
         this.duringType = duringType;
         checkPassableList = new ArrayList<>(
-                checkPassables.length + (context != null ? context.porterCheckPassables.length : 0));
+                checkPassables.length + (context != null && context.porterCheckPassables != null ? context
+                        .porterCheckPassables.length : 0));
         if (isPorterCheckPassablesFirst)
         {
-            if (context != null)
+            if (context != null && context.porterCheckPassables != null)
             {
                 WPTool.addAll(checkPassableList, context.porterCheckPassables);
             }
