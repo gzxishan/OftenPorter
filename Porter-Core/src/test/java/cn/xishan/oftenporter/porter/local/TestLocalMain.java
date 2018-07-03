@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,6 +58,10 @@ public class TestLocalMain
 
         //porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
+
+        Properties properties = new Properties();
+        properties.setProperty("fun.test","test");
+        porterConf.setAnnotationConfig(properties);
 
         porterConf.setDefaultReturnFactory(new DefaultReturnFactory()
         {

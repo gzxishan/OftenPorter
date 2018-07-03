@@ -158,16 +158,26 @@ public final class AnnoUtil
         return null;
     }
 
+    public interface __Annotation_Dynamic_Attr__
+    {
+
+    }
 
     private static <A extends Annotation> A proxy(A t)
     {
+        if (t == null || t instanceof __Annotation_Dynamic_Attr__)
+        {
+            return t;
+        }
         Stack<Configable> stack = threadLocal.get();
         Configable configable = stack == null ? null : stack.peek();
-        if (t != null && configable != null)
+        if (configable != null)
         {
             AnnoUtilInvocationHandler handler = new AnnoUtilInvocationHandler(t, configable.iAnnotationConfigable,
                     configable.config);
-            t = (A) Proxy.newProxyInstance(t.getClass().getClassLoader(), new Class[]{t.annotationType()}, handler);
+            Object proxyObj = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+                    new Class[]{t.annotationType(), __Annotation_Dynamic_Attr__.class}, handler);
+            t = (A) proxyObj;
         }
         return t;
     }

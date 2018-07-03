@@ -22,7 +22,7 @@ public class DelayPorter
         LOGGER.debug("***new " + getClass().getSimpleName() + "***");
     }
 
-    @PortIn("test")
+    @PortIn("${fun.test}")
     public Object test()
     {
         return random.nextInt();
