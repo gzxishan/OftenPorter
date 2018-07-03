@@ -47,4 +47,8 @@ public abstract class InvocationHandlerWithCommon implements InvocationHandler
     }
 
     public abstract Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable;
+
+    public static ClassLoader getClassLoader(){
+        return Thread.currentThread().getContextClassLoader();
+    }
 }

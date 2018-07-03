@@ -233,23 +233,6 @@ class MyBatisDaoGen implements AutoSetGen
             {
                 throw new RuntimeException("just support interface,but given " + field);
             }
-//            Object proxyObject = Proxy.newProxyInstance(fieldType.getClassLoader(), new Class[]{
-//                    fieldType
-//            }, (proxy, method, args) -> {
-//                if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
-//                {
-//                    return method.invoke(myBatisDao, args);
-//                }
-//                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
-//                Object dao = myBatisDao._mapper(connectionWrap.getSqlSession(), fieldType);
-//                Object rs = method.invoke(dao, args);
-//                if (connectionWrap.getAutoCommit())
-//                {
-//                    TransactionJDBCHandle.__removeConnection__(source);
-//                    connectionWrap.close();
-//                }
-//                return rs;
-//            });
             Object proxyObject = doProxy(myBatisDao, fieldType, source);
             return proxyObject;
         }
@@ -282,7 +265,7 @@ class MyBatisDaoGen implements AutoSetGen
             }
         };
 
-        Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
+        Object proxyT = Proxy.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                 type, __MyBatisDaoProxy__.class}, invocationHandler);
         return proxyT;
     }

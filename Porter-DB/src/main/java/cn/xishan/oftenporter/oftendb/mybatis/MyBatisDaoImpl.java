@@ -26,14 +26,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         this.path = path;
     }
 
-//    private void checkMapperClass()
-//    {
-//        if (myBatis == null)
-//        {
-//            throw new NullPointerException("there is no mapper dao class");
-//        }
-//    }
-
     public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen)
     {
         this.myBatisDaoGen = myBatisDaoGen;
@@ -52,56 +44,6 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         ConnectionWrap connection = MyBatisBridge.__openSession__(myBatisDaoGen.source, false);
         return connection.getSqlSession();
     }
-
-//    private ConnectionWrap getConnectionWrap()
-//    {
-//        ConnectionWrap connection = MyBatisBridge.__openSession(myBatisDaoGen.source);
-//        return connection;
-//    }
-
-
-//    @Override
-//    public <T> T mapper(WObject wObject)
-//    {
-//        checkMapperClass();
-//        T t;
-//        ConnectionWrap connectionWrap = getConnectionWrap();
-//        t = connectionWrap.getSqlSession().getMapper((Class<T>) myBatis.daoClass);
-//        t = doProxy(t, connectionWrap, myBatis.daoClass);
-//        return t;
-//    }
-
-//    @Override
-//    public <T> T mapper(WObject wObject, Class<T> clazz)
-//    {
-//        T t;
-//        ConnectionWrap connectionWrap = getConnectionWrap();
-//        t = mapperOther(connectionWrap.getSqlSession(), clazz);
-//        t = doProxy(t, connectionWrap, clazz);
-//        return t;
-//    }
-
-
-//    private final <T> T doProxy(T t, ConnectionWrap connectionWrap, Class<?> type)
-//    {
-//        //代理后可支持重新加载mybatis文件
-//        Object proxyT = Proxy.newProxyInstance(type.getClassLoader(), new Class[]{
-//                        type, _MyBatisDaoProxy.class},
-//                (proxy, method, args) -> {
-//                    if (!Modifier.isInterface(method.getDeclaringClass().getModifiers()))
-//                    {
-//                        return method.invoke(t, args);
-//                    }
-//                    Object rs = method.invoke(t, args);
-//                    if (connectionWrap.getAutoCommit())
-//                    {
-//                        TransactionJDBCHandle.__removeConnection__(myBatisDaoGen.source);
-//                        connectionWrap.close();
-//                    }
-//                    return rs;
-//                });
-//        return (T) proxyT;
-//    }
 
     @Override
     public <T> T mapper(Class<T> clazz)
