@@ -4,6 +4,7 @@ import java.util.Date;
 
 import cn.xishan.oftenporter.demo.oftendb.test1.entity.Hello;
 import cn.xishan.oftenporter.demo.oftendb.test1.unit.HelloUnit;
+import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
 import cn.xishan.oftenporter.oftendb.db.CUnit;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
@@ -81,6 +82,7 @@ public class HelloPorter
 
     @PortIn(nece = "names")
     @Parse(paramNames = "names", parser = StringArrayParser.class)
+    @TransactionJDBC
     public Object transactionFailed(WObject wObject)
     {
         String[] names = wObject.fnOf(0);

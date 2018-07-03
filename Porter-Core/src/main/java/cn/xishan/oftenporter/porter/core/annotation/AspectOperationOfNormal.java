@@ -110,16 +110,22 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
+        public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker, Object[] args,Throwable throwable) throws Throwable
+        {
+
+        }
+
+        @Override
         public void onEnd(WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
-                Object lastFinalReturn) throws Throwable
+                Object lasReturn) throws Throwable
         {
             LOGGER.debug("not Override.");
         }
 
         @Override
-        public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args,
-                Throwable throwable) throws Throwable
+        public void onEndException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker, Object[] args, Throwable throwable)
         {
 
         }
@@ -137,7 +143,7 @@ public @interface AspectOperationOfNormal
      * preInvoke,doInvoke:handleA--handleB--handleC
      * </li>
      * <li>
-     * afterInvoke,onEnd,onException:handleC--handleB--handleA
+     * afterInvoke,onException,onEnd,onEndException:handleC--handleB--handleA
      * </li>
      * </ol>
      * </p>
@@ -176,22 +182,14 @@ public @interface AspectOperationOfNormal
                 Object[] args,
                 Object lastReturn) throws Throwable;
 
-        void onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
-                Object lastFinalReturn) throws Throwable;
-
-        /**
-         * @param wObject
-         * @param isTop
-         * @param originObject
-         * @param originMethod
-         * @param invoker
-         * @param args
-         * @param throwable
-         * @throws Throwable
-         */
         void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args,
-                Throwable throwable) throws Throwable;
+                Invoker invoker, Object[] args,Throwable throwable) throws Throwable;
+
+        void onEnd(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod, Invoker invoker,
+                Object lasReturn) throws Throwable;
+
+        void onEndException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+                Invoker invoker, Object[] args,Throwable throwable) throws Throwable;
     }
 
     Class<? extends Handle> handle();

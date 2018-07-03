@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 
 import java.lang.annotation.*;
-import java.sql.Connection;
 
 /**
  * jdbc事务,全局配置enableTransactionJDBC:true|false
@@ -38,6 +37,12 @@ public @interface TransactionJDBC
     boolean readonly() default false;
 
     /**
+     * 是否设置保存点。
+     * @return
+     */
+    boolean setSavePoint()default false;
+
+    /**
      * 数据源名称，另见{@linkplain MyBatisOption#source}
      *
      * @return
@@ -53,12 +58,5 @@ public @interface TransactionJDBC
      * @return
      */
     int queryTimeoutSeconds() default -1;
-
-    /**
-     * 取值为true、且在porter中调用，则事务的提交在整个请求结束后进行
-     *
-     * @return
-     */
-    boolean endCommit() default true;
 
 }

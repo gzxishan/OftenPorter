@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>Porter-Core</name>
-    <description>核心库</description>
+    <description>核心库：支持IoC，接口切面，通用切面，动态注解，必须与非必须参数、参数处理，Mixin等。</description>
     <url>http://maven.apache.org</url>
 
     <dependencies>

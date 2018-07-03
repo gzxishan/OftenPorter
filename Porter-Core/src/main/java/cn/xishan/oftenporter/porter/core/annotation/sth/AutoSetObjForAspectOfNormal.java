@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
@@ -125,11 +126,12 @@ public class AutoSetObjForAspectOfNormal
             return lastReturn;
         }
 
-        void invokeExceptionNow(Throwable throwable) throws Throwable
+        void invokeNotEndExceptionNow(Throwable throwable) throws Throwable
         {
-            for (int i = handles.length - 1; i >= 0; i--)
+            Enumeration<AspectOperationOfNormal.Handle> enumeration = EnumerationImpl.fromArray(handles, false);
+            while (enumeration.hasMoreElements())
             {
-                AspectOperationOfNormal.Handle handle = handles[i];
+                AspectOperationOfNormal.Handle handle = enumeration.nextElement();
                 handle.onException(wObject, isTop, origin, originMethod, invoker, args, throwable);
             }
         }
@@ -167,7 +169,11 @@ public class AutoSetObjForAspectOfNormal
                     @Override
                     public void onFinalException(WObject wObject, Throwable throwable) throws Throwable
                     {
-                        invokeExceptionNow(throwable);
+                        for (int i = handles.length - 1; i >= 0; i--)
+                        {
+                            AspectOperationOfNormal.Handle handle = handles[i];
+                            handle.onEndException(wObject, isTop, origin, originMethod, invoker, args, throwable);
+                        }
                     }
                 });
             }
@@ -204,8 +210,7 @@ public class AutoSetObjForAspectOfNormal
                 return lastReturn;
             } catch (Throwable throwable)
             {
-                throwable = WPTool.getCause(throwable);
-                aspectTask.invokeExceptionNow(throwable);
+                aspectTask.invokeNotEndExceptionNow(throwable);
                 throw throwable;
             }
         }

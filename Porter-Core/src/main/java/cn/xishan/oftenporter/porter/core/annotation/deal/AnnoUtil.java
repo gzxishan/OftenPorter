@@ -94,9 +94,23 @@ public final class AnnoUtil
     }
 
 
+    /**
+     * 见{@linkplain IDynamicAnnotationImprovable}
+     */
     public static class Advanced
     {
-        private static <A extends Annotation> A proxy(IDynamicAnnotationImprovable.Result<?, A> result,
+        /**
+         * 代理指定的注解，使得注解字串内容支持参数。
+         * @param a
+         * @param <A>
+         * @return
+         */
+        public static <A extends Annotation> A doProxy(A a)
+        {
+            return proxyAnnotation(a);
+        }
+
+        private static <A extends Annotation> A newProxyAnnotation(IDynamicAnnotationImprovable.Result<?, A> result,
                 InvocationHandler invocationHandler)
         {
             Class<A> annotationClass = result.appendAnnotation;
@@ -108,6 +122,12 @@ public final class AnnoUtil
             return a;
         }
 
+        /**
+         * 得到指定类的{@linkplain AutoSetDefaultDealt}注解。
+         *
+         * @param clazz
+         * @return
+         */
         public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz)
         {
             AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.getAnnotation(clazz, AutoSetDefaultDealt.class);
@@ -119,7 +139,7 @@ public final class AnnoUtil
                             iDynamicAnnotationImprovable.getAutoSetDefaultDealt(clazz);
                     if (result != null)
                     {
-                        autoSetDefaultDealt = proxy(result, result.t);
+                        autoSetDefaultDealt = newProxyAnnotation(result, result.t);
                         if (LOGGER.isDebugEnabled())
                         {
                             LOGGER.debug("get @{} from {}", AutoSetDefaultDealt.class.getSimpleName(),
@@ -132,6 +152,12 @@ public final class AnnoUtil
             return autoSetDefaultDealt;
         }
 
+        /**
+         * 得到指定注解上的{@linkplain AspectOperationOfPortIn}注解。
+         *
+         * @param annotation
+         * @return
+         */
         public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation)
         {
             Class<? extends Annotation> atype = annotation.annotationType();
@@ -146,7 +172,7 @@ public final class AnnoUtil
                                     .getAspectOperationOfPortIn(annotation);
                     if (result != null)
                     {
-                        aspectOperationOfPortIn = proxy(result, result.t);
+                        aspectOperationOfPortIn = newProxyAnnotation(result, result.t);
                         if (LOGGER.isDebugEnabled())
                         {
                             LOGGER.debug("get @{} from {}", AspectOperationOfPortIn.class.getSimpleName(),
@@ -159,6 +185,12 @@ public final class AnnoUtil
             return aspectOperationOfPortIn;
         }
 
+        /**
+         * 得到指定的注解上的{@linkplain AspectOperationOfNormal}注解
+         *
+         * @param annotation
+         * @return
+         */
         public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation)
         {
             Class<? extends Annotation> atype = annotation.annotationType();
@@ -173,7 +205,7 @@ public final class AnnoUtil
                                     .getAspectOperationOfNormal(annotation);
                     if (result != null)
                     {
-                        aspectOperationOfNormal = proxy(result, result.t);
+                        aspectOperationOfNormal = newProxyAnnotation(result, result.t);
                         if (LOGGER.isDebugEnabled())
                         {
                             LOGGER.debug("get @{} from {}", AspectOperationOfNormal.class.getSimpleName(),
@@ -229,10 +261,10 @@ public final class AnnoUtil
         stack.push(configable);
     }
 
-    private static <A extends Annotation> A proxy(A t)
+    private static <A extends Annotation> A proxyAnnotation(A t)
     {
         Stack<Configable> stack = threadLocal.get();
-        Configable configable = stack == null||stack.isEmpty() ? null : stack.peek();
+        Configable configable = stack == null || stack.isEmpty() ? null : stack.peek();
         if (configable == null)
         {
             synchronized (AnnoUtil.class)
@@ -323,14 +355,14 @@ public final class AnnoUtil
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
     {
         A t = getAnnotation(method, annotationClass, annotationClass.isAnnotationPresent(Inherited.class));
-        return proxy(t);
+        return proxyAnnotation(t);
     }
 
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
     {
         A t = clazz.getAnnotation(annotationClass);
-        return proxy(t);
+        return proxyAnnotation(t);
     }
 
     private static <A extends Annotation> A[] getAnnotationsOfProxy(Object obj, Class<A> annotationClass)
@@ -338,14 +370,9 @@ public final class AnnoUtil
         A[] as = getAnnotationsByType(obj, annotationClass);
         for (int i = 0; i < as.length; i++)
         {
-            as[i] = proxy(as[i]);
+            as[i] = proxyAnnotation(as[i]);
         }
         return as;
-    }
-
-    public static <A extends Annotation> A doProxy(A a)
-    {
-        return proxy(a);
     }
 
     private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass)
@@ -448,7 +475,7 @@ public final class AnnoUtil
     public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
     {
         A t = field.getAnnotation(annotationClass);
-        return proxy(t);
+        return proxyAnnotation(t);
     }
 
 
@@ -458,7 +485,7 @@ public final class AnnoUtil
         {
             if (annotation.annotationType().equals(annotationClass))
             {
-                return proxy((A) annotation);
+                return proxyAnnotation((A) annotation);
             }
         }
         return null;
@@ -479,7 +506,7 @@ public final class AnnoUtil
         Class<?> c = clazz;
         while (true)
         {
-            A t = proxy(c.getDeclaredAnnotation(annotationClass));
+            A t = proxyAnnotation(c.getDeclaredAnnotation(annotationClass));
             if (t != null)
             {
                 arrayList.add(t);

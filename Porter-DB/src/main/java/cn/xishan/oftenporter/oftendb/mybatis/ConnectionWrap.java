@@ -17,24 +17,12 @@ class ConnectionWrap implements Connection, IConnection
     protected Connection connection;
     private int queryTimeoutSeconds = -1;
     private int transactionCount = 0;
-    private boolean isEndCommit=false;
+    private boolean isEndCommit = false;
 
     public ConnectionWrap(SqlSession sqlSession)
     {
         this.sqlSession = sqlSession;
         connection = sqlSession.getConnection();
-    }
-
-    @Override
-    public void setEndCommit(boolean endCommit)
-    {
-        isEndCommit = endCommit;
-    }
-
-    @Override
-    public boolean isEndCommit()
-    {
-        return isEndCommit;
     }
 
     @Override
@@ -78,6 +66,17 @@ class ConnectionWrap implements Connection, IConnection
             throw new SQLException("illegal transactionCount:" + transactionCount);
         }
         this.commit();
+    }
+
+    @Override
+    public boolean doRollback(Savepoint savepoint) throws SQLException
+    {
+        if (transactionCount < 1)
+        {
+            throw new SQLException("illegal transactionCount:" + transactionCount);
+        }
+        this.rollback(savepoint);
+        return --transactionCount == 0;
     }
 
     @Override
