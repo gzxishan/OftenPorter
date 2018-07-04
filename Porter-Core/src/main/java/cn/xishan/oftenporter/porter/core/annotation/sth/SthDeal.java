@@ -128,7 +128,7 @@ public class SthDeal
 
         try
         {
-            porter.OPEntities = OPEntitiesDeal.dealPortInObj(clazz, innerContextBridge, autoSetHandle);
+            porter.opEntities = OPEntitiesDeal.dealOPEntities(clazz, innerContextBridge, autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -443,8 +443,8 @@ public class SthDeal
                     SthUtil.bindTypeParse(portIn.getInNames(), null, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
-                porterOfFun.OPEntities = OPEntitiesDeal
-                        .dealPortInObj(porter.getClazz(), method, innerContextBridge, autoSetHandle);
+                porterOfFun.opEntities = OPEntitiesDeal
+                        .dealOPEntities(porter.getClazz(), method, innerContextBridge, autoSetHandle);
                 porterOfFun.portOut = annotationDealt.portOut(porter, method);
             } catch (Exception e)
             {

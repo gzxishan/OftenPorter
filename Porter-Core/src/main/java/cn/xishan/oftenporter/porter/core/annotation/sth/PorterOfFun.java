@@ -22,7 +22,7 @@ public abstract class PorterOfFun implements ObjectGetter
     int argCount;
     _PortOut portOut;
     _PortIn portIn;
-    OPEntities OPEntities;
+    OPEntities opEntities;
     Porter porter;
 
     private AspectOperationOfPortIn.Handle[] handles;
@@ -174,9 +174,9 @@ public abstract class PorterOfFun implements ObjectGetter
         return portOut;
     }
 
-    public OPEntities getInObj()
+    public OPEntities getOPEntities()
     {
-        return OPEntities;
+        return opEntities;
     }
 
     public Method getMethod()

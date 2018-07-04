@@ -41,27 +41,27 @@ public class OPEntitiesDeal
     /**
      * 处理接口函数上的对象绑定。
      */
-    OPEntities dealPortInObj(Class<?> porterClass, Method method,
+    OPEntities dealOPEntities(Class<?> porterClass, Method method,
             InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
         OPEntities OPEntities = null;
-        _BindEntities portInObj = innerContextBridge.annotationDealt.portInEntities(porterClass, method);
-        if (portInObj != null)
+        _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntities(porterClass, method);
+        if (bindEntities != null)
         {
-            OPEntities = dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
+            OPEntities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
         }
 
         return OPEntities;
     }
 
-    OPEntities dealPortInObj(Class<?> clazz, InnerContextBridge innerContextBridge,
+    OPEntities dealOPEntities(Class<?> clazz, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
-        _BindEntities portInObj = innerContextBridge.annotationDealt.portInEntities(clazz);
-        return dealPortInObj(portInObj, innerContextBridge, autoSetHandle);
+        _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntities(clazz);
+        return dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
     }
 
-    OPEntities dealPortInObj(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
+    OPEntities dealOPEntities(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;

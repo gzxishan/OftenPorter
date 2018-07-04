@@ -505,7 +505,7 @@ public final class PortExecutor
 
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(clazzPIn.ignoreTypeParser(), context, classPort.getInObj(), true, classPort,
+        failedReason = paramDealOfPortInEntities(clazzPIn.ignoreTypeParser(), context, classPort.getOPEntities(), true, classPort,
                 funPort, wObject,
                 typeParserStore);
         if (failedReason != null)
@@ -614,7 +614,7 @@ public final class PortExecutor
         }
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(funPIn.ignoreTypeParser(), context, funPort.getInObj(), false,
+        failedReason = paramDealOfPortInEntities(funPIn.ignoreTypeParser(), context, funPort.getOPEntities(), false,
                 funPort.getPorter(), funPort, wObject,
                 typeParserStore);
         if (failedReason != null)

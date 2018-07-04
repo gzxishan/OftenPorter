@@ -34,7 +34,7 @@ public class CacheTool
     public CacheOne getCacheOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
     {
         CacheOne cacheOne = CACHES.get(clazz);
-        if (cacheOne == null)// && portInObjConf != null)
+        if (cacheOne == null)
         {
             One one = OPEntitiesDeal.bindOne(clazz, innerContextBridge);
             cacheOne = new CacheOne(one);

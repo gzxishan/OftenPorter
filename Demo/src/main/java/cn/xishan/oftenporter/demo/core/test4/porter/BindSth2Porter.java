@@ -14,7 +14,7 @@ public class BindSth2Porter
     /**
      * <pre>
      * 1.通过method指定请求方法。
-     * 2.通过@PortInObj来绑定对象，对象中的字段通过@InNece来指定是必需值，@InUnNece指定非必需值，默认情况下变量的类型是
+     * 2.通过@BindEntities来绑定对象，对象中的字段通过@Nece来指定是必需值，@Unece指定非必需值，默认情况下变量的类型是
      * 自动绑定的。
      * </pre>
      * 

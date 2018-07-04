@@ -213,7 +213,7 @@ public final class AnnotationDealt
         return _unece;
     }
 
-    public _BindEntities portInEntities(Class<?> porterClass, Method method)
+    public _BindEntities bindEntities(Class<?> porterClass, Method method)
     {
         List<Class> classList = new ArrayList<>();
 
@@ -273,13 +273,13 @@ public final class AnnotationDealt
             return null;
         }
 
-        _BindEntities _bindEntities = newPortInObj(classList.toArray(new Class[0]), method);
+        _BindEntities _bindEntities = newBindEntities(classList.toArray(new Class[0]), method);
         return _bindEntities;
 
     }
 
 
-    private _BindEntities newPortInObj(Class<?>[] _classes, Method method)
+    private _BindEntities newBindEntities(Class<?>[] _classes, Method method)
     {
         _BindEntities.CLASS[] classes = new _BindEntities.CLASS[_classes.length];
         for (int i = 0; i < classes.length; i++)
@@ -308,14 +308,14 @@ public final class AnnotationDealt
         return _bindEntities;
     }
 
-    public _BindEntities portInEntities(Class<?> clazz)
+    public _BindEntities bindEntities(Class<?> clazz)
     {
         BindEntities bindEntities = AnnoUtil.Advanced.getAnnotation(clazz, BindEntities.class);
         if (bindEntities == null)
         {
             return null;
         }
-        _BindEntities _bindEntities = newPortInObj(bindEntities.value(), null);
+        _BindEntities _bindEntities = newBindEntities(bindEntities.value(), null);
         return _bindEntities;
     }
 

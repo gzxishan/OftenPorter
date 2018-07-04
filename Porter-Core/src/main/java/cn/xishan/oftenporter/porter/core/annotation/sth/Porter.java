@@ -31,7 +31,7 @@ public final class Porter
     {
         Object getFinalPorterObject();
 
-        OPEntities getInObj();
+        OPEntities getOPEntities();
 
         Method getMethod();
 
@@ -90,9 +90,9 @@ public final class Porter
         }
 
         @Override
-        public OPEntities getInObj()
+        public OPEntities getOPEntities()
         {
-            return fun.getInObj();
+            return fun.getOPEntities();
         }
 
         @Override
@@ -164,7 +164,7 @@ public final class Porter
     Map<String, PorterOfFun> childrenWithMethod;
     Porter[] mixins;
 
-    OPEntities OPEntities;
+    OPEntities opEntities;
     private AutoSetHandle autoSetHandle;
     private IArgumentsFactory iArgumentsFactory;
     private TypeParserStore typeParserStore;
@@ -319,9 +319,9 @@ public final class Porter
         return destroys;
     }
 
-    public OPEntities getInObj()
+    public OPEntities getOPEntities()
     {
-        return OPEntities;
+        return opEntities;
     }
 
     public _PortIn getPortIn()
@@ -390,9 +390,9 @@ public final class Porter
     {
         //处理dealtFor
 
-        if (OPEntities != null)
+        if (opEntities != null)
         {
-            for (One one : OPEntities.ones)
+            for (One one : opEntities.ones)
             {
                 dealInNames(one.inNames, typeParserStore);
             }
@@ -405,9 +405,9 @@ public final class Porter
         {
             for (Porter porter : mixins)
             {
-                if (porter.OPEntities != null)
+                if (porter.opEntities != null)
                 {
-                    for (One one : porter.OPEntities.ones)
+                    for (One one : porter.opEntities.ones)
                     {
                         dealInNames(one.inNames, typeParserStore);
                     }
@@ -418,9 +418,9 @@ public final class Porter
         for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
         {
             PorterOfFun porterOfFun = entry.getValue();
-            if (porterOfFun.OPEntities != null)
+            if (porterOfFun.opEntities != null)
             {
-                for (One one : porterOfFun.OPEntities.ones)
+                for (One one : porterOfFun.opEntities.ones)
                 {
                     dealInNames(one.inNames, typeParserStore);
                 }
@@ -479,16 +479,16 @@ public final class Porter
         }
     }
 
-    public void initIInObjHandle()
+    public void initOPEntitiesHandle()
     {
-        initIInObjHandle(OPEntities);
+        initOPEntitiesHandle(opEntities);
         for (PorterOfFun fun : childrenWithMethod.values())
         {
-            initIInObjHandle(fun.getInObj());
+            initOPEntitiesHandle(fun.getOPEntities());
         }
     }
 
-    private void initIInObjHandle(OPEntities OPEntities)
+    private void initOPEntitiesHandle(OPEntities OPEntities)
     {
         if (OPEntities == null)
         {

@@ -60,7 +60,7 @@ public class DefaultFailedReason
         return new FailedReasonImpl(desc, json);
     }
 
-    public static ParamDealt.FailedReason parsePortInObjException(String desc)
+    public static ParamDealt.FailedReason parseOPEntitiesException(String desc)
     {
         JSONObject json = new JSONObject(2);
         json.put("type", "ex_inObj");
