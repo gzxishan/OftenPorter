@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.oftendb.db.sql;
 
+import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
+import cn.xishan.oftenporter.oftendb.annotation.tx.Readonly;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
@@ -12,6 +15,10 @@ public interface IConnection
     Connection getConnection();
 
     void setQueryTimeoutSeconds(int queryTimeoutSeconds);
+
+    void setReadonly(Readonly readonly) throws SQLException;
+
+    void setLevel(Isolation level) throws SQLException;
 
     /**
      * 防止重复开启事务

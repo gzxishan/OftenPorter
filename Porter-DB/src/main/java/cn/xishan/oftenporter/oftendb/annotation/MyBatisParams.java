@@ -11,6 +11,9 @@ import java.lang.annotation.*;
  * &#60;!--$classpath:path[!JsonString]--&#62;表示导入包内path资源内容,相对于对应的Dao的类路径(utf8编码),会覆盖之前的同名参数
  * </li>
  * <li>
+ *  &#60;!--$path:path[!JsonString]--&#62;表示导入包内path资源内容,相对于当前mapper的路径(utf8编码),会覆盖之前的同名参数
+ *   </li>
+ * <li>
  * &#60;!--$file:path[!JsonString]--&#62;表示导入path文件内容(utf8编码),会覆盖之前的同名参数
  * </li>
  * <li>

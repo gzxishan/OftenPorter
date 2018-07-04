@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
+import cn.xishan.oftenporter.oftendb.annotation.tx.Readonly;
 import cn.xishan.oftenporter.oftendb.db.sql.IConnection;
 import org.apache.ibatis.session.SqlSession;
 
@@ -17,12 +19,34 @@ class ConnectionWrap implements Connection, IConnection
     protected Connection connection;
     private int queryTimeoutSeconds = -1;
     private int transactionCount = 0;
-    private boolean isEndCommit = false;
+    private Readonly lastReadonly = Readonly.DEFAULT;
+    private Isolation lastLevel = Isolation.DEFAULT;
 
     public ConnectionWrap(SqlSession sqlSession)
     {
         this.sqlSession = sqlSession;
         connection = sqlSession.getConnection();
+    }
+
+    @Override
+    public void setLevel(Isolation level) throws SQLException
+    {
+        if (level.getLevel() > lastLevel.getLevel())
+        {
+            connection.setTransactionIsolation(level.getLevel());
+            lastLevel = level;
+        }
+    }
+
+    @Override
+    public void setReadonly(Readonly readonly) throws SQLException
+    {
+        if (lastReadonly == Readonly.FALSE)
+        {
+            return;
+        }
+        lastReadonly = readonly;
+        connection.setReadOnly(lastReadonly == Readonly.TRUE);
     }
 
     @Override
@@ -85,15 +109,12 @@ class ConnectionWrap implements Connection, IConnection
         this.rollback();
     }
 
+    @Override
     public void setQueryTimeoutSeconds(int queryTimeoutSeconds)
     {
         this.queryTimeoutSeconds = queryTimeoutSeconds;
     }
 
-    public int getQueryTimeoutSeconds()
-    {
-        return queryTimeoutSeconds;
-    }
 
     public SqlSession getSqlSession()
     {

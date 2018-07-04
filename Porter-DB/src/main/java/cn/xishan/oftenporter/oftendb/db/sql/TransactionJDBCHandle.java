@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.oftendb.db.sql;
 
 import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
-import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
@@ -116,25 +115,17 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             }
             Connection connection = iConnection.getConnection();
             connection.setAutoCommit(false);
-            connection.setReadOnly(transactionJDBC.readonly());
-            if (transactionJDBC.level() != Isolation.DEFAULT)
-            {
-                connection.setTransactionIsolation(transactionJDBC.level().getLevel());
-            }
             iConnection.startTransactionOk();
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER.debug("start transaction ok:source={},method={}", source, originMethod.getName());
             }
-        } else
-        {
-            Connection connection = iConnection.getConnection();
-            connection.setReadOnly(transactionJDBC.readonly());
-            if (transactionJDBC.level() != Isolation.DEFAULT)
-            {
-                connection.setTransactionIsolation(transactionJDBC.level().getLevel());
-            }
         }
+
+        iConnection.setReadonly(transactionJDBC.readonly());
+        iConnection.setLevel(transactionJDBC.level());
+        iConnection.setQueryTimeoutSeconds(transactionJDBC.queryTimeoutSeconds());
+
         if (transactionJDBC.setSavePoint())
         {
             Connection connection = iConnection.getConnection();
@@ -193,7 +184,8 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
                 }
             }
 
-            if(needRollback){
+            if (needRollback)
+            {
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
