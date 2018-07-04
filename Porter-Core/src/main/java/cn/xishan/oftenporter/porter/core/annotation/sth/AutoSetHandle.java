@@ -651,6 +651,7 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
+                                value=workedInstance.mayProxy(value,this,doProxy);
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -675,6 +676,7 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
+                                value=workedInstance.mayProxy(value,this,doProxy);
                                 contextAutoSet.put(keyName, value);
                                 if (value == null)
                                 {
@@ -686,6 +688,7 @@ public class AutoSetHandle
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
+                            value=workedInstance.mayProxy(value,this,doProxy);
                             if (value == null)
                             {
                                 LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -737,6 +740,7 @@ public class AutoSetHandle
                             break;
                     }
                 }
+                value=workedInstance.mayProxy(value,this,doProxy);
                 f.set(currentObject, value);
                 if (LOGGER.isDebugEnabled())
                 {
@@ -792,7 +796,8 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (genClass.equals(AutoSetGen.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(field,currentObjectClass);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced
+                    .getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 genClass = autoSetDefaultDealt.gen();
@@ -810,7 +815,8 @@ public class AutoSetHandle
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
         addOtherStartDestroy(autoSetGen);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
-        Object value = autoSetGen.genObject(currentObjectClass, currentObject, field, option);
+        Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), option);
         return value;
     }
 
@@ -832,7 +838,8 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (autoSetDealtClass.equals(AutoSetDealt.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(field,currentObjectClass);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced
+                    .getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
@@ -849,7 +856,8 @@ public class AutoSetHandle
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
         addOtherStartDestroy(autoSetDealt);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
-        Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field, value, option);
+        Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value, option);
         return finalValue;
     }
 

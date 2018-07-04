@@ -48,7 +48,11 @@ public class MyBatisBridge
         {
             throw new InitException("not init!");
         }
-        return mybatisConfig.getOption(source);
+        MybatisConfig.MOption mOption = mybatisConfig.getOption(source);
+        if(mOption==null){
+            throw new InitException("not found dbSource:"+source);
+        }
+        return mOption;
     }
 
     /**

@@ -208,35 +208,40 @@ class MyBatisDaoGen implements AutoSetGen
 
 
     @Override
-    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
-            String option) throws Exception
+    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
+            String option)
     {
         MyBatisField myBatisField = AnnoUtil.Advanced.getAnnotation(field, MyBatisField.class);
-
-        MyBatisDaoImpl myBatisDao;
         if (myBatisField == null)
         {
-            LOGGER.debug("the field [{}] not annotated with @[{}]", field, MyBatisField.class.getName());
+            LOGGER.debug("the field [{}] not annotated with @[{}],use source:{}", field,
+                    MyBatisField.class.getSimpleName(), MyBatisOption.DEFAULT_SOURCE);
             this.source = MyBatisOption.DEFAULT_SOURCE;
-            myBatisDao = new MyBatisDaoImpl(this);
         } else
         {
             this.source = myBatisField.source();
-            _MyBatisField _myBatisField = new _MyBatisField();
-            myBatisDao = genObject(_myBatisField);
         }
-        Class fieldType = field.getType();
-        if (!fieldType.equals(MyBatisDao.class))
+
+        Object result;
+        if (realFieldType.equals(MyBatisDao.class))
         {
-            //代理
-            if (!Modifier.isInterface(fieldType.getModifiers()))
+            result = new MyBatisDaoImpl(this);
+        } else
+        {
+            if (!Modifier.isInterface(realFieldType.getModifiers()))
             {
                 throw new RuntimeException("just support interface,but given " + field);
             }
-            Object proxyObject = doProxy(myBatisDao, fieldType, source);
-            return proxyObject;
+
+            MyBatisDaoImpl myBatisDao;
+            _MyBatisField _myBatisField = new _MyBatisField();
+            _myBatisField.value = realFieldType;
+            myBatisDao = genObject(_myBatisField);
+            //代理
+            result = doProxy(myBatisDao, realFieldType, source);
         }
-        return myBatisDao;
+
+        return result;
     }
 
     interface __MyBatisDaoProxy__
@@ -250,6 +255,16 @@ class MyBatisDaoGen implements AutoSetGen
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
         InvocationHandler invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
         {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+            {
+                if (method.equals(TO_STRING_METHOD))
+                {
+                    return type.getName() + "@@" + myBatisDao.getClass().getSimpleName() + myBatisDao.hashCode();
+                }
+                return super.invoke(proxy, method, args);
+            }
+
             @Override
             public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
             {

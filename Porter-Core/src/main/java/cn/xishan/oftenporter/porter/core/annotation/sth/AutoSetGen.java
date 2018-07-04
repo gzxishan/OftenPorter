@@ -10,5 +10,5 @@ import java.lang.reflect.Field;
  */
 public interface AutoSetGen
 {
-    Object genObject(Class<?> currentObjectClass, @MayNull Object currentObject, Field field, String option)throws Exception;
+    Object genObject(Class<?> currentObjectClass, @MayNull Object currentObject, Field field,Class<?> realFieldType, String option)throws Exception;
 }

@@ -39,13 +39,13 @@ class AutoSetHandleWorkedInstance
         worked.clear();
     }
 
-    public synchronized Result workInstance(Object object,AutoSetHandle autoSetHandle,boolean doProxy)throws Exception
+    public Result workInstance(Object object, AutoSetHandle autoSetHandle, boolean doProxy) throws Exception
     {
         boolean isWorked = false;
         if (object != null)
         {
             Package pkg = PortUtil.getRealClass(object).getPackage();
-            if (pkg != null && (pkg.getName().startsWith("java.")||pkg.getName().startsWith("javax.")))
+            if (pkg != null && (pkg.getName().startsWith("java.") || pkg.getName().startsWith("javax.")))
             {
                 isWorked = true;
             } else
@@ -75,13 +75,20 @@ class AutoSetHandleWorkedInstance
 
 
         }
-        if(doProxy&&!isWorked&&object!=null){
+        object=mayProxy(object,autoSetHandle,doProxy);
+        return new Result(isWorked, object);
+    }
+
+    public Object mayProxy(Object object, AutoSetHandle autoSetHandle, boolean doProxy) throws Exception
+    {
+        if (doProxy && object != null)
+        {
             if (autoSetObjForAspectOfNormal != null)
             {
-                object = autoSetObjForAspectOfNormal.doProxy(object,autoSetHandle);//用于通用的切面操作而进行代理设置
+                object = autoSetObjForAspectOfNormal.doProxy(object, autoSetHandle);//用于通用的切面操作而进行代理设置
             }
         }
-        return new Result(isWorked, object);
+        return object;
     }
 
 }

@@ -20,7 +20,7 @@ class IdGenDealt implements AutoSetGen
     }
 
     @Override
-    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field,
+    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
             String option)
     {
         return IdGen.getDefault(FROM_TIME_MILLIS);

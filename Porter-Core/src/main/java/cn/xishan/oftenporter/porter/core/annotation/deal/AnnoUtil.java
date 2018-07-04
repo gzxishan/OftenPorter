@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
@@ -40,10 +42,65 @@ public final class AnnoUtil
     private static final ThreadLocal<Stack<Configable>> threadLocal = new ThreadLocal<>();
     private static Configable defaultConfigable;
     private static Method javaGetAnnotations;
+    private static final Object NULL = new Object();
+
+    static class CacheKey
+    {
+        Object target;
+        Object annotationType;
+
+        public CacheKey(Object target, Object annotationType)
+        {
+            this.target = target;
+            this.annotationType = annotationType;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj instanceof CacheKey)
+            {
+                CacheKey cacheKey = (CacheKey) obj;
+                return target.equals(cacheKey.target) && annotationType.equals(cacheKey.annotationType);
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return target.hashCode();
+        }
+
+        @Override
+        public String toString()
+        {
+            return target + ":" + annotationType;
+        }
+
+        Object getCache()
+        {
+            WeakReference weakReference = annotationCache.get(this);
+            Object cache = weakReference == null ? null : weakReference.get();
+            if (cache != null && LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("hit cache:key={},cache value={}", this, cache == NULL ? "null" : cache);
+            }
+            return cache;
+        }
+
+        void setCache(Object obj)
+        {
+            annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
+        }
+    }
+
     private static IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
+    private static Map<CacheKey, WeakReference<Object>> annotationCache;
 
     static
     {
+        annotationCache = new ConcurrentHashMap<>();
         try
         {
             javaGetAnnotations = AnnotatedElement.class.getMethod("getAnnotationsByType", Class.class);
@@ -123,11 +180,11 @@ public final class AnnoUtil
         /**
          * 获取泛型字段的实际类型
          *
-         * @param field     声明变量
          * @param realClass 实际子类
+         * @param field     声明变量
          * @return
          */
-        public static Class getFieldRealType(Field field, Class<?> realClass)
+        public static Class getFieldRealType(Class<?> realClass, Field field)
         {
             Type fc = field.getGenericType();
             Class type = field.getType();
@@ -163,7 +220,7 @@ public final class AnnoUtil
          */
         public static AutoSetDefaultDealt getAutoSetDefaultDealt(Field field, Class<?> currentClass)
         {
-            Class type = getFieldRealType(field, currentClass);
+            Class type = getFieldRealType(currentClass, field);
             return getAutoSetDefaultDealt(type);
         }
 
@@ -175,6 +232,19 @@ public final class AnnoUtil
          */
         public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz)
         {
+            CacheKey cacheKey = new CacheKey(clazz, "AutoSetDefaultDealt");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (AutoSetDefaultDealt) cache;
+                }
+            }
+
             AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAnnotation(clazz, AutoSetDefaultDealt.class);
             if (autoSetDefaultDealt == null)
             {
@@ -194,6 +264,7 @@ public final class AnnoUtil
                     }
                 }
             }
+            cacheKey.setCache(autoSetDefaultDealt);
             return autoSetDefaultDealt;
         }
 
@@ -205,6 +276,20 @@ public final class AnnoUtil
          */
         public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation)
         {
+            CacheKey cacheKey = new CacheKey(annotation, "AspectOperationOfPortIn");
+
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (AspectOperationOfPortIn) cache;
+                }
+            }
+
             Class<? extends Annotation> atype = annotation.annotationType();
             AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil
                     .getAnnotation(atype, AspectOperationOfPortIn.class);
@@ -227,6 +312,7 @@ public final class AnnoUtil
                     }
                 }
             }
+            cacheKey.setCache(aspectOperationOfPortIn);
             return aspectOperationOfPortIn;
         }
 
@@ -238,6 +324,19 @@ public final class AnnoUtil
          */
         public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation)
         {
+            CacheKey cacheKey = new CacheKey(annotation, "AspectOperationOfNormal");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (AspectOperationOfNormal) cache;
+                }
+            }
+
             Class<? extends Annotation> atype = annotation.annotationType();
             AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
                     .getAnnotation(atype, AspectOperationOfNormal.class);
@@ -260,12 +359,28 @@ public final class AnnoUtil
                     }
                 }
             }
+            cacheKey.setCache(aspectOperationOfNormal);
             return aspectOperationOfNormal;
         }
 
         public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(clazz, annotationType);
+
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A) cache;
+                }
+            }
+
             Annotation annotationResult = null;
+
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
                 IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
@@ -285,12 +400,24 @@ public final class AnnoUtil
             {
                 annotationResult = AnnoUtil.getAnnotation(clazz, annotationType);
             }
-            annotationResult = proxyAnnotationForAttr(annotationResult);
+            cacheKey.setCache(annotationResult);
             return (A) annotationResult;
         }
 
         public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(method, annotationType);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A) cache;
+                }
+            }
             Annotation annotationResult = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
@@ -311,12 +438,25 @@ public final class AnnoUtil
             {
                 annotationResult = AnnoUtil.getAnnotation(method, annotationType);
             }
-            annotationResult = proxyAnnotationForAttr(annotationResult);
+            cacheKey.setCache(annotationResult);
             return (A) annotationResult;
         }
 
         public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(field, annotationType);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A) cache;
+                }
+            }
+
             Annotation annotationResult = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
@@ -337,13 +477,25 @@ public final class AnnoUtil
             {
                 annotationResult = AnnoUtil.getAnnotation(field, annotationType);
             }
-            annotationResult = proxyAnnotationForAttr(annotationResult);
+            cacheKey.setCache(annotationResult);
             return (A) annotationResult;
         }
 
         public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz,
                 Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(clazz, "getRepeatableAnnotations" + annotationType);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A[]) cache;
+                }
+            }
             A[] annos = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
@@ -370,12 +522,26 @@ public final class AnnoUtil
             {
                 annos = AnnoUtil.getRepeatableAnnotations(clazz, annotationType);
             }
+            cacheKey.setCache(annos);
             return annos;
         }
 
         public static <A extends Annotation> A[] getRepeatableAnnotations(Method method,
                 Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(method, "getRepeatableAnnotations" + annotationType);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A[]) cache;
+                }
+            }
+
             A[] annos = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
@@ -402,12 +568,25 @@ public final class AnnoUtil
             {
                 annos = AnnoUtil.getRepeatableAnnotations(method, annotationType);
             }
+            cacheKey.setCache(annos);
             return annos;
         }
 
         public static <A extends Annotation> A[] getRepeatableAnnotations(Field field,
                 Class<A> annotationType)
         {
+            CacheKey cacheKey = new CacheKey(field, "getRepeatableAnnotations" + annotationType);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (A[]) cache;
+                }
+            }
             A[] annos = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
@@ -434,6 +613,7 @@ public final class AnnoUtil
             {
                 annos = AnnoUtil.Advanced.getRepeatableAnnotations(field, annotationType);
             }
+            cacheKey.setCache(annos);
             return annos;
         }
     }
