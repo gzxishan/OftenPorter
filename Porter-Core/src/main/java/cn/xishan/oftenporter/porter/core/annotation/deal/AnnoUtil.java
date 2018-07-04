@@ -2,10 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
-import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
-import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
@@ -121,6 +118,53 @@ public final class AnnoUtil
             }, handler);
             A a = (A) obj;
             return proxyAnnotationForAttr(a);
+        }
+
+        /**
+         * 获取泛型字段的实际类型
+         *
+         * @param field     声明变量
+         * @param realClass 实际子类
+         * @return
+         */
+        public static Class getFieldRealType(Field field, Class<?> realClass)
+        {
+            Type fc = field.getGenericType();
+            Class type = field.getType();
+            Type realType = realClass.getGenericSuperclass();
+            if (fc != null && realType instanceof ParameterizedType)
+            {
+                ParameterizedType parameterizedType = (ParameterizedType) realType;
+
+                TypeVariable[] typeVariables = field.getDeclaringClass().getTypeParameters();
+                for (int i = 0; i < typeVariables.length; i++)
+                {
+                    TypeVariable typeVariable = typeVariables[i];
+                    if (fc.equals(typeVariable))
+                    {
+                        Type t = parameterizedType.getActualTypeArguments()[i];
+                        if (t instanceof Class)
+                        {
+                            type = (Class) t;
+                        }
+                        break;
+                    }
+                }
+            }
+            return type;
+        }
+
+        /**
+         * 得到指定field对应类的{@linkplain AutoSetDefaultDealt}注解。
+         *
+         * @param field        声明的变量
+         * @param currentClass 实际的子类
+         * @return
+         */
+        public static AutoSetDefaultDealt getAutoSetDefaultDealt(Field field, Class<?> currentClass)
+        {
+            Class type = getFieldRealType(field, currentClass);
+            return getAutoSetDefaultDealt(type);
         }
 
         /**

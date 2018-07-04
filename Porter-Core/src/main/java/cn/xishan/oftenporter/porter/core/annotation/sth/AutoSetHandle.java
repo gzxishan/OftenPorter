@@ -493,7 +493,8 @@ public class AutoSetHandle
         Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
         for (Field field : fieldsGet)
         {
-            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.Advanced.getAnnotation(field, AutoSetToThatForMixin.class);
+            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.Advanced
+                    .getAnnotation(field, AutoSetToThatForMixin.class);
             if (autoSetToThatForMixin == null)
             {
                 continue;
@@ -791,8 +792,7 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (genClass.equals(AutoSetGen.class))
         {
-            Class<?> objClazz = field.getType();
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(objClazz);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(field,currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 genClass = autoSetDefaultDealt.gen();
@@ -832,8 +832,7 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (autoSetDealtClass.equals(AutoSetDealt.class))
         {
-            Class<?> objClazz = field.getType();
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(objClazz);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.getAutoSetDefaultDealt(field,currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
