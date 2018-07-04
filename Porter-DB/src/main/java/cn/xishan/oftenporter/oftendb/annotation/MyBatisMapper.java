@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import java.lang.annotation.*;
 
 /**
- * <p>注解在Dao上.</p>
+ * <p>注解在mapper的java接口上.</p>
  * <p>见：{@linkplain MyBatisParams}</p>
  *
  * @author Created by https://github.com/CLovinr on 2017/11/28.
