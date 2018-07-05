@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 
 import java.lang.reflect.Field;
@@ -21,6 +22,7 @@ class IdGenDealt implements AutoSetGen
 
     @Override
     public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
+            _AutoSet autoSet,
             String option)
     {
         return IdGen.getDefault(FROM_TIME_MILLIS);

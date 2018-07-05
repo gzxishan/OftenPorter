@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 
 import java.lang.reflect.Field;
 
@@ -15,11 +16,11 @@ public interface AutoSetDealt
      * @param currentObject      设置静态字段时为null。
      * @param field
      * @param fieldValue
-     * @param option
+     * @param autoSet
      * @return
      */
     Object deal(@MayNull("设置静态字段时为null") Object finalObject, Class<?> currentObjectClass,
             @MayNull("设置静态字段时为null") Object currentObject,
             Field field,Class<?> realFieldType,
-            @MayNull Object fieldValue, String option)throws Exception;
+            @MayNull Object fieldValue, _AutoSet autoSet,String option)throws Exception;
 }

@@ -84,13 +84,16 @@ public final class AnnoUtil
             Object cache = weakReference == null ? null : weakReference.get();
             if (cache != null && LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("hit cache:key={},cache value={}", this, cache == NULL ? "null" : cache);
+                LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
             }
             return cache;
         }
 
         void setCache(Object obj)
         {
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
+            }
             annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
         }
     }

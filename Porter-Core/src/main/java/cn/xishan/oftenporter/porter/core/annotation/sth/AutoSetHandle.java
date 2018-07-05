@@ -816,7 +816,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetGen);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), option);
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field),autoSet, option);
         return value;
     }
 
@@ -857,7 +857,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetDealt);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value, option);
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value,autoSet, option);
         return finalValue;
     }
 
