@@ -84,6 +84,8 @@ public class MyBatisOption implements Cloneable
      */
     public Map<String, Class<?>> javaFuns;
 
+    public IMapperNameHandle iMapperNameHandle;
+
     /**
      * @param rootDir               资源目录
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}

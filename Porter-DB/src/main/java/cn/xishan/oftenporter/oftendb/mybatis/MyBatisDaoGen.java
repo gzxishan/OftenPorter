@@ -321,7 +321,11 @@ class MyBatisDaoGen implements AutoSetGen
                 dir += "/";
             }
         }
-
+        IMapperNameHandle iMapperNameHandle = moption().myBatisOption.iMapperNameHandle;
+        if (iMapperNameHandle != null)
+        {
+            name = iMapperNameHandle.getMapperName(myBatisField.value, name);
+        }
 
         _MyBatis myBatis = new _MyBatis(theType, moption().myBatisOption.resourcesDir, name);
         myBatis.daoClass = mapperClass;
