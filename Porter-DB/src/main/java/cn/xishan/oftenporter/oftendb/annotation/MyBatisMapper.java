@@ -51,6 +51,18 @@ public @interface MyBatisMapper
      */
     String entityAlias() default "";
 
+    /**
+     * 从被注解的当前interface上获取实际的实体类
+     *
+     * @return
+     */
+    int entityClassFromGenericTypeIndex() default -1;
+
+    /**
+     * 优先于{@linkplain #entityClassFromGenericTypeIndex()}
+     *
+     * @return
+     */
     Class<?> entityClass() default MyBatisMapper.class;
 
     /**
