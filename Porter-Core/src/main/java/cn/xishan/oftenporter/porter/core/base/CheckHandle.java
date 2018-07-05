@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
@@ -49,7 +48,6 @@ public abstract class CheckHandle
      * 存在时期同{@linkplain #handleMethod}
      */
     public final OutType outType;
-
 
 
     public CheckHandle(CheckHandle checkHandle)
@@ -134,7 +132,7 @@ public abstract class CheckHandle
      * @param annotationClasses
      * @return
      */
-    public boolean isAllPresentOnClassOrFun(Class<? extends Annotation>... annotationClasses)
+    public boolean isAllPresentOnClassOrFun(Class<?>... annotationClasses)
     {
         if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
                 .isAllOfAnnotationsPresent(
@@ -153,7 +151,7 @@ public abstract class CheckHandle
      * @param annotationClasses
      * @return
      */
-    public boolean isOneOfPresentOnClassOrFun(Class<? extends Annotation>... annotationClasses)
+    public boolean isOneOfPresentOnClassOrFun(Class<?>... annotationClasses)
     {
         if (AnnoUtil.isOneOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
                 .isOneOfAnnotationsPresent(
