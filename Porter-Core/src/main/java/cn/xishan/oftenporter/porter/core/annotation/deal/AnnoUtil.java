@@ -19,7 +19,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
@@ -70,9 +69,7 @@ public final class AnnoUtil
     }
 
 
-
-
-    static class CacheKey
+    private static class CacheKey
     {
         Object target;
         Object annotationType;
@@ -184,7 +181,7 @@ public final class AnnoUtil
             LOGGER.error(e.getMessage(), e);
         }
         DYNAMIC_ANNOTATION_IMPROVABLES = iDynamicAnnotationImprovableList.toArray(new IDynamicAnnotationImprovable[0]);
-        DYNAMIC_ANNOTATION_IMPROVABLES_STRING=String.valueOf(DYNAMIC_ANNOTATION_IMPROVABLES);
+        DYNAMIC_ANNOTATION_IMPROVABLES_STRING = String.valueOf(DYNAMIC_ANNOTATION_IMPROVABLES);
     }
 
     public static IDynamicAnnotationImprovable[] getDynamicAnnotationImprovables()
@@ -204,6 +201,7 @@ public final class AnnoUtil
     {
         /**
          * 防止死循环
+         *
          * @param objects
          * @return
          */
@@ -242,7 +240,7 @@ public final class AnnoUtil
             return proxyAnnotationForAttr(a);
         }
 
-        private static void getAllTypesRecursiveForClass(List<Type> typeList, boolean isLastGeneric, Type... types)
+        private static void getAllTypesRecursiveForClass(List<Class<?>> typeList, boolean isLastGeneric, Type... types)
         {
             for (Type type : types)
             {
@@ -250,44 +248,144 @@ public final class AnnoUtil
                 {
                     if (isLastGeneric)
                     {
-                        typeList.add(type);
-                    } else if (type instanceof ParameterizedType)
-                    {
-                        ParameterizedType parameterizedType = (ParameterizedType) type;
-                        getAllTypesRecursiveForClass(typeList, true, parameterizedType);
+                        typeList.add((Class) type);
                     }
+                } else if (type instanceof ParameterizedType)
+                {
+                    ParameterizedType parameterizedType = (ParameterizedType) type;
+                    if (isLastGeneric)
+                    {
+                        Type rawType = parameterizedType.getRawType();
+                        if (rawType instanceof Class)
+                        {
+                            typeList.add((Class) rawType);
+                        }
+                    }
+                    getAllTypesRecursiveForClass(typeList, true, parameterizedType.getActualTypeArguments());
                 }
             }
         }
 
-        /**
-         * 获取指定类上的直接泛型类型（必须是Class）
-         *
-         * @param realClass
-         * @param index
-         * @return
-         */
-        public static Class<?> getDirectGenericRealTypeAt(Class<?> realClass, int index)
+        private static List<Class<?>> getAllGenericRealClassType(Class<?> realClass)
         {
-            List<Type> typeList = new ArrayList<>(4);
+            List<Class<?>> typeList = new ArrayList<>(4);
             Type superType = realClass.getGenericSuperclass();
             if (superType != null)
             {
                 getAllTypesRecursiveForClass(typeList, false, superType);
             }
             getAllTypesRecursiveForClass(typeList, false, realClass.getGenericInterfaces());
+            return typeList;
+        }
 
-            if (index >= typeList.size())
+        /**
+         * 从泛型的实际类型中获取是superClassOrInterface子类或接口实现者的类，见{@linkplain #getDirectGenericRealTypeAt(Class, int)}
+         *
+         * @param realClass
+         * @param superClassOrInterface
+         * @return
+         */
+        public static
+        @MayNull
+        Class<?> getDirectGenericRealTypeBySuperType(Class<?> realClass, Class<?> superClassOrInterface)
+        {
+            if (superClassOrInterface.equals(realClass))
+            {
+                return realClass;
+            }
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{realClass, superClassOrInterface},
+                    "getDirectGenericRealTypeByAssignable");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+
+            List<Class<?>> typeList = getAllGenericRealClassType(realClass);
+
+            Class<?> type = null;
+            for (Class<?> clazz : typeList)
+            {
+                if (WPTool.isAssignable(clazz, superClassOrInterface))
+                {
+                    if (type != null)
+                    {
+                        throw new RuntimeException("too many child found:" + type + "," + clazz);
+                    }
+                    type = clazz;
+                }
+            }
+            cacheKey.setCache(type);
+            return type;
+        }
+
+        /**
+         * 获取指定类上的直接泛型类型（必须是Class,且必须是包含在"&lt;&gt;"中的）.
+         * <ol>
+         * <li>
+         * class ClassA extends A&lt; ClassB &gt;<strong> : </strong>getDirectGenericRealTypeAt(ClassA.class,1)
+         * 返回ClassB.class
+         * </li>
+         * <li>
+         * class ClassAA extends AA&lt; ClassB,ClassC&lt;ClassD&gt; &gt;<strong> :
+         * </strong>getDirectGenericRealTypeAt(ClassAA
+         * .class,2)
+         * 返回ClassC.class,getDirectGenericRealTypeAt(ClassAA.class,3) 返回ClassD.class
+         * </li>
+         * <li>
+         * class ClassE extend A&lt; ClassB &gt; implements IC&lt;ClassD&gt;<strong> :
+         * </strong>getDirectGenericRealTypeAt
+         * (ClassE
+         * .class,1)
+         * 返回ClassB.class,getDirectGenericRealTypeAt(ClassE.class,2) 返回ClassD.class
+         * </li>
+         * </ol>
+         *
+         * @param realClass
+         * @param index     0返回realClass，其他值返回对应的类
+         * @return
+         */
+        public static
+        @NotNull
+        Class<?> getDirectGenericRealTypeAt(Class<?> realClass, int index)
+        {
+            if (index < 0)
+            {
+                throw new IllegalArgumentException("negative index:" + index);
+            }
+            if (index == 0)
+            {
+                return realClass;
+            }
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{realClass, index}, "getDirectGenericRealTypeAt");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+
+            List<Class<?>> typeList = getAllGenericRealClassType(realClass);
+
+            if (index > typeList.size())
             {
                 throw new RuntimeException("index out of bounds:" + index);
             } else
             {
-                Type type = typeList.get(index);
-                if (!(type instanceof Class))
-                {
-                    throw new RuntimeException("the type at index " + index + " is not class,but " + type);
-                }
-                return (Class<?>) type;
+                Class<?> type = typeList.get(index - 1);
+                cacheKey.setCache(type);
+                return type;
             }
         }
 
@@ -588,7 +686,7 @@ public final class AnnoUtil
 
         public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationType)
         {
-            Worked worked =hasWorked(field, annotationType);
+            Worked worked = hasWorked(field, annotationType);
             if (worked.isWorked)
             {
                 return null;

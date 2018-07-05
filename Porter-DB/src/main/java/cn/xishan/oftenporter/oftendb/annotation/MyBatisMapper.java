@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.annotation;
 
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 
 import java.lang.annotation.*;
 
@@ -52,14 +53,21 @@ public @interface MyBatisMapper
     String entityAlias() default "";
 
     /**
-     * 从被注解的当前interface上获取实际的实体类
+     * 从被注解的当前interface上获取实际的实体类,见{@linkplain AnnoUtil.Advanced#getDirectGenericRealTypeAt(Class, int)}
      *
      * @return
      */
-    int entityClassFromGenericTypeIndex() default -1;
+    int entityClassFromGenericTypeAt() default -1;
 
     /**
-     * 优先于{@linkplain #entityClassFromGenericTypeIndex()}
+     * 获取泛型上的子类型作为实体,见{@linkplain AnnoUtil.Advanced#getDirectGenericRealTypeBySuperType(Class, Class)}
+     *
+     * @return
+     */
+    Class<?> entityClassFromGenericTypeBySuperType() default MyBatisMapper.class;
+
+    /**
+     * 优先于{@linkplain #entityClassFromGenericTypeAt()}
      *
      * @return
      */

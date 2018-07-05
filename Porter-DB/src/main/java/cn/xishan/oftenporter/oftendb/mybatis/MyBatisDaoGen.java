@@ -340,13 +340,23 @@ class MyBatisDaoGen implements AutoSetGen
             myBatis.entityClass = myBatisMapper.entityClass();
             entityClass = myBatis.entityClass;
             if (myBatis.entityClass.equals(MyBatisMapper.class) && myBatisMapper
-                    .entityClassFromGenericTypeIndex() >= 0)
+                    .entityClassFromGenericTypeAt() >= 0)
             {
                 //获取
                 Class<?> realType = myBatisField.value;
                 myBatis.entityClass = AnnoUtil.Advanced
-                        .getDirectGenericRealTypeAt(realType, myBatisMapper.entityClassFromGenericTypeIndex());
+                        .getDirectGenericRealTypeAt(realType, myBatisMapper.entityClassFromGenericTypeAt());
             }
+
+            if (myBatis.entityClass.equals(MyBatisMapper.class) && !myBatisMapper
+                    .entityClassFromGenericTypeBySuperType().equals(MyBatisMapper.class))
+            {
+                Class<?> realType = myBatisField.value;
+                myBatis.entityClass = AnnoUtil.Advanced
+                        .getDirectGenericRealTypeBySuperType(realType,
+                                myBatisMapper.entityClassFromGenericTypeBySuperType());
+            }
+
         } else
         {
             myBatis.isAutoAlias = false;

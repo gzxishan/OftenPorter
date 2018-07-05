@@ -49,27 +49,27 @@ public class WPTool
     }
 
     /**
-     * 判断c1是否是c2的子类、子接口或接口实现者。
+     * 判断child是否是theSuper的子类、子接口或接口实现者。
      *
-     * @param c1
-     * @param c2
+     * @param child
+     * @param theSuper
      * @return
      */
-    public static boolean isAssignable(Class<?> c1, Class<?> c2)
+    public static boolean isAssignable(Class<?> child, Class<?> theSuper)
     {
-        return c2.isAssignableFrom(c1);
+        return theSuper.isAssignableFrom(child);
     }
 
     /**
-     * 判断obj是否是clazz的实例。
+     * 判断childObj是否是theSuper的实例。
      *
-     * @param obj
-     * @param clazz
+     * @param childObj
+     * @param theSuper
      * @return
      */
-    public static boolean isAssignable(Object obj, Class<?> clazz)
+    public static boolean isAssignable(Object childObj, Class<?> theSuper)
     {
-        return isAssignable(obj.getClass(), clazz);
+        return childObj != null && isAssignable(childObj.getClass(), theSuper);
     }
 
     /**
