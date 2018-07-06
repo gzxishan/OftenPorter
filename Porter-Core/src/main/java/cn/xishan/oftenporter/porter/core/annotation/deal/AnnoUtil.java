@@ -398,6 +398,20 @@ public final class AnnoUtil
          */
         public static Class<?> getFieldRealType(Class<?> realClass, Field field)
         {
+
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{field}, "getFieldRealType");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+
             Type fc = field.getGenericType();
             Class type = field.getType();
             Type realType = realClass.getGenericSuperclass();
@@ -420,6 +434,7 @@ public final class AnnoUtil
                     }
                 }
             }
+            cacheKey.setCache(type);
             return type;
         }
 
