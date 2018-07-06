@@ -137,10 +137,10 @@ public class TestLocalMain
         exe(executorService, n, localMain.getPLinker().currentBridge(), (totalDtime, N) ->
         {
 
-            logger.debug("**************************************");
+            logger.debug("******************世界你好，中国你好********************");
             logger.debug("threads={},n={}:total={}ms,average={}ms", threads, N, 1.0f * totalDtime,
                     1.0f * totalDtime / N);
-            logger.debug("**************************************");
+            logger.debug("******************世界你好，中国你好********************");
 
             logger.debug("**************AutoSet delay test******************");
             localMain.getPLinker().currentBridge()
