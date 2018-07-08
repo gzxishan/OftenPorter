@@ -45,6 +45,7 @@ public class AutoSetHandle
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
     private IOtherStartDestroy iOtherStartDestroy;
+    private Map<Object, Object> proxyObjectMap = new HashMap<>();
 
     public <T> T getContextObject(Class<?> key)
     {
@@ -429,6 +430,8 @@ public class AutoSetHandle
             }
             this.setOkObjects.clear();
             this.porterMap = null;
+            this.proxyObjectMap.clear();
+            this.proxyObjectMap = null;
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -488,6 +491,9 @@ public class AutoSetHandle
 
     private void _doAutoSetThatOfMixin(Object objectForGet, Object objectForSet) throws Exception
     {
+        objectForGet=mayGetProxyObject(objectForGet);
+        objectForSet=mayGetProxyObject(objectForSet);
+
         Map<String, Field> fromGet = new HashMap<>();
 
         Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
@@ -568,10 +574,31 @@ public class AutoSetHandle
                 RangeType.ALL);
     }
 
+    private Object mayGetProxyObject(Object object)
+    {
+        if (object != null)
+        {
+            Object obj = proxyObjectMap.get(object);
+            if (obj != null)
+            {
+                object = obj;
+            }
+        }
+        return object;
+    }
+
+    void putProxyObject(Object origin, Object proxy)
+    {
+        proxyObjectMap.put(origin, proxy);
+    }
+
     private Object doAutoSetForCurrent(boolean doProxy, Porter porter, @MayNull Object finalObject,
             Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
+        finalObject = mayGetProxyObject(finalObject);
+        currentObject = mayGetProxyObject(currentObject);
+
         AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxy);
         currentObject = result.object;
         if (result.isWorked)
@@ -651,7 +678,7 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
-                                value=workedInstance.mayProxy(value,this,doProxy);
+                                value = workedInstance.mayProxy(value, this, doProxy);
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -676,7 +703,7 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
-                                value=workedInstance.mayProxy(value,this,doProxy);
+                                value = workedInstance.mayProxy(value, this, doProxy);
                                 contextAutoSet.put(keyName, value);
                                 if (value == null)
                                 {
@@ -688,7 +715,7 @@ public class AutoSetHandle
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
-                            value=workedInstance.mayProxy(value,this,doProxy);
+                            value = workedInstance.mayProxy(value, this, doProxy);
                             if (value == null)
                             {
                                 LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -740,7 +767,7 @@ public class AutoSetHandle
                             break;
                     }
                 }
-                value=workedInstance.mayProxy(value,this,doProxy);
+                value = workedInstance.mayProxy(value, this, doProxy);
                 f.set(currentObject, value);
                 if (LOGGER.isDebugEnabled())
                 {
@@ -816,7 +843,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetGen);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field),autoSet, option);
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), autoSet, option);
         return value;
     }
 
@@ -857,7 +884,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetDealt);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value,autoSet, option);
+                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value, autoSet, option);
         return finalValue;
     }
 

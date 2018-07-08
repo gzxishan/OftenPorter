@@ -313,7 +313,9 @@ public class AutoSetObjForAspectOfNormal
             enhancer.setInterfaces(new Class[]{
                     IOPProxy.class
             });
-            object = enhancer.create();
+            Object proxyObject = enhancer.create();
+            autoSetHandle.putProxyObject(object, proxyObject);
+            object = proxyObject;
         }
 
 
