@@ -139,7 +139,7 @@ public final class Porter
         }
     }
 
-    Class[] superGenericClasses;
+   // Class[] superGenericClasses;
 
     private final Logger LOGGER;
     private boolean started = false, destroyed = false;
@@ -179,41 +179,41 @@ public final class Porter
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
         this.iArgumentsFactory = argumentsFactory;
-        try
-        {
-            initSuperGenericClasses();
-        } catch (Exception e)
-        {
-            LOGGER.error(e.getMessage(), e);
-        }
+//        try
+//        {
+//            initSuperGenericClasses();
+//        } catch (Exception e)
+//        {
+//            LOGGER.error(e.getMessage(), e);
+//        }
     }
 
 
-    //泛型处理
-    private void initSuperGenericClasses() throws Exception
-    {
-
-        Type superclassType = clazz.getGenericSuperclass();
-        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass()))
-        {
-            return;
-        }
-
-        List<Class> list = new ArrayList<>();
-
-        Type[] types = ((ParameterizedType) superclassType).getActualTypeArguments();
-        ClassLoader classLoader = autoSetHandle.getInnerContextBridge().classLoader;
-        for (Type type : types)
-        {
-            String className = getClassName(type);
-            if (className == null)
-            {
-                continue;
-            }
-            list.add(PackageUtil.newClass(className, classLoader));
-        }
-        superGenericClasses = list.toArray(new Class[0]);
-    }
+//    //泛型处理
+//    private void initSuperGenericClasses() throws Exception
+//    {
+//
+//        Type superclassType = clazz.getGenericSuperclass();
+//        if (!ParameterizedType.class.isAssignableFrom(superclassType.getClass()))
+//        {
+//            return;
+//        }
+//
+//        List<Class> list = new ArrayList<>();
+//
+//        Type[] types = ((ParameterizedType) superclassType).getActualTypeArguments();
+//        ClassLoader classLoader = autoSetHandle.getInnerContextBridge().classLoader;
+//        for (Type type : types)
+//        {
+//            String className = getClassName(type);
+//            if (className == null)
+//            {
+//                continue;
+//            }
+//            list.add(PackageUtil.newClass(className, classLoader));
+//        }
+//        superGenericClasses = list.toArray(new Class[0]);
+//    }
 
     private static final String TYPE_NAME_PREFIX = "class ";
 
@@ -246,27 +246,27 @@ public final class Porter
         return className;
     }
 
-    /**
-     * 获取正确的变量类型。
-     *
-     * @return
-     */
-    Class getFieldRealClass(Field field)
-    {
-        Class<?> ftype = field.getType();
-        if (field.getGenericType() == null || superGenericClasses == null)
-        {
-            return ftype;
-        }
-        for (int i = 0; i < superGenericClasses.length; i++)
-        {
-            if (WPTool.isAssignable(superGenericClasses[i], ftype))
-            {
-                return superGenericClasses[i];
-            }
-        }
-        return ftype;
-    }
+//    /**
+//     * 获取正确的变量类型。
+//     *
+//     * @return
+//     */
+//    Class getFieldRealClass(Field field)
+//    {
+//        Class<?> ftype = field.getType();
+//        if (field.getGenericType() == null || superGenericClasses == null)
+//        {
+//            return ftype;
+//        }
+//        for (int i = 0; i < superGenericClasses.length; i++)
+//        {
+//            if (WPTool.isAssignable(superGenericClasses[i], ftype))
+//            {
+//                return superGenericClasses[i];
+//            }
+//        }
+//        return ftype;
+//    }
 
     public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()
     {

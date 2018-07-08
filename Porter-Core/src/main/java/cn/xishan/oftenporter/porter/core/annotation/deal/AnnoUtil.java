@@ -390,7 +390,7 @@ public final class AnnoUtil
         }
 
         /**
-         * 获取泛型字段的实际类型
+         * 可获取泛型字段的实际类型
          *
          * @param realClass 实际子类
          * @param field     声明变量

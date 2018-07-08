@@ -491,8 +491,8 @@ public class AutoSetHandle
 
     private void _doAutoSetThatOfMixin(Object objectForGet, Object objectForSet) throws Exception
     {
-        objectForGet=mayGetProxyObject(objectForGet);
-        objectForSet=mayGetProxyObject(objectForSet);
+        objectForGet = mayGetProxyObject(objectForGet);
+        objectForSet = mayGetProxyObject(objectForSet);
 
         Map<String, Field> fromGet = new HashMap<>();
 
@@ -638,7 +638,9 @@ public class AutoSetHandle
 
             try
             {
-                Class fieldType = porter == null ? f.getType() : porter.getFieldRealClass(f);
+//                Class fieldRealType = porter == null ? AnnoUtil.Advanced.getFieldRealType(currentObjectClass,f) :
+// porter.getFieldRealClass(f);
+                Class fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 f.setAccessible(true);
                 Object value = f.get(currentObject);
                 if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet))
@@ -660,11 +662,11 @@ public class AutoSetHandle
                 }
                 if ("".equals(keyName))
                 {
-                    keyName = fieldType.getName();
+                    keyName = fieldRealType.getName();
                 }
                 if (mayNew == null)
                 {
-                    mayNew = fieldType;
+                    mayNew = fieldRealType;
                 }
 
                 boolean isNull = value == null;
@@ -756,7 +758,6 @@ public class AutoSetHandle
                 {
                     switch (autoSet.range())
                     {
-
                         case Global:
                             globalAutoSet.put(keyName, value);
                             break;
@@ -771,7 +772,7 @@ public class AutoSetHandle
                 f.set(currentObject, value);
                 if (LOGGER.isDebugEnabled())
                 {
-                    LOGGER.debug("AutoSet:[{}] with [{}]", f, value);
+                    LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);
                 }
             } catch (FatalInitException e)
             {
