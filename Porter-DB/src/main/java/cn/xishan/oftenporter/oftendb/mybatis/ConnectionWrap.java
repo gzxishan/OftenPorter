@@ -90,6 +90,7 @@ class ConnectionWrap implements Connection, IConnection
             throw new SQLException("illegal transactionCount:" + transactionCount);
         }
         this.commit();
+        this.close();
     }
 
     @Override
@@ -107,6 +108,7 @@ class ConnectionWrap implements Connection, IConnection
     public void doRollback() throws SQLException
     {
         this.rollback();
+        this.close();
     }
 
     @Override
