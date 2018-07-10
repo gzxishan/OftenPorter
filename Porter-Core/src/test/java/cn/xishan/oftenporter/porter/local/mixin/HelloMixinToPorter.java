@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.local.porter.DelayPorter;
 import cn.xishan.oftenporter.porter.local.porter.HelloPorter;
 
 
@@ -13,6 +14,7 @@ import cn.xishan.oftenporter.porter.local.porter.HelloPorter;
  */
 @PortIn
 @MixinTo(toPorter = HelloPorter.class)
+@MixinTo(toPorter = DelayPorter.class)
 public class HelloMixinToPorter
 {
 

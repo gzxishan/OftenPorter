@@ -221,21 +221,23 @@ public class PortUtil
      */
     public static boolean isJustPortInClass(Class<?> clazz)
     {
-        return !Modifier.isAbstract(clazz.getModifiers()) && clazz.isAnnotationPresent(PortIn.class) && !AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class);
+        return !Modifier.isAbstract(clazz.getModifiers()) && AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, PortIn.class) && !AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, MixinOnly.class) && getMixinTos(clazz).length == 0;
     }
 
 
     public static Class getMixinToContextSetKey(Class clazz)
     {
-        MixinTo mixinTo = AnnoUtil.Advanced.getAnnotation(clazz, MixinTo.class);
-        if (mixinTo != null && !AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
+        MixinTo[] mixinTos = getMixinTos(clazz);
+        for (MixinTo mixinTo : mixinTos)
         {
-            return mixinTo.toContextSetWithClassKey();
-        } else
-        {
-            return null;
+            if (!AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
+            {
+                return mixinTo.toContextSetWithClassKey();
+            }
         }
+        return null;
     }
 
     /**
@@ -247,8 +249,31 @@ public class PortUtil
     public static boolean isMixinPortClass(Class<?> clazz)
     {
 
-        return !Modifier.isAbstract(clazz.getModifiers()) && AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class, MixinTo.class);
+        return !Modifier.isAbstract(clazz.getModifiers()) && (AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class) || getMixinTos(clazz).length > 0);
+    }
+
+
+    public static MixinTo[] getMixinTos(Class<?> clazz)
+    {
+        MixinTo[] mixinTos = AnnoUtil.Advanced.getRepeatableAnnotations(clazz, MixinTo.class);
+        return mixinTos;
+    }
+
+
+    public static boolean enableMixinByMixinTo(Class<?> clazz)
+    {
+        MixinTo[] mixinTos = getMixinTos(clazz);
+        boolean enable = true;
+        for (MixinTo mixinTo : mixinTos)
+        {
+            if (!mixinTo.enableMixin())
+            {
+                enable = false;
+                break;
+            }
+        }
+        return enable;
     }
 
     /**

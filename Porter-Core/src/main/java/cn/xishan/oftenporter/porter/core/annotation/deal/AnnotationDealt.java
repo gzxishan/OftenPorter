@@ -256,9 +256,10 @@ public final class AnnotationDealt
                     }
                     if (index == -1)
                     {
-                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" + OnPorterEntities.class
-                                .getSimpleName() + " in [" + porterClass
-                                .getName() + "] for method with @" + FromPorterEntities.class.getSimpleName());
+                        throw new InitException(
+                                "not found [" + fclasses[i].getName() + "] in @" + OnPorterEntities.class
+                                        .getSimpleName() + " in [" + porterClass
+                                        .getName() + "] for method with @" + FromPorterEntities.class.getSimpleName());
                     } else
                     {
                         classList.add(pclasses[i]);
@@ -499,8 +500,8 @@ public final class AnnotationDealt
         if (portIn == null && isMixin)
         {
             portIn = AnnoUtil.Advanced.getAnnotation(AnnotationDealt.class, PortIn.class);
-        } else if (portIn == null || (!isMixin && AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, MixinOnly.class, MixinTo.class)))
+        } else if (portIn == null || (!isMixin && (AnnoUtil
+                .isOneOfAnnotationsPresent(clazz, MixinOnly.class) || PortUtil.getMixinTos(clazz).length > 0)))
         {
             return null;
         }

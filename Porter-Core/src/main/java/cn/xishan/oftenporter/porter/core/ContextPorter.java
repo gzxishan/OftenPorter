@@ -4,10 +4,7 @@ package cn.xishan.oftenporter.porter.core;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
-import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._MixinPorter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
@@ -331,8 +328,8 @@ public class ContextPorter implements IOtherStartDestroy
 
     private boolean isMixinTo(Class<?> clazz, Object objectPorter)
     {
-        MixinTo mixinTo = AnnoUtil.Advanced.getAnnotation(clazz, MixinTo.class);
-        if (mixinTo != null)
+        MixinTo[] mixinTos = PortUtil.getMixinTos(clazz);
+        for (MixinTo mixinTo : mixinTos)
         {
             _MixinPorter minxinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override());
             Set<_MixinPorter> set = mixinToMap.get(mixinTo.toPorter());
@@ -343,11 +340,8 @@ public class ContextPorter implements IOtherStartDestroy
             }
             LOGGER.debug("add to mixinToMap:{}", clazz);
             set.add(minxinPorter);
-            return true;
-        } else
-        {
-            return false;
         }
+        return mixinTos.length > 0;
     }
 
 

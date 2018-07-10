@@ -1138,7 +1138,25 @@ public final class AnnoUtil
                 } catch (Exception e)
                 {
                     LOGGER.warn(e.getMessage(), e);
-                    as = (A[]) Array.newInstance(annotationClass, 0);
+                    A a = null;
+                    if (obj instanceof Class)
+                    {
+                        a = getAnnotation((Class) obj, annotationClass);
+                    } else if (obj instanceof Method)
+                    {
+                        a = getAnnotation((Method) obj, annotationClass);
+                    } else
+                    {//Field
+                        a = getAnnotation((Field) obj, annotationClass);
+                    }
+                    if (a == null)
+                    {
+                        as = (A[]) Array.newInstance(annotationClass, 0);
+                    } else
+                    {
+                        as = (A[]) Array.newInstance(annotationClass, 1);
+                        as[0] = a;
+                    }
                 }
             }
             return as;
@@ -1259,7 +1277,7 @@ public final class AnnoUtil
         {
             for (Class c : annotationClasses)
             {
-                if (clazz.isAnnotationPresent(c))
+                if (getAnnotation(clazz,c)!=null)
                 {
                     if (!isAll)
                     {

@@ -13,6 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
+@Repeatable(MixinTos.class)
 public @interface MixinTo
 {
     /**
@@ -36,6 +37,7 @@ public @interface MixinTo
 
     /**
      * 用于添加到context set列表。
+     *
      * @return 通过class设置key。
      */
     Class<?> toContextSetWithClassKey() default AutoSet.class;

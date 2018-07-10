@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.advanced.BackableSeek;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
@@ -107,7 +108,7 @@ class SthUtil
     {
 
         SthUtil.bindTypeParses(inNames, parses, typeParserStore, backableSeek, seekType);
-        return  parses.length > 0;
+        return parses.length > 0;
     }
 
     /**
@@ -137,7 +138,7 @@ class SthUtil
         bindTypeParse(inNames, parses[parses.length - 1], typeParserStore, backableSeek, seekType);
     }
 
-  public   static void bindTypeParse(InNames inNames, _Parse parse,
+    public static void bindTypeParse(InNames inNames, _Parse parse,
             TypeParserStore typeParserStore, BackableSeek backableSeek, BackableSeek.SeekType seekType)
     {
         if (parse != null)
@@ -250,8 +251,7 @@ class SthUtil
             {
                 k++;
                 MixinOnly mixinOnly = AnnoUtil.Advanced.getAnnotation(c, MixinOnly.class);
-                MixinTo mixinTo = AnnoUtil.Advanced.getAnnotation(c, MixinTo.class);
-                if (mixinTo != null && !mixinTo.enableMixin())
+                if (!PortUtil.enableMixinByMixinTo(c))
                 {
                     LOGGER.debug("mixin not enable:[{}] to [{}]", c, clazz);
                     continue;
