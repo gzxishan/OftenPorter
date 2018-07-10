@@ -29,6 +29,8 @@ import java.util.Set;
 @HandlesTypes(OPServletInitializer.class)
 public class PBSServletContainerInitializer implements ServletContainerInitializer
 {
+    static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PBSServletContainerInitializer.class);
 
     static class OPContextServlet extends HttpServlet
@@ -245,6 +247,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         {
             return;
         }
+        servletContext.setAttribute(FROM_INITIALIZER_ATTR,true);
         StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
         ServletRegistration.Dynamic dynamic = servletContext
                 .addServlet(startupServlet.toString(), startupServlet);

@@ -121,8 +121,16 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
     static String getUriPrefix(HttpServletRequest request)
     {
-        String prefix = request.getRequestURI()
-                .substring(0, request.getContextPath().length() + request.getServletPath().length());
+        ServletContext servletContext = request.getServletContext();
+        String prefix;
+        if (servletContext.getAttribute(PBSServletContainerInitializer.FROM_INITIALIZER_ATTR) != null)
+        {
+            prefix = request.getRequestURI().substring(0, request.getContextPath().length());
+        } else
+        {
+            prefix = request.getRequestURI()
+                    .substring(0, request.getContextPath().length() + request.getServletPath().length());
+        }
         return prefix;
     }
 
