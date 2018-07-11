@@ -2,7 +2,9 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
 import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -139,7 +141,7 @@ public final class Porter
         }
     }
 
-   // Class[] superGenericClasses;
+    // Class[] superGenericClasses;
 
     private final Logger LOGGER;
     private boolean started = false, destroyed = false;
@@ -710,10 +712,14 @@ public final class Porter
         }
         for (Porter porter : mixins)
         {
-            Class key = PortUtil.getMixinToContextSetKey(porter.getClazz());
-            if (key != null)
+            MixinTo[] mixinTos = PortUtil.getMixinTos(clazz);
+            for (MixinTo mixinTo : mixinTos)
             {
-                map.put(key, porter);
+                if (!AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
+                {
+                    Class key = mixinTo.toContextSetWithClassKey();
+                    map.put(key, porter);
+                }
             }
             porter.getMixinToThatCouldSet(map);
         }

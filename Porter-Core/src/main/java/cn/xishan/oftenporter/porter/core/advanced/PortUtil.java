@@ -227,19 +227,6 @@ public class PortUtil
     }
 
 
-    public static Class getMixinToContextSetKey(Class clazz)
-    {
-        MixinTo[] mixinTos = getMixinTos(clazz);
-        for (MixinTo mixinTo : mixinTos)
-        {
-            if (!AutoSet.class.equals(mixinTo.toContextSetWithClassKey()))
-            {
-                return mixinTo.toContextSetWithClassKey();
-            }
-        }
-        return null;
-    }
-
     /**
      * 判断是否是接口类。
      *

@@ -224,21 +224,17 @@ public class TestLocalMain
                                     .addParam("time", String.valueOf(System.currentTimeMillis()))
                                     .addParam("name", "小傻").addParam("myAge", "18"),
                             lResponse ->
-                            {
-                                assertTrue(
-                                        lResponse.getResponse() instanceof User || lResponse
-                                                .getResponse() instanceof Article);
-                            });
+                                    assertTrue(
+                                            lResponse.getResponse() instanceof User || lResponse
+                                                    .getResponse() instanceof Article));
 
                     bridge.request(new PRequest(PortMethod.GET, "/Local-1/Hello/helloMixin"),
-                            lResponse -> {
-                                assertEquals("Mixin!", lResponse.getResponse());
-                            });
+                            lResponse -> assertEquals("Mixin!", lResponse.getResponse()));
 
                     bridge.request(new PRequest(PortMethod.GET, "/Local-1/Hello/helloMixinTo"),
-                            lResponse -> {
-                                assertEquals("MixinTo!", lResponse.getResponse());
-                            });
+                            lResponse -> assertEquals("MixinTo!", lResponse.getResponse()));
+                    bridge.request(new PRequest(PortMethod.GET, "/Local-1/Delay/helloMixinTo"),
+                            lResponse -> assertEquals("MixinTo!", lResponse.getResponse()));
 
                     bridge.request(new PRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明")
                                     .addParam("age", "22")
