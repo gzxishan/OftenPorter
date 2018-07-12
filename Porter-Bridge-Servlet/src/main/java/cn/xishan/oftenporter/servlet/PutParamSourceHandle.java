@@ -10,12 +10,15 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -83,28 +86,33 @@ public class PutParamSourceHandle implements ParamSourceHandle
             String encode = getEncode(ctype);
 
             String body = FileTool.getString(request.getInputStream());
-            if(body==null){
+            if (body == null)
+            {
                 return null;
             }
-            String[] strs = body.split("&");
-            final HashMap<String, Object> paramsMap = new HashMap<>(strs.length);
-            int index;
-            for (String string : strs)
-            {
-                index = string.indexOf('=');
-                if (index != -1)
-                {
-                    paramsMap.put(string.substring(0, index),
-                            URLDecoder.decode(string.substring(index + 1), encode));
-                }
-            }
-
+            Map paramsMap = fromEncoding(body, encode);
             ParamSource paramSource = new DefaultParamSource(paramsMap, wObject.getRequest());
-
             return paramSource;
-
         }
         return null;
+    }
+
+    public static Map<String, String> fromEncoding(String encodingContent,
+            String encoding) throws UnsupportedEncodingException
+    {
+        String[] strs = StrUtil.split(encodingContent, "&");
+        HashMap<String, String> paramsMap = new HashMap<>(strs.length);
+        int index;
+        for (String string : strs)
+        {
+            index = string.indexOf('=');
+            if (index != -1)
+            {
+                paramsMap.put(string.substring(0, index),
+                        URLDecoder.decode(string.substring(index + 1), encoding));
+            }
+        }
+        return paramsMap;
     }
 
 }
