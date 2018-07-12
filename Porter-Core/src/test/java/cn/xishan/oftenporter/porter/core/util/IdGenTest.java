@@ -87,7 +87,8 @@ public class IdGenTest
     public void testDefault()
     {
         IdGen idGen = IdGen.getDefault(FROM_TIME_MILLIS);
-        LogUtil.printPosLn(idGen.nextId());
+        String id = idGen.nextId();
+        LogUtil.printPosLn(id.length()+":"+id);
         long t = System.nanoTime();
         int N = 100*10000;
         for (int i = 0; i < N; i++)

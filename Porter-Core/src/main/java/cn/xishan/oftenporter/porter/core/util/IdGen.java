@@ -306,6 +306,9 @@ public class IdGen implements Serializable
             mac = 0;
         }
         String mchid = IdGen.num10ToNum6X(mac, 8);
+        if(mchid.length()>8){
+            mchid=mchid.substring(mchid.length()-8);
+        }
         return mchid;
     }
 
