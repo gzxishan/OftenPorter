@@ -33,6 +33,7 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     public DynamicAnnotationImprovableWrap(String classType)
     {
         this.classType = classType;
+        LOGGER.debug("add IDynamicAnnotationImprovable:{}", classType);
     }
 
     public static boolean isUseWhiteOrDeny()
