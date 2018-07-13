@@ -19,10 +19,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
@@ -41,6 +38,8 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
         private long lastRetryTime;
         private int retriedCount;
 
+        private ScheduledFuture firstStartCheckFuture;
+
         void start(WObject wObject)
         {
 
@@ -58,8 +57,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     return thread;
                 });
 
-
-                Runnable runnable = () -> {
+                Runnable firstStartCheckRunnable = () -> {
                     if (isDestroyed)
                     {
                         return;
@@ -69,8 +67,9 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                         doConnect();
                     }
                 };
-                scheduledExecutorService.scheduleAtFixedRate(runnable, wsClientConfig.initDelay,
-                        wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
+                firstStartCheckFuture = scheduledExecutorService
+                        .scheduleAtFixedRate(firstStartCheckRunnable, wsClientConfig.initDelay,
+                                wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
 
             } catch (Exception e)
             {
@@ -109,19 +108,22 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                 connect();
             } else
             {
-                //重试
-                if (wsClientConfig.retryTimes < 0 || hasRetryTimes())
+                if (!wsClient.session.webSocketClient.isConnecting())
                 {
-                    lastRetryTime = System.currentTimeMillis();
-                    scheduledExecutorService.schedule(this::connect, wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
-                } else
-                {
-                    LOGGER.warn("stop retry!");
-                    handleSet.remove(this);
-                    wsClient.session = null;
-                    destroy();
+                    //重试
+                    if (wsClientConfig.retryTimes < 0 || hasRetryTimes())
+                    {
+                        lastRetryTime = System.currentTimeMillis();
+                        scheduledExecutorService
+                                .schedule(this::connect, wsClientConfig.retryDelay, TimeUnit.MILLISECONDS);
+                    } else
+                    {
+                        LOGGER.warn("stop retry!");
+                        handleSet.remove(this);
+                        wsClient.session = null;
+                        destroy();
+                    }
                 }
-
             }
         }
 
@@ -170,7 +172,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             {
                 wsClient.session.close();
             }
-            String wsUrl=wsClientConfig.getWSUrl();
+            String wsUrl = wsClientConfig.getWSUrl();
             WebSocketClient webSocketClient = new WebSocketClient(URI.create(wsUrl),
                     new Draft_6455(),
                     wsClientConfig.getConnectHeaders(), wsClientConfig.connectTimeout)
@@ -291,8 +293,12 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             {
                 webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
             }
-            LOGGER.debug("connect to WebSocket server...:{}",wsUrl);
+            LOGGER.debug("connect to WebSocket server...:{}", wsUrl);
             webSocketClient.connectBlocking();
+            if(firstStartCheckFuture!=null){
+                firstStartCheckFuture.cancel(false);
+                firstStartCheckFuture=null;
+            }
         }
 
 
@@ -304,7 +310,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
 
     @Override
-    public boolean init(ClientWebSocket current,IConfigData configData, PorterOfFun porterOfFun)
+    public boolean init(ClientWebSocket current, IConfigData configData, PorterOfFun porterOfFun)
     {
         this.porterOfFun = porterOfFun;
         this.clientWebSocket = current;
