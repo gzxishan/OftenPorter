@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.io.Resources;
@@ -282,7 +283,7 @@ class MyBatisDaoGen implements AutoSetGen
             }
         };
 
-        Object proxyT = Proxy.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
+        Object proxyT = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                 type, __MyBatisDaoProxy__.class}, invocationHandler);
         return proxyT;
     }

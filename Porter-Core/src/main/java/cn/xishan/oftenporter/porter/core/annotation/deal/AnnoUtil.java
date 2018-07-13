@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,7 +260,7 @@ public final class AnnoUtil
             Class<A> annotationClass = result.appendAnnotation;
             AnnoUtilDynamicHandler handler = new AnnoUtilDynamicHandler(invocationHandler, annotationClass,
                     result.willHandleCommonMethods());
-            Object obj = Proxy.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
+            Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                     annotationClass
             }, handler);
             A a = (A) obj;
@@ -991,7 +992,7 @@ public final class AnnoUtil
         {
             AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable,
                     configable.config);
-            Object obj = Proxy.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
+            Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                     t.annotationType(),
                     AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
             }, handler);
