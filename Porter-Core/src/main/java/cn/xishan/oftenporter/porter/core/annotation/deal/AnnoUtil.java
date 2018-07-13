@@ -168,7 +168,8 @@ public final class AnnoUtil
                     String[] classNames = StrUtil.split(_classNames.trim(), "\n");
                     for (String className : classNames)
                     {
-                        IDynamicAnnotationImprovable iDynamicAnnotationImprovable = WPTool.newObject(className);
+                        IDynamicAnnotationImprovable iDynamicAnnotationImprovable = new DynamicAnnotationImprovableWrap(
+                                className);
                         iDynamicAnnotationImprovableList.add(iDynamicAnnotationImprovable);
                     }
                 }
@@ -217,6 +218,31 @@ public final class AnnoUtil
             String key = builder.toString();
             boolean rs = threadLocalForLoop.get().contains(key);
             return new Worked(rs, key);
+        }
+
+        public static void setUseWhiteOrDeny(boolean useWhiteOrDeny)
+        {
+            DynamicAnnotationImprovableWrap.setUseWhiteOrDeny(useWhiteOrDeny);
+        }
+
+        public static void addDeny(String className)
+        {
+            DynamicAnnotationImprovableWrap.addDeny(className);
+        }
+
+        public static void removeDeny(String className)
+        {
+            DynamicAnnotationImprovableWrap.removeDeny(className);
+        }
+
+        public static void addWhite(String className)
+        {
+            DynamicAnnotationImprovableWrap.addWhite(className);
+        }
+
+        public static void removeWhite(String className)
+        {
+            DynamicAnnotationImprovableWrap.removeWhite(className);
         }
 
         /**
@@ -1277,7 +1303,7 @@ public final class AnnoUtil
         {
             for (Class c : annotationClasses)
             {
-                if (getAnnotation(clazz,c)!=null)
+                if (getAnnotation(clazz, c) != null)
                 {
                     if (!isAll)
                     {

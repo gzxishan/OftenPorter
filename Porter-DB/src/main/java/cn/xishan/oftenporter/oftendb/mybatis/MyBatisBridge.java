@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
 import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
@@ -28,6 +29,11 @@ public class MyBatisBridge
 
     private static MybatisConfig mybatisConfig;
 
+    static
+    {
+        AnnoUtil.Advanced.addWhite(IDynamicAnnotationImprovableForDao.class.getName());
+    }
+
     static void start()
     {
         if (mybatisConfig == null)
@@ -49,8 +55,9 @@ public class MyBatisBridge
             throw new InitException("not init!");
         }
         MybatisConfig.MOption mOption = mybatisConfig.getOption(source);
-        if(mOption==null){
-            throw new InitException("not found dbSource:"+source);
+        if (mOption == null)
+        {
+            throw new InitException("not found dbSource:" + source);
         }
         return mOption;
     }
