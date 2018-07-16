@@ -25,16 +25,26 @@ import java.util.Map;
 class _MyBatis
 {
 
+    static class Alias{
+        String alias;
+        Class<?> type;
+
+        public Alias(String alias, Class<?> type)
+        {
+            this.alias = alias;
+            this.type = type;
+        }
+    }
+
     private static final Logger LOGGER = LogUtil.logger(_MyBatis.class);
 
     MyBatisMapper.Type type;
     String resourceDir;
     String name;
-   private String path,parentPath;
+    private String path, parentPath;
     Class<?> daoClass;
-    String daoAlias;
-    String entityAlias;
     Class<?> entityClass;
+    Alias[] aliases;
 
     boolean isAutoAlias;
 
@@ -42,8 +52,9 @@ class _MyBatis
     private MSqlSessionFactoryBuilder.FileListener fileListener;
     private List<String> paths;
 
-    public _MyBatis(MyBatisMapper.Type type, String resourceDir, String name)
+    public _MyBatis(Alias[] aliases,MyBatisMapper.Type type, String resourceDir, String name)
     {
+        this.aliases=aliases;
         if (resourceDir != null && !resourceDir.endsWith("/"))
         {
             resourceDir += "/";
@@ -57,7 +68,7 @@ class _MyBatis
     public void setPath(String path)
     {
         this.path = path;
-        parentPath=PackageUtil.getPathWithRelative('/',path,"../","/");
+        parentPath = PackageUtil.getPathWithRelative('/', path, "../", "/");
     }
 
     public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener) throws Exception
@@ -159,7 +170,7 @@ class _MyBatis
 
             {
 
-                for (int i = 0; i <=2; i++)
+                for (int i = 0; i <= 2; i++)
                 {
                     do
                     {
@@ -169,10 +180,10 @@ class _MyBatis
                         if (i == 0)
                         {//classpath:
                             keyPrefix = "<!--$classpath:";
-                        }else if(i==1){
+                        } else if (i == 1)
+                        {
                             keyPrefix = "<!--$path:";
-                        }
-                        else
+                        } else
                         {//file:
                             keyPrefix = "<!--$file:";
                         }
@@ -200,12 +211,14 @@ class _MyBatis
                             }
                         }
                         path = path.trim();
-                        if (i == 0||i==1)
+                        if (i == 0 || i == 1)
                         {//classpath,path
-                            if(i==0){
+                            if (i == 0)
+                            {
                                 path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
-                            }else{
-                                path = PackageUtil.getPathWithRelative('/',this.parentPath, path, "/");
+                            } else
+                            {
+                                path = PackageUtil.getPathWithRelative('/', this.parentPath, path, "/");
                             }
                             LOGGER.debug("[{}]load classpath content from:{}", this.path, path);
                             if (!path.startsWith("/"))

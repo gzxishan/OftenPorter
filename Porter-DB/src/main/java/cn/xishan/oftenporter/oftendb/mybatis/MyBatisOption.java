@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import com.alibaba.fastjson.JSONObject;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 /**
  * mybatis对应的Mapper接口上必须加上@{@linkplain MyBatisMapper}注解
+ *
  * @author Created by https://github.com/CLovinr on 2017/11/28.
  */
 public class MyBatisOption implements Cloneable
@@ -55,7 +57,8 @@ public class MyBatisOption implements Cloneable
     public IMybatisStateListener mybatisStateListener;
 
     /**
-     * 是否自动注册别名。默认true。
+     * 是否自动注册别名,对{@linkplain MyBatisMapper#entityClass()}及被{@linkplain MyBatisMapper}注解过的类，另见{@linkplain MyBatisAlias
+     * }。默认true。
      */
     public boolean autoRegisterAlias = true;
 

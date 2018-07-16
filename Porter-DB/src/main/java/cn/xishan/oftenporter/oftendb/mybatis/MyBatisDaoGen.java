@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
@@ -63,22 +64,32 @@ class MyBatisDaoGen implements AutoSetGen
         Configuration configuration = sqlSessionFactory.getConfiguration();
         TypeAliasRegistry typeAliasRegistry = configuration.getTypeAliasRegistry();
 
-        if (WPTool.notNullAndEmpty(myBatis.daoAlias))
-        {
-            typeAliasRegistry.registerAlias(myBatis.daoAlias, myBatis.daoClass);
-        } else if (myBatis.isAutoAlias)
+        if (myBatis.isAutoAlias)
         {
             typeAliasRegistry.registerAlias(myBatis.daoClass);
+            LOGGER.debug("auto register alias:type={}", myBatis.daoClass);
         }
 
         if (!myBatis.entityClass.equals(MyBatisMapper.class))
         {
-            if (WPTool.notNullAndEmpty(myBatis.entityAlias))
-            {
-                typeAliasRegistry.registerAlias(myBatis.entityAlias, myBatis.entityClass);
-            } else if (myBatis.isAutoAlias)
+            if (myBatis.isAutoAlias)
             {
                 typeAliasRegistry.registerAlias(myBatis.entityClass);
+                LOGGER.debug("auto register alias:type={}", myBatis.entityClass);
+            }
+        }
+
+        _MyBatis.Alias[] aliases = myBatis.aliases;
+        for (_MyBatis.Alias alias : aliases)
+        {
+            if (WPTool.isEmpty(alias.alias))
+            {
+                typeAliasRegistry.registerAlias(alias.type);
+                LOGGER.debug("register alias:type={}", alias.type);
+            } else
+            {
+                typeAliasRegistry.registerAlias(alias.alias, alias.type);
+                LOGGER.debug("register alias:alias={},type={}", alias.alias, alias.type);
             }
         }
 
@@ -328,7 +339,16 @@ class MyBatisDaoGen implements AutoSetGen
             name = iMapperNameHandle.getMapperName(myBatisField.value, name);
         }
 
-        _MyBatis myBatis = new _MyBatis(theType, moption().myBatisOption.resourcesDir, name);
+
+        MyBatisAlias[] myBatisAliases = AnnoUtil.Advanced.getRepeatableAnnotations(mapperClass, MyBatisAlias.class);
+        _MyBatis.Alias[] aliases = new _MyBatis.Alias[myBatisAliases.length];
+        for (int i = 0; i < myBatisAliases.length; i++)
+        {
+            MyBatisAlias myBatisAlias = myBatisAliases[i];
+            aliases[i] = new _MyBatis.Alias(myBatisAlias.alias(), myBatisAlias.type());
+        }
+
+        _MyBatis myBatis = new _MyBatis(aliases, theType, moption().myBatisOption.resourcesDir, name);
         myBatis.daoClass = mapperClass;
 
         Class<?> entityClass = null;
@@ -336,8 +356,6 @@ class MyBatisDaoGen implements AutoSetGen
         if (myBatisMapper != null)
         {
             myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
-            myBatis.daoAlias = myBatisMapper.daoAlias();
-            myBatis.entityAlias = myBatisMapper.entityAlias();
             myBatis.entityClass = myBatisMapper.entityClass();
             entityClass = myBatis.entityClass;
             if (myBatis.entityClass.equals(MyBatisMapper.class) && myBatisMapper
@@ -361,8 +379,6 @@ class MyBatisDaoGen implements AutoSetGen
         } else
         {
             myBatis.isAutoAlias = false;
-            myBatis.daoAlias = "";
-            myBatis.entityAlias = "";
             myBatis.entityClass = MyBatisMapper.class;
         }
 

@@ -38,19 +38,19 @@ public @interface MyBatisMapper
 
     Type type() default Type.RESOURCES;
 
-    /**
-     * 为空时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias}决定;没有该注解时，不会自动注册别名。
-     *
-     * @return
-     */
-    String daoAlias() default "";
-
-    /**
-     * 为空时且{@linkplain #entityClass()}被设置了时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias};没有该注解时，不会自动注册别名。
-     *
-     * @return
-     */
-    String entityAlias() default "";
+//    /**
+//     * 为空时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias}决定;没有该注解时，不会自动注册别名。
+//     *
+//     * @return
+//     */
+//    String daoAlias() default "";
+//
+//    /**
+//     * 为空时且{@linkplain #entityClass()}被设置了时，是否注册别名由{@linkplain MyBatisOption#autoRegisterAlias};没有该注解时，不会自动注册别名。
+//     *
+//     * @return
+//     */
+//    String entityAlias() default "";
 
     /**
      * 从被注解的当前interface上获取实际的实体类,见{@linkplain AnnoUtil.Advanced#getDirectGenericRealTypeAt(Class, int)}
