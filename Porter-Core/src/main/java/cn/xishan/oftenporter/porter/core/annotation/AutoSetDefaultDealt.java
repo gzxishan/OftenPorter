@@ -6,12 +6,15 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import java.lang.annotation.*;
 
 /**
- * 对注入进行处理.
- *
+ * 对注入变量进行处理.
+ *<ol>
+ *     <li>直接注解在类上</li>
+ *     <li>注解在注解上</li>
+ *</ol>
  * @author Created by https://github.com/CLovinr on 2017/1/7.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.TYPE,ElementType.ANNOTATION_TYPE})
 @Documented
 public @interface AutoSetDefaultDealt
 {

@@ -523,6 +523,24 @@ public final class AnnoUtil
                     }
                 }
             }
+            if (autoSetDefaultDealt == null)
+            {
+                Annotation[] annotations = getAnnotations(clazz);
+                for (Annotation annotation : annotations)
+                {
+                    AutoSetDefaultDealt _autoSetDefaultDealt = getAnnotation(annotation.annotationType(),
+                            AutoSetDefaultDealt.class);
+                    if (_autoSetDefaultDealt != null)
+                    {
+                        if (autoSetDefaultDealt != null && LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.warn("ignore {} of {} by {}", AutoSetDefaultDealt.class.getSimpleName(),
+                                    autoSetDefaultDealt.annotationType(), _autoSetDefaultDealt.annotationType());
+                        }
+                        autoSetDefaultDealt = _autoSetDefaultDealt;
+                    }
+                }
+            }
             cacheKey.setCache(autoSetDefaultDealt);
             worked.reset();
             return autoSetDefaultDealt;
@@ -563,8 +581,7 @@ public final class AnnoUtil
                 for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
                 {
                     IDynamicAnnotationImprovable.Result<InvocationHandler, AspectOperationOfPortIn> result =
-                            iDynamicAnnotationImprovable
-                                    .getAspectOperationOfPortIn(annotation);
+                            iDynamicAnnotationImprovable.getAspectOperationOfPortIn(annotation);
                     if (result != null)
                     {
                         aspectOperationOfPortIn = newProxyAnnotation(result, result.t);
