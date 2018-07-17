@@ -20,7 +20,7 @@ import com.alibaba.fastjson.JSONObject;
 public class JResponse
 {
 
-    public static class JResponseFormatException extends Exception
+    public static class JResponseFormatException extends RuntimeException
     {
 
         /**
