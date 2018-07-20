@@ -1,10 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
-import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
-import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
-import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
-import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
+import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
@@ -111,6 +108,10 @@ public class PorterConf
         return annotationConfig;
     }
 
+    /**
+     * 见{@linkplain DefaultAnnotationConfigable}
+     * @param annotationConfig
+     */
     public void setAnnotationConfig(Object annotationConfig)
     {
         this.annotationConfig = annotationConfig;
@@ -118,7 +119,7 @@ public class PorterConf
 
 
     /**
-     * 默认为true,见{@linkplain AnnoUtil#setDefaultConfigable(Object, IAnnotationConfigable)}
+     * 默认为true,见{@linkplain AnnoUtil#setDefaultConfigable(IConfigData, IAnnotationConfigable)}
      *
      * @return
      */

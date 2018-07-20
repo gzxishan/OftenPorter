@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
@@ -609,6 +610,8 @@ public class AutoSetHandle
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
         Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
         Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+        IConfigData configData = getContextObject(IConfigData.class);
+
         Field[] fields = WPTool.getAllFields(currentObjectClass);
         LOGGER.debug("autoSetSeek:class={},instance={},{}", currentObjectClass.getName(), currentObject,
                 currentObject == null ? "" : currentObject.hashCode());
@@ -616,6 +619,10 @@ public class AutoSetHandle
         for (int i = 0; i < fields.length; i++)
         {
             Field f = fields[i];
+            Property property = AnnoUtil.getAnnotation(f,Property.class);
+            if(property!=null){
+                Object value = configData.getValue(property,true);
+            }
             _AutoSet autoSet = annotationDealt.autoSet(f);
             if (autoSet == null)
             {
@@ -638,8 +645,6 @@ public class AutoSetHandle
 
             try
             {
-//                Class fieldRealType = porter == null ? AnnoUtil.Advanced.getFieldRealType(currentObjectClass,f) :
-// porter.getFieldRealClass(f);
                 Class fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 f.setAccessible(true);
                 Object value = f.get(currentObject);

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -26,6 +27,10 @@ public interface IConfigData
     float getFloat(String key);
 
     float getFloat(String key, float defaultValue);
+
+    float getDouble(String key);
+
+    float getDouble(String key, float defaultValue);
 
     boolean getBoolean(String key);
 
@@ -57,4 +62,6 @@ public interface IConfigData
     <T> T set(String key, Object object);
 
     <T> T get(String key);
+
+    Object getValue(Property property,boolean required);
 }
