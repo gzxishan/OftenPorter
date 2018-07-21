@@ -619,9 +619,17 @@ public class AutoSetHandle
         for (int i = 0; i < fields.length; i++)
         {
             Field f = fields[i];
-            Property property = AnnoUtil.getAnnotation(f,Property.class);
-            if(property!=null){
-                Object value = configData.getValue(property,true);
+            Class fieldRealType = null;
+            f.setAccessible(true);
+            Property property = AnnoUtil.getAnnotation(f, Property.class);
+            if (property != null)
+            {
+                fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                Object value = configData.getValue(currentObject, f,fieldRealType, property);
+                if(value!=null){
+                    f.set(currentObject,value);
+                }
+                continue;
             }
             _AutoSet autoSet = annotationDealt.autoSet(f);
             if (autoSet == null)
@@ -645,14 +653,16 @@ public class AutoSetHandle
 
             try
             {
-                Class fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
-                f.setAccessible(true);
+
                 Object value = f.get(currentObject);
                 if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet))
                 {
                     continue;
                 }
 
+                if(fieldRealType==null){
+                    fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                }
 
                 String keyName;
                 Class<?> mayNew = null;

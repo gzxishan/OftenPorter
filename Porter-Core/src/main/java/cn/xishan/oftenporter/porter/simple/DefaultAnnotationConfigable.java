@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 配置对象为{@linkplain Properties}类型
+ * 配置对象为{@linkplain Properties}类型,配置数据为{@linkplain DefaultConfigData}.
  *
  * @author Created by https://github.com/CLovinr on 2018-06-29.
  */
@@ -45,5 +45,15 @@ public class DefaultAnnotationConfigable implements IAnnotationConfigable<Proper
     public IConfigData getConfig(Properties config)
     {
         return new DefaultConfigData(config);
+    }
+
+    @Override
+    public void isConfig(Object configObject) throws RuntimeException
+    {
+        if (configObject != null && !(configObject instanceof Properties))
+        {
+            throw new IllegalArgumentException(
+                    "expected type[" + Properties.class.getName() + "],but[" + configObject.getClass().getName()+"]");
+        }
     }
 }

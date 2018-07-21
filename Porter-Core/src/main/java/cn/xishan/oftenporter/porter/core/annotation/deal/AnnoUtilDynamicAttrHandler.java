@@ -35,6 +35,8 @@ class AnnoUtilDynamicAttrHandler extends InvocationHandlerWithCommon
     {
         if(method.equals(TO_STRING_METHOD)){
             return origin.toString();
+        }else if(method.equals(TYPE_METHOD)){
+            return origin.annotationType();
         }
         return super.invoke(proxy, method, args);
     }

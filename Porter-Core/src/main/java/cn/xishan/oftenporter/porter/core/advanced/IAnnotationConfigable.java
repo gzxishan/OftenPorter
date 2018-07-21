@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
@@ -10,7 +11,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
  */
 public interface IAnnotationConfigable<T>
 {
-    String getValue(IConfigData configData, String value);
+    String getValue(@MayNull IConfigData configData, String value);
 
     /**
      * 见{@linkplain PorterConf#setAnnotationConfig(Object)}
@@ -19,4 +20,6 @@ public interface IAnnotationConfigable<T>
      * @return
      */
     IConfigData getConfig(T configObject);
+
+    void isConfig(Object configObject) throws RuntimeException;
 }

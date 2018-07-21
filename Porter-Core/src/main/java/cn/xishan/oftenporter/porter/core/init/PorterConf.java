@@ -114,6 +114,7 @@ public class PorterConf
      */
     public void setAnnotationConfig(Object annotationConfig)
     {
+        iAnnotationConfigable.isConfig(annotationConfig);
         this.annotationConfig = annotationConfig;
     }
 

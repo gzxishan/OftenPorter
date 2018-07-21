@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -14,6 +15,9 @@ public class AutoSetObj
 {
     private static AtomicInteger count = new AtomicInteger(0);
     private int id;
+
+    @Property("isTest")
+    boolean isTest;
 
     public AutoSetObj()
     {
@@ -39,6 +43,6 @@ public class AutoSetObj
     @LogMethodInvoke
     public String toString()
     {
-        return "id=" + id+","+super.toString();
+        return "id=" + id+",isTest="+isTest+","+super.toString();
     }
 }

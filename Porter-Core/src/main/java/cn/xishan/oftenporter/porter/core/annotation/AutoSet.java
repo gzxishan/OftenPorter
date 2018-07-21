@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
-import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
@@ -21,7 +20,7 @@ import javax.annotation.Resource;
 import java.lang.annotation.*;
 
 /**
- * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量,支持泛型。
+ * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量,支持泛型。属性设置见{@linkplain Property}。
  * <pre>
  *     注意:
  *     1.递归扫描时会忽略对所有以"java."的类。

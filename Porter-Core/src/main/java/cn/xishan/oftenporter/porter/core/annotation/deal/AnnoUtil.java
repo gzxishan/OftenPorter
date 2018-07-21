@@ -994,7 +994,7 @@ public final class AnnoUtil
             return t;
         } else if (t == null)
         {
-            return null;
+            return t;
         }
         Stack<Configable> stack = threadLocal.get();
         Configable configable = stack == null || stack.isEmpty() ? null : stack.peek();
@@ -1007,6 +1007,37 @@ public final class AnnoUtil
         }
         if (configable != null)
         {
+            CacheKey cacheKey = new CacheKey(t.annotationType(), new Object[0], "proxyAnnotationForAttr");
+            Object cache = cacheKey.getCache();
+            int existsStringMethod = 0;
+            if (cache != null && cache != NULL)
+            {
+                existsStringMethod = (int) cache;
+            }
+
+            if (existsStringMethod == -1)
+            {
+                return t;
+            } else
+            {
+                Method[] methods = WPTool.getAllMethods(t.annotationType());
+                boolean has = false;
+                for (Method method : methods)
+                {
+                    if (String.class.equals(method.getReturnType()) || String[].class.equals(method.getReturnType()))
+                    {
+                        has = true;
+                        break;
+                    }
+                }
+                existsStringMethod = has ? 1 : -1;
+            }
+            cacheKey.setCache(existsStringMethod);
+            if (existsStringMethod == -1)
+            {
+                return t;
+            }
+            //只代理含有String或String[]的注解。
             AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable,
                     configable.config);
             Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{

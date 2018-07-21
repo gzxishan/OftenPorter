@@ -1,14 +1,15 @@
 package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 
+import java.lang.reflect.Field;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,8 +24,9 @@ public class DefaultConfigData implements IConfigData
 
     public DefaultConfigData(Properties properties)
     {
-        if(properties==null){
-            properties=new Properties();
+        if (properties == null)
+        {
+            properties = new Properties();
         }
         this.properties = properties;
     }
@@ -38,9 +40,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public long getLong(String key)
     {
-        String value = properties.getProperty(key);
-        Long longVal = TypeUtils.castToLong(value);
-        return longVal == null ? 0L : longVal;
+        return getLong(key, 0L);
     }
 
     @Override
@@ -58,9 +58,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public int getInt(String key)
     {
-        String value = properties.getProperty(key);
-        Integer intVal = TypeUtils.castToInt(value);
-        return intVal == null ? 0 : intVal;
+        return getInt(key, 0);
     }
 
     @Override
@@ -78,9 +76,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public float getFloat(String key)
     {
-        String value = properties.getProperty(key);
-        Float floatVal = TypeUtils.castToFloat(value);
-        return floatVal == null ? 0 : floatVal;
+        return getFloat(key, 0f);
     }
 
     @Override
@@ -96,11 +92,27 @@ public class DefaultConfigData implements IConfigData
     }
 
     @Override
-    public boolean getBoolean(String key)
+    public double getDouble(String key)
+    {
+        return getDouble(key, 0d);
+    }
+
+    @Override
+    public double getDouble(String key, double defaultValue)
     {
         String value = properties.getProperty(key);
-        Boolean booleanVal = TypeUtils.castToBoolean(value);
-        return booleanVal == null ? false : booleanVal;
+        if (WPTool.isEmpty(value))
+        {
+            return defaultValue;
+        }
+        Double val = TypeUtils.castToDouble(value);
+        return val == null ? 0 : val;
+    }
+
+    @Override
+    public boolean getBoolean(String key)
+    {
+        return getBoolean(key, false);
     }
 
     @Override
@@ -205,5 +217,42 @@ public class DefaultConfigData implements IConfigData
             rs = properties.getProperty(key);
         }
         return (T) rs;
+    }
+
+    @Override
+    public Object getValue(Object object, Field field, Class<?> fieldRealType, Property property)
+    {
+        String key = property.value();
+        if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))
+        {
+            return getInt(key);
+        } else if (fieldRealType.equals(long.class) || fieldRealType.equals(Long.class))
+        {
+            return getLong(key);
+        } else if (fieldRealType.equals(boolean.class) || fieldRealType.equals(Boolean.class))
+        {
+            return getBoolean(key);
+        } else if (fieldRealType.equals(float.class) || fieldRealType.equals(Float.class))
+        {
+            return getFloat(key);
+        } else if (fieldRealType.equals(double.class) || fieldRealType.equals(Double.class))
+        {
+            return getDouble(key);
+        } else if (fieldRealType.equals(String.class))
+        {
+            return getString(key);
+        } else if (fieldRealType.equals(Date.class))
+        {
+            return getDate(key);
+        } else if (fieldRealType.equals(JSONObject.class))
+        {
+            return getJSON(key);
+        } else if (fieldRealType.equals(JSONArray.class))
+        {
+            return getJSONArray(key);
+        } else
+        {
+            return get(key);
+        }
     }
 }

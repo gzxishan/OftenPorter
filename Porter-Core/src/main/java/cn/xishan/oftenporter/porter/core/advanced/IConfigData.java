@@ -1,10 +1,13 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.MayProxyObject;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.lang.reflect.Field;
 import java.util.Date;
 
 /**
@@ -28,9 +31,9 @@ public interface IConfigData
 
     float getFloat(String key, float defaultValue);
 
-    float getDouble(String key);
+    double getDouble(String key);
 
-    float getDouble(String key, float defaultValue);
+    double getDouble(String key, double defaultValue);
 
     boolean getBoolean(String key);
 
@@ -53,7 +56,6 @@ public interface IConfigData
     JSONArray getJSONArray(String key);
 
     /**
-     *
      * @param key
      * @param object
      * @param <T>
@@ -61,7 +63,13 @@ public interface IConfigData
      */
     <T> T set(String key, Object object);
 
+    /**
+     * 见{@linkplain #set(String, Object)}.
+     * @param key
+     * @param <T>
+     * @return
+     */
     <T> T get(String key);
 
-    Object getValue(Property property,boolean required);
+    Object getValue(@MayNull @MayProxyObject Object object, Field field,Class<?> fieldRealType, Property property);
 }
