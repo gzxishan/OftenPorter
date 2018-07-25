@@ -1213,7 +1213,7 @@ public final class AnnoUtil
     }
 
     /**
-     * 获取注解，若在当前函数中没有找到且此注解具有继承性则会尝试从父类中的函数中查找(暂不支持含有泛型的重写函数)。
+     * 获取注解，若在当前函数中没有找到且此注解具有继承性则会尝试从父类或继承接口的函数中查找(占不支持含有泛型的注解函数)。
      *
      * @param method
      * @param annotationClass
@@ -1226,6 +1226,29 @@ public final class AnnoUtil
         return _getAnnotation(method, annotationClass, true);
     }
 
+
+    private static <A extends Annotation> A getAnnotationForFromInterface(Class<?> realClass, Method method,
+            Class<A> annotationClass)
+    {
+        Class<?> clazz = method.getDeclaringClass();
+        Class[] is = clazz.getInterfaces();
+        for (Class c : is)
+        {
+            Method m = null;
+            try
+            {
+                m = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            } catch (NoSuchMethodException e)
+            {
+
+            }
+            if (m != null)
+            {
+                return m.getAnnotation(annotationClass);
+            }
+        }
+        return null;
+    }
 
 
     private static <A extends Annotation> A _getAnnotation(Method method, Class<A> annotationClass, boolean willProxy)
@@ -1247,29 +1270,7 @@ public final class AnnoUtil
         A t = getAnnotation(method, annotationClass, isInherited);
         if (t == null && isInherited && Modifier.isInterface(method.getDeclaringClass().getModifiers()))
         {
-            Class<?> clazz = method.getDeclaringClass();
-            Class[] is = clazz.getInterfaces();
-
-            for (Class c : is)
-            {
-                Method m = null;
-                try
-                {
-                    m = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
-                } catch (NoSuchMethodException e)
-                {
-
-                }
-                if (m != null)
-                {
-                    t = _getAnnotation(m, annotationClass, willProxy);
-                    if (t != null)
-                    {
-                        break;
-                    }
-                }
-            }
-
+            t = getAnnotationForFromInterface(method.getDeclaringClass(), method, annotationClass);
         }
         t = willProxy ? proxyAnnotationForAttr(t) : t;
         cacheKey.setCache(t);
