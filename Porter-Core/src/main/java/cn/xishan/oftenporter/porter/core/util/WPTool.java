@@ -444,6 +444,9 @@ public class WPTool
      */
     public static Method[] getAllMethods(Class<?> clazz)
     {
+        if(Modifier.isInterface(clazz.getModifiers())){
+            return clazz.getMethods();
+        }
         Set<Method> set = new HashSet<>();
         getAllMethods(clazz, set);
         return set.toArray(new Method[0]);
@@ -451,16 +454,13 @@ public class WPTool
 
     private static void getAllMethods(Class<?> clazz, Set<Method> set)
     {
-        addAll(set, clazz.getDeclaredMethods());
-        for (Class iclass : clazz.getInterfaces())
-        {
-            getAllMethods(iclass, set);//获取所有接口声明的函数
-        }
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null)
         {
             getAllMethods(superClass, set);//获取父类声明的函数
         }
+        addAll(set, clazz.getMethods());
+        addAll(set, clazz.getDeclaredMethods());
     }
 
     private static void getAllFields(Class<?> clazz, List<Field> list)

@@ -2,10 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2017/9/28.
@@ -75,11 +72,17 @@ class AutoSetHandleWorkedInstance
 
 
         }
-        object=mayProxy(object,autoSetHandle,doProxy);
+        object = mayProxyAndDoAutoSet(object, autoSetHandle, doProxy, false);
         return new Result(isWorked, object);
     }
 
-    public Object mayProxy(Object object, AutoSetHandle autoSetHandle, boolean doProxy) throws Exception
+    Object doProxyAndDoAutoSet(Object object, AutoSetHandle autoSetHandle) throws Exception
+    {
+        return mayProxyAndDoAutoSet(object, autoSetHandle, true, true);
+    }
+
+    private Object mayProxyAndDoAutoSet(Object object, AutoSetHandle autoSetHandle, boolean doProxy,
+            boolean doAutoSet) throws Exception
     {
         if (doProxy && object != null)
         {
@@ -88,7 +91,16 @@ class AutoSetHandleWorkedInstance
                 object = autoSetObjForAspectOfNormal.doProxy(object, autoSetHandle);//用于通用的切面操作而进行代理设置
             }
         }
+        if (doAutoSet && object != null)
+        {
+            object = autoSetHandle.doAutoSetForCurrent(false, object, object);//递归：设置被设置的变量。
+        }
         return object;
+    }
+
+    boolean hasProxy(Object object)
+    {
+        return autoSetObjForAspectOfNormal.hasProxy(object);
     }
 
 }

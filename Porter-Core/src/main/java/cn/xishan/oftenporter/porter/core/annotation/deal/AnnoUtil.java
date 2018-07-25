@@ -390,7 +390,7 @@ public final class AnnoUtil
             {
                 return realClass;
             }
-            CacheKey cacheKey = new CacheKey(realClass, new Object[]{realClass, index}, "getDirectGenericRealTypeAt");
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{realClass}, "getDirectGenericRealTypeAt-" + index);
             Object cache = cacheKey.getCache();
             if (cache != null)
             {
@@ -423,10 +423,10 @@ public final class AnnoUtil
          * @param field     声明变量
          * @return
          */
-        public static Class<?> getFieldRealType(Class<?> realClass, Field field)
+        public static Class<?> getRealTypeOfField(Class<?> realClass, Field field)
         {
 
-            CacheKey cacheKey = new CacheKey(realClass, new Object[]{field}, "getFieldRealType");
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{field}, "getRealTypeOfField");
             Object cache = cacheKey.getCache();
             if (cache != null)
             {
@@ -438,31 +438,134 @@ public final class AnnoUtil
                     return (Class<?>) cache;
                 }
             }
+            Class type = getRealType(field.getDeclaringClass(), realClass, field.getGenericType());
+            if (type == null)
+            {
+                type = field.getType();
+            }
+            cacheKey.setCache(type);
+            return type;
+        }
 
-            Type fc = field.getGenericType();
-            Class type = field.getType();
-            Type realType = realClass.getGenericSuperclass();
-            if (fc != null && realType instanceof ParameterizedType)
+        /**
+         * 可获取函数泛型返回值的实际类型
+         *
+         * @param realClass 实际子类
+         * @param method    函数
+         * @return
+         */
+        public static Class<?> getRealTypeOfMethodReturn(Class<?> realClass, Method method)
+        {
+
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{method}, "getRealTypeOfMethodReturn");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+            Class type = getRealType(method.getDeclaringClass(), realClass, method.getGenericReturnType());
+            if (type == null)
+            {
+                type = method.getReturnType();
+            }
+            cacheKey.setCache(type);
+            return type;
+        }
+
+        /**
+         * 可获取函数泛型参数的实际类型
+         *
+         * @param realClass 实际子类
+         * @param method    函数
+         * @param argIndex  参数索引
+         * @return
+         */
+        public static Class<?> getRealTypeOfMethodParameter(Class<?> realClass, Method method, int argIndex)
+        {
+
+            CacheKey cacheKey = new CacheKey(realClass, new Object[]{method},
+                    "getRealTypeOfMethodParameter-" + argIndex);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+            Class type = getRealType(method.getDeclaringClass(), realClass,
+                    method.getGenericParameterTypes()[argIndex]);
+            if (type == null)
+            {
+                type = method.getParameterTypes()[argIndex];
+            }
+            cacheKey.setCache(type);
+            return type;
+        }
+
+        private static Class<?> getRealType(Class<?> declaringClass, Class<?> realClass, Type genericType)
+        {
+            if (genericType instanceof Class)
+            {
+                return (Class<?>) genericType;
+            }
+
+            Type realType = null;
+            if (Modifier.isInterface(declaringClass.getModifiers()) && genericType instanceof TypeVariable)
+            {
+                TypeVariable typeVariable = (TypeVariable) genericType;
+                GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
+                if (genericDeclaration instanceof Class)
+                {
+                    Type[] gis = realClass.getGenericInterfaces();
+                    for (Type type : gis)
+                    {
+                        if (type instanceof ParameterizedType)
+                        {
+                            ParameterizedType parameterizedType = (ParameterizedType) type;
+                            Type rawType = parameterizedType.getRawType();
+                            if (genericDeclaration.equals(rawType))
+                            {
+                                realType = parameterizedType;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else
+            {
+                realType = realClass.getGenericSuperclass();
+            }
+            Class<?> rt = null;
+            if (genericType != null && realType instanceof ParameterizedType)
             {
                 ParameterizedType parameterizedType = (ParameterizedType) realType;
 
-                TypeVariable[] typeVariables = field.getDeclaringClass().getTypeParameters();
+                TypeVariable[] typeVariables = declaringClass.getTypeParameters();
                 for (int i = 0; i < typeVariables.length; i++)
                 {
                     TypeVariable typeVariable = typeVariables[i];
-                    if (fc.equals(typeVariable))
+                    if (genericType.equals(typeVariable))
                     {
                         Type t = parameterizedType.getActualTypeArguments()[i];
                         if (t instanceof Class)
                         {
-                            type = (Class) t;
+                            rt = (Class) t;
                         }
                         break;
                     }
                 }
             }
-            cacheKey.setCache(type);
-            return type;
+            return rt;
         }
 
         /**
@@ -474,7 +577,7 @@ public final class AnnoUtil
          */
         public static AutoSetDefaultDealt getAutoSetDefaultDealt(Field field, Class<?> currentClass)
         {
-            Class type = getFieldRealType(currentClass, field);
+            Class type = getRealTypeOfField(currentClass, field);
             return getAutoSetDefaultDealt(type);
         }
 
@@ -1110,17 +1213,87 @@ public final class AnnoUtil
     }
 
     /**
-     * 获取注解，若在当前函数中没有找到且此注解具有继承性则会尝试从父类中的(public)函数中查找。
+     * 获取注解，若在当前函数中没有找到且此注解具有继承性则会尝试从父类中的函数中查找(暂不支持含有泛型的重写函数)。
      *
      * @param method
      * @param annotationClass
      * @param <A>
      * @return
      */
+
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
     {
-        A t = getAnnotation(method, annotationClass, annotationClass.isAnnotationPresent(Inherited.class));
-        return proxyAnnotationForAttr(t);
+        return _getAnnotation(method, annotationClass, true);
+    }
+
+
+
+    private static <A extends Annotation> A _getAnnotation(Method method, Class<A> annotationClass, boolean willProxy)
+    {
+        CacheKey cacheKey = new CacheKey(method, new Object[]{annotationClass},
+                "_getAnnotation-willProxy:" + willProxy);
+        Object cache = cacheKey.getCache();
+        if (cache != null)
+        {
+            if (cache == NULL)
+            {
+                return null;
+            } else
+            {
+                return (A) cache;
+            }
+        }
+        boolean isInherited = annotationClass.isAnnotationPresent(Inherited.class);
+        A t = getAnnotation(method, annotationClass, isInherited);
+        if (t == null && isInherited && Modifier.isInterface(method.getDeclaringClass().getModifiers()))
+        {
+            Class<?> clazz = method.getDeclaringClass();
+            Class[] is = clazz.getInterfaces();
+
+            for (Class c : is)
+            {
+                Method m = null;
+                try
+                {
+                    m = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                } catch (NoSuchMethodException e)
+                {
+
+                }
+                if (m != null)
+                {
+                    t = _getAnnotation(m, annotationClass, willProxy);
+                    if (t != null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+        }
+        t = willProxy ? proxyAnnotationForAttr(t) : t;
+        cacheKey.setCache(t);
+        return t;
+    }
+
+    private static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass, boolean seekSuper)
+    {
+        A t = method.getAnnotation(annotationClass);
+        if (t == null && seekSuper)
+        {
+            Class<?> clazz = method.getDeclaringClass().getSuperclass();
+            if (clazz != null)
+            {
+                try
+                {
+                    method = clazz.getMethod(method.getName(), method.getParameterTypes());
+                    t = getAnnotation(method, annotationClass, true);
+                } catch (NoSuchMethodException e)
+                {
+                }
+            }
+        }
+        return t;
     }
 
 
@@ -1317,26 +1490,6 @@ public final class AnnoUtil
     }
 
 
-    private static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass, boolean seekSuper)
-    {
-        A t = method.getAnnotation(annotationClass);
-        if (t == null && seekSuper)
-        {
-            Class<?> clazz = method.getDeclaringClass().getSuperclass();
-            if (clazz != null)
-            {
-                try
-                {
-                    method = clazz.getMethod(method.getName(), method.getParameterTypes());
-                    t = getAnnotation(method, annotationClass, true);
-                } catch (NoSuchMethodException e)
-                {
-                }
-            }
-        }
-        return t;
-    }
-
     private static boolean isAnnotationPresent(boolean isAll, Class<?> clazz,
             Class<?>... annotationClasses)
     {
@@ -1397,7 +1550,7 @@ public final class AnnoUtil
         {
             for (Class c : annotationClasses)
             {
-                Annotation t = getAnnotation(method, c, c.isAnnotationPresent(Inherited.class));
+                Annotation t = _getAnnotation(method, c, false);
                 if (t != null)
                 {
                     if (!isAll)

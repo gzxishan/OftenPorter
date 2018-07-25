@@ -189,6 +189,11 @@ public class AutoSetObjForAspectOfNormal
     {
     }
 
+    boolean hasProxy(Object object)
+    {
+        return object instanceof IOPProxy;
+    }
+
     Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
         synchronized (AutoSetObjForAspectOfNormal.class)
@@ -198,7 +203,7 @@ public class AutoSetObjForAspectOfNormal
                 return object;
             }
         }
-        if (object instanceof IOPProxy)
+        if (hasProxy(object))
         {
             return object;
         }

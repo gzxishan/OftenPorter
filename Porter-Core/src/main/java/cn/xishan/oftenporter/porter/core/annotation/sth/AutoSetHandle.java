@@ -568,7 +568,7 @@ public class AutoSetHandle
         }
     }
 
-    private Object doAutoSetForCurrent(boolean doProxy, @MayNull Object finalObject,
+    Object doAutoSetForCurrent(boolean doProxy, @MayNull Object finalObject,
             Object currentObject) throws Exception
     {
         return doAutoSetForCurrent(doProxy, null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
@@ -624,10 +624,11 @@ public class AutoSetHandle
             Property property = AnnoUtil.getAnnotation(f, Property.class);
             if (property != null)
             {
-                fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
-                Object value = configData.getValue(currentObject, f,fieldRealType, property);
-                if(value!=null){
-                    f.set(currentObject,value);
+                fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                Object value = configData.getValue(currentObject, f, fieldRealType, property);
+                if (value != null)
+                {
+                    f.set(currentObject, value);
                 }
                 continue;
             }
@@ -660,8 +661,9 @@ public class AutoSetHandle
                     continue;
                 }
 
-                if(fieldRealType==null){
-                    fieldRealType = AnnoUtil.Advanced.getFieldRealType(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                if (fieldRealType == null)
+                {
+                    fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
 
                 String keyName;
@@ -684,8 +686,13 @@ public class AutoSetHandle
                     mayNew = fieldRealType;
                 }
 
-                boolean isNull = value == null;
-                if (isNull)
+                boolean isValueNotNull = value != null;
+                if (isValueNotNull)
+                {
+                    LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
+                    //！！！忽略了非null的成员
+                    value = workedInstance.doProxyAndDoAutoSet(value, this);
+                } else
                 {
                     switch (autoSet.range())
                     {
@@ -695,14 +702,15 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
-                                value = workedInstance.mayProxy(value, this, doProxy);
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                                } else
-                                {
-                                    globalAutoSet.put(keyName, value);
                                 }
+                            }
+                            if (value != null)
+                            {
+                                value = workedInstance.doProxyAndDoAutoSet(value, this);
+                                globalAutoSet.put(keyName, value);
                             }
                         }
                         break;
@@ -720,19 +728,22 @@ public class AutoSetHandle
                             if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
                             {
                                 value = WPTool.newObjectMayNull(mayNew);
-                                value = workedInstance.mayProxy(value, this, doProxy);
-                                contextAutoSet.put(keyName, value);
                                 if (value == null)
                                 {
                                     LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                                 }
+                            }
+                            if (value != null)
+                            {
+                                value = workedInstance.doProxyAndDoAutoSet(value, this);
+                                contextAutoSet.put(keyName, value);
                             }
                         }
                         break;
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
-                            value = workedInstance.mayProxy(value, this, doProxy);
+                            value = workedInstance.doProxyAndDoAutoSet(value, this);
                             if (value == null)
                             {
                                 LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -744,6 +755,7 @@ public class AutoSetHandle
                     if (value == null)
                     {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
+                        value = workedInstance.doProxyAndDoAutoSet(value, this);
                     }
 
                     if (value == null)
@@ -753,23 +765,20 @@ public class AutoSetHandle
                             thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
                             break;
                         }
-                    } else
-                    {
-                        value = doAutoSetForCurrent(true, value, value);//递归：设置被设置的变量。
                     }
-                } else
-                {
-                    LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
-                    //！！！忽略了非null的成员
                 }
 
-                value = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
+                Object dealValue = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
+                if (value != dealValue)
+                {
+                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this);
+                }
                 if (value == null && !autoSet.nullAble())
                 {
                     thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
                     break;
                 }
-                if (!isNull && autoSet.notNullPut())
+                if (isValueNotNull && autoSet.notNullPut())
                 {
                     switch (autoSet.range())
                     {
@@ -783,7 +792,7 @@ public class AutoSetHandle
                             break;
                     }
                 }
-                value = workedInstance.mayProxy(value, this, doProxy);
+                //value = workedInstance.mayProxy(value, this, doProxy);
                 f.set(currentObject, value);
                 if (LOGGER.isDebugEnabled())
                 {
@@ -859,7 +868,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetGen);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), autoSet, option);
+                AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), autoSet, option);
         return value;
     }
 
@@ -900,7 +909,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetDealt);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getFieldRealType(currentObjectClass, field), value, autoSet, option);
+                AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);
         return finalValue;
     }
 
