@@ -279,12 +279,29 @@ public class WPTool
 
     public static Throwable getCause(Throwable throwable)
     {
+        if(throwable==null){
+            return null;
+        }
+        throwable=unwrapThrowable(throwable);
         Throwable cause = throwable.getCause();
         if (cause == null)
         {
             cause = throwable;
         }
         return cause;
+    }
+
+    public static Throwable unwrapThrowable(Throwable wrapped) {
+        Throwable unwrapped = wrapped;
+        while (true) {
+            if (unwrapped instanceof InvocationTargetException) {
+                unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
+            } else if (unwrapped instanceof UndeclaredThrowableException) {
+                unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
+            } else {
+                return unwrapped;
+            }
+        }
     }
 
     /**

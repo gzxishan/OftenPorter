@@ -1017,12 +1017,7 @@ public final class PortExecutor
 
     private final Throwable getCause(Throwable e)
     {
-        Throwable cause = e.getCause();
-        if (cause == null)
-        {
-            cause = e;
-        }
-        return cause;
+        return WPTool.getCause(e);
     }
 
 
