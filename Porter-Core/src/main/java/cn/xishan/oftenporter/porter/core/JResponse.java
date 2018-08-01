@@ -20,6 +20,14 @@ import com.alibaba.fastjson.JSONObject;
 public class JResponse
 {
 
+    /**
+     * 自定义返回的对象。
+     */
+    public interface IObject
+    {
+        Object toCustomObject();
+    }
+
     public static class JResponseFormatException extends RuntimeException
     {
 
@@ -46,6 +54,9 @@ public class JResponse
     }
 
     public static final String CODE_FIELD = "code", CODE_NAME_FIELD = "cname";
+    /**
+     * 见{@link IObject}
+     */
     public static final String RESULT_FIELD = "rs", EXTRA_FIELD = "extra";
     public static final String DESCRIPTION_FIELD = "desc";
     //public static final String REQUEST_URI_FIELD = "uri";
@@ -66,13 +77,13 @@ public class JResponse
         setCode(code);
     }
 
-    public JResponse(ResultCode code,String description)
+    public JResponse(ResultCode code, String description)
     {
         setCode(code);
         setDescription(description);
     }
 
-    public JResponse(int code,String description)
+    public JResponse(int code, String description)
     {
         setCode(code);
         setDescription(description);
@@ -353,6 +364,18 @@ public class JResponse
         json.put(CODE_FIELD, resultCode.toCode());
         json.put(CODE_NAME_FIELD, resultCode.name());
         json.put(DESCRIPTION_FIELD, description);
+
+        Object result = this.result;
+        Object extra = this.extra;
+        if (result instanceof IObject)
+        {
+            result = ((IObject) result).toCustomObject();
+        }
+        if (extra instanceof IObject)
+        {
+            extra = ((IObject) extra).toCustomObject();
+        }
+
         if (result != null)
         {
             json.put(RESULT_FIELD, result);
