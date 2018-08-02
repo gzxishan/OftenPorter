@@ -804,7 +804,7 @@ public final class AnnoUtil
             return (A) annotationResult;
         }
 
-        public static Annotation[] getAnnotationsOf(Porter porter)
+        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
         {
             Worked worked = hasWorked(porter);
             if (worked.isWorked)
@@ -826,7 +826,7 @@ public final class AnnoUtil
             Annotation[] annotationResult = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
-                annotationResult = iDynamicAnnotationImprovable.getAnnotationsOf(porter);
+                annotationResult = iDynamicAnnotationImprovable.getAnnotationsForAspectOperationOfPortIn(porter);
                 if (annotationResult != null)
                 {
                     break;
@@ -849,7 +849,7 @@ public final class AnnoUtil
             return annotationResult;
         }
 
-        public static Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun)
         {
             Worked worked = hasWorked(porterOfFun);
             if (worked.isWorked)
@@ -871,7 +871,7 @@ public final class AnnoUtil
             Annotation[] annotationResult = null;
             for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
             {
-                annotationResult = iDynamicAnnotationImprovable.getAnnotationsOf(porterOfFun);
+                annotationResult = iDynamicAnnotationImprovable.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
                 if (annotationResult != null)
                 {
                     break;

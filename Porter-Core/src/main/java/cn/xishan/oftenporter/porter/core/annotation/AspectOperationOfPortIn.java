@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  * 注解在注解上,最终对PortIn接口函数进行处理。
  * <ol>
  * <li>被修饰的注解，可以注解在函数或类上。</li>
- * <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解，</li>
+ * <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解。</li>
  * </ol>
  *
  * @author Created by https://github.com/CLovinr on 2017/10/12.

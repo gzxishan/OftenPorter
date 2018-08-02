@@ -77,13 +77,13 @@ public interface IDynamicAnnotationImprovable
         }
 
         @Override
-        public Annotation[] getAnnotationsOf(Porter porter)
+        public Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
         {
             return null;
         }
 
         @Override
-        public Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+        public Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun)
         {
             return null;
         }
@@ -135,9 +135,9 @@ public interface IDynamicAnnotationImprovable
 
     Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz);
 
-    Annotation[] getAnnotationsOf(Porter porter);
+    Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter);
 
-    Annotation[] getAnnotationsOf(PorterOfFun porterOfFun);
+    Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun);
 
 
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz, Class<A> annotationType);

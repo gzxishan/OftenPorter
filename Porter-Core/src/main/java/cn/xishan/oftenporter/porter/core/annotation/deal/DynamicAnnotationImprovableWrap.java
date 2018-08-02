@@ -119,17 +119,17 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     }
 
     @Override
-    public Annotation[] getAnnotationsOf(Porter porter)
+    public Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
     {
         IDynamicAnnotationImprovable improvable = getReal();
-        return improvable == null ? null : improvable.getAnnotationsOf(porter);
+        return improvable == null ? null : improvable.getAnnotationsForAspectOperationOfPortIn(porter);
     }
 
     @Override
-    public Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+    public Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun)
     {
         IDynamicAnnotationImprovable improvable = getReal();
-        return improvable == null ? null : improvable.getAnnotationsOf(porterOfFun);
+        return improvable == null ? null : improvable.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
     }
 
     @Override

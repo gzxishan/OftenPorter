@@ -121,7 +121,7 @@ public class SthDeal
 
         //处理类上的AspectFunOperation
         List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
-                AnnoUtil.Advanced.getAnnotationsOf(porter), porter,
+                AnnoUtil.Advanced.getAnnotationsForAspectOperationOfPortIn(porter), porter,
                 null, null);
 
         BackableSeek backableSeek = new BackableSeek();
@@ -237,7 +237,7 @@ public class SthDeal
     private void seekAspectFunOperation(AutoSetHandle setHandle, PorterOfFun porterOfFun,
             List<AspectOperationOfPortIn.Handle> classHandles)
     {
-        Annotation[] annotations = AnnoUtil.Advanced.getAnnotationsOf(porterOfFun);
+        Annotation[] annotations = AnnoUtil.Advanced.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
         List<AspectOperationOfPortIn.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
                 classHandles, porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
@@ -258,7 +258,6 @@ public class SthDeal
             Object object,
             List<AspectOperationOfPortIn.Handle> _handles, AspectPosition aspectPosition)
     {
-        // Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
 
         List<AspectOperationOfPortIn.Handle> handles = new ArrayList<>();
         AnnotationDealt annotationDealt = setHandle.getInnerContextBridge().annotationDealt;
