@@ -4,6 +4,8 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -75,6 +77,18 @@ public interface IDynamicAnnotationImprovable
         }
 
         @Override
+        public Annotation[] getAnnotationsOf(Porter porter)
+        {
+            return null;
+        }
+
+        @Override
+        public Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+        {
+            return null;
+        }
+
+        @Override
         public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz,
                 Class<A> annotationType)
         {
@@ -120,6 +134,10 @@ public interface IDynamicAnnotationImprovable
     Result<InvocationHandler, AspectOperationOfPortIn> getAspectOperationOfPortIn(Annotation annotation);
 
     Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz);
+
+    Annotation[] getAnnotationsOf(Porter porter);
+
+    Annotation[] getAnnotationsOf(PorterOfFun porterOfFun);
 
 
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz, Class<A> annotationType);

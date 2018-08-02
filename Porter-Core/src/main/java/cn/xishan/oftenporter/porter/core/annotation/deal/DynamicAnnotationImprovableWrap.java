@@ -4,6 +4,8 @@ import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +116,20 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     {
         IDynamicAnnotationImprovable improvable = getReal();
         return improvable == null ? null : improvable.getAutoSetDefaultDealt(clazz);
+    }
+
+    @Override
+    public Annotation[] getAnnotationsOf(Porter porter)
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable == null ? null : improvable.getAnnotationsOf(porter);
+    }
+
+    @Override
+    public Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable == null ? null : improvable.getAnnotationsOf(porterOfFun);
     }
 
     @Override

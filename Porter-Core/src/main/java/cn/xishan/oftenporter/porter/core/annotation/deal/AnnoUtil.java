@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
@@ -800,6 +802,96 @@ public final class AnnoUtil
             cacheKey.setCache(annotationResult);
             worked.reset();
             return (A) annotationResult;
+        }
+
+        public static Annotation[] getAnnotationsOf(Porter porter)
+        {
+            Worked worked = hasWorked(porter);
+            if (worked.isWorked)
+            {
+                return null;
+            }
+            CacheKey cacheKey = new CacheKey(porter, "");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Annotation[]) cache;
+                }
+            }
+            Annotation[] annotationResult = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                annotationResult = iDynamicAnnotationImprovable.getAnnotationsOf(porter);
+                if (annotationResult != null)
+                {
+                    break;
+                }
+            }
+            if (annotationResult == null)
+            {
+                annotationResult = porter.getClazz().getDeclaredAnnotations();
+            }
+            if (annotationResult != null)
+            {
+                for (int i = 0; i < annotationResult.length; i++)
+                {
+                    Annotation annotation = annotationResult[i];
+                    annotationResult[i] = doProxyForDynamicAttr(annotation);
+                }
+            }
+            cacheKey.setCache(annotationResult);
+            worked.reset();
+            return annotationResult;
+        }
+
+        public static Annotation[] getAnnotationsOf(PorterOfFun porterOfFun)
+        {
+            Worked worked = hasWorked(porterOfFun);
+            if (worked.isWorked)
+            {
+                return null;
+            }
+            CacheKey cacheKey = new CacheKey(porterOfFun, "");
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Annotation[]) cache;
+                }
+            }
+            Annotation[] annotationResult = null;
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : DYNAMIC_ANNOTATION_IMPROVABLES)
+            {
+                annotationResult = iDynamicAnnotationImprovable.getAnnotationsOf(porterOfFun);
+                if (annotationResult != null)
+                {
+                    break;
+                }
+            }
+            if (annotationResult == null)
+            {
+                annotationResult = porterOfFun.getMethod().getDeclaredAnnotations();
+            }
+            if (annotationResult != null)
+            {
+                for (int i = 0; i < annotationResult.length; i++)
+                {
+                    Annotation annotation = annotationResult[i];
+                    annotationResult[i] = doProxyForDynamicAttr(annotation);
+                }
+            }
+            cacheKey.setCache(annotationResult);
+            worked.reset();
+            return annotationResult;
         }
 
         public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationType)

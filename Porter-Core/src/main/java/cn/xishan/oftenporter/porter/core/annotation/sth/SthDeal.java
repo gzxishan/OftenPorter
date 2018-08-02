@@ -121,7 +121,7 @@ public class SthDeal
 
         //处理类上的AspectFunOperation
         List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
-                clazz.getDeclaredAnnotations(), porter,
+                AnnoUtil.Advanced.getAnnotationsOf(porter), porter,
                 null, null);
 
         BackableSeek backableSeek = new BackableSeek();
@@ -237,7 +237,7 @@ public class SthDeal
     private void seekAspectFunOperation(AutoSetHandle setHandle, PorterOfFun porterOfFun,
             List<AspectOperationOfPortIn.Handle> classHandles)
     {
-        Annotation[] annotations = porterOfFun.getMethod().getDeclaredAnnotations();
+        Annotation[] annotations = AnnoUtil.Advanced.getAnnotationsOf(porterOfFun);
         List<AspectOperationOfPortIn.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
                 classHandles, porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
