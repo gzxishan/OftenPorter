@@ -94,7 +94,7 @@ public interface IDynamicAnnotationImprovable
         }
 
         @Override
-        public <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class<?> clazz,
+        public <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class clazz,
                 Class<A> annotationType)
         {
             return null;
@@ -128,7 +128,7 @@ public interface IDynamicAnnotationImprovable
 
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Field field, Class<A> annotationType);
 
-    <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class<?> clazz,
+    <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class clazz,
             Class<A> annotationType);
 
     <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Method method,

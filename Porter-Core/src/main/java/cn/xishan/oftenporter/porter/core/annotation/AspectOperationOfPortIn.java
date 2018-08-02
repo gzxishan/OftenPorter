@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.*;
+import java.lang.reflect.Method;
 
 /**
  * 注解在注解上,最终对PortIn接口函数进行处理。
@@ -30,14 +32,14 @@ public @interface AspectOperationOfPortIn
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
 
         @Override
-        public boolean init(T current, IConfigData configData,Porter porter)
+        public boolean init(T current, IConfigData configData, Porter porter)
         {
             LOGGER.debug("not Override.");
             return false;
         }
 
         @Override
-        public boolean init(T current,IConfigData configData, PorterOfFun porterOfFun)
+        public boolean init(T current, IConfigData configData, PorterOfFun porterOfFun)
         {
             LOGGER.debug("not Override.");
             return false;
@@ -115,9 +117,13 @@ public @interface AspectOperationOfPortIn
     }
 
     /**
-     * 执行的顺序:{@linkplain #beforeInvokeOfMethodCheck(WObject, PorterOfFun)}--{@linkplain #beforeInvoke(WObject, PorterOfFun)}--{@linkplain #invoke(WObject, PorterOfFun, Object)}--{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}--{@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}
+     * 执行的顺序:{@linkplain #beforeInvokeOfMethodCheck(WObject, PorterOfFun)}--
+     * {@linkplain #beforeInvoke(WObject, PorterOfFun)}--{@linkplain #invoke(WObject, PorterOfFun, Object)}--
+     * {@linkplain #afterInvoke(WObject, PorterOfFun, Object)}--
+     * {@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}
      * <p>
-     * 其中除了{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}与{@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}是逆序调用，其余的是顺序调用。
+     * 其中除了{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}与
+     * {@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}是逆序调用，其余的是顺序调用。
      * </p>
      *
      * @param <T>
@@ -132,7 +138,7 @@ public @interface AspectOperationOfPortIn
          * @param porter
          * @return
          */
-        boolean init(T current,IConfigData configData, Porter porter);
+        boolean init(T current, IConfigData configData, Porter porter);
 
         /**
          * 注解在函数上的。
@@ -141,7 +147,7 @@ public @interface AspectOperationOfPortIn
          * @param porterOfFun
          * @return
          */
-        boolean init(T current,IConfigData configData, PorterOfFun porterOfFun);
+        boolean init(T current, IConfigData configData, PorterOfFun porterOfFun);
 
         void onStart(WObject wObject);
 
@@ -202,6 +208,7 @@ public @interface AspectOperationOfPortIn
 
         /**
          * 修改类或函数的。
+         *
          * @return
          */
         @MayNull

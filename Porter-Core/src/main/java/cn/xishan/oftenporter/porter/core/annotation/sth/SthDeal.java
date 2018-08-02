@@ -113,6 +113,12 @@ public class SthDeal
             currentClassTied = portIn.getTiedNames()[0];
         }
 
+        if (LOGGER.isDebugEnabled() && !isMixin)
+        {
+            LOGGER.debug("tiedName={},tiedType={},method={}", portIn.getTiedNames(), portIn.getTiedType(),
+                    portIn.getMethods());
+        }
+
         //处理类上的AspectFunOperation
         List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
                 clazz.getDeclaredAnnotations(), porter,

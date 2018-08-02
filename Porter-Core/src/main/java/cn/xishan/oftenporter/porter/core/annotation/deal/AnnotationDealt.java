@@ -518,13 +518,6 @@ public final class AnnotationDealt
         {
             _portIn.toPorterKey = clazz;
         }
-
-        if (LOGGER.isDebugEnabled() && !isMixin)
-        {
-            LOGGER.debug("tiedName={},tiedType={},method={}", _portIn.tiedNames, _portIn.getTiedType(),
-                    _portIn.methods);
-        }
-
         return _portIn;
     }
 

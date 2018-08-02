@@ -138,12 +138,13 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     }
 
     @Override
-    public <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class<?> clazz,
+    public <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Class clazz,
             Class<A> annotationType)
     {
         IDynamicAnnotationImprovable improvable = getReal();
         return improvable == null ? null : improvable.getRepeatableAnnotations(clazz, annotationType);
     }
+
 
     @Override
     public <A extends Annotation> Result<InvocationHandler[], A> getRepeatableAnnotations(Method method,
