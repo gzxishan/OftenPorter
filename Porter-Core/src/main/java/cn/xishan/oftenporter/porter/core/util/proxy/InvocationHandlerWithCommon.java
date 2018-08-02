@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  */
 public abstract class InvocationHandlerWithCommon implements InvocationHandler
 {
-    private Object forCommonObject;
+    protected Object forCommonObject;
 
     public static final Method TYPE_METHOD, TO_STRING_METHOD;
     static

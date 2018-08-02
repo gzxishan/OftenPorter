@@ -89,10 +89,7 @@ public class SthDeal
         {
             return null;
         }
-        if (currentClassTied == null)
-        {
-            currentClassTied = portIn.getTiedNames()[0];
-        }
+
 
         Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter,
                 autoSetHandle.getArgumentsFactory());
@@ -110,6 +107,12 @@ public class SthDeal
             IPorter iPorter = (IPorter) porter.object;
             annotationDealt.setClassTiedName(porter.getPortIn(), iPorter.classTied());
         }
+
+        if (currentClassTied == null)
+        {
+            currentClassTied = portIn.getTiedNames()[0];
+        }
+
         //处理类上的AspectFunOperation
         List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
                 clazz.getDeclaredAnnotations(), porter,
@@ -142,7 +145,7 @@ public class SthDeal
 
         /////处理自身接口----开始
         Method[] methods = WPTool.getAllMethods(clazz);
-        ObjectGetter objectGetter = () -> porter.getObj();
+        ObjectGetter objectGetter = porter::getObj;
         for (Method method : methods)
         {
 
