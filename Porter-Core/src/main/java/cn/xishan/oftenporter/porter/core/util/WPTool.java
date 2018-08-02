@@ -263,7 +263,7 @@ public class WPTool
      */
     public static String getMessage(Throwable throwable)
     {
-        Throwable cause = throwable.getCause();
+        Throwable cause = getCause(throwable);
         if (cause == null)
         {
             cause = throwable;
