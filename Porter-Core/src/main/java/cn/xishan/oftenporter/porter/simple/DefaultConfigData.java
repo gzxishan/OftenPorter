@@ -220,7 +220,7 @@ public class DefaultConfigData implements IConfigData
     }
 
     @Override
-    public Object getValue(Object object, Field field, Class<?> fieldRealType, Property property)
+    public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
         String key = property.value();
         if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))

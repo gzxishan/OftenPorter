@@ -65,11 +65,19 @@ public interface IConfigData
 
     /**
      * 见{@linkplain #set(String, Object)}.
+     *
      * @param key
      * @param <T>
      * @return
      */
     <T> T get(String key);
 
-    Object getValue(@MayNull @MayProxyObject Object object, Field field,Class<?> fieldRealType, Property property);
+    /**
+     * @param object
+     * @param target   Method或Field
+     * @param realType
+     * @param property
+     * @return
+     */
+    Object getValue(@MayNull @MayProxyObject Object object, Object target, Class<?> realType, Property property);
 }

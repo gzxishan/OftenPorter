@@ -1540,6 +1540,11 @@ public final class AnnoUtil
         return proxyAnnotationForAttr(t);
     }
 
+    public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass)
+    {
+        A t = parameter.getAnnotation(annotationClass);
+        return proxyAnnotationForAttr(t);
+    }
 
     public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass)
     {

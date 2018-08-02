@@ -26,6 +26,7 @@ import java.lang.annotation.*;
  *     1.递归扫描时会忽略对所有以"java."的类。
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描
  *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
+ *     4.注解在函数上时，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
  * </pre>
  * 从这些途径会触发AutoSet:
  * <pre>
@@ -87,7 +88,7 @@ import java.lang.annotation.*;
  * //TODO 循环设置的考虑
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Documented
 public @interface AutoSet
 {

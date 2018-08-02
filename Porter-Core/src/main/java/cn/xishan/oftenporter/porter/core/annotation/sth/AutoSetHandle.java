@@ -24,10 +24,7 @@ import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -817,6 +814,7 @@ public class AutoSetHandle
 
             for (Method method : methods)
             {
+                dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
                 SetOk setOk = AnnoUtil.Advanced.getAnnotation(method, SetOk.class);
                 if (setOk != null)
                 {
@@ -827,6 +825,38 @@ public class AutoSetHandle
 
         }
         return currentObject;
+    }
+
+    private void dealMethodAutoSet(Object currentObject, Class currentClass, Method method, IConfigData iConfigData)
+    {
+        AutoSet autoSet = AnnoUtil.Advanced.getAnnotation(method, AutoSet.class);
+        if (autoSet == null)
+        {
+            return;
+        }
+        Parameter[] parameters = method.getParameters();
+        Object[] args = new Object[parameters.length];
+        try
+        {
+            for (int i = 0; i < parameters.length; i++)
+            {
+                Parameter parameter = parameters[i];
+                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
+                if (property != null)
+                {
+                    Class realType = AnnoUtil.Advanced.getRealTypeOfMethodParameter(currentClass, method, i);
+                    Object value = iConfigData.getValue(currentObject, method, realType, property);
+                    args[i] = value;
+                }
+            }
+            method.invoke(currentObject, args);
+        } catch (InitException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new InitException(e);
+        }
     }
 
     /**
