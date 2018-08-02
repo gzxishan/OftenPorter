@@ -847,6 +847,10 @@ public class AutoSetHandle
                     Class realType = AnnoUtil.Advanced.getRealTypeOfMethodParameter(currentClass, method, i);
                     Object value = iConfigData.getValue(currentObject, method, realType, property);
                     args[i] = value;
+                } else
+                {
+                    throw new InitException(
+                            "expected '@Property' for arg of index " + i + " for method '" + method + "'");
                 }
             }
             method.invoke(currentObject, args);
