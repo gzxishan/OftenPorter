@@ -853,6 +853,7 @@ public class AutoSetHandle
                             "expected '@Property' for arg of index " + i + " for method '" + method + "'");
                 }
             }
+            method.setAccessible(true);
             method.invoke(currentObject, args);
         } catch (InitException e)
         {
