@@ -229,7 +229,7 @@ public class AutoSetHandle
                         for (int i = 0; i < classeses.size(); i++)
                         {
                             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                            doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -238,7 +238,7 @@ public class AutoSetHandle
                     for (int k = 0; k < classes.size(); k++)
                     {
                         Class<?> clazz = classes.get(k);
-                        doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
+                        doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                     }
                 }
 
@@ -256,7 +256,7 @@ public class AutoSetHandle
                         }
                         if (clazz != null)
                         {
-                            doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
+                            doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
@@ -565,10 +565,10 @@ public class AutoSetHandle
         }
     }
 
-    Object doAutoSetForCurrent(boolean doProxy, @MayNull Object finalObject,
+    Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Object finalObject,
             Object currentObject) throws Exception
     {
-        return doAutoSetForCurrent(doProxy, null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
+        return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
                 RangeType.ALL);
     }
 
@@ -590,14 +590,14 @@ public class AutoSetHandle
         proxyObjectMap.put(origin, proxy);
     }
 
-    private Object doAutoSetForCurrent(boolean doProxy, Porter porter, @MayNull Object finalObject,
+    private Object doAutoSetForCurrent(boolean doProxyCurrent, Porter porter, @MayNull Object finalObject,
             Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
         finalObject = mayGetProxyObject(finalObject);
         currentObject = mayGetProxyObject(currentObject);
 
-        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxy);
+        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
         currentObject = result.object;
         if (result.isWorked)
         {
