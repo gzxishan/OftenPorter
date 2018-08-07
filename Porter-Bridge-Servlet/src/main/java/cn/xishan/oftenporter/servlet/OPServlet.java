@@ -190,6 +190,11 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
     private static final Pattern MAPPING_PATTERN = Pattern.compile("(/[^/]+/\\*)|(/\\*)");
 
+    /**
+     * 先于{@linkplain #init()}调用
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException
     {
@@ -213,11 +218,6 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         super.init(config);
     }
 
-    /**
-     * 先调用。
-     *
-     * @throws ServletException
-     */
     @Override
     public void init() throws ServletException
     {
@@ -342,7 +342,6 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
-
         porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
     }
 

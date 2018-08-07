@@ -241,8 +241,9 @@ public final class PorterMain
             currentPNameForLogger = getPLinker().currentPName().getName();
             _startOne(bridge);
             currentPNameForLogger = null;
-        } catch (Exception e)
+        } catch (Throwable e)
         {
+            LOGGER.error(e.getMessage(),e);
             throw e;
         } finally
         {
