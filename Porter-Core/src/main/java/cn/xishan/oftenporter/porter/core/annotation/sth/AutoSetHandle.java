@@ -568,7 +568,8 @@ public class AutoSetHandle
     Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Object finalObject,
             Object currentObject) throws Exception
     {
-        return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject), currentObject,
+        return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject),
+                currentObject,
                 RangeType.ALL);
     }
 
@@ -632,6 +633,15 @@ public class AutoSetHandle
             _AutoSet autoSet = annotationDealt.autoSet(f);
             if (autoSet == null)
             {
+                Object value = f.get(currentObject);
+                if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
+                {
+                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this);
+                    if (newValue != value)
+                    {
+                        f.set(currentObject, newValue);
+                    }
+                }
                 continue;
             }
 
