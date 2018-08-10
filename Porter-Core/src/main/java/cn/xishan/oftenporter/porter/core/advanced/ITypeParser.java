@@ -127,6 +127,18 @@ public interface ITypeParser<D>
         private Object value;
         private String failedDesc;
 
+        @Override
+        public String toString()
+        {
+            if (isLegal)
+            {
+                return "ok:" + value;
+            } else
+            {
+                return "fail:" + failedDesc;
+            }
+        }
+
         /**
          * 转换不合法
          */
