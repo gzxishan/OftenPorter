@@ -37,13 +37,16 @@ public class DateParser extends TypeParser
     {
         PATTERNS = new Pattern[]{
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}$"),
+
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}:[0-9]{1,2}$"),
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}$"),
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}$"),
+
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}$"),
                 Pattern.compile("^[0-9]{4}$"),
                 Pattern.compile("^[0-9]{1,2}[-/][0-9]{1,2}$"),
 
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}:[0-9]{1,2}$"),
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}}$"),
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}$"),
+
 
                 Pattern.compile("^[0-9]{1,2}[-/][0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}:[0-9]{1,2}$"),
                 Pattern.compile("^[0-9]{1,2}[-/][0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}$"),
@@ -51,21 +54,23 @@ public class DateParser extends TypeParser
         };
         FORMATS = new String[]{
                 "yyyy-MM-dd",
-                "yyyy-MM",
-                "yyyy",
-                "MM-dd",
 
                 "yyyy-MM-dd HH:mm:ss",
                 "yyyy-MM-dd HH:mm",
                 "yyyy-MM-dd HH",
+
+                "yyyy-MM",
+                "yyyy",
+                "MM-dd",
 
                 "MM-dd HH:mm:ss",
                 "MM-dd HH:mm",
                 "MM-dd HH",
         };
         SET_YEARS = new boolean[]{
-                false, false, false, true,
+                false,
                 false, false, false,
+                false, false, true,
                 true, true, true
         };
     }

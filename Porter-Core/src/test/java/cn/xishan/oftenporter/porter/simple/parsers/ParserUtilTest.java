@@ -47,7 +47,7 @@ public class ParserUtilTest
         assertEquals(StringParser.class, ParserUtil.getTypeParser(String.class));
         assertEquals(StringArrayParser.class, ParserUtil.getTypeParser(String[].class));
         assertEquals(JSON2MapParser.class, ParserUtil.getTypeParser(Map.class));
-        assertEquals(DateTime2MinitueParser.class, ParserUtil.getTypeParser(Date.class));
+        assertEquals(DateParser.class, ParserUtil.getTypeParser(Date.class));
 
 
         Class<?> type1 = int.class;
