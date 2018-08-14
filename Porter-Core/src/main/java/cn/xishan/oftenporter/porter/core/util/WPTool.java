@@ -84,6 +84,31 @@ public class WPTool
         return is;
     }
 
+
+    /**
+     * 获取访问类型：private、默认、protected、public分别返回:0,1,2,3
+     *
+     * @param method
+     * @return
+     */
+    public static int getAccessType(Method method)
+    {
+        int mod = method.getModifiers();
+        if (Modifier.isPublic(mod))
+        {
+            return 3;
+        } else if (Modifier.isProtected(mod))
+        {
+            return 2;
+        } else if (Modifier.isPrivate(mod))
+        {
+            return 0;
+        } else
+        {
+            return 1;
+        }
+    }
+
     /**
      * 返回c1是c2的第几代子类。
      * -1表示不是子类，0表示是本身，1表示是第一代子类...
@@ -279,10 +304,11 @@ public class WPTool
 
     public static Throwable getCause(Throwable throwable)
     {
-        if(throwable==null){
+        if (throwable == null)
+        {
             return null;
         }
-        throwable=unwrapThrowable(throwable);
+        throwable = unwrapThrowable(throwable);
         Throwable cause = throwable.getCause();
         if (cause == null)
         {
@@ -291,14 +317,19 @@ public class WPTool
         return cause;
     }
 
-    public static Throwable unwrapThrowable(Throwable wrapped) {
+    public static Throwable unwrapThrowable(Throwable wrapped)
+    {
         Throwable unwrapped = wrapped;
-        while (true) {
-            if (unwrapped instanceof InvocationTargetException) {
+        while (true)
+        {
+            if (unwrapped instanceof InvocationTargetException)
+            {
                 unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-            } else if (unwrapped instanceof UndeclaredThrowableException) {
+            } else if (unwrapped instanceof UndeclaredThrowableException)
+            {
                 unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
-            } else {
+            } else
+            {
                 return unwrapped;
             }
         }
@@ -461,7 +492,8 @@ public class WPTool
      */
     public static Method[] getAllMethods(Class<?> clazz)
     {
-        if(Modifier.isInterface(clazz.getModifiers())){
+        if (Modifier.isInterface(clazz.getModifiers()))
+        {
             return clazz.getMethods();
         }
         Set<Method> set = new HashSet<>();
