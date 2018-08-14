@@ -591,6 +591,22 @@ public class AutoSetHandle
         proxyObjectMap.put(origin, proxy);
     }
 
+    private void doAutoSetPut(Field field,Object obj,Class realType){
+        if(obj!=null){
+            AutoSet.Put put = AnnoUtil.getAnnotation(field,AutoSet.Put.class);
+            if(put!=null){
+                Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+                Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+                String name=put.name().equals("")?realType.getName():put.name();
+                if(put.range()== AutoSet.Range.Global){
+                    globalAutoSet.put(name,obj);
+                }else{
+                    contextAutoSet.put(name,obj);
+                }
+            }
+        }
+    }
+
     private Object doAutoSetForCurrent(boolean doProxyCurrent, Porter porter, @MayNull Object finalObject,
             Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
@@ -628,6 +644,7 @@ public class AutoSetHandle
                 {
                     f.set(currentObject, value);
                 }
+                doAutoSetPut(f,value,fieldRealType);
                 continue;
             }
             _AutoSet autoSet = annotationDealt.autoSet(f);
@@ -640,8 +657,13 @@ public class AutoSetHandle
                     if (newValue != value)
                     {
                         f.set(currentObject, newValue);
+                        value=newValue;
                     }
                 }
+                if(fieldRealType==null){
+                    fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                }
+                doAutoSetPut(f,value,fieldRealType);
                 continue;
             }
 
@@ -661,13 +683,11 @@ public class AutoSetHandle
 
             try
             {
-
-                Object value = f.get(currentObject);
                 if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet))
                 {
                     continue;
                 }
-
+                Object value = f.get(currentObject);
                 if (fieldRealType == null)
                 {
                     fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
@@ -801,6 +821,7 @@ public class AutoSetHandle
                 }
                 //value = workedInstance.mayProxy(value, this, doProxy);
                 f.set(currentObject, value);
+                doAutoSetPut(f,value,fieldRealType);
                 if (LOGGER.isDebugEnabled())
                 {
                     LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);

@@ -115,6 +115,15 @@ public @interface AutoSet
         int priority() default 0;
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD})
+    @Documented
+    @interface Put
+    {
+        Range range() default Range.Context;
+
+        String name() default "";
+    }
 
     enum Range
     {
