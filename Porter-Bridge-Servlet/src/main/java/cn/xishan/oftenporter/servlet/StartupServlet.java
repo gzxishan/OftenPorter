@@ -65,9 +65,15 @@ public abstract class StartupServlet extends OPServlet
             }
         }
 
-        onStart();
+        try
+        {
+            onStart();
+        } catch (Throwable e)
+        {
+            throw new ServletException(e);
+        }
         isStarted = true;
     }
 
-    public abstract void onStart();
+    public abstract void onStart()throws Throwable;
 }
