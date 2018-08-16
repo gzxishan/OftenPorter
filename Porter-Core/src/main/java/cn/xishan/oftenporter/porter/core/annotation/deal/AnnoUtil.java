@@ -419,6 +419,91 @@ public final class AnnoUtil
         }
 
         /**
+         * 获取父类中被继承或重载的函数。
+         *
+         * @param method
+         * @return
+         */
+        public static Method getSuperMethod(Method method)
+        {
+            return getSuperMethod(method.getDeclaringClass(), method, method.getDeclaringClass().getSuperclass(), true);
+        }
+
+        /**
+         * 获取父类中被继承或重载的函数。
+         *
+         * @param method
+         * @return
+         */
+        public static Method getSuperMethod(Class childClass, Method method, Class superClass, boolean recursive)
+        {
+            if (superClass == null)
+            {
+                return null;
+            }
+            int n = method.getParameterCount();
+            List<Class> parameters = new ArrayList<>(n);
+            for (int i = 0; i < n; i++)
+            {
+                parameters.add(getRealTypeOfMethodParameter(childClass, method, i));
+            }
+
+            while (superClass != null)
+            {
+
+                Method[] superMethods = superClass.getMethods();
+                for (Method m : superMethods)
+                {
+                    if (!m.getName().equals(method.getName()))
+                    {
+                        continue;
+                    }
+                    if (!(Modifier.isStatic(m.getModifiers()) && Modifier.isStatic(method.getModifiers()) ||
+                            !Modifier.isStatic(m.getModifiers()) && !Modifier.isStatic(method.getModifiers())))
+                    {
+                        continue;
+                    }
+
+                    if (!(m.getReturnType() == void.class && method.getReturnType() == void.class ||
+                            m.getReturnType() != void.class && method.getReturnType() != void.class))
+                    {
+                        continue;
+                    }
+                    if (m.getParameterCount() != n)
+                    {
+                        continue;
+                    }
+                    if (WPTool.getAccessType(m) > WPTool.getAccessType(method))
+                    {
+                        continue;
+                    }
+
+                    boolean is = true;
+                    for (int i = 0; i < n; i++)
+                    {
+                        Class type = getRealTypeOfMethodParameter(childClass, m, i);
+                        if (!type.equals(parameters.get(i)))
+                        {
+                            is = false;
+                            break;
+                        }
+                    }
+                    if (is)
+                    {
+                        return m;
+                    }
+                }
+                if (!recursive)
+                {
+                    break;
+                }
+                superClass = superClass.getSuperclass();
+            }
+
+            return null;
+        }
+
+        /**
          * 可获取泛型字段的实际类型
          *
          * @param realClass 实际子类
@@ -1180,6 +1265,14 @@ public final class AnnoUtil
         stack.push(configable);
     }
 
+    private static <A extends Annotation> A[] proxyAnnotationForAttr(A[] as)
+    {
+        for (int i = 0; i < as.length; i++)
+        {
+            as[i] = proxyAnnotationForAttr(as[i]);
+        }
+        return as;
+    }
 
     private static <A extends Annotation> A proxyAnnotationForAttr(A t)
     {
@@ -1305,21 +1398,20 @@ public final class AnnoUtil
     }
 
     /**
-     * 获取注解。若在当前函数中没有找到且此注解具有继承性则会尝试从父类或继承接口的函数中查找(不支持泛型)。
+     * 获取注解,支持继承性注解(支持接口函数、但不支持泛型接口函数)。
      *
      * @param method
      * @param annotationClass
      * @param <A>
      * @return
      */
-
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
     {
         return _getAnnotation(method, annotationClass, true);
     }
 
 
-    private static <A extends Annotation> A getAnnotationForFromInterface(Class<?> realClass, Method method,
+    private static <A extends Annotation> A getAnnotationForFromInterface(Method method,
             Class<A> annotationClass)
     {
         Class<?> clazz = method.getDeclaringClass();
@@ -1343,7 +1435,8 @@ public final class AnnoUtil
     }
 
 
-    private static <A extends Annotation> A _getAnnotation(Method method, Class<A> annotationClass, boolean willProxy)
+    private static <A extends Annotation> A _getAnnotation(Method method, Class<A> annotationClass,
+            boolean willProxy)
     {
         CacheKey cacheKey = new CacheKey(method, new Object[]{annotationClass},
                 "_getAnnotation-willProxy:" + willProxy);
@@ -1359,31 +1452,37 @@ public final class AnnoUtil
             }
         }
         boolean isInherited = annotationClass.isAnnotationPresent(Inherited.class);
-        A t = getAnnotation(method, annotationClass, isInherited);
+        A t = getAnnotation(method.getDeclaringClass(), method, annotationClass, isInherited);
         if (t == null && isInherited && Modifier.isInterface(method.getDeclaringClass().getModifiers()))
         {
-            t = getAnnotationForFromInterface(method.getDeclaringClass(), method, annotationClass);
+            t = getAnnotationForFromInterface(method, annotationClass);
         }
         t = willProxy ? proxyAnnotationForAttr(t) : t;
         cacheKey.setCache(t);
         return t;
     }
 
-    private static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass, boolean seekSuper)
+    private static <A extends Annotation> A getAnnotation(Class childClass, Method method,
+            Class<A> annotationClass,
+            boolean seekSuper)
     {
         A t = method.getAnnotation(annotationClass);
         if (t == null && seekSuper)
         {
-            Class<?> clazz = method.getDeclaringClass().getSuperclass();
-            if (clazz != null)
+
+            Class<?> superClass = childClass.getSuperclass();
+            while (superClass != null)
             {
-                try
+                Method superMethod = Advanced.getSuperMethod(childClass, method, superClass, false);
+                if (superMethod != null)
                 {
-                    method = clazz.getMethod(method.getName(), method.getParameterTypes());
-                    t = getAnnotation(method, annotationClass, true);
-                } catch (NoSuchMethodException e)
-                {
+                    t = superMethod.getAnnotation(annotationClass);
+                    if (t != null)
+                    {
+                        break;
+                    }
                 }
+                superClass = superClass.getSuperclass();
             }
         }
         return t;
@@ -1508,14 +1607,80 @@ public final class AnnoUtil
         }
     }
 
-    public static <A extends Annotation> A[] getAnnotations(Method method)
+    /**
+     * 获取函数的所有注解，<strong>包括</strong>继承性注解(只支持类的重载或继承函数)。
+     *
+     * @param method
+     * @return
+     */
+    public static Annotation[] getAnnotations(Method method)
     {
-        return (A[]) method.getAnnotations();
+        Set<Class> typeSet = new HashSet<>();
+        Annotation[] as = method.getAnnotations();
+        List<Annotation> list = new ArrayList<>();
+        WPTool.addAll(list, as);
+        for (Annotation annotation : as)
+        {
+            typeSet.add(annotation.annotationType());
+        }
+
+
+        Class childClass = method.getDeclaringClass();
+        Class<?> superClass = childClass.getSuperclass();
+        while (superClass != null)
+        {
+            Method superMethod = Advanced.getSuperMethod(childClass, method, superClass, false);
+            if (superMethod != null)
+            {
+                as = superMethod.getAnnotations();
+                for (Annotation annotation : as)
+                {
+                    if (!typeSet.contains(annotation.annotationType()) && annotation.annotationType()
+                            .isAnnotationPresent(Inherited.class))
+                    {
+                        list.add(annotation);
+                        typeSet.add(annotation.annotationType());
+                    }
+                }
+            }
+            superClass = superClass.getSuperclass();
+        }
+
+        as = list.toArray(new Annotation[0]);
+        return proxyAnnotationForAttr(as);
     }
 
-    public static <A extends Annotation> A[] getAnnotations(Class clazz)
+    /**
+     * 获取类的所有注解，<strong>包括</strong>继承性注解（不支持接口上的）。
+     *
+     * @param clazz
+     * @return
+     */
+    public static Annotation[] getAnnotations(Class clazz)
     {
-        return (A[]) clazz.getAnnotations();
+        List<Annotation> list = new ArrayList<>();
+        getAnnotations(clazz, list, new HashSet<>());
+        Annotation[] as = list.toArray(new Annotation[0]);
+        return proxyAnnotationForAttr(as);
+    }
+
+    private static void getAnnotations(Class clazz, List<Annotation> list, Set<Class> typeSet)
+    {
+        if (clazz == null)
+        {
+            return;
+        }
+        Annotation[] as = clazz.getAnnotations();
+        for (Annotation annotation : as)
+        {
+            if (!typeSet.contains(annotation.annotationType()) && annotation.annotationType()
+                    .isAnnotationPresent(Inherited.class))
+            {
+                list.add(annotation);
+                typeSet.add(annotation.annotationType());
+            }
+        }
+        getAnnotations(clazz.getSuperclass(), list, typeSet);
     }
 
     public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass)
