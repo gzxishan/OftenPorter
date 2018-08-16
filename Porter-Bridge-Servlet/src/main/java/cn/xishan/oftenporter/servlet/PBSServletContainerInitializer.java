@@ -82,7 +82,8 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
     {
         private List<OPServletInitializer> servletInitializerList;
 
-        public StartupServletImpl(ServletContext servletContext, Set<Class<?>> servletInitializerClasses)
+        public StartupServletImpl(ServletContext servletContext,
+                Set<Class<?>> servletInitializerClasses) throws Throwable
         {
             super("", true);
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());
@@ -161,7 +162,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
                 {
                     initializer.onStart(getServletContext(), new BuilderImpl(initializer));
                 }
-            } catch (Exception e)
+            } catch (Throwable e)
             {
                 throw new InitException(e);
             }
@@ -171,12 +172,14 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         public void destroy()
         {
             super.destroy();
-            for (OPServletInitializer initializer:servletInitializerList){
+            for (OPServletInitializer initializer : servletInitializerList)
+            {
                 try
                 {
                     initializer.onDestroyed();
-                }catch (Exception e){
-                    LOGGER.error(e.getMessage(),e);
+                } catch (Exception e)
+                {
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }
@@ -247,11 +250,17 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         {
             return;
         }
-        servletContext.setAttribute(FROM_INITIALIZER_ATTR,true);
-        StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
-        ServletRegistration.Dynamic dynamic = servletContext
-                .addServlet(startupServlet.toString(), startupServlet);
-        dynamic.setAsyncSupported(true);
-        dynamic.setLoadOnStartup(1);
+        servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
+        try
+        {
+            StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
+            ServletRegistration.Dynamic dynamic = servletContext
+                    .addServlet(startupServlet.toString(), startupServlet);
+            dynamic.setAsyncSupported(true);
+            dynamic.setLoadOnStartup(1);
+        } catch (Throwable e)
+        {
+            throw new ServletException(e);
+        }
     }
 }

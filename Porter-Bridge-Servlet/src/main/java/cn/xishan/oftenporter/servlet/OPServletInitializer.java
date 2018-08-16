@@ -46,9 +46,9 @@ public interface OPServletInitializer
 
     }
 
-    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore);
+    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore)throws Throwable;
 
-    void onStart(ServletContext servletContext, Builder builder);
+    void onStart(ServletContext servletContext, Builder builder)throws Throwable;
 
     default void onDestroyed(){
 
