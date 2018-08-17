@@ -419,7 +419,7 @@ public class SthDeal
             BackableSeek backableSeek, AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(method, porter.getPortIn());
+        _PortIn portIn = annotationDealt.portIn(porter,method);
         PorterOfFun porterOfFun = null;
         if (portIn != null)
         {

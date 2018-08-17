@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.advanced.IFun;
+import cn.xishan.oftenporter.porter.core.advanced.IPorter;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
@@ -521,8 +523,9 @@ public final class AnnotationDealt
         return _portIn;
     }
 
-    public _PortIn portIn(Method method, _PortIn class_PortIn)
+    public _PortIn portIn(Porter porter, Method method)
     {
+        _PortIn class_PortIn = porter.getPortIn();
         _PortIn _portInOfMethod = null;
         PortIn portIn = AnnoUtil.Advanced.getAnnotation(method, PortIn.class);
         if (portIn != null)
@@ -547,7 +550,16 @@ public final class AnnotationDealt
             _portInOfMethod.checks = portIn.checks();
             _portInOfMethod.methods = AnnoUtil.methods(class_PortIn.getMethods()[0], portIn);
             _portInOfMethod.ignoreTypeParser = portIn.ignoreTypeParser();
-
+            if (porter.getObj() instanceof IFun)
+            {
+                IFun iFun = (IFun) porter.getObj();
+                String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
+                for (String tied : tieds)
+                {
+                    PortUtil.checkName(tied);
+                }
+                _portInOfMethod.tiedNames = tieds;
+            }
         }
         return _portInOfMethod;
     }
