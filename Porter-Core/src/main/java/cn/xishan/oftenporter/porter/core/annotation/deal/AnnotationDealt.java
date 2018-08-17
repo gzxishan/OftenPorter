@@ -553,12 +553,14 @@ public final class AnnotationDealt
             if (porter.getObj() instanceof IFun)
             {
                 IFun iFun = (IFun) porter.getObj();
-                String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
-                for (String tied : tieds)
-                {
-                    PortUtil.checkName(tied);
+                if(!_portInOfMethod.getTiedType().isRest()){
+                    String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
+                    for (String tied : tieds)
+                    {
+                        PortUtil.checkName(tied);
+                    }
+                    _portInOfMethod.tiedNames = tieds;
                 }
-                _portInOfMethod.tiedNames = tieds;
             }
         }
         return _portInOfMethod;
