@@ -132,11 +132,47 @@ public abstract class CheckHandle
      * @param annotationClasses
      * @return
      */
+    public static boolean isAllPresentOnClassOrFun(Object obj,Method method,Class<?>... annotationClasses)
+    {
+        if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(obj), annotationClasses) || AnnoUtil
+                .isAllOfAnnotationsPresent(method, annotationClasses))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * 判断当前所有的注解是否全部在最终对象上或全部在函数上注解了。
+     *
+     * @param annotationClasses
+     * @return
+     */
     public boolean isAllPresentOnClassOrFun(Class<?>... annotationClasses)
     {
         if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
-                .isAllOfAnnotationsPresent(
-                        (Method) handleMethod, annotationClasses))
+                .isAllOfAnnotationsPresent((Method) handleMethod, annotationClasses))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+
+    /**
+     * 判断是否存在一个注解在类或函数上
+     *
+     * @param annotationClasses
+     * @return
+     */
+    public static boolean isOneOfPresentOnClassOrFun(Object obj, Method method, Class<?>... annotationClasses)
+    {
+        if (AnnoUtil.isOneOfAnnotationsPresent(PortUtil.getRealClass(obj), annotationClasses) || AnnoUtil
+                .isOneOfAnnotationsPresent(method, annotationClasses))
         {
             return true;
         } else
@@ -154,8 +190,7 @@ public abstract class CheckHandle
     public boolean isOneOfPresentOnClassOrFun(Class<?>... annotationClasses)
     {
         if (AnnoUtil.isOneOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
-                .isOneOfAnnotationsPresent(
-                        (Method) handleMethod, annotationClasses))
+                .isOneOfAnnotationsPresent((Method) handleMethod, annotationClasses))
         {
             return true;
         } else
