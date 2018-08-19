@@ -34,6 +34,14 @@ import java.util.*;
  */
 public final class PorterMain
 {
+    public interface ForRequestListener
+    {
+        /**
+         * 返回true表示中断后续操作。
+         */
+        boolean beforeDoRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest);
+    }
+
     private PortExecutor portExecutor;
 
     private boolean isInit;
@@ -46,6 +54,7 @@ public final class PorterMain
     private Logger LOGGER;
     private static String currentPNameForLogger;
     private IArgumentsFactory defaultArgumentsFactory = new DefaultArgumentsFactory();
+    private ForRequestListener forRequestListener;
 
     static
     {
@@ -95,6 +104,11 @@ public final class PorterMain
     public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
     {
         initPorterMain(pName, commonMain, currentBridge, innerBridge);
+    }
+
+    public void setForRequestListener(ForRequestListener forRequestListener)
+    {
+        this.forRequestListener = forRequestListener;
     }
 
     /**
@@ -243,7 +257,7 @@ public final class PorterMain
             currentPNameForLogger = null;
         } catch (Throwable e)
         {
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.error(e.getMessage(), e);
             throw e;
         } finally
         {
@@ -464,6 +478,12 @@ public final class PorterMain
 
     public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
     {
+        if (forRequestListener != null)
+        {
+            if(forRequestListener.beforeDoRequest(req, request, response, isInnerRequest)){
+                return;
+            }
+        }
         portExecutor.doRequest(req, request, response, isInnerRequest);
     }
 

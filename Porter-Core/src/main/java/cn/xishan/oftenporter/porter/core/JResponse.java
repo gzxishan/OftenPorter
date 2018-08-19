@@ -405,7 +405,15 @@ public class JResponse
 
     public static JResponse failed(String desc)
     {
-        JResponse jResponse = new JResponse(ResultCode.OK_BUT_FAILED);
+        return failed(ResultCode.OK_BUT_FAILED,desc);
+    }
+
+    public static JResponse failed(ResultCode code,String desc)
+    {
+        if(code==ResultCode.SUCCESS||code==ResultCode.OK){
+            throw new IllegalArgumentException("illegal code:"+code);
+        }
+        JResponse jResponse = new JResponse(code);
         jResponse.setDescription(desc);
         return jResponse;
     }

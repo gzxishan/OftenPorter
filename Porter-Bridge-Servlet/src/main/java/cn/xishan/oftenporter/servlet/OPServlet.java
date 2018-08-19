@@ -1,8 +1,12 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.PreRequest;
+import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
@@ -23,9 +27,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
-
+@CorsAccess
 public abstract class OPServlet extends HttpServlet implements CommonMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OPServlet.class);
@@ -38,6 +43,10 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     protected MultiPartOption multiPartOption = null;
     protected ResponseHandle responseHandle;
 
+    private CorsAccess defaultCorsAccess;
+
+    @Property(value = "op.servlet.cors", defaultVal = "false")
+    private Boolean hasCors;
     /**
      * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
      */
@@ -192,6 +201,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
     /**
      * 先于{@linkplain #init()}调用
+     *
      * @param config
      * @throws ServletException
      */
@@ -330,6 +340,59 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         return porterConf;
     }
 
+    private PorterMain.ForRequestListener forRequestListener = (req, request, response, isInnerRequest) -> {
+        Object originRequest = request.getOriginalRequest();
+        if (originRequest instanceof HttpServletRequest)
+        {
+            HttpServletRequest servletRequest = (HttpServletRequest) originRequest;
+            return isCorsForbidden(request.getMethod(), req.classPort.getClass(), req.funPort.getMethod(),
+                    servletRequest,
+                    request.getOriginalResponse());
+        }
+        return false;
+    };
+
+    public boolean isCorsForbidden(@MayNull PortMethod method, Class porterClass, Method porterMethod,
+            HttpServletRequest request,
+            HttpServletResponse response)
+    {
+        if(hasCors){
+            return false;
+        }
+        if (method == null)
+        {
+            method = PortMethod.valueOf(request.getMethod());
+        }
+        String origin = request.getHeader("Origin");
+        if (WPTool.notNullAndEmpty(origin) && !origin.equals(WServletRequest.getHost(request)))
+        {//跨域请求
+            CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
+            if (corsAccess == null)
+            {
+                corsAccess = AnnoUtil.getAnnotation(porterClass, CorsAccess.class);
+            }
+            if (corsAccess == null)
+            {
+                corsAccess = defaultCorsAccess;
+            }
+            for (PortMethod m : corsAccess.forbiddenMethods())
+            {
+                if (m == method)
+                {
+                    try
+                    {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    } catch (IOException e)
+                    {
+                        LOGGER.warn(e.getMessage(), e);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void startOne(PorterConf porterConf)
     {
@@ -343,6 +406,14 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             PutParamSourceHandle.addPutDealt(porterConf);
         }
         porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
+        if (defaultCorsAccess == null)
+        {
+            defaultCorsAccess = AnnoUtil.getAnnotation(OPServlet.class, CorsAccess.class);
+            if (!hasCors)
+            {
+                porterMain.setForRequestListener(forRequestListener);
+            }
+        }
     }
 
     @Override

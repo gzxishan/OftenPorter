@@ -223,33 +223,49 @@ public class DefaultConfigData implements IConfigData
     public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
         String key = property.value();
+        String defaultVal = property.defaultVal().trim();
+        if (defaultVal.equals(""))
+        {
+            defaultVal = null;
+        }
+
         if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))
         {
-            return getInt(key);
+            return getInt(key, defaultVal == null ? 0 : TypeUtils.castToInt(defaultVal));
         } else if (fieldRealType.equals(long.class) || fieldRealType.equals(Long.class))
         {
-            return getLong(key);
+            return getLong(key, defaultVal == null ? 0 : TypeUtils.castToLong(defaultVal));
         } else if (fieldRealType.equals(boolean.class) || fieldRealType.equals(Boolean.class))
         {
-            return getBoolean(key);
+            return getBoolean(key, defaultVal == null ? false : TypeUtils.castToBoolean(defaultVal));
         } else if (fieldRealType.equals(float.class) || fieldRealType.equals(Float.class))
         {
-            return getFloat(key);
+            return getFloat(key, defaultVal == null ? 0 : TypeUtils.castToFloat(defaultVal));
         } else if (fieldRealType.equals(double.class) || fieldRealType.equals(Double.class))
         {
-            return getDouble(key);
+            return getDouble(key, defaultVal == null ? 0 : TypeUtils.castToDouble(defaultVal));
         } else if (fieldRealType.equals(String.class))
         {
-            return getString(key);
+            return getString(key, defaultVal);
         } else if (fieldRealType.equals(Date.class))
         {
-            return getDate(key);
+            return getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));
         } else if (fieldRealType.equals(JSONObject.class))
         {
-            return getJSON(key);
+            JSONObject json = getJSON(key);
+            if (json == null && defaultVal != null)
+            {
+                json = JSON.parseObject(defaultVal);
+            }
+            return json;
         } else if (fieldRealType.equals(JSONArray.class))
         {
-            return getJSONArray(key);
+            JSONArray jsonArray = getJSONArray(key);
+            if (jsonArray == null && defaultVal != null)
+            {
+                jsonArray = JSON.parseArray(defaultVal);
+            }
+            return jsonArray;
         } else
         {
             return get(key);

@@ -29,7 +29,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      * @param response
      * @param method
      */
-    WServletRequest( HttpServletRequest request, String path,
+    WServletRequest(HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
         super(null, method, WPTool.notNullAndEmpty(path) ? path : OPServlet.getPath(request),
@@ -135,10 +135,14 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         StringBuilder stringBuilder = new StringBuilder();
-        String host = getHostFromURL(request.getRequestURL());
-        if (http2Https && host.startsWith("http:"))
+        String host;
+        if (http2Https && request.getScheme().equals("http"))
         {
-            host = "https:" + host.substring("http:".length());
+            host = "https://" + request.getServerName() + getPort(request, true);
+        } else
+        {
+            host = request.getScheme() + "://" + request.getServerName() + getPort(request,
+                    request.getScheme().equals("https"));
         }
         stringBuilder.append(host);
         stringBuilder.append(urlPrefix != null ? urlPrefix : OPServlet.getUriPrefix(request));
@@ -184,9 +188,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      */
     public static String getHostFromURL(CharSequence url, boolean http2Https)
     {
-
         Matcher matcher = PATTERN_HOST_PORT.matcher(url);
-
         if (matcher.find())
         {
             String host = matcher.group();
@@ -201,24 +203,66 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
         }
     }
 
+
+    private static String getPort(HttpServletRequest request, boolean isHttps)
+    {
+        if (request.getServerPort() == 80)
+        {
+            return "";
+        } else if (request.getServerPort() == 443)
+        {
+            return isHttps ? "" : ":443";
+        } else
+        {
+            return ":" + request.getServerPort();
+        }
+    }
+
     /**
-     * 见{@linkplain #getHostFromURL(CharSequence)}
-     *
+     * @return
+     */
+    public static String getHost(HttpServletRequest request)
+    {
+        String host = request.getScheme() + "://" + request.getServerName() + getPort(request,
+                request.getScheme().equals("https"));
+        return host;
+    }
+
+    /**
      * @return
      */
     public String getHost()
     {
-        return getHostFromURL(request.getRequestURL());
+        String host = request.getScheme() + "://" + request.getServerName() + getPort(request,
+                request.getScheme().equals("https"));
+        return host;
     }
 
     /**
-     * 见{@linkplain #getHostFromURL(CharSequence, boolean)}
-     *
      * @return
      */
     public String getHost(boolean http2Https)
     {
-        return getHostFromURL(request.getRequestURL(), http2Https);
+        String host;
+        if (http2Https && request.getScheme().equals("http"))
+        {
+            host = "https://" + request.getServerName() + getPort(request, true);
+        } else
+        {
+            host = request.getScheme() + "://" + request.getServerName() + getPort(request,
+                    request.getScheme().equals("https"));
+        }
+        return host;
+    }
+
+    /**
+     * 获得请求的路径，不包括/ContextPath
+     *
+     * @return
+     */
+    public String getPath()
+    {
+        return OPServlet.getPath(request);
     }
 
 }

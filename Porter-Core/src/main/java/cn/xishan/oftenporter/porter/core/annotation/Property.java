@@ -18,5 +18,15 @@ import java.lang.annotation.*;
 @Documented
 public @interface Property
 {
+    /**
+     * 属性名
+     * @return
+     */
     String value();
+
+    /**
+     * 默认值
+     * @return
+     */
+    String defaultVal() default "";
 }
