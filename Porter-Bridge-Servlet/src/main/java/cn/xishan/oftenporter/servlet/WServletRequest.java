@@ -257,10 +257,8 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
 
     /**
      * 获得请求的路径，不包括/ContextPath
-     *
-     * @return
      */
-    public String getPath()
+    public static String getPath(HttpServletRequest request)
     {
         return OPServlet.getPath(request);
     }
