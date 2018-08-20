@@ -53,7 +53,7 @@ public class Main1
             jdbcDataSource.setPassword("");
             myBatisOption.dataSourceObject = jdbcDataSource;
             myBatisOption.resourcesDir = new File("Demo/src/main/resources").getAbsolutePath().replace("\\", "/");
-            myBatisOption.mybatisStateListener=new MyBatisOption.IMybatisStateListener()
+            myBatisOption.mybatisStateListener = new MyBatisOption.IMybatisStateListener()
             {
                 @Override
                 public void onStart()
@@ -104,6 +104,10 @@ public class Main1
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
         PBridge bridge = localMain.getPLinker().currentBridge();
+
+
+        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/testSavePoint"),
+                lResponse -> logger.debug(lResponse.toString()));
 
         for (int i = 0; i < 10; i++)
         {

@@ -11,8 +11,10 @@ import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.IdGen;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.simple.parsers.StringArrayParser;
 
 
@@ -91,6 +93,52 @@ public class HelloPorter
     public void onStart()
     {
         helloUnit.initTable();
+    }
+
+    @PortIn
+    public void testSavePoint(WObject wObject)
+    {
+        _testSavePoint(wObject);
+        LogUtil.printErrPos(helloUnit.listAll());
+    }
+
+    @TransactionJDBC
+    public void _testSavePoint(WObject wObject)
+    {
+        helloUnit.clearAll();
+        Hello hello = new Hello();
+        hello.setId("1");
+        hello.setName("h1");
+        helloUnit.add(hello);
+
+        hello = new Hello();
+        hello.setId("2");
+        hello.setName("h2");
+
+        try
+        {
+            helloUnit.addHasSavePoint(hello,false);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        hello = new Hello();
+        hello.setId("3");
+        hello.setName("h3");
+
+        try
+        {
+            helloUnit.addHasSavePoint(hello,true);
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        hello = new Hello();
+        hello.setId("4");
+        hello.setName("h4");
+        helloUnit.add(hello);
     }
 
 

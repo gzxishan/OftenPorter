@@ -180,7 +180,14 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
                 SavePointHolder savePointHolder = savePointStackThreadLocal.get().pop();
                 if (savePointHolder.savepoint != null)
                 {
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("rollback savePoint... transaction:source={},method={}.{},errmsg={}", source,
+                                originMethod.getDeclaringClass().getName(), originMethod.getName(),
+                                WPTool.getCause(throwable).toString());
+                    }
                     needRollback = iConnection.doRollback(savePointHolder.savepoint);
+                    LOGGER.debug("rollback savePoint ok!");
                 }
             }
 

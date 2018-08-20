@@ -54,6 +54,17 @@ public class HelloUnit
         helloDao.clearAll();
     }
 
+    @TransactionJDBC(setSavePoint = true)
+    public void addHasSavePoint(Hello hello,boolean willFail)throws Exception
+    {
+        hello.setCreatetime(new Date());
+        hello.setId(IdGen.getDefault(2018,5).nextId());
+        helloDao.add(hello);
+        if(willFail){
+            throw new Exception("customer error!");
+        }
+    }
+
     public List<Hello> listAll()
     {
         return helloDao.listAll();
