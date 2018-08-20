@@ -355,10 +355,6 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
     private void setCors(HttpServletResponse response, CorsAccess corsAccess)
     {
-        if (!corsAccess.enabled())
-        {
-            return;
-        }
         String[] methods = new String[corsAccess.allowMethods().length];
         PortMethod[] portMethods = corsAccess.allowMethods();
         for (int i = 0; i < methods.length; i++)
@@ -424,6 +420,19 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             if (corsAccess == null)
             {
                 corsAccess = defaultCorsAccess;
+            }
+            if (!corsAccess.enabled())
+            {
+                try
+                {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                } catch (IOException e)
+                {
+                    LOGGER.warn(e.getMessage(), e);
+                } finally
+                {
+                    return true;//禁止跨域
+                }
             }
             for (PortMethod m : corsAccess.allowMethods())
             {
