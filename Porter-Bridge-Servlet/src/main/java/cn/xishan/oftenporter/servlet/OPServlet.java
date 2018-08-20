@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
@@ -352,16 +353,65 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         return false;
     };
 
+    private void setCors(HttpServletResponse response, CorsAccess corsAccess)
+    {
+        if (!corsAccess.enabled())
+        {
+            return;
+        }
+        String[] methods = new String[corsAccess.allowMethods().length];
+        PortMethod[] portMethods = corsAccess.allowMethods();
+        for (int i = 0; i < methods.length; i++)
+        {
+            methods[i] = portMethods[i].name();
+        }
+        response.setHeader("Access-Control-Allow-Methods", WPTool.join(",", methods));
+        response.setHeader("Access-Control-Allow-Credentials", String.valueOf(corsAccess.allowCredentials()));
+        response.setHeader("Access-Control-Allow-Origin", corsAccess.allowOrigin());
+
+        if (WPTool.notNullAndEmpty(corsAccess.exposeHeaders()))
+        {
+            response.setHeader("Access-Control-Expose-Headers", corsAccess.exposeHeaders());
+        }
+        if (WPTool.notNullAndEmpty(corsAccess.allowHeaders()))
+        {
+            response.setHeader("Access-Control-Allow-Headers", corsAccess.allowHeaders());
+        }
+        if (WPTool.notNullAndEmpty(corsAccess.maxAge()))
+        {
+            response.setHeader("Access-Control-Max-Age", corsAccess.maxAge());
+        }
+    }
+
     public boolean isCorsForbidden(@MayNull PortMethod method, Class porterClass, Method porterMethod,
             HttpServletRequest request,
             HttpServletResponse response)
     {
-        if(hasCors){
+        if (hasCors)
+        {
             return false;
         }
         if (method == null)
         {
             method = PortMethod.valueOf(request.getMethod());
+        }
+        if (method == PortMethod.OPTIONS)
+        {
+            try
+            {
+                method = PortMethod.valueOf(request.getHeader("Access-Control-Request-Method"));
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+                try
+                {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                } catch (IOException e1)
+                {
+                    LOGGER.warn(e1.getMessage(), e1);
+                }
+                return true;
+            }
         }
         String origin = request.getHeader("Origin");
         if (WPTool.notNullAndEmpty(origin) && !origin.equals(WServletRequest.getHost(request)))
@@ -375,19 +425,23 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             {
                 corsAccess = defaultCorsAccess;
             }
-            for (PortMethod m : corsAccess.forbiddenMethods())
+            for (PortMethod m : corsAccess.allowMethods())
             {
                 if (m == method)
-                {
-                    try
-                    {
-                        response.sendError(HttpServletResponse.SC_FORBIDDEN);
-                    } catch (IOException e)
-                    {
-                        LOGGER.warn(e.getMessage(), e);
-                    }
-                    return true;
+                {//允许跨域
+                    setCors(response, corsAccess);
+                    return false;
                 }
+            }
+            try
+            {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            } catch (IOException e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            } finally
+            {
+                return true;//禁止跨域
             }
         }
         return false;

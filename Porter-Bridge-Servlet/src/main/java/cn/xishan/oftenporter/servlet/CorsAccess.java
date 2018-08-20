@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import java.lang.annotation.*;
 
 /**
- * 对跨域的控制，默认禁止GET,POST,PUT,DELETE跨域。
+ * 对跨域的控制，默认禁止跨域,增强对CSRF攻击的防御能力。
  * <ol>
  * <li>
  * op.servlet.cors:默认为false，表示一律禁止跨域访问、但可通过该注解进行单独设置，为true时、并不会对跨域进行处理。
@@ -21,9 +21,43 @@ import java.lang.annotation.*;
 public @interface CorsAccess
 {
     /**
-     * 禁止跨域访问的方法
+     * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。
      *
      * @return
      */
-    PortMethod[] forbiddenMethods() default {PortMethod.GET, PortMethod.POST, PortMethod.PUT, PortMethod.DELETE};
+    PortMethod[] allowMethods() default {};
+
+    boolean enabled()default false;
+
+    /**
+     *对Access-Control-Allow-Credentials的设置,默认false。
+     * @return
+     */
+    boolean allowCredentials()default false;
+
+    /**
+     * 对Access-Control-Allow-Origin的设置,默认""。
+     * @return
+     */
+    String allowOrigin()default "";
+
+
+    /**
+     * 对Access-Control-Expose-Headers的设置，默认为空。
+     * @return
+     */
+    String exposeHeaders()default "";
+
+    /**
+     * 对Access-Control-Allow-Headers的设置，默认为空。
+     * @return
+     */
+    String allowHeaders()default "";
+
+    /**
+     * 对Access-Control-Max-Age的设置，单位秒。
+     * @return
+     */
+    String maxAge()default "";
+
 }
