@@ -579,4 +579,8 @@ public final class AnnotationDealt
         }
         portIn.setTiedType(tiedType);
     }
+
+    public void setMethods(_PortIn portIn,PortMethod[] portMethods){
+        portIn.methods=portMethods;
+    }
 }

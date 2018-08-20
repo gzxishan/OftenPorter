@@ -1377,10 +1377,15 @@ public final class AnnoUtil
 
     static PortMethod[] methods(PortMethod classMethod, PortIn funPorterIn)
     {
-        PortMethod[] portMethods = funPorterIn.methods();
+        return methods(classMethod, funPorterIn.method(), funPorterIn.methods());
+    }
+
+    public static PortMethod[] methods(PortMethod classMethod, PortMethod funMethod, PortMethod[] funMethods)
+    {
+        PortMethod[] portMethods = funMethods;
         if (portMethods.length == 0)
         {
-            portMethods = new PortMethod[]{funPorterIn.method()};
+            portMethods = new PortMethod[]{funMethod};
         }
         for (int i = 0; i < portMethods.length; i++)
         {

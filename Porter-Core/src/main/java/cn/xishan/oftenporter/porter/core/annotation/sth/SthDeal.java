@@ -286,6 +286,14 @@ public class SthDeal
                     {
                         porterOfFun.portOut._setOutType(handle.getOutType());
                         porterOfFun.portIn.setPortFunType(handle.getPortFunType());
+                        PortMethod[] portMethods = handle.getMethods();
+                        if (portMethods != null && portMethods.length > 0)
+                        {
+                            portMethods = AnnoUtil.methods(porterOfFun.getFinalPorter().portIn.getMethods()[0],
+                                    null, portMethods);
+                            annotationDealt.setMethods(porterOfFun.portIn, portMethods);
+                        }
+
                         annotationDealt.setTiedType(porterOfFun.portIn,
                                 TiedType.typeForFun(porterOfFun.portIn.getTiedType(), handle.getTiedType()));
                         handles.add(handle);
@@ -419,7 +427,7 @@ public class SthDeal
             BackableSeek backableSeek, AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(porter,method);
+        _PortIn portIn = annotationDealt.portIn(porter, method);
         PorterOfFun porterOfFun = null;
         if (portIn != null)
         {

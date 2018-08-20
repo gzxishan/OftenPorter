@@ -110,6 +110,12 @@ public @interface AspectOperationOfPortIn
         }
 
         @Override
+        public PortMethod[] getMethods()
+        {
+            return null;
+        }
+
+        @Override
         public boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
         {
             return true;
@@ -216,6 +222,9 @@ public @interface AspectOperationOfPortIn
 
         @MayNull
         TiedType getTiedType();
+
+        @MayNull
+        PortMethod[] getMethods();
 
         /**
          * 是否需要调用{@linkplain #invoke(WObject, PorterOfFun, Object)}
