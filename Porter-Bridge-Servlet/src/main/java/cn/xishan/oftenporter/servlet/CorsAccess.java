@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  * op.servlet.cors.disable:默认为false，表示一律禁止跨域访问、但可通过该注解进行单独设置，为true时、并不会对跨域进行处理。
  * </li>
  * <li>
- *     op.servlet.cors.http2https:默认为false
+ * op.servlet.cors.http2https:默认为false
  * </li>
  * </ol>
  *
@@ -24,43 +24,53 @@ import java.lang.annotation.*;
 public @interface CorsAccess
 {
     /**
-     * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。
+     * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。当为空时，会执行对应的数据接口、但不会进行任何跨域头的设置。
      *
      * @return
      */
     PortMethod[] allowMethods() default {};
 
-    boolean enabled()default false;
-
     /**
-     *对Access-Control-Allow-Credentials的设置,默认false。
+     * 是否允许跨域访问，默认false。
+     *
      * @return
      */
-    boolean allowCredentials()default false;
+    boolean enabled() default false;
+
+    /**
+     * 对Access-Control-Allow-Credentials的设置,默认false。
+     *
+     * @return
+     */
+    boolean allowCredentials() default false;
 
     /**
      * 对Access-Control-Allow-Origin的设置,默认""。
+     *
      * @return
      */
-    String allowOrigin()default "";
+    String allowOrigin() default "";
 
 
     /**
      * 对Access-Control-Expose-Headers的设置，默认为空。
+     *
      * @return
      */
-    String exposeHeaders()default "";
+    String exposeHeaders() default "";
 
     /**
      * 对Access-Control-Allow-Headers的设置，默认为空。
+     *
      * @return
      */
-    String allowHeaders()default "";
+    String allowHeaders() default "";
 
     /**
      * 对Access-Control-Max-Age的设置，单位秒。
+     *
      * @return
      */
-    String maxAge()default "";
+    String maxAge() default "";
 
 }
