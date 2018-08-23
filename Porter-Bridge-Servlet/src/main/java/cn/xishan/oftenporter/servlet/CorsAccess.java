@@ -24,7 +24,7 @@ import java.lang.annotation.*;
 public @interface CorsAccess
 {
     /**
-     * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。当为空时，会执行对应的数据接口、但不会进行任何跨域头的设置。
+     * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。
      *
      * @return
      */
@@ -36,6 +36,12 @@ public @interface CorsAccess
      * @return
      */
     boolean enabled() default false;
+
+    /**
+     * 是否是自己进行跨域的处理，默认false。
+     * @return
+     */
+    boolean isCustomer()default false;
 
     /**
      * 对Access-Control-Allow-Credentials的设置,默认false。

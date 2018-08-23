@@ -443,8 +443,8 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
                 {
                     return true;//禁止跨域
                 }
-            }else if(corsAccess.allowMethods().length==0){
-                return false;//允许执行数据接口、但不进行跨域头的设置。
+            }else if(corsAccess.isCustomer()){
+                return false;//自定义跨域设置。
             }
             for (PortMethod m : corsAccess.allowMethods())
             {
