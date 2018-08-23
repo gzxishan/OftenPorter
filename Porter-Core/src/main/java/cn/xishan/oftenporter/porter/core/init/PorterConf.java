@@ -34,8 +34,10 @@ public class PorterConf
     private boolean isInited;
     private String name;
     private String contentEncoding = "utf-8";
-    private List<String> autoSetSeekPackages = new ArrayList<>(),
-            staticAutoSetPackages = new ArrayList<>(), staticAutoSetClassStrs = new ArrayList<>();
+    private List<String> autoSetSeekPackages = new ArrayList<>();
+    private List<Object> autoSetObjects = new ArrayList<>();
+    private List<String> staticAutoSetPackages = new ArrayList<>();
+    private List<String> staticAutoSetClassStrs = new ArrayList<>();
     private List<Class<?>> staticAutoSetClasses = new ArrayList<>();
     private ParamSourceHandleManager paramSourceHandleManager;
 
@@ -110,6 +112,7 @@ public class PorterConf
 
     /**
      * 见{@linkplain DefaultAnnotationConfigable}
+     *
      * @param annotationConfig
      */
     public void setAnnotationConfig(Object annotationConfig)
@@ -181,6 +184,22 @@ public class PorterConf
     public void addAutoSetSeekPackages(String... autoSetSeekPackages)
     {
         WPTool.addAll(this.autoSetSeekPackages, autoSetSeekPackages);
+    }
+
+    /**
+     * 用于扫描对象中含有{@linkplain AutoSet}注解的变量、并进行注入处理,
+     * 通过{@linkplain #addContextAutoSet(Object)}等方式添加的实例对象、若该变量没有被引用则不会进行注入处理。
+     *
+     * @param objects
+     */
+    public void addAutoSetObjectsForSetter(Object... objects)
+    {
+        WPTool.addAll(this.autoSetObjects, objects);
+    }
+
+    public List<Object> getAutoSetSeekObjectsForSetter()
+    {
+        return autoSetObjects;
     }
 
     /**
@@ -453,6 +472,7 @@ public class PorterConf
         stateListenerList = null;
         porterCheckPassableList = null;
         autoSetSeekPackages = null;
+        autoSetObjects = null;
         paramSourceHandleManager = null;
         defaultReturnFactory = null;
         iArgumentsFactory = null;

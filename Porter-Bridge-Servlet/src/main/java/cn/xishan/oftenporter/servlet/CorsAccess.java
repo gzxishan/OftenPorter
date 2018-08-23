@@ -8,7 +8,10 @@ import java.lang.annotation.*;
  * 对跨域的控制，默认禁止跨域,增强对CSRF攻击的防御能力。
  * <ol>
  * <li>
- * op.servlet.cors:默认为false，表示一律禁止跨域访问、但可通过该注解进行单独设置，为true时、并不会对跨域进行处理。
+ * op.servlet.cors.disable:默认为false，表示一律禁止跨域访问、但可通过该注解进行单独设置，为true时、并不会对跨域进行处理。
+ * </li>
+ * <li>
+ *     op.servlet.cors.http2https:默认为false
  * </li>
  * </ol>
  *

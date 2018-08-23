@@ -38,7 +38,9 @@ public class AutoSetHandle
     private IArgumentsFactory argumentsFactory;
     private Delivery thisDelivery;
     private PorterData porterData;
-    private List<IHandle> iHandles = new ArrayList<>(), iHandlesForAutoSetThat = new ArrayList<>();
+    private List<IHandle> iHandles_porter = new ArrayList<>();
+    private List<IHandle> iHandles_notporter = new ArrayList<>();
+    private List<IHandle>  iHandlesForAutoSetThat = new ArrayList<>();
     private Map<Class, Porter> porterMap = new HashMap<>();
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
@@ -343,15 +345,15 @@ public class AutoSetHandle
         return thisDelivery.currentPName();
     }
 
-    public synchronized void addAutoSetSeek(List<String> packages, ClassLoader classLoader)
+    public synchronized void addAutoSetSeekPackages(List<String> packages, ClassLoader classLoader)
     {
-        iHandles.add(new Handle_doAutoSetSeek(packages, classLoader));
+        iHandles_notporter.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
     public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class<?>> classes,
             ClassLoader classLoader)
     {
-        iHandles.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
+        iHandles_notporter.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
     }
 
     private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
@@ -374,12 +376,12 @@ public class AutoSetHandle
 
     public synchronized void addAutoSetsForNotPorter(Object[] objects)
     {
-        iHandles.add(new Handle_doAutoSetsForNotPorter(objects));
+        iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
     }
 
     public synchronized void addAutoSetForPorter(Porter porter)
     {
-        iHandles.add(new Handle_doAutoSetForPorter(porter));
+        iHandles_porter.add(new Handle_doAutoSetForPorter(porter));
         porterMap.put(porter.getPortIn().getToPorterKey(), porter);
         porterMap.putAll(porter.getMixinToThatCouldSet());
 
@@ -445,9 +447,13 @@ public class AutoSetHandle
         try
         {
             workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
-            for (int i = 0; i < iHandles.size(); i++)
+            for (int i = 0; i < iHandles_notporter.size(); i++)
             {
-                iHandles.get(i).handle();
+                iHandles_notporter.get(i).handle();
+            }
+            for (int i = 0; i < iHandles_porter.size(); i++)
+            {
+                iHandles_porter.get(i).handle();
             }
             workedInstance.clear();
             workedInstance = null;
@@ -459,7 +465,8 @@ public class AutoSetHandle
             throw new FatalInitException(e);
         } finally
         {
-            iHandles.clear();
+            iHandles_notporter.clear();
+            iHandles_porter.clear();
         }
     }
 

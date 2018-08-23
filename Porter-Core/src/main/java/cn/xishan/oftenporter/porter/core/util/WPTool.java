@@ -36,6 +36,11 @@ public class WPTool
         return object == null || (object instanceof CharSequence) && "".equals(String.valueOf(object));
     }
 
+    public static boolean existsEmpty(Object... objects)
+    {
+        return !notNullAndEmptyForAll(objects);
+    }
+
     public static boolean isEmptyOfAll(Object... objects)
     {
         for (Object obj : objects)

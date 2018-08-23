@@ -312,9 +312,12 @@ public final class PorterMain
                         porterConf.getContextName());
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values().toArray(new Object[0]));
 
-        LOGGER.debug("do autoSet StateListener...");
+        LOGGER.debug("add autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();
         autoSetHandle.addAutoSetsForNotPorter(stateListenerList.toArray(new StateListener[0]));
+
+        LOGGER.debug("add autoSet for addAutoSetsForNotPorter...");
+        autoSetHandle.addAutoSetsForNotPorter(porterConf.getAutoSetSeekObjectsForSetter().toArray(new Object[0]));
 
         LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerList);
@@ -345,7 +348,7 @@ public final class PorterMain
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
 
         LOGGER.debug("add autoSetSeek...");
-        autoSetHandle.addAutoSetSeek(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
+        autoSetHandle.addAutoSetSeekPackages(porterConf.getAutoSetSeekPackages(), porterConf.getClassLoader());
 
         LOGGER.debug("add staticAutoSet...");
         autoSetHandle.addStaticAutoSet(porterConf.getStaticAutoSetPackages(), porterConf.getStaticAutoSetClassStrs(),

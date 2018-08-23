@@ -221,10 +221,10 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     /**
      * @return
      */
-    public static String getHost(HttpServletRequest request)
+    public static String getHost(HttpServletRequest request, boolean isHttp2Https)
     {
-        String host = request.getScheme() + "://" + request.getServerName() + getPort(request,
-                request.getScheme().equals("https"));
+        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
+                request,isHttp2Https || request.getScheme().equals("https"));
         return host;
     }
 
@@ -233,9 +233,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      */
     public String getHost()
     {
-        String host = request.getScheme() + "://" + request.getServerName() + getPort(request,
-                request.getScheme().equals("https"));
-        return host;
+        return getHost(false);
     }
 
     /**
@@ -249,8 +247,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
             host = "https://" + request.getServerName() + getPort(request, true);
         } else
         {
-            host = request.getScheme() + "://" + request.getServerName() + getPort(request,
-                    request.getScheme().equals("https"));
+            host = getHost(request,false);
         }
         return host;
     }

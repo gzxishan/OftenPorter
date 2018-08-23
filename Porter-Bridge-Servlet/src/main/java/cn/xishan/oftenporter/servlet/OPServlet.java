@@ -1,9 +1,8 @@
 package cn.xishan.oftenporter.servlet;
 
-import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.PreRequest;
-import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
@@ -12,7 +11,6 @@ import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
@@ -46,8 +44,11 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
     private CorsAccess defaultCorsAccess;
 
-    @Property(value = "op.servlet.cors", defaultVal = "false")
+    @Property(value = "op.servlet.cors.disable", defaultVal = "false")
     private Boolean hasCors;
+
+    @Property(value = "op.servlet.cors.http2https", defaultVal = "false")
+    private Boolean isHttp2Https;
     /**
      * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
      */
@@ -56,6 +57,11 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     public OPServlet()
     {
 
+    }
+
+    @AutoSet.SetOk
+    void setOk(){
+        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={}",hasCors,isHttp2Https);
     }
 
     /**
@@ -338,6 +344,8 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
         porterConf.addContextAutoSet(OPServlet.class, this);
 
+        porterConf.addAutoSetObjectsForSetter(this);
+
         return porterConf;
     }
 
@@ -410,8 +418,10 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             }
         }
         String origin = request.getHeader("Origin");
-        if (WPTool.notNullAndEmpty(origin) && !origin.equals(WServletRequest.getHost(request)))
+        String host;
+        if (WPTool.notNullAndEmpty(origin) && !origin.equals((host = WServletRequest.getHost(request,isHttp2Https))))
         {//跨域请求
+            LOGGER.debug("method={},origin={},host={}", method, origin, host);
             CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)
             {
