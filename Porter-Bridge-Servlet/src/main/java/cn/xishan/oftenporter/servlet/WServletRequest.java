@@ -6,6 +6,8 @@ import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +21,8 @@ import java.util.regex.Pattern;
 
 public final class WServletRequest extends PRequest// implements IAttributeFactory
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WServletRequest.class);
+
     private HttpServletRequest request;
     private HttpServletResponse response;
 

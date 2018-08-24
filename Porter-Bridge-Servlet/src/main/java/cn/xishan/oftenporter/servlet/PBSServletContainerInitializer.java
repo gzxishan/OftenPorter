@@ -29,7 +29,7 @@ import java.util.Set;
 @HandlesTypes(OPServletInitializer.class)
 public class PBSServletContainerInitializer implements ServletContainerInitializer
 {
-    static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
+   public static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PBSServletContainerInitializer.class);
 

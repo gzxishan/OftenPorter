@@ -142,10 +142,12 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         if (servletContext.getAttribute(PBSServletContainerInitializer.FROM_INITIALIZER_ATTR) != null)
         {
             prefix = request.getRequestURI().substring(0, request.getContextPath().length());
+            LOGGER.debug("prefix:{}[FROM_INITIALIZER_ATTR]",prefix);
         } else
         {
             prefix = request.getRequestURI()
                     .substring(0, request.getContextPath().length() + request.getServletPath().length());
+            LOGGER.debug("prefix:{}",prefix);
         }
         return prefix;
     }
