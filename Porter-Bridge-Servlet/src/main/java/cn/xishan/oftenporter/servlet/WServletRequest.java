@@ -181,7 +181,12 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
             return null;
         }
         String host = getHostFromURL(url);
-        return url.subSequence(host.length(), url.length()).toString();
+        String path = url.subSequence(host.length(), url.length()).toString();
+        int index=path.lastIndexOf("?");
+        if(index>=0){
+            path=path.substring(0,index);
+        }
+        return path;
     }
 
     /**
