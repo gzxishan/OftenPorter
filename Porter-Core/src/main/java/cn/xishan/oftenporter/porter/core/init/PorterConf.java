@@ -177,7 +177,7 @@ public class PorterConf
     }
 
     /**
-     * 用于扫描包中含有{@linkplain AutoSetSeek}注解的类，进而注入里面的变量。
+     * 用于扫描包中含有{@linkplain AutoSetSeek}等注解的类，进而注入里面的变量。
      *
      * @param autoSetSeekPackages
      */
@@ -187,8 +187,8 @@ public class PorterConf
     }
 
     /**
-     * 用于扫描对象中含有{@linkplain AutoSet}注解的变量、并进行注入处理,
-     * 通过{@linkplain #addContextAutoSet(Object)}等方式添加的实例对象、若该变量没有被引用则不会进行注入处理。
+     * 用于扫描对象中含有{@linkplain AutoSet}等注解的变量、并进行注入处理，另见{@linkplain #addStaticAutoSetClasses(Class[])}等。
+     * 而通过{@linkplain #addContextAutoSet(Object)}等方式添加的实例对象、若该变量没有被引用则不会进行注入处理。
      *
      * @param objects
      */
@@ -203,7 +203,7 @@ public class PorterConf
     }
 
     /**
-     * 用于扫描指定包中的每一个类，进而注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * 用于扫描指定包中的每一个类，进而注入含有{@linkplain AutoSet AutoSet}等注解的静态变量。
      * <pre>
      *     会忽略非null的对象。
      * </pre>
@@ -221,7 +221,7 @@ public class PorterConf
     }
 
     /**
-     * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * 注入含有{@linkplain AutoSet AutoSet}等注解的静态变量。
      * <pre>
      *     会忽略非null的对象。
      * </pre>
@@ -239,7 +239,7 @@ public class PorterConf
     }
 
     /**
-     * 注入含有{@linkplain AutoSet AutoSet}的静态变量。
+     * 注入含有{@linkplain AutoSet AutoSet}等注解的静态变量。
      * <pre>
      *     会忽略非null的对象。
      * </pre>
