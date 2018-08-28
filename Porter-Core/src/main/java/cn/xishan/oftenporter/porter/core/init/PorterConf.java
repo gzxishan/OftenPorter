@@ -27,6 +27,8 @@ public class PorterConf
     private List<CheckPassable> contextChecks;
     private List<CheckPassable> porterCheckPassableList;
 
+    private List<IAutoSetListener> autoSetListenerList=new ArrayList<>();
+
     private Map<String, Object> contextAutoSetMap;
     private ClassLoader classLoader;
     private boolean responseWhenException = true;
@@ -63,6 +65,15 @@ public class PorterConf
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();
         this.classLoader = Thread.currentThread().getContextClassLoader();
+    }
+
+    public void addAutoSetListener(IAutoSetListener autoSetListener){
+        autoSetListenerList.add(autoSetListener);
+    }
+
+    public List<IAutoSetListener> getAutoSetListenerList()
+    {
+        return autoSetListenerList;
     }
 
     /**
@@ -476,5 +487,6 @@ public class PorterConf
         paramSourceHandleManager = null;
         defaultReturnFactory = null;
         iArgumentsFactory = null;
+        autoSetListenerList=null;
     }
 }

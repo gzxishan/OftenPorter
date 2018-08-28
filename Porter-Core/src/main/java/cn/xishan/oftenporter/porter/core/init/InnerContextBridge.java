@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.init;
 
+import cn.xishan.oftenporter.porter.core.advanced.IAutoSetListener;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.OutType;
@@ -27,8 +28,10 @@ public class InnerContextBridge
 
     public final OutType defaultOutType;
 
+    public final IAutoSetListener[] autoSetListeners;
+
     public InnerContextBridge(ClassLoader classLoader, InnerBridge innerBridge, Map<String, Object> contextAutoSet,
-            boolean enableDefaultValue, PorterBridge porterBridge, OutType defaultOutType,
+            boolean enableDefaultValue, PorterBridge porterBridge, OutType defaultOutType,IAutoSetListener[] autoSetListeners,
             boolean responseWhenException)
     {
         this.classLoader = classLoader;
@@ -38,6 +41,7 @@ public class InnerContextBridge
         this.checkPassableForCFTemps = new HashMap<>();
         this.paramDealt = porterBridge.paramDealt();
         this.defaultOutType = defaultOutType;
+        this.autoSetListeners=autoSetListeners;
         this.responseWhenException = responseWhenException;
     }
 }

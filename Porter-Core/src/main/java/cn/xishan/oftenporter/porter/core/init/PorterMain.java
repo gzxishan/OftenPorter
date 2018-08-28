@@ -297,9 +297,10 @@ public final class PorterMain
             }
         }
 
+        IAutoSetListener[] autoSetListeners = porterConf.getAutoSetListenerList().toArray(new IAutoSetListener[0]);
         InnerContextBridge innerContextBridge = new InnerContextBridge(porterConf.getClassLoader(), innerBridge,
                 porterConf.getContextAutoSetMap(), porterConf.isEnableTiedNameDefault(), bridge,
-                porterConf.getDefaultPortOutType(), porterConf.isResponseWhenException());
+                porterConf.getDefaultPortOutType(), autoSetListeners, porterConf.isResponseWhenException());
 
         IArgumentsFactory argumentsFactory = porterConf.getArgumentsFactory();
         if (argumentsFactory == null)
@@ -483,7 +484,8 @@ public final class PorterMain
     {
         if (forRequestListener != null)
         {
-            if(forRequestListener.beforeDoRequest(req, request, response, isInnerRequest)){
+            if (forRequestListener.beforeDoRequest(req, request, response, isInnerRequest))
+            {
                 return;
             }
         }

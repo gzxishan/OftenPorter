@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IAutoSetListener;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
@@ -40,7 +41,7 @@ public class AutoSetHandle
     private PorterData porterData;
     private List<IHandle> iHandles_porter = new ArrayList<>();
     private List<IHandle> iHandles_notporter = new ArrayList<>();
-    private List<IHandle>  iHandlesForAutoSetThat = new ArrayList<>();
+    private List<IHandle> iHandlesForAutoSetThat = new ArrayList<>();
     private Map<Class, Porter> porterMap = new HashMap<>();
     private String currentContextName;
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
@@ -598,17 +599,22 @@ public class AutoSetHandle
         proxyObjectMap.put(origin, proxy);
     }
 
-    private void doAutoSetPut(Field field,Object obj,Class realType){
-        if(obj!=null){
-            AutoSet.Put put = AnnoUtil.getAnnotation(field,AutoSet.Put.class);
-            if(put!=null){
+    private void doAutoSetPut(Field field, Object obj, Class realType)
+    {
+        if (obj != null)
+        {
+            AutoSet.Put put = AnnoUtil.getAnnotation(field, AutoSet.Put.class);
+            if (put != null)
+            {
                 Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
                 Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
-                String name=put.name().equals("")?realType.getName():put.name();
-                if(put.range()== AutoSet.Range.Global){
-                    globalAutoSet.put(name,obj);
-                }else{
-                    contextAutoSet.put(name,obj);
+                String name = put.name().equals("") ? realType.getName() : put.name();
+                if (put.range() == AutoSet.Range.Global)
+                {
+                    globalAutoSet.put(name, obj);
+                } else
+                {
+                    contextAutoSet.put(name, obj);
                 }
             }
         }
@@ -651,7 +657,7 @@ public class AutoSetHandle
                 {
                     f.set(currentObject, value);
                 }
-                doAutoSetPut(f,value,fieldRealType);
+                doAutoSetPut(f, value, fieldRealType);
                 continue;
             }
             _AutoSet autoSet = annotationDealt.autoSet(f);
@@ -664,13 +670,14 @@ public class AutoSetHandle
                     if (newValue != value)
                     {
                         f.set(currentObject, newValue);
-                        value=newValue;
+                        value = newValue;
                     }
                 }
-                if(fieldRealType==null){
+                if (fieldRealType == null)
+                {
                     fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
-                doAutoSetPut(f,value,fieldRealType);
+                doAutoSetPut(f, value, fieldRealType);
                 continue;
             }
 
@@ -827,13 +834,33 @@ public class AutoSetHandle
                     }
                 }
                 //value = workedInstance.mayProxy(value, this, doProxy);
-                f.set(currentObject, value);
-                doAutoSetPut(f,value,fieldRealType);
-                if (LOGGER.isDebugEnabled())
+                boolean willSet = true;
+                for (IAutoSetListener listener : innerContextBridge.autoSetListeners)
                 {
-                    LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);
+                    boolean b = listener.willSet(autoSet, currentObjectClass, currentObject, f,
+                            fieldRealType, value, willSet);
+                    willSet = willSet && b;
                 }
+                if (willSet)
+                {
+                    f.set(currentObject, value);//设置变量
+                    doAutoSetPut(f, value, fieldRealType);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);
+                    }
+                } else
+                {
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("ignore AutoSet:[{}] ignored value [{}],realType=[{}]", f, value, fieldRealType);
+                    }
+                }
+
             } catch (FatalInitException e)
+            {
+                throw e;
+            } catch (InitException e)
             {
                 throw e;
             } catch (Exception e)

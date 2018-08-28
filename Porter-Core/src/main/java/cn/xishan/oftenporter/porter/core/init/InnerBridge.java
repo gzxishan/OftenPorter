@@ -12,6 +12,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 存放全局的成员。
  * @author Created by https://github.com/CLovinr on 2016/9/28.
  */
 public class InnerBridge
@@ -23,7 +24,6 @@ public class InnerBridge
     public final TypeParserStore globalParserStore;
     List<CheckPassable> allGlobalChecksTemp;
     public final CacheTool cacheTool;
-
 
     public InnerBridge(String defaultTypeParserId)
     {
