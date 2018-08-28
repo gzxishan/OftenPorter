@@ -835,14 +835,28 @@ public class AutoSetHandle
                 }
                 //value = workedInstance.mayProxy(value, this, doProxy);
                 boolean willSet = true;
+                IAutoSetListener.Will lastWill = new IAutoSetListener.Will(willSet);
+                lastWill.optionValue = value;
+                Object originValue = value;
                 for (IAutoSetListener listener : innerContextBridge.autoSetListeners)
                 {
-                    boolean b = listener.willSet(autoSet, currentObjectClass, currentObject, f,
-                            fieldRealType, value, willSet);
+                    lastWill.willSet = willSet;
+                    lastWill.optionValue = value;
+                    IAutoSetListener.Will will = listener.willSet(autoSet, currentObjectClass, currentObject, f,
+                            fieldRealType, lastWill);
+                    boolean b = will == null || will.willSet;
                     willSet = willSet && b;
+                    if (will.optionValue != null)
+                    {
+                        value = will.optionValue;
+                    }
                 }
                 if (willSet)
                 {
+                    if (value != originValue)
+                    {
+                        value = workedInstance.doProxyAndDoAutoSet(value, this);
+                    }
                     f.set(currentObject, value);//设置变量
                     doAutoSetPut(f, value, fieldRealType);
                     if (LOGGER.isDebugEnabled())
