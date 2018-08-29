@@ -142,11 +142,10 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
         String host;
         if (http2Https && request.getScheme().equals("http"))
         {
-            host = "https://" + request.getServerName() + getPort(request, true);
+            host = "https://" + request.getServerName() + getPort(request);
         } else
         {
-            host = request.getScheme() + "://" + request.getServerName() + getPort(request,
-                    request.getScheme().equals("https"));
+            host = request.getScheme() + "://" + request.getServerName() + getPort(request);
         }
         stringBuilder.append(host);
         stringBuilder.append(urlPrefix != null ? urlPrefix : OPServlet.getUriPrefix(request));
@@ -182,9 +181,10 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
         }
         String host = getHostFromURL(url);
         String path = url.subSequence(host.length(), url.length()).toString();
-        int index=path.lastIndexOf("?");
-        if(index>=0){
-            path=path.substring(0,index);
+        int index = path.lastIndexOf("?");
+        if (index >= 0)
+        {
+            path = path.substring(0, index);
         }
         return path;
     }
@@ -213,14 +213,11 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     }
 
 
-    private static String getPort(HttpServletRequest request, boolean isHttps)
+    private static String getPort(HttpServletRequest request)
     {
-        if (request.getServerPort() == 80)
+        if (request.getServerPort() == 80 || request.getServerPort() == 443)
         {
             return "";
-        } else if (request.getServerPort() == 443)
-        {
-            return isHttps ? "" : ":443";
         } else
         {
             return ":" + request.getServerPort();
@@ -232,8 +229,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      */
     public static String getHost(HttpServletRequest request, boolean isHttp2Https)
     {
-        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
-                request,isHttp2Https || request.getScheme().equals("https"));
+        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(request);
         return host;
     }
 
@@ -253,10 +249,10 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
         String host;
         if (http2Https && request.getScheme().equals("http"))
         {
-            host = "https://" + request.getServerName() + getPort(request, true);
+            host = "https://" + request.getServerName() + getPort(request);
         } else
         {
-            host = getHost(request,false);
+            host = getHost(request, false);
         }
         return host;
     }

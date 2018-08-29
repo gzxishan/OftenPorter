@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +61,9 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     }
 
     @AutoSet.SetOk
-    void setOk(){
-        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={}",hasCors,isHttp2Https);
+    void setOk()
+    {
+        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={}", hasCors, isHttp2Https);
     }
 
     /**
@@ -142,12 +144,12 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         if (servletContext.getAttribute(PBSServletContainerInitializer.FROM_INITIALIZER_ATTR) != null)
         {
             prefix = request.getRequestURI().substring(0, request.getContextPath().length());
-            LOGGER.debug("prefix:{}[FROM_INITIALIZER_ATTR]",prefix);
+            LOGGER.debug("prefix:{}[FROM_INITIALIZER_ATTR]", prefix);
         } else
         {
             prefix = request.getRequestURI()
                     .substring(0, request.getContextPath().length() + request.getServletPath().length());
-            LOGGER.debug("prefix:{}",prefix);
+            LOGGER.debug("prefix:{}", prefix);
         }
         return prefix;
     }
@@ -170,6 +172,28 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             WResponse wResponse, PortMethod method) throws IOException
     {
+        if (isHttp2Https && request.getScheme().equals("http"))
+        {
+            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request)
+            {
+                @Override
+                public String getScheme()
+                {
+                    return "https";
+                }
+
+                @Override
+                public StringBuffer getRequestURL()
+                {
+                    StringBuffer buffer = new StringBuffer();
+                    String host = WServletRequest.getHost(this, true);
+                    buffer.append(host).append(getRequestURI());
+                    return buffer;
+                }
+            };
+            request = requestWrapper;
+        }
+
         WServletRequest wreq = new WServletRequest(request, path, response, method);
         if (wreq.getPath().startsWith("/="))
         {
@@ -421,9 +445,9 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         }
         String origin = request.getHeader("Origin");
         String host;
-        if (WPTool.notNullAndEmpty(origin) && !origin.equals((host = WServletRequest.getHost(request,isHttp2Https))))
+        if (WPTool.notNullAndEmpty(origin) && !origin.equals((host = WServletRequest.getHost(request, isHttp2Https))))
         {//跨域请求
-            LOGGER.debug("method={},origin={},host={}", method, origin, host);
+            LOGGER.warn("method={},origin={},host={}", method, origin, host);
             CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)
             {
@@ -445,7 +469,8 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
                 {
                     return true;//禁止跨域
                 }
-            }else if(corsAccess.isCustomer()){
+            } else if (corsAccess.isCustomer())
+            {
                 return false;//自定义跨域设置。
             }
             for (PortMethod m : corsAccess.allowMethods())
