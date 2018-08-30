@@ -846,7 +846,7 @@ public class AutoSetHandle
                             fieldRealType, lastWill);
                     boolean b = will == null || will.willSet;
                     willSet = willSet && b;
-                    if (will.optionValue != null)
+                    if (will!=null&&will.optionValue != null)
                     {
                         value = will.optionValue;
                     }
