@@ -447,7 +447,10 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         String host;
         if (WPTool.notNullAndEmpty(origin) && !origin.equals((host = WServletRequest.getHost(request, isHttp2Https))))
         {//跨域请求
-            LOGGER.warn("method={},origin={},host={}", method, origin, host);
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
+            }
             CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)
             {
