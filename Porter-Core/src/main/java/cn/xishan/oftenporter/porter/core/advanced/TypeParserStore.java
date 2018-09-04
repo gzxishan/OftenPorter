@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
-import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 /**

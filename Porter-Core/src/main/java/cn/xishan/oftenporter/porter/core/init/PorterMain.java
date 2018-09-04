@@ -312,6 +312,7 @@ public final class PorterMain
                 .newInstance(argumentsFactory, innerContextBridge, getPLinker(), porterData,
                         porterConf.getContextName());
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values().toArray(new Object[0]));
+        autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
 
         LOGGER.debug("add autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();

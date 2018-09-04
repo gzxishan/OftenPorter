@@ -219,9 +219,11 @@ public final class AnnotationDealt
     {
         List<Class> classList = new ArrayList<>();
 
+        OnPorterEntities onPorterEntities = AnnoUtil.Advanced.getAnnotation(porterClass, OnPorterEntities.class);
+
         BindEntities bindEntities = AnnoUtil.Advanced.getAnnotation(method, BindEntities.class);
         FromPorterEntities fromPorterEntities = AnnoUtil.Advanced.getAnnotation(method, FromPorterEntities.class);
-        OnPorterEntities onPorterEntities = AnnoUtil.Advanced.getAnnotation(porterClass, OnPorterEntities.class);
+
         if (bindEntities != null)
         {
             WPTool.addAll(classList, bindEntities.value());
@@ -269,7 +271,6 @@ public final class AnnotationDealt
                 }
             }
         }
-
 
         if (classList.size() == 0)
         {

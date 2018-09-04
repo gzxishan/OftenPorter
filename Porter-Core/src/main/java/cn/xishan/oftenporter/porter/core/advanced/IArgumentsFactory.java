@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
+import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
@@ -7,7 +9,7 @@ import java.lang.reflect.Method;
 
 /**
  * <p>
- * 支持的注解：{@linkplain NeceParam},{@linkplain UneceParam}
+ * 支持的注解：{@linkplain Nece},{@linkplain Unece}
  * </p>
  * <p>
  * 支持的默认参数：WObject

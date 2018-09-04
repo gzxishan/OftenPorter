@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
@@ -119,6 +120,18 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      * 获取类上绑定的对象。
      */
     public abstract <T> T centity(int index);
+
+    /**
+     * 见{@linkplain IExtraEntitySupport}
+     *
+     * @param key
+     * @param <T>
+     * @return
+     */
+    public <T> T extraEntity(String key)
+    {
+        throw new RuntimeException("not support!");
+    }
 
     /**
      * 见{@linkplain #savedObject(String) savedObject(Class.getName())}.

@@ -420,7 +420,7 @@ public class ContextPorter implements IOtherStartDestroy
             {
                 Method method = otherStartDestroy.method;
                 method.setAccessible(true);
-                if (method.getParameterTypes().length > 0)
+                if (method.getParameterCount() > 0)
                 {
                     method.invoke(otherStartDestroy.object, wObject);
                 } else
@@ -446,6 +446,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
 
 
+        //重要：在IArgumentsFactory之后初始化,用于支持：IExtraEntitySupport
         iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {

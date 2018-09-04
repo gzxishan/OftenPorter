@@ -25,12 +25,12 @@ import java.util.*;
 public class SthDeal
 {
     private final Logger LOGGER;
-    private OPEntitiesDeal OPEntitiesDeal;
+    private OPEntitiesDeal entitiesDeal;
 
     public SthDeal()
     {
         LOGGER = LogUtil.logger(SthDeal.class);
-        OPEntitiesDeal = new OPEntitiesDeal();
+        entitiesDeal = new OPEntitiesDeal();
     }
 
 
@@ -128,16 +128,16 @@ public class SthDeal
         backableSeek.push();
 
         //对MixinParse指定的类的Parse的处理
-        OPEntitiesDeal.sthUtil
+        entitiesDeal.sthUtil
                 .bindParsesWithMixin(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin,
                         mixinToMap);
         //对Parse的处理
-        OPEntitiesDeal.sthUtil
+        entitiesDeal.sthUtil
                 .bindParses(clazz, innerContextBridge, portIn.getInNames(), backableSeek, !isMixin, mixinToMap);
 
         try
         {
-            porter.opEntities = OPEntitiesDeal.dealOPEntities(clazz, innerContextBridge, autoSetHandle);
+            porter.opEntities = entitiesDeal.dealOPEntities(clazz, innerContextBridge, autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -215,12 +215,12 @@ public class SthDeal
         }
 
         //实例化经检查对象并添加到map。
-        OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+        entitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
 
         if (!isMixin)
         {
             wholeClassCheckPassableGetter.done();
-            OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
+            entitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps,
                     wholeClassCheckPassableGetter.getChecksForWholeClass());
         }
         ////////处理混入接口------结束
@@ -448,7 +448,7 @@ public class SthDeal
                 porterOfFun.portIn = portIn;
                 porterOfFun.argCount = parameters.length;
 
-                OPEntitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
+                entitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
                 TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
                 boolean hasBinded = SthUtil.bindParses(method, annotationDealt, portIn.getInNames(), typeParserStore,
                         backableSeek);
@@ -459,7 +459,7 @@ public class SthDeal
                     SthUtil.bindTypeParse(portIn.getInNames(), null, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
-                porterOfFun.opEntities = OPEntitiesDeal
+                porterOfFun.opEntities = entitiesDeal
                         .dealOPEntities(porter.getClazz(), method, innerContextBridge, autoSetHandle);
                 porterOfFun.portOut = annotationDealt.portOut(porter, method);
             } catch (Exception e)

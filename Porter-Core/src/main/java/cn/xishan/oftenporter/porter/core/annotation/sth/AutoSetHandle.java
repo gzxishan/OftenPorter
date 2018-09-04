@@ -375,7 +375,7 @@ public class AutoSetHandle
     }
 
 
-    public synchronized void addAutoSetsForNotPorter(Object[] objects)
+    public synchronized void addAutoSetsForNotPorter(Object... objects)
     {
         iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
     }

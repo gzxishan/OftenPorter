@@ -12,13 +12,10 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -26,7 +23,7 @@ import java.util.*;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class Porter
+public final class Porter extends IExtraEntitySupport.ExtraEntitySupportImpl
 {
 
     public static interface Fun

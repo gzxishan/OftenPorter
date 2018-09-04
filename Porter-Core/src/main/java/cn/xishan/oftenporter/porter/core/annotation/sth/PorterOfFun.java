@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
@@ -15,7 +16,7 @@ import java.lang.reflect.Method;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public abstract class PorterOfFun implements ObjectGetter
+public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupportImpl implements ObjectGetter
 {
     Method method;
     //函数的形参个数。

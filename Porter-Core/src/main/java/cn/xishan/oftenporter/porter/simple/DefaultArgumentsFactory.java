@@ -27,6 +27,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 {
     public interface ArgHandle
     {
+        /**
+         * @param wObject
+         * @param method
+         * @param optionArgMap 提供的可选参数
+         * @return
+         */
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
     }
 
@@ -148,30 +154,33 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static abstract class IArgsHandleImpl implements IArgsHandle
+    protected static abstract class IArgsHandleImpl implements IArgsHandle
     {
         private ArgHandle[] argHandles;
         private Set<Class> types;
 
         public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
         {
+            Class realClass = porterOfFun.getPorter().getClazz();
+
             Method method = porterOfFun.getMethod();
-            Class<?>[] methodArgTypes = method.getParameterTypes();
             Annotation[][] methodAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
 
             AnnotationDealt annotationDealt = AnnotationDealt.newInstance(true);
+            int argCount = method.getParameterCount();
 
             List<ArgHandle> argHandleList = new ArrayList<>();
-            this.types = new HashSet<>(methodArgTypes.length);
+            this.types = new HashSet<>(argCount);
 
-            for (int i = 0; i < methodArgTypes.length; i++)
+            for (int i = 0; i < argCount; i++)
             {
-                Class<?> paramType = methodArgTypes[i];
+                Class<?> paramType = AnnoUtil.Advanced.getRealTypeOfMethodParameter(realClass, method, i);
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
                 String paramName = parameters[i].getName();
-                ArgHandle argHandle = newHandle(annotationDealt,porterOfFun,typeParserStore,paramType,paramName,paramAnnotations);
+                ArgHandle argHandle = newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName,
+                        paramAnnotations);
                 argHandleList.add(argHandle);
             }
             this.argHandles = argHandleList.toArray(new ArgHandle[0]);
@@ -179,7 +188,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
         public abstract ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
-                Class<?> paramType, String paramName, Annotation[] paramAnnotations) throws Exception;
+                Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
 
         @Override
         public boolean hasParameterType(WObject wObject, Method method, Class<?> type)
@@ -225,9 +234,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         @Override
         public ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
-                Class<?> paramType, String paramName, Annotation[] paramAnnotations) throws Exception
+                Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception
         {
-            if (paramType.equals(WObject.class))
+            if (paramRealType.equals(WObject.class))
             {
                 return new WObjectArgHandle();
             }
@@ -241,6 +250,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             }
 
             ArgHandle argHandle;
+
+
             String name;
             Parse parse = AnnoUtil.getAnnotation(paramAnnotations, Parse.class);
             _Parse _parse = null;
@@ -259,14 +270,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 name = paramName;
             }
 
-            InNames.Name theName = porterOfFun.getPorter().getName(name, paramType, _parse, nece);
+            InNames.Name theName = porterOfFun.getPorter().getName(name, paramRealType, _parse, nece);
             if (nece != null)
             {
-                argHandle = new NeceArgHandle(nece, theName, paramType.getName(), typeParserStore);
+                argHandle = new NeceArgHandle(nece, theName, paramRealType.getName(), typeParserStore);
             } else
             {
-                argHandle = new UneceArgHandle(theName, paramType.getName(), typeParserStore);
+                argHandle = new UneceArgHandle(theName, paramRealType.getName(), typeParserStore);
             }
+
+
             return argHandle;
         }
     }
