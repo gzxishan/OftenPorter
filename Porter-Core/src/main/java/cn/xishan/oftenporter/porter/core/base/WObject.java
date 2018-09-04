@@ -130,7 +130,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public <T> T extraEntity(String key)
     {
-        throw new RuntimeException("not support!");
+        return null;
     }
 
     /**

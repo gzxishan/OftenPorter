@@ -312,6 +312,12 @@ public final class AnnotationDealt
         return _bindEntities;
     }
 
+    public _BindEntities bindEntity(Class<?> entityClass,Method method)
+    {
+        _BindEntities _bindEntities = newBindEntities(new Class[]{entityClass}, method);
+        return _bindEntities;
+    }
+
     public _BindEntities bindEntities(Class<?> clazz)
     {
         BindEntities bindEntities = AnnoUtil.Advanced.getAnnotation(clazz, BindEntities.class);

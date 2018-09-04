@@ -20,7 +20,9 @@ public interface IExtraEntitySupport
 
     Class<?> getExtraEntity(String key);
 
-    Set<String> getExtralKeySet();
+    Set<String> getExtraKeySet();
+
+    void clearExtra();
 
 
     class ExtraEntitySupportImpl implements IExtraEntitySupport
@@ -46,9 +48,15 @@ public interface IExtraEntitySupport
         }
 
         @Override
-        public Set<String> getExtralKeySet()
+        public Set<String> getExtraKeySet()
         {
             return map.keySet();
+        }
+
+        @Override
+        public void clearExtra()
+        {
+            map.clear();
         }
     }
 }

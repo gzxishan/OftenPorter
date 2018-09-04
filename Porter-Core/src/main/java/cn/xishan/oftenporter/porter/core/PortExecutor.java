@@ -19,6 +19,7 @@ import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,7 @@ public final class PortExecutor
     private DeliveryBuilder deliveryBuilder;
     private PortUtil portUtil;
     private ResponseHandle responseHandle;
+    private Map<String, One> extraEntityOneMap = new HashMap<>();
 
     public PortExecutor(ResponseHandle responseHandle, PName pName, PLinker pLinker, UrlDecoder urlDecoder,
             boolean responseWhenException)
@@ -52,6 +54,10 @@ public final class PortExecutor
         deliveryBuilder = DeliveryBuilder.getBuilder(true, pLinker);
     }
 
+    public void putAllExtraEntity(Map<String, One> entityOneMap)
+    {
+        this.extraEntityOneMap.putAll(entityOneMap);
+    }
 
     private final Logger logger(WObject wObject)
     {
@@ -211,17 +217,19 @@ public final class PortExecutor
             Porter classPort = req.classPort;
 
             Context context = req.context;
-            InnerContextBridge innerContextBridge = context.innerContextBridge;
             UrlDecoder.Result result = req.result;
 
 
             if (!isInnerRequest && funPort.isInner())
             {
-                exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
+                exNotFoundClassPort(request, response, context.innerContextBridge.responseWhenException);
                 return;
             }
 
             wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
+            wObject.porterOfFun = funPort;
+            wObject.portExecutor = this;
+
             if (funPort.getMethodPortIn().getTiedType().isRest())
             {
                 wObject.restValue = result.funTied();
@@ -232,11 +240,11 @@ public final class PortExecutor
 
             if (isInnerRequest && funPort.isFastInner())
             {
-                dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, true);
+                dealtOfFunParam(context, wObject, funPort, result, true);
             } else
             {
                 //全局通过检测
-                dealtOfGlobalCheck(context, wObject, funPort, innerContextBridge, result);
+                dealtOfGlobalCheck(context, wObject, funPort, result);
             }
         } catch (Exception e)
         {
@@ -301,21 +309,28 @@ public final class PortExecutor
      * @param opEntities
      * @param isInClass
      * @param wObjectImpl
-     * @param currentTypeParserStore
      * @return
      */
-    private ParamDealt.FailedReason paramDealOfPortInEntities(boolean ignoreTypeParser, Context context,
+    private ParamDealt.FailedReason paramDealOfPortInEntities(Context context,
             OPEntities opEntities,
-            boolean isInClass, Porter porter, PorterOfFun porterOfFun,
-            WObjectImpl wObjectImpl, TypeParserStore currentTypeParserStore)
+            boolean isInClass, Porter porter, PorterOfFun porterOfFun, WObjectImpl wObjectImpl)
     {
-        ParamDealt.FailedReason reason = null;
         if (opEntities == null)
         {
             return null;
         }
         One[] ones = opEntities.ones;
         Object[] entities = new Object[ones.length];
+
+        for (int i = 0; i < ones.length; i++)
+        {
+            Object object = paramDealOfOne(context, isInClass, porter, porterOfFun, wObjectImpl, ones[i]);
+            if (object instanceof ParamDealt.FailedReason)
+            {
+                return (ParamDealt.FailedReason) object;
+            }
+            entities[i] = object;
+        }
         if (isInClass)
         {
             wObjectImpl.centities = entities;
@@ -323,58 +338,104 @@ public final class PortExecutor
         {
             wObjectImpl.fentities = entities;
         }
-        for (int i = 0; i < ones.length; i++)
+        return null;
+//        for (int i = 0; i < ones.length; i++)
+//        {
+//            One one = ones[i];
+//            Object object = portUtil
+//                    .paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt, one,
+//                            wObjectImpl.getParamSource(),
+//                            currentTypeParserStore);
+//            if (object instanceof ParamDealt.FailedReason)
+//            {
+//                reason = (ParamDealt.FailedReason) object;
+//                break;
+//            } else
+//            {
+//                entities[i] = object;
+//            }
+//        }
+//        if (reason == null)
+//        {
+//            for (int i = 0; i < ones.length; i++)
+//            {
+//                One one = ones[i];
+//                _BindEntities.CLASS clazz = one.getEntityClazz();
+//                if (clazz != null)
+//                {
+//                    if (isInClass)
+//                    {
+//                        entities[i] = clazz.deal(wObjectImpl, porter, entities[i]);
+//                    } else
+//                    {
+//                        entities[i] = clazz.deal(wObjectImpl, porterOfFun, entities[i]);
+//                    }
+//                    if (entities[i] instanceof ParamDealt.FailedReason)
+//                    {
+//                        reason = (ParamDealt.FailedReason) entities[i];
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+
+    }
+
+    Object getExtrwaEntity(WObjectImpl wObject, String key)
+    {
+        One one = extraEntityOneMap.get(key);
+        if (one != null)
         {
-            One one = ones[i];
-            Object object = portUtil
-                    .paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt, one,
-                            wObjectImpl.getParamSource(),
-                            currentTypeParserStore);
+            PorterOfFun porterOfFun = wObject.porterOfFun;
+            Object object = paramDealOfOne(wObject.context, false, porterOfFun.getPorter(), porterOfFun, wObject, one);
             if (object instanceof ParamDealt.FailedReason)
             {
-                reason = (ParamDealt.FailedReason) object;
-                break;
-            } else
-            {
-                entities[i] = object;
+                ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) object;
+                JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
+                jResponse.setDescription(failedReason.desc());
+                jResponse.setExtra(failedReason.toJSON());
+                throw new WCallException(jResponse);
             }
+            return object;
         }
-        if (reason == null)
-        {
-            for (int i = 0; i < ones.length; i++)
-            {
-                One one = ones[i];
-                _BindEntities.CLASS clazz = one.getEntityClazz();
-                if (clazz != null)
-                {
-                    if (isInClass)
-                    {
-                        entities[i] = clazz.deal(wObjectImpl, porter, entities[i]);
-                    } else
-                    {
-                        entities[i] = clazz.deal(wObjectImpl, porterOfFun, entities[i]);
-                    }
-                    if (entities[i] instanceof ParamDealt.FailedReason)
-                    {
-                        reason = (ParamDealt.FailedReason) entities[i];
-                        break;
-                    }
-                }
-            }
-        }
+        return null;
+    }
 
-        return reason;
+    private Object paramDealOfOne(Context context, boolean isInClass, Porter porter, PorterOfFun porterOfFun,
+            WObjectImpl wObjectImpl, One one)
+    {
+        TypeParserStore currentTypeParserStore = context.innerContextBridge.innerBridge.globalParserStore;
+        boolean ignoreTypeParser = isInClass ? porter.getPortIn().ignoreTypeParser() : porterOfFun.getMethodPortIn()
+                .ignoreTypeParser();
+        Object object = portUtil.paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt,
+                one, wObjectImpl.getParamSource(), currentTypeParserStore);
+
+        if (!(object instanceof ParamDealt.FailedReason))
+        {
+            _BindEntities.CLASS clazz = one.getEntityClazz();
+            if (clazz != null)
+            {
+                if (isInClass)
+                {
+                    object = clazz.deal(wObjectImpl, porter, object);
+                } else
+                {
+                    object = clazz.deal(wObjectImpl, porterOfFun, object);
+                }
+
+            }
+        }
+        return object;
     }
 
     private final void dealtOfGlobalCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         CheckPassable[] allGlobal = this.allGlobalChecks;
 
         if (allGlobal.length == 0)
         {
-            dealtOfContextCheck(context, wObject, funPort, innerContextBridge, result);
+            dealtOfContextCheck(context, wObject, funPort, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, wObject,
@@ -391,10 +452,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfContextCheck(context, wObject, funPort, innerContextBridge, result);
+                                dealtOfContextCheck(context, wObject, funPort, result);
                             }
                         }
                     });
@@ -404,13 +465,12 @@ public final class PortExecutor
     }
 
     private final void dealtOfContextCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         CheckPassable[] contextChecks = context.contextChecks;
         if (contextChecks.length == 0)
         {
-            dealtOfBeforeClassParam(funPort, wObject, context, innerContextBridge, result);
+            dealtOfBeforeClassParam(funPort, wObject, context, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, wObject,
@@ -425,10 +485,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfBeforeClassParam(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfBeforeClassParam(funPort, wObject, context, result);
                             }
                         }
                     });
@@ -438,7 +498,6 @@ public final class PortExecutor
     }
 
     private final void dealtOfBeforeClassParam(PorterOfFun funPort, WObjectImpl wObject, Context context,
-            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         Porter classPort = funPort.getPorter();
@@ -448,7 +507,7 @@ public final class PortExecutor
         if (clazzPIn.getChecks().length == 0 && classPort.getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
+            dealtOfClassParam(funPort, wObject, context, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -463,10 +522,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfClassParam(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfClassParam(funPort, wObject, context, result);
                             }
                         }
                     }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
@@ -475,7 +534,6 @@ public final class PortExecutor
     }
 
     private final void dealtOfClassParam(PorterOfFun funPort, WObjectImpl wObject, Context context,
-            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result)
     {
         Porter classPort = funPort.getPorter();
@@ -488,15 +546,13 @@ public final class PortExecutor
         wObject.cInNames = inNames;
 
 
-        TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
+        TypeParserStore typeParserStore = context.innerContextBridge.innerBridge.globalParserStore;
 
 
         //类参数处理
         ParamDealt.FailedReason failedReason = portUtil
-                .paramDeal(wObject, clazzPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.cn,
-                        wObject.cu,
-                        wObject.getParamSource(),
-                        typeParserStore);
+                .paramDeal(wObject, clazzPIn.ignoreTypeParser(), context.innerContextBridge.paramDealt, inNames,
+                        wObject.cn, wObject.cu, wObject.getParamSource(), typeParserStore);
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);
@@ -505,9 +561,8 @@ public final class PortExecutor
 
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(clazzPIn.ignoreTypeParser(), context, classPort.getOPEntities(), true, classPort,
-                funPort, wObject,
-                typeParserStore);
+        failedReason = paramDealOfPortInEntities(context, classPort.getOPEntities(), true,
+                classPort, funPort, wObject);
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);
@@ -520,7 +575,7 @@ public final class PortExecutor
         if (clazzPIn.getChecks().length == 0 && classPort.getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+            dealtOfBeforeFunParam(funPort, wObject, context, result);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -535,10 +590,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfBeforeFunParam(funPort, wObject, context, innerContextBridge, result);
+                                dealtOfBeforeFunParam(funPort, wObject, context, result);
                             }
                         }
                     }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
@@ -549,8 +604,7 @@ public final class PortExecutor
 
 
     private final void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
-            Context context, InnerContextBridge innerContextBridge,
-            UrlDecoder.Result result)
+            Context context, UrlDecoder.Result result)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
 
@@ -558,7 +612,7 @@ public final class PortExecutor
         if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, false);
+            dealtOfFunParam(context, wObject, funPort, result, false);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -573,10 +627,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfFunParam(context, wObject, funPort, innerContextBridge, result, false);
+                                dealtOfFunParam(context, wObject, funPort, result, false);
                             }
                         }
                     }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
@@ -588,7 +642,6 @@ public final class PortExecutor
 
 
     private final void dealtOfFunParam(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge,
             UrlDecoder.Result result, boolean isFastInner)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
@@ -601,12 +654,12 @@ public final class PortExecutor
 
 
         //函数参数处理
-        TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;
         ParamDealt.FailedReason failedReason = portUtil
-                .paramDeal(wObject, funPIn.ignoreTypeParser(), innerContextBridge.paramDealt, inNames, wObject.fn,
+                .paramDeal(wObject, funPIn.ignoreTypeParser(), context.innerContextBridge.paramDealt, inNames,
+                        wObject.fn,
                         wObject.fu,
                         wObject.getParamSource(),
-                        typeParserStore);
+                        context.innerContextBridge.innerBridge.globalParserStore);
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);
@@ -614,9 +667,8 @@ public final class PortExecutor
         }
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(funPIn.ignoreTypeParser(), context, funPort.getOPEntities(), false,
-                funPort.getPorter(), funPort, wObject,
-                typeParserStore);
+        failedReason = paramDealOfPortInEntities(context, funPort.getOPEntities(), false,
+                funPort.getPorter(), funPort, wObject);
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);
@@ -631,7 +683,7 @@ public final class PortExecutor
         if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                 .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
         {
-            dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result, isFastInner);
+            dealtOfInvokeMethod(context, wObject, funPort, result, isFastInner);
         } else
         {
             PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, wObject,
@@ -646,10 +698,10 @@ public final class PortExecutor
                             if (failedObject != null)
                             {
                                 exCheckPassable(wObject, funPort, failedObject,
-                                        innerContextBridge.responseWhenException);
+                                        context.innerContextBridge.responseWhenException);
                             } else
                             {
-                                dealtOfInvokeMethod(context, wObject, funPort, innerContextBridge, result, false);
+                                dealtOfInvokeMethod(context, wObject, funPort, result, false);
                             }
                         }
                     }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
@@ -660,7 +712,7 @@ public final class PortExecutor
     }
 
     private final void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
-            InnerContextBridge innerContextBridge, UrlDecoder.Result result, boolean isFastInner)
+            UrlDecoder.Result result, boolean isFastInner)
     {
 
         _PortIn funPIn = funPort.getMethodPortIn();
@@ -734,7 +786,7 @@ public final class PortExecutor
                         if (failedObject != null)
                         {
                             exCheckPassable(wObject, funPort, failedObject,
-                                    innerContextBridge.responseWhenException);
+                                    context.innerContextBridge.responseWhenException);
                         } else
                         {
                             dealtOfResponse(wObject, funPort, funPort.getPortOut().getOutType(), finalReturnObject);

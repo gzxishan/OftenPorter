@@ -11,6 +11,7 @@ import java.lang.annotation.*;
 import java.lang.reflect.Method;
 
 /**
+ * 被注解的类可以作为接口函数的形参。
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -30,6 +31,7 @@ public @interface BindEntityDealt
          * 初始化,在接口开始({@linkplain PortIn.PortStart})前调用。
          *
          * @param option
+         * @param method 对应的函数
          */
         void init(String option, Method method);
 
@@ -37,6 +39,7 @@ public @interface BindEntityDealt
          * 初始化,在接口开始({@linkplain PortIn.PortStart})前调用。
          *
          * @param option
+         * @param clazz 对应的类
          */
         void init(String option, Class<?> clazz);
 

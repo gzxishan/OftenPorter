@@ -1,9 +1,13 @@
 package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.annotation.sth.One;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
+
+import java.util.Map;
 
 
 /**
@@ -22,6 +26,9 @@ class WObjectImpl extends WObject
     private Delivery delivery;
     private ParamSource paramSource;
     private boolean isInnerRequest;
+
+    PorterOfFun porterOfFun;
+    PortExecutor portExecutor;
 
     WObjectImpl(PName pName, UrlDecoder.Result result, WRequest request, WResponse response,
             Context context, boolean isInnerRequest)
@@ -87,6 +94,15 @@ class WObjectImpl extends WObject
         return t;
     }
 
+    @Override
+    public <T> T extraEntity(String key)
+    {
+        if (portExecutor != null)
+        {
+            return (T) portExecutor.getExtrwaEntity(this, key);
+        }
+        return super.extraEntity(key);
+    }
 
     @Override
     public <T> T centity(int index)

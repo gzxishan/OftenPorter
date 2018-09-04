@@ -42,7 +42,7 @@ public interface UrlDecoder
         TiedValue pop();
 
         /**
-         * 框架内部处理参数时，获取参数值，优是先从地址参数获取。
+         * 框架内部处理参数时，获取参数值，优先从地址参数获取。
          *
          * @param name  设置的参数名称
          * @param value 参数值

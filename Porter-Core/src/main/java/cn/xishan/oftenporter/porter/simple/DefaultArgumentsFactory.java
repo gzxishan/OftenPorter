@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
+import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
@@ -34,6 +35,24 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
          * @return
          */
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
+    }
+
+    public static class BindEntityDealtArgHandle implements ArgHandle
+    {
+
+        private String key;
+
+        public BindEntityDealtArgHandle(Class realType, PorterOfFun porterOfFun)
+        {
+            key = realType.getName();
+            porterOfFun.putExtraEntity(key, realType);
+        }
+
+        @Override
+        public Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        {
+            return wObject.extraEntity(key);
+        }
     }
 
     public static class WObjectArgHandle implements ArgHandle
@@ -251,32 +270,37 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
             ArgHandle argHandle;
 
-
-            String name;
-            Parse parse = AnnoUtil.getAnnotation(paramAnnotations, Parse.class);
-            _Parse _parse = null;
-            if (parse != null)
+            if (AnnoUtil.isOneOfAnnotationsPresent(paramRealType, BindEntityDealt.class))
             {
-                _parse = annotationDealt.genParse(parse);
-            }
-            if (nece != null)
-            {
-                name = nece.getValue();
-            } else if (unece != null)
-            {
-                name = unece.getValue();
+                argHandle = new BindEntityDealtArgHandle(paramRealType, porterOfFun);
             } else
             {
-                name = paramName;
-            }
+                String name;
+                Parse parse = AnnoUtil.getAnnotation(paramAnnotations, Parse.class);
+                _Parse _parse = null;
+                if (parse != null)
+                {
+                    _parse = annotationDealt.genParse(parse);
+                }
+                if (nece != null)
+                {
+                    name = nece.getValue();
+                } else if (unece != null)
+                {
+                    name = unece.getValue();
+                } else
+                {
+                    name = paramName;
+                }
 
-            InNames.Name theName = porterOfFun.getPorter().getName(name, paramRealType, _parse, nece);
-            if (nece != null)
-            {
-                argHandle = new NeceArgHandle(nece, theName, paramRealType.getName(), typeParserStore);
-            } else
-            {
-                argHandle = new UneceArgHandle(theName, paramRealType.getName(), typeParserStore);
+                InNames.Name theName = porterOfFun.getPorter().getName(name, paramRealType, _parse, nece);
+                if (nece != null)
+                {
+                    argHandle = new NeceArgHandle(nece, theName, paramRealType.getName(), typeParserStore);
+                } else
+                {
+                    argHandle = new UneceArgHandle(theName, paramRealType.getName(), typeParserStore);
+                }
             }
 
 

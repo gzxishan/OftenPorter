@@ -31,12 +31,12 @@ public class CacheTool
         CACHES.put(clazz, cacheOne);
     }
 
-    public CacheOne getCacheOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+    public CacheOne getCacheOne(Class<?> clazz, InnerContextBridge innerContextBridge,boolean notFoundTypeParserThrows) throws Exception
     {
         CacheOne cacheOne = CACHES.get(clazz);
         if (cacheOne == null)
         {
-            One one = OPEntitiesDeal.bindOne(clazz, innerContextBridge);
+            One one = OPEntitiesDeal.bindOne(clazz, innerContextBridge,notFoundTypeParserThrows);
             cacheOne = new CacheOne(one);
             put(clazz, cacheOne);
         }

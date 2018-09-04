@@ -100,7 +100,7 @@ public class HelloPorter extends SuperSetPorter
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", "TypeTo转换");
             jsonObject.put("myAge", "19");
-            typeTo.bind(User.class, "myAge", new IntParser());
+            typeTo.bindFieldParser(User.class, "myAge", new IntParser());
             User user = typeTo.parse(User.class, jsonObject);
 
             jsonObject = new JSONObject();

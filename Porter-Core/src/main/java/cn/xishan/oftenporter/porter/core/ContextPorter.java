@@ -9,12 +9,14 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._MixinPorter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
+import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
+import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -408,9 +410,9 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
 
-    public void start(WObject wObject)
+    public void start(WObject wObject, Map<String, One> extraEntityMap, SthDeal sthDeal,
+            InnerContextBridge innerContextBridge) throws Exception
     {
-
         OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
         Arrays.sort(otherStartDestroys);
 
@@ -450,7 +452,7 @@ public class ContextPorter implements IOtherStartDestroy
         iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().initOPEntitiesHandle();
+            iterator.next().initOPEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
         }
 
         iterator = portMap.values().iterator();

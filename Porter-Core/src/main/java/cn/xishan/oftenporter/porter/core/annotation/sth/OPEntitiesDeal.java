@@ -44,14 +44,14 @@ public class OPEntitiesDeal
     OPEntities dealOPEntities(Class<?> porterClass, Method method,
             InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
-        OPEntities OPEntities = null;
+        OPEntities entities = null;
         _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntities(porterClass, method);
         if (bindEntities != null)
         {
-            OPEntities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
+            entities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
         }
 
-        return OPEntities;
+        return entities;
     }
 
     OPEntities dealOPEntities(Class<?> clazz, InnerContextBridge innerContextBridge,
@@ -61,7 +61,15 @@ public class OPEntitiesDeal
         return dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
     }
 
-    OPEntities dealOPEntities(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
+    One dealOPEntity(Class<?> entityClass, Method method, InnerContextBridge innerContextBridge,
+            AutoSetHandle autoSetHandle) throws Exception
+    {
+        _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntity(entityClass,method);
+        OPEntities opEntities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
+        return opEntities.ones[0];
+    }
+
+    private OPEntities dealOPEntities(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
@@ -75,7 +83,7 @@ public class OPEntitiesDeal
             for (int i = 0; i < types.length; i++)
             {
                 _BindEntities.CLASS clzz = types[i];
-                ones[i] = bindOne(clzz.clazz, innerContextBridge);
+                ones[i] = bindOne(clzz.clazz, innerContextBridge,true);
                 ones[i].setEntityClazz(clzz);
                 cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
                 if (clzz.bindEntityDealtHandle != null)
@@ -89,7 +97,7 @@ public class OPEntitiesDeal
     }
 
 
-    One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge) throws Exception
+    One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge,boolean notFoundTypeParserThrows) throws Exception
     {
 
         One one;
@@ -126,7 +134,7 @@ public class OPEntitiesDeal
             if (jsonObj != null && jsonObj.willSetForRequest())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool
-                        .getCacheOne(field.getType(), innerContextBridge);
+                        .getCacheOne(field.getType(), innerContextBridge,notFoundTypeParserThrows);
                 jsonObjFields.add(field);
                 jsonObjOnes.add(cacheOne.getOne());
                 String varName = (jsonObj.value().equals("") ? field.getName() : jsonObj
@@ -173,7 +181,7 @@ public class OPEntitiesDeal
                     LOGGER.debug("{} for field [{}] is null,now try auto...", ITypeParser.class.getSimpleName(), field);
                     try
                     {
-                        typeParser = ParserUtil.getTypeParser(field.getType(), true);
+                        typeParser = ParserUtil.getTypeParser(field.getType(), notFoundTypeParserThrows);
                         LOGGER.debug("auto get:[{}]", typeParser);
                         String typeId = SthUtil.putTypeParser(typeParser, typeParserStore);
                         name = new Name(nameStr, typeId);

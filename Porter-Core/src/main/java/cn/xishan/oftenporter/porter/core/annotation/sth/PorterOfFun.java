@@ -8,10 +8,12 @@ import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory.IArgsHandle;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
@@ -178,6 +180,25 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     public OPEntities getOPEntities()
     {
         return opEntities;
+    }
+
+    void initEntities(Map<String, One> extraEntityMap, SthDeal sthDeal,
+            InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
+    {
+        porter.initOPEntitiesHandle(getOPEntities());
+        initAndGetExtraEntities(extraEntityMap, sthDeal, innerContextBridge, autoSetHandle);
+    }
+
+    private void initAndGetExtraEntities(Map<String, One> extraEntityMap, SthDeal sthDeal,
+            InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
+    {
+        for (String key : getExtraKeySet())
+        {
+            One one = sthDeal.dealOPEntity(getExtraEntity(key), method, innerContextBridge, autoSetHandle);
+            porter.initOPEntitiesHandle(one);
+            extraEntityMap.put(key, one);
+        }
+        clearExtra();
     }
 
     public Method getMethod()

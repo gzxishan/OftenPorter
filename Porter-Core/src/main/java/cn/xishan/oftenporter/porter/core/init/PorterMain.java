@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
+import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
@@ -394,40 +395,44 @@ public final class PorterMain
             LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(wObject);
 
+////////////////////////////////////////////////////////////////////////////////
+            LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
+
+            path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class
+                    .getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
+            result = getUrlDecoder().decode(path);
+            request = new PRequest(PortMethod.GET, path);
+            response = new LocalResponse(lResponse -> {
+            });
+
+            wObject = portExecutor
+                    .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
+
+            Map<String, One> entityOneMap = new HashMap<>();
+            contextPorter.start(wObject, entityOneMap, sthDeal, innerContextBridge);
+            portExecutor.putAllExtraEntity(entityOneMap);
+
+            AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
+            AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);
+
+            LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
+            stateListenerForAll.afterStart(porterConf.getUserInitParam());
+
+            porterConf.initOk();
+            LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
+
+            LOGGER.debug("*********************************");
+            LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
+            for (PortIniter portIniter : portIniterList)
+            {
+                portIniter.init(this.getPLinker());
+            }
+            LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
+            AnnoUtil.popAnnotationConfigable();
         } catch (Exception e)
         {
             throw new Error(WPTool.getCause(e));
         }
-
-        LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
-
-        String path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class
-                .getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
-        UrlDecoder.Result result = getUrlDecoder().decode(path);
-        PRequest request = new PRequest(PortMethod.GET, path);
-        WResponse response = new LocalResponse(lResponse -> {
-        });
-
-        WObject wObject = portExecutor
-                .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
-        contextPorter.start(wObject);
-        AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
-        AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);
-
-        LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
-        stateListenerForAll.afterStart(porterConf.getUserInitParam());
-
-        porterConf.initOk();
-        LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
-
-        LOGGER.debug("*********************************");
-        LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
-        for (PortIniter portIniter : portIniterList)
-        {
-            portIniter.init(this.getPLinker());
-        }
-        LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
-        AnnoUtil.popAnnotationConfigable();
     }
 
     /**

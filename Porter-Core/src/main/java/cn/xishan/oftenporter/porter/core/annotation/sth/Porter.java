@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -23,7 +24,7 @@ import java.util.*;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class Porter extends IExtraEntitySupport.ExtraEntitySupportImpl
+public final class Porter
 {
 
     public static interface Fun
@@ -478,22 +479,29 @@ public final class Porter extends IExtraEntitySupport.ExtraEntitySupportImpl
         }
     }
 
-    public void initOPEntitiesHandle()
+    public void initOPEntitiesHandle(Map<String, One> extraEntityMap, SthDeal sthDeal,
+            InnerContextBridge innerContextBridge) throws Exception
     {
         initOPEntitiesHandle(opEntities);
         for (PorterOfFun fun : childrenWithMethod.values())
         {
-            initOPEntitiesHandle(fun.getOPEntities());
+            fun.initEntities(extraEntityMap, sthDeal, innerContextBridge, autoSetHandle);
         }
     }
 
-    private void initOPEntitiesHandle(OPEntities OPEntities)
+    void initOPEntitiesHandle(OPEntities entities)
     {
-        if (OPEntities == null)
+        if (entities == null)
         {
             return;
         }
-        for (One one : OPEntities.ones)
+        initOPEntitiesHandle(entities.ones);
+    }
+
+    void initOPEntitiesHandle(One... ones)
+    {
+
+        for (One one : ones)
         {
             _BindEntities.CLASS clazz = one.getEntityClazz();
             if (clazz != null)

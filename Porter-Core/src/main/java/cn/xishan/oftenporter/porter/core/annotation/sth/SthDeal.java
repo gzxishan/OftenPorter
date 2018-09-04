@@ -472,6 +472,12 @@ public class SthDeal
 
     }
 
+    One dealOPEntity(Class<?> entityClass, Method method, InnerContextBridge innerContextBridge,
+            AutoSetHandle autoSetHandle) throws Exception
+    {
+        return entitiesDeal.dealOPEntity(entityClass, method, innerContextBridge, autoSetHandle);
+    }
+
     public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery)
     {
         SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption, isInner);

@@ -45,18 +45,18 @@ public class TypeTo
 
     private CacheOne getCache(Class<?> clazz) throws Exception
     {
-        CacheOne cache = innerContextBridge.innerBridge.cacheTool.getCacheOne(clazz, innerContextBridge);
+        CacheOne cache = innerContextBridge.innerBridge.cacheTool.getCacheOne(clazz, innerContextBridge,false);
         return cache;
     }
 
     /**
-     * 手动绑定。
+     * 手动绑定变量的转换类型。
      *
      * @param clazz     当前类
      * @param fieldName 在clazz中必须声明了该名称的变量。
      * @throws RuntimeException
      */
-    public <T> void bind(Class<T> clazz, String fieldName, ITypeParser typeParser) throws RuntimeException
+    public <T> void bindFieldParser(Class<T> clazz, String fieldName, ITypeParser typeParser) throws RuntimeException
     {
         try
         {
