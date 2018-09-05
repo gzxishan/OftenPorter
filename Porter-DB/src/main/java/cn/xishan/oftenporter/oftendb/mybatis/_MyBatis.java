@@ -25,7 +25,8 @@ import java.util.Map;
 class _MyBatis
 {
 
-    static class Alias{
+    static class Alias
+    {
         String alias;
         Class<?> type;
 
@@ -41,7 +42,7 @@ class _MyBatis
     MyBatisMapper.Type type;
     String resourceDir;
     String name;
-    private String path, parentPath;
+    private String path, parentDir;
     Class<?> daoClass;
     Class<?> entityClass;
     Alias[] aliases;
@@ -52,9 +53,9 @@ class _MyBatis
     private MSqlSessionFactoryBuilder.FileListener fileListener;
     private List<String> paths;
 
-    public _MyBatis(Alias[] aliases,MyBatisMapper.Type type, String resourceDir, String name)
+    public _MyBatis(Alias[] aliases, MyBatisMapper.Type type, String resourceDir, String name)
     {
-        this.aliases=aliases;
+        this.aliases = aliases;
         if (resourceDir != null && !resourceDir.endsWith("/"))
         {
             resourceDir += "/";
@@ -68,7 +69,7 @@ class _MyBatis
     public void setPath(String path)
     {
         this.path = path;
-        parentPath = PackageUtil.getPathWithRelative('/', path, "../", "/");
+        parentDir = PackageUtil.getPathWithRelative(path, "./");
     }
 
     public void setFileListener(MSqlSessionFactoryBuilder.FileListener fileListener) throws Exception
@@ -215,10 +216,10 @@ class _MyBatis
                         {//classpath,path
                             if (i == 0)
                             {
-                                path = PackageUtil.getPackageWithRelative(daoClass, path, "/");
+                                path = PackageUtil.getPackageWithRelative(daoClass, path, '/');
                             } else
                             {
-                                path = PackageUtil.getPathWithRelative('/', this.parentPath, path, "/");
+                                path = PackageUtil.getPathWithRelative(this.parentDir, path);
                             }
                             LOGGER.debug("[{}]load classpath content from:{}", this.path, path);
                             if (!path.startsWith("/"))

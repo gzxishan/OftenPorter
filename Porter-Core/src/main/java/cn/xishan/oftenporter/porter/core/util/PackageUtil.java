@@ -95,13 +95,35 @@ public class PackageUtil
      * 根据类和相对包名获取最终的包名。
      *
      * @param clazz
-     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前
+     * @param relative  通过“/”分开，如“../util”。“../”表示上一级目录，“./”表示当前目录。
      * @param separator 最终的分隔符
      * @return
      */
+    @Deprecated
     public static String getPackageWithRelative(Class<?> clazz, String relative, String separator)
     {
-        return getPathWithRelative('.', clazz.getPackage().getName(), relative, separator);
+        return getPathWithRelative('.', clazz.getPackage().getName(), true, relative, separator.charAt(0));
+    }
+
+    public static String getPackageWithRelative(Class<?> clazz, String relative, char separator)
+    {
+        return getPathWithRelative('.', clazz.getPackage().getName(), true, relative, separator);
+    }
+
+    public static String getPathWithRelative(char pathSep, String path, String relative, char separator)
+    {
+        return getPathWithRelative(pathSep, path, null, relative, separator);
+    }
+
+    /**
+     * 分隔符为“/”.
+     * @param path
+     * @param relative
+     * @return
+     */
+    public static String getPathWithRelative(String path, String relative)
+    {
+        return getPathWithRelative('/', path, null, relative, '/');
     }
 
     /**
@@ -109,33 +131,122 @@ public class PackageUtil
      *
      * @param pathSep   如“/”
      * @param path
-     * @param relative  通过“/”分开，如“../util”。“../”表示上一级，“./”表示当前;如果以"/"开头，则结果为该路径。
+     * @param relative  通过“/”分开，如“../util”。“../”表示上一级目录，“./”表示当前目录;如果以"/"开头，则结果为该路径。
      * @param separator 最终的分隔符
      * @return
      */
+    @Deprecated
     public static String getPathWithRelative(char pathSep, String path, String relative, String separator)
     {
+        return getPathWithRelative(pathSep, path, null, relative, separator.charAt(0));
+//        if (relative.startsWith("/"))
+//        {
+//            return relative.replace("/", separator);
+//        }
+//
+//        String[] origins = StrUtil.split(path, pathSep + "");
+//        Stack<String> stack = new Stack<>();
+//        for (String s : origins)
+//        {
+//            stack.push(s);
+//        }
+//        String[] relatives = relative.split("/");
+//        for (int i = 0; i < relatives.length; i++)
+//        {
+//            String str = relatives[i];
+//            if ("..".equals(str))
+//            {
+//                if (stack.empty())
+//                {
+//                    throw new RuntimeException("no more upper path!");
+//                }
+//                stack.pop();
+//            } else if (!".".equals(str))
+//            {
+//                stack.push(str);
+//            }
+//        }
+//        if (stack.empty())
+//        {
+//            return "";
+//        }
+//        StringBuilder builder = new StringBuilder();
+//        int len = stack.size() - 1;
+//        for (int i = 0; i < len; i++)
+//        {
+//            builder.append(stack.get(i)).append(separator);
+//        }
+//        builder.append(stack.get(len));
+//        return builder.toString();
+    }
 
+
+    /**
+     * @param pathSep   path的路径分隔符号，如“.”，“/”
+     * @param path      路径
+     * @param isPathDir path是否是目录，默认根据是否以pathSep结尾判断。
+     * @param relative  相对路径，通过“/”分开，如“../util”。“../”表示上一级目录，“./”表示当前目录;如果以"/"开头，则结果为该路径。
+     * @param separator 最终分隔字符
+     * @return
+     */
+    public static String getPathWithRelative(char pathSep, String path, Boolean isPathDir, String relative,
+            char separator)
+    {
+        String separatorStr = String.valueOf(separator);
+
+        path = path.replace(pathSep, separator);
         if (relative.startsWith("/"))
         {
-            return relative.replace("/", separator);
+            return '/' == separator ? relative : relative.replace('/', separator);
         }
 
-        String[] origins = StrUtil.split(path, pathSep + "");
-        Stack<String> stack = new Stack<>();
-        for (String s : origins)
+        if (isPathDir == null)
         {
-            stack.push(s);
+            if (path.endsWith(separatorStr))
+            {
+                isPathDir = true;
+            } else
+            {
+                isPathDir = false;
+            }
         }
-        String[] relatives = relative.split("/");
+
+        if (path.endsWith(separatorStr))
+        {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        boolean isRelativeDir = false;
+        if (relative.endsWith("/"))
+        {
+            relative = relative.substring(0, relative.length() - 1);
+            isRelativeDir = true;
+        } else if (".".equals(relative) || "..".equals(relative) || relative.endsWith("/.") || relative.endsWith("/.."))
+        {
+            isRelativeDir = true;
+        }
+
+        String[] strs = StrUtil.split(path, separatorStr);
+        Stack<String> stack = new Stack<>();
+        WPTool.addAll(stack, strs);
+        if (path.startsWith(separatorStr))
+        {
+            stack.add(0, "");
+        }
+
+        if (!isPathDir && !stack.isEmpty())
+        {
+            stack.pop();
+        }
+        String[] relatives = StrUtil.split(relative, "/");
         for (int i = 0; i < relatives.length; i++)
         {
             String str = relatives[i];
             if ("..".equals(str))
             {
-                if (stack.empty())
+                if (stack.isEmpty())
                 {
-                    throw new RuntimeException("no more upper path!");
+                    throw new RuntimeException("no more upper path:path='"+path+"',relative='"+relative+"'");
                 }
                 stack.pop();
             } else if (!".".equals(str))
@@ -143,19 +254,19 @@ public class PackageUtil
                 stack.push(str);
             }
         }
-        if (stack.empty())
+        if (stack.isEmpty())
         {
             return "";
         }
-        StringBuilder builder = new StringBuilder();
-        int len = stack.size() - 1;
-        for (int i = 0; i < len; i++)
+        String result = WPTool.join(separatorStr, stack);
+        if (isRelativeDir && !result.endsWith(separatorStr))
         {
-            builder.append(stack.get(i)).append(separator);
+            result += separatorStr;
         }
-        builder.append(stack.get(len));
-        return builder.toString();
+        return result;
     }
+
+    ;
 
     /**
      * 获取某包下（包括该包的所有子包）所有类
@@ -263,7 +374,8 @@ public class PackageUtil
         File file = new File(filePath);
 
         File[] childFiles = file.listFiles();
-        if(childFiles==null){
+        if (childFiles == null)
+        {
             return myClassName;
         }
         for (File childFile : childFiles)
@@ -336,8 +448,8 @@ public class PackageUtil
                     if (childPackage)
                     {
                         if (entryName.startsWith(packagePath)
-                                &&(packagePath.endsWith("/")||entryName.charAt(packagePath.length())=='/')
-                                )
+                                && (packagePath.endsWith("/") || entryName.charAt(packagePath.length()) == '/')
+                        )
                         {
                             entryName = entryName.replace("/", ".").substring(0, entryName.length() - 6);
                             myClassName.add(entryName);

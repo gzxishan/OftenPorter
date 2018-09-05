@@ -13,10 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
@@ -163,8 +160,7 @@ public class WPTool
 
     public static String join(String separator, String... strs)
     {
-        Object[] args = strs;
-        return join(separator, args);
+        return StrUtil.join(separator, strs);
     }
 
     /**
@@ -176,29 +172,19 @@ public class WPTool
      */
     public static String join(String separator, Object... args)
     {
-        if (args.length == 0)
-        {
-            return "";
-        }
-        StringBuilder builder = new StringBuilder();
-        builder.append(args[0]);
-        for (int i = 1; i < args.length; i++)
-        {
-            builder.append(separator).append(args[i]);
-        }
-        return builder.toString();
+        return StrUtil.join(separator, args);
     }
 
     /**
      * 连接成字符串。
      *
-     * @param separator 分隔字符串
-     * @param list
+     * @param separator  分隔字符串
+     * @param collection
      * @return
      */
-    public static String join(String separator, List<?> list)
+    public static String join(String separator, Collection<?> collection)
     {
-        return join(separator, list.toArray(new Object[0]));
+        return StrUtil.join(separator, collection);
     }
 
 

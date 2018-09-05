@@ -9,11 +9,19 @@ import org.junit.Test;
 public class PackageUtilTest
 {
     @Test
-    public void testGetPackageWithRelative(){
+    public void testGetPackageWithRelative()
+    {
         Class<?> clazz = Object.class;
-        Assert.assertEquals("java.util.Set",PackageUtil.getPackageWithRelative(clazz,"../util/Set","."));
-        Assert.assertEquals("java",PackageUtil.getPackageWithRelative(clazz,"..","."));
+        Assert.assertEquals("java.util.Set", PackageUtil.getPackageWithRelative(clazz, "../util/Set", "."));
+        Assert.assertEquals("java.", PackageUtil.getPackageWithRelative(clazz, "..", "."));
 
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('.', clazz.getName(), false, "../util/Set", '.'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis/", null, "test.xml", '/'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "mybatis/", null, "test.xml", '/'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", null, "test.xml", '/'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "test.xml", '/'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '.'));
+        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '/'));
     }
 
 }

@@ -2,6 +2,9 @@ package cn.xishan.oftenporter.porter.core.util;
 
 import com.alibaba.fastjson.JSONArray;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -40,6 +43,7 @@ public class StrUtil
 
     /**
      * 得到target在strs中的位置。
+     *
      * @param target
      * @param strs
      * @return 未找到返回-1，找到返回对应索引。
@@ -191,6 +195,58 @@ public class StrUtil
     public static String removeSuffix(String content, char c)
     {
         return removeSuffix(content, c, false);
+    }
+
+
+    /**
+     * 连接成字符串。
+     *
+     * @param separator 分隔字符串
+     * @param args
+     * @return
+     */
+    public static String join(String separator, Object... args)
+    {
+        if (args.length == 0)
+        {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append(args[0]);
+        for (int i = 1; i < args.length; i++)
+        {
+            builder.append(separator).append(args[i]);
+        }
+        return builder.toString();
+    }
+
+    public static String join(String separator, String... strs)
+    {
+        Object[] args = strs;
+        return join(separator, args);
+    }
+
+    /**
+     * 连接成字符串。
+     *
+     * @param separator  分隔字符串
+     * @param collection
+     * @return
+     */
+    public static String join(String separator, Collection<?> collection)
+    {
+        if (collection.isEmpty())
+        {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder();
+        Iterator<?> it = collection.iterator();
+        builder.append(it.next());
+        while (it.hasNext())
+        {
+            builder.append(separator).append(it.next());
+        }
+        return builder.toString();
     }
 
 

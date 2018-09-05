@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
-import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import org.apache.ibatis.session.SqlSession;
 

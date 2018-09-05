@@ -3,14 +3,12 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
 import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * mybatis对应的Mapper接口上必须加上@{@linkplain MyBatisMapper}注解
@@ -42,7 +40,7 @@ public class MyBatisOption implements Cloneable
     /**
      * 在资源目录下的子目录
      */
-    public String rootDir;
+    public Set<String> rootDirSet;
 
     /**
      * 是否允许mapper中的id覆盖，默认true。
@@ -90,17 +88,50 @@ public class MyBatisOption implements Cloneable
     public IMapperNameHandle iMapperNameHandle;
 
     /**
-     * @param rootDir               资源目录
+     * @param rootDir               资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      */
     public MyBatisOption(String rootDir, boolean checkMapperFileChange)
     {
-        if (!rootDir.endsWith("/"))
-        {
-            rootDir += "/";
-        }
-        this.rootDir = rootDir;
+        this.rootDirSet = new HashSet<>();
+        addMoreRootDirs(rootDir);
         this.checkMapperFileChange = checkMapperFileChange;
+    }
+
+    /**
+     * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
+     * @param rootDirs              资源目录,另见{@linkplain #addMoreRootDirs(String...)}
+     */
+    public MyBatisOption(boolean checkMapperFileChange, String... rootDirs)
+    {
+        this.rootDirSet = new HashSet<>();
+        addMoreRootDirs(rootDirs);
+        this.checkMapperFileChange = checkMapperFileChange;
+    }
+
+    /**
+     * 增加更多的资源子目录(相对于java资源目录下的子目录，以/开头。)
+     *
+     * @param rootDirs
+     */
+    public void addMoreRootDirs(String... rootDirs)
+    {
+        for (String rootDir : rootDirs)
+        {
+            if (WPTool.isEmpty(rootDir))
+            {
+                continue;
+            }
+            if (!rootDir.endsWith("/"))
+            {
+                rootDir += "/";
+            }
+            if (!rootDir.startsWith("/"))
+            {
+                rootDir = "/"+rootDir;
+            }
+            rootDirSet.add(rootDir);
+        }
     }
 
     public void addJavaFuns(String name, Class<?> clazz)

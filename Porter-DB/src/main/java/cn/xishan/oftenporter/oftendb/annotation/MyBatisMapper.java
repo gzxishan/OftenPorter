@@ -19,11 +19,11 @@ public @interface MyBatisMapper
 {
     enum Type
     {
-        RESOURCES, URL
+        RESOURCES,URL
     }
 
     /**
-     * 相对于{@linkplain MyBatisOption#rootDir}
+     * 相对于{@linkplain MyBatisOption#rootDirSet}中的一个
      *
      * @return
      */

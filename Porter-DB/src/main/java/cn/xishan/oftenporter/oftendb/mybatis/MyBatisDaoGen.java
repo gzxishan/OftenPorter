@@ -11,6 +11,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
+import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -97,7 +99,17 @@ class MyBatisDaoGen implements AutoSetGen
 
     private String getFileRelativePath(_MyBatis myBatis, String path)
     {
-        path = PackageUtil.getPathWithRelative('/', moption().myBatisOption.rootDir, path, "/");
+        MyBatisOption myBatisOption = moption().myBatisOption;
+        for (String rootDir : myBatisOption.rootDirSet)
+        {
+            String res_path = PackageUtil.getPathWithRelative(rootDir, path);
+            URL url = ResourceUtil.getAbsoluteResource(res_path);
+            if (url != null)
+            {
+                return res_path;
+            }
+        }
+//        path = PackageUtil.getPathWithRelative('/', moption().myBatisOption.rootDir, path, "/");
         return path;
     }
 
@@ -159,16 +171,19 @@ class MyBatisDaoGen implements AutoSetGen
                     path = getFileRelativePath(myBatis, path);
                 }
                 ErrorContext.instance().resource(optionMapperFile.getAbsolutePath());
+                LOGGER.debug("load xml:dao={},file={}", myBatis.daoClass, optionMapperFile);
                 xmlData = FileTool.getData(new FileInputStream(optionMapperFile), 2048);
             } else if (myBatis.type == MyBatisMapper.Type.RESOURCES)
             {
                 path = getFileRelativePath(myBatis, path);
+                LOGGER.debug("load xml:dao={},path={}", myBatis.daoClass, path);
                 ErrorContext.instance().resource(path);
                 InputStream inputStream = Resources.getResourceAsStream(path);
                 xmlData = FileTool.getData(inputStream, 2048);
             } else
             {
                 //URL
+                LOGGER.debug("load xml:dao={},url={}", myBatis.daoClass, path);
                 ErrorContext.instance().resource(path);
                 InputStream inputStream = Resources.getUrlAsStream(path);
                 xmlData = FileTool.getData(inputStream, 2048);

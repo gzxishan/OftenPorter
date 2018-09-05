@@ -73,7 +73,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
             stdJsp = FileTool.getString(
                     PortUtil.getRealClass(this)
                             .getResourceAsStream("/" + PackageUtil
-                                    .getPackageWithRelative(PortUtil.getRealClass(this), "std.jsp", "/")));
+                                    .getPackageWithRelative(PortUtil.getRealClass(this), "std.jsp", '/')));
 
             pageEncoding = jsp.pageEncoding().equals("") ? jspOption.pageEncoding : jsp.pageEncoding();
             if (pageEncoding.equals(""))
@@ -105,7 +105,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
 
     @Override
-    public boolean init(Jsp current,IConfigData configData, PorterOfFun porterOfFun)
+    public boolean init(Jsp current, IConfigData configData, PorterOfFun porterOfFun)
     {
         this.jsp = current;
 
