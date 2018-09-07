@@ -19,6 +19,17 @@ public final class _AutoSet
     boolean notNullPut = true;
     String option = "";
 
+    boolean willRecursive;
+
+    public _AutoSet()
+    {
+    }
+
+    public boolean willRecursive()
+    {
+        return willRecursive;
+    }
+
     public String option()
     {
         return option;

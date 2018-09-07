@@ -666,7 +666,7 @@ public class AutoSetHandle
                 Object value = f.get(currentObject);
                 if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
                 {
-                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this);
+                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this,true);
                     if (newValue != value)
                     {
                         f.set(currentObject, newValue);
@@ -732,7 +732,7 @@ public class AutoSetHandle
                 {
                     LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
                     //！！！忽略了非null的成员
-                    value = workedInstance.doProxyAndDoAutoSet(value, this);
+                    value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                 } else
                 {
                     switch (autoSet.range())
@@ -750,7 +750,7 @@ public class AutoSetHandle
                             }
                             if (value != null)
                             {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this);
+                                value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                                 globalAutoSet.put(keyName, value);
                             }
                         }
@@ -776,7 +776,7 @@ public class AutoSetHandle
                             }
                             if (value != null)
                             {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this);
+                                value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                                 contextAutoSet.put(keyName, value);
                             }
                         }
@@ -784,7 +784,7 @@ public class AutoSetHandle
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
-                            value = workedInstance.doProxyAndDoAutoSet(value, this);
+                            value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                             if (value == null)
                             {
                                 LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -796,7 +796,7 @@ public class AutoSetHandle
                     if (value == null)
                     {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
-                        value = workedInstance.doProxyAndDoAutoSet(value, this);
+                        value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                     }
 
                     if (value == null)
@@ -812,7 +812,7 @@ public class AutoSetHandle
                 Object dealValue = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
                 if (value != dealValue)
                 {
-                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this);
+                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this,autoSet.willRecursive());
                 }
                 if (value == null && !autoSet.nullAble())
                 {
@@ -855,7 +855,7 @@ public class AutoSetHandle
                 {
                     if (value != originValue)
                     {
-                        value = workedInstance.doProxyAndDoAutoSet(value, this);
+                        value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
                     }
                     f.set(currentObject, value);//设置变量
                     doAutoSetPut(f, value, fieldRealType);

@@ -112,6 +112,7 @@ public final class AnnotationDealt
                 {
                     LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
                     _AutoSet _autoSet = new _AutoSet();
+                    _autoSet.willRecursive=false;
                     _autoSet.value = resource.name();
                     _autoSet.nullAble = true;
                     if (!resource.type().equals(Object.class))

@@ -52,7 +52,7 @@ import java.lang.annotation.*;
  * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
  * <p>
- * 注意，支持@{@linkplain Resource}注解，映射关系如下：
+ * 注意，支持@{@linkplain Resource}注解(但不会对相应变量进行递归设置)，映射关系如下：
  * <ol>
  * <li>
  * {@linkplain #nullAble()}:true

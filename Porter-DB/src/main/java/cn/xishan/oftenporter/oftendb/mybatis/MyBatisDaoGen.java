@@ -243,7 +243,7 @@ class MyBatisDaoGen implements AutoSetGen
         MyBatisField myBatisField = AnnoUtil.Advanced.getAnnotation(field, MyBatisField.class);
         if (myBatisField == null)
         {
-            LOGGER.debug("the field [{}] not annotated with @[{}],use source:{}", field,
+            LOGGER.debug("the field [{}] not annotated with [@{}],use source:{}", field,
                     MyBatisField.class.getSimpleName(), MyBatisOption.DEFAULT_SOURCE);
             this.source = MyBatisOption.DEFAULT_SOURCE;
         } else

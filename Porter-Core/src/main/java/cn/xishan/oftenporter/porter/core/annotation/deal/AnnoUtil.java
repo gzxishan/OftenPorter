@@ -1553,6 +1553,13 @@ public final class AnnoUtil
                             {
                             }
                         }
+                    } else if (Modifier.isInterface(((Class) obj).getModifiers()))
+                    {
+                        Class[] interfaces = ((Class) obj).getInterfaces();
+                        for (Class c : interfaces)
+                        {
+                            as = getAnnotationsByType(c, annotationClass, seekSuper);
+                        }
                     }
                 }
             } else
