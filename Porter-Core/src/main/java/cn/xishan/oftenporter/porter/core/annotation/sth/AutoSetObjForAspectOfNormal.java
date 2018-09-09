@@ -25,23 +25,23 @@ public class AutoSetObjForAspectOfNormal
     @KeepFromProguard
     public interface IOPProxy
     {
-        Class<?> get_R_e_a_l_C_l_a_s_s();
+        //Class<?> get_R_e_a_l_C_l_a_s_s();
     }
 
-    private static final Method METHOD_GET_REAL_CLASS;
+    //private static final Method METHOD_GET_REAL_CLASS;
 
-    static
-    {
-        Method method = null;
-        try
-        {
-            method = IOPProxy.class.getMethod("get_R_e_a_l_C_l_a_s_s");
-        } catch (Exception e)
-        {
-            LOGGER.error(e.getMessage(), e);
-        }
-        METHOD_GET_REAL_CLASS = method;
-    }
+//    static
+//    {
+//        Method method = null;
+//        try
+//        {
+//            method = IOPProxy.class.getMethod("get_R_e_a_l_C_l_a_s_s");
+//        } catch (Exception e)
+//        {
+//            LOGGER.error(e.getMessage(), e);
+//        }
+//        METHOD_GET_REAL_CLASS = method;
+//    }
 
     static class AspectTask
     {
@@ -155,10 +155,10 @@ public class AutoSetObjForAspectOfNormal
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable
         {
-            if (method.equals(METHOD_GET_REAL_CLASS))
-            {
-                return origin.getClass();
-            }
+//            if (method.equals(METHOD_GET_REAL_CLASS))
+//            {
+//                return origin.getClass();
+//            }
 
             WObject wObject = WObject.fromThreadLocal();
             AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
@@ -180,10 +180,10 @@ public class AutoSetObjForAspectOfNormal
     private static Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
     private Object callbackFilter = null;
 
-    static
-    {
-        aspectHandleSet.add(METHOD_GET_REAL_CLASS);
-    }
+//    static
+//    {
+//        aspectHandleSet.add(METHOD_GET_REAL_CLASS);
+//    }
 
     public AutoSetObjForAspectOfNormal()
     {

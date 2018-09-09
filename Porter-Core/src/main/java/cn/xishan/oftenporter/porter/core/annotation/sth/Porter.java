@@ -546,7 +546,10 @@ public final class Porter
                 }
             } catch (Exception e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                if(LOGGER.isWarnEnabled()){
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.warn(throwable.getMessage(), throwable);
+                }
             }
         }
         if (!isMixin)
@@ -597,7 +600,10 @@ public final class Porter
                 porterOfFun.getMethod().invoke(porterOfFun.getObject());
             } catch (Exception e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                if(LOGGER.isWarnEnabled()){
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.warn(throwable.getMessage(), throwable);
+                }
             }
         }
     }

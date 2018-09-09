@@ -9,10 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
-import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.*;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -43,7 +40,12 @@ class MyBatisDaoGen implements AutoSetGen
     Logger LOGGER;
 
 
-    @PortIn.PortStart(order = 100100)
+    public MyBatisDaoGen()
+    {
+        //LogUtil.printErrPos("....");
+    }
+
+    @PortIn.PortStart(order = 100)
     public void onStart()
     {
         MyBatisBridge.start();
@@ -282,7 +284,7 @@ class MyBatisDaoGen implements AutoSetGen
     static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
-        InvocationHandler invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
+        InvocationHandlerWithCommon invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
         {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable

@@ -19,7 +19,10 @@ public final class _AutoSet
     boolean notNullPut = true;
     String option = "";
 
-    boolean willRecursive;
+    /**
+     * 是否会进行递归设置
+     */
+    boolean willRecursive=true;
 
     public _AutoSet()
     {

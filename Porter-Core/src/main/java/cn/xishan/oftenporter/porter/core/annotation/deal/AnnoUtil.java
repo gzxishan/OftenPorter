@@ -297,6 +297,7 @@ public final class AnnoUtil
 
         private static List<Class<?>> getAllGenericRealClassType(Class<?> realClass)
         {
+            realClass=ProxyUtil.unwrapProxyForGeneric(realClass);
             List<Class<?>> typeList = new ArrayList<>(4);
             Type superType = realClass.getGenericSuperclass();
             if (superType != null)
@@ -605,6 +606,7 @@ public final class AnnoUtil
             {
                 return (Class<?>) genericType;
             }
+            realClass=ProxyUtil.unwrapProxyForGeneric(realClass);
 
             Type realType = null;
             if (Modifier.isInterface(declaringClass.getModifiers()) && genericType instanceof TypeVariable)

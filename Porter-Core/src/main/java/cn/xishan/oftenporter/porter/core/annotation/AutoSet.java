@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
@@ -42,6 +43,13 @@ import java.lang.annotation.*;
  *     7.{@linkplain BindEntityDealt}
  *     8.{@linkplain AspectOperationOfNormal.Handle}
  * </pre>
+ * 不会触发{@linkplain SetOk}:
+ * <ol>
+ * <li>
+ * {@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen}(但有{@linkplain PortStart}与
+ * {@linkplain PortDestroy})
+ * </li>
+ * </ol>
  * <pre>
  * 内置对象:
  * 1.当注解在{@linkplain Delivery Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.

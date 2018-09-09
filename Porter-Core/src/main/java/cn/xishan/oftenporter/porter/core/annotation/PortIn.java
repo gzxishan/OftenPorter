@@ -96,7 +96,7 @@ public @interface PortIn
          *
          * @return
          */
-        int order() default 0;
+        int order() default 10000;
     }
 
     /**

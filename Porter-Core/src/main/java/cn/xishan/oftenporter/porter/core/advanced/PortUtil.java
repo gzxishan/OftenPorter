@@ -68,14 +68,26 @@ public class PortUtil
 
     public static Class<?> getRealClass(Object object)
     {
-        if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
+//        if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
+//        {
+//            AutoSetObjForAspectOfNormal.IOPProxy iopProxy =
+//                    (AutoSetObjForAspectOfNormal.IOPProxy) object;
+//            return iopProxy.get_R_e_a_l_C_l_a_s_s();
+//        } else
+//        {
+//            return object.getClass();
+//        }
+        return getRealClass(object.getClass());
+    }
+
+    public static Class<?> getRealClass(Class mayProxyChildClass)
+    {
+        if (WPTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
         {
-            AutoSetObjForAspectOfNormal.IOPProxy iopProxy =
-                    (AutoSetObjForAspectOfNormal.IOPProxy) object;
-            return iopProxy.get_R_e_a_l_C_l_a_s_s();
+            return mayProxyChildClass.getSuperclass();
         } else
         {
-            return object.getClass();
+            return mayProxyChildClass;
         }
     }
 
