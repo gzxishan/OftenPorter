@@ -38,7 +38,7 @@ public class ContextPorter implements IOtherStartDestroy
 
 
     @Override
-    public void addOtherStart(Object object, Method[] starts)
+    public void addOtherStarts(Object object, Method[] starts)
     {
         for (Method method : starts)
         {

@@ -58,8 +58,9 @@ public @interface PortIn
     /**
      * 用于标记函数(public)，在销毁时调用。
      * <pre>
-     *     1.可用于{@linkplain PortIn}、{@linkplain AutoSetGen},{@linkplain AutoSetDealt}类中
+     *     1.可用于{@linkplain PortIn}、{@linkplain AutoSet}、{@linkplain AutoSetGen}、{@linkplain AutoSetDealt}类中
      *     2.具有继承性
+     *     3.执行顺序：其他对象中的---&gt;{@linkplain PortIn}中的
      * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -69,7 +70,7 @@ public @interface PortIn
     @interface PortDestroy
     {
         /**
-         * 在接口类中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
+         * 在接口类或全局中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
          *
          * @return
          */
@@ -81,8 +82,9 @@ public @interface PortIn
      * 用于标记函数(public)，启动时调用。
      * <pre>
      * 1.函数可以无形参，或者有一个形参WObject(其请求类绑定名为当前接口类的)
-     * 2.可用于{@linkplain PortIn}、{@linkplain AutoSetGen},{@linkplain AutoSetDealt}类中
+     * 2.可用于{@linkplain PortIn}、{@linkplain AutoSet}、{@linkplain AutoSetGen}、{@linkplain AutoSetDealt}类中
      * 3.具有继承性
+     * 4.执行顺序：其他对象中的---&gt;{@linkplain PortIn}中的
      * </pre>
      */
     @Retention(RetentionPolicy.RUNTIME)
@@ -92,7 +94,7 @@ public @interface PortIn
     @interface PortStart
     {
         /**
-         * 在接口类中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
+         * 在接口类或全局中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
          *
          * @return
          */

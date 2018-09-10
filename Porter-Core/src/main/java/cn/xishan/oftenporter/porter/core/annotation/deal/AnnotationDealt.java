@@ -378,7 +378,7 @@ public final class AnnotationDealt
     }
 
 
-    public _PortDestroy portDestroy(Method method, ObjectGetter objectGetter)
+    public _PortDestroy portDestroy(Method method,@MayNull ObjectGetter objectGetter)
     {
         PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
         if (portDestroy == null)
@@ -406,11 +406,11 @@ public final class AnnotationDealt
         return _portStart;
     }
 
-    public Method[] getPortStart(Object object)
+    public Method[] getPortStart(Object object,Class objectClass)
     {
         ObjectGetter objectGetter = () -> object;
 
-        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(object));
+        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(objectClass));
         List<_PortStart> list = new ArrayList<>();
         for (Method method : methods)
         {
@@ -433,11 +433,11 @@ public final class AnnotationDealt
         return starts;
     }
 
-    public Method[] getPortDestroy(Object object)
+    public Method[] getPortDestroy(Object object,Class objectClass)
     {
         ObjectGetter objectGetter = () -> object;
 
-        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(object));
+        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(objectClass));
         List<_PortDestroy> list = new ArrayList<>();
         for (Method method : methods)
         {

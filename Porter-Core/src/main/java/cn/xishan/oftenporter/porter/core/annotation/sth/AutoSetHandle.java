@@ -620,7 +620,7 @@ public class AutoSetHandle
         }
     }
 
-    private Object doAutoSetForCurrent(boolean doProxyCurrent, Porter porter, @MayNull Object finalObject,
+    private Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Porter porter, @MayNull Object finalObject,
             Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
@@ -666,7 +666,7 @@ public class AutoSetHandle
                 Object value = f.get(currentObject);
                 if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
                 {
-                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this,true);
+                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this, true);
                     if (newValue != value)
                     {
                         f.set(currentObject, newValue);
@@ -732,7 +732,7 @@ public class AutoSetHandle
                 {
                     LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
                     //！！！忽略了非null的成员
-                    value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                    value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                 } else
                 {
                     switch (autoSet.range())
@@ -750,7 +750,7 @@ public class AutoSetHandle
                             }
                             if (value != null)
                             {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                                value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                                 globalAutoSet.put(keyName, value);
                             }
                         }
@@ -776,7 +776,7 @@ public class AutoSetHandle
                             }
                             if (value != null)
                             {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                                value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                                 contextAutoSet.put(keyName, value);
                             }
                         }
@@ -784,7 +784,7 @@ public class AutoSetHandle
                         case New:
                         {
                             value = WPTool.newObjectMayNull(mayNew);
-                            value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                            value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                             if (value == null)
                             {
                                 LOGGER.debug("there is no zero-args constructor:{}", mayNew);
@@ -796,7 +796,7 @@ public class AutoSetHandle
                     if (value == null)
                     {
                         value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
-                        value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                        value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                     }
 
                     if (value == null)
@@ -812,7 +812,7 @@ public class AutoSetHandle
                 Object dealValue = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
                 if (value != dealValue)
                 {
-                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this,autoSet.willRecursive());
+                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this, autoSet.willRecursive());
                 }
                 if (value == null && !autoSet.nullAble())
                 {
@@ -846,7 +846,7 @@ public class AutoSetHandle
                             fieldRealType, lastWill);
                     boolean b = will == null || will.willSet;
                     willSet = willSet && b;
-                    if (will!=null&&will.optionValue != null)
+                    if (will != null && will.optionValue != null)
                     {
                         value = will.optionValue;
                     }
@@ -855,7 +855,7 @@ public class AutoSetHandle
                 {
                     if (value != originValue)
                     {
-                        value = workedInstance.doProxyAndDoAutoSet(value, this,autoSet.willRecursive());
+                        value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                     }
                     f.set(currentObject, value);//设置变量
                     doAutoSetPut(f, value, fieldRealType);
@@ -890,7 +890,6 @@ public class AutoSetHandle
         } else
         {
             Method[] methods = WPTool.getAllMethods(currentObjectClass);
-
             for (Method method : methods)
             {
                 dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
@@ -902,6 +901,10 @@ public class AutoSetHandle
                 }
             }
 
+            if (porter == null)
+            {
+                addOtherStartDestroy(currentObject,currentObjectClass);
+            }
         }
         return currentObject;
     }
@@ -979,19 +982,19 @@ public class AutoSetHandle
         }
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
-        addOtherStartDestroy(autoSetGen);
+        addOtherStartDestroy(autoSetGen,genClass);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
                 AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), autoSet, option);
         return value;
     }
 
-    private void addOtherStartDestroy(Object object)
+    private void addOtherStartDestroy(@MayNull Object object,Class objectClass)
     {
         if (iOtherStartDestroy != null)
         {
-            iOtherStartDestroy.addOtherStart(object, innerContextBridge.annotationDealt.getPortStart(object));
-            iOtherStartDestroy.addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object));
+            iOtherStartDestroy.addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object,objectClass));
+            iOtherStartDestroy.addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object,objectClass));
         }
     }
 
@@ -1020,7 +1023,7 @@ public class AutoSetHandle
             return value;
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
-        addOtherStartDestroy(autoSetDealt);
+        addOtherStartDestroy(autoSetDealt,autoSetDealtClass);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
                 AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);

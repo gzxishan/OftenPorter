@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
  */
 public interface IOtherStartDestroy
 {
-    void addOtherStart(Object object, Method[] starts);
+    void addOtherStarts(Object object, Method[] starts);
 
     void addOtherDestroys(Object object, Method[] destroys);
 }
