@@ -176,7 +176,7 @@ public final class PorterMain
         innerBridge.allGlobalChecksTemp.add(checkPassable);
     }
 
-    public synchronized void init(ResponseHandle responseHandle, UrlDecoder urlDecoder, boolean responseWhenException)
+    public synchronized void init(UrlDecoder urlDecoder, boolean responseWhenException)
     {
         if (isInit)
         {
@@ -184,8 +184,7 @@ public final class PorterMain
         }
         isInit = true;
         currentPNameForLogger = getPLinker().currentPName().getName();
-        portExecutor = new PortExecutor(responseHandle, pLinker.currentPName(), pLinker, urlDecoder,
-                responseWhenException);
+        portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
         porterData = new PorterDataImpl(portExecutor);
         currentPNameForLogger = null;
     }
@@ -368,7 +367,8 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
         Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll,
-                innerContextBridge, contextChecks, porterCheckPassables);
+                innerContextBridge, contextChecks, porterCheckPassables, porterConf.getResponseHandles(),
+                porterConf.getDefaultResponseHandle());
 
         try
         {

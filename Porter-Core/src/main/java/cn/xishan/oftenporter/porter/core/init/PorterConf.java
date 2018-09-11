@@ -27,7 +27,7 @@ public class PorterConf
     private List<CheckPassable> contextChecks;
     private List<CheckPassable> porterCheckPassableList;
 
-    private List<IAutoSetListener> autoSetListenerList=new ArrayList<>();
+    private List<IAutoSetListener> autoSetListenerList = new ArrayList<>();
 
     private Map<String, Object> contextAutoSetMap;
     private ClassLoader classLoader;
@@ -52,6 +52,8 @@ public class PorterConf
     private boolean isDefaultIAnnotationConfigable = true;
     private boolean enableAspectOfNormal = true;
     private boolean enableIDynamicAnnotationImprovable = true;
+    private Map<Class, ResponseHandle> responseHandleMap;
+    private ResponseHandle defaultResponseHandle;
 
 
     PorterConf()
@@ -64,10 +66,38 @@ public class PorterConf
         contextAutoSetMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();
-        this.classLoader = Thread.currentThread().getContextClassLoader();
+        classLoader = Thread.currentThread().getContextClassLoader();
+        responseHandleMap = new HashMap<>();
     }
 
-    public void addAutoSetListener(IAutoSetListener autoSetListener){
+    /**
+     * 添加某种类型的响应处理器。
+     *
+     * @param type
+     * @param responseHandle
+     */
+    public void addResponseHandle(Class type, ResponseHandle responseHandle)
+    {
+        responseHandleMap.put(type, responseHandle);
+    }
+
+    public Map<Class, ResponseHandle> getResponseHandles()
+    {
+        return responseHandleMap;
+    }
+
+    public ResponseHandle getDefaultResponseHandle()
+    {
+        return defaultResponseHandle;
+    }
+
+    public void setDefaultResponseHandle(ResponseHandle defaultResponseHandle)
+    {
+        this.defaultResponseHandle = defaultResponseHandle;
+    }
+
+    public void addAutoSetListener(IAutoSetListener autoSetListener)
+    {
         autoSetListenerList.add(autoSetListener);
     }
 
@@ -487,6 +517,8 @@ public class PorterConf
         paramSourceHandleManager = null;
         defaultReturnFactory = null;
         iArgumentsFactory = null;
-        autoSetListenerList=null;
+        autoSetListenerList = null;
+        responseHandleMap = null;
+        defaultResponseHandle = null;
     }
 }

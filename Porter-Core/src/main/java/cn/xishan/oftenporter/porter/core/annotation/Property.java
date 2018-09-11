@@ -19,13 +19,13 @@ import java.lang.annotation.*;
 public @interface Property
 {
     /**
-     * 属性名
+     * 属性名。支持多个属性，用","隔开，会获取第一个非空的属性。
      * @return
      */
     String value();
 
     /**
-     * 默认值
+     * 默认值。
      * @return
      */
     String defaultVal() default "";

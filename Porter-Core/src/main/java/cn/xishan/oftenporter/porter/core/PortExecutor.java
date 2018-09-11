@@ -39,14 +39,11 @@ public final class PortExecutor
     private PName pName;
     private DeliveryBuilder deliveryBuilder;
     private PortUtil portUtil;
-    private ResponseHandle responseHandle;
     private Map<String, One> extraEntityOneMap = new HashMap<>();
 
-    public PortExecutor(ResponseHandle responseHandle, PName pName, PLinker pLinker, UrlDecoder urlDecoder,
-            boolean responseWhenException)
+    public PortExecutor(PName pName, PLinker pLinker, UrlDecoder urlDecoder, boolean responseWhenException)
     {
         _LOGGER = LogUtil.logger(PortExecutor.class);
-        this.responseHandle = responseHandle;
         portUtil = new PortUtil();
         this.pName = pName;
         this.urlDecoder = urlDecoder;
@@ -71,12 +68,13 @@ public final class PortExecutor
 
 
     public Context addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
-            InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] porterCheckPassables)
+            InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] porterCheckPassables,
+            Map<Class, ResponseHandle> responseHandles, ResponseHandle defaultResponseHandle)
     {
         PorterConf porterConf = bridge.porterConf();
         Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
                 bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge,
-                porterCheckPassables, porterConf.getDefaultReturnFactory());
+                porterCheckPassables, porterConf.getDefaultReturnFactory(), responseHandles, defaultResponseHandle);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
         contextMap.put(bridge.contextName(), context);
@@ -248,11 +246,12 @@ public final class PortExecutor
             }
         } catch (Exception e)
         {
-            Throwable ex = getCause(e);
+
             response.toErr();
             Logger LOGGER = logger(null);
             if (LOGGER.isWarnEnabled())
             {
+                Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
                     LOGGER.warn(ex.getMessage(), ex);
@@ -264,7 +263,7 @@ public final class PortExecutor
             if (responseWhenException)
             {
                 JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-                jResponse.setDescription(WPTool.getMessage(ex));
+                jResponse.setDescription(WPTool.getMessage(e));
                 try
                 {
                     response.write(jResponse);
@@ -931,17 +930,17 @@ public final class PortExecutor
     }
 
 
-    private void responseObject(WObject wObject, PorterOfFun porterOfFun, Object object, boolean nullClose)
+    private void responseObject(WObjectImpl wObject, PorterOfFun porterOfFun, Object object, boolean nullClose)
     {
         if (object != null)
         {
             Logger LOGGER = logger(wObject);
 
-            if (object != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
+            if (object instanceof JResponse && ((JResponse) object).isNotSuccess())
             {
                 JResponse jResponse = (JResponse) object;
                 Throwable throwable = jResponse.getExCause();
-                if (throwable != null && throwable instanceof WCallException)
+                if (throwable instanceof WCallException)
                 {
                     JResponse exJR = ((WCallException) throwable).theJResponse();
                     if (exJR != null)
@@ -989,7 +988,8 @@ public final class PortExecutor
         WPTool.close(response);
     }
 
-    private void exNotNull(@NotNull WObject wObject, PorterOfFun porterOfFun, WResponse response, Throwable throwable,
+    private void exNotNull(@NotNull WObjectImpl wObject, PorterOfFun porterOfFun, WResponse response,
+            Throwable throwable,
             boolean responseWhenException)
     {
         response.toErr();
@@ -1016,7 +1016,7 @@ public final class PortExecutor
     }
 
 
-    private final void exCheckPassable(WObject wObject, PorterOfFun porterOfFun, Object obj,
+    private final void exCheckPassable(WObjectImpl wObject, PorterOfFun porterOfFun, Object obj,
             boolean responseWhenException)
     {
         wObject.getResponse().toErr();
@@ -1046,7 +1046,7 @@ public final class PortExecutor
         return jResponse;
     }
 
-    private void exParamDeal(WObject wObject, PorterOfFun porterOfFun, ParamDealt.FailedReason reason,
+    private void exParamDeal(WObjectImpl wObject, PorterOfFun porterOfFun, ParamDealt.FailedReason reason,
             boolean responseWhenException)
     {
         Logger LOGGER = logger(wObject);
@@ -1079,24 +1079,26 @@ public final class PortExecutor
      * @param wObject
      * @param object
      */
-    private final void doFinalWrite(WObject wObject, PorterOfFun porterOfFun, Object object)
+    private final void doFinalWrite(WObjectImpl wObject, PorterOfFun porterOfFun, @NotNull Object object)
     {
         try
         {
-            if (object != null && responseHandle != null)
+            ResponseHandle responseHandle = wObject.context.responseHandles.get(object.getClass());
+            if (responseHandle == null)
             {
-                Porter porter = porterOfFun.getPorter();
-                object = responseHandle
-                        .toResponse(wObject, porter.getFinalPorterObject(), porter.getObj(), porterOfFun.getMethod(),
-                                object);
+                responseHandle = wObject.context.defaultResponseHandle;
+            }
+            if (responseHandle != null && responseHandle.hasDoneWrite(wObject, porterOfFun, object))
+            {
+                return;
             }
             wObject.getResponse().write(object);
-        } catch (IOException e)
+        } catch (Throwable e)
         {
-            Throwable ex = getCause(e);
             Logger logger = logger(wObject);
             if (logger.isWarnEnabled())
             {
+                Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
                     logger.warn(ex.getMessage(), ex);
@@ -1119,17 +1121,13 @@ public final class PortExecutor
         try
         {
             Object rs = jResponse;
-            if (responseHandle != null)
-            {
-                rs = responseHandle.toResponseOf404(request, response, jResponse);
-            }
             response.write(rs);
         } catch (IOException e)
         {
-            Throwable ex = getCause(e);
             Logger logger = logger(null);
             if (logger.isWarnEnabled())
             {
+                Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
                     logger.warn(ex.getMessage(), ex);

@@ -2,13 +2,13 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -222,13 +222,33 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
-        String key = property.value();
+        String[] keys = StrUtil.split(property.value().replace('，', ','), ",");
+
         String defaultVal = property.defaultVal().trim();
         if (defaultVal.equals(""))
         {
             defaultVal = null;
         }
 
+        Object rs = null;
+        for (String key : keys)
+        {
+            rs = getProperty(fieldRealType, key, null);
+            if (WPTool.notNullAndEmpty(rs))
+            {
+                break;
+            }
+        }
+        if (WPTool.notNullAndEmptyForAll(rs, defaultVal))
+        {
+            rs = getProperty(fieldRealType, keys[0], defaultVal);
+        }
+
+        return rs;
+    }
+
+    private Object getProperty(Class<?> fieldRealType, String key, String defaultVal)
+    {
         if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))
         {
             return getInt(key, defaultVal == null ? 0 : TypeUtils.castToInt(defaultVal));

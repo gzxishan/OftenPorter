@@ -41,7 +41,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     protected String pname, urlEncoding;
     protected Boolean responseWhenException;
     protected MultiPartOption multiPartOption = null;
-    protected ResponseHandle responseHandle;
+    //protected ResponseHandle responseHandle;
 
     private CorsAccess defaultCorsAccess;
 
@@ -291,7 +291,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));
         }
-        porterMain.init(responseHandle, new DefaultUrlDecoder(urlEncoding), responseWhenException);
+        porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
     /**

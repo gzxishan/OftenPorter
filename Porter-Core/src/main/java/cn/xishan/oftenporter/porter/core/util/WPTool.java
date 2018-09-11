@@ -24,13 +24,36 @@ public class WPTool
 
     /**
      * 判断是否为null(对于{@linkplain CharSequence}会判断是否为"").
+     * 返回false的情况：
+     * <ol>
+     * <li>
+     * object为null。
+     * </li>
+     * <li>
+     * object为{@linkplain CharSequence},且为""(空字符串)。
+     * </li>
+     * <li>
+     * object为{@linkplain Collection},且为空。
+     * </li>
+     * <li>
+     * object为{@linkplain Map},且为空。
+     * </li>
+     * <li>
+     * object为数组，且最高维长度为0。
+     * </li>
+     * </ol>
      *
      * @param object
      * @return
      */
     public static boolean isEmpty(Object object)
     {
-        return object == null || (object instanceof CharSequence) && "".equals(String.valueOf(object));
+        boolean rs = object == null
+                || (object instanceof CharSequence) && "".equals(String.valueOf(object))
+                || (object instanceof Collection && ((Collection<?>) object).isEmpty())
+                || (object instanceof Map && ((Map<?, ?>) object).isEmpty())
+                || (object.getClass().isArray() && Array.getLength(object) == 0);
+        return rs;
     }
 
     public static boolean existsEmpty(Object... objects)
@@ -38,11 +61,41 @@ public class WPTool
         return !notNullAndEmptyForAll(objects);
     }
 
+
     public static boolean isEmptyOfAll(Object... objects)
     {
         for (Object obj : objects)
         {
             if (notNullAndEmpty(obj))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 是否不为空，见{@linkplain #isEmpty(Object)}.
+     *
+     * @param object
+     * @return
+     */
+    public static boolean notNullAndEmpty(Object object)
+    {
+        return !isEmpty(object);
+    }
+
+    /**
+     * 判断是否全部都不为空，见{@linkplain #isEmpty(Object)}.
+     *
+     * @param objects
+     * @return
+     */
+    public static boolean notNullAndEmptyForAll(Object... objects)
+    {
+        for (Object object : objects)
+        {
+            if (isEmpty(object))
             {
                 return false;
             }
@@ -371,35 +424,6 @@ public class WPTool
                 LOGGER.warn(e.getMessage(), e);
             }
         }
-    }
-
-    /**
-     * 是否‘不为null(且CharSequence不为"")’.
-     *
-     * @param object
-     * @return
-     */
-    public static boolean notNullAndEmpty(Object object)
-    {
-        return !(object == null || (object instanceof CharSequence) && "".equals(String.valueOf(object)));
-    }
-
-    /**
-     * 判断是否全部都不为null(且CharSequence不为"").
-     *
-     * @param objects
-     * @return
-     */
-    public static boolean notNullAndEmptyForAll(Object... objects)
-    {
-        for (Object object : objects)
-        {
-            if (object == null || (object instanceof CharSequence) && "".equals(String.valueOf(object)))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
 

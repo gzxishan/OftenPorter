@@ -4,6 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/9.
@@ -12,9 +15,18 @@ public class WPToolTest
 {
     @Test
     public void testIsEmpty(){
+        Assert.assertTrue(WPTool.isEmpty(null));
         Assert.assertTrue(WPTool.isEmpty(""));
         Assert.assertTrue(WPTool.isEmpty(new StringBuilder()));
         Assert.assertFalse(WPTool.isEmpty(new Object()));
+
+        Assert.assertTrue(WPTool.isEmpty(new ArrayList<>()));
+        Assert.assertTrue(WPTool.isEmpty(new HashSet<>()));
+        Assert.assertTrue(WPTool.isEmpty(new HashMap<>()));
+
+        Assert.assertTrue(WPTool.isEmpty(new Object[0]));
+        Assert.assertTrue(WPTool.isEmpty(new int[0]));
+        Assert.assertTrue(WPTool.isEmpty(new Object[0][0]));
     }
 
 

@@ -66,7 +66,7 @@ public class HMain extends LocalMain {
                     callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
                 }
             }
-        },null);
+        });
         pLinker = new PLinker() {
             @Override
             public LinkListener sendLink() {
