@@ -170,7 +170,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     }
 
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
-            WResponse wResponse, PortMethod method) throws IOException
+            WServletResponse wResponse, PortMethod method) throws IOException
     {
         if (isHttp2Https && request.getScheme().equals("http"))
         {
@@ -221,8 +221,10 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             PreRequest req = porterMain.forRequest(wreq, wResponse);
             if (req != null)
             {
-                request.setCharacterEncoding(req.context.getContentEncoding());
-                response.setCharacterEncoding(req.context.getContentEncoding());
+                String encoding = req.context.getContentEncoding();
+                wResponse.setEncoding(encoding);
+                request.setCharacterEncoding(encoding);
+                response.setCharacterEncoding(encoding);
                 porterMain.doRequest(req, wreq, wResponse, false);
             }
         }
@@ -279,12 +281,11 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
 
         if (this.urlEncoding == null)
         {
-            urlEncoding = getInitParameter("urlEncoding");
-            if (urlEncoding == null)
+            this.urlEncoding = getInitParameter("urlEncoding");
+            if (WPTool.isEmpty(this.urlEncoding))
             {
-                urlEncoding = "utf-8";
+                this.urlEncoding = "utf-8";
             }
-
         }
         porterMain = new PorterMain(new PName(pname), this);
         if (responseWhenException == null)

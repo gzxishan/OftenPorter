@@ -9,5 +9,13 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  */
 public interface ResponseHandle
 {
-    boolean hasDoneWrite(WObject wObject, PorterOfFun porterOfFun, @NotNull Object object);
+    /**
+     *
+     * @param wObject
+     * @param porterOfFun
+     * @param object
+     * @return true,已经进行了输出（需要自己关闭连接）；false，没有进行输出。
+     * @throws Throwable
+     */
+    boolean hasDoneWrite(WObject wObject, PorterOfFun porterOfFun, @NotNull Object object)throws Throwable;
 }

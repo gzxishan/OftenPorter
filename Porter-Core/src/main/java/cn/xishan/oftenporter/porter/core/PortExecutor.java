@@ -958,8 +958,10 @@ public final class PortExecutor
                     LOGGER.info("{}:{}", wObject.url(), object);
                 }
             }
-            doFinalWrite(wObject, porterOfFun, object);
-            close(wObject);
+            if (doWriteAndWillClose(wObject, porterOfFun, object))
+            {
+                close(wObject);
+            }
         } else if (nullClose)
         {
             close(wObject);
@@ -1010,9 +1012,14 @@ public final class PortExecutor
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(WPTool.getMessage(throwable));
             jResponse.setExCause(throwable);
-            doFinalWrite(wObject, porterOfFun, jResponse);
+            if (doWriteAndWillClose(wObject, porterOfFun, jResponse))
+            {
+                close(response);
+            }
+        } else
+        {
+            close(response);
         }
-        close(response);
     }
 
 
@@ -1027,14 +1034,22 @@ public final class PortExecutor
         }
         if (obj instanceof JResponse)
         {
-            doFinalWrite(wObject, porterOfFun, obj);
+            if (doWriteAndWillClose(wObject, porterOfFun, obj))
+            {
+                close(wObject);
+            }
         } else if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(String.valueOf(obj));
-            doFinalWrite(wObject, porterOfFun, jResponse);
+            if (doWriteAndWillClose(wObject, porterOfFun, jResponse))
+            {
+                close(wObject);
+            }
+        } else
+        {
+            close(wObject);
         }
-        close(wObject);
     }
 
     private JResponse toJResponse(ParamDealt.FailedReason reason, WObject wObject)
@@ -1062,9 +1077,12 @@ public final class PortExecutor
             {
                 jResponse = toJResponse(reason, wObject);
             }
-            doFinalWrite(wObject, porterOfFun, jResponse);
+            if(doWriteAndWillClose(wObject, porterOfFun, jResponse)){
+                close(wObject);
+            }
+        }else{
+            close(wObject);
         }
-        close(wObject);
     }
 
     private final Throwable getCause(Throwable e)
@@ -1079,7 +1097,7 @@ public final class PortExecutor
      * @param wObject
      * @param object
      */
-    private final void doFinalWrite(WObjectImpl wObject, PorterOfFun porterOfFun, @NotNull Object object)
+    private final boolean doWriteAndWillClose(WObjectImpl wObject, PorterOfFun porterOfFun, @NotNull Object object)
     {
         try
         {
@@ -1090,7 +1108,7 @@ public final class PortExecutor
             }
             if (responseHandle != null && responseHandle.hasDoneWrite(wObject, porterOfFun, object))
             {
-                return;
+                return false;
             }
             wObject.getResponse().write(object);
         } catch (Throwable e)
@@ -1108,6 +1126,7 @@ public final class PortExecutor
                 }
             }
         }
+        return true;
     }
 
     /**

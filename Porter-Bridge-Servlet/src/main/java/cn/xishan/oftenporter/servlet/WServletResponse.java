@@ -15,6 +15,7 @@ public class WServletResponse extends LocalResponse
 {
 
     private HttpServletResponse response;
+    private String encoding;
 
     WServletResponse(HttpServletResponse response)
     {
@@ -22,6 +23,15 @@ public class WServletResponse extends LocalResponse
         this.response = response;
     }
 
+    void setEncoding(String encoding)
+    {
+        this.encoding = encoding;
+    }
+
+    public String getEncoding()
+    {
+        return encoding;
+    }
 
     @Override
     public void doClose(Object writeObject) throws IOException

@@ -73,12 +73,15 @@ public class PorterConf
     /**
      * 添加某种类型的响应处理器。
      *
-     * @param type
-     * @param responseHandle
+     * @param responseHandle 响应处理器
+     * @param types 被处理的类型
      */
-    public void addResponseHandle(Class type, ResponseHandle responseHandle)
+    public void addResponseHandle(ResponseHandle responseHandle, Class... types)
     {
-        responseHandleMap.put(type, responseHandle);
+        for (Class type : types)
+        {
+            responseHandleMap.put(type, responseHandle);
+        }
     }
 
     public Map<Class, ResponseHandle> getResponseHandles()
