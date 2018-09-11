@@ -222,7 +222,6 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             if (req != null)
             {
                 String encoding = req.context.getContentEncoding();
-                wResponse.setEncoding(encoding);
                 request.setCharacterEncoding(encoding);
                 response.setCharacterEncoding(encoding);
                 porterMain.doRequest(req, wreq, wResponse, false);
