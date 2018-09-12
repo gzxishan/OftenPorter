@@ -176,7 +176,11 @@ public class ContextPorter implements IOtherStartDestroy
                 throw e;
             } catch (Exception e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                if (LOGGER.isErrorEnabled())
+                {
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.error(throwable.getMessage(), throwable);
+                }
             }
         }
 
@@ -214,7 +218,11 @@ public class ContextPorter implements IOtherStartDestroy
             throw e;
         } catch (Exception e)
         {
-            LOGGER.warn(e.getMessage(), e);
+            if (LOGGER.isErrorEnabled())
+            {
+                Throwable throwable = WPTool.unwrapThrowable(e);
+                LOGGER.error(throwable.getMessage(), throwable);
+            }
         }
 
 
@@ -289,7 +297,11 @@ public class ContextPorter implements IOtherStartDestroy
                 throw e;
             } catch (Exception e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                if (LOGGER.isErrorEnabled())
+                {
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.error(throwable.getMessage(), throwable);
+                }
             }
         }
     }
@@ -427,7 +439,6 @@ public class ContextPorter implements IOtherStartDestroy
         }
 
 
-
         //重要：在IArgumentsFactory之后初始化,用于支持：IExtraEntitySupport
         iterator = portMap.values().iterator();
         while (iterator.hasNext())
@@ -453,7 +464,11 @@ public class ContextPorter implements IOtherStartDestroy
                 }
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                if (LOGGER.isErrorEnabled())
+                {
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.error(throwable.getMessage(), throwable);
+                }
             }
         }
 
@@ -482,7 +497,11 @@ public class ContextPorter implements IOtherStartDestroy
                 method.invoke(otherStartDestroy.object);
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
+                if (LOGGER.isErrorEnabled())
+                {
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    LOGGER.error(throwable.getMessage(), throwable);
+                }
             }
         }
     }
