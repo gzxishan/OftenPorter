@@ -116,6 +116,23 @@ public class WPTool
     }
 
     /**
+     * 判断child是否是theSupers中某个类的子类、子接口或接口实现者。
+     *
+     * @param child
+     * @param theSupers
+     * @return
+     */
+    public static boolean isAssignableForOneOf(Class child, Class ... theSupers)
+    {
+        for(Class theSuper:theSupers){
+            if(isAssignable(child,theSuper)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断childObj是否是theSuper的实例。
      *
      * @param childObj

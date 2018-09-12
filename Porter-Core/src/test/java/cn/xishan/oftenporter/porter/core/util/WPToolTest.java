@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -118,5 +119,12 @@ public class WPToolTest
             System.out.print(method.getDeclaringClass().getSimpleName()+"."+method.getName()+" ");
         }
         System.out.println();
+    }
+
+    @Test
+    public void testIsAssignable(){
+        Assert.assertTrue(WPTool.isAssignable(Object.class,Object.class));
+        Assert.assertTrue(WPTool.isAssignable(ArrayList.class, Collection.class));
+        Assert.assertTrue(WPTool.isAssignableForOneOf(String[].class,Object[].class));
     }
 }
