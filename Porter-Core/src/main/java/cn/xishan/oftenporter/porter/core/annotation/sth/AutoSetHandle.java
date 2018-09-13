@@ -660,10 +660,25 @@ public class AutoSetHandle
                 doAutoSetPut(f, value, fieldRealType);
                 continue;
             }
+
+            if (Modifier.isStatic(f.getModifiers()))
+            {
+                if (rangeType == RangeType.INSTANCE)
+                {
+                    continue;
+                }
+            } else
+            {
+                if (rangeType == RangeType.STATIC)
+                {
+                    continue;
+                }
+            }
+
             _AutoSet autoSet = annotationDealt.autoSet(f);
             if (autoSet == null)
             {
-                Object value = f.get(currentObject);
+                Object value =  f.get(currentObject);
                 if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
                 {
                     Object newValue = workedInstance.doProxyAndDoAutoSet(value, this, true);
@@ -681,19 +696,7 @@ public class AutoSetHandle
                 continue;
             }
 
-            if (Modifier.isStatic(f.getModifiers()))
-            {
-                if (rangeType == RangeType.INSTANCE)
-                {
-                    continue;
-                }
-            } else
-            {
-                if (rangeType == RangeType.STATIC)
-                {
-                    continue;
-                }
-            }
+
 
             try
             {
@@ -903,7 +906,7 @@ public class AutoSetHandle
 
             if (porter == null)
             {
-                addOtherStartDestroy(currentObject,currentObjectClass);
+                addOtherStartDestroy(currentObject, currentObjectClass);
             }
         }
         return currentObject;
@@ -982,19 +985,21 @@ public class AutoSetHandle
         }
 
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
-        addOtherStartDestroy(autoSetGen,genClass);
+        addOtherStartDestroy(autoSetGen, genClass);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
                 AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), autoSet, option);
         return value;
     }
 
-    private void addOtherStartDestroy(@MayNull Object object,Class objectClass)
+    private void addOtherStartDestroy(@MayNull Object object, Class objectClass)
     {
         if (iOtherStartDestroy != null)
         {
-            iOtherStartDestroy.addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object,objectClass));
-            iOtherStartDestroy.addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object,objectClass));
+            iOtherStartDestroy
+                    .addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object, objectClass));
+            iOtherStartDestroy
+                    .addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object, objectClass));
         }
     }
 
@@ -1023,7 +1028,7 @@ public class AutoSetHandle
             return value;
         }
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
-        addOtherStartDestroy(autoSetDealt,autoSetDealtClass);
+        addOtherStartDestroy(autoSetDealt, autoSetDealtClass);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
                 AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);

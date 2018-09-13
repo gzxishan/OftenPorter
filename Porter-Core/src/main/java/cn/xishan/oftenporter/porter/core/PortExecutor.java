@@ -254,7 +254,7 @@ public final class PortExecutor
                 Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
-                    //LOGGER.warn(ex.getMessage(), ex);
+                    LOGGER.warn(ex.getMessage(), ex);
                 } else
                 {
                     LOGGER.warn(ex.getMessage(), ex);
@@ -814,7 +814,7 @@ public final class PortExecutor
                 if (logger.isWarnEnabled())
                 {
                     if(ex instanceof WCallException){
-
+                        logger.warn(ex.getMessage(), ex);
                     }else{
                         logger.warn(ex.getMessage(), ex);
                     }
@@ -1005,7 +1005,7 @@ public final class PortExecutor
         {
             if (throwable instanceof WCallException)
             {
-                //logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
+                logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
             } else
             {
                 logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
@@ -1124,7 +1124,7 @@ public final class PortExecutor
                 Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
-                    //logger.warn(ex.getMessage(), ex);
+                    logger.warn(ex.getMessage(), ex);
                 } else
                 {
                     logger.warn(ex.getMessage(), ex);
@@ -1154,7 +1154,7 @@ public final class PortExecutor
                 Throwable ex = getCause(e);
                 if (ex instanceof WCallException)
                 {
-                    //logger.warn(ex.getMessage(), ex);
+                    logger.warn(ex.getMessage(), ex);
                 } else
                 {
                     logger.warn(ex.getMessage(), ex);
