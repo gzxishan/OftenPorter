@@ -155,6 +155,9 @@ public class AutoSetHandle
         {
             for (Object obj : objects)
             {
+                if(obj == null){
+                    continue;
+                }
                 doAutoSetForCurrent(false, obj, obj);
             }
         }
