@@ -158,6 +158,18 @@ public class StrUtil
     }
 
     /**
+     * 获取后缀名，不包括分隔符".";若没有找到，则返回空字符串"".
+     * {@linkplain #getSuffix(String, char, boolean)}
+     *
+     * @param content
+     * @return
+     */
+    public static String getSuffix(String content)
+    {
+        return getSuffix(content, '.', false);
+    }
+
+    /**
      * 获取后缀名，不包括分隔符;若没有找到，则返回空字符串"".
      * {@linkplain #getSuffix(String, char, boolean)}
      *

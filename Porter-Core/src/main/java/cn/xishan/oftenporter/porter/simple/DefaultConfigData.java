@@ -139,6 +139,29 @@ public class DefaultConfigData implements IConfigData
         return properties.getProperty(key, defaultValue);
     }
 
+    /**
+     * 通过逗号隔开
+     *
+     * @param key
+     * @return
+     */
+    @Override
+    public String[] getStrings(String key)
+    {
+        return getStrings(key, null);
+    }
+
+    @Override
+    public String[] getStrings(String key, String defaultValue)
+    {
+        String str = getString(key, defaultValue);
+        if (WPTool.isEmpty(str))
+        {
+            return null;
+        }
+        return StrUtil.split(str.replace('，', ','), ",");
+    }
+
     @Override
     public Date getDate(String key)
     {
@@ -229,21 +252,25 @@ public class DefaultConfigData implements IConfigData
         {
             defaultVal = null;
         }
-
         Object rs = null;
-        for (String key : keys)
-        {
-            rs = getProperty(fieldRealType, key, null);
-            if (WPTool.notNullAndEmpty(rs))
-            {
-                break;
-            }
-        }
-        if (WPTool.notNullAndEmptyForAll(rs, defaultVal))
+        if (keys.length == 1)
         {
             rs = getProperty(fieldRealType, keys[0], defaultVal);
+        } else
+        {
+            for (String key : keys)
+            {
+                rs = getProperty(fieldRealType, key, null);
+                if (WPTool.notNullAndEmpty(rs))
+                {
+                    break;
+                }
+            }
+            if (WPTool.notNullAndEmptyForAll(keys, defaultVal))
+            {
+                rs = getProperty(fieldRealType, keys[0], defaultVal);
+            }
         }
-
         return rs;
     }
 
@@ -267,6 +294,9 @@ public class DefaultConfigData implements IConfigData
         } else if (fieldRealType.equals(String.class))
         {
             return getString(key, defaultVal);
+        } else if (fieldRealType.equals(String[].class))
+        {
+            return getStrings(key, defaultVal);
         } else if (fieldRealType.equals(Date.class))
         {
             return getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));

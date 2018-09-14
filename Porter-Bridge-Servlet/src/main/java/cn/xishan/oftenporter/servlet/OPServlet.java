@@ -11,6 +11,7 @@ import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
+import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 @CorsAccess
@@ -48,6 +50,9 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     @Property(value = "op.servlet.cors.disable", defaultVal = "false")
     private Boolean hasCors;
 
+    @Property(value = "op.servlet.cors.skipRes", defaultVal = "eot,ttf,otf,woff,woff2")
+    private String[] skipResources;
+
     @Property(value = "op.servlet.cors.http2https", defaultVal = "false")
     private Boolean isHttp2Https;
     /**
@@ -63,7 +68,9 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     @AutoSet.SetOk
     void setOk()
     {
-        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={}", hasCors, isHttp2Https);
+        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={},skipRes={}", hasCors, isHttp2Https,
+                skipResources);
+        Arrays.sort(skipResources);
     }
 
     /**
@@ -450,6 +457,13 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
             if (LOGGER.isWarnEnabled())
             {
                 LOGGER.warn("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
+            }
+            if (method == PortMethod.GET && Arrays
+                    .binarySearch(skipResources, StrUtil.getSuffix(request.getRequestURI())) > 0)
+            {
+                response.setHeader("Access-Control-Allow-Methods", "GET");
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                return false;
             }
             CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)

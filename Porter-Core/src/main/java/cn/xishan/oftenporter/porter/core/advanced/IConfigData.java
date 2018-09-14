@@ -4,14 +4,14 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.MayProxyObject;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.simple.DefaultConfigData;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 
 /**
- * 可以通过@{@linkplain AutoSet}引入该对象实例。
+ * 可以通过@{@linkplain AutoSet}引入该对象实例,见{@linkplain DefaultConfigData}。
  *
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
@@ -42,6 +42,10 @@ public interface IConfigData
     String getString(String key);
 
     String getString(String key, String defaultValue);
+
+    String[] getStrings(String key);
+
+    String[] getStrings(String key, String defaultValue);
 
     Date getDate(String key);
 
