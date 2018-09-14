@@ -127,6 +127,10 @@ public class MyBatisBridge
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
         }
+        if (WPTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject))
+        {
+            throw new IllegalArgumentException("dataSource is empty!");
+        }
         try
         {
 
@@ -142,6 +146,7 @@ public class MyBatisBridge
             {
                 myBatisOption.resourcesDir += "/";
             }
+
             mybatisConfig.put(myBatisOption, mSqlSessionFactoryBuilder);
         } catch (Exception e)
         {

@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.servlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 
 /**
@@ -29,6 +32,8 @@ import javax.servlet.ServletException;
  */
 public abstract class StartupServlet extends OPServlet
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StartupServlet.class);
+
     boolean isStarted = false;
 
     public StartupServlet()
@@ -70,6 +75,7 @@ public abstract class StartupServlet extends OPServlet
             onStart();
         } catch (Throwable e)
         {
+            LOGGER.error(e.getMessage(),e);
             throw new ServletException(e);
         }
         isStarted = true;
