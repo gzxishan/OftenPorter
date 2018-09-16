@@ -122,10 +122,12 @@ public class WPTool
      * @param theSupers
      * @return
      */
-    public static boolean isAssignableForOneOf(Class child, Class ... theSupers)
+    public static boolean isAssignableForOneOf(Class child, Class... theSupers)
     {
-        for(Class theSuper:theSupers){
-            if(isAssignable(child,theSuper)){
+        for (Class theSuper : theSupers)
+        {
+            if (isAssignable(child, theSuper))
+            {
                 return true;
             }
         }
@@ -394,6 +396,37 @@ public class WPTool
                 return unwrapped;
             }
         }
+    }
+
+    public static void deleteFiles(File... files)
+    {
+        for (File file : files)
+        {
+            delete(file);
+        }
+    }
+
+    public static void deleteFiles(List<File> files)
+    {
+        for (File file : files)
+        {
+            delete(file);
+        }
+    }
+
+    public static boolean delete(File file)
+    {
+        if (file != null)
+        {
+            try
+            {
+                return file.delete();
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        }
+        return false;
     }
 
     /**

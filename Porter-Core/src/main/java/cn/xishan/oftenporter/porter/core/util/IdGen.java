@@ -38,6 +38,7 @@ public class IdGen implements Serializable
 {
     private static final long serialVersionUID = -8251636420192526844L;
     private static final char[] BASE;
+
     static
     {
         BASE = ("0123456789" +
@@ -266,6 +267,18 @@ public class IdGen implements Serializable
     }
 
     /**
+     * 生成的id字符长度为(21个字符):[6位秒级日期][4位设定长度][11位随机位]。
+     *
+     * @param fromTimeMillis 开始的日期毫秒数
+     * @return
+     */
+    public static IdGen getDefaultWithoutMac(long fromTimeMillis)
+    {
+        IdGen idGen = new IdGen(fromTimeMillis, 6, 4, 3, null, null, IdGen.getDefaultBuilder());
+        return idGen;
+    }
+
+    /**
      * 见{@linkplain #getDefaultWithX(long)}
      *
      * @param fromYear  开始的年
@@ -306,8 +319,9 @@ public class IdGen implements Serializable
             mac = 0;
         }
         String mchid = IdGen.num10ToNum6X(mac, 8);
-        if(mchid.length()>8){
-            mchid=mchid.substring(mchid.length()-8);
+        if (mchid.length() > 8)
+        {
+            mchid = mchid.substring(mchid.length() - 8);
         }
         return mchid;
     }

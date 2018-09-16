@@ -63,12 +63,14 @@ public class AutoSetHandle
         public final Object obj;
         public final Method method;
         public final int priority;
+        Logger logger;
 
-        public _SetOkObject(Object obj, Method method, int priority)
+        public _SetOkObject(Object obj, Method method, int priority, Logger logger)
         {
             this.obj = obj;
             this.method = method;
             this.priority = priority;
+            this.logger = logger;
         }
 
         @Override
@@ -79,6 +81,7 @@ public class AutoSetHandle
 
         public void invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException
         {
+            logger.debug("invoke @SetOk:{}", method);
             if (method.getParameterTypes().length == 1)
             {
                 method.invoke(obj, wObject);
@@ -155,7 +158,8 @@ public class AutoSetHandle
         {
             for (Object obj : objects)
             {
-                if(obj == null){
+                if (obj == null)
+                {
                     continue;
                 }
                 doAutoSetForCurrent(false, obj, obj);
@@ -681,7 +685,7 @@ public class AutoSetHandle
             _AutoSet autoSet = annotationDealt.autoSet(f);
             if (autoSet == null)
             {
-                Object value =  f.get(currentObject);
+                Object value = f.get(currentObject);
                 if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
                 {
                     Object newValue = workedInstance.doProxyAndDoAutoSet(value, this, true);
@@ -698,7 +702,6 @@ public class AutoSetHandle
                 doAutoSetPut(f, value, fieldRealType);
                 continue;
             }
-
 
 
             try
@@ -903,7 +906,11 @@ public class AutoSetHandle
                 if (setOk != null)
                 {
                     method.setAccessible(true);
-                    setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority()));
+                    if(currentObject==null&&!Modifier.isStatic(method.getModifiers())){
+                        LOGGER.warn("ignore SetOk method for no instance:method={}",method);
+                    }else{
+                        setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(),LOGGER));
+                    }
                 }
             }
 

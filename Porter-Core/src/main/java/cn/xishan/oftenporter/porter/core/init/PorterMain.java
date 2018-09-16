@@ -257,8 +257,15 @@ public final class PorterMain
             currentPNameForLogger = null;
         } catch (Throwable e)
         {
+            e = WPTool.getCause(e);
             LOGGER.error(e.getMessage(), e);
-            throw e;
+            try
+            {
+                throw e;
+            } catch (Throwable throwable)
+            {
+                throwable.printStackTrace();
+            }
         } finally
         {
             LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
