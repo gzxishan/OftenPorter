@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 
+import cn.xishan.oftenporter.porter.core.advanced.ResponseHandle;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
@@ -24,25 +25,50 @@ import java.lang.annotation.*;
  * 用于自动设置变量(任何访问类型，静态或非静态类型),包括父类的以及被设置的变量,支持泛型。属性设置见{@linkplain Property}。
  * <pre>
  *     注意:
- *     1.递归扫描时会忽略对所有以"java."的类。
+ *     1.递归扫描时会忽略对所有以"java."开头的类。
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描。
  *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
  *     4.含有@{@linkplain Property}的变量也会被设置。
  *     5.注解在函数上时，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
  * </pre>
+ * <hr>
+ * <p>
  * 从这些途径会触发AutoSet:
- * <pre>
- *     0.被设置的对象
- *     1.{@linkplain PortIn PortIn}
- *     2.{@linkplain AutoSetSeek AutoSetSeek}
- *     3.{@linkplain CheckPassable CheckPassable}
- *     4.{@linkplain StateListener StateListener}
- *     5.{@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},
- *     这两个类的内部只能注入map中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
- *     6.{@linkplain AspectOperationOfPortIn.Handle}
- *     7.{@linkplain BindEntityDealt}
- *     8.{@linkplain AspectOperationOfNormal.Handle}
- * </pre>
+ * <ol>
+ * <li>
+ * 被AutoSet的对象
+ * </li>
+ * <li>
+ * {@linkplain PortIn PortIn}
+ * </li>
+ * <li>
+ * {@linkplain AutoSetSeek AutoSetSeek}
+ * </li>
+ * <li>
+ * {@linkplain CheckPassable CheckPassable}
+ * </li>
+ * <li>
+ * {@linkplain StateListener StateListener}
+ * </li>
+ * <li>
+ * {@linkplain AutoSetDealt AutoSetDealt}和{@linkplain AutoSetGen AutoSetGen},     这两个类的内部只能注入map
+ * 中的、具有无参构造函数的或使用{@linkplain AutoSetGen AutoSetGen}生成的对象。
+ * </li>
+ * <li>
+ * {@linkplain AspectOperationOfPortIn.Handle}
+ * </li>
+ * <li>
+ * {@linkplain BindEntityDealt}
+ * </li>
+ * <li>
+ * {@linkplain AspectOperationOfNormal.Handle}
+ * </li>
+ * <li>
+ * {@linkplain ResponseHandle}
+ * </li>
+ * </ol>
+ * </p>
+ * <hr>
  * 不会触发{@linkplain SetOk}:
  * <ol>
  * <li>
@@ -60,6 +86,7 @@ import java.lang.annotation.*;
  * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
  * </pre>
  * <p>
+ * <hr>
  * 注意，支持@{@linkplain Resource}注解(但不会对相应变量进行递归设置)，映射关系如下：
  * <ol>
  * <li>

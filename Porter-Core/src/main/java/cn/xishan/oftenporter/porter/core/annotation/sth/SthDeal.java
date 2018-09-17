@@ -297,7 +297,7 @@ public class SthDeal
                         annotationDealt.setTiedType(porterOfFun.portIn,
                                 TiedType.typeForFun(porterOfFun.portIn.getTiedType(), handle.getTiedType()));
                         handles.add(handle);
-                        setHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                        setHandle.addAutoSetsForNotPorter(handle);
                     }
                 } else
                 {
@@ -309,7 +309,7 @@ public class SthDeal
                         annotationDealt.setTiedType(porter.portIn,
                                 TiedType.typeForFun(porter.portIn.getTiedType(), handle.getTiedType()));
                         handles.add(handle);
-                        setHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                        setHandle.addAutoSetsForNotPorter(handle);
                     }
                 }
 

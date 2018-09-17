@@ -112,7 +112,7 @@ public final class AnnotationDealt
                 {
                     LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
                     _AutoSet _autoSet = new _AutoSet();
-                    _autoSet.willRecursive=false;
+                    _autoSet.willRecursive = false;
                     _autoSet.value = resource.name();
                     _autoSet.nullAble = true;
                     if (!resource.type().equals(Object.class))
@@ -313,7 +313,7 @@ public final class AnnotationDealt
         return _bindEntities;
     }
 
-    public _BindEntities bindEntity(Class<?> entityClass,Method method)
+    public _BindEntities bindEntity(Class<?> entityClass, Method method)
     {
         _BindEntities _bindEntities = newBindEntities(new Class[]{entityClass}, method);
         return _bindEntities;
@@ -378,8 +378,27 @@ public final class AnnotationDealt
     }
 
 
-    public _PortDestroy portDestroy(Method method,@MayNull ObjectGetter objectGetter)
+    private boolean isNullInstanceOfStartDestroy(Method method, @MayNull ObjectGetter objectGetter)
     {
+        if (!Modifier.isStatic(method.getModifiers()) && (objectGetter == null || objectGetter.getObject() == null))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter)
+    {
+        if (isNullInstanceOfStartDestroy(method, objectGetter))
+        {
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
+            }
+            return null;
+        }
         PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
         if (portDestroy == null)
         {
@@ -395,6 +414,15 @@ public final class AnnotationDealt
 
     public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
     {
+        if (isNullInstanceOfStartDestroy(method, objectGetter))
+        {
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
+            }
+            return null;
+        }
+
         PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortStart.class);
         if (portStart == null)
         {
@@ -406,7 +434,7 @@ public final class AnnotationDealt
         return _portStart;
     }
 
-    public Method[] getPortStart(Object object,Class objectClass)
+    public Method[] getPortStart(Object object, Class objectClass)
     {
         ObjectGetter objectGetter = () -> object;
 
@@ -433,7 +461,7 @@ public final class AnnotationDealt
         return starts;
     }
 
-    public Method[] getPortDestroy(Object object,Class objectClass)
+    public Method[] getPortDestroy(Object object, Class objectClass)
     {
         ObjectGetter objectGetter = () -> object;
 
@@ -561,7 +589,8 @@ public final class AnnotationDealt
             if (porter.getObj() instanceof IFun)
             {
                 IFun iFun = (IFun) porter.getObj();
-                if(!_portInOfMethod.getTiedType().isRest()){
+                if (!_portInOfMethod.getTiedType().isRest())
+                {
                     String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
                     for (String tied : tieds)
                     {
@@ -588,7 +617,8 @@ public final class AnnotationDealt
         portIn.setTiedType(tiedType);
     }
 
-    public void setMethods(_PortIn portIn,PortMethod[] portMethods){
-        portIn.methods=portMethods;
+    public void setMethods(_PortIn portIn, PortMethod[] portMethods)
+    {
+        portIn.methods = portMethods;
     }
 }

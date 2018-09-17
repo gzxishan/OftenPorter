@@ -88,7 +88,7 @@ public class OPEntitiesDeal
                 cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
                 if (clzz.bindEntityDealtHandle != null)
                 {
-                    autoSetHandle.addAutoSetsForNotPorter(new Object[]{clzz.bindEntityDealtHandle});
+                    autoSetHandle.addAutoSetsForNotPorter(clzz.bindEntityDealtHandle);
                 }
             }
             OPEntities = new OPEntities(ones);

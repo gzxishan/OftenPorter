@@ -297,7 +297,7 @@ public class AutoSetObjForAspectOfNormal
                     AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
                     if (handle.init(annotation, configData, object, entry.getKey()))
                     {
-                        autoSetHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                        autoSetHandle.addAutoSetsForNotPorter(handle);
                         handles.add(handle);
                     }
                 }

@@ -318,15 +318,15 @@ public final class PorterMain
         AutoSetHandle autoSetHandle = AutoSetHandle
                 .newInstance(argumentsFactory, innerContextBridge, getPLinker(), porterData,
                         porterConf.getContextName());
-        autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values().toArray(new Object[0]));
+        autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
         autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
 
         LOGGER.debug("add autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();
-        autoSetHandle.addAutoSetsForNotPorter(stateListenerList.toArray(new StateListener[0]));
+        autoSetHandle.addAutoSetsForNotPorter(stateListenerList);
 
         LOGGER.debug("add autoSet for addAutoSetsForNotPorter...");
-        autoSetHandle.addAutoSetsForNotPorter(porterConf.getAutoSetSeekObjectsForSetter().toArray(new Object[0]));
+        autoSetHandle.addAutoSetsForNotPorter(porterConf.getAutoSetSeekObjectsForSetter());
 
         LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerList);
@@ -351,7 +351,7 @@ public final class PorterMain
         }
 
         LOGGER.debug("add autoSet CheckPassable of Class and Method...");
-        autoSetHandle.addAutoSetsForNotPorter(classCheckPassableMap.values().toArray(new CheckPassable[0]));
+        autoSetHandle.addAutoSetsForNotPorter(classCheckPassableMap.values());
 
         LOGGER.debug(":{}/{} afterSeek...", pLinker.currentPName(), porterConf.getContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
@@ -369,10 +369,13 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(porterCheckPassables);
 
 
-        CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
-        LOGGER.debug("add autoSet ForContextCheckPassable...");
-        autoSetHandle.addAutoSetsForNotPorter(contextChecks);
 
+        LOGGER.debug("add autoSet ForContextCheckPassable...");
+        autoSetHandle.addAutoSetsForNotPorter(porterConf.getContextChecks());
+        autoSetHandle.addAutoSetsForNotPorter(porterConf.getResponseHandles().values());
+        autoSetHandle.addAutoSetsForNotPorter(porterConf.getDefaultResponseHandle());
+
+        CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
         Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll,
                 innerContextBridge, contextChecks, porterCheckPassables, porterConf.getResponseHandles(),
                 porterConf.getDefaultResponseHandle());
