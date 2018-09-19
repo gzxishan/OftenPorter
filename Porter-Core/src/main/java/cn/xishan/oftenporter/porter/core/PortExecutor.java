@@ -67,7 +67,7 @@ public final class PortExecutor
     }
 
 
-    public Context addContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
+    public Context newContext(PorterBridge bridge, ContextPorter contextPorter, StateListener stateListenerForAll,
             InnerContextBridge innerContextBridge, CheckPassable[] contextChecks, CheckPassable[] porterCheckPassables,
             Map<Class, ResponseHandle> responseHandles, ResponseHandle defaultResponseHandle)
     {
@@ -77,8 +77,13 @@ public final class PortExecutor
                 porterCheckPassables, porterConf.getDefaultReturnFactory(), responseHandles, defaultResponseHandle);
         context.name = bridge.contextName();
         context.contentEncoding = porterConf.getContentEncoding();
-        contextMap.put(bridge.contextName(), context);
+
         return context;
+    }
+
+    public void onContextStarted(Context context)
+    {
+        contextMap.put(context.name, context);
     }
 
     public UrlDecoder getUrlDecoder()
@@ -813,9 +818,11 @@ public final class PortExecutor
                 Logger logger = logger(wObject);
                 if (logger.isWarnEnabled())
                 {
-                    if(ex instanceof WCallException){
+                    if (ex instanceof WCallException)
+                    {
                         logger.warn(ex.getMessage(), ex);
-                    }else{
+                    } else
+                    {
                         logger.warn(ex.getMessage(), ex);
                     }
 
@@ -1082,10 +1089,12 @@ public final class PortExecutor
             {
                 jResponse = toJResponse(reason, wObject);
             }
-            if(doWriteAndWillClose(wObject, porterOfFun, jResponse)){
+            if (doWriteAndWillClose(wObject, porterOfFun, jResponse))
+            {
                 close(wObject);
             }
-        }else{
+        } else
+        {
             close(wObject);
         }
     }

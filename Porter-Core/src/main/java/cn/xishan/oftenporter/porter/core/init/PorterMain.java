@@ -369,14 +369,13 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(porterCheckPassables);
 
 
-
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getContextChecks());
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getResponseHandles().values());
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getDefaultResponseHandle());
 
         CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
-        Context context = portExecutor.addContext(bridge, contextPorter, stateListenerForAll,
+        Context context = portExecutor.newContext(bridge, contextPorter, stateListenerForAll,
                 innerContextBridge, contextChecks, porterCheckPassables, porterConf.getResponseHandles(),
                 porterConf.getDefaultResponseHandle());
 
@@ -430,6 +429,7 @@ public final class PorterMain
 
             porterConf.initOk();
             LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
+            portExecutor.onContextStarted(context);
 
             LOGGER.debug("*********************************");
             LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());

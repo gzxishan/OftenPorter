@@ -28,11 +28,11 @@ public class Context
     Map<Class, ResponseHandle> responseHandles;
     ResponseHandle defaultResponseHandle;
 
-    public Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
+    Context(DeliveryBuilder deliveryBuilder, ContextPorter contextPorter, CheckPassable[] contextChecks,
             ParamSourceHandleManager paramSourceHandleManager,
             StateListener stateListenerForAll, InnerContextBridge innerContextBridge,
             CheckPassable[] porterCheckPassables, DefaultReturnFactory defaultReturnFactory,
-            Map<Class, ResponseHandle> responseHandles,ResponseHandle defaultResponseHandle)
+            Map<Class, ResponseHandle> responseHandles, ResponseHandle defaultResponseHandle)
     {
 
         this.deliveryBuilder = deliveryBuilder;
@@ -45,7 +45,7 @@ public class Context
                 porterCheckPassables : null;
         this.defaultReturnFactory = defaultReturnFactory;
         this.responseHandles = responseHandles;
-        this.defaultResponseHandle=defaultResponseHandle;
+        this.defaultResponseHandle = defaultResponseHandle;
         setEnable(true);
     }
 
