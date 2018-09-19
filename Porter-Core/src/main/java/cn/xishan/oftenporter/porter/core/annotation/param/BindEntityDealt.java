@@ -11,7 +11,11 @@ import java.lang.annotation.*;
 import java.lang.reflect.Method;
 
 /**
- * 被注解的类可以作为接口函数的形参。
+ * 被注解的类可以:
+ * <ol>
+ *     <li>放在{@linkplain BindEntities}注解里；</li>
+ *     <li>作为PortIn函数的形参；</li>
+ * </ol>
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
