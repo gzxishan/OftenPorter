@@ -130,7 +130,7 @@ public @interface AspectOperationOfNormal
      * preInvoke,doInvoke:handleA--handleB--handleC
      * </li>
      * <li>
-     * afterInvoke,onException,onEnd,onEndException:handleC--handleB--handleA
+     * afterInvoke或onException:handleC--handleB--handleA
      * </li>
      * </ol>
      * </p>
