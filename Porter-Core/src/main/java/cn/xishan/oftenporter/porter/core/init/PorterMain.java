@@ -403,7 +403,7 @@ public final class PorterMain
 
             LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(wObject);
-
+            portExecutor.onContextStarted(context);
 ////////////////////////////////////////////////////////////////////////////////
             LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
 
@@ -429,7 +429,7 @@ public final class PorterMain
 
             porterConf.initOk();
             LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
-            portExecutor.onContextStarted(context);
+
 
             LOGGER.debug("*********************************");
             LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
