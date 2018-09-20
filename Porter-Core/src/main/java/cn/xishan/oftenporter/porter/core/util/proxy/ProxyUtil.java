@@ -2,8 +2,10 @@ package cn.xishan.oftenporter.porter.core.util.proxy;
 
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import net.sf.cglib.proxy.*;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,5 +47,34 @@ public class ProxyUtil
         {
             return clazz;
         }
+    }
+
+    public static Object proxyObject(Object object, Class[] interfaces, IMethodFilter methodFilter,
+            IInvocationable invocationable)
+    {
+        Callback[] callbacks =
+                new Callback[]{NoOp.INSTANCE, (MethodInterceptor) (obj, method, args, proxy) -> {
+                    IInvocationable.IInvoker iInvoker = args1 -> proxy.invokeSuper(obj, args1);
+                    return invocationable.invoke(iInvoker, object, method, args);
+                }};
+
+        Enhancer enhancer = new Enhancer();
+        enhancer.setCallbacks(callbacks);
+        enhancer.setCallbackFilter(method -> {
+            if (methodFilter.contains(object, method))
+            {
+                return 1;
+            } else
+            {
+                return 0;
+            }
+        });
+        enhancer.setSuperclass(object.getClass());
+        if (interfaces != null)
+        {
+            enhancer.setInterfaces(interfaces);
+        }
+        Object proxyObject = enhancer.create();
+        return proxyObject;
     }
 }

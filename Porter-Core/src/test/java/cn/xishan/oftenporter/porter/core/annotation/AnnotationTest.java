@@ -25,5 +25,7 @@ public class AnnotationTest
         Assert.assertEquals(PortComment.class, annotations[0].annotationType());
         Assert.assertEquals(Mixin.class, annotations[1].annotationType());
         Assert.assertEquals(PortIn.class, annotations[2].annotationType());
+        Assert.assertTrue(Void.TYPE.equals(void.class));
+        Assert.assertTrue(Void.TYPE==void.class);
     }
 }

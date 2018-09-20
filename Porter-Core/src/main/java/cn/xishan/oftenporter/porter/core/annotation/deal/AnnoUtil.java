@@ -465,8 +465,8 @@ public final class AnnoUtil
                         continue;
                     }
 
-                    if (!(m.getReturnType() == void.class && method.getReturnType() == void.class ||
-                            m.getReturnType() != void.class && method.getReturnType() != void.class))
+                    if (!(m.getReturnType() == Void.TYPE && method.getReturnType() == Void.TYPE ||
+                            m.getReturnType() != Void.TYPE && method.getReturnType() != Void.TYPE))
                     {
                         continue;
                     }

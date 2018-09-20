@@ -343,46 +343,6 @@ public final class PortExecutor
             wObjectImpl.fentities = entities;
         }
         return null;
-//        for (int i = 0; i < ones.length; i++)
-//        {
-//            One one = ones[i];
-//            Object object = portUtil
-//                    .paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt, one,
-//                            wObjectImpl.getParamSource(),
-//                            currentTypeParserStore);
-//            if (object instanceof ParamDealt.FailedReason)
-//            {
-//                reason = (ParamDealt.FailedReason) object;
-//                break;
-//            } else
-//            {
-//                entities[i] = object;
-//            }
-//        }
-//        if (reason == null)
-//        {
-//            for (int i = 0; i < ones.length; i++)
-//            {
-//                One one = ones[i];
-//                _BindEntities.CLASS clazz = one.getEntityClazz();
-//                if (clazz != null)
-//                {
-//                    if (isInClass)
-//                    {
-//                        entities[i] = clazz.deal(wObjectImpl, porter, entities[i]);
-//                    } else
-//                    {
-//                        entities[i] = clazz.deal(wObjectImpl, porterOfFun, entities[i]);
-//                    }
-//                    if (entities[i] instanceof ParamDealt.FailedReason)
-//                    {
-//                        reason = (ParamDealt.FailedReason) entities[i];
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-
     }
 
     Object getExtrwaEntity(WObjectImpl wObject, String key)
