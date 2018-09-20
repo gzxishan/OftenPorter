@@ -386,6 +386,7 @@ public class AutoSetHandle
     {
         addAutoSetsForNotPorter(objects.toArray(new Object[0]));
     }
+
     public synchronized void addAutoSetsForNotPorter(Object... objects)
     {
         iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
@@ -646,8 +647,7 @@ public class AutoSetHandle
         }
 
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-        Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+
         IConfigData configData = getContextObject(IConfigData.class);
 
         Field[] fields = WPTool.getAllFields(currentObjectClass);
@@ -692,12 +692,13 @@ public class AutoSetHandle
                 Object value = f.get(currentObject);
                 if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
                 {
-                    Object newValue = workedInstance.doProxyAndDoAutoSet(value, this, true);
+                    Object newValue = workedInstance.doProxy(value, this);
                     if (newValue != value)
                     {
                         f.set(currentObject, newValue);
                         value = newValue;
                     }
+                    workedInstance.doAutoSet(value, this);
                 }
                 if (fieldRealType == null)
                 {
@@ -740,117 +741,28 @@ public class AutoSetHandle
                     mayNew = fieldRealType;
                 }
 
-                boolean isValueNotNull = value != null;
-                if (isValueNotNull)
+                if (value != null)
                 {
                     LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
                     //！！！忽略了非null的成员
-                    value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
                 } else
                 {
-                    switch (autoSet.range())
-                    {
-                        case Global:
-                        {
-                            value = globalAutoSet.get(keyName);
-                            if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
-                            {
-                                value = WPTool.newObjectMayNull(mayNew);
-                                if (value == null)
-                                {
-                                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                                }
-                            }
-                            if (value != null)
-                            {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
-                                globalAutoSet.put(keyName, value);
-                            }
-                        }
-                        break;
-                        case Context:
-                        {
-                            value = contextAutoSet.get(keyName);
-                            if (value == null)
-                            {
-                                Porter thePorter = porterMap.get(mayNew);
-                                if (thePorter != null)
-                                {
-                                    value = thePorter.getObj();
-                                }
-                            }
-                            if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
-                            {
-                                value = WPTool.newObjectMayNull(mayNew);
-                                if (value == null)
-                                {
-                                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                                }
-                            }
-                            if (value != null)
-                            {
-                                value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
-                                contextAutoSet.put(keyName, value);
-                            }
-                        }
-                        break;
-                        case New:
-                        {
-                            value = WPTool.newObjectMayNull(mayNew);
-                            value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
-                            if (value == null)
-                            {
-                                LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                            }
-                        }
-                        break;
-                    }
-
-                    if (value == null)
-                    {
-                        value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, f);
-                        value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
-                    }
-
-                    if (value == null)
-                    {
-                        if (!autoSet.nullAble())
-                        {
-                            thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
-                            break;
-                        }
-                    }
+                    value = getFieldObject(currentObject, currentObjectClass, keyName, f, mayNew, autoSet);
                 }
 
-                Object dealValue = dealtAutoSet(autoSet, finalObject, currentObjectClass, currentObject, f, value);
-                if (value != dealValue)
-                {
-                    value = workedInstance.doProxyAndDoAutoSet(dealValue, this, autoSet.willRecursive());
-                }
+                value = doAutoSetDefaultDealt(autoSet, finalObject, currentObjectClass, currentObject, f, value);
+
                 if (value == null && !autoSet.nullAble())
                 {
                     thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
                     break;
                 }
-                if (isValueNotNull && autoSet.notNullPut())
-                {
-                    switch (autoSet.range())
-                    {
-                        case Global:
-                            globalAutoSet.put(keyName, value);
-                            break;
-                        case Context:
-                            contextAutoSet.put(keyName, value);
-                            break;
-                        case New:
-                            break;
-                    }
-                }
-                //value = workedInstance.mayProxy(value, this, doProxy);
+
+
                 boolean willSet = true;
                 IAutoSetListener.Will lastWill = new IAutoSetListener.Will(willSet);
                 lastWill.optionValue = value;
-                Object originValue = value;
+
                 for (IAutoSetListener listener : innerContextBridge.autoSetListeners)
                 {
                     lastWill.willSet = willSet;
@@ -864,14 +776,16 @@ public class AutoSetHandle
                         value = will.optionValue;
                     }
                 }
+                value = workedInstance.doProxy(value, this);
+                saveFieldObject(keyName, value, autoSet);
+                doAutoSetPut(f, value, fieldRealType);
                 if (willSet)
                 {
-                    if (value != originValue)
-                    {
-                        value = workedInstance.doProxyAndDoAutoSet(value, this, autoSet.willRecursive());
-                    }
                     f.set(currentObject, value);//设置变量
-                    doAutoSetPut(f, value, fieldRealType);
+                    if (autoSet.willRecursive())
+                    {
+                        workedInstance.doAutoSet(value, this);//递归设置
+                    }
                     if (LOGGER.isDebugEnabled())
                     {
                         LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);
@@ -884,10 +798,7 @@ public class AutoSetHandle
                     }
                 }
 
-            } catch (FatalInitException e)
-            {
-                throw e;
-            } catch (InitException e)
+            } catch (FatalInitException | InitException e)
             {
                 throw e;
             } catch (Exception e)
@@ -910,10 +821,12 @@ public class AutoSetHandle
                 if (setOk != null)
                 {
                     method.setAccessible(true);
-                    if(currentObject==null&&!Modifier.isStatic(method.getModifiers())){
-                        LOGGER.warn("ignore SetOk method for no instance:method={}",method);
-                    }else{
-                        setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(),LOGGER));
+                    if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
+                    {
+                        LOGGER.warn("ignore SetOk method for no instance:method={}", method);
+                    } else
+                    {
+                        setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(), LOGGER));
                     }
                 }
             }
@@ -924,6 +837,95 @@ public class AutoSetHandle
             }
         }
         return currentObject;
+    }
+
+    private Object getFieldObject(Object currentObject, Class currentObjectClass, String keyName, Field field,
+            Class<?> mayNew, _AutoSet autoSet) throws Exception
+    {
+        Object value = null;
+        Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+        Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+        switch (autoSet.range())
+        {
+            case Global:
+            {
+                value = globalAutoSet.get(keyName);
+                if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                {
+                    value = WPTool.newObjectMayNull(mayNew);
+                    if (value == null)
+                    {
+                        LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                    }
+                }
+            }
+            break;
+            case Context:
+            {
+                value = contextAutoSet.get(keyName);
+                if (value == null)
+                {
+                    Porter thePorter = porterMap.get(mayNew);
+                    if (thePorter != null)
+                    {
+                        value = thePorter.getObj();
+                    }
+                }
+                if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                {
+                    value = WPTool.newObjectMayNull(mayNew);
+                    if (value == null)
+                    {
+                        LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                    }
+                }
+            }
+            break;
+            case New:
+            {
+                value = WPTool.newObjectMayNull(mayNew);
+                if (value == null)
+                {
+                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                }
+            }
+            break;
+        }
+
+        if (value == null)
+        {
+            value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, field);
+        }
+
+        if (value == null)
+        {
+            if (!autoSet.nullAble())
+            {
+                throw new RuntimeException(String.format("AutoSet:could not set [%s] with null!", field));
+            }
+        }
+
+        return value;
+    }
+
+    private void saveFieldObject(String keyName, Object value, _AutoSet autoSet)
+    {
+        if (value != null && autoSet.notNullPut())
+        {
+            Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+            Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+            switch (autoSet.range())
+            {
+                case Global:
+                    globalAutoSet.put(keyName, value);
+                    break;
+                case Context:
+                    contextAutoSet.put(keyName, value);
+                    break;
+                case New:
+                    break;
+            }
+        }
     }
 
     private void dealMethodAutoSet(Object currentObject, Class currentClass, Method method, IConfigData iConfigData)
@@ -1017,7 +1019,7 @@ public class AutoSetHandle
         }
     }
 
-    private Object dealtAutoSet(_AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
+    private Object doAutoSetDefaultDealt(_AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
             Object currentObject,
             Field field,
             Object value) throws Exception

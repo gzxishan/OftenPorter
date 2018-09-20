@@ -76,9 +76,14 @@ class AutoSetHandleWorkedInstance
         return new Result(isWorked, object);
     }
 
-    Object doProxyAndDoAutoSet(Object object, AutoSetHandle autoSetHandle,boolean willDoAutoSet) throws Exception
+    Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
-        return mayProxyAndDoAutoSet(object, autoSetHandle, true, willDoAutoSet);
+        return mayProxyAndDoAutoSet(object, autoSetHandle, true, false);
+    }
+
+    void doAutoSet(Object object, AutoSetHandle autoSetHandle) throws Exception
+    {
+        mayProxyAndDoAutoSet(object, autoSetHandle, false, true);
     }
 
     private Object mayProxyAndDoAutoSet(Object object, AutoSetHandle autoSetHandle, boolean doProxy,
