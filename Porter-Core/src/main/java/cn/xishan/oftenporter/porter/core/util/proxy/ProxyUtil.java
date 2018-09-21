@@ -82,12 +82,12 @@ public class ProxyUtil
             enhancer.setInterfaces(interfaces);
         }
         Object proxyObject = enhancer.create();
-        initFieldsValue(object, proxyObject);
+        initFieldsValue(object, proxyObject, true);
         return proxyObject;
     }
 
 
-    public static void initFieldsValue(Object src, Object target) throws Exception
+    public static void initFieldsValue(Object src, Object target, boolean fromSrc2target) throws Exception
     {
         if (src != null && target != null)
         {
@@ -104,7 +104,13 @@ public class ProxyUtil
                     continue;
                 }
                 field.setAccessible(true);
-                field.set(target, field.get(src));
+                if (fromSrc2target)
+                {
+                    field.set(target, field.get(src));
+                } else
+                {
+                    field.set(src, field.get(target));
+                }
             }
         }
     }

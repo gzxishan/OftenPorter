@@ -306,7 +306,7 @@ public class AutoSetObjForAspectOfNormal
                 methodInterceptor.origin = proxyObject;
             } else
             {
-                ProxyUtil.initFieldsValue(objectMayNull, proxyObject);
+                ProxyUtil.initFieldsValue(objectMayNull, proxyObject,true);
             }
 
             autoSetHandle.putProxyObject(objectMayNull, proxyObject);
