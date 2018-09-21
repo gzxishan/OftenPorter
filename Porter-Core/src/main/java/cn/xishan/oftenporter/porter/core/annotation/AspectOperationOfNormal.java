@@ -76,7 +76,7 @@ public @interface AspectOperationOfNormal
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
 
         @Override
-        public boolean init(T current, IConfigData configData, Object originObject,
+        public boolean init(T current, IConfigData configData,@MayNull Object originObject,Class originClass,
                 Method originMethod) throws Exception
         {
             LOGGER.debug("not Override.");
@@ -103,7 +103,7 @@ public @interface AspectOperationOfNormal
 
         @Override
         public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args, Object lastReturn)throws Throwable
+                Invoker invoker, Object[] args, Object lastReturn) throws Throwable
         {
             LOGGER.debug("not Override.");
             return lastReturn;
@@ -111,7 +111,7 @@ public @interface AspectOperationOfNormal
 
         @Override
         public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args,Throwable throwable) throws Throwable
+                Invoker invoker, Object[] args, Throwable throwable) throws Throwable
         {
 
         }
@@ -147,7 +147,8 @@ public @interface AspectOperationOfNormal
          * @param originMethod
          * @return true表示添加，false不添加。
          */
-        boolean init(T current, IConfigData configData, Object originObject, Method originMethod) throws Exception;
+        boolean init(T current, IConfigData configData, @MayNull Object originObject, Class originClass,
+                Method originMethod) throws Exception;
 
         /**
          * 是否会调用{@linkplain #doInvoke(WObject, boolean, Object, Method, Invoker, Object[], Object)}
@@ -170,7 +171,7 @@ public @interface AspectOperationOfNormal
                 Object lastReturn) throws Throwable;
 
         void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args,Throwable throwable) throws Throwable;
+                Invoker invoker, Object[] args, Throwable throwable) throws Throwable;
 
     }
 

@@ -315,9 +315,18 @@ public final class PorterMain
             argumentsFactory = defaultArgumentsFactory;
         }
 
+
+        AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal = null;
+        if (porterConf.isEnableAspectOfNormal())
+        {
+            autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal();
+            LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
+        }
+
         AutoSetHandle autoSetHandle = AutoSetHandle
                 .newInstance(argumentsFactory, innerContextBridge, getPLinker(), porterData,
-                        porterConf.getContextName());
+                        autoSetObjForAspectOfNormal, porterConf.getContextName());
+
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
         autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
 
@@ -381,12 +390,7 @@ public final class PorterMain
 
         try
         {
-            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal = null;
-            if (porterConf.isEnableAspectOfNormal())
-            {
-                autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal();
-                LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
-            }
+
             LOGGER.debug("start doAutoSet...");
             autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
             autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);

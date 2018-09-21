@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
 import cn.xishan.oftenporter.porter.local.mixin.MinxParseTest;
+import cn.xishan.oftenporter.porter.local.proxy.ProxyUnit;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -51,6 +52,9 @@ public class HelloPorter extends SuperSetPorter
 
     @AutoSet
     Random random;
+
+    @AutoSet
+    ProxyUnit proxyUnit;
 
     @AutoSet
     private static TypeTo typeTo;
@@ -96,6 +100,7 @@ public class HelloPorter extends SuperSetPorter
     {
         try
         {
+            proxyUnit.test();
             LOGGER.debug("{},{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3,autoSetObj4, globalSet);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", "TypeTo转换");

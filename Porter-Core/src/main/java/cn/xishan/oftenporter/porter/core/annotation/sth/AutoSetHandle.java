@@ -310,9 +310,10 @@ public class AutoSetHandle
 
     public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
             Delivery thisDelivery,
-            PorterData porterData, String currentContextName)
+            PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
     {
-        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData, currentContextName);
+        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData,
+                autoSetObjForAspectOfNormal, currentContextName);
     }
 
 
@@ -322,7 +323,7 @@ public class AutoSetHandle
     }
 
     private AutoSetHandle(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
-            Delivery thisDelivery, PorterData porterData,
+            Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
             String currentContextName)
     {
         this.argumentsFactory = argumentsFactory;
@@ -330,6 +331,7 @@ public class AutoSetHandle
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
         this.currentContextName = currentContextName;
+        this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
@@ -392,8 +394,13 @@ public class AutoSetHandle
         iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
     }
 
-    public synchronized void addAutoSetForPorter(Porter porter)
+    synchronized Object addAutoSetForPorter(Porter porter) throws Exception
     {
+        Object porterObject = porter.getObj();
+        if (porterObject == null)
+        {
+            porterObject = workedInstance.newAndProxy(porter.getClazz(), this);
+        }
         iHandles_porter.add(new Handle_doAutoSetForPorter(porter));
         porterMap.put(porter.getPortIn().getToPorterKey(), porter);
         porterMap.putAll(porter.getMixinToThatCouldSet());
@@ -411,7 +418,7 @@ public class AutoSetHandle
                 }
                 continue;
             }
-            Object last = innerContextBridge.contextAutoSet.put(contextSet.value(), porter.getObj());
+            Object last = innerContextBridge.contextAutoSet.put(contextSet.value(), porterObject);
             if (last != null && LOGGER.isWarnEnabled())
             {
                 LOGGER.warn("override by @{}:key={},newValue={},oldValue={}", PortIn.ContextSet.class.getSimpleName(),
@@ -420,7 +427,7 @@ public class AutoSetHandle
             }
         }
 
-        //doAutoSet(object, autoSetMixinMap);
+        return porterObject;
     }
 
     public synchronized void addAutoSetThatOfMixin(Object porter1, Object porter2)
@@ -608,7 +615,10 @@ public class AutoSetHandle
 
     void putProxyObject(Object origin, Object proxy)
     {
-        proxyObjectMap.put(origin, proxy);
+        if (origin != null)
+        {
+            proxyObjectMap.put(origin, proxy);
+        }
     }
 
     private void doAutoSetPut(Field field, Object obj, Class realType)
@@ -842,60 +852,63 @@ public class AutoSetHandle
     private Object getFieldObject(Object currentObject, Class currentObjectClass, String keyName, Field field,
             Class<?> mayNew, _AutoSet autoSet) throws Exception
     {
-        Object value = null;
-        Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-        Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
-        switch (autoSet.range())
-        {
-            case Global:
-            {
-                value = globalAutoSet.get(keyName);
-                if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
-                {
-                    value = WPTool.newObjectMayNull(mayNew);
-                    if (value == null)
-                    {
-                        LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                    }
-                }
-            }
-            break;
-            case Context:
-            {
-                value = contextAutoSet.get(keyName);
-                if (value == null)
-                {
-                    Porter thePorter = porterMap.get(mayNew);
-                    if (thePorter != null)
-                    {
-                        value = thePorter.getObj();
-                    }
-                }
-                if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
-                {
-                    value = WPTool.newObjectMayNull(mayNew);
-                    if (value == null)
-                    {
-                        LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                    }
-                }
-            }
-            break;
-            case New:
-            {
-                value = WPTool.newObjectMayNull(mayNew);
-                if (value == null)
-                {
-                    LOGGER.debug("there is no zero-args constructor:{}", mayNew);
-                }
-            }
-            break;
-        }
-
+        Object value = doAutoSetGen(autoSet, currentObjectClass, currentObject, field);//先生成
         if (value == null)
         {
-            value = genObjectOfAutoSet(autoSet, currentObjectClass, currentObject, field);
+            Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+            Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+            switch (autoSet.range())
+            {
+                case Global:
+                {
+                    value = globalAutoSet.get(keyName);
+                    if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                    {
+
+//                    value = WPTool.newObjectMayNull(mayNew);
+                        value = workedInstance.newAndProxy(mayNew, this);
+                        if (value == null)
+                        {
+                            LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                        }
+                    }
+                }
+                break;
+                case Context:
+                {
+                    value = contextAutoSet.get(keyName);
+                    if (value == null)
+                    {
+                        Porter thePorter = porterMap.get(mayNew);
+                        if (thePorter != null)
+                        {
+                            value = thePorter.getObj();
+                        }
+                    }
+                    if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                    {
+//                    value = WPTool.newObjectMayNull(mayNew);
+                        value = workedInstance.newAndProxy(mayNew, this);
+                        if (value == null)
+                        {
+                            LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                        }
+                    }
+                }
+                break;
+                case New:
+                {
+//                value = WPTool.newObjectMayNull(mayNew);
+                    value = workedInstance.newAndProxy(mayNew, this);
+                    if (value == null)
+                    {
+                        LOGGER.debug("there is no zero-args constructor:{}", mayNew);
+                    }
+                }
+                break;
+            }
         }
+
 
         if (value == null)
         {
@@ -977,7 +990,7 @@ public class AutoSetHandle
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    private Object genObjectOfAutoSet(_AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
+    private Object doAutoSetGen(_AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
             Field field) throws Exception
     {
         Class<? extends AutoSetGen> genClass = autoSet.gen();

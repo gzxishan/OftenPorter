@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class AutoSetObjForAspectOfNormal
         WObject wObject;
         AspectOperationOfNormal.Handle[] handles;
         Object interceptorObj;
-        MethodProxy proxy;
+        MethodProxy methodProxy;
         Object origin;
         Method originMethod;
         Object[] args;
@@ -41,13 +42,13 @@ public class AutoSetObjForAspectOfNormal
 
 
         public AspectTask(WObject wObject,
-                AspectOperationOfNormal.Handle[] handles, Object interceptorObj, MethodProxy proxy, Object origin,
+                AspectOperationOfNormal.Handle[] handles, Object interceptorObj, MethodProxy methodProxy, Object origin,
                 Method originMethod, Object[] args)
         {
             this.wObject = wObject;
             this.handles = handles;
             this.interceptorObj = interceptorObj;
-            this.proxy = proxy;
+            this.methodProxy = methodProxy;
             this.origin = origin;
             this.originMethod = originMethod;
             this.args = args;
@@ -68,7 +69,7 @@ public class AutoSetObjForAspectOfNormal
             public Object invoke(Object[] args) throws Throwable
             {
                 invoked = true;
-                return proxy.invokeSuper(interceptorObj, args);
+                return methodProxy.invokeSuper(interceptorObj, args);
             }
         };
 
@@ -158,6 +159,7 @@ public class AutoSetObjForAspectOfNormal
 
     private static Set<Method> aspectHandleSet = Collections.newSetFromMap(new WeakHashMap<>());
     private static Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
+
     private Object callbackFilter = null;
 
     public AutoSetObjForAspectOfNormal()
@@ -169,20 +171,22 @@ public class AutoSetObjForAspectOfNormal
         return object instanceof IOPProxy;
     }
 
-    Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
+    Object doProxyOrNew(Object objectMayNull, Class objectClass, AutoSetHandle autoSetHandle) throws Exception
     {
         synchronized (AutoSetObjForAspectOfNormal.class)
         {
-            if (seekedObjectSet.contains(object))
+            if (objectMayNull != null && seekedObjectSet.contains(objectMayNull))
             {
-                return object;
+                return objectMayNull;
             }
         }
-        if (hasProxy(object))
+        if (hasProxy(objectMayNull))
         {
-            return object;
+            return objectMayNull;
         }
-        Class<?> clazz = PortUtil.getRealClass(object);
+
+        Class<?> clazz = objectMayNull == null ? objectClass : PortUtil.getRealClass(objectMayNull);
+
         IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
 
         Map<Annotation, AspectOperationOfNormal> classAspectOperationMap = new HashMap<>();
@@ -242,7 +246,10 @@ public class AutoSetObjForAspectOfNormal
 
         synchronized (AutoSetObjForAspectOfNormal.class)
         {
-            seekedObjectSet.add(object);
+            if (objectMayNull != null)
+            {
+                seekedObjectSet.add(objectMayNull);
+            }
         }
 
         if (existsAspect)
@@ -270,7 +277,7 @@ public class AutoSetObjForAspectOfNormal
                             .get(i)[1];
 
                     AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
-                    if (handle.init(annotation, configData, object, entry.getKey()))
+                    if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
                     {
                         autoSetHandle.addAutoSetsForNotPorter(handle);
                         handles.add(handle);
@@ -283,22 +290,33 @@ public class AutoSetObjForAspectOfNormal
 
             }
 
-            Callback[] callbacks =
-                    new Callback[]{NoOp.INSTANCE, new MethodInterceptorImpl(object, aspectHandleMap)};
+            MethodInterceptorImpl methodInterceptor = new MethodInterceptorImpl(objectMayNull, aspectHandleMap);
+            Callback[] callbacks = new Callback[]{NoOp.INSTANCE, methodInterceptor};
 
             Enhancer enhancer = new Enhancer();
             enhancer.setCallbacks(callbacks);
             enhancer.setCallbackFilter((CallbackFilter) callbackFilter);
-            enhancer.setSuperclass(object.getClass());
+            enhancer.setSuperclass(clazz);
             enhancer.setInterfaces(new Class[]{
                     IOPProxy.class
             });
             Object proxyObject = enhancer.create();
-            autoSetHandle.putProxyObject(object, proxyObject);
-            object = proxyObject;
+            if (objectMayNull == null)
+            {
+                methodInterceptor.origin = proxyObject;
+            } else
+            {
+                ProxyUtil.initFieldsValue(objectMayNull, proxyObject);
+            }
+
+            autoSetHandle.putProxyObject(objectMayNull, proxyObject);
+            objectMayNull = proxyObject;
+        } else if (objectMayNull == null)
+        {
+            objectMayNull = WPTool.newObjectMayNull(objectClass);
         }
 
 
-        return object;
+        return objectMayNull;
     }
 }

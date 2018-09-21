@@ -3,9 +3,12 @@ package cn.xishan.oftenporter.porter.core.util.proxy;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import net.sf.cglib.proxy.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +19,8 @@ import java.util.regex.Pattern;
  */
 public class ProxyUtil
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyUtil.class);
 
     public interface __ProxyUtil_
     {
@@ -50,11 +55,13 @@ public class ProxyUtil
     }
 
     public static Object proxyObject(Object object, Class[] interfaces, IMethodFilter methodFilter,
-            IInvocationable invocationable)
+            IInvocationable invocationable) throws Exception
     {
         Callback[] callbacks =
-                new Callback[]{NoOp.INSTANCE, (MethodInterceptor) (obj, method, args, proxy) -> {
-                    IInvocationable.IInvoker iInvoker = args1 -> proxy.invokeSuper(obj, args1);
+                new Callback[]{NoOp.INSTANCE, (MethodInterceptor) (obj, method, args, methodProxy) -> {
+
+                    IInvocationable.IInvoker iInvoker = args1 -> methodProxy.invokeSuper(obj, args1);
+
                     return invocationable.invoke(iInvoker, object, method, args);
                 }};
 
@@ -75,6 +82,30 @@ public class ProxyUtil
             enhancer.setInterfaces(interfaces);
         }
         Object proxyObject = enhancer.create();
+        initFieldsValue(object, proxyObject);
         return proxyObject;
+    }
+
+
+    public static void initFieldsValue(Object src, Object target) throws Exception
+    {
+        if (src != null && target != null)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("copy fields from:[{}] to [{}]", src.getClass() + "@" + src.hashCode(),
+                        target.getClass() + "@" + target.hashCode());
+            }
+            Field[] fields = WPTool.getAllFields(src.getClass());
+            for (Field field : fields)
+            {
+                if (Modifier.isStatic(field.getModifiers()))
+                {
+                    continue;
+                }
+                field.setAccessible(true);
+                field.set(target, field.get(src));
+            }
+        }
     }
 }

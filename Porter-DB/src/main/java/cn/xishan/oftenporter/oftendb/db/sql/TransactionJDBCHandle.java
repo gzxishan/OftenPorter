@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -67,8 +68,8 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     }
 
     @Override
-    public boolean init(TransactionJDBC current, IConfigData configData, Object originObject,
-            Method originMethod) throws Exception
+    public boolean init(TransactionJDBC current, IConfigData configData, @MayNull Object originObject,
+            Class originClass,Method originMethod) throws Exception
     {
         this.transactionJDBC = current;
         if ("mybatis".equals(transactionJDBC.type()))

@@ -69,38 +69,43 @@ class AutoSetHandleWorkedInstance
                     }
                 }
             }
-
-
+            object = mayProxyAndDoAutoSet(object, null, autoSetHandle, doProxy, false);
         }
-        object = mayProxyAndDoAutoSet(object, autoSetHandle, doProxy, false);
         return new Result(isWorked, object);
     }
 
     Object doProxy(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
-        return mayProxyAndDoAutoSet(object, autoSetHandle, true, false);
+        return mayProxyAndDoAutoSet(object, null, autoSetHandle, true, false);
+    }
+
+    Object newAndProxy(Class objectClass, AutoSetHandle autoSetHandle) throws Exception
+    {
+        return mayProxyAndDoAutoSet(null, objectClass, autoSetHandle, true, false);
     }
 
     void doAutoSet(Object object, AutoSetHandle autoSetHandle) throws Exception
     {
-        mayProxyAndDoAutoSet(object, autoSetHandle, false, true);
+        mayProxyAndDoAutoSet(object, null, autoSetHandle, false, true);
     }
 
-    private Object mayProxyAndDoAutoSet(Object object, AutoSetHandle autoSetHandle, boolean doProxy,
+    private Object mayProxyAndDoAutoSet(Object objectMayNull, Class objectClass, AutoSetHandle autoSetHandle,
+            boolean doProxy,
             boolean doAutoSet) throws Exception
     {
-        if (doProxy && object != null)
+        if (doProxy && (objectMayNull != null || objectClass != null))
         {
             if (autoSetObjForAspectOfNormal != null)
             {
-                object = autoSetObjForAspectOfNormal.doProxy(object, autoSetHandle);//用于通用的切面操作而进行代理设置
+                objectMayNull = autoSetObjForAspectOfNormal
+                        .doProxyOrNew(objectMayNull, objectClass, autoSetHandle);//用于通用的切面操作而进行代理设置
             }
         }
-        if (doAutoSet && object != null)
+        if (doAutoSet && objectMayNull != null)
         {
-            object = autoSetHandle.doAutoSetForCurrent(false, object, object);//递归：设置被设置的变量。
+            objectMayNull = autoSetHandle.doAutoSetForCurrent(false, objectMayNull, objectMayNull);//递归：设置被设置的变量。
         }
-        return object;
+        return objectMayNull;
     }
 
     boolean hasProxy(Object object)

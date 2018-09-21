@@ -55,7 +55,7 @@ public class SthDeal
     public Porter porter(ContextPorter.SrcPorter srcPorter,
             Map<Class, Set<_MixinPorter>> mixinToMap,
             String currentContextName,
-            AutoSetHandle autoSetHandle) throws FatalInitException
+            AutoSetHandle autoSetHandle) throws Exception
     {
         return porter(srcPorter, mixinToMap, currentContextName, null, autoSetHandle, false, null);
     }
@@ -70,7 +70,7 @@ public class SthDeal
     private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MixinPorter>> mixinToMap,
             String currentContextName, String currentClassTied,
             AutoSetHandle autoSetHandle,
-            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws FatalInitException
+            boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws Exception
 
     {
         Class clazz = srcPorter.getClazz();

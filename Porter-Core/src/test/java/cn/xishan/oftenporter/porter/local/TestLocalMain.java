@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.local.porter.Article;
 import cn.xishan.oftenporter.porter.local.porter.User;
 import cn.xishan.oftenporter.porter.local.porter2.My2Porter;
 import cn.xishan.oftenporter.porter.local.porter2.MyPorter;
+import cn.xishan.oftenporter.porter.local.proxy.ProxyUnit;
 import org.apache.log4j.PropertyConfigurator;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -59,11 +61,12 @@ public class TestLocalMain
 
         Properties properties = new Properties();
         properties.setProperty("isTest", String.valueOf(true));
-        properties.setProperty("pname","P1");
+        properties.setProperty("pname", "P1");
         porterConf.setAnnotationConfig(properties);
 
         //porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
+        porterConf.addContextAutoSet(new ProxyUnit(new Random()));
 
         porterConf.setDefaultReturnFactory(new DefaultReturnFactory()
         {
