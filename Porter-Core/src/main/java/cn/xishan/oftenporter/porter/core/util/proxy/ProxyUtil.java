@@ -62,7 +62,7 @@ public class ProxyUtil
 
                     IInvocationable.IInvoker iInvoker = args1 -> methodProxy.invokeSuper(obj, args1);
 
-                    return invocationable.invoke(iInvoker, object, method, args);
+                    return invocationable.invoke(iInvoker, obj, object, method, args);
                 }};
 
         Enhancer enhancer = new Enhancer();
@@ -87,14 +87,26 @@ public class ProxyUtil
     }
 
 
+    /**
+     * 复制成员变量值（除了static但包括final类型）,变量以src中的变量为准。
+     * @param src
+     * @param target
+     * @param fromSrc2target true表示从src复制到target；false表示从target复制到src。
+     * @throws Exception
+     */
     public static void initFieldsValue(Object src, Object target, boolean fromSrc2target) throws Exception
     {
         if (src != null && target != null)
         {
             if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("copy fields from:[{}] to [{}]", src.getClass() + "@" + src.hashCode(),
-                        target.getClass() + "@" + target.hashCode());
+                if(fromSrc2target){
+                    LOGGER.debug("copy fields from:[{}] to [{}]", src.getClass() + "@" + src.hashCode(),
+                            target.getClass() + "@" + target.hashCode());
+                }else{
+                    LOGGER.debug("copy fields from:[{}] to [{}]", target.getClass() + "@" + target.hashCode(),
+                            src.getClass() + "@" + src.hashCode());
+                }
             }
             Field[] fields = WPTool.getAllFields(src.getClass());
             for (Field field : fields)

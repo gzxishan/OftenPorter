@@ -12,5 +12,5 @@ public interface IInvocationable
         Object doInvoke(Object... args)throws Throwable;
     }
 
-    Object invoke(IInvoker proxyInvoker, Object origin, Method originMethod, Object[] args)throws Throwable;
+    Object invoke(IInvoker proxyInvoker,Object proxy, Object origin, Method originMethod, Object[] args)throws Throwable;
 }
