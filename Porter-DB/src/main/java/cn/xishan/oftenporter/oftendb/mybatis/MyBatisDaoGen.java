@@ -13,8 +13,6 @@ import cn.xishan.oftenporter.porter.core.util.*;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
-import org.apache.ibatis.executor.ErrorContext;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
@@ -172,22 +170,24 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     path = getFileRelativePath(myBatis, path);
                 }
-                ErrorContext.instance().resource(optionMapperFile.getAbsolutePath());
                 LOGGER.debug("load xml:dao={},file={}", myBatis.daoClass, optionMapperFile);
                 xmlData = FileTool.getData(new FileInputStream(optionMapperFile), 2048);
             } else if (myBatis.type == MyBatisMapper.Type.RESOURCES)
             {
                 path = getFileRelativePath(myBatis, path);
                 LOGGER.debug("load xml:dao={},path={}", myBatis.daoClass, path);
-                ErrorContext.instance().resource(path);
-                InputStream inputStream = Resources.getResourceAsStream(path);
+                URL url = ResourceUtil.getAbsoluteResource(path);
+                if(url==null){
+                    throw new IOException("not found:"+path);
+                }
+                InputStream inputStream = url.openStream();
                 xmlData = FileTool.getData(inputStream, 2048);
             } else
             {
                 //URL
                 LOGGER.debug("load xml:dao={},url={}", myBatis.daoClass, path);
-                ErrorContext.instance().resource(path);
-                InputStream inputStream = Resources.getUrlAsStream(path);
+                URL url = new URL(path);
+                InputStream inputStream = url.openStream();
                 xmlData = FileTool.getData(inputStream, 2048);
             }
 
@@ -229,9 +229,6 @@ class MyBatisDaoGen implements AutoSetGen
         } catch (Exception e)
         {
             LOGGER.error(e.getMessage(), e);
-        } finally
-        {
-            ErrorContext.instance().reset();
         }
 
     }

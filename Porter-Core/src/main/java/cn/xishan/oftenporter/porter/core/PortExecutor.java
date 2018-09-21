@@ -163,6 +163,10 @@ public final class PortExecutor
         contextMap.clear();
     }
 
+    public int contextSize(){
+        return contextMap.size();
+    }
+
     public Iterator<String> contextNameIterator()
     {
         return contextMap.keySet().iterator();

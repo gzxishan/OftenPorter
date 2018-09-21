@@ -83,6 +83,20 @@ class MSqlSessionFactoryBuilder
         {
             return;
         }
+        boolean willCheckFile = false;
+        for (BuilderListener builderListener : builderListenerSet)
+        {
+            if (builderListener.willCheckMapperFile())
+            {
+                willCheckFile = true;
+                break;
+            }
+        }
+        if (!willCheckFile)
+        {
+            return;
+        }
+
         if (executorService == null)
         {
             executorService = Executors.newSingleThreadExecutor(r -> {
@@ -193,18 +207,18 @@ class MSqlSessionFactoryBuilder
                 LOGGER.debug("will rereg...");
                 try
                 {
-                    if (!isForInit&&mybatisStateListener != null)
+                    if (!isForInit && mybatisStateListener != null)
                     {
                         mybatisStateListener.beforeReload();
                     }
                     regFileCheck(false);
-                    if (!isForInit&&mybatisStateListener != null)
+                    if (!isForInit && mybatisStateListener != null)
                     {
                         mybatisStateListener.afterReload();
                     }
                 } catch (Exception e)
                 {
-                    if (!isForInit&&mybatisStateListener != null)
+                    if (!isForInit && mybatisStateListener != null)
                     {
                         mybatisStateListener.onReloadFailed(e);
                     }

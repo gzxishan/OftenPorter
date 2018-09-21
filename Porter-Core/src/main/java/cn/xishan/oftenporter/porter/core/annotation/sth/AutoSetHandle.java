@@ -43,10 +43,11 @@ public class AutoSetHandle
     private List<IHandle> iHandles_notporter = new ArrayList<>();
     private List<IHandle> iHandlesForAutoSetThat = new ArrayList<>();
     private Map<Class, Porter> porterMap = new HashMap<>();
-    private String currentContextName;
-    private List<_SetOkObject> setOkObjects = new ArrayList<>();
-    private IOtherStartDestroy iOtherStartDestroy;
     private Map<Object, Object> proxyObjectMap = new HashMap<>();
+    private List<_SetOkObject> setOkObjects = new ArrayList<>();
+
+    private String currentContextName;
+    private IOtherStartDestroy iOtherStartDestroy;
 
     public <T> T getContextObject(Class<?> key)
     {
@@ -144,7 +145,7 @@ public class AutoSetHandle
         }
     }
 
-    private class Handle_doAutoSetsForNotPorter implements IHandle
+    private  class Handle_doAutoSetsForNotPorter implements IHandle
     {
 
         private Object[] objects;
@@ -448,10 +449,12 @@ public class AutoSetHandle
             {
                 setOkObject.invoke(wObject);
             }
-            this.setOkObjects.clear();
+            this.setOkObjects=null;
             this.porterMap = null;
-            this.proxyObjectMap.clear();
             this.proxyObjectMap = null;
+            this.iHandles_notporter=null;
+            this.iHandles_porter=null;
+            this.iHandlesForAutoSetThat=null;
         } catch (Exception e)
         {
             throw new RuntimeException(e);

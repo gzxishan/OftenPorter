@@ -5,7 +5,6 @@ import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -151,7 +150,7 @@ public class SthDeal
 
         /////处理自身接口----开始
         Method[] methods = WPTool.getAllMethods(clazz);
-        ObjectGetter objectGetter = porter::getObj;
+        ObjectGetter objectGetter = new ObjectGetterImpl(porter);
         for (Method method : methods)
         {
 

@@ -47,6 +47,7 @@ public final class PorterMain
 
     private boolean isInit;
     private InnerBridge innerBridge;
+    private CommonMain commonMain;
     private PLinker pLinker;
     private IListenerAdder<OnPorterAddListener> IListenerAdder;
     private PorterData porterData;
@@ -121,6 +122,7 @@ public final class PorterMain
     {
         synchronized (PorterMain.class)
         {
+            this.commonMain = commonMain;
             this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
             IListenerAdder = new DefaultListenerAdder<>();
             pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
@@ -134,7 +136,6 @@ public final class PorterMain
                 }
                 return classLoader;
             });
-            commonMainHashMap.put(pName.getName(), commonMain);
             currentPNameForLogger = pName.getName();
             LOGGER = LogUtil.logger(PorterMain.class);
             currentPNameForLogger = null;
@@ -253,6 +254,7 @@ public final class PorterMain
                             name + "." + getPLinker().currentPName().getName() + "." + bridge.contextName()));
             checkInit();
             currentPNameForLogger = getPLinker().currentPName().getName();
+            commonMainHashMap.put(this.pLinker.currentPName().getName(), commonMain);
             _startOne(bridge);
             currentPNameForLogger = null;
         } catch (Throwable e)
@@ -467,7 +469,6 @@ public final class PorterMain
             }
             portExecutor.clear();
             LOGGER.debug("[{}] destroyAll end!", getPLinker().currentPName());
-            commonMainHashMap.remove(pLinker.currentPName().getName());
         }
     }
 
@@ -484,7 +485,13 @@ public final class PorterMain
             context.contextPorter.destroy();
             LOGGER.debug("Context [{}] destroyed!", contextName);
             stateListenerForAll.afterDestroy();
+            AnnoUtil.clearCache();
+            if (portExecutor.contextSize() == 0)
+            {
+                commonMainHashMap.remove(pLinker.currentPName().getName());
+            }
         }
+
     }
 
     public synchronized void destroyOne(String contextName)

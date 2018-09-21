@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
@@ -13,8 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/6/30.
@@ -127,14 +131,14 @@ public class AutoSetObjForAspectOfNormal
         }
     }
 
-    public class MethodInterceptorImpl implements MethodInterceptor
+    static class MethodInterceptorImpl implements MethodInterceptor
     {
-        private Object origin;
+        private WeakReference<Object> originRef;
         Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap;
 
         public MethodInterceptorImpl(Object origin, Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap)
         {
-            this.origin = origin;
+            this.originRef = new WeakReference<>(origin);
             this.aspectHandleMap = aspectHandleMap;
         }
 
@@ -143,7 +147,7 @@ public class AutoSetObjForAspectOfNormal
         {
             WObject wObject = WObject.fromThreadLocal();
             AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
-            AspectTask aspectTask = new AspectTask(wObject, handles, obj, methodProxy, origin, method, args);
+            AspectTask aspectTask = new AspectTask(wObject, handles, obj, methodProxy, originRef.get(), method, args);
 
             try
             {
@@ -157,13 +161,19 @@ public class AutoSetObjForAspectOfNormal
         }
     }
 
-    private static Set<Method> aspectHandleSet = Collections.newSetFromMap(new WeakHashMap<>());
-    private static Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
+    private static Set<Method> aspectHandleSet = ConcurrentHashMap.newKeySet();
+    private Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
 
-    private Object callbackFilter = null;
+    private static CallbackFilter callbackFilter = method -> {//static类型，防止当前类被引用无法释放。
+        synchronized (AutoSetObjForAspectOfNormal.class)
+        {
+            return aspectHandleSet.contains(method) ? 1 : 0;
+        }
+    };
 
     public AutoSetObjForAspectOfNormal()
     {
+
     }
 
     boolean hasProxy(Object object)
@@ -236,11 +246,17 @@ public class AutoSetObjForAspectOfNormal
             }
             if (list.size() > 0)
             {
-                synchronized (AutoSetObjForAspectOfNormal.class)
+                if (Modifier.isPrivate(method.getModifiers()))
                 {
-                    aspectHandleSet.add(method);
+                    LOGGER.warn("ignore private method aspect of normal:{}", method);
+                } else
+                {
+                    synchronized (AutoSetObjForAspectOfNormal.class)
+                    {
+                        aspectHandleSet.add(method);
+                    }
+                    methodTypeMap.put(method, list);
                 }
-                methodTypeMap.put(method, list);
             }
         }
 
@@ -254,16 +270,7 @@ public class AutoSetObjForAspectOfNormal
 
         if (existsAspect)
         {
-            if (this.callbackFilter == null)
-            {
-                CallbackFilter callbackFilter = method -> {
-                    synchronized (AutoSetObjForAspectOfNormal.class)
-                    {
-                        return aspectHandleSet.contains(method) ? 1 : 0;
-                    }
-                };
-                this.callbackFilter = callbackFilter;
-            }
+
             Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
             for (Map.Entry<Method, List<Annotation[]>> entry : methodTypeMap.entrySet())
             {
@@ -295,7 +302,7 @@ public class AutoSetObjForAspectOfNormal
 
             Enhancer enhancer = new Enhancer();
             enhancer.setCallbacks(callbacks);
-            enhancer.setCallbackFilter((CallbackFilter) callbackFilter);
+            enhancer.setCallbackFilter(callbackFilter);
             enhancer.setSuperclass(clazz);
             enhancer.setInterfaces(new Class[]{
                     IOPProxy.class
@@ -303,10 +310,10 @@ public class AutoSetObjForAspectOfNormal
             Object proxyObject = enhancer.create();
             if (objectMayNull == null)
             {
-                methodInterceptor.origin = proxyObject;
+                methodInterceptor.originRef = new WeakReference<>(proxyObject);
             } else
             {
-                ProxyUtil.initFieldsValue(objectMayNull, proxyObject,true);
+                ProxyUtil.initFieldsValue(objectMayNull, proxyObject, true);
             }
 
             autoSetHandle.putProxyObject(objectMayNull, proxyObject);

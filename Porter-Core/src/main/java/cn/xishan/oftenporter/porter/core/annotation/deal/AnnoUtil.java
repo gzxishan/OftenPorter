@@ -74,12 +74,14 @@ public final class AnnoUtil
 
     private static class CacheKey
     {
-        Object target;
+        WeakReference<Object> targetRef;
         Object annotationType;
+        int hashCode;
 
         public CacheKey(Object target, Object[] array, String tag)
         {
-            this.target = target;
+            hashCode = target.hashCode();
+            this.targetRef = new WeakReference<>(target);
             StringBuilder builder = new StringBuilder();
             for (Object obj : array)
             {
@@ -91,7 +93,7 @@ public final class AnnoUtil
 
         public CacheKey(Object target, Object annotationType)
         {
-            this.target = target;
+            this.targetRef = new WeakReference<>(target);
             this.annotationType = annotationType;
         }
 
@@ -101,7 +103,9 @@ public final class AnnoUtil
             if (obj instanceof CacheKey)
             {
                 CacheKey cacheKey = (CacheKey) obj;
-                return target.equals(cacheKey.target) && annotationType.equals(cacheKey.annotationType);
+                Object target = targetRef.get();
+                return target != null && target.equals(cacheKey.targetRef.get()) && annotationType
+                        .equals(cacheKey.annotationType);
             }
             return false;
         }
@@ -109,13 +113,13 @@ public final class AnnoUtil
         @Override
         public int hashCode()
         {
-            return target.hashCode();
+            return hashCode;
         }
 
         @Override
         public String toString()
         {
-            return target + ":" + annotationType;
+            return targetRef.get() + ":" + annotationType;
         }
 
         Object getCache()
@@ -142,6 +146,20 @@ public final class AnnoUtil
     private static IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
     private static final String DYNAMIC_ANNOTATION_IMPROVABLES_STRING;
     private static Map<CacheKey, WeakReference<Object>> annotationCache;
+
+    public static void clearCache()
+    {
+        Iterator<Map.Entry<CacheKey, WeakReference<Object>>> iterator = annotationCache.entrySet().iterator();
+        while (iterator.hasNext())
+        {
+            Map.Entry<CacheKey, WeakReference<Object>> entry = iterator.next();
+            CacheKey cacheKey = entry.getKey();
+            if (cacheKey.targetRef.get() == null)
+            {
+                iterator.remove();
+            }
+        }
+    }
 
     static
     {
@@ -297,7 +315,7 @@ public final class AnnoUtil
 
         private static List<Class<?>> getAllGenericRealClassType(Class<?> realClass)
         {
-            realClass=ProxyUtil.unwrapProxyForGeneric(realClass);
+            realClass = ProxyUtil.unwrapProxyForGeneric(realClass);
             List<Class<?>> typeList = new ArrayList<>(4);
             Type superType = realClass.getGenericSuperclass();
             if (superType != null)
@@ -606,7 +624,7 @@ public final class AnnoUtil
             {
                 return (Class<?>) genericType;
             }
-            realClass=ProxyUtil.unwrapProxyForGeneric(realClass);
+            realClass = ProxyUtil.unwrapProxyForGeneric(realClass);
 
             Type realType = null;
             if (Modifier.isInterface(declaringClass.getModifiers()) && genericType instanceof TypeVariable)
