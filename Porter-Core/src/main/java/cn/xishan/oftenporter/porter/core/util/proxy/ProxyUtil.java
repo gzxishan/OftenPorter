@@ -29,9 +29,7 @@ public class ProxyUtil
 
     private static final Pattern CGLIB_NAME_PATTERN = Pattern.compile("\\$\\$[^\\s]*CGLIB[^\\s]*\\$\\$");
 
-    public static <T> T newProxyInstance(ClassLoader loader,
-            Class<?>[] interfaces,
-            InvocationHandler h)
+    public static <T> T newProxyInstance(ClassLoader loader,Class<?>[] interfaces,InvocationHandler h)
     {
         List<Class<?>> list = new ArrayList<>(interfaces.length + 1);
         WPTool.addAll(list, interfaces);
