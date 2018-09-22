@@ -422,10 +422,9 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
 
-    public void start(WObject wObject, Map<String, One> extraEntityMap, SthDeal sthDeal,
+    public void beforeStart(Map<String, One> extraEntityMap, SthDeal sthDeal,
             InnerContextBridge innerContextBridge) throws Exception
     {
-
         Iterator<Porter> iterator = portMap.values().iterator();
         try
         {
@@ -443,8 +442,33 @@ public class ContextPorter implements IOtherStartDestroy
         iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
+            //内部会调用addAutoSetsForNotPorter
             iterator.next().initOPEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
         }
+    }
+
+    public void start(WObject wObject)
+    {
+
+//        Iterator<Porter> iterator = portMap.values().iterator();
+//        try
+//        {
+//            while (iterator.hasNext())
+//            {
+//                iterator.next().initArgumentsFactory();
+//            }
+//        } catch (Exception e)
+//        {
+//            throw new InitException(e);
+//        }
+//
+//
+//        //重要：在IArgumentsFactory之后初始化,用于支持：IExtraEntitySupport
+//        iterator = portMap.values().iterator();
+//        while (iterator.hasNext())
+//        {
+//            iterator.next().initOPEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
+//        }
 
         OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
         Arrays.sort(otherStartDestroys);
@@ -472,7 +496,7 @@ public class ContextPorter implements IOtherStartDestroy
             }
         }
 
-        iterator = portMap.values().iterator();
+        Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
             iterator.next().start(wObject);

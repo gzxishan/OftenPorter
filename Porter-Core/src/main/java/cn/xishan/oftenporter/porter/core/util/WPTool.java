@@ -521,60 +521,41 @@ public class WPTool
         return index;
     }
 
+    private static Map<Class, Field[]> allFieldsCache = new WeakHashMap<>();
+    private static Map<Class, Method[]> allMethodsCache = new WeakHashMap<>();
+
+    public static synchronized void clearCache()
+    {
+        allFieldsCache.clear();
+        allMethodsCache.clear();
+    }
+
     /**
      * 得到所有字段（任何访问类型，包括父类（除了Object））.
      *
      * @param clazz
      * @return
      */
-    public static Field[] getAllFields(Class<?> clazz)
+    public static synchronized Field[] getAllFields(Class<?> clazz)
     {
-        List<Field> list = new ArrayList<>();
-        if (!Modifier.isInterface(clazz.getModifiers()))
+        Field[] fields = allFieldsCache == null ? null : allFieldsCache.get(clazz);
+        if (fields == null)
         {
-            getAllFields(clazz, list);
-        }
-        return list.toArray(new Field[0]);
-    }
-
-    /**
-     * 得到所有公共的函数（包括父类的）。
-     *
-     * @param clazz
-     * @return
-     */
-    public static Method[] getAllPublicMethods(Class<?> clazz)
-    {
-        Method[] methods = clazz.getMethods();
-        return methods;
-    }
-
-    /**
-     * 得到所有访问类型的函数（包括父类的）。
-     *
-     * @param clazz
-     * @return
-     */
-    public static Method[] getAllMethods(Class<?> clazz)
-    {
-        if (Modifier.isInterface(clazz.getModifiers()))
+            List<Field> list = new ArrayList<>();
+            if (!Modifier.isInterface(clazz.getModifiers()))
+            {
+                getAllFields(clazz, list);
+            }
+            fields = list.toArray(new Field[0]);
+            if (allFieldsCache != null)
+            {
+                allFieldsCache.put(clazz, fields);
+            }
+        }else
         {
-            return clazz.getMethods();
+            LOGGER.debug("hit cache:class={},fields={}", clazz, fields.length);
         }
-        Set<Method> set = new HashSet<>();
-        getAllMethods(clazz, set);
-        return set.toArray(new Method[0]);
-    }
-
-    private static void getAllMethods(Class<?> clazz, Set<Method> set)
-    {
-        Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null)
-        {
-            getAllMethods(superClass, set);//获取父类声明的函数
-        }
-        addAll(set, clazz.getMethods());
-        addAll(set, clazz.getDeclaredMethods());
+        return fields;
     }
 
     private static void getAllFields(Class<?> clazz, List<Field> list)
@@ -593,6 +574,60 @@ public class WPTool
         getAllFields(clazz.getSuperclass(), list);
 
     }
+
+    /**
+     * 得到所有访问类型的函数（包括父类的）。
+     *
+     * @param clazz
+     * @return
+     */
+    public static synchronized Method[] getAllMethods(Class<?> clazz)
+    {
+        Method[] methods = allMethodsCache == null ? null : allMethodsCache.get(clazz);
+        if (methods == null)
+        {
+            if (Modifier.isInterface(clazz.getModifiers()))
+            {
+                return clazz.getMethods();
+            }
+            Set<Method> set = new HashSet<>();
+            getAllMethods(clazz, set);
+            methods = set.toArray(new Method[0]);
+            if (allMethodsCache != null)
+            {
+                allMethodsCache.put(clazz, methods);
+            }
+        } else
+        {
+            LOGGER.debug("hit cache:class={},methods={}", clazz, methods.length);
+        }
+        return methods;
+    }
+
+    private static void getAllMethods(Class<?> clazz, Set<Method> set)
+    {
+        Class<?> superClass = clazz.getSuperclass();
+        if (superClass != null)
+        {
+            getAllMethods(superClass, set);//获取父类声明的函数
+        }
+        addAll(set, clazz.getMethods());
+        addAll(set, clazz.getDeclaredMethods());
+    }
+
+    /**
+     * 得到所有公共的函数（包括父类的）。
+     *
+     * @param clazz
+     * @return
+     */
+    public static Method[] getAllPublicMethods(Class<?> clazz)
+    {
+        Method[] methods = clazz.getMethods();
+        return methods;
+    }
+
+
 
     /**
      * @param nameValues 必须是key(String),value(Object),key,value...的形式

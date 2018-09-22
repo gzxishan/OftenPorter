@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 
@@ -39,15 +40,7 @@ class WObjectImpl extends WObject
         this.response = response;
         this.context = context;
         this.isInnerRequest = isInnerRequest;
-        threadLocal.set(this);
-    }
-
-    void mayClearThreadLocal()
-    {
-        if (isTopRequest())
-        {
-            threadLocal.remove();
-        }
+        threadLocal.set(new WeakReference<>(this));
     }
 
     @Override

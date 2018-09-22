@@ -176,6 +176,10 @@ public class AutoSetObjForAspectOfNormal
 
     }
 
+    public static void clearCache(){
+        aspectHandleSet.clear();
+    }
+
     boolean hasProxy(Object object)
     {
         return object instanceof IOPProxy;
@@ -301,6 +305,7 @@ public class AutoSetObjForAspectOfNormal
             Callback[] callbacks = new Callback[]{NoOp.INSTANCE, methodInterceptor};
 
             Enhancer enhancer = new Enhancer();
+            enhancer.setUseCache(true);
             enhancer.setCallbacks(callbacks);
             enhancer.setCallbackFilter(callbackFilter);
             enhancer.setSuperclass(clazz);

@@ -256,6 +256,9 @@ public final class PorterMain
             currentPNameForLogger = getPLinker().currentPName().getName();
             commonMainHashMap.put(this.pLinker.currentPName().getName(), commonMain);
             _startOne(bridge);
+            WPTool.clearCache();
+            AnnoUtil.clearCache();
+            AutoSetObjForAspectOfNormal.clearCache();
             currentPNameForLogger = null;
         } catch (Throwable e)
         {
@@ -392,6 +395,9 @@ public final class PorterMain
 
         try
         {
+            Map<String, One> entityOneMap = new HashMap<>();
+            contextPorter.beforeStart(entityOneMap, sthDeal, innerContextBridge);
+            portExecutor.putAllExtraEntity(entityOneMap);
 
             LOGGER.debug("start doAutoSet...");
             autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
@@ -423,9 +429,9 @@ public final class PorterMain
             wObject = portExecutor
                     .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
 
-            Map<String, One> entityOneMap = new HashMap<>();
-            contextPorter.start(wObject, entityOneMap, sthDeal, innerContextBridge);
-            portExecutor.putAllExtraEntity(entityOneMap);
+
+            contextPorter.start(wObject);
+
 
             AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);
@@ -485,7 +491,6 @@ public final class PorterMain
             context.contextPorter.destroy();
             LOGGER.debug("Context [{}] destroyed!", contextName);
             stateListenerForAll.afterDestroy();
-            AnnoUtil.clearCache();
             if (portExecutor.contextSize() == 0)
             {
                 commonMainHashMap.remove(pLinker.currentPName().getName());

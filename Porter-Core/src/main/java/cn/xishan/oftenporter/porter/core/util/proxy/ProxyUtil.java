@@ -65,6 +65,7 @@ public class ProxyUtil
 
         Enhancer enhancer = new Enhancer();
         enhancer.setCallbacks(callbacks);
+        enhancer.setUseCache(false);
         enhancer.setCallbackFilter(method -> {
             if (methodFilter.contains(object, method))
             {

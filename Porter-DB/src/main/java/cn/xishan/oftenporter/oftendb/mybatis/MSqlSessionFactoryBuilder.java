@@ -63,7 +63,7 @@ class MSqlSessionFactoryBuilder
 
     synchronized void regNewMapper(BuilderListener builderListener) throws Exception
     {
-        LOGGER.debug("reg new mapper listener:{}", builderListener);
+        LOGGER.info("reg new mapper listener:{}", builderListener);
         builderListenerSet.add(builderListener);
         builderListener.onBindAlias();
         builderListener.onParse();
@@ -125,7 +125,7 @@ class MSqlSessionFactoryBuilder
                     continue;
                 }
                 reged.add(dir.getAbsolutePath());
-                LOGGER.debug("listen change of dir:{}", dir);
+                LOGGER.info("listen change of dir:{}", dir);
                 synchronized (this)
                 {
                     Paths.get(dir.getAbsolutePath()).register(finalWatchService, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -155,7 +155,7 @@ class MSqlSessionFactoryBuilder
                         Path path = (Path) event.context();
                         if (LOGGER.isDebugEnabled())
                         {
-                            LOGGER.debug("change event:{}-->{}", path.toAbsolutePath(), event.kind());
+                            LOGGER.info("change event:{}-->{}", path.toAbsolutePath(), event.kind());
                         }
 //                        String filePath = path.toAbsolutePath().toFile().getAbsolutePath();
 //                        if (regedNames.contains(filePath))
@@ -171,9 +171,9 @@ class MSqlSessionFactoryBuilder
                         Thread.sleep(1000);
                         try
                         {
-                            LOGGER.debug("start reload mybatis...");
+                            LOGGER.info("start reload mybatis...");
                             build();
-                            LOGGER.debug("reload mybatis complete!");
+                            LOGGER.info("reload mybatis complete!");
                         } catch (Exception e)
                         {
                             LOGGER.error(e.getMessage(), e);
@@ -194,7 +194,7 @@ class MSqlSessionFactoryBuilder
                     }
                     if (isDestroyed || MSqlSessionFactoryBuilder.this.watchService == null)
                     {
-                        LOGGER.debug("closed WatchService!");
+                        LOGGER.info("closed WatchService!");
                         break;
                     }
                 }
@@ -204,7 +204,7 @@ class MSqlSessionFactoryBuilder
             if (needReRegFileCheck)
             {
                 needReRegFileCheck = false;
-                LOGGER.debug("will rereg...");
+                LOGGER.info("will rereg...");
                 try
                 {
                     if (!isForInit && mybatisStateListener != null)

@@ -149,16 +149,7 @@ public final class AnnoUtil
 
     public static void clearCache()
     {
-        Iterator<Map.Entry<CacheKey, WeakReference<Object>>> iterator = annotationCache.entrySet().iterator();
-        while (iterator.hasNext())
-        {
-            Map.Entry<CacheKey, WeakReference<Object>> entry = iterator.next();
-            CacheKey cacheKey = entry.getKey();
-            if (cacheKey.targetRef.get() == null)
-            {
-                iterator.remove();
-            }
-        }
+        annotationCache.clear();
     }
 
     static

@@ -13,6 +13,7 @@ import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 
+import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     private Map<String, Object> requestDataMap = null;
 
-    protected static final ThreadLocal<WObject> threadLocal = new ThreadLocal<>();
+    protected static final ThreadLocal<WeakReference<WObject>> threadLocal = new ThreadLocal<>();
 
     public WObject()
     {
@@ -85,7 +86,8 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     public static WObject fromThreadLocal()
     {
-        return threadLocal.get();
+        WeakReference<WObject> reference = threadLocal.get();
+        return reference==null?null:reference.get();
     }
 
     public abstract WRequest getRequest();

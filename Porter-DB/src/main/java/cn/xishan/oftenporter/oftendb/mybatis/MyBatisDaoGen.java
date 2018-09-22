@@ -170,12 +170,12 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     path = getFileRelativePath(myBatis, path);
                 }
-                LOGGER.debug("load xml:dao={},file={}", myBatis.daoClass, optionMapperFile);
+                LOGGER.info("load xml:dao={},file={}", myBatis.daoClass, optionMapperFile);
                 xmlData = FileTool.getData(new FileInputStream(optionMapperFile), 2048);
             } else if (myBatis.type == MyBatisMapper.Type.RESOURCES)
             {
                 path = getFileRelativePath(myBatis, path);
-                LOGGER.debug("load xml:dao={},path={}", myBatis.daoClass, path);
+                LOGGER.info("load xml:dao={},path={}", myBatis.daoClass, path);
                 URL url = ResourceUtil.getAbsoluteResource(path);
                 if(url==null){
                     throw new IOException("not found:"+path);
@@ -185,7 +185,7 @@ class MyBatisDaoGen implements AutoSetGen
             } else
             {
                 //URL
-                LOGGER.debug("load xml:dao={},url={}", myBatis.daoClass, path);
+                LOGGER.info("load xml:dao={},url={}", myBatis.daoClass, path);
                 URL url = new URL(path);
                 InputStream inputStream = url.openStream();
                 xmlData = FileTool.getData(inputStream, 2048);
