@@ -6,30 +6,71 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 public class WServletResponse extends LocalResponse
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WServletResponse.class);
 
-    private HttpServletResponse response;
+    static class HttpServletResponseWrapperImpl extends HttpServletResponseWrapper
+    {
+
+        int hasGotStreamType = 0;
+
+        public HttpServletResponseWrapperImpl(HttpServletResponse response)
+        {
+            super(response);
+        }
+
+        @Override
+        public ServletOutputStream getOutputStream() throws IOException
+        {
+            hasGotStreamType = 1;
+            return super.getOutputStream();
+        }
+
+        @Override
+        public PrintWriter getWriter() throws IOException
+        {
+            hasGotStreamType = 2;
+            return super.getWriter();
+        }
+    }
+
+    private HttpServletResponseWrapperImpl response;
 
     WServletResponse(HttpServletResponse response)
     {
         super(null);
-        this.response = response;
+        this.response = new HttpServletResponseWrapperImpl(response);
     }
 
     @Override
     public void doClose(Object writeObject) throws IOException
     {
-        setContentType(writeObject);
-        PrintWriter printWriter = response.getWriter();
-        printWriter.print(writeObject);
-        printWriter.flush();
-        printWriter.close();
+        if (response.hasGotStreamType != 0)
+        {
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("already invoked:HttpServletResponse.{}",
+                        response.hasGotStreamType == 1 ? "getOutputStream()" : "getWriter()");
+            }
+        } else
+        {
+            try (PrintWriter printWriter = response.getWriter())
+            {
+                setContentType(writeObject);
+                printWriter.print(writeObject);
+                printWriter.flush();
+            }
+        }
     }
 
     public void setContentType(Object object)

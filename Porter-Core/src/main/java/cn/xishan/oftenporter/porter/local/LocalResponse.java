@@ -15,6 +15,7 @@ public class LocalResponse implements WResponse, CloseListener.CloseHandle
     private PCallback callback;
     private CloseListener closeListener;
     private boolean isErr = false;
+    private boolean closed = false;
 
     public LocalResponse(PCallback callback)
     {
@@ -40,6 +41,11 @@ public class LocalResponse implements WResponse, CloseListener.CloseHandle
     @Override
     public void close() throws IOException
     {
+        if (closed)
+        {
+            throw new IOException("already closed!");
+        }
+        closed = true;
         if (closeListener != null)
         {
             closeListener.onClose(object, this);
