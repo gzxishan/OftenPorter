@@ -239,6 +239,7 @@
     <!--
     发布命令：mvn clean deploy -P release-oss
     https://oss.sonatype.org
+    https://oss.sonatype.org/content/repositories/snapshots/
     -->
     <profiles>
         <profile>

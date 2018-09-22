@@ -8,9 +8,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>Demo</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
+
     <name>Demo Maven Webapp</name>
     <url>http://maven.apache.org</url>
+
     <dependencies>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -55,16 +57,6 @@
     <build>
         <finalName>Demo</finalName>
         <plugins>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <port>8080</port>
-                    <path>/${project.artifactId}</path>
-                    <uriEncoding>${project.build.sourceEncoding}</uriEncoding>
-                </configuration>
-            </plugin>
             <!--<plugin>-->
                 <!--<groupId>net.orfjackal.retrolambda</groupId>-->
                 <!--<artifactId>retrolambda-maven-plugin</artifactId>-->
