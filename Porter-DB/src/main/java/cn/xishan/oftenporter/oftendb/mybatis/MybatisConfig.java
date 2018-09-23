@@ -14,7 +14,7 @@ class MybatisConfig
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(MybatisConfig.class);
 
-    class MOption
+    static class MOption
     {
         MyBatisOption myBatisOption;
         MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder;
@@ -74,7 +74,7 @@ class MybatisConfig
     public void put(MyBatisOption myBatisOption,
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder)
     {
-        myBatisOption=myBatisOption.clone();
+        myBatisOption = myBatisOption.clone();
         MOption mOption = optionMap.put(myBatisOption.source, new MOption(myBatisOption, mSqlSessionFactoryBuilder));
         if (mOption != null)
         {

@@ -77,7 +77,18 @@ public class AutoSetHandle
         @Override
         public int compareTo(_SetOkObject o)
         {
-            return o.priority - priority;
+
+            int n = o.priority - priority;
+            if (n == 0)
+            {
+                return 0;
+            } else if (n > 0)
+            {
+                return 1;
+            } else
+            {
+                return -1;
+            }
         }
 
         public void invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException
@@ -145,7 +156,7 @@ public class AutoSetHandle
         }
     }
 
-    private  class Handle_doAutoSetsForNotPorter implements IHandle
+    private class Handle_doAutoSetsForNotPorter implements IHandle
     {
 
         private Object[] objects;
@@ -449,12 +460,12 @@ public class AutoSetHandle
             {
                 setOkObject.invoke(wObject);
             }
-            this.setOkObjects=null;
+            this.setOkObjects = null;
             this.porterMap = null;
             this.proxyObjectMap = null;
-            this.iHandles_notporter=null;
-            this.iHandles_porter=null;
-            this.iHandlesForAutoSetThat=null;
+            this.iHandles_notporter = null;
+            this.iHandles_porter = null;
+            this.iHandlesForAutoSetThat = null;
         } catch (Exception e)
         {
             throw new RuntimeException(e);

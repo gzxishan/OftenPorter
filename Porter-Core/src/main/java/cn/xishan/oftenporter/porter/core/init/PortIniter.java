@@ -21,11 +21,17 @@ public abstract class PortIniter implements Comparable<PortIniter>
     @Override
     public boolean equals(Object obj)
     {
-        if (obj == null || !(obj instanceof PortIniter))
+        if (!(obj instanceof PortIniter))
         {
             return false;
         }
         return this.key.equals(((PortIniter) obj).key);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return key.hashCode();
     }
 
     public String getKey()

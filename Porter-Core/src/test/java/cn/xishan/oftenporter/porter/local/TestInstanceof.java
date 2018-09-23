@@ -32,6 +32,6 @@ public class TestInstanceof
 
     void isInstance(Class<?> clazz1, Class<?> clazz2)
     {
-        System.out.format("%s\t%s\n", clazz1.isAssignableFrom(clazz2), clazz2.isAssignableFrom(clazz1));
+        System.out.format("%s\t%s%n", clazz1.isAssignableFrom(clazz2), clazz2.isAssignableFrom(clazz1));
     }
 }

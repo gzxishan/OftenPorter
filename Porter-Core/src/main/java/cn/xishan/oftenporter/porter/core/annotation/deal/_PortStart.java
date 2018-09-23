@@ -26,6 +26,16 @@ public final class _PortStart implements Comparable<_PortStart>
     @Override
     public int compareTo(_PortStart other)
     {
-        return order-other.order;
+        int n = order - other.order;
+        if (n == 0)
+        {
+            return 0;
+        } else if (n > 0)
+        {
+            return 1;
+        } else
+        {
+            return -1;
+        }
     }
 }

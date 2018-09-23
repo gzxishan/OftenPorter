@@ -1,5 +1,8 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +10,8 @@ import java.util.Set;
 
 public class FileTool
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileTool.class);
+
     /**
      * @param in
      * @param endChar 读到该字符为止
@@ -61,7 +66,11 @@ public class FileTool
         {
             if (!file.exists() && createIfNotExist)
             {
-                file.createNewFile();
+                boolean rs = file.createNewFile();
+                if (!rs)
+                {
+                    throw new IOException("create file failed:" + file.getAbsolutePath());
+                }
             }
             fos = new FileOutputStream(file);
             byte[] buf = new byte[2048];
@@ -155,7 +164,7 @@ public class FileTool
                 return new String(bos.toByteArray(), encode);
             } else
             {
-                return new String(bos.toByteArray(),"utf-8");
+                return new String(bos.toByteArray(), "utf-8");
             }
         } catch (IOException e)
         {
@@ -308,7 +317,11 @@ public class FileTool
                 return;
             }
             FileTool.write2File(new FileInputStream(file), desFile, true);
-            file.delete();
+            boolean rs = file.delete();
+            if (!rs)
+            {
+                LOGGER.warn("delete source file failed:{}", file);
+            }
         }
     }
 }

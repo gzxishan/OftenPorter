@@ -197,15 +197,15 @@ public final class AnnoUtil
         DYNAMIC_ANNOTATION_IMPROVABLES_STRING = String.valueOf(DYNAMIC_ANNOTATION_IMPROVABLES);
     }
 
-    public static IDynamicAnnotationImprovable[] getDynamicAnnotationImprovables()
-    {
-        return DYNAMIC_ANNOTATION_IMPROVABLES;
-    }
-
-    public static void setIDynamicAnnotationImprovables(IDynamicAnnotationImprovable[] dynamicAnnotationImprovables)
-    {
-        DYNAMIC_ANNOTATION_IMPROVABLES = dynamicAnnotationImprovables;
-    }
+//    public static IDynamicAnnotationImprovable[] getDynamicAnnotationImprovables()
+//    {
+//        return DYNAMIC_ANNOTATION_IMPROVABLES;
+//    }
+//
+//    public static void setIDynamicAnnotationImprovables(IDynamicAnnotationImprovable[] dynamicAnnotationImprovables)
+//    {
+//        DYNAMIC_ANNOTATION_IMPROVABLES = dynamicAnnotationImprovables;
+//    }
 
     /**
      * 见{@linkplain IDynamicAnnotationImprovable}

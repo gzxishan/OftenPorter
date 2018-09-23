@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Properties;
@@ -179,7 +180,11 @@ public class TestLocalMain
                 "user.home") + File.separator + "porter-core" + File.separator + "test" + File.separator);
         if (!dir.exists())
         {
-            dir.mkdirs();
+            boolean rs = dir.mkdirs();
+            if (!rs)
+            {
+                throw new IOException("mkdirs failed:" + dir.getAbsolutePath());
+            }
         }
         File clazzFile = new File(dir.getPath() + File.separator + "HotPorter.jar");
 

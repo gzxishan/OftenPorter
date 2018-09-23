@@ -97,8 +97,6 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
     }
 
 
-    private Map<PorterOfFun, IArgsHandle> handleMap = new ConcurrentHashMap<>();
-
     public DefaultServletArgumentsFactory()
     {
     }

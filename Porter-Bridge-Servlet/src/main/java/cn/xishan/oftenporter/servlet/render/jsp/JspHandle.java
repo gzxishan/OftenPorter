@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -157,7 +158,11 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
                     File originFile = new File(servletContext.getRealPath(path));
                     if (!file.exists())
                     {
-                        file.getParentFile().mkdirs();
+                        boolean rs = file.getParentFile().mkdirs();
+                        if (!rs)
+                        {
+                            throw new IOException("mkdirs failed:" + file.getAbsolutePath());
+                        }
                     }
                     Cache cache;
                     if ((cache = newFiles.get(realPathOfNewFile)) == null || (System
