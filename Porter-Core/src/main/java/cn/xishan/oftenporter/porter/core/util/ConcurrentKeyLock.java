@@ -93,14 +93,14 @@ public class ConcurrentKeyLock<K>
         LockInfo info = local.get().get(key);
         if (info != null && --info.lockCount <= 0)
         {
-            LOGGER.debug("releasing resource:key={},thread={}", key, info.thread);
+            LOGGER.debug("unlocking:key={},thread={}", key, info.thread);
             local.get().remove(key);
             map.remove(key, info);
             info.semaphore.release();
-            LOGGER.debug("released resource:key={},thread={}", key, info.thread);
+            LOGGER.debug("unlocked:key={},thread={}", key, info.thread);
             if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("release count={}", releaseCount.incrementAndGet());
+                LOGGER.debug("unlock count={}", releaseCount.incrementAndGet());
             }
         }
     }

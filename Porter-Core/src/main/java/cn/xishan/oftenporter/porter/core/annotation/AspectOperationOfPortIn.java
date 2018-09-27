@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
-import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -9,13 +8,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.*;
-import java.lang.reflect.Method;
 
 /**
  * 注解在注解上,最终对PortIn接口函数进行处理。
  * <ol>
  * <li>被修饰的注解，可以注解在函数或类上。</li>
  * <li>被修饰的注解、且注解在类上的，所有接口函数都将加上该注解。</li>
+ * <li>
+ * {@linkplain Handle#init(Annotation, IConfigData, Porter) init(Annotation, IConfigData, Porter)}和
+ * {@linkplain Handle#init(Annotation, IConfigData, PorterOfFun) init(Annotation, IConfigData, PorterOfFun)}被调用时，
+ * {@linkplain AutoSet}并没有被执行、而是在{@linkplain Handle#onStart(WObject)}时已经被执行。
+ * </li>
  * </ol>
  *
  * @author Created by https://github.com/CLovinr on 2017/10/12.

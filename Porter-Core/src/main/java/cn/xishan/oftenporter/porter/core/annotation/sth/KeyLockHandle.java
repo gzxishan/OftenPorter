@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.base.OutType;
+
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
@@ -25,7 +25,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyLockHandle.class);
 
     private static ConcurrentKeyLock<String> staticKeyLock;
-    private static Map<String, ConcurrentKeyLock<String>> keyLockMap = new HashMap<>();
+    private Map<String, ConcurrentKeyLock<String>> keyLockMap = new HashMap<>();
 
     private String lockPrefix = null;
     private String[] locks, neceLocks, uneceLocks;
@@ -38,7 +38,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
 
 
     @Override
-    public boolean init(KeyLock current,IConfigData configData, Porter porter)
+    public boolean init(KeyLock current, IConfigData configData, Porter porter)
     {
         return _init(current, porter, null);
     }
@@ -87,9 +87,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         break;
                 }
             }
-            if (this.locks != null && this.locks.length > 0 ||
-                    this.neceLocks != null && this.neceLocks.length > 0 ||
-                    this.uneceLocks != null && this.uneceLocks.length > 0)
+            if (WPTool.existsNotEmpty(this.locks,this.neceLocks,this.uneceLocks))
             {
                 switch (keyLock.range())
                 {
@@ -143,22 +141,11 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     }
 
     @Override
-    public boolean init(KeyLock current,IConfigData configData, PorterOfFun porterOfFun)
+    public boolean init(KeyLock current, IConfigData configData, PorterOfFun porterOfFun)
     {
         return _init(current, porterOfFun.getPorter(), porterOfFun);
     }
 
-    @Override
-    public void onStart(WObject wObject)
-    {
-
-    }
-
-    @Override
-    public void onDestroy()
-    {
-
-    }
 
     @Override
     public void beforeInvokeOfMethodCheck(WObject wObject, PorterOfFun porterOfFun)
@@ -172,14 +159,18 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                 case LOCKS:
                     for (String key : locks)
                     {
-                        keys.add(lockPrefix == null ? key : lockPrefix + key);
+                        if(!keys.contains(key)){
+                            keys.add(lockPrefix == null ? key : lockPrefix + key);
+                        }
                     }
                     break;
                 case NECE_LOCKS:
                     for (String neceName : neceLocks)
                     {
                         String key = wObject.nece(neceName);
-                        keys.add(lockPrefix == null ? key : lockPrefix + key);
+                        if(!keys.contains(key)){
+                            keys.add(lockPrefix == null ? key : lockPrefix + key);
+                        }
                     }
                     break;
                 case UNECE_LOCKS:
@@ -192,7 +183,9 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         }
                         if (WPTool.notNullAndEmpty(key))
                         {
-                            keys.add(lockPrefix == null ? key : lockPrefix + key);
+                            if(!keys.contains(key)){
+                                keys.add(lockPrefix == null ? key : lockPrefix + key);
+                            }
                         }
                     }
                     break;
@@ -219,12 +212,6 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     }
 
     @Override
-    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
-    {
-        return lastReturn;
-    }
-
-    @Override
     public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
         String[] locks = wObject.removeRequestData(ATTR_KEY);
@@ -239,9 +226,4 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
         }
     }
 
-    @Override
-    public OutType getOutType()
-    {
-        return null;
-    }
 }

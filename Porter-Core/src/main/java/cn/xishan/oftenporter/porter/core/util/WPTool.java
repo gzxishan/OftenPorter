@@ -56,11 +56,27 @@ public class WPTool
         return rs;
     }
 
+    /**
+     * 存在空的对象，见{@linkplain #isEmpty(Object)}
+     *
+     * @param objects
+     * @return
+     */
     public static boolean existsEmpty(Object... objects)
     {
         return !notNullAndEmptyForAll(objects);
     }
 
+    /**
+     * 存在非空的对象，见{@linkplain #isEmpty(Object)}
+     *
+     * @param objects
+     * @return
+     */
+    public static boolean existsNotEmpty(Object... objects)
+    {
+        return !isEmptyOfAll(objects);
+    }
 
     public static boolean isEmptyOfAll(Object... objects)
     {
@@ -551,7 +567,7 @@ public class WPTool
             {
                 allFieldsCache.put(clazz, fields);
             }
-        }else
+        } else
         {
             LOGGER.debug("hit cache:class={},fields={}", clazz, fields.length);
         }
@@ -626,7 +642,6 @@ public class WPTool
         Method[] methods = clazz.getMethods();
         return methods;
     }
-
 
 
     /**
