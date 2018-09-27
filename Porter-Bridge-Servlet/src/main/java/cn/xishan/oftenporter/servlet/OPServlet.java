@@ -66,7 +66,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     }
 
     @AutoSet.SetOk
-    void setOk()
+    public void setOk()
     {
         LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={},skipRes={}", hasCors, isHttp2Https,
                 skipResources);

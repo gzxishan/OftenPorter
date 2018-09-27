@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 被注解的注解可以注解在类或函数上（类上的对所有函数有效）。
+ * 被注解的注解可以注解在类或函数上（类上的对所有函数有效）,且只对成员函数且非private的有效。
  *
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */

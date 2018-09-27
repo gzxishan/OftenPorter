@@ -149,7 +149,7 @@ public class SthDeal
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
         /////处理自身接口----开始
-        Method[] methods = WPTool.getAllMethods(clazz);
+        Method[] methods = WPTool.getAllPublicMethods(clazz);
         ObjectGetter objectGetter = new ObjectGetterImpl(porter);
         for (Method method : methods)
         {

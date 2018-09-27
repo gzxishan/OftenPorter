@@ -176,7 +176,8 @@ public class AutoSetObjForAspectOfNormal
 
     }
 
-    public static void clearCache(){
+    public static void clearCache()
+    {
         aspectHandleSet.clear();
     }
 
@@ -225,6 +226,10 @@ public class AutoSetObjForAspectOfNormal
         for (Method method : methods)
         {
 
+            if (Modifier.isStatic(method.getModifiers()) || Modifier.isPrivate(method.getModifiers()))
+            {
+                continue;
+            }
             Package pkg = method.getDeclaringClass().getPackage();
             if (pkg != null && (pkg.getName().startsWith("java.") || pkg.getName().startsWith("javax.")))
             {

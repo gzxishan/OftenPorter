@@ -202,6 +202,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                         paramAnnotations);
                 argHandleList.add(argHandle);
             }
+            annotationDealt.clearCache();
             this.argHandles = argHandleList.toArray(new ArgHandle[0]);
         }
 

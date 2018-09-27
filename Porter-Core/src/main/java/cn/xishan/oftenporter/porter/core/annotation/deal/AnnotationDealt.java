@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.advanced.IFun;
-import cn.xishan.oftenporter.porter.core.advanced.IPorter;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
@@ -22,9 +21,7 @@ import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
@@ -34,9 +31,9 @@ import java.util.List;
 public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
-
-
     private final Logger LOGGER;
+    private Map<String, _PortDestroy> destroyMap = new HashMap<>();
+    private Map<String, _PortStart> startMap = new HashMap<>();
 
     private AnnotationDealt(boolean enableDefaultValue)
     {
@@ -52,6 +49,11 @@ public final class AnnotationDealt
         return new AnnotationDealt(enableDefaultValue);
     }
 
+
+    public void clearCache(){
+        destroyMap=new HashMap<>();
+        startMap=new HashMap<>();
+    }
 
     public _SyncPorterOption syncPorterOption(Field field,
             PorterParamGetterImpl porterParamGetter) throws FatalInitException
@@ -393,11 +395,15 @@ public final class AnnotationDealt
     {
         if (isNullInstanceOfStartDestroy(method, objectGetter))
         {
-            if (LOGGER.isWarnEnabled())
-            {
-                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
-            }
+//            if (LOGGER.isWarnEnabled())
+//            {
+//                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
+//            }
             return null;
+        }
+        String mkey = method.toString();
+        if(destroyMap.containsKey(mkey)){
+            return destroyMap.get(mkey);
         }
         PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
         if (portDestroy == null)
@@ -408,6 +414,7 @@ public final class AnnotationDealt
 
         _portDestroy.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portDestroy.order = portDestroy.order();
+        destroyMap.put(mkey,_portDestroy);
         return _portDestroy;
     }
 
@@ -416,11 +423,15 @@ public final class AnnotationDealt
     {
         if (isNullInstanceOfStartDestroy(method, objectGetter))
         {
-            if (LOGGER.isWarnEnabled())
-            {
-                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
-            }
+//            if (LOGGER.isWarnEnabled())
+//            {
+//                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
+//            }
             return null;
+        }
+        String mkey = method.toString();
+        if(startMap.containsKey(mkey)){
+            return startMap.get(mkey);
         }
 
         PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortStart.class);
@@ -431,6 +442,7 @@ public final class AnnotationDealt
         _PortStart _portStart = new _PortStart();
         _portStart.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portStart.order = portStart.order();
+        startMap.put(mkey,_portStart);
         return _portStart;
     }
 
@@ -438,7 +450,7 @@ public final class AnnotationDealt
     {
         ObjectGetter objectGetter = () -> object;
 
-        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(objectClass));
+        Method[] methods = WPTool.getAllPublicMethods(PortUtil.getRealClass(objectClass));
         List<_PortStart> list = new ArrayList<>();
         for (Method method : methods)
         {

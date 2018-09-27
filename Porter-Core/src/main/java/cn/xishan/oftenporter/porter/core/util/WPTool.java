@@ -537,13 +537,25 @@ public class WPTool
         return index;
     }
 
-    private static Map<Class, Field[]> allFieldsCache = new WeakHashMap<>();
-    private static Map<Class, Method[]> allMethodsCache = new WeakHashMap<>();
+    private static Map<Class, Field[]> allFieldsCache;
+    private static Map<Class, Method[]> allMethodsCache;
+    private static Map<Class, Method[]> allPublicMethodsCache;
+
+    static
+    {
+        initCache();
+    }
+
+    private static void initCache()
+    {
+        allFieldsCache = new WeakHashMap<>();
+        allMethodsCache = new WeakHashMap<>();
+        allPublicMethodsCache = new WeakHashMap<>();
+    }
 
     public static synchronized void clearCache()
     {
-        allFieldsCache.clear();
-        allMethodsCache.clear();
+        initCache();
     }
 
     /**
@@ -631,15 +643,40 @@ public class WPTool
         addAll(set, clazz.getDeclaredMethods());
     }
 
+
     /**
-     * 得到所有公共的函数（包括父类的）。
+     * 得到所有公共的函数（包括父类的,但是不包括Object的final函数）。
      *
      * @param clazz
      * @return
      */
     public static Method[] getAllPublicMethods(Class<?> clazz)
     {
-        Method[] methods = clazz.getMethods();
+        Method[] methods = allPublicMethodsCache == null ? null : allPublicMethodsCache.get(clazz);
+        if (methods == null)
+        {
+
+            Set<Method> set = new HashSet<>();
+
+            Method[] _methods = clazz.getMethods();
+            for (Method method : _methods)
+            {
+                if (method.getDeclaringClass().equals(Object.class) && Modifier.isFinal(method.getModifiers()))
+                {
+                    continue;
+                }
+                set.add(method);
+            }
+
+            methods = set.toArray(new Method[0]);
+            if (allPublicMethodsCache != null)
+            {
+                allPublicMethodsCache.put(clazz, methods);
+            }
+        } else
+        {
+            LOGGER.debug("hit cache:class={},methods={}", clazz, methods.length);
+        }
         return methods;
     }
 

@@ -252,7 +252,6 @@ public class PortUtil
                 .isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class) || getMixinTos(clazz).length > 0);
     }
 
-
     public static MixinTo[] getMixinTos(Class<?> clazz)
     {
         MixinTo[] mixinTos = AnnoUtil.Advanced.getRepeatableAnnotations(clazz, MixinTo.class);

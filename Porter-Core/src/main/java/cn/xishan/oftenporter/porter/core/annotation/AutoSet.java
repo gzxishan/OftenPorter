@@ -29,7 +29,7 @@ import java.lang.annotation.*;
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描。
  *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
  *     4.含有@{@linkplain Property}的变量也会被设置。
- *     5.注解在函数上时，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
+ *     5.注解在函数(public)上时，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
  * </pre>
  * <hr>
  * <p>
@@ -132,7 +132,7 @@ public @interface AutoSet
 
     /**
      * <pre>
-     * 注解在函数上(可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
+     * 注解在函数上(public,可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
      * <strong>注意：</strong>1.只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
      *        2.函数可以无形参，或者有一个形参WObject。
      *        3.在{@linkplain PortStart PortStart}之前调用。

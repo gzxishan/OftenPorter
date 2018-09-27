@@ -345,6 +345,7 @@ public class AutoSetHandle
             this.iHandles_notporter = null;
             this.iHandles_porter = null;
             this.iHandlesForAutoSetThat = null;
+            this.innerContextBridge.annotationDealt.clearCache();
             autoSetDealtSet.clear();
             autoSetDealtSet = null;
         } catch (Exception e)
@@ -666,7 +667,7 @@ public class AutoSetHandle
         finalObject = mayGetProxyObject(finalObject);
         currentObject = mayGetProxyObject(currentObject);
         if (currentObject != null && autoSetDealtSet
-                .contains(currentObject)||currentObject==null&&autoSetDealtSet.contains(currentObjectClass))
+                .contains(currentObject) || currentObject == null && autoSetDealtSet.contains(currentObjectClass))
         {
             LOGGER.debug("already do autoset of:class={},object={}", currentObjectClass, currentObject);
             return currentObject;
@@ -851,7 +852,7 @@ public class AutoSetHandle
             throw thr;
         } else
         {
-            Method[] methods = WPTool.getAllMethods(currentObjectClass);
+            Method[] methods = WPTool.getAllPublicMethods(currentObjectClass);
             for (Method method : methods)
             {
                 dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
