@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
+import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -126,10 +127,14 @@ public final class AnnoUtil
         {
             WeakReference weakReference = annotationCache.get(this);
             Object cache = weakReference == null ? null : weakReference.get();
-            if (cache != null && LOGGER.isDebugEnabled())
+            if (LOGGER.isDebugEnabled())
             {
-                LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
+                if (cache != null)
+                {
+                    LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
+                }
             }
+            putCacheLog();
             return cache;
         }
 
@@ -143,18 +148,76 @@ public final class AnnoUtil
         }
     }
 
+    private static final String[] EXCEPT_CLASS_NAMES = {CacheKey.class.getName(), AnnoUtil.class.getName(),
+            Advanced.class.getName()};
+    private static Map<String, Integer> cacheCount;
     private static IDynamicAnnotationImprovable[] DYNAMIC_ANNOTATION_IMPROVABLES;
     private static final String DYNAMIC_ANNOTATION_IMPROVABLES_STRING;
     private static Map<CacheKey, WeakReference<Object>> annotationCache;
 
+    private static String findMaxValueKey(Map<String, Integer> map)
+    {
+        String key = null;
+        int max = Integer.MIN_VALUE;
+        for (Map.Entry<String, Integer> entry : map.entrySet())
+        {
+            if (entry.getValue() > max)
+            {
+                key = entry.getKey();
+                max = entry.getValue();
+            }
+        }
+        return key;
+    }
+
+    private static void putCacheLog()
+    {
+        String from = null;
+        if (LOGGER.isInfoEnabled()&&(from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null)
+        {
+            LOGGER.debug("invoke from:\n\t\t{}", from);
+            Integer count = cacheCount.get(from);
+            if (count == null)
+            {
+                count = 0;
+            }
+            cacheCount.put(from, count + 1);
+        }
+    }
+
     public static void clearCache()
     {
+        if (LOGGER.isInfoEnabled())
+        {
+            List<String> strs = new ArrayList<>(cacheCount.size());
+            while (true)
+            {
+                String key = findMaxValueKey(cacheCount);
+                if (key == null)
+                {
+                    break;
+                } else
+                {
+                    int count = cacheCount.remove(key);
+                    strs.add(count + ":" + key);
+                }
+            }
+            LOGGER.info("cache invoke times:\n\t\t{}", WPTool.join("\n", strs));
+        }
         annotationCache.clear();
+        cacheCount.clear();
+        initCache();
+    }
+
+    private static void initCache()
+    {
+        annotationCache = new ConcurrentHashMap<>();
+        cacheCount = new HashMap<>();
     }
 
     static
     {
-        annotationCache = new ConcurrentHashMap<>();
+        initCache();
         try
         {
             javaGetAnnotations = AnnotatedElement.class.getMethod("getAnnotationsByType", Class.class);

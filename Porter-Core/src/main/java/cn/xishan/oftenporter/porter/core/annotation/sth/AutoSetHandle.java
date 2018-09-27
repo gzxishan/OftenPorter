@@ -33,31 +33,6 @@ import java.util.*;
  */
 public class AutoSetHandle
 {
-    private final Logger LOGGER;
-
-    private InnerContextBridge innerContextBridge;
-    private IArgumentsFactory argumentsFactory;
-    private Delivery thisDelivery;
-    private PorterData porterData;
-    private List<IHandle> iHandles_porter = new ArrayList<>();
-    private List<IHandle> iHandles_notporter = new ArrayList<>();
-    private List<IHandle> iHandlesForAutoSetThat = new ArrayList<>();
-    private Map<Class, Porter> porterMap = new HashMap<>();
-    private Map<Object, Object> proxyObjectMap = new HashMap<>();
-    private List<_SetOkObject> setOkObjects = new ArrayList<>();
-
-    private String currentContextName;
-    private IOtherStartDestroy iOtherStartDestroy;
-
-    public <T> T getContextObject(Class<?> key)
-    {
-        return getContextObject(key.getName());
-    }
-
-    public <T> T getContextObject(String key)
-    {
-        return (T) innerContextBridge.contextAutoSet.get(key);
-    }
 
     public static class _SetOkObject implements Comparable<_SetOkObject>
     {
@@ -320,19 +295,23 @@ public class AutoSetHandle
         }
     }
 
-    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
-            Delivery thisDelivery,
-            PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
-    {
-        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData,
-                autoSetObjForAspectOfNormal, currentContextName);
-    }
 
+    private final Logger LOGGER;
 
-    public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy)
-    {
-        this.iOtherStartDestroy = iOtherStartDestroy;
-    }
+    private InnerContextBridge innerContextBridge;
+    private IArgumentsFactory argumentsFactory;
+    private Delivery thisDelivery;
+    private PorterData porterData;
+    private List<IHandle> iHandles_porter = new ArrayList<>();
+    private List<IHandle> iHandles_notporter = new ArrayList<>();
+    private List<IHandle> iHandlesForAutoSetThat = new ArrayList<>();
+    private Map<Class, Porter> porterMap = new HashMap<>();
+    private Map<Object, Object> proxyObjectMap = new HashMap<>();
+    private List<_SetOkObject> setOkObjects = new ArrayList<>();
+    private Set<Object> autoSetDealtSet = new HashSet<>();
+    private AutoSetHandleWorkedInstance workedInstance;
+    private String currentContextName;
+    private IOtherStartDestroy iOtherStartDestroy;
 
     private AutoSetHandle(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
@@ -345,6 +324,57 @@ public class AutoSetHandle
         this.currentContextName = currentContextName;
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
+    }
+
+    /**
+     * 调用所有的{@linkplain SetOk SetOk}函数。
+     */
+    public synchronized void invokeSetOk(WObject wObject)
+    {
+        _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
+        Arrays.sort(setOkObjects);
+        try
+        {
+            for (_SetOkObject setOkObject : setOkObjects)
+            {
+                setOkObject.invoke(wObject);
+            }
+            this.setOkObjects = null;
+            this.porterMap = null;
+            this.proxyObjectMap = null;
+            this.iHandles_notporter = null;
+            this.iHandles_porter = null;
+            this.iHandlesForAutoSetThat = null;
+            autoSetDealtSet.clear();
+            autoSetDealtSet = null;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
+            Delivery thisDelivery,
+            PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
+    {
+        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData,
+                autoSetObjForAspectOfNormal, currentContextName);
+    }
+
+
+    public <T> T getContextObject(Class<?> key)
+    {
+        return getContextObject(key.getName());
+    }
+
+    public <T> T getContextObject(String key)
+    {
+        return (T) innerContextBridge.contextAutoSet.get(key);
+    }
+
+    public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy)
+    {
+        this.iOtherStartDestroy = iOtherStartDestroy;
     }
 
     public InnerContextBridge getInnerContextBridge()
@@ -447,33 +477,6 @@ public class AutoSetHandle
         iHandlesForAutoSetThat.add(new Handle_doAutoSetThatOfMixin(porter1, porter2));
     }
 
-    /**
-     * 调用所有的{@linkplain SetOk SetOk}函数。
-     */
-    public synchronized void invokeSetOk(WObject wObject)
-    {
-        _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
-        Arrays.sort(setOkObjects);
-        try
-        {
-            for (_SetOkObject setOkObject : setOkObjects)
-            {
-                setOkObject.invoke(wObject);
-            }
-            this.setOkObjects = null;
-            this.porterMap = null;
-            this.proxyObjectMap = null;
-            this.iHandles_notporter = null;
-            this.iHandles_porter = null;
-            this.iHandlesForAutoSetThat = null;
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-    private AutoSetHandleWorkedInstance workedInstance;
 
     public synchronized void doAutoSetNormal(
             AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
@@ -662,6 +665,17 @@ public class AutoSetHandle
     {
         finalObject = mayGetProxyObject(finalObject);
         currentObject = mayGetProxyObject(currentObject);
+        if (currentObject != null && autoSetDealtSet
+                .contains(currentObject)||currentObject==null&&autoSetDealtSet.contains(currentObjectClass))
+        {
+            LOGGER.debug("already do autoset of:class={},object={}", currentObjectClass, currentObject);
+            return currentObject;
+        }
+        autoSetDealtSet.add(currentObjectClass);
+        if (currentObject != null)
+        {
+            autoSetDealtSet.add(currentObject);
+        }
 
         AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
         currentObject = result.object;

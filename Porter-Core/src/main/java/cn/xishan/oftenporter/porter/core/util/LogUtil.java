@@ -184,8 +184,34 @@ public class LogUtil
         return toString(stackTraceElement);
     }
 
+    public static String getCodePosExceptNames(String[] exceptClassNames)
+    {
+        StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+        int n = 2;
+        StackTraceElement target = null;
+        Set<String> nameSet = new HashSet<>(exceptClassNames.length);
+        WPTool.addAll(nameSet, exceptClassNames);
+        while (n < stacks.length)
+        {
+            StackTraceElement element = stacks[n];
+            if (nameSet.contains(element.getClassName()))
+            {
+                n++;
+            } else
+            {
+                target = element;
+                break;
+            }
+        }
+        return toString(target);
+    }
+
     public static String toString(StackTraceElement stackTraceElement)
     {
+        if (stackTraceElement == null)
+        {
+            return null;
+        }
         StringBuilder sb = new StringBuilder();
         String name = stackTraceElement.getClassName();
         name = name.substring(name.lastIndexOf('.') + 1);
