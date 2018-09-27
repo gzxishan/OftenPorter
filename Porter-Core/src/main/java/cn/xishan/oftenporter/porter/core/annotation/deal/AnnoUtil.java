@@ -202,7 +202,7 @@ public final class AnnoUtil
                     strs.add(count + ":" + key);
                 }
             }
-            LOGGER.info("cache invoke times:\n\t\t{}", WPTool.join("\n", strs));
+            LOGGER.info("invoke times:\n\t\t{}", WPTool.join("\n\t\t", strs));
         }
         annotationCache.clear();
         cacheCount.clear();
