@@ -32,13 +32,19 @@ public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
     private final Logger LOGGER;
-    private Map<Class, Method[]> destroyMethodsMap = new HashMap<>();
-    private Map<Class, Method[]> startMethodsMap = new HashMap<>();
+    private Map<Class, Method[]> destroyMethodsMap;
+    private Map<Class, Method[]> startMethodsMap;
+    private Map<String, _PortDestroy> destroyMap;
+    private Map<String, _PortStart> startMap;
+
+    private static final _PortDestroy PORT_DESTROY_EMPTY = new _PortDestroy();
+    private static final _PortStart PORT_START_EMPTY = new _PortStart();
 
     private AnnotationDealt(boolean enableDefaultValue)
     {
         this.enableDefaultValue = enableDefaultValue;
         LOGGER = LogUtil.logger(AnnotationDealt.class);
+        clearCache();
     }
 
     /**
@@ -54,6 +60,8 @@ public final class AnnotationDealt
     {
         destroyMethodsMap = new HashMap<>();
         startMethodsMap = new HashMap<>();
+        destroyMap = new HashMap<>();
+        startMap = new HashMap<>();
     }
 
     public _SyncPorterOption syncPorterOption(Field field,
@@ -394,48 +402,70 @@ public final class AnnotationDealt
 
     public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter)
     {
-        if (isNullInstanceOfStartDestroy(method, objectGetter))
+        String mkey = method.toString();
+        _PortDestroy _portDestroy = destroyMap.get(mkey);
+        if (_portDestroy == PORT_DESTROY_EMPTY)
         {
+            return null;
+        } else if (_portDestroy == null)
+        {
+            if (isNullInstanceOfStartDestroy(method, objectGetter))
+            {
 //            if (LOGGER.isWarnEnabled())
 //            {
 //                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
 //            }
-            return null;
+                destroyMap.put(mkey, PORT_DESTROY_EMPTY);
+                return null;
+            }
+
+            PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
+            if (portDestroy == null)
+            {
+                destroyMap.put(mkey, PORT_DESTROY_EMPTY);
+                return null;
+            }
+            _portDestroy = new _PortDestroy();
+            _portDestroy.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
+            _portDestroy.order = portDestroy.order();
+            destroyMap.put(mkey, _portDestroy);
         }
 
-        PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
-        if (portDestroy == null)
-        {
-            return null;
-        }
-        _PortDestroy _portDestroy = new _PortDestroy();
-
-        _portDestroy.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
-        _portDestroy.order = portDestroy.order();
         return _portDestroy;
     }
 
 
     public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
     {
-        if (isNullInstanceOfStartDestroy(method, objectGetter))
+        String mkey = method.toString();
+        _PortStart _portStart = startMap.get(mkey);
+        if (_portStart == PORT_START_EMPTY)
         {
+            return null;
+        } else if (_portStart == null)
+        {
+            if (isNullInstanceOfStartDestroy(method, objectGetter))
+            {
 //            if (LOGGER.isWarnEnabled())
 //            {
 //                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
 //            }
-            return null;
+                startMap.put(mkey, PORT_START_EMPTY);
+                return null;
+            }
+
+            PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortStart.class);
+            if (portStart == null)
+            {
+                startMap.put(mkey, PORT_START_EMPTY);
+                return null;
+            }
+            _portStart = new _PortStart();
+            _portStart.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
+            _portStart.order = portStart.order();
+            startMap.put(mkey, _portStart);
         }
 
-
-        PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortStart.class);
-        if (portStart == null)
-        {
-            return null;
-        }
-        _PortStart _portStart = new _PortStart();
-        _portStart.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
-        _portStart.order = portStart.order();
         return _portStart;
     }
 
@@ -467,7 +497,7 @@ public final class AnnotationDealt
             {
                 methods[i] = portStarts[i].porterOfFun.getMethod();
             }
-            startMethodsMap.put(objectClass,methods);
+            startMethodsMap.put(objectClass, methods);
         }
 
         return methods;
@@ -502,7 +532,7 @@ public final class AnnotationDealt
             {
                 methods[i] = portDestroys[i].porterOfFun.getMethod();
             }
-            destroyMethodsMap.put(objectClass,methods);
+            destroyMethodsMap.put(objectClass, methods);
         }
 
         return methods;

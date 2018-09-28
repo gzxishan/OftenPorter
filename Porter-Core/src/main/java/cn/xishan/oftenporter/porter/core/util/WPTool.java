@@ -645,7 +645,7 @@ public class WPTool
 
 
     /**
-     * 得到所有公共的函数（包括父类的,但是不包括Object的final函数）。
+     * 得到所有公共的函数（包括父类的,但是不包括Object的函数）。
      *
      * @param clazz
      * @return
@@ -661,7 +661,7 @@ public class WPTool
             Method[] _methods = clazz.getMethods();
             for (Method method : _methods)
             {
-                if (method.getDeclaringClass().equals(Object.class) && Modifier.isFinal(method.getModifiers()))
+                if (method.getDeclaringClass().equals(Object.class))
                 {
                     continue;
                 }
