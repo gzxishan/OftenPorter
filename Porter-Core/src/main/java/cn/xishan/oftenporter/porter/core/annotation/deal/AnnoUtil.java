@@ -127,23 +127,23 @@ public final class AnnoUtil
         {
             WeakReference weakReference = annotationCache.get(this);
             Object cache = weakReference == null ? null : weakReference.get();
-            if (LOGGER.isDebugEnabled())
-            {
-                if (cache != null)
-                {
-                    LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
-                }
-            }
+//            if (LOGGER.isDebugEnabled())
+//            {
+//                if (cache != null)
+//                {
+//                    LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
+//                }
+//            }
             putCacheLog();
             return cache;
         }
 
         void setCache(Object obj)
         {
-            if (LOGGER.isDebugEnabled())
-            {
-                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
-            }
+//            if (LOGGER.isDebugEnabled())
+//            {
+//                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
+//            }
             annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
         }
     }
@@ -175,7 +175,7 @@ public final class AnnoUtil
         String from = null;
         if (LOGGER.isInfoEnabled()&&(from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null)
         {
-            LOGGER.debug("invoke from:\n\t\t{}", from);
+           // LOGGER.debug("invoke from:\n\t\t{}", from);
             Integer count = cacheCount.get(from);
             if (count == null)
             {
