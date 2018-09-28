@@ -256,9 +256,6 @@ public final class PorterMain
             currentPNameForLogger = getPLinker().currentPName().getName();
             commonMainHashMap.put(this.pLinker.currentPName().getName(), commonMain);
             _startOne(bridge);
-            WPTool.clearCache();
-            AnnoUtil.clearCache();
-            AutoSetObjForAspectOfNormal.clearCache();
             currentPNameForLogger = null;
         } catch (Throwable e)
         {
@@ -451,6 +448,12 @@ public final class PorterMain
             }
             LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
             AnnoUtil.popAnnotationConfigable();
+            if (autoSetObjForAspectOfNormal != null)
+            {
+                autoSetObjForAspectOfNormal.clearCache();
+            }
+            WPTool.clearCache();
+            AnnoUtil.clearCache();
         } catch (Exception e)
         {
             throw new Error(WPTool.getCause(e));

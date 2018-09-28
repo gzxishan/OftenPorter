@@ -32,8 +32,8 @@ public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
     private final Logger LOGGER;
-    private Map<String, _PortDestroy> destroyMap = new HashMap<>();
-    private Map<String, _PortStart> startMap = new HashMap<>();
+    private Map<Class, Method[]> destroyMethodsMap = new HashMap<>();
+    private Map<Class, Method[]> startMethodsMap = new HashMap<>();
 
     private AnnotationDealt(boolean enableDefaultValue)
     {
@@ -50,9 +50,10 @@ public final class AnnotationDealt
     }
 
 
-    public void clearCache(){
-        destroyMap=new HashMap<>();
-        startMap=new HashMap<>();
+    public void clearCache()
+    {
+        destroyMethodsMap = new HashMap<>();
+        startMethodsMap = new HashMap<>();
     }
 
     public _SyncPorterOption syncPorterOption(Field field,
@@ -401,10 +402,7 @@ public final class AnnotationDealt
 //            }
             return null;
         }
-        String mkey = method.toString();
-        if(destroyMap.containsKey(mkey)){
-            return destroyMap.get(mkey);
-        }
+
         PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortDestroy.class);
         if (portDestroy == null)
         {
@@ -414,7 +412,6 @@ public final class AnnotationDealt
 
         _portDestroy.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portDestroy.order = portDestroy.order();
-        destroyMap.put(mkey,_portDestroy);
         return _portDestroy;
     }
 
@@ -429,10 +426,7 @@ public final class AnnotationDealt
 //            }
             return null;
         }
-        String mkey = method.toString();
-        if(startMap.containsKey(mkey)){
-            return startMap.get(mkey);
-        }
+
 
         PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortStart.class);
         if (portStart == null)
@@ -442,62 +436,76 @@ public final class AnnotationDealt
         _PortStart _portStart = new _PortStart();
         _portStart.porterOfFun = PorterOfFun.withMethodAndObject(method, objectGetter);
         _portStart.order = portStart.order();
-        startMap.put(mkey,_portStart);
         return _portStart;
     }
 
     public Method[] getPortStart(Object object, Class objectClass)
     {
-        ObjectGetter objectGetter = () -> object;
-
-        Method[] methods = WPTool.getAllPublicMethods(PortUtil.getRealClass(objectClass));
-        List<_PortStart> list = new ArrayList<>();
-        for (Method method : methods)
+        objectClass = PortUtil.getRealClass(objectClass);
+        Method[] methods = startMethodsMap.get(objectClass);
+        if (methods == null)
         {
-            if (!Modifier.isAbstract(method.getModifiers()))
+            ObjectGetter objectGetter = () -> object;
+
+            methods = WPTool.getAllPublicMethods(objectClass);
+            List<_PortStart> list = new ArrayList<>();
+            for (Method method : methods)
             {
-                _PortStart portStart = portStart(method, objectGetter);
-                if (portStart != null)
+                if (!Modifier.isAbstract(method.getModifiers()))
                 {
-                    list.add(portStart);
+                    _PortStart portStart = portStart(method, objectGetter);
+                    if (portStart != null)
+                    {
+                        list.add(portStart);
+                    }
                 }
             }
+            _PortStart[] portStarts = list.toArray(new _PortStart[0]);
+            Arrays.sort(portStarts);
+            methods = new Method[portStarts.length];
+            for (int i = 0; i < portStarts.length; i++)
+            {
+                methods[i] = portStarts[i].porterOfFun.getMethod();
+            }
+            startMethodsMap.put(objectClass,methods);
         }
-        _PortStart[] portStarts = list.toArray(new _PortStart[0]);
-        Arrays.sort(portStarts);
-        Method[] starts = new Method[portStarts.length];
-        for (int i = 0; i < portStarts.length; i++)
-        {
-            starts[i] = portStarts[i].porterOfFun.getMethod();
-        }
-        return starts;
+
+        return methods;
     }
 
     public Method[] getPortDestroy(Object object, Class objectClass)
     {
-        ObjectGetter objectGetter = () -> object;
+        objectClass = PortUtil.getRealClass(objectClass);
+        Method[] methods = destroyMethodsMap.get(objectClass);
 
-        Method[] methods = WPTool.getAllMethods(PortUtil.getRealClass(objectClass));
-        List<_PortDestroy> list = new ArrayList<>();
-        for (Method method : methods)
+        if (methods == null)
         {
-            if (!Modifier.isAbstract(method.getModifiers()))
+            ObjectGetter objectGetter = () -> object;
+
+            methods = WPTool.getAllMethods(objectClass);
+            List<_PortDestroy> list = new ArrayList<>();
+            for (Method method : methods)
             {
-                _PortDestroy portDestroy = portDestroy(method, objectGetter);
-                if (portDestroy != null)
+                if (!Modifier.isAbstract(method.getModifiers()))
                 {
-                    list.add(portDestroy);
+                    _PortDestroy portDestroy = portDestroy(method, objectGetter);
+                    if (portDestroy != null)
+                    {
+                        list.add(portDestroy);
+                    }
                 }
             }
+            _PortDestroy[] portDestroys = list.toArray(new _PortDestroy[0]);
+            Arrays.sort(portDestroys);
+            methods = new Method[portDestroys.length];
+            for (int i = 0; i < portDestroys.length; i++)
+            {
+                methods[i] = portDestroys[i].porterOfFun.getMethod();
+            }
+            destroyMethodsMap.put(objectClass,methods);
         }
-        _PortDestroy[] portDestroys = list.toArray(new _PortDestroy[0]);
-        Arrays.sort(portDestroys);
-        Method[] destroys = new Method[portDestroys.length];
-        for (int i = 0; i < portDestroys.length; i++)
-        {
-            destroys[i] = portDestroys[i].porterOfFun.getMethod();
-        }
-        return destroys;
+
+        return methods;
     }
 
     public _PortOut portOut(Class<?> classPorter, OutType defaultPoutType)

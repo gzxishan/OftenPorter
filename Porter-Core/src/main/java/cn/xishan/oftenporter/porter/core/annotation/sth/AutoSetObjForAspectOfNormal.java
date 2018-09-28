@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
@@ -161,24 +160,29 @@ public class AutoSetObjForAspectOfNormal
         }
     }
 
-    private static Set<Method> aspectHandleSet = ConcurrentHashMap.newKeySet();
+    private static Set<String> aspectMethodHandleCache;
+    private Map<String, List<Annotation[]>> methodHanldeCache;
     private Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
 
     private static CallbackFilter callbackFilter = method -> {//static类型，防止当前类被引用无法释放。
         synchronized (AutoSetObjForAspectOfNormal.class)
         {
-            return aspectHandleSet.contains(method) ? 1 : 0;
+            String mkey = method.toString();
+            return aspectMethodHandleCache.contains(mkey) ? 1 : 0;
         }
     };
 
+
     public AutoSetObjForAspectOfNormal()
     {
-
+        clearCache();
     }
 
-    public static void clearCache()
+
+    public void clearCache()
     {
-        aspectHandleSet.clear();
+        aspectMethodHandleCache = ConcurrentHashMap.newKeySet();
+        methodHanldeCache = new ConcurrentHashMap<>();
     }
 
     boolean hasProxy(Object object)
@@ -188,12 +192,9 @@ public class AutoSetObjForAspectOfNormal
 
     Object doProxyOrNew(Object objectMayNull, Class objectClass, AutoSetHandle autoSetHandle) throws Exception
     {
-        synchronized (AutoSetObjForAspectOfNormal.class)
+        if (objectMayNull != null && seekedObjectSet.contains(objectMayNull))
         {
-            if (objectMayNull != null && seekedObjectSet.contains(objectMayNull))
-            {
-                return objectMayNull;
-            }
+            return objectMayNull;
         }
         if (hasProxy(objectMayNull))
         {
@@ -201,8 +202,7 @@ public class AutoSetObjForAspectOfNormal
         }
 
         Class<?> clazz = objectMayNull == null ? objectClass : PortUtil.getRealClass(objectMayNull);
-
-        IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
+        Map<Method, List<Annotation[]>> methodTypeMap = new WeakHashMap<>();
 
         Map<Annotation, AspectOperationOfNormal> classAspectOperationMap = new HashMap<>();
 
@@ -221,8 +221,7 @@ public class AutoSetObjForAspectOfNormal
 
 
         Method[] methods = WPTool.getAllMethods(clazz);
-        boolean existsAspect = false;
-        Map<Method, List<Annotation[]>> methodTypeMap = new WeakHashMap<>();
+
         for (Method method : methods)
         {
 
@@ -235,24 +234,32 @@ public class AutoSetObjForAspectOfNormal
             {
                 continue;
             }
-            Annotation[] annotations = AnnoUtil.getAnnotations(method);
-            List<Annotation[]> list = new ArrayList<>(1);
-            for (Annotation annotation : annotations)
+
+            String mkey = method.toString();
+            List<Annotation[]> list = methodHanldeCache.get(mkey);
+
+            if (list == null)
             {
-                AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
-                        .getAspectOperationOfNormal(annotation);
-                if (aspectOperationOfNormal == null)
+                Annotation[] annotations = AnnoUtil.getAnnotations(method);
+                list = new ArrayList<>(5);
+                for (Annotation annotation : annotations)
                 {
-                    aspectOperationOfNormal = classAspectOperationMap.get(annotation);//如果函数上不存在指定注解、则获取类上的
+                    AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
+                            .getAspectOperationOfNormal(annotation);
+                    if (aspectOperationOfNormal == null)
+                    {
+                        aspectOperationOfNormal = classAspectOperationMap.get(annotation);//如果函数上不存在指定注解、则获取类上的
+                    }
+                    if (aspectOperationOfNormal != null)
+                    {
+                        list.add(new Annotation[]{
+                                annotation, aspectOperationOfNormal
+                        });
+                    }
                 }
-                if (aspectOperationOfNormal != null)
-                {
-                    list.add(new Annotation[]{
-                            annotation, aspectOperationOfNormal
-                    });
-                    existsAspect = true;
-                }
+                methodHanldeCache.put(mkey, list);
             }
+
             if (list.size() > 0)
             {
                 if (Modifier.isPrivate(method.getModifiers()))
@@ -260,25 +267,21 @@ public class AutoSetObjForAspectOfNormal
                     LOGGER.warn("ignore private method aspect of normal:{}", method);
                 } else
                 {
-                    synchronized (AutoSetObjForAspectOfNormal.class)
-                    {
-                        aspectHandleSet.add(method);
-                    }
+                    aspectMethodHandleCache.add(method.toString());
                     methodTypeMap.put(method, list);
                 }
             }
         }
 
-        synchronized (AutoSetObjForAspectOfNormal.class)
+
+        if (objectMayNull != null)
         {
-            if (objectMayNull != null)
-            {
-                seekedObjectSet.add(objectMayNull);
-            }
+            seekedObjectSet.add(objectMayNull);
         }
 
-        if (existsAspect)
+        if (!methodTypeMap.isEmpty())
         {
+            IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
 
             Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
             for (Map.Entry<Method, List<Annotation[]>> entry : methodTypeMap.entrySet())
@@ -289,8 +292,7 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = 0; i < annotationList.size(); i++)
                 {
                     Annotation annotation = annotationList.get(i)[0];
-                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList
-                            .get(i)[1];
+                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList.get(i)[1];
 
                     AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
                     if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
@@ -332,7 +334,6 @@ public class AutoSetObjForAspectOfNormal
         {
             objectMayNull = WPTool.newObjectMayNull(objectClass);
         }
-
 
         return objectMayNull;
     }
