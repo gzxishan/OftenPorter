@@ -1577,7 +1577,7 @@ public final class AnnoUtil
             Class<?>[] ins = clazz.getInterfaces();
             for (Class<?> inClass : ins)
             {
-                t = getAnnotation(inClass, annotationClass);
+                t = getAnnotation(inClass, annotationClass);//递归调用
                 if (t != null)
                 {
                     return t;//已经代理过
@@ -1590,11 +1590,7 @@ public final class AnnoUtil
     private static <A extends Annotation> A[] getAnnotationsOfProxy(Object obj, Class<A> annotationClass)
     {
         A[] as = getAnnotationsByType(obj, annotationClass);
-        for (int i = 0; i < as.length; i++)
-        {
-            as[i] = proxyAnnotationForAttr(as[i]);
-        }
-        return as;
+        return proxyAnnotationForAttr(as);
     }
 
     private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass)
@@ -1774,14 +1770,14 @@ public final class AnnoUtil
         return getAnnotationsOfProxy(clazz, annotationClass);
     }
 
-    public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass)
-    {
-        return getAnnotationsOfProxy(method, annotationClass);
-    }
-
     public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass)
     {
         return getAnnotationsOfProxy(field, annotationClass);
+    }
+
+    public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass)
+    {
+        return getAnnotationsOfProxy(method, annotationClass);
     }
 
 
@@ -1811,7 +1807,7 @@ public final class AnnoUtil
 
 
     /**
-     * 获取类及其父类上的所有指定注解。
+     * 获取类及其所有父类上的所有指定注解。
      *
      * @param clazz
      * @param annotationClass

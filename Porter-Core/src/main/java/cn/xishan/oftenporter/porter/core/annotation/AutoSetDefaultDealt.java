@@ -22,8 +22,7 @@ public @interface AutoSetDefaultDealt
      * 默认选项，当{@linkplain AutoSet#option() AutoSet.option()}为空时有效。
      *
      * @return
-     */
-    String option() default "";
+     */String option() default "";
 
     /**
      * 对应的AutoSetDealt必须含有无参构造函数。

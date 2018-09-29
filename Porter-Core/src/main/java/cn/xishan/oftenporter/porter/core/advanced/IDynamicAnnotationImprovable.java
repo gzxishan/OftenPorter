@@ -2,7 +2,6 @@ package cn.xishan.oftenporter.porter.core.advanced;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -11,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 /**
  * 用于动态注解的支持，需要加入资源文件/OP-INF/cn.xishan.oftenporter.porter.core.advanced
@@ -55,7 +55,7 @@ public interface IDynamicAnnotationImprovable
         }
     }
 
-    class Adapter implements IDynamicAnnotationImprovable
+    abstract class Adapter implements IDynamicAnnotationImprovable
     {
 
         @Override
@@ -70,11 +70,11 @@ public interface IDynamicAnnotationImprovable
             return null;
         }
 
-        @Override
-        public Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz)
-        {
-            return null;
-        }
+//        @Override
+//        public Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz)
+//        {
+//            return null;
+//        }
 
         @Override
         public Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
@@ -129,11 +129,33 @@ public interface IDynamicAnnotationImprovable
         }
     }
 
+    /**
+     * 获取支持的注解类：*表示所有。
+     *
+     * @return
+     */
+    Set<String> supportClassNames();
+
+    /**
+     * 是否支持:{@linkplain #getAnnotationsForAspectOperationOfPortIn(Porter)},
+     * {@linkplain #getAnnotationsForAspectOperationOfPortIn(PorterOfFun)}
+     *
+     * @return
+     */
+    boolean supportPorter();
+
+    /**
+     * 是否支持:{@linkplain #getAspectOperationOfNormal(Annotation)},{@linkplain #getAspectOperationOfPortIn(Annotation)}
+     *
+     * @return
+     */
+    boolean supportAspect();
+
     Result<InvocationHandler, AspectOperationOfNormal> getAspectOperationOfNormal(Annotation annotation);
 
     Result<InvocationHandler, AspectOperationOfPortIn> getAspectOperationOfPortIn(Annotation annotation);
 
-    Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz);
+//    Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz);
 
     Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter);
 
