@@ -143,7 +143,7 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     throw new RuntimeException("not found java fun 'java::" + name + "'");
                 }
-                stringBuilder.append(xml.substring(0, index + 2));
+                stringBuilder.append(xml, 0, index + 2);
                 stringBuilder.append("@").append(className).append("@");
                 xml = xml.substring(index2 + 1);
             }
@@ -239,7 +239,7 @@ class MyBatisDaoGen implements AutoSetGen
             _AutoSet autoSet,
             String option)
     {
-        MyBatisField myBatisField = AnnoUtil.Advanced.getAnnotation(field, MyBatisField.class);
+        MyBatisField myBatisField = AnnoUtil.getAnnotation(field, MyBatisField.class);
         if (myBatisField == null)
         {
             LOGGER.debug("the field [{}] not annotated with [@{}],use source:{}", field,
@@ -328,7 +328,7 @@ class MyBatisDaoGen implements AutoSetGen
 
 
         {
-            myBatisMapper = AnnoUtil.Advanced.getAnnotation(mapperClass, MyBatisMapper.class);
+            myBatisMapper = AnnoUtil.getAnnotation(mapperClass, MyBatisMapper.class);
             if (myBatisMapper != null)
             {
                 theType = myBatisMapper.type();
@@ -354,7 +354,7 @@ class MyBatisDaoGen implements AutoSetGen
         }
 
 
-        MyBatisAlias[] myBatisAliases = AnnoUtil.Advanced.getRepeatableAnnotations(mapperClass, MyBatisAlias.class);
+        MyBatisAlias[] myBatisAliases = AnnoUtil.getRepeatableAnnotations(mapperClass, MyBatisAlias.class);
         _MyBatis.Alias[] aliases = new _MyBatis.Alias[myBatisAliases.length];
         for (int i = 0; i < myBatisAliases.length; i++)
         {
@@ -377,7 +377,7 @@ class MyBatisDaoGen implements AutoSetGen
             {
                 //获取
                 Class<?> realType = myBatisField.value;
-                myBatis.entityClass = AnnoUtil.Advanced
+                myBatis.entityClass = AnnoUtil.Advance
                         .getDirectGenericRealTypeAt(realType, myBatisMapper.entityClassFromGenericTypeAt());
             }
 
@@ -385,7 +385,7 @@ class MyBatisDaoGen implements AutoSetGen
                     .entityClassFromGenericTypeBySuperType().equals(MyBatisMapper.class))
             {
                 Class<?> realType = myBatisField.value;
-                myBatis.entityClass = AnnoUtil.Advanced
+                myBatis.entityClass = AnnoUtil.Advance
                         .getDirectGenericRealTypeBySuperType(realType,
                                 myBatisMapper.entityClassFromGenericTypeBySuperType());
             }

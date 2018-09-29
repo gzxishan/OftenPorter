@@ -584,7 +584,7 @@ public final class AnnotationDealt
 
     public _PortIn portIn(Class<?> clazz, boolean isMixin)
     {
-        PortIn portIn = AnnoUtil.Advanced.getAnnotation(clazz, PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         if (portIn == null && isMixin)
         {
             portIn = AnnoUtil.getAnnotation(AnnotationDealt.class, PortIn.class);
@@ -613,7 +613,7 @@ public final class AnnotationDealt
     {
         _PortIn class_PortIn = porter.getPortIn();
         _PortIn _portInOfMethod = null;
-        PortIn portIn = AnnoUtil.Advanced.getAnnotation(method, PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
         if (portIn != null)
         {
 

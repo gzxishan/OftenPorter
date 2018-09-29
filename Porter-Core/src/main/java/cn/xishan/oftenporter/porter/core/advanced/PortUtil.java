@@ -198,7 +198,7 @@ public class PortUtil
 
     public static String tied(Class<?> clazz)
     {
-        PortIn portIn = AnnoUtil.Advanced.getAnnotation(clazz, PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         String tiedName = portIn != null ? tied(portIn) : null;
         if (WPTool.isEmpty(tiedName))
         {
@@ -254,7 +254,7 @@ public class PortUtil
 
     public static MixinTo[] getMixinTos(Class<?> clazz)
     {
-        MixinTo[] mixinTos = AnnoUtil.Advanced.getRepeatableAnnotations(clazz, MixinTo.class);
+        MixinTo[] mixinTos = AnnoUtil.getRepeatableAnnotations(clazz, MixinTo.class);
         return mixinTos;
     }
 

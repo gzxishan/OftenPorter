@@ -184,13 +184,12 @@ public class LogUtil
         return toString(stackTraceElement);
     }
 
-    public static String getCodePosExceptNames(String[] exceptClassNames)
+    public static String getCodePosExceptNames(Set<String> exceptClassNames)
     {
         StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
         int n = 2;
         StackTraceElement target = null;
-        Set<String> nameSet = new HashSet<>(exceptClassNames.length);
-        WPTool.addAll(nameSet, exceptClassNames);
+        Set<String> nameSet = exceptClassNames;
         while (n < stacks.length)
         {
             StackTraceElement element = stacks[n];

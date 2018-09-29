@@ -210,7 +210,7 @@ public class AutoSetObjForAspectOfNormal
             Annotation[] annotations = AnnoUtil.getAnnotations(clazz);
             for (Annotation annotation : annotations)
             {
-                AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
+                AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
                         .getAspectOperationOfNormal(annotation);
                 if (aspectOperationOfNormal != null)
                 {
@@ -244,7 +244,7 @@ public class AutoSetObjForAspectOfNormal
                 list = new ArrayList<>(5);
                 for (Annotation annotation : annotations)
                 {
-                    AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil.Advanced
+                    AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
                             .getAspectOperationOfNormal(annotation);
                     if (aspectOperationOfNormal == null)
                     {

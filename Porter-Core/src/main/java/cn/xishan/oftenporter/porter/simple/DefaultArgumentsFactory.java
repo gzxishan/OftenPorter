@@ -194,7 +194,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
             for (int i = 0; i < argCount; i++)
             {
-                Class<?> paramType = AnnoUtil.Advanced.getRealTypeOfMethodParameter(realClass, method, i);
+                Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
                 String paramName = parameters[i].getName();

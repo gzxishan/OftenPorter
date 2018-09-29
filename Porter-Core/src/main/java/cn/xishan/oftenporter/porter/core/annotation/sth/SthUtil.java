@@ -57,7 +57,7 @@ class SthUtil
     {
         if (clazz.isAnnotationPresent(MixinParseFrom.class))
         {
-            MixinParseFrom mixinParseFrom = AnnoUtil.Advanced.getAnnotation(clazz, MixinParseFrom.class);
+            MixinParseFrom mixinParseFrom = AnnoUtil.getAnnotation(clazz, MixinParseFrom.class);
             Class<?>[] cs = mixinParseFrom.value();
             cs = cs.length > 0 ? cs : mixinParseFrom.porters();
             return cs;
@@ -244,13 +244,13 @@ class SthUtil
         List<_MixinPorter> list = new ArrayList<>(1);
         if (clazz.isAnnotationPresent(Mixin.class))
         {
-            Mixin mixin = AnnoUtil.Advanced.getAnnotation(clazz, Mixin.class);
+            Mixin mixin = AnnoUtil.getAnnotation(clazz, Mixin.class);
             Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
             int k = -1;
             for (Class c : classes)
             {
                 k++;
-                MixinOnly mixinOnly = AnnoUtil.Advanced.getAnnotation(c, MixinOnly.class);
+                MixinOnly mixinOnly = AnnoUtil.getAnnotation(c, MixinOnly.class);
                 if (!PortUtil.enableMixinByMixinTo(c))
                 {
                     LOGGER.debug("mixin not enable:[{}] to [{}]", c, clazz);
@@ -277,7 +277,7 @@ class SthUtil
 
     private static boolean isEnableMixinTo(Class<?> clazz)
     {
-        PortIn portIn = AnnoUtil.Advanced.getAnnotation(clazz, PortIn.class);
+        PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         return portIn != null && portIn.enableMixinTo();
     }
 

@@ -94,7 +94,7 @@ class _MyBatis
         map.put("mapperDao", daoClass.getSimpleName());
         map.put("mapperDaoClass", daoClass.getName());
 
-        MyBatisParams myBatisParams = AnnoUtil.Advanced.getAnnotation(daoClass, MyBatisParams.class);
+        MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
         if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
         {
             if (params != null)
@@ -125,9 +125,9 @@ class _MyBatis
         this.xmlParamsMap = map;
     }
 
-    public String replaceSqlParams(String sql) throws Exception
+    public String replaceSqlParams(String _sql) throws Exception
     {
-
+        StringBuilder sqlBuilder = new StringBuilder(_sql);
         int loopCount = 0;
         Map<String, Object> localParams = new HashMap<>(xmlParamsMap);
         if (paths == null)
@@ -139,7 +139,7 @@ class _MyBatis
         }
         while (true)
         {
-            if (loopCount > 1000)
+            if (loopCount > 5000)
             {
                 throw new RuntimeException("too much replace for " + daoClass);
             }
@@ -150,22 +150,22 @@ class _MyBatis
                 String keySuffix = "-->";
                 do
                 {
-                    int index = sql.indexOf(keyPrefix);
+                    int index = sqlBuilder.indexOf(keyPrefix);
                     if (index == -1)
                     {
                         break;
                     }
-                    int index2 = sql.indexOf(keySuffix, index + keyPrefix.length());
+                    int index2 = sqlBuilder.indexOf(keySuffix, index + keyPrefix.length());
                     if (index2 == -1)
                     {
-                        throw new RuntimeException("illegal format:" + sql.substring(index));
+                        throw new RuntimeException("illegal format:" + sqlBuilder.substring(index));
                     }
-                    JSONObject params = JSON.parseObject(sql.substring(index + keyPrefix.length(), index2));
+                    JSONObject params = JSON.parseObject(sqlBuilder.substring(index + keyPrefix.length(), index2));
                     if (params != null)
                     {
                         localParams.putAll(params);
                     }
-                    sql = sql.substring(0, index) + sql.substring(index2 + keySuffix.length());
+                    sqlBuilder.delete(index, index2+keySuffix.length());
                 } while (false);
             }
 
@@ -188,19 +188,19 @@ class _MyBatis
                         {//file:
                             keyPrefix = "<!--$file:";
                         }
-                        int index = sql.indexOf(keyPrefix);
+                        int index = sqlBuilder.indexOf(keyPrefix);
                         if (index == -1)
                         {
                             break;
                         }
-                        int index2 = sql.indexOf(keySuffix, index + keyPrefix.length());
+                        int index2 = sqlBuilder.indexOf(keySuffix, index + keyPrefix.length());
                         if (index2 == -1)
                         {
-                            throw new RuntimeException("illegal format:" + sql.substring(index));
+                            throw new RuntimeException("illegal format:" + sqlBuilder.substring(index));
                         }
                         found = true;
                         String content;
-                        String path = sql.substring(index + keyPrefix.length(), index2);
+                        String path = sqlBuilder.substring(index + keyPrefix.length(), index2);
                         int indexX = path.indexOf("!");
                         if (indexX > 0)
                         {
@@ -259,10 +259,8 @@ class _MyBatis
                                 throw new RuntimeException(e);
                             }
                         }
-
-                        sql = sql.substring(0, index) +
-                                content +
-                                sql.substring(index2 + keySuffix.length());
+                        sqlBuilder.delete(index, index2+keySuffix.length());
+                        sqlBuilder.insert(index, content);
                     } while (false);
                 }
 
@@ -277,21 +275,20 @@ class _MyBatis
                     continue;
                 }
                 key = "$[" + key + "]";
-                StringBuilder stringBuilder = new StringBuilder();
                 while (true)
                 {
-                    int index = sql.indexOf(key);
+                    int index = sqlBuilder.indexOf(key);
                     if (index == -1)
                     {
                         break;
                     }
                     found = true;
-                    stringBuilder.append(sql.substring(0, index));
-                    stringBuilder.append(String.valueOf(value));
-                    sql = sql.substring(index + key.length());
+                    sqlBuilder.delete(index, index + key.length());
+                    sqlBuilder.insert(index, String.valueOf(value));
+
+
                 }
-                stringBuilder.append(sql);
-                sql = stringBuilder.toString();
+
             }
 
             if (!found)
@@ -307,8 +304,7 @@ class _MyBatis
         {
             setFileListener(fileListener);
         }
-
-        return sql;
+        return sqlBuilder.toString();
     }
 
     List<File> getRelatedFile(List<String> paths)

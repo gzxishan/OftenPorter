@@ -32,7 +32,7 @@ public class BaseEasier
         if (field != null && field.isAnnotationPresent(DBField.class))
         {
 
-            DBField DBField = AnnoUtil.Advanced.getAnnotation(field,DBField.class);
+            DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
             name = DBField.value().equals("") ? name : DBField.value();
 
         }

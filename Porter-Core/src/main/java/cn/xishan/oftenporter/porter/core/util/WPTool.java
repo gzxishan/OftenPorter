@@ -229,20 +229,22 @@ public class WPTool
      * @param ts
      * @param <T>
      */
-    public static final <T> void addAll(List<T> list, T... ts)
+    public static final <T> List<T> addAll(List<T> list, T... ts)
     {
         for (T t : ts)
         {
             list.add(t);
         }
+        return list;
     }
 
-    public static final <T> void addAll(Set<T> set, T... ts)
+    public static final <T> Set<T> addAll(Set<T> set, T... ts)
     {
         for (T t : ts)
         {
             set.add(t);
         }
+        return set;
     }
 
 

@@ -10,13 +10,14 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Set;
 
 /**
  * 用于动态注解的支持，需要加入资源文件/OP-INF/cn.xishan.oftenporter.porter.core.advanced
  * .IDynamicAnnotationImprovable，内容为实现类名称(每行一个).
  * <p>
- * 另见:{@linkplain AnnoUtil.Advanced}
+ * 另见:{@linkplain AnnoUtil.Advance}
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/7/1.
@@ -102,6 +103,13 @@ public interface IDynamicAnnotationImprovable
         }
 
         @Override
+        public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Parameter parameter,
+                Class<A> annotationType)
+        {
+            return null;
+        }
+
+        @Override
         public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Field field, Class<A> annotationType)
         {
             return null;
@@ -127,6 +135,12 @@ public interface IDynamicAnnotationImprovable
         {
             return null;
         }
+
+        @Override
+        public int order()
+        {
+            return 0;
+        }
     }
 
     /**
@@ -151,6 +165,13 @@ public interface IDynamicAnnotationImprovable
      */
     boolean supportAspect();
 
+    /**
+     * 顺序，数字越大越靠前。
+     *
+     * @return
+     */
+    int order();
+
     Result<InvocationHandler, AspectOperationOfNormal> getAspectOperationOfNormal(Annotation annotation);
 
     Result<InvocationHandler, AspectOperationOfPortIn> getAspectOperationOfPortIn(Annotation annotation);
@@ -165,6 +186,8 @@ public interface IDynamicAnnotationImprovable
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz, Class<A> annotationType);
 
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Method method, Class<A> annotationType);
+
+    <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Parameter parameter, Class<A> annotationType);
 
     <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Field field, Class<A> annotationType);
 

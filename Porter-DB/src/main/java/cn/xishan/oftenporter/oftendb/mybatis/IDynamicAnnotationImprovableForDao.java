@@ -5,8 +5,11 @@ import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
@@ -15,13 +18,13 @@ public class IDynamicAnnotationImprovableForDao extends IDynamicAnnotationImprov
 {
 
     @Override
-    public Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz)
+    public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz, Class<A> annotationType)
     {
-        if (!Modifier.isInterface(clazz.getModifiers()))
+        if (!Modifier.isInterface(clazz.getModifiers()) || !annotationType.equals(AutoSetDefaultDealt.class))
         {
             return null;
         }
-        MyBatisMapper myBatisMapper = AnnoUtil.Advanced.getAnnotation(clazz, MyBatisMapper.class);
+        MyBatisMapper myBatisMapper = AnnoUtil.getAnnotation(clazz, MyBatisMapper.class);
         if (myBatisMapper != null)
         {
             InvocationHandler invocationHandler = (proxy, method, args) -> {
@@ -33,8 +36,30 @@ public class IDynamicAnnotationImprovableForDao extends IDynamicAnnotationImprov
                     return method.getDefaultValue();
                 }
             };
-            return new Result<>(invocationHandler, AutoSetDefaultDealt.class);
+            Result result = new Result<>(invocationHandler, annotationType);
+            return result;
         }
         return null;
+    }
+
+
+    @Override
+    public Set<String> supportClassNames()
+    {
+        Set<String> set = new HashSet<>();
+        set.add(AutoSetDefaultDealt.class.getName());
+        return set;
+    }
+
+    @Override
+    public boolean supportPorter()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean supportAspect()
+    {
+        return false;
     }
 }

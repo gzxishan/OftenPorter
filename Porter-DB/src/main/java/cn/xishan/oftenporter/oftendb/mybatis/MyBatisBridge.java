@@ -31,7 +31,7 @@ public class MyBatisBridge
 
     static
     {
-        AnnoUtil.Advanced.addWhite(IDynamicAnnotationImprovableForDao.class.getName());
+        AnnoUtil.Advance.addWhite(IDynamicAnnotationImprovableForDao.class.getName());
     }
 
     static void start()

@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -14,13 +13,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-07-13.
  */
-class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
+class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable,
+        Comparable<DynamicAnnotationImprovableWrap>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicAnnotationImprovableWrap.class);
     private String classType;
@@ -98,6 +99,34 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     }
 
     @Override
+    public Set<String> supportClassNames()
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable == null ? null : improvable.supportClassNames();
+    }
+
+    @Override
+    public boolean supportPorter()
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable != null && improvable.supportPorter();
+    }
+
+    @Override
+    public boolean supportAspect()
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable != null && improvable.supportAspect();
+    }
+
+    @Override
+    public int order()
+    {
+        IDynamicAnnotationImprovable improvable = getReal();
+        return improvable == null ? 0 : improvable.order();
+    }
+
+    @Override
     public Result<InvocationHandler, AspectOperationOfNormal> getAspectOperationOfNormal(Annotation annotation)
     {
         IDynamicAnnotationImprovable improvable = getReal();
@@ -111,12 +140,6 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
         return improvable == null ? null : improvable.getAspectOperationOfPortIn(annotation);
     }
 
-    @Override
-    public Result<InvocationHandler, AutoSetDefaultDealt> getAutoSetDefaultDealt(Class<?> clazz)
-    {
-        IDynamicAnnotationImprovable improvable = getReal();
-        return improvable == null ? null : improvable.getAutoSetDefaultDealt(clazz);
-    }
 
     @Override
     public Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
@@ -144,6 +167,13 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     {
         IDynamicAnnotationImprovable improvable = getReal();
         return improvable == null ? null : improvable.getAnnotation(method, annotationType);
+    }
+
+    @Override
+    public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Parameter parameter,
+            Class<A> annotationType)
+    {
+        return null;
     }
 
     @Override
@@ -176,5 +206,22 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable
     {
         IDynamicAnnotationImprovable improvable = getReal();
         return improvable == null ? null : improvable.getRepeatableAnnotations(field, annotationType);
+    }
+
+    @Override
+    public int compareTo(DynamicAnnotationImprovableWrap wrap)
+    {
+        int thisOrder = order();
+        int order = wrap.order();
+        if (thisOrder > order)
+        {
+            return -1;
+        } else if (thisOrder == order)
+        {
+            return 0;
+        } else
+        {
+            return 1;
+        }
     }
 }

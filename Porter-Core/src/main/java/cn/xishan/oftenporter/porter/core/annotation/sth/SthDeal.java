@@ -120,7 +120,7 @@ public class SthDeal
 
         //处理类上的AspectFunOperation
         List<AspectOperationOfPortIn.Handle> classHandles = seekAspectFunOperation(autoSetHandle,
-                AnnoUtil.Advanced.getAnnotationsForAspectOperationOfPortIn(porter), porter,
+                AnnoUtil.getAnnotationsForAspectOperationOfPortIn(porter), porter,
                 null, null);
 
         BackableSeek backableSeek = new BackableSeek();
@@ -236,7 +236,7 @@ public class SthDeal
     private void seekAspectFunOperation(AutoSetHandle setHandle, PorterOfFun porterOfFun,
             List<AspectOperationOfPortIn.Handle> classHandles)
     {
-        Annotation[] annotations = AnnoUtil.Advanced.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
+        Annotation[] annotations = AnnoUtil.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
         List<AspectOperationOfPortIn.Handle> handles = seekAspectFunOperation(setHandle, annotations, porterOfFun,
                 classHandles, porterOfFun.getMethodPortIn().getAspectPosition());
         if (handles.size() > 0)
@@ -269,7 +269,7 @@ public class SthDeal
         IConfigData configData = setHandle.getContextObject(IConfigData.class);
         for (Annotation annotation : annotations)
         {
-            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil.Advanced.getAspectOperationOfPortIn(annotation);
+            AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil.getAspectOperationOfPortIn(annotation);
             if (aspectOperationOfPortIn == null)
             {
                 continue;

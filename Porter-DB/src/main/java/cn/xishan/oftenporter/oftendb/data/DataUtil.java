@@ -64,7 +64,7 @@ public class DataUtil
     {
         if (field.isAnnotationPresent(JsonObj.class))
         {
-            JsonObj jsonObj = AnnoUtil.Advanced.getAnnotation(field, JsonObj.class);
+            JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
             String name = jsonObj.value();
             if (name.equals(""))
             {
@@ -79,7 +79,7 @@ public class DataUtil
             return true;
         } else if (field.isAnnotationPresent(JsonField.class))
         {
-            JsonField jsonField = AnnoUtil.Advanced.getAnnotation(field, JsonField.class);
+            JsonField jsonField = AnnoUtil.getAnnotation(field, JsonField.class);
             String name = jsonField.value();
             if (name.equals(""))
             {
@@ -175,13 +175,13 @@ public class DataUtil
         }
         field.setAccessible(true);
         String name = null;
-        Nece nece = AnnoUtil.Advanced.getAnnotation(field, Nece.class);
+        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
         if (nece != null)
         {
             name = PortUtil.tied(nece, field, true);
         } else
         {
-            Unece unece = AnnoUtil.Advanced.getAnnotation(field, Unece.class);
+            Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
             if (unece != null)
             {
                 name = PortUtil.tied(unece, field, true);
@@ -189,7 +189,7 @@ public class DataUtil
         }
         if (name == null)
         {
-            DBField dbField = AnnoUtil.Advanced.getAnnotation(field, DBField.class);
+            DBField dbField = AnnoUtil.getAnnotation(field, DBField.class);
             if (dbField != null)
             {
                 name = field.getName();

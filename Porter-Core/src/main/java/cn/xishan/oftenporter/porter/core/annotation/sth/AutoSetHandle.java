@@ -700,7 +700,7 @@ public class AutoSetHandle
             Property property = AnnoUtil.getAnnotation(f, Property.class);
             if (property != null)
             {
-                fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 Object value = configData.getValue(currentObject, f, fieldRealType, property);
                 if (value != null)
                 {
@@ -740,7 +740,7 @@ public class AutoSetHandle
                 }
                 if (fieldRealType == null)
                 {
-                    fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                    fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
                 doAutoSetPut(f, value, fieldRealType);
                 continue;
@@ -756,7 +756,7 @@ public class AutoSetHandle
                 Object value = f.get(currentObject);
                 if (fieldRealType == null)
                 {
-                    fieldRealType = AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                    fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
 
                 String keyName;
@@ -986,7 +986,7 @@ public class AutoSetHandle
                 Property property = AnnoUtil.getAnnotation(parameter, Property.class);
                 if (property != null)
                 {
-                    Class realType = AnnoUtil.Advanced.getRealTypeOfMethodParameter(currentClass, method, i);
+                    Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
                     Object value = iConfigData.getValue(currentObject, method, realType, property);
                     args[i] = value;
                 } else
@@ -1025,7 +1025,7 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (genClass.equals(AutoSetGen.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.
                     getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
@@ -1045,7 +1045,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetGen, genClass);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), autoSet, option);
+                AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, field), autoSet, option);
         return value;
     }
 
@@ -1069,7 +1069,7 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (autoSetDealtClass.equals(AutoSetDealt.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.
                     getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
@@ -1088,7 +1088,7 @@ public class AutoSetHandle
         addOtherStartDestroy(autoSetDealt, autoSetDealtClass);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
-                AnnoUtil.Advanced.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);
+                AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);
         return finalValue;
     }
 
