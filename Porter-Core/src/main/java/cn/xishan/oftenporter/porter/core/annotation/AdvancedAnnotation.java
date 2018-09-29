@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 import java.lang.annotation.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-09-29.
@@ -8,9 +10,15 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
 @Documented
-@Advancable
-public @interface Advancable
+@AdvancedAnnotation
+public @interface AdvancedAnnotation
 {
+
+    interface Handle<A extends Annotation>
+    {
+        A onGotAnnotation(@MayNull Class clazz, @MayNull Method method, @MayNull Field field, A annotation);
+    }
+
     /**
      * 是否开启高级获取注解，默认false。
      *
@@ -24,4 +32,6 @@ public @interface Advancable
      * @return
      */
     boolean enableCache() default true;
+
+    Class<? extends Handle> handle() default Handle.class;
 }

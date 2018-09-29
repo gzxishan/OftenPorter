@@ -18,7 +18,7 @@ import java.util.Map;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
 @Documented
-@Advancable(enableAdvancedAnnotation = true)
+@AdvancedAnnotation(enableAdvancedAnnotation = true)
 public @interface AspectOperationOfNormal
 {
     interface Invoker

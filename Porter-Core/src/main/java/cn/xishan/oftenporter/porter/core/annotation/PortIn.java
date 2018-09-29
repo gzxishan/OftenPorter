@@ -41,7 +41,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Inherited
 @Documented
-@Advancable(enableAdvancedAnnotation = true)
+@AdvancedAnnotation(enableAdvancedAnnotation = true)
 public @interface PortIn
 {
 

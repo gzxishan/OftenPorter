@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
-import cn.xishan.oftenporter.porter.core.annotation.Advancable;
+import cn.xishan.oftenporter.porter.core.annotation.AdvancedAnnotation;
 
 import java.lang.annotation.*;
 
@@ -17,7 +17,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
-@Advancable(enableAdvancedAnnotation = true)
+@AdvancedAnnotation(enableAdvancedAnnotation = true)
 public @interface MixinParseFrom
 {
     /**
