@@ -16,6 +16,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Inherited
 @Documented
+@Advancable(enableAdvancedAnnotation = true)
 public @interface Mixin
 {
     /**

@@ -130,7 +130,7 @@ public class OPEntitiesDeal
         {
             Field field = fields[i];
 
-            JsonObj jsonObj = AnnoUtil.Advanced.getAnnotation(field, JsonObj.class);
+            JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
             if (jsonObj != null && jsonObj.willSetForRequest())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool

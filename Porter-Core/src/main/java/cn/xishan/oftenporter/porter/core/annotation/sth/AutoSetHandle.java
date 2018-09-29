@@ -542,8 +542,7 @@ public class AutoSetHandle
         Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
         for (Field field : fieldsGet)
         {
-            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.Advanced
-                    .getAnnotation(field, AutoSetToThatForMixin.class);
+            AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
             if (autoSetToThatForMixin == null)
             {
                 continue;
@@ -567,7 +566,7 @@ public class AutoSetHandle
         Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(objectForSet));
         for (Field field : fields)
         {
-            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.Advanced.getAnnotation(field, AutoSetThatForMixin.class);
+            AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field, AutoSetThatForMixin.class);
             if (autoSetThatForMixin == null)
             {
                 continue;
@@ -856,7 +855,7 @@ public class AutoSetHandle
             for (Method method : methods)
             {
                 dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
-                SetOk setOk = AnnoUtil.Advanced.getAnnotation(method, SetOk.class);
+                SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
                 if (setOk != null)
                 {
                     method.setAccessible(true);
@@ -972,7 +971,7 @@ public class AutoSetHandle
 
     private void dealMethodAutoSet(Object currentObject, Class currentClass, Method method, IConfigData iConfigData)
     {
-        AutoSet autoSet = AnnoUtil.Advanced.getAnnotation(method, AutoSet.class);
+        AutoSet autoSet = AnnoUtil.getAnnotation(method, AutoSet.class);
         if (autoSet == null)
         {
             return;
@@ -1026,8 +1025,8 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (genClass.equals(AutoSetGen.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced
-                    .getAutoSetDefaultDealt(field, currentObjectClass);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.
+                    getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 genClass = autoSetDefaultDealt.gen();
@@ -1070,8 +1069,8 @@ public class AutoSetHandle
         String option = autoSet.option();
         if (autoSetDealtClass.equals(AutoSetDealt.class))
         {
-            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced
-                    .getAutoSetDefaultDealt(field, currentObjectClass);
+            AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.Advanced.
+                    getAutoSetDefaultDealt(field, currentObjectClass);
             if (autoSetDefaultDealt != null)
             {
                 autoSetDealtClass = autoSetDefaultDealt.dealt();

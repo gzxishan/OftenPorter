@@ -173,9 +173,9 @@ public final class AnnoUtil
     private static void putCacheLog()
     {
         String from = null;
-        if (LOGGER.isInfoEnabled()&&(from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null)
+        if (LOGGER.isInfoEnabled() && (from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null)
         {
-           // LOGGER.debug("invoke from:\n\t\t{}", from);
+            // LOGGER.debug("invoke from:\n\t\t{}", from);
             Integer count = cacheCount.get(from);
             if (count == null)
             {
@@ -1877,6 +1877,12 @@ public final class AnnoUtil
     public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)
     {
         return isAnnotationPresent(false, clazz, annotationClasses);
+    }
+
+    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Method method, Class<?>... annotationClasses)
+    {
+        return isOneOfAnnotationsPresent(clazz, annotationClasses) || isOneOfAnnotationsPresent(method,
+                annotationClasses);
     }
 
     public static boolean isAllOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)

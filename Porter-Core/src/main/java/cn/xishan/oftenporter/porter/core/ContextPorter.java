@@ -42,7 +42,7 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : starts)
         {
-            PortIn.PortStart portStart = AnnoUtil.Advanced.getAnnotation(method, PortIn.PortStart.class);
+            PortIn.PortStart portStart = AnnoUtil.getAnnotation(method, PortIn.PortStart.class);
             otherStartList.add(new OtherStartDestroy(object, method, portStart.order()));
         }
     }
@@ -52,7 +52,7 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : destroys)
         {
-            PortIn.PortDestroy portDestroy = AnnoUtil.Advanced.getAnnotation(method, PortIn.PortDestroy.class);
+            PortIn.PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortIn.PortDestroy.class);
             otherDestroyList.add(new OtherStartDestroy(object, method, portDestroy.order()));
         }
     }

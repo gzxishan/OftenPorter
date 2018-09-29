@@ -26,6 +26,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.ANNOTATION_TYPE})
 @Documented
+@Advancable(enableAdvancedAnnotation = true)
 public @interface AspectOperationOfPortIn
 {
 
