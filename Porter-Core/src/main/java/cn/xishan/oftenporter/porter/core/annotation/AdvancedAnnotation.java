@@ -16,7 +16,7 @@ public @interface AdvancedAnnotation
 
     interface Handle<A extends Annotation>
     {
-        A onGotAnnotation(@MayNull Class clazz, @MayNull Method method, @MayNull Field field, A annotation);
+        A onGotAnnotation(@MayNull Method method, @MayNull Field field, A annotation);
     }
 
     /**
