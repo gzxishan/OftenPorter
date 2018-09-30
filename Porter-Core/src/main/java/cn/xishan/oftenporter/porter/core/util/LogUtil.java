@@ -209,7 +209,7 @@ public class LogUtil
     {
         if (stackTraceElement == null)
         {
-            return null;
+            return "stacktrace null";
         }
         StringBuilder sb = new StringBuilder();
         String name = stackTraceElement.getClassName();

@@ -379,8 +379,8 @@ public class WPTool
         {
             msg = cause.toString();
         }
-        StackTraceElement element = cause.getStackTrace()[0];
-        return msg + " " + LogUtil.toString(element);
+        StackTraceElement[] elements = cause.getStackTrace();
+        return msg + " " + LogUtil.toString(elements.length>0?elements[0]:null);
     }
 
     public static Throwable getCause(Throwable throwable)
