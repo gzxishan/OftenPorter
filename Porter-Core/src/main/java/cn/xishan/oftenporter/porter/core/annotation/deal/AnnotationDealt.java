@@ -11,7 +11,6 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -55,7 +54,6 @@ public final class AnnotationDealt
         return new AnnotationDealt(enableDefaultValue);
     }
 
-
     public void clearCache()
     {
         destroyMethodsMap = new HashMap<>();
@@ -64,14 +62,13 @@ public final class AnnotationDealt
         startMap = new HashMap<>();
     }
 
-    public _SyncPorterOption syncPorterOption(Field field,
-            PorterParamGetterImpl porterParamGetter) throws FatalInitException
+    public _SyncPorterOption syncPorterOption(Field field,PorterParamGetterImpl porterParamGetter)
 
     {
-        if (field.isAnnotationPresent(SyncPorterOption.class))
+        SyncPorterOption option = AnnoUtil.getAnnotation(field, SyncPorterOption.class);
+        if (option != null)
         {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
-            SyncPorterOption option = AnnoUtil.getAnnotation(field, SyncPorterOption.class);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied;
             if (!SyncPorterOption.class.equals(option.porter()))
@@ -82,16 +79,13 @@ public final class AnnotationDealt
                 classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
             }
 
-
             String funTied = option.funTied().equals("") ? field.getName() : option.funTied();
             porterParamGetter.setContext(context);
             porterParamGetter.setClassTied(classTied);
             porterParamGetter.setFunTied(funTied);
 
             syncPorterOption.method = option.method();
-
             return syncPorterOption;
-
         } else
         {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
@@ -288,7 +282,6 @@ public final class AnnotationDealt
         {
             return null;
         }
-
         _BindEntities _bindEntities = newBindEntities(classList.toArray(new Class[0]), method);
         return _bindEntities;
 
