@@ -189,7 +189,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             AnnotationDealt annotationDealt = AnnotationDealt.newInstance(true);
             List<ArgDealt> argHandleList = new ArrayList<>();
 
-            Class[] realMethodArgTypes = getParameterRealTypes(realClass, method);
+            Class[] realMethodArgTypes = AnnoUtil.Advance.getParameterRealTypes(realClass, method);
             this.types = new HashSet<>(realMethodArgTypes.length);
             for (int i = 0; i < realMethodArgTypes.length; i++)
             {
@@ -339,22 +339,5 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         return handle;
     }
 
-    /**
-     * 获取实际的参数类型类别，支持泛型。
-     *
-     * @param realClass 实际的类
-     * @param method    方法
-     * @return
-     */
-    public static Class[] getParameterRealTypes(Class realClass, Method method)
-    {
-        int argCount = method.getParameterCount();
-        Class[] types = new Class[argCount];
-        for (int i = 0; i < argCount; i++)
-        {
-            Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
-            types[i] = paramType;
-        }
-        return types;
-    }
+
 }

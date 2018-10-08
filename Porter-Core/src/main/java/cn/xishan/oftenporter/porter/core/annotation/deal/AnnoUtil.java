@@ -1798,6 +1798,26 @@ public class AnnoUtil
             return type;
         }
 
+
+        /**
+         * 获取实际的参数类型类别，支持泛型。
+         *
+         * @param realClass 实际的类
+         * @param method    方法
+         * @return
+         */
+        public static Class[] getParameterRealTypes(Class realClass, Method method)
+        {
+            int argCount = method.getParameterCount();
+            Class[] types = new Class[argCount];
+            for (int i = 0; i < argCount; i++)
+            {
+                Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
+                types[i] = paramType;
+            }
+            return types;
+        }
+
         /**
          * 可获取函数泛型参数的实际类型
          *
