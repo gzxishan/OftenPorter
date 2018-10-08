@@ -211,16 +211,17 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
 
         @Override
-        public boolean hasParameterType(WObject wObject, Method method, Class<?> type)
+        public boolean hasParameterType(WObject wObject, PorterOfFun fun, Method method, Class<?> type)
         {
             return types.contains(type);
         }
 
         @Override
-        public Object[] getInvokeArgs(WObject wObject, Method method, Object[] args)
+        public Object[] getInvokeArgs(WObject wObject, PorterOfFun fun, Method method, Object[] args)
         {
             Map<String, Object> map;
-            if (args.length == 0)
+            PorterOfFun.ArgData argData = fun.getArgData(wObject);
+            if (args.length == 0 && argData == null)
             {
                 map = Collections.emptyMap();
             } else
@@ -232,6 +233,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     {
                         map.put(PortUtil.getRealClass(arg).getName(), arg);
                     }
+                }
+                if(argData!=null){
+                    map.putAll(argData.getDataMap());
                 }
             }
             Object[] newArgs = new Object[argHandles.length];

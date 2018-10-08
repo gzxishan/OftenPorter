@@ -24,9 +24,9 @@ public interface IArgumentsFactory
 {
     interface IArgsHandle
     {
-        Object[] getInvokeArgs(WObject wObject, Method method, Object[] args);
+        Object[] getInvokeArgs(WObject wObject,PorterOfFun fun, Method method, Object[] args);
 
-        boolean hasParameterType(WObject wObject,Method method,Class<?> type);
+        boolean hasParameterType(WObject wObject,PorterOfFun fun,Method method,Class<?> type);
     }
 
     /**

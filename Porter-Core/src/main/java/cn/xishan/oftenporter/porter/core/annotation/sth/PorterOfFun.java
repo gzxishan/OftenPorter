@@ -13,6 +13,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,6 +21,49 @@ import java.util.Map;
  */
 public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupportImpl implements ObjectGetter
 {
+
+    public static class Arg
+    {
+        private String name;
+        private Object value;
+
+        public Arg(String name, Object value)
+        {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public Object getValue()
+        {
+            return value;
+        }
+    }
+
+    public static class ArgData
+    {
+        private Map<String, Object> map;
+
+        public ArgData()
+        {
+            map = new HashMap<>();
+        }
+
+        public Map<String, Object> getDataMap()
+        {
+            return map;
+        }
+
+        public Object getArg(String argType)
+        {
+            return map.get(argType);
+        }
+    }
+
     Method method;
     //函数的形参个数。
     int argCount;
@@ -147,7 +191,8 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     }
 
     /**
-     * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)}.
+     * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)},
+     * {@linkplain #putInvokeArg(WObject, String, Object)}.
      *
      * @param wObject
      * @param args
@@ -155,21 +200,47 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public final Object invokeByHandleArgs(WObject wObject,
-            Object... args) throws Exception
+    public final Object invokeByHandleArgs(WObject wObject, Object... args) throws Exception
     {
         Method javaMethod = getMethod();
         IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
         IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
-        Object[] finalArgs = argsHandle.getInvokeArgs(wObject, javaMethod, args);
+        Object[] finalArgs = argsHandle.getInvokeArgs(wObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
+    }
+
+    public ArgData getArgData(WObject wObject)
+    {
+        ArgData argData = wObject.getRequestData(ArgData.class);
+        return argData;
+    }
+
+    public void putInvokeArg(WObject wObject, String argName, Object value)
+    {
+        ArgData argData = wObject.getRequestData(ArgData.class);
+        if (argData == null)
+        {
+            argData = new ArgData();
+            wObject.putRequestData(ArgData.class, argData);
+        }
+        argData.map.put(argName, value);
+    }
+
+    public void putInvokeArg(WObject wObject, Class argType, Object value)
+    {
+        this.putInvokeArg(wObject, argType.getName(), value);
+    }
+
+    public void putInvokeArg(WObject wObject, Object value)
+    {
+        this.putInvokeArg(wObject, value.getClass(), value);
     }
 
     public boolean hasParameterType(WObject wObject, Class type)
     {
         IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
         IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
-        return argsHandle.hasParameterType(wObject, getMethod(), type);
+        return argsHandle.hasParameterType(wObject, this, getMethod(), type);
     }
 
     public _PortOut getPortOut()
