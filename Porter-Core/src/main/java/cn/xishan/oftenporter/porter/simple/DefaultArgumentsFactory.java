@@ -187,14 +187,13 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Parameter[] parameters = method.getParameters();
 
             AnnotationDealt annotationDealt = AnnotationDealt.newInstance(true);
-            int argCount = method.getParameterCount();
-
             List<ArgDealt> argHandleList = new ArrayList<>();
-            this.types = new HashSet<>(argCount);
 
-            for (int i = 0; i < argCount; i++)
+            Class[] realMethodArgTypes = getParameterRealTypes(realClass, method);
+            this.types = new HashSet<>(realMethodArgTypes.length);
+            for (int i = 0; i < realMethodArgTypes.length; i++)
             {
-                Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
+                Class<?> paramType = realMethodArgTypes[i];
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
                 String paramName = parameters[i].getName();
@@ -338,5 +337,24 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
         IArgsHandle handle = handleMap.get(porterOfFun);
         return handle;
+    }
+
+    /**
+     * 获取实际的参数类型类别，支持泛型。
+     *
+     * @param realClass 实际的类
+     * @param method    方法
+     * @return
+     */
+    public static Class[] getParameterRealTypes(Class realClass, Method method)
+    {
+        int argCount = method.getParameterCount();
+        Class[] types = new Class[argCount];
+        for (int i = 0; i < argCount; i++)
+        {
+            Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
+            types[i] = paramType;
+        }
+        return types;
     }
 }
