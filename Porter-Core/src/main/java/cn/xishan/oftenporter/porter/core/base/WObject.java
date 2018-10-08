@@ -87,7 +87,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
     public static WObject fromThreadLocal()
     {
         WeakReference<WObject> reference = threadLocal.get();
-        return reference==null?null:reference.get();
+        return reference == null ? null : reference.get();
     }
 
     public abstract WRequest getRequest();
@@ -350,8 +350,9 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
         return putRequestData(clazz.getName(), value);
     }
 
+
     /**
-     * 设置数据，只对当前请求有效。
+     * 设置数据， 对整个请求有效。
      *
      * @param name  属性名
      * @param value 属性值
@@ -367,6 +368,30 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
         return (T) wObject.requestDataMap.put(name, value);
     }
 
+    /**
+     * 见{@linkplain #putCurrentRequestData(String, Object)}
+     */
+    public <T> T putCurrentRequestData(Class<?> clazz, Object value)
+    {
+        return putCurrentRequestData(clazz.getName(), value);
+    }
+
+    /**
+     * 设置数据，只对当前请求有效。
+     *
+     * @param name  属性名
+     * @param value 属性值
+     * @return 返回上一次的值
+     */
+    public <T> T putCurrentRequestData(String name, Object value)
+    {
+        if (this.requestDataMap == null)
+        {
+            this.requestDataMap = new HashMap<>();
+        }
+        return (T) this.requestDataMap.put(name, value);
+    }
+
     public <T> T getRequestData(Class<T> clazz)
     {
         return getRequestData(clazz.getName());
@@ -380,6 +405,20 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
             return null;
         }
         return (T) wObject.requestDataMap.get(name);
+    }
+
+    public <T> T getCurrentRequestData(Class<T> clazz)
+    {
+        return getCurrentRequestData(clazz.getName());
+    }
+
+    public <T> T getCurrentRequestData(String name)
+    {
+        if (this.requestDataMap == null)
+        {
+            return null;
+        }
+        return (T) this.requestDataMap.get(name);
     }
 
     public <T> T removeRequestData(String name)

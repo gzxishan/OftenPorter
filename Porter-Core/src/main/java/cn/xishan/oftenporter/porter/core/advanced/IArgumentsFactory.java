@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -24,9 +25,9 @@ public interface IArgumentsFactory
 {
     interface IArgsHandle
     {
-        Object[] getInvokeArgs(WObject wObject,PorterOfFun fun, Method method, Object[] args);
+        Object[] getInvokeArgs(WObject wObject, @MayNull PorterOfFun fun, Method method, Object[] args);
 
-        boolean hasParameterType(WObject wObject,PorterOfFun fun,Method method,Class<?> type);
+        boolean hasParameterType(WObject wObject, @MayNull PorterOfFun fun, Method method, Class<?> type);
     }
 
     /**

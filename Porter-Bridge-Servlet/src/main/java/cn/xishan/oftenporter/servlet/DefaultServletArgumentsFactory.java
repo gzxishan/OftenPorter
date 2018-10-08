@@ -21,7 +21,7 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
 {
 
 
-    static class RequestArgHandle implements ArgHandle
+    static class RequestArgDealt implements ArgDealt
     {
         @Override
         public final HttpServletRequest getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
@@ -30,7 +30,7 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
         }
     }
 
-    static class ResponseArgHandle implements ArgHandle
+    static class ResponseArgDealt implements ArgDealt
     {
         @Override
         public final HttpServletResponse getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
@@ -39,7 +39,7 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
         }
     }
 
-    static class ContextArgHandle implements ArgHandle
+    static class ContextArgDealt implements ArgDealt
     {
         @Override
         public final ServletContext getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
@@ -50,7 +50,7 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
     }
 
 
-    static class SessionArgHandle implements ArgHandle
+    static class SessionArgDealt implements ArgDealt
     {
         @Override
         public final HttpSession getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
@@ -69,26 +69,27 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
         }
 
         @Override
-        public ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+        public ArgDealt newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore, Class<?> paramType, String paramName,
                 Annotation[] paramAnnotations) throws Exception
         {
-            ArgHandle argHandle;
+            ArgDealt argHandle;
             if (paramType.equals(HttpServletRequest.class))
             {
-                argHandle = new RequestArgHandle();
+                argHandle = new RequestArgDealt();
             } else if (paramType.equals(HttpServletResponse.class))
             {
-                argHandle = new ResponseArgHandle();
+                argHandle = new ResponseArgDealt();
             } else if (paramType.equals(HttpSession.class))
             {
-                argHandle = new SessionArgHandle();
+                argHandle = new SessionArgDealt();
             } else if (paramType.equals(ServletContext.class))
             {
-                argHandle = new ContextArgHandle();
-            }else{
-                argHandle = super
-                        .newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName, paramAnnotations);
+                argHandle = new ContextArgDealt();
+            } else
+            {
+                argHandle = super.newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName,
+                                paramAnnotations);
             }
             return argHandle;
         }
@@ -104,5 +105,12 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
     public IArgsHandleImpl newIArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
     {
         return new IArgsHandleImpl3(porterOfFun, typeParserStore);
+    }
+
+    @Override
+    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
+    {
+        IArgsHandle iArgsHandle = super.getArgsHandle(porterOfFun);
+        return iArgsHandle;
     }
 }

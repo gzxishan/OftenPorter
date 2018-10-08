@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultArgumentsFactory implements IArgumentsFactory
 {
-    public interface ArgHandle
+    public interface ArgDealt
     {
         /**
          * @param wObject
@@ -37,7 +37,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
     }
 
-    public static class BindEntityDealtArgHandle implements ArgHandle
+    public static class BindEntityDealtArgHandle implements ArgDealt
     {
 
         private String key;
@@ -55,7 +55,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class WObjectArgHandle implements ArgHandle
+    public static class WObjectArgHandle implements ArgDealt
     {
 
         @Override
@@ -65,7 +65,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class NeceArgHandle implements ArgHandle
+    public static class NeceArgHandle implements ArgDealt
     {
         private InNames.Name name;
         private String className;
@@ -122,7 +122,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class UneceArgHandle implements ArgHandle
+    public static class UneceArgHandle implements ArgDealt
     {
         private InNames.Name name;
         private String className;
@@ -175,7 +175,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
     protected static abstract class IArgsHandleImpl implements IArgsHandle
     {
-        private ArgHandle[] argHandles;
+        private ArgDealt[] argHandles;
         private Set<Class> types;
 
         public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
@@ -189,7 +189,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             AnnotationDealt annotationDealt = AnnotationDealt.newInstance(true);
             int argCount = method.getParameterCount();
 
-            List<ArgHandle> argHandleList = new ArrayList<>();
+            List<ArgDealt> argHandleList = new ArrayList<>();
             this.types = new HashSet<>(argCount);
 
             for (int i = 0; i < argCount; i++)
@@ -198,15 +198,15 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
                 String paramName = parameters[i].getName();
-                ArgHandle argHandle = newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName,
+                ArgDealt argHandle = newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName,
                         paramAnnotations);
                 argHandleList.add(argHandle);
             }
             annotationDealt.clearCache();
-            this.argHandles = argHandleList.toArray(new ArgHandle[0]);
+            this.argHandles = argHandleList.toArray(new ArgDealt[0]);
         }
 
-        public abstract ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+        public abstract ArgDealt newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
 
@@ -220,7 +220,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         public Object[] getInvokeArgs(WObject wObject, PorterOfFun fun, Method method, Object[] args)
         {
             Map<String, Object> map;
-            PorterOfFun.ArgData argData = fun.getArgData(wObject);
+            PorterOfFun.ArgData argData = fun == null ? null : fun.getArgData(wObject);
             if (args.length == 0 && argData == null)
             {
                 map = Collections.emptyMap();
@@ -234,7 +234,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                         map.put(PortUtil.getRealClass(arg).getName(), arg);
                     }
                 }
-                if(argData!=null){
+                if (argData != null)
+                {
                     map.putAll(argData.getDataMap());
                 }
             }
@@ -256,7 +257,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public ArgHandle newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+        public ArgDealt newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception
         {
@@ -273,7 +274,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 unece = annotationDealt.unNece(AnnoUtil.getAnnotation(paramAnnotations, Unece.class), paramName);
             }
 
-            ArgHandle argHandle;
+            ArgDealt argHandle;
 
             if (AnnoUtil.isOneOfAnnotationsPresent(paramRealType, BindEntityDealt.class))
             {
@@ -333,7 +334,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     }
 
     @Override
-    public final IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
+    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
     {
         IArgsHandle handle = handleMap.get(porterOfFun);
         return handle;

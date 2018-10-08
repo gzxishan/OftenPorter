@@ -22,28 +22,6 @@ import java.util.Map;
 public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupportImpl implements ObjectGetter
 {
 
-    public static class Arg
-    {
-        private String name;
-        private Object value;
-
-        public Arg(String name, Object value)
-        {
-            this.name = name;
-            this.value = value;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public Object getValue()
-        {
-            return value;
-        }
-    }
-
     public static class ArgData
     {
         private Map<String, Object> map;
@@ -211,17 +189,17 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     public ArgData getArgData(WObject wObject)
     {
-        ArgData argData = wObject.getRequestData(ArgData.class);
+        ArgData argData = wObject.getCurrentRequestData(ArgData.class);
         return argData;
     }
 
     public void putInvokeArg(WObject wObject, String argName, Object value)
     {
-        ArgData argData = wObject.getRequestData(ArgData.class);
+        ArgData argData = wObject.getCurrentRequestData(ArgData.class);
         if (argData == null)
         {
             argData = new ArgData();
-            wObject.putRequestData(ArgData.class, argData);
+            wObject.putCurrentRequestData(ArgData.class, argData);
         }
         argData.map.put(argName, value);
     }
