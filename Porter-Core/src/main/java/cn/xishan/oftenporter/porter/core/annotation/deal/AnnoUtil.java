@@ -104,7 +104,7 @@ public class AnnoUtil
                     strs.add(count + ":" + key);
                 }
             }
-            LOGGER.info("invoke times:\n\t\t{}", WPTool.join("\n\t\t", strs));
+            LOGGER.info("invoke count:\n\t\t{}", WPTool.join("\n\t\t", strs));
         }
         annotationCache.clear();
         cacheCount.clear();
@@ -444,30 +444,102 @@ public class AnnoUtil
         return getAutoSetDefaultDealt(type);
     }
 
-    private static final <A extends Annotation> AdvancedAnnotation getAdvancedAnnotation(Class<A> annotationClass)
+    private static class _AdvancedAnnotation
+    {
+        AdvancedAnnotation advancedAnnotation;
+        AdvancedAnnotation.Handle handle;
+
+        public _AdvancedAnnotation(AdvancedAnnotation advancedAnnotation)
+        {
+            this.advancedAnnotation = advancedAnnotation;
+        }
+
+        boolean enableCache()
+        {
+            return advancedAnnotation.enableCache();
+        }
+
+        private final <A extends Annotation> A gotAnnotation(@MayNull Class clazz, @MayNull Method method,
+                @MayNull Parameter parameter, @MayNull Field field, A annotation)
+        {
+            if (handle == null)
+            {
+                return annotation;
+            } else
+            {
+                return (A) handle.onGotAnnotation(clazz, method, parameter, field, annotation);
+            }
+        }
+
+        final <A extends Annotation> A onGotAnnotation(Class clazz, A annotation)
+        {
+            return gotAnnotation(clazz, null, null, null, annotation);
+        }
+
+        final <A extends Annotation> A onGotAnnotation(Method method, A annotation)
+        {
+            return gotAnnotation(null, method, null, null, annotation);
+        }
+
+        final <A extends Annotation> A onGotAnnotation(Parameter parameter, A annotation)
+        {
+            return gotAnnotation(null, null, parameter, null, annotation);
+        }
+
+        final <A extends Annotation> A onGotAnnotation(Field field, A annotation)
+        {
+            return gotAnnotation(null, null, null, field, annotation);
+        }
+
+        final <A extends Annotation> A onGotAnnotation(A annotation)
+        {
+            return gotAnnotation(null, null, null, null, annotation);
+        }
+
+        public boolean enableAdvancedAnnotation()
+        {
+            return advancedAnnotation.enableAdvancedAnnotation();
+        }
+    }
+
+    private static final <A extends Annotation> _AdvancedAnnotation getAdvancedAnnotation(Class<A> annotationClass)
     {
         CacheKey cacheKey = new CacheKey(annotationClass, "getAdvancedAnnotation");
         Object cache = cacheKey.getCache();
-        AdvancedAnnotation advancedAnnotation = null;
+        _AdvancedAnnotation _advancedAnnotation = null;
         if (cache != null)
         {
-            advancedAnnotation = (AdvancedAnnotation) cache;
+            _advancedAnnotation = (_AdvancedAnnotation) cache;
         }
-        if (advancedAnnotation == null)
+        if (_advancedAnnotation == null)
         {
-            advancedAnnotation = annotationClass.getAnnotation(AdvancedAnnotation.class);
+            AdvancedAnnotation advancedAnnotation = annotationClass.getAnnotation(AdvancedAnnotation.class);
             if (advancedAnnotation == null)
             {
                 advancedAnnotation = DEFAULT_ADVANCED_ANNOTATION;
             }
+            _advancedAnnotation = new _AdvancedAnnotation(advancedAnnotation);
+            if (!advancedAnnotation.handle().equals(AdvancedAnnotation.Handle.class))
+            {
+                try
+                {
+                    AdvancedAnnotation.Handle handle = WPTool.newObject(advancedAnnotation.handle());
+                    _advancedAnnotation.handle = handle;
+                } catch (Throwable e)
+                {
+                    e = WPTool.getCause(e);
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+
         }
 
-        return cacheKey.setCache(advancedAnnotation);
+        return cacheKey.setCache(_advancedAnnotation);
     }
 
     public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -485,12 +557,13 @@ public class AnnoUtil
             }
         }
         A a = NoCache.getAnnotation(annotations, annotationClass);
+        a = advancedAnnotation.onGotAnnotation(a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -514,12 +587,13 @@ public class AnnoUtil
         {
             a = Advance.getAnnotation(clazz, annotationClass);
         }
+        a = advancedAnnotation.onGotAnnotation(clazz, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
     public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -542,12 +616,13 @@ public class AnnoUtil
         {
             a = Advance.getAnnotation(field, annotationClass);
         }
+        a = advancedAnnotation.onGotAnnotation(field, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -569,12 +644,13 @@ public class AnnoUtil
         {
             a = Advance.getAnnotation(method, annotationClass);
         }
+        a = advancedAnnotation.onGotAnnotation(method, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
     public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -597,6 +673,7 @@ public class AnnoUtil
         {
             a = Advance.getAnnotation(parameter, annotationClass);
         }
+        a = advancedAnnotation.onGotAnnotation(parameter, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
@@ -716,7 +793,7 @@ public class AnnoUtil
      */
     public static <A extends Annotation> List<A> getAnnotationsWithSuper(Class<?> clazz, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -734,12 +811,21 @@ public class AnnoUtil
             }
         }
         List<A> list = NoCache.getAnnotationsWithSuper(clazz, annotationClass);
+        for (int i = 0; i < list.size(); i++)
+        {
+            A a = list.get(i);
+            A a2 = advancedAnnotation.onGotAnnotation(clazz, a);
+            if (a2 != a)
+            {
+                list.set(i, a2);
+            }
+        }
         return cacheKey == null ? list : cacheKey.setCache(list);
     }
 
     public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -761,12 +847,21 @@ public class AnnoUtil
         {
             as = Advance.getRepeatableAnnotations(clazz, annotationClass);
         }
+        for (int i = 0; i < as.length; i++)
+        {
+            A a = as[i];
+            A a2 = advancedAnnotation.onGotAnnotation(clazz, a);
+            if (a2 != a)
+            {
+                as[i] = a2;
+            }
+        }
         return cacheKey == null ? as : cacheKey.setCache(as);
     }
 
     public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -788,13 +883,22 @@ public class AnnoUtil
         {
             as = Advance.getRepeatableAnnotations(field, annotationClass);
         }
+        for (int i = 0; i < as.length; i++)
+        {
+            A a = as[i];
+            A a2 = advancedAnnotation.onGotAnnotation(field, a);
+            if (a2 != a)
+            {
+                as[i] = a2;
+            }
+        }
         return cacheKey == null ? as : cacheKey.setCache(as);
     }
 
 
     public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass)
     {
-        AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
+        _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
@@ -815,6 +919,15 @@ public class AnnoUtil
         if (WPTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(method, annotationClass);
+        }
+        for (int i = 0; i < as.length; i++)
+        {
+            A a = as[i];
+            A a2 = advancedAnnotation.onGotAnnotation(method, a);
+            if (a2 != a)
+            {
+                as[i] = a2;
+            }
         }
         return cacheKey == null ? null : cacheKey.setCache(as);
     }
@@ -1242,7 +1355,7 @@ public class AnnoUtil
     }
 
     /**
-     * 见{@linkplain IDynamicAnnotationImprovable}
+     * 用于获取注解的高级选项,见{@linkplain IDynamicAnnotationImprovable}
      */
     public static class Advance
     {

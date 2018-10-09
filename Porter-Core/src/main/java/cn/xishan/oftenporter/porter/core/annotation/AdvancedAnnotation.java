@@ -1,8 +1,12 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+
 import java.lang.annotation.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-09-29.
@@ -16,11 +20,12 @@ public @interface AdvancedAnnotation
 
     interface Handle<A extends Annotation>
     {
-        A onGotAnnotation(@MayNull Method method, @MayNull Field field, A annotation);
+        A onGotAnnotation(@MayNull Class clazz, @MayNull Method method, @MayNull Parameter parameter,
+                @MayNull Field field, A annotation);
     }
 
     /**
-     * 是否开启高级获取注解，默认false。
+     * 是否开启高级获取注解的选项，默认false。另见:{@linkplain AnnoUtil.Advance},{@linkplain IDynamicAnnotationImprovable}
      *
      * @return
      */

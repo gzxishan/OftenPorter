@@ -37,12 +37,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
     }
 
-    public static class BindEntityDealtArgHandle implements ArgDealt
+    public static class BindEntityDealtArgDealt implements ArgDealt
     {
 
         private String key;
 
-        public BindEntityDealtArgHandle(Class realType, PorterOfFun porterOfFun)
+        public BindEntityDealtArgDealt(Class realType, PorterOfFun porterOfFun)
         {
             key = realType.getName();
             porterOfFun.putExtraEntity(key, realType);
@@ -55,7 +55,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class WObjectArgHandle implements ArgDealt
+    public static class WObjectArgDealt implements ArgDealt
     {
 
         @Override
@@ -65,14 +65,14 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class NeceArgHandle implements ArgDealt
+    public static class NeceArgDealt implements ArgDealt
     {
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
         private _Nece nece;
 
-        public NeceArgHandle(_Nece nece, InNames.Name name, String className, TypeParserStore typeParserStore)
+        public NeceArgDealt(_Nece nece, InNames.Name name, String className, TypeParserStore typeParserStore)
         {
             this.nece = nece;
             this.name = name;
@@ -122,13 +122,13 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
     }
 
-    public static class UneceArgHandle implements ArgDealt
+    public static class UneceArgDealt implements ArgDealt
     {
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
 
-        public UneceArgHandle(InNames.Name name, String className, TypeParserStore typeParserStore)
+        public UneceArgDealt(InNames.Name name, String className, TypeParserStore typeParserStore)
         {
             this.name = name;
             this.className = className;
@@ -222,7 +222,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             PorterOfFun.ArgData argData = fun == null ? null : fun.getArgData(wObject);
             if (args.length == 0 && argData == null)
             {
-                map = Collections.emptyMap();
+                map = new HashMap<>(1);
             } else
             {
                 map = new HashMap<>(6);
@@ -238,6 +238,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     map.putAll(argData.getDataMap());
                 }
             }
+            map.put(PorterOfFun.class.getName(),fun);
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
@@ -262,7 +263,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         {
             if (paramRealType.equals(WObject.class))
             {
-                return new WObjectArgHandle();
+                return new WObjectArgDealt();
             }
 
             _Nece nece = annotationDealt
@@ -277,7 +278,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
             if (AnnoUtil.isOneOfAnnotationsPresent(paramRealType, BindEntityDealt.class))
             {
-                argHandle = new BindEntityDealtArgHandle(paramRealType, porterOfFun);
+                argHandle = new BindEntityDealtArgDealt(paramRealType, porterOfFun);
             } else
             {
                 String name;
@@ -301,10 +302,10 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 InNames.Name theName = porterOfFun.getPorter().getName(name, paramRealType, _parse, nece);
                 if (nece != null)
                 {
-                    argHandle = new NeceArgHandle(nece, theName, paramRealType.getName(), typeParserStore);
+                    argHandle = new NeceArgDealt(nece, theName, paramRealType.getName(), typeParserStore);
                 } else
                 {
-                    argHandle = new UneceArgHandle(theName, paramRealType.getName(), typeParserStore);
+                    argHandle = new UneceArgDealt(theName, paramRealType.getName(), typeParserStore);
                 }
             }
 
