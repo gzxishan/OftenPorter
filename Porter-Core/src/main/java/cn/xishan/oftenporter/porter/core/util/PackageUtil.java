@@ -102,12 +102,17 @@ public class PackageUtil
     @Deprecated
     public static String getPackageWithRelative(Class<?> clazz, String relative, String separator)
     {
-        return getPathWithRelative('.', clazz.getPackage().getName(), true, relative, separator.charAt(0));
+        return getPackageWithRelative(clazz, relative, separator.charAt(0));
     }
 
     public static String getPackageWithRelative(Class<?> clazz, String relative, char separator)
     {
-        return getPathWithRelative('.', clazz.getPackage().getName(), true, relative, separator);
+        String path = getPathWithRelative('.', clazz.getPackage().getName(), true, relative, separator);
+        if (path.charAt(path.length() - 1) == separator)
+        {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
     }
 
     public static String getPathWithRelative(char pathSep, String path, String relative, char separator)
@@ -117,6 +122,7 @@ public class PackageUtil
 
     /**
      * 分隔符为“/”.
+     *
      * @param path
      * @param relative
      * @return
@@ -246,7 +252,7 @@ public class PackageUtil
             {
                 if (stack.isEmpty())
                 {
-                    throw new RuntimeException("no more upper path:path='"+path+"',relative='"+relative+"'");
+                    throw new RuntimeException("no more upper path:path='" + path + "',relative='" + relative + "'");
                 }
                 stack.pop();
             } else if (!".".equals(str))

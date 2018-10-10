@@ -7,14 +7,12 @@ import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
-import cn.xishan.oftenporter.porter.core.annotation.param.JsonField;
-import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
-import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
-import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
+import cn.xishan.oftenporter.porter.core.annotation.param.*;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -62,9 +60,8 @@ public class DataUtil
     private static boolean isJsonFieldOrJson(Object object, Field field,
             NameValues nameValues) throws IllegalAccessException
     {
-        if (field.isAnnotationPresent(JsonObj.class))
-        {
-            JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
+        JsonObj jsonObj = AnnoUtil.getAnnotation(field,JsonObj.class);
+        if(jsonObj!=null){
             String name = jsonObj.value();
             if (name.equals(""))
             {
@@ -77,9 +74,10 @@ public class DataUtil
                 nameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
             }
             return true;
-        } else if (field.isAnnotationPresent(JsonField.class))
-        {
-            JsonField jsonField = AnnoUtil.getAnnotation(field, JsonField.class);
+        }
+
+        JsonField jsonField = AnnoUtil.getAnnotation(field, JsonField.class);
+        if(jsonField!=null){
             String name = jsonField.value();
             if (name.equals(""))
             {
@@ -93,6 +91,24 @@ public class DataUtil
             }
             return true;
         }
+
+        JSONSerialize jsonSerialize=AnnoUtil.getAnnotation(field, JSONSerialize.class);
+        if(jsonSerialize!=null){
+            String name = jsonSerialize.value();
+            if (name.equals(""))
+            {
+                name = field.getName();
+            }
+            field.setAccessible(true);
+            Object fieldObj = field.get(object);
+            if (!jsonSerialize.filterNullAndEmpty() || WPTool.notNullAndEmpty(fieldObj))
+            {
+                nameValues.append(name, JSON.toJSON(fieldObj));
+            }
+            return true;
+        }
+
+
         return false;
     }
 

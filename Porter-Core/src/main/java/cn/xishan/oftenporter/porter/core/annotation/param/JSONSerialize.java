@@ -3,14 +3,13 @@ package cn.xishan.oftenporter.porter.core.annotation.param;
 import java.lang.annotation.*;
 
 /**
- * 用于把对象转json时，只对含有指定注解的变量有效：如{@linkplain JsonField},{@linkplain JsonObj}等。
- *
+ * 进行json序列化。
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 @Documented
-public @interface JsonObj
+public @interface JSONSerialize
 {
     /**
      * 默认为"",表示使用变量名;否则使用该值。
@@ -18,11 +17,4 @@ public @interface JsonObj
     String value() default "";
 
     boolean filterNullAndEmpty() default false;
-
-    /**
-     * 请求时，是否设置内部变量
-     *
-     * @return
-     */
-    boolean willSetForRequest() default false;
 }
