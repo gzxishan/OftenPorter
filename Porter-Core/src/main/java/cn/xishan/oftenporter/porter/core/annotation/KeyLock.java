@@ -12,6 +12,7 @@ import java.lang.annotation.*;
  * <pre>
  * 1.使用的是{@linkplain ConcurrentKeyLock}加锁.
  * 2.在{@linkplain Handle#beforeInvokeOfMethodCheck(WObject, PorterOfFun)}时加锁，在{@linkplain Handle#onFinal(WObject, PorterOfFun, Object, Object)}时解锁。
+ * 3.见{@linkplain KeyLockHandle}
  * </pre>
  *
  * @author Created by https://github.com/CLovinr on 2017/11/14.

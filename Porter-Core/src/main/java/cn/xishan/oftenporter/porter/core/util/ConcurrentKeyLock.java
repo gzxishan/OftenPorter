@@ -17,6 +17,13 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ConcurrentKeyLock<K>
 {
 
+    public interface Locker<K>
+    {
+        void lock(K key);
+
+        void unlock(K key);
+    }
+
     private static class LockInfo
     {
         private final Semaphore semaphore;
@@ -41,6 +48,73 @@ public class ConcurrentKeyLock<K>
 
     private final ConcurrentMap<K, LockInfo> map = new ConcurrentHashMap<>();
     private AtomicLong acquireCount = new AtomicLong(0), releaseCount = new AtomicLong(0);
+    private Locker<K> locker;
+
+
+    public ConcurrentKeyLock()
+    {
+        locker = new Locker<K>()
+        {
+            @Override
+            public void lock(K key)
+            {
+                if (key == null)
+                    return;
+                LockInfo info = local.get().get(key);
+
+                if (info == null)
+                {
+                    LockInfo current = new LockInfo();
+                    local.get().put(key, current);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("acquire count={}", acquireCount.incrementAndGet());
+                    }
+                    LockInfo previous = map.put(key, current);
+                    if (previous != null)
+                    {
+                        LOGGER.debug("waiting other:key={},thread={},previous={}", key, current.thread,
+                                previous.thread);
+                        previous.semaphore.acquireUninterruptibly();
+                        LOGGER.debug("acquired resource:key={},thread={},previous={}", key, current.thread,
+                                previous.thread);
+                    } else
+                    {
+                        LOGGER.debug("acquired resource:key={},thread={}", key, current.thread);
+                    }
+                } else
+                {
+                    info.lockCount++;
+                    LOGGER.debug("acquired resource in the same thread:key={},thread={}", key, info.thread);
+                }
+            }
+
+            @Override
+            public void unlock(K key)
+            {
+                if (key == null)
+                    return;
+                LockInfo info = local.get().get(key);
+                if (info != null && --info.lockCount <= 0)
+                {
+                    LOGGER.debug("unlocking:key={},thread={}", key, info.thread);
+                    local.get().remove(key);
+                    map.remove(key, info);
+                    info.semaphore.release();
+                    LOGGER.debug("unlocked:key={},thread={}", key, info.thread);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("unlock count={}", releaseCount.incrementAndGet());
+                    }
+                }
+            }
+        };
+    }
+
+    public ConcurrentKeyLock(Locker locker)
+    {
+        this.locker = locker;
+    }
 
     /**
      * 锁定key，其他等待此key的线程将进入等待，直到调用{@link #unlock(K)}
@@ -51,34 +125,7 @@ public class ConcurrentKeyLock<K>
      */
     public void lock(K key)
     {
-        if (key == null)
-            return;
-        LockInfo info = local.get().get(key);
-
-        if (info == null)
-        {
-            LockInfo current = new LockInfo();
-            local.get().put(key, current);
-            if (LOGGER.isDebugEnabled())
-            {
-                LOGGER.debug("acquire count={}", acquireCount.incrementAndGet());
-            }
-            LockInfo previous = map.put(key, current);
-            if (previous != null)
-            {
-                LOGGER.debug("waiting other:key={},thread={},previous={}", key, current.thread,
-                        previous.thread);
-                previous.semaphore.acquireUninterruptibly();
-                LOGGER.debug("acquired resource:key={},thread={},previous={}", key, current.thread, previous.thread);
-            } else
-            {
-                LOGGER.debug("acquired resource:key={},thread={}", key, current.thread);
-            }
-        } else
-        {
-            info.lockCount++;
-            LOGGER.debug("acquired resource in the same thread:key={},thread={}", key, info.thread);
-        }
+        locker.lock(key);
     }
 
     /**
@@ -88,21 +135,7 @@ public class ConcurrentKeyLock<K>
      */
     public void unlock(K key)
     {
-        if (key == null)
-            return;
-        LockInfo info = local.get().get(key);
-        if (info != null && --info.lockCount <= 0)
-        {
-            LOGGER.debug("unlocking:key={},thread={}", key, info.thread);
-            local.get().remove(key);
-            map.remove(key, info);
-            info.semaphore.release();
-            LOGGER.debug("unlocked:key={},thread={}", key, info.thread);
-            if (LOGGER.isDebugEnabled())
-            {
-                LOGGER.debug("unlock count={}", releaseCount.incrementAndGet());
-            }
-        }
+        locker.unlock(key);
     }
 
     /**

@@ -7,21 +7,29 @@ import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
+import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock.Locker;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
+ * 自定义{@linkplain Locker}见{@linkplain #addCustomerLockerListener(CustomerLockerListener)}
+ *
  * @author Created by https://github.com/CLovinr on 2017/11/14.
  */
 public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock>
 {
+
+    public interface CustomerLockerListener<K>
+    {
+        Locker<K> getCustomerLocker(KeyLock keyLock, Porter porter);
+
+        Locker<K> getCustomerLocker(KeyLock keyLock, PorterOfFun porterOfFun);
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyLockHandle.class);
 
     private static ConcurrentKeyLock<String> staticKeyLock;
@@ -35,7 +43,22 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
     private final String ATTR_KEY = KeyUtil.random48Key();
+    private static Set<CustomerLockerListener> customerLockerListenerSet = new HashSet<>();
 
+    /**
+     * 用于自定义Locker。
+     *
+     * @param lockerListener
+     */
+    public static void addCustomerLockerListener(CustomerLockerListener<String> lockerListener)
+    {
+        customerLockerListenerSet.add(lockerListener);
+    }
+
+    public static void removeCustomerLockerListener(CustomerLockerListener lockerListener)
+    {
+        customerLockerListenerSet.remove(lockerListener);
+    }
 
     @Override
     public boolean init(KeyLock current, IConfigData configData, Porter porter)
@@ -87,39 +110,61 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         break;
                 }
             }
-            if (WPTool.existsNotEmpty(this.locks,this.neceLocks,this.uneceLocks))
+            if (WPTool.existsNotEmpty(this.locks, this.neceLocks, this.uneceLocks))
             {
-                switch (keyLock.range())
+                Locker locker = null;
+                for (CustomerLockerListener lockerListener : customerLockerListenerSet)
                 {
-                    case STATIC:
-                        if (staticKeyLock == null)
-                        {
-                            staticKeyLock = new ConcurrentKeyLock<>();
-                        }
-                        this.concurrentKeyLock = staticKeyLock;
+
+                    if (porterOfFun == null)
+                    {
+                        locker = lockerListener.getCustomerLocker(keyLock, porter);
+                    } else
+                    {
+                        locker = lockerListener.getCustomerLocker(keyLock, porterOfFun);
+                    }
+                    if (locker != null)
+                    {
                         break;
-                    case PNAME:
-                        this.concurrentKeyLock = getKeyLock(porter.getPName().getName());
-                        break;
-                    case CONTEXT:
-                        this.concurrentKeyLock = getKeyLock(
-                                porter.getPName().getName() + "/" + porter.getContextName());
-                        break;
-                    case PORTER:
-                        this.concurrentKeyLock = getKeyLock(
-                                porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
-                                        .join(":", porter.getPortIn().getTiedNames()));
-                        break;
-                    case FUN:
-                        if (porterOfFun == null)
-                        {
-                            throw new RuntimeException(KeyLock.LockRange.FUN + " is not for class!");
-                        }
-                        this.concurrentKeyLock = getKeyLock(
-                                porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
-                                        .join(":", porter.getPortIn().getTiedNames()) + "/" + WPTool
-                                        .join(":", porterOfFun.getMethodPortIn().getTiedNames()));
-                        break;
+                    }
+                }
+                if (locker != null)
+                {
+                    this.concurrentKeyLock = new ConcurrentKeyLock<>(locker);
+                } else
+                {
+                    switch (keyLock.range())
+                    {
+                        case STATIC:
+                            if (staticKeyLock == null)
+                            {
+                                staticKeyLock = new ConcurrentKeyLock<>();
+                            }
+                            this.concurrentKeyLock = staticKeyLock;
+                            break;
+                        case PNAME:
+                            this.concurrentKeyLock = getKeyLock(porter.getPName().getName());
+                            break;
+                        case CONTEXT:
+                            this.concurrentKeyLock = getKeyLock(
+                                    porter.getPName().getName() + "/" + porter.getContextName());
+                            break;
+                        case PORTER:
+                            this.concurrentKeyLock = getKeyLock(
+                                    porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
+                                            .join(":", porter.getPortIn().getTiedNames()));
+                            break;
+                        case FUN:
+                            if (porterOfFun == null)
+                            {
+                                throw new RuntimeException(KeyLock.LockRange.FUN + " is not for class!");
+                            }
+                            this.concurrentKeyLock = getKeyLock(
+                                    porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
+                                            .join(":", porter.getPortIn().getTiedNames()) + "/" + WPTool
+                                            .join(":", porterOfFun.getMethodPortIn().getTiedNames()));
+                            break;
+                    }
                 }
                 this.lockTypes = lockTypeList.toArray(new KeyLock.LockType[0]);
                 this.combine = keyLock.combining();
@@ -159,7 +204,8 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                 case LOCKS:
                     for (String key : locks)
                     {
-                        if(!keys.contains(key)){
+                        if (!keys.contains(key))
+                        {
                             keys.add(lockPrefix == null ? key : lockPrefix + key);
                         }
                     }
@@ -168,7 +214,8 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                     for (String neceName : neceLocks)
                     {
                         String key = wObject.nece(neceName);
-                        if(!keys.contains(key)){
+                        if (!keys.contains(key))
+                        {
                             keys.add(lockPrefix == null ? key : lockPrefix + key);
                         }
                     }
@@ -183,7 +230,8 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         }
                         if (WPTool.notNullAndEmpty(key))
                         {
-                            if(!keys.contains(key)){
+                            if (!keys.contains(key))
+                            {
                                 keys.add(lockPrefix == null ? key : lockPrefix + key);
                             }
                         }
