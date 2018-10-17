@@ -163,7 +163,8 @@ public final class PortExecutor
         contextMap.clear();
     }
 
-    public int contextSize(){
+    public int contextSize()
+    {
         return contextMap.size();
     }
 
@@ -679,6 +680,21 @@ public final class PortExecutor
 
     }
 
+    private final Object invokeMethod(WObjectImpl wObject, PorterOfFun funPort) throws Throwable
+    {
+        Object returnObject;
+        //调用函数
+        if (funPort.getHandles() != null)
+        {
+            returnObject = AspectHandleOfPortInUtil
+                    .doHandle(AspectHandleOfPortInUtil.State.Invoke, wObject, funPort, null, null);
+        } else
+        {
+            returnObject = funPort.invokeByHandleArgs(wObject);
+        }
+        return returnObject;
+    }
+
     private final void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
             UrlDecoder.Result result, boolean isFastInner)
     {
@@ -688,17 +704,31 @@ public final class PortExecutor
         {
             AspectHandleOfPortInUtil
                     .tryDoHandle(AspectHandleOfPortInUtil.State.BeforeInvoke, wObject, funPort, null, null);
-            Object returnObject;
             //调用函数
-            if (funPort.getHandles() != null)
+            Object returnObject;
+            if (context.defaultReturnFactory != null)
             {
-                returnObject = AspectHandleOfPortInUtil
-                        .doHandle(AspectHandleOfPortInUtil.State.Invoke, wObject, funPort, null, null);
+                try
+                {
+                    returnObject = invokeMethod(wObject, funPort);
+                } catch (Throwable e)
+                {
+                    returnObject = context.defaultReturnFactory.getExReturn(wObject, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(), e);
+                }
             } else
             {
-                returnObject = funPort.invokeByHandleArgs(wObject);
+                returnObject = invokeMethod(wObject, funPort);
             }
 
+//            if (funPort.getHandles() != null)
+//            {
+//                returnObject = AspectHandleOfPortInUtil
+//                        .doHandle(AspectHandleOfPortInUtil.State.Invoke, wObject, funPort, null, null);
+//            } else
+//            {
+//                returnObject = funPort.invokeByHandleArgs(wObject);
+//            }
 
             AspectHandleOfPortInUtil
                     .tryDoHandle(AspectHandleOfPortInUtil.State.AfterInvoke, wObject, funPort, returnObject, null);
@@ -768,14 +798,14 @@ public final class PortExecutor
                 portExecutorCheckers.check();
             }
 
-        } catch (Exception e)
+        } catch (Throwable e)
         {
             Throwable ex = getCause(e);
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
-                AspectHandleOfPortInUtil
-                        .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, wObject, funPort, null, e);
+                AspectHandleOfPortInUtil.tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal,
+                        wObject, funPort, null, e);
                 exNotNull(wObject, funPort, wObject.getResponse(), ex, responseWhenException);
             } else
             {
