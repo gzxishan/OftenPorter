@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
@@ -110,7 +111,7 @@ public class MyBatisOption implements Cloneable
      * @param rootDir               资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      */
-    public MyBatisOption(IConnectionBridge iConnectionBridge, String rootDir, boolean checkMapperFileChange)
+    public MyBatisOption(@MayNull IConnectionBridge iConnectionBridge, String rootDir, boolean checkMapperFileChange)
     {
         this.iConnectionBridge = iConnectionBridge;
         this.rootDirSet = new HashSet<>();
@@ -122,7 +123,7 @@ public class MyBatisOption implements Cloneable
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      * @param rootDirs              资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      */
-    public MyBatisOption(IConnectionBridge iConnectionBridge, boolean checkMapperFileChange, String... rootDirs)
+    public MyBatisOption(@MayNull IConnectionBridge iConnectionBridge, boolean checkMapperFileChange, String... rootDirs)
     {
         this.iConnectionBridge = iConnectionBridge;
         this.rootDirSet = new HashSet<>();
