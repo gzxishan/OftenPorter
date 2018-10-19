@@ -26,24 +26,36 @@ public class ServletWObject extends WObject
 
     public ServletWObject(HttpServletRequest request, HttpServletResponse response)
     {
-        this(request, null, response);
+        this(request, null, response, null);
     }
 
-    public ServletWObject(HttpServletRequest request, String path, HttpServletResponse response)
+    public ServletWObject(HttpServletRequest request, HttpServletResponse response, UrlDecoder.Result result)
     {
-        this("", "", "");
+        this(request, null, response, result);
+    }
+
+    public ServletWObject(HttpServletRequest request, String path, HttpServletResponse response,
+            UrlDecoder.Result result)
+    {
+        this("", "", "", result);
         wRequest = new WServletRequest(request, path, response, PortMethod.DEFAULT);
         wResponse = new WServletResponse(response);
         paramSource = new DefaultParamSource(wRequest);
         paramSource.setUrlResult(result);
     }
 
+    public ServletWObject(HttpServletRequest request, String path, HttpServletResponse response)
+    {
+        this(request, path, response, null);
+    }
+
     private UrlDecoder.Result result;
 
 
-    private ServletWObject(String contextName, String classTied, String funTied)
+    private ServletWObject(String contextName, String classTied, String funTied, UrlDecoder.Result result)
     {
-        result = DefaultUrlDecoder.newResult(new HashMap<>(0), contextName, classTied, funTied);
+        this.result = result != null ? result : DefaultUrlDecoder
+                .newResult(new HashMap<>(0), contextName, classTied, funTied);
         cn = new Object[0];
         cu = new Object[0];
         cinner = new Object[0];
@@ -117,6 +129,7 @@ public class ServletWObject extends WObject
     public void setResult(UrlDecoder.Result result)
     {
         this.result = result;
+        this.paramSource.setUrlResult(this.result);
     }
 
     /**

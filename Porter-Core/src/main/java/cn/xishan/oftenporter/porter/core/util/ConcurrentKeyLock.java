@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -77,8 +79,12 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
     private final ConcurrentMap<K, LockInfo> map = new ConcurrentHashMap<>();
     private AtomicLong acquireCount = new AtomicLong(0), releaseCount = new AtomicLong(0);
     private Locker<K> locker;
+    private long timeout = 60 * 1000;
 
 
+    /**
+     * 默认锁，不支持分布式。
+     */
     public ConcurrentKeyLock()
     {
         locker = new Locker<K>()
@@ -103,7 +109,14 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                     {
                         LOGGER.debug("waiting other:key={},thread={},previous={}", key, current.thread,
                                 previous.thread);
-                        previous.semaphore.acquireUninterruptibly();
+                        try
+                        {
+                            previous.semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+                        } catch (InterruptedException e)
+                        {
+                            LOGGER.error(e.getMessage(), e);
+                            throw new WCallException(e);
+                        }
                         LOGGER.debug("acquired resource:key={},thread={},previous={}", key, current.thread,
                                 previous.thread);
                     } else
@@ -142,6 +155,21 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
     public ConcurrentKeyLock(Locker locker)
     {
         this.locker = locker;
+    }
+
+    public long getTimeout()
+    {
+        return timeout;
+    }
+
+    /**
+     * 设置默认锁的超时时间，默认为1分钟
+     *
+     * @param timeout 毫秒
+     */
+    public void setTimeout(long timeout)
+    {
+        this.timeout = timeout;
     }
 
     /**
