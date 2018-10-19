@@ -721,15 +721,6 @@ public final class PortExecutor
                 returnObject = invokeMethod(wObject, funPort);
             }
 
-//            if (funPort.getHandles() != null)
-//            {
-//                returnObject = AspectHandleOfPortInUtil
-//                        .doHandle(AspectHandleOfPortInUtil.State.Invoke, wObject, funPort, null, null);
-//            } else
-//            {
-//                returnObject = funPort.invokeByHandleArgs(wObject);
-//            }
-
             AspectHandleOfPortInUtil
                     .tryDoHandle(AspectHandleOfPortInUtil.State.AfterInvoke, wObject, funPort, returnObject, null);
 
@@ -948,11 +939,7 @@ public final class PortExecutor
                 Throwable throwable = jResponse.getExCause();
                 if (throwable instanceof WCallException)
                 {
-                    JResponse exJR = ((WCallException) throwable).theJResponse();
-                    if (exJR != null)
-                    {
-                        object = exJR;
-                    }
+                    object = ((WCallException) throwable).toJSON();
                 }
                 wObject.getResponse().toErr();
                 if (LOGGER.isDebugEnabled())
@@ -1015,10 +1002,19 @@ public final class PortExecutor
 
         if (responseWhenException)
         {
-            JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-            jResponse.setDescription(WPTool.getMessage(throwable));
-            jResponse.setExCause(throwable);
-            if (doWriteAndWillClose(wObject, porterOfFun, jResponse))
+            Object object;
+            if (throwable instanceof WCallException)
+            {
+                object = ((WCallException) throwable).toJSON();
+            } else
+            {
+                JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
+                jResponse.setDescription(WPTool.getMessage(throwable));
+                jResponse.setExCause(throwable);
+                object = jResponse;
+            }
+
+            if (doWriteAndWillClose(wObject, porterOfFun, object))
             {
                 close(response);
             }

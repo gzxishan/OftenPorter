@@ -21,11 +21,24 @@ class ConnectionWrap implements Connection, IConnection
     private int transactionCount = 0;
     private Readonly lastReadonly = Readonly.DEFAULT;
     private Isolation lastLevel = Isolation.DEFAULT;
+    private MyBatisOption.IConnectionBridge iConnectionBridge;
 
-    public ConnectionWrap(SqlSession sqlSession)
+    public ConnectionWrap(SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,Connection bridgeConnection)
     {
         this.sqlSession = sqlSession;
-        connection = sqlSession.getConnection();
+        this.iConnectionBridge = iConnectionBridge;
+        if (iConnectionBridge != null)
+        {
+            this.connection = bridgeConnection;
+        } else
+        {
+            connection = sqlSession.getConnection();
+        }
+    }
+
+    public boolean isBridgeConnection()
+    {
+        return iConnectionBridge != null;
     }
 
     @Override
@@ -190,6 +203,11 @@ class ConnectionWrap implements Connection, IConnection
     public void close() throws SQLException
     {
         sqlSession.close();
+        if (isBridgeConnection())
+        {
+            this.iConnectionBridge
+                    .closeConnection(sqlSession.getConfiguration().getEnvironment().getDataSource(), connection);
+        }
     }
 
     @Override

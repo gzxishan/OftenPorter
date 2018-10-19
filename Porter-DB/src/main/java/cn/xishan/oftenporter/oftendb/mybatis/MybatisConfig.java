@@ -18,12 +18,14 @@ class MybatisConfig
     {
         MyBatisOption myBatisOption;
         MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder;
+        MyBatisOption.IConnectionBridge iConnectionBridge;
 
         public MOption(MyBatisOption myBatisOption,
                 MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder)
         {
             this.myBatisOption = myBatisOption;
             this.mSqlSessionFactoryBuilder = mSqlSessionFactoryBuilder;
+            this.iConnectionBridge = myBatisOption.iConnectionBridge;
         }
     }
 

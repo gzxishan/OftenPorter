@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.*;
 
 /**
@@ -29,6 +30,22 @@ public class MyBatisOption implements Cloneable
         void afterReload();
 
         void onReloadFailed(Throwable throwable);
+    }
+
+    /**
+     * 用于与其他框架集成。
+     */
+    public interface IConnectionBridge
+    {
+        /**
+         * 获取数据库连接，通过该方式使得其他框架的事务管理能正常发挥作用。
+         *
+         * @param dataSource
+         * @return
+         */
+        Connection getConnection(DataSource dataSource);
+
+        void closeConnection(DataSource dataSource, Connection connection);
     }
 
     public static final String DEFAULT_SOURCE = "default";
@@ -87,12 +104,15 @@ public class MyBatisOption implements Cloneable
 
     public IMapperNameHandle iMapperNameHandle;
 
+    public IConnectionBridge iConnectionBridge;
+
     /**
      * @param rootDir               资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      */
-    public MyBatisOption(String rootDir, boolean checkMapperFileChange)
+    public MyBatisOption(IConnectionBridge iConnectionBridge, String rootDir, boolean checkMapperFileChange)
     {
+        this.iConnectionBridge = iConnectionBridge;
         this.rootDirSet = new HashSet<>();
         addMoreRootDirs(rootDir);
         this.checkMapperFileChange = checkMapperFileChange;
@@ -102,8 +122,9 @@ public class MyBatisOption implements Cloneable
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      * @param rootDirs              资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      */
-    public MyBatisOption(boolean checkMapperFileChange, String... rootDirs)
+    public MyBatisOption(IConnectionBridge iConnectionBridge, boolean checkMapperFileChange, String... rootDirs)
     {
+        this.iConnectionBridge = iConnectionBridge;
         this.rootDirSet = new HashSet<>();
         addMoreRootDirs(rootDirs);
         this.checkMapperFileChange = checkMapperFileChange;
@@ -128,7 +149,7 @@ public class MyBatisOption implements Cloneable
             }
             if (!rootDir.startsWith("/"))
             {
-                rootDir = "/"+rootDir;
+                rootDir = "/" + rootDir;
             }
             rootDirSet.add(rootDir);
         }

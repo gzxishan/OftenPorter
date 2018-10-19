@@ -14,10 +14,12 @@ import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.Properties;
 
 
@@ -162,19 +164,39 @@ public class MyBatisBridge
         {
             return connection;
         }
-        return __openSession__(source, true);
+        return __openSession__(source);
     }
 
-    static ConnectionWrap __openSession__(String source, boolean set2Handle)
+    static SqlSession __getSqlSession__(String source)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
         SqlSession sqlSession = sqlSessionFactoryBuilder.getFactory().openSession(true);
-        ConnectionWrap connection = new ConnectionWrap(sqlSession);
-        if (set2Handle)
+        return sqlSession;
+    }
+
+    static ConnectionWrap __openSession__(String source)
+    {
+        MybatisConfig.MOption mOption = getMOption(source);
+        MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
+        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.getFactory();
+
+        MyBatisOption.IConnectionBridge iConnectionBridge = mOption.iConnectionBridge;
+        SqlSession sqlSession = null;
+        Connection bridgeConnection = null;
+        if (iConnectionBridge != null)
         {
-            TransactionJDBCHandle.__setConnection__(source, connection);
+            bridgeConnection = iConnectionBridge
+                    .getConnection(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource());
+            sqlSession = sqlSessionFactory.openSession(bridgeConnection);
+        } else
+        {
+            sqlSession = sqlSessionFactory.openSession(true);
         }
+        ConnectionWrap connection = new ConnectionWrap(sqlSession, iConnectionBridge, bridgeConnection);
+
+        TransactionJDBCHandle.__setConnection__(source, connection);
+
         return connection;
     }
 

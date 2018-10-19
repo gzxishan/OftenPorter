@@ -46,7 +46,7 @@ public class Main1
                 .addPorters(Main1.class.getPackage().getName() + ".porter");
 
         {
-            MyBatisOption myBatisOption = new MyBatisOption("/oftendb/test1mapper/", true);
+            MyBatisOption myBatisOption = new MyBatisOption(null,"/oftendb/test1mapper/", true);
             JdbcDataSource jdbcDataSource = new JdbcDataSource();
             jdbcDataSource.setURL("jdbc:h2:~/PorterDemo/oftendb2;MODE=MySQL");
             jdbcDataSource.setUser("sa");

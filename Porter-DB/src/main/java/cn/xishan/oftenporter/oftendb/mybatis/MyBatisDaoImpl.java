@@ -41,8 +41,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public SqlSession getNewSqlSession()
     {
-        ConnectionWrap connection = MyBatisBridge.__openSession__(myBatisDaoGen.source, false);
-        return connection.getSqlSession();
+        return MyBatisBridge.__getSqlSession__(myBatisDaoGen.source);
     }
 
     @Override

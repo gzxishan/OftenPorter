@@ -177,8 +177,9 @@ class MyBatisDaoGen implements AutoSetGen
                 path = getFileRelativePath(myBatis, path);
                 LOGGER.info("load xml:dao={},path={}", myBatis.daoClass, path);
                 URL url = ResourceUtil.getAbsoluteResource(path);
-                if(url==null){
-                    throw new IOException("not found:"+path);
+                if (url == null)
+                {
+                    throw new IOException("not found:" + path);
                 }
                 InputStream inputStream = url.openStream();
                 xmlData = FileTool.getData(inputStream, 2048);
@@ -303,6 +304,9 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     TransactionJDBCHandle.__removeConnection__(source);
                     connectionWrap.close();
+                } else if (connectionWrap.isBridgeConnection())
+                {
+                    TransactionJDBCHandle.__removeConnection__(source);
                 }
                 return rs;
             }
