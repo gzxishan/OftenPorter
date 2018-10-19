@@ -14,8 +14,36 @@ import java.util.concurrent.atomic.AtomicLong;
  * 基于键的锁。
  * Created by https://github.com/CLovinr on 2017/9/2.
  */
-public class ConcurrentKeyLock<K>
+public class ConcurrentKeyLock<K> implements AutoCloseable
 {
+
+    private ThreadLocal<K[]> threadLocal = new ThreadLocal<>();
+
+    /**
+     * 将keys与ThreadLocal绑定,通过{@linkplain #close()}进行锁的释放
+     *
+     * @param keys
+     */
+    public ConcurrentKeyLock<K> lockLocalThread(K... keys)
+    {
+        threadLocal.set(keys);
+        locks(keys);
+        return this;
+    }
+
+    /**
+     * 见{@linkplain #lockLocalThread(K...)}
+     */
+    @Override
+    public void close()
+    {
+        K[] keys = threadLocal.get();
+        if (keys != null)
+        {
+            unlocks(keys);
+            threadLocal.remove();
+        }
+    }
 
     public interface Locker<K>
     {
