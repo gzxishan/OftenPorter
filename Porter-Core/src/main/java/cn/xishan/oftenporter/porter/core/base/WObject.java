@@ -12,6 +12,8 @@ import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.Enumeration;
@@ -24,6 +26,7 @@ import java.util.Map;
  */
 public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WObject.class);
 
     public interface IFinalListener
     {
@@ -360,6 +363,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public <T> T putRequestData(String name, Object value)
     {
+        LOGGER.debug("name={},value={}",name,value);
         WObject wObject = original();
         if (wObject.requestDataMap == null)
         {
@@ -385,6 +389,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public <T> T putCurrentRequestData(String name, Object value)
     {
+        LOGGER.debug("name={},value={}",name,value);
         if (this.requestDataMap == null)
         {
             this.requestDataMap = new HashMap<>();
