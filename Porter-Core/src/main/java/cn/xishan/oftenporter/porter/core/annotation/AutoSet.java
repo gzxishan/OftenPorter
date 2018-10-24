@@ -77,15 +77,32 @@ import java.lang.annotation.*;
  * {@linkplain PortDestroy})
  * </li>
  * </ol>
- * <pre>
+ * <p>
  * 内置对象:
- * 1.当注解在{@linkplain Delivery Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
- * 2.{@linkplain TypeTo TypeTo}
- * 3.{@linkplain PorterData PorterData}
- * 4.{@linkplain Logger Logger}
- * 5.{@linkplain SyncPorter SyncPorter}
- * 6.{@linkplain SyncNotInnerPorter SyncNotInnerPorter}
- * </pre>
+ * <ol>
+ * <li>
+ * 当注解在{@linkplain Delivery Delivery}上时，{@linkplain AutoSet#value()}表示PName，为空表示当前的.
+ * </li>
+ * <li>
+ * {@linkplain TypeTo TypeTo}
+ * </li>
+ * <li>
+ * {@linkplain PorterData PorterData}
+ * </li>
+ * <li>
+ * {@linkplain Logger Logger}
+ * </li>
+ * <li>
+ * {@linkplain SyncPorter SyncPorter}
+ * </li>
+ * <li>
+ * {@linkplain SyncNotInnerPorter SyncNotInnerPorter}
+ * </li>
+ * <li>
+ * {@linkplain IConfigData}
+ * </li>
+ * </ol>
+ * </p>
  * <p>
  * <hr>
  * 注意，支持@{@linkplain Resource}注解(但不会对相应变量进行递归设置)，映射关系如下：

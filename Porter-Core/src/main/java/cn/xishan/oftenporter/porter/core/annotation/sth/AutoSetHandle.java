@@ -315,6 +315,7 @@ public class AutoSetHandle
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
             String currentContextName)
     {
+        this.iConfigData = iConfigData;
         this.argumentsFactory = argumentsFactory;
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
@@ -1100,7 +1101,10 @@ public class AutoSetHandle
     {
         Object sysset = null;
         String typeName = f.getType().getName();
-        if (typeName.equals(TypeTo.class.getName()))
+        if (typeName.equals(IConfigData.class))
+        {
+            sysset = iConfigData;
+        } else if (typeName.equals(TypeTo.class.getName()))
         {
             sysset = new TypeTo(innerContextBridge);
         } else if (typeName.equals(PorterData.class.getName()))
