@@ -294,7 +294,7 @@ public final class PorterMain
         ContextPorter contextPorter = new ContextPorter();
         contextPorter.setClassLoader(porterConf.getClassLoader());
 
-        IConfigData iConfigData = porterConf.getIAnnotationConfigable().getConfig(porterConf.getAnnotationConfig());
+        IConfigData iConfigData = porterConf.getConfigData();
         porterConf.addContextAutoSet(IConfigData.class, iConfigData);
 
         if (porterConf.isEnableAnnotationConfigable())

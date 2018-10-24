@@ -47,8 +47,8 @@ public class PorterConf
     private OutType defaultPortOutType;
     private IArgumentsFactory iArgumentsFactory;
     private boolean enableAnnotationConfigable = true;
-    private Object annotationConfig;
     private IAnnotationConfigable iAnnotationConfigable;
+    private IConfigData configData;
     private boolean isDefaultIAnnotationConfigable = true;
     private boolean enableAspectOfNormal = true;
     private boolean enableIDynamicAnnotationImprovable = true;
@@ -66,6 +66,7 @@ public class PorterConf
         contextAutoSetMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();
+        setAnnotationConfig(new Properties());
         classLoader = Thread.currentThread().getContextClassLoader();
         responseHandleMap = new HashMap<>();
     }
@@ -74,7 +75,7 @@ public class PorterConf
      * 添加某种类型的响应处理器。
      *
      * @param responseHandle 响应处理器
-     * @param types 被处理的类型
+     * @param types          被处理的类型
      */
     public void addResponseHandle(ResponseHandle responseHandle, Class... types)
     {
@@ -149,22 +150,17 @@ public class PorterConf
         this.enableAnnotationConfigable = enableAnnotationConfigable;
     }
 
-    public Object getAnnotationConfig()
-    {
-        return annotationConfig;
-    }
 
     /**
-     * 见{@linkplain DefaultAnnotationConfigable}
+     * 见{@linkplain DefaultAnnotationConfigable},会导致{@linkplain #getConfigData()}返回新的实例。
      *
      * @param annotationConfig
      */
     public void setAnnotationConfig(Object annotationConfig)
     {
         iAnnotationConfigable.isConfig(annotationConfig);
-        this.annotationConfig = annotationConfig;
+        this.configData = iAnnotationConfigable.getConfig(annotationConfig);
     }
-
 
     /**
      * 默认为true,见{@linkplain AnnoUtil#setDefaultConfigable(IConfigData, IAnnotationConfigable)}
@@ -180,6 +176,15 @@ public class PorterConf
     public IAnnotationConfigable getIAnnotationConfigable()
     {
         return iAnnotationConfigable;
+    }
+
+    /**
+     * 获取当前的实例。
+     * @return
+     */
+    public IConfigData getConfigData()
+    {
+        return configData;
     }
 
     /**
