@@ -40,6 +40,11 @@ public class ProxyUtil
         return (T) obj;
     }
 
+
+    public static Class unwrapProxyForGeneric(Object object)
+    {
+        return unwrapProxyForGeneric(object.getClass());
+    }
     public static Class unwrapProxyForGeneric(Class clazz)
     {
         clazz = PortUtil.getRealClass(clazz);

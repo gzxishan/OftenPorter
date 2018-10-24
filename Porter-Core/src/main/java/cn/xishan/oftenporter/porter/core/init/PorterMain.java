@@ -326,7 +326,7 @@ public final class PorterMain
         }
 
         AutoSetHandle autoSetHandle = AutoSetHandle
-                .newInstance(argumentsFactory, innerContextBridge, getPLinker(), porterData,
+                .newInstance(iConfigData, argumentsFactory, innerContextBridge, getPLinker(), porterData,
                         autoSetObjForAspectOfNormal, porterConf.getContextName());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
@@ -427,8 +427,7 @@ public final class PorterMain
                     .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
 
 
-            contextPorter.start(wObject);
-
+            contextPorter.start(wObject, iConfigData);
 
             AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);

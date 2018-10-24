@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 
@@ -19,7 +20,7 @@ public interface AutoSetDealt
      * @param autoSet
      * @return
      */
-    Object deal(@MayNull("设置静态字段时为null") Object finalObject, Class<?> currentObjectClass,
+    Object deal(IConfigData configData,@MayNull("设置静态字段时为null") Object finalObject, Class<?> currentObjectClass,
             @MayNull("设置静态字段时为null") Object currentObject,
             Field field,Class<?> realFieldType,
             @MayNull Object fieldValue, _AutoSet autoSet,String option)throws Exception;

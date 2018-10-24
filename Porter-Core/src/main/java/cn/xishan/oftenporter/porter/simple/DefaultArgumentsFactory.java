@@ -14,6 +14,8 @@ import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -238,7 +240,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     map.putAll(argData.getDataMap());
                 }
             }
-            map.put(PorterOfFun.class.getName(),fun);
+            map.put(PorterOfFun.class.getName(), fun);
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
@@ -340,5 +342,27 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         return handle;
     }
 
+    public static Object invokeWithArgs(Object object, Method method, Object... optionArgs) throws Exception
+    {
+        int count = method.getParameterCount();
+        Object[] args = new Object[count];
+        for (int i = 0; i < args.length; i++)
+        {
+            Class type = AnnoUtil.Advance.getRealTypeOfMethodParameter(
+                    object == null ? method.getDeclaringClass() : ProxyUtil.unwrapProxyForGeneric(object), method, i);
+            Object obj = null;
+            for (Object o : optionArgs)
+            {
+                if (WPTool.isAssignable(o, type))
+                {
+                    obj = o;
+                    break;
+                }
+            }
+            args[i] = obj;
+        }
+        method.setAccessible(true);
+        return method.invoke(object, args);
+    }
 
 }

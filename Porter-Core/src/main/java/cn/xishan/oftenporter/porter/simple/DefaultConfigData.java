@@ -34,7 +34,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public boolean contains(String key)
     {
-        return properties.containsKey(key);
+        return data.containsKey(key) || properties.containsKey(key);
     }
 
     @Override

@@ -14,8 +14,10 @@ import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import org.slf4j.Logger;
 
+import javax.swing.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -400,9 +402,9 @@ public final class Porter
         }
     }
 
-    public void start(WObject wObject)
+    public void start(WObject wObject, IConfigData iConfigData)
     {
-        start(wObject, false);
+        start(wObject, iConfigData, false);
         autoSetHandle = null;
     }
 
@@ -446,7 +448,7 @@ public final class Porter
         }
     }
 
-    private void start(WObject wObject, boolean isMixin)
+    private void start(WObject wObject, IConfigData iConfigData, boolean isMixin)
     {
         if (started)
         {
@@ -459,7 +461,7 @@ public final class Porter
         {
             for (Porter porter : mixins)
             {
-                porter.start(wObject, true);
+                porter.start(wObject, iConfigData, true);
             }
         }
         _PortStart[] starts = getStarts();
@@ -469,16 +471,8 @@ public final class Porter
             try
             {
                 PorterOfFun porterOfFun = starts[i].getPorterOfFun();
-
-                Method method = porterOfFun.getMethod();
-                Class<?>[] parameters = method.getParameterTypes();
-                if (parameters.length == 1)
-                {
-                    method.invoke(porterOfFun.getObject(), wObject);
-                } else
-                {
-                    method.invoke(porterOfFun.getObject());
-                }
+                DefaultArgumentsFactory
+                        .invokeWithArgs(porterOfFun.getObject(), porterOfFun.getMethod(), wObject, iConfigData);
             } catch (Exception e)
             {
                 if (LOGGER.isWarnEnabled())

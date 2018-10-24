@@ -23,6 +23,7 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import org.slf4j.Logger;
 
 import java.lang.reflect.*;
@@ -66,16 +67,11 @@ public class AutoSetHandle
             }
         }
 
-        public void invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException
+        public void invoke(WObject wObject, IConfigData configData) throws Exception
         {
             logger.debug("invoke @SetOk:{}", method);
-            if (method.getParameterTypes().length == 1)
-            {
-                method.invoke(obj, wObject);
-            } else
-            {
-                method.invoke(obj);
-            }
+            method.setAccessible(true);
+            DefaultArgumentsFactory.invokeWithArgs(obj, method, wObject, configData);
         }
     }
 
@@ -310,10 +306,12 @@ public class AutoSetHandle
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
     private Set<Object> autoSetDealtSet = new HashSet<>();
     private AutoSetHandleWorkedInstance workedInstance;
+    private IConfigData iConfigData;
     private String currentContextName;
     private IOtherStartDestroy iOtherStartDestroy;
 
-    private AutoSetHandle(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
+    private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
+            InnerContextBridge innerContextBridge,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
             String currentContextName)
     {
@@ -337,7 +335,7 @@ public class AutoSetHandle
         {
             for (_SetOkObject setOkObject : setOkObjects)
             {
-                setOkObject.invoke(wObject);
+                setOkObject.invoke(wObject, iConfigData);
             }
             this.setOkObjects = null;
             this.porterMap = null;
@@ -354,11 +352,12 @@ public class AutoSetHandle
         }
     }
 
-    public static AutoSetHandle newInstance(IArgumentsFactory argumentsFactory, InnerContextBridge innerContextBridge,
+    public static AutoSetHandle newInstance(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
+            InnerContextBridge innerContextBridge,
             Delivery thisDelivery,
             PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
     {
-        return new AutoSetHandle(argumentsFactory, innerContextBridge, thisDelivery, porterData,
+        return new AutoSetHandle(iConfigData, argumentsFactory, innerContextBridge, thisDelivery, porterData,
                 autoSetObjForAspectOfNormal, currentContextName);
     }
 
@@ -1044,7 +1043,7 @@ public class AutoSetHandle
         AutoSetGen autoSetGen = WPTool.newObject(genClass);
         addOtherStartDestroy(autoSetGen, genClass);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
-        Object value = autoSetGen.genObject(currentObjectClass, currentObject, field,
+        Object value = autoSetGen.genObject(iConfigData, currentObjectClass, currentObject, field,
                 AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, field), autoSet, option);
         return value;
     }
@@ -1087,7 +1086,7 @@ public class AutoSetHandle
         AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
         addOtherStartDestroy(autoSetDealt, autoSetDealtClass);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
-        Object finalValue = autoSetDealt.deal(finalObject, currentObjectClass, currentObject, field,
+        Object finalValue = autoSetDealt.deal(iConfigData, finalObject, currentObjectClass, currentObject, field,
                 AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, field), value, autoSet, option);
         return finalValue;
     }

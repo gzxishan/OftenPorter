@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core;
 
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
@@ -22,6 +23,7 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
 
@@ -457,29 +459,8 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    public void start(WObject wObject)
+    public void start(WObject wObject, IConfigData iConfigData)
     {
-
-//        Iterator<Porter> iterator = portMap.values().iterator();
-//        try
-//        {
-//            while (iterator.hasNext())
-//            {
-//                iterator.next().initArgumentsFactory();
-//            }
-//        } catch (Exception e)
-//        {
-//            throw new InitException(e);
-//        }
-//
-//
-//        //重要：在IArgumentsFactory之后初始化,用于支持：IExtraEntitySupport
-//        iterator = portMap.values().iterator();
-//        while (iterator.hasNext())
-//        {
-//            iterator.next().initOPEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
-//        }
-
         OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
         Arrays.sort(otherStartDestroys);
 
@@ -487,15 +468,8 @@ public class ContextPorter implements IOtherStartDestroy
         {
             try
             {
-                Method method = otherStartDestroy.method;
-                method.setAccessible(true);
-                if (method.getParameterCount() > 0)
-                {
-                    method.invoke(otherStartDestroy.object, wObject);
-                } else
-                {
-                    method.invoke(otherStartDestroy.object);
-                }
+                DefaultArgumentsFactory
+                        .invokeWithArgs(otherStartDestroy.object, otherStartDestroy.method, wObject, iConfigData);
             } catch (Exception e)
             {
                 if (LOGGER.isErrorEnabled())
@@ -509,7 +483,7 @@ public class ContextPorter implements IOtherStartDestroy
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().start(wObject);
+            iterator.next().start(wObject, iConfigData);
         }
     }
 

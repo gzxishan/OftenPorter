@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
@@ -236,7 +237,7 @@ class MyBatisDaoGen implements AutoSetGen
 
 
     @Override
-    public Object genObject(Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
+    public Object genObject(IConfigData iConfigData,Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
             _AutoSet autoSet,
             String option)
     {
