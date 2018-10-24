@@ -15,6 +15,8 @@ import javax.sql.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,6 +57,7 @@ class MSqlSessionFactoryBuilder
     private boolean needReRegFileCheck = false;
     private JSONObject dataSourceConf;
     private DataSource dataSourceObject;
+    private String[] initSqls;
     private List<Interceptor> interceptors;
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
     private Environment environment;
@@ -265,6 +268,7 @@ class MSqlSessionFactoryBuilder
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
         this.dataSourceObject = myBatisOption.dataSourceObject;
+        this.initSqls = myBatisOption.initSqls;
         if (dataSourceObject == null)
         {
             this.dataSourceConf = myBatisOption.dataSource;
@@ -308,8 +312,27 @@ class MSqlSessionFactoryBuilder
             dataSource = dataSourceObject != null ? dataSourceObject : MyBatisBridge.buildDataSource(dataSourceConf);
         }
         builder.dataSource(dataSource);
-
         this.environment = builder.build();
+
+        if (initSqls != null)
+        {
+            String[] sqls = initSqls;
+            initSqls = null;
+
+            try (Connection connection = dataSource.getConnection())
+            {
+                for (String sql : sqls)
+                {
+                    LOGGER.debug("init sql={}",sql);
+                    PreparedStatement ps = connection.prepareStatement(sql);
+                    ps.execute();
+                    ps.close();
+                }
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        }
 
 
         configuration.setEnvironment(environment);

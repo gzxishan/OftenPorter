@@ -107,6 +107,8 @@ public class MyBatisOption implements Cloneable
 
     public IConnectionBridge iConnectionBridge;
 
+    public String[] initSqls;
+
     /**
      * @param rootDir               资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
