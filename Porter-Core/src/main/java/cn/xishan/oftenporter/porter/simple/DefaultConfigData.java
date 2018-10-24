@@ -227,7 +227,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public <T> T set(String key, Object object)
     {
-        Object rs = data.put(key, object);
+        Object rs = object == null ? data.remove(key) : data.put(key, object);
         return (T) rs;
     }
 
