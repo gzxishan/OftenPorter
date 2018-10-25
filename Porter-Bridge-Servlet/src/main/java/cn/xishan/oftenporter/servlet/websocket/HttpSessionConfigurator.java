@@ -11,12 +11,6 @@ import javax.websocket.server.ServerEndpointConfig;
  */
 class HttpSessionConfigurator extends ServerEndpointConfig.Configurator
 {
-//    private OPServlet mainServlet;
-//
-//    public HttpSessionConfigurator(OPServlet servlet)
-//    {
-//        this.mainServlet = servlet;
-//    }
 
     public HttpSessionConfigurator()
     {
@@ -27,23 +21,8 @@ class HttpSessionConfigurator extends ServerEndpointConfig.Configurator
             HandshakeRequest request, HandshakeResponse response)
     {
         HttpSession httpSession = (HttpSession) request.getHttpSession();
-        sec.getUserProperties().put(HttpSession.class.getName(), httpSession);
-//        if (mainServlet != null)
-//        {
-//            HttpServletRequest servletRequest = (HttpServletRequest) httpSession
-//                    .getAttribute(HttpServletRequest.class.getName());
-//            httpSession.removeAttribute(HttpServletRequest.class.getName());
-//            HttpServletResponse servletResponse = (HttpServletResponse) httpSession
-//                    .getAttribute(HttpServletResponse.class.getName());
-//            httpSession.removeAttribute(HttpServletResponse.class.getName());
-//            try
-//            {
-//                mainServlet.doRequest(servletRequest, null, servletResponse, PortMethod.GET);
-//            } catch (IOException e)
-//            {
-//                throw new RuntimeException(e);
-//            }
-//        }
+        BridgeData bridgeData = (BridgeData) httpSession.getAttribute(BridgeData.class.getName());
+        sec.getUserProperties().put(BridgeData.class.getName(), bridgeData.getInstance());
     }
 
 

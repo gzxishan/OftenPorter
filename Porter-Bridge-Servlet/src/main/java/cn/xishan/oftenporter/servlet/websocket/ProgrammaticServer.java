@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
 
-import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 
 /**
@@ -19,9 +18,10 @@ public class ProgrammaticServer extends Endpoint
     {
         try
         {
-            HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
-            WObject wObject = (WObject) httpSession.getAttribute(WObject.class.getName());
-            PorterOfFun porterOfFun = (PorterOfFun) httpSession.getAttribute(PorterOfFun.class.getName());
+            BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
+
+            WObject wObject = bridgeData.wObject;
+            PorterOfFun porterOfFun = bridgeData.porterOfFun;
 
             porterOfFun.invoke(new Object[]{wObject, WS.newWS(type, session, isLast, value)});
         } catch (Exception e)
@@ -33,9 +33,8 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig)
     {
-
-        HttpSession httpSession = (HttpSession) session.getUserProperties().get(HttpSession.class.getName());
-        WebSocket webSocket = (WebSocket) httpSession.getAttribute(WebSocket.class.getName());
+        BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
+        WebSocket webSocket = bridgeData.webSocket;
 
         WSConfig wsConfig = new WSConfig();
         wsConfig.setMaxBinaryBuffer(webSocket.maxBinaryBuffer());

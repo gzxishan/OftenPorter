@@ -30,13 +30,6 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
     @AutoSet(nullAble = true)
     ServerContainer serverContainer;
-    //    private static String wsPath;
-    //    @AutoSet
-//    ServletContext servletContext;
-//    @AutoSet(value = StartupServlet.SERVLET_NAME_NAME)
-//    String servletName;
-//    @AutoSet
-//    OPServlet mainServlet;
     private PorterOfFun thePorterOfFun;
 
     @AutoSet.SetOk
@@ -55,7 +48,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     }
 
     @Override
-    public boolean init(WebSocket webSocket,IConfigData configData, PorterOfFun porterOfFun)
+    public boolean init(WebSocket webSocket, IConfigData configData, PorterOfFun porterOfFun)
     {
         this.webSocket = webSocket;
         this.thePorterOfFun = porterOfFun;
@@ -72,89 +65,6 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         {
             throw new RuntimeException("WebSocket函数的@PortIn只能设置一个tieds只能设置一个元素");
         }
-
-//        synchronized (WebSocketHandle.class)
-//        {
-//            if (wsPath == null)
-//            {
-//                try
-//                {
-//                    wsPath = "/" + KeyUtil.secureRandomKeySha256(128);
-//                } catch (Exception e)
-//                {
-//                    wsPath = "/" + KeyUtil.random48Key() + KeyUtil.random48Key();
-//                }
-//
-//                ServerEndpointConfig config = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, wsPath)
-//                        .configurator(new HttpSessionConfigurator())
-//                        .build();
-//                serverContainer.addEndpoint(config);
-//            }
-//        }
-
-//        Porter porter = fun.getFinalPorter();
-//        String[] mappings = servletContext.getServletRegistration(servletName).getMappings().toArray(new String[0]);
-//
-//        String classTied = porter.getPortIn().getTiedNames()[0];
-//        String funTied = funIn.getTiedNames()[0];
-//        String[] paths = {
-//                "/" + porter.getContextName() + "/" + classTied + "/" + funTied,
-//                "/=" + porter.getPName().getName() + "/" + porter.getContextName() + "/" + classTied + "/" + funTied
-//        };
-//
-//        List<String> pathList = new ArrayList<>();
-//        for (String mapping : mappings)
-//        {
-//            if (mapping.endsWith("/*"))
-//            {
-//                mapping = mapping.substring(0, mapping.length() - 2);
-//            } else if (mapping.endsWith("/"))
-//            {
-//                mapping = mapping.substring(0, mapping.length() - 1);
-//            }
-//            for (String path : paths)
-//            {
-//
-//                String wsPath = mapping + path;
-//                pathList.add(wsPath);
-//                ServerEndpointConfig config = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, wsPath)
-//                        .configurator(new HttpSessionConfigurator(mainServlet))
-//                        .build();
-//                serverContainer.addEndpoint(config);
-//            }
-//        }
-//
-//        FilterRegistration.Dynamic registration = servletContext
-//                .addFilter(servletName + ".WebSocket.Filter-"+hashCode(), new Filter()
-//                {
-//                    @Override
-//                    public void init(FilterConfig filterConfig) throws ServletException
-//                    {
-//
-//                    }
-//
-//                    @Override
-//                    public void doFilter(ServletRequest request, ServletResponse response,
-//                            FilterChain chain) throws IOException, ServletException
-//                    {
-//                        HttpServletRequest req = (HttpServletRequest) request;
-//                        HttpSession session = req.getSession();
-//                        session.setAttribute(HttpServletRequest.class.getName(), req);
-//                        session.setAttribute(HttpServletResponse.class.getName(), response);
-//                        chain.doFilter(request, response);
-//                    }
-//
-//                    @Override
-//                    public void destroy()
-//                    {
-//
-//                    }
-//                });
-//        registration
-//                .addMappingForUrlPatterns(
-//                        EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.FORWARD), false,
-//                        pathList.toArray(new String[0]));
-//        registration.setAsyncSupported(true);
 
     }
 
@@ -192,19 +102,14 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
     private void doConnect(WObject wObject, PorterOfFun porterOfFun) throws ServletException, IOException
     {
-//        if (serverContainer != null&&wsPath==null)
-//        {
-//            return;
-//        }
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
         HttpServletResponse response = wObject.getRequest().getOriginalResponse();
         RequestDispatcher requestDispatcher = request
                 .getRequestDispatcher(/*wsPath != null ? wsPath :*/ XSServletWSConfig.WS_PATH);
         HttpSession session = request.getSession();
 
-        session.setAttribute(WObject.class.getName(), wObject);
-        session.setAttribute(PorterOfFun.class.getName(), porterOfFun);
-        session.setAttribute(WebSocket.class.getName(), webSocket);
+        BridgeData bridgeData = new BridgeData(wObject, porterOfFun, webSocket);
+        session.setAttribute(BridgeData.class.getName(), bridgeData);
 
         requestDispatcher.forward(request, response);
     }
