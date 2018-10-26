@@ -76,12 +76,6 @@ public @interface KeyLock
      */
     String[] uneceLocks() default {};
 
-    /**
-     * 是否允许{@linkplain #uneceLocks()}中对应的非必需参数为空：若不为""，则当为空时，用该值代替；若为""，则当为空时忽略。
-     *
-     * @return 默认为"empty"
-     */
-    String valueForUneceEmpty() default "empty";
 
     /**
      * 是否把最终获得的key按顺序合并成一个。

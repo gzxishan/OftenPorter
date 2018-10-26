@@ -202,8 +202,6 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      */
     public void locks(K... keys)
     {
-        if (keys == null)
-            return;
         for (K key : keys)
         {
             lock(key);
@@ -217,8 +215,6 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      */
     public void unlocks(K... keys)
     {
-        if (keys == null)
-            return;
         for (K key : keys)
         {
             unlock(key);

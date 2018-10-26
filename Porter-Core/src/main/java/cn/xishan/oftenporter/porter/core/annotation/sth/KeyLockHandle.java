@@ -39,7 +39,6 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     private String[] locks, neceLocks, uneceLocks;
     private KeyLock.LockType[] lockTypes;
     private boolean combine;
-    private String valueForUneceEmpty = null;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
     private final String ATTR_KEY = KeyUtil.random48Key();
@@ -70,10 +69,6 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     {
         synchronized (KeyLockHandle.class)
         {
-            if (WPTool.notNullAndEmpty(keyLock.valueForUneceEmpty()))
-            {
-                valueForUneceEmpty = keyLock.valueForUneceEmpty();
-            }
             if (WPTool.notNullAndEmpty(keyLock.lockPrefix()))
             {
                 lockPrefix = keyLock.lockPrefix();
@@ -224,10 +219,6 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                     for (String uneceName : uneceLocks)
                     {
                         String key = wObject.unece(uneceName);
-                        if (valueForUneceEmpty != null && WPTool.isEmpty(key))
-                        {
-                            key = valueForUneceEmpty;
-                        }
                         if (WPTool.notNullAndEmpty(key))
                         {
                             if (!keys.contains(key))
@@ -241,7 +232,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
         }
 
         String[] locks = keys.toArray(new String[0]);
-        if (combine)
+        if (combine && locks.length > 0)
         {
             locks = new String[]{
                     WPTool.join(":", locks)
