@@ -12,48 +12,42 @@ import java.util.regex.Pattern;
  *
  * @author Created by https://github.com/CLovinr on 2018-06-29.
  */
-public class DefaultAnnotationConfigable implements IAnnotationConfigable<Properties>
+public class DefaultAnnotationConfigable implements IAnnotationConfigable
 {
     private static final Pattern PATTERN = Pattern.compile("\\$\\{([A-Za-z0-9_.:$#-]+)\\}");
+    private IConfigData configData;
+
+    public DefaultAnnotationConfigable()
+    {
+        configData = new DefaultConfigData(null);
+    }
 
     @Override
-    public String getValue(IConfigData config, String value)
+    public IConfigData getConfigData()
     {
-        if (config != null)
+        return configData;
+    }
+
+    @Override
+    public String getAnnotationStringValue(String value)
+    {
+        Matcher matcher = PATTERN.matcher(value);
+        if (matcher.find())
         {
-            Matcher matcher = PATTERN.matcher(value);
-            if (matcher.find())
+            StringBuilder stringBuilder = new StringBuilder();
+            int from = 0;
+            do
             {
-                StringBuilder stringBuilder = new StringBuilder();
-                int from = 0;
-                do
-                {
-                    String key = matcher.group(1);
-                    String rs = config.getString(key, value);
-                    stringBuilder.append(value, from, matcher.start());
-                    stringBuilder.append(rs);
-                    from = matcher.end();
-                } while (matcher.find());
-                stringBuilder.append(value, from, value.length());
-                value = stringBuilder.toString();
-            }
+                String key = matcher.group(1);
+                String rs = configData.getString(key, value);
+                stringBuilder.append(value, from, matcher.start());
+                stringBuilder.append(rs);
+                from = matcher.end();
+            } while (matcher.find());
+            stringBuilder.append(value, from, value.length());
+            value = stringBuilder.toString();
         }
         return value.trim();
     }
 
-    @Override
-    public IConfigData getConfig(Properties config)
-    {
-        return new DefaultConfigData(config);
-    }
-
-    @Override
-    public void isConfig(Object configObject) throws RuntimeException
-    {
-        if (configObject != null && !(configObject instanceof Properties))
-        {
-            throw new IllegalArgumentException(
-                    "expected type[" + Properties.class.getName() + "],but[" + configObject.getClass().getName()+"]");
-        }
-    }
 }

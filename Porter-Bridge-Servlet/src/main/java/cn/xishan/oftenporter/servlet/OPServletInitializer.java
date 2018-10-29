@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.Importer;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
@@ -36,7 +37,23 @@ public interface OPServletInitializer
 
     interface Builder
     {
-        PorterConf newPorterConf();
+        /**
+         * 另见:{@linkplain Importer}
+         *
+         * @param importers
+         * @return
+         */
+        PorterConf newPorterConfWithImporterClasses(Class... importers);
+
+        /**
+         * 见{@linkplain #newPorterConfWithImporterClasses(Class[])}
+         *
+         * @return
+         */
+        default PorterConf newPorterConf()
+        {
+            return newPorterConfWithImporterClasses();
+        }
 
         void startOne(PorterConf porterConf);
 
@@ -46,16 +63,17 @@ public interface OPServletInitializer
 
     }
 
-    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore)throws Throwable;
+    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore) throws Throwable;
 
-    void onStart(ServletContext servletContext, Builder builder)throws Throwable;
+    void onStart(ServletContext servletContext, Builder builder) throws Throwable;
 
-    default void onDestroyed(){
+    default void onDestroyed()
+    {
 
     }
 
     default void onDoRequest(StartupServlet startupServlet, HttpServletRequest request, HttpServletResponse response,
-            PortMethod method) throws IOException,ServletException
+            PortMethod method) throws IOException, ServletException
     {
         String path = request.getRequestURI().substring(request.getContextPath().length());
         startupServlet.doRequest(request, path, response, method);

@@ -1,6 +1,9 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -87,6 +90,25 @@ public class ResourceUtil
             throw new RuntimeException(e);
         }
     }
+
+    public static InputStream getAbsoluteResourceStream(String path) throws IOException
+    {
+        if (path.startsWith("classpath:"))
+        {
+            path = path.substring("classpath:".length());
+        }
+        URL url = getAbsoluteResource(path);
+        String protocol = url.getProtocol();
+        if ("file".equals(protocol))
+        {
+            File file = new File(url.getFile());
+            return new FileInputStream(file);
+        } else
+        {
+            return url.openStream();
+        }
+    }
+
 
     public static URL getAbsoluteResource(String path)
     {

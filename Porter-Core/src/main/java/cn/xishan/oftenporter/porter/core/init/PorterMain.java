@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.*;
 import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.Importer;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
@@ -23,6 +24,7 @@ import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 
@@ -232,6 +234,53 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(alls);
     }
 
+    public synchronized void seekImporter(PorterConf porterConf, Class[] importers) throws Throwable
+    {
+        if (WPTool.isEmpty(importers))
+        {
+            return;
+        }
+        LOGGER.debug("seek importers...");
+        for (Class clazz : importers)
+        {
+            Annotation[] annotations = AnnoUtil.getAnnotations(clazz);
+            for (Annotation annotation : annotations)
+            {
+                Importer importer = AnnoUtil.getAnnotation(annotation.annotationType(), Importer.class);
+                if (importer != null)
+                {
+                    Class[] confClasses = importer.value();
+                    for (Class confClass : confClasses)
+                    {
+                        try
+                        {
+                            LOGGER.debug("init importer:class={}", confClass);
+                            Object object = WPTool.newObject(confClass);
+                            if (WPTool.isAssignable(confClass, Importer.Configable.class))
+                            {
+                                LOGGER.debug("init for:{}", Importer.Configable.class);
+                                Importer.Configable configable = (Importer.Configable) object;
+                                configable.beforeCustomerConfig(porterConf, annotation);
+                            }
+                            LOGGER.debug("init importer finished:class={}", confClass);
+                        } catch (Throwable e)
+                        {
+                            if (importer.exceptionThrow())
+                            {
+                                throw e;
+                            } else
+                            {
+                                LOGGER.debug(e.getMessage(), e);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        LOGGER.debug("seek importers finished.");
+    }
+
     /**
      * 注意：
      *
@@ -299,10 +348,10 @@ public final class PorterMain
 
         if (porterConf.isEnableAnnotationConfigable())
         {
-            AnnoUtil.pushAnnotationConfigable(iConfigData, porterConf.getIAnnotationConfigable());
+            AnnoUtil.pushAnnotationConfigable(porterConf.getIAnnotationConfigable());
             if (porterConf.isDefaultIAnnotationConfigable())
             {
-                AnnoUtil.setDefaultConfigable(iConfigData, porterConf.getIAnnotationConfigable());
+                AnnoUtil.setDefaultConfigable(porterConf.getIAnnotationConfigable());
             }
         }
 

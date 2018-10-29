@@ -13,17 +13,19 @@ import java.util.Properties;
 public class DefaultAnnotationConfigableTest
 {
     @Test
-    public void testGetValue(){
+    public void testGetValue()
+    {
         Properties properties = new Properties();
-        properties.setProperty("name","tom");
-        properties.setProperty("age","12");
-        IConfigData configData = new DefaultConfigData(properties);
+        properties.setProperty("name", "tom");
+        properties.setProperty("age", "12");
 
-        IAnnotationConfigable<Properties> annotationConfigable = new DefaultAnnotationConfigable();
+        IAnnotationConfigable annotationConfigable = new DefaultAnnotationConfigable();
+        annotationConfigable.getConfigData().setAll(properties);
+
         String value = "${name}";
-        Assert.assertEquals("tom",annotationConfigable.getValue(configData,value));
+        Assert.assertEquals("tom", annotationConfigable.getAnnotationStringValue(value));
 
         value = " ${name} age is ${age} ";
-        Assert.assertEquals("tom age is 12",annotationConfigable.getValue(configData,value));
+        Assert.assertEquals("tom age is 12", annotationConfigable.getAnnotationStringValue(value));
     }
 }

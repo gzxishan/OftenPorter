@@ -199,7 +199,7 @@ public class HMain extends LocalMain {
     }
 
     @Override
-    public PorterConf newPorterConf() {
+    public PorterConf newPorterConf(Class...importers) {
         throw new UnsupportedOperationException();
     }
 }

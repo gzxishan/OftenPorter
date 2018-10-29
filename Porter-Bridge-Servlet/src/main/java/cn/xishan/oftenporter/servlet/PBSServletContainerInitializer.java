@@ -113,9 +113,9 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             }
 
             @Override
-            public PorterConf newPorterConf()
+            public PorterConf newPorterConfWithImporterClasses(Class ... importers)
             {
-                return StartupServletImpl.this.newPorterConf();
+                return StartupServletImpl.this.newPorterConf(importers);
             }
 
             @Override

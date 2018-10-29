@@ -363,7 +363,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    public PorterConf newPorterConf()
+    public PorterConf newPorterConf(Class... importers)
     {
         if (porterMain == null)
         {
@@ -378,6 +378,20 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         porterConf.addContextAutoSet(OPServlet.class, this);
 
         porterConf.addAutoSetObjectsForSetter(this);
+
+        try
+        {
+            porterMain.seekImporter(porterConf, importers);
+        } catch (Throwable throwable)
+        {
+            try
+            {
+                throw throwable;
+            } catch (Throwable throwable1)
+            {
+                throwable1.printStackTrace();
+            }
+        }
 
         return porterConf;
     }

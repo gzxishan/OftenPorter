@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.Importer;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
@@ -44,9 +45,10 @@ public interface CommonMain
     /**
      * 创建一个配置对象
      *
+     * @param importers 见{@linkplain Importer}
      * @return
      */
-    PorterConf newPorterConf();
+    PorterConf newPorterConf(Class... importers);
 
     /**
      * 开启一个Context。

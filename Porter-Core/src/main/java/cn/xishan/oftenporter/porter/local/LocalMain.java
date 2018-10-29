@@ -113,8 +113,23 @@ public class LocalMain implements CommonMain
     }
 
     @Override
-    public PorterConf newPorterConf()
+    public PorterConf newPorterConf(Class... importers)
     {
-        return porterMain.newPorterConf();
+        PorterConf porterConf = porterMain.newPorterConf();
+        try
+        {
+            porterMain.seekImporter(porterConf, importers);
+        } catch (Throwable throwable)
+        {
+            try
+            {
+                throw throwable;
+            } catch (Throwable throwable1)
+            {
+                throwable1.printStackTrace();
+            }
+        }
+
+        return porterConf;
     }
 }

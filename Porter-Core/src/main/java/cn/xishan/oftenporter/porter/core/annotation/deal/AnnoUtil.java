@@ -212,18 +212,16 @@ public class AnnoUtil
     /**
      * 设置或者清除默认的.
      *
-     * @param config
      * @param iAnnotationConfigable 为null时表示清除默认的。
      */
-    public static synchronized void setDefaultConfigable(IConfigData config,
-            IAnnotationConfigable iAnnotationConfigable)
+    public static synchronized void setDefaultConfigable(IAnnotationConfigable iAnnotationConfigable)
     {
         if (iAnnotationConfigable == null)
         {
             defaultConfigable = null;
         } else
         {
-            Configable configable = new Configable(config, iAnnotationConfigable);
+            Configable configable = new Configable(iAnnotationConfigable);
             defaultConfigable = configable;
         }
     }
@@ -240,11 +238,9 @@ public class AnnoUtil
     /**
      * 见{@linkplain #popAnnotationConfigable()}
      *
-     * @param config
      * @param iAnnotationConfigable
      */
-    public static synchronized void pushAnnotationConfigable(IConfigData config,
-            IAnnotationConfigable iAnnotationConfigable)
+    public static synchronized void pushAnnotationConfigable(IAnnotationConfigable iAnnotationConfigable)
     {
         if (iAnnotationConfigable == null)
         {
@@ -256,7 +252,7 @@ public class AnnoUtil
             stack = new Stack<>();
             threadLocal.set(stack);
         }
-        Configable configable = new Configable(config, iAnnotationConfigable);
+        Configable configable = new Configable(iAnnotationConfigable);
         stack.push(configable);
     }
 
@@ -322,8 +318,7 @@ public class AnnoUtil
                 return t;
             }
             //只代理含有String或String[]的注解。
-            AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable,
-                    configable.config);
+            AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable);
             Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                     t.annotationType(),
                     AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
@@ -2219,12 +2214,10 @@ public class AnnoUtil
     private static class Configable
     {
         IAnnotationConfigable iAnnotationConfigable;
-        IConfigData config;
 
-        public Configable(IConfigData config, IAnnotationConfigable iAnnotationConfigable)
+        public Configable(IAnnotationConfigable iAnnotationConfigable)
         {
             this.iAnnotationConfigable = iAnnotationConfigable;
-            this.config = config;
         }
     }
 

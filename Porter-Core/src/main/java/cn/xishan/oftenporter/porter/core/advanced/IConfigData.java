@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 可以通过@{@linkplain AutoSet}引入该对象实例,见{@linkplain DefaultConfigData}。
@@ -66,6 +67,8 @@ public interface IConfigData
      * @return 上一个对象
      */
     <T> T set(String key, Object object);
+
+    void setAll(Map<?,?> map);
 
     /**
      * 见{@linkplain #set(String, Object)}.

@@ -12,7 +12,6 @@ import com.alibaba.fastjson.util.TypeUtils;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
@@ -20,21 +19,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultConfigData implements IConfigData
 {
     private Properties properties;
-    private Map<String, Object> data = new ConcurrentHashMap<>();
+    //private Map<String, Object> data = new ConcurrentHashMap<>();
 
     public DefaultConfigData(Properties properties)
     {
-        if (properties == null)
-        {
-            properties = new Properties();
+        this.properties = new Properties();
+        if(properties!=null){
+            this.properties.putAll(properties);
         }
-        this.properties = properties;
     }
 
     @Override
     public boolean contains(String key)
     {
-        return data.containsKey(key) || properties.containsKey(key);
+        return properties.containsKey(key);
     }
 
     @Override
@@ -46,7 +44,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public long getLong(String key, long defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -64,7 +62,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public int getInt(String key, int defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -82,7 +80,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public float getFloat(String key, float defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -100,7 +98,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public double getDouble(String key, double defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -118,7 +116,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public boolean getBoolean(String key, boolean defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -136,7 +134,12 @@ public class DefaultConfigData implements IConfigData
     @Override
     public String getString(String key, String defaultValue)
     {
-        return properties.getProperty(key, defaultValue);
+        Object value = properties.getProperty(key);
+        if (WPTool.isEmpty(value))
+        {
+            return defaultValue;
+        }
+        return String.valueOf(value);
     }
 
     /**
@@ -165,7 +168,10 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
+        if (WPTool.isEmpty(value))
+        {
+        }
         Date dateVal = TypeUtils.castToDate(value);
         return dateVal;
     }
@@ -173,7 +179,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, Date defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -185,7 +191,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, String format)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         Date dateVal = TypeUtils.castToDate(value, format);
         return dateVal;
     }
@@ -193,7 +199,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, String format, Date defaultValue)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return defaultValue;
@@ -205,40 +211,48 @@ public class DefaultConfigData implements IConfigData
     @Override
     public JSONObject getJSON(String key)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return null;
+        } else if (value instanceof JSONObject)
+        {
+            return (JSONObject) value;
         }
-        return JSON.parseObject(value);
+        return JSON.parseObject(String.valueOf(value));
     }
 
     @Override
     public JSONArray getJSONArray(String key)
     {
-        String value = properties.getProperty(key);
+        Object value = properties.getProperty(key);
         if (WPTool.isEmpty(value))
         {
             return null;
+        } else if (value instanceof JSONArray)
+        {
+            return (JSONArray) value;
         }
-        return JSON.parseArray(value);
+        return JSON.parseArray(String.valueOf(value));
     }
 
     @Override
     public <T> T set(String key, Object object)
     {
-        Object rs = object == null ? data.remove(key) : data.put(key, object);
+        Object rs = object == null ? properties.remove(key) : properties.put(key, object);
         return (T) rs;
+    }
+
+    @Override
+    public void setAll(Map<?, ?> map)
+    {
+        properties.putAll(map);
     }
 
     @Override
     public <T> T get(String key)
     {
-        Object rs = data.get(key);
-        if (rs == null)
-        {
-            rs = properties.getProperty(key);
-        }
+        Object rs = properties.getProperty(key);
         return (T) rs;
     }
 
