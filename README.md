@@ -3,16 +3,16 @@
 
 ##
 # 版本
-当前最新版本为  [**1.0.5-beta3**](http://mvnrepository.com/artifact/com.xishankeji)
+当前最新版本为  [**1.1.0.Final**](http://mvnrepository.com/artifact/com.xishankeji)
 
-![Version](https://img.shields.io/badge/Version-1.0.5--beta3-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.1.0.Final-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
 ##
-# 文档
-[Documentation](https://gzxishan.github.io/index.html)
+# 文档(Documentation)
+[Wiki](https://github.com/gzxishan/OftenPorter/wiki)
 
 ##
-# 公司
+# 公司(Compnay)
 [贵州溪山科技有限公司](http://www.xishankeji.com)
