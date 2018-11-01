@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.1.0.Final</version>
+        <version>1.1.1.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -14,7 +14,6 @@
 
     <name>Porter-Core</name>
     <description>核心库：支持IoC，接口切面，通用切面，动态注解，必须与非必须参数、参数处理，Mixin等。</description>
-    <url>http://maven.apache.org</url>
 
     <dependencies>
 
@@ -22,7 +21,6 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
-            <version>3.2.6</version>
         </dependency>
 
 

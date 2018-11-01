@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.1.0.Final</version>
+        <version>1.1.1.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -13,7 +13,6 @@
     <packaging>jar</packaging>
 
     <name>Porter-Bridge-Http</name>
-    <url>http://maven.apache.org</url>
     <description>
         转接远程的http接口,服务器响应正确的数据格式必须是JResponse定义的格式。
     </description>

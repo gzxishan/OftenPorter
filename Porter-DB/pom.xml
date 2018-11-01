@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.1.0.Final</version>
+        <version>1.1.1.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -14,8 +14,6 @@
 
     <name>Porter-DB</name>
     <description>数据库持久层模块，支持Mybatis等,支持注解式的JDBC事务</description>
-    <url>http://maven.apache.org</url>
-
 
     <dependencies>
 

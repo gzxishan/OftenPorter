@@ -6,11 +6,14 @@
 
     <groupId>com.xishankeji</groupId>
     <artifactId>OftenPorter</artifactId>
-    <version>1.1.0.Final</version>
+    <version>1.1.1.Final</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.slf4j.version>1.7.25</project.slf4j.version>
+        <project.fastjson.version>1.2.51</project.fastjson.version>
+        <project.cglib.version>3.2.9</project.cglib.version>
+        <project.mybatis.version>3.4.6</project.mybatis.version>
     </properties>
 
     <name>OftenPorter</name>
@@ -91,22 +94,21 @@
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
-                <version>3.4.6</version>
+                <version>${project.mybatis.version}</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/com.google.android/android -->
             <dependency>
-                <groupId>com.google.android</groupId>
-                <artifactId>android</artifactId>
-                <version>4.0.1.2</version>
-                <scope>provided</scope>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>${project.cglib.version}</version>
             </dependency>
+
 
             <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
-                <version>1.2.47</version>
+                <version>${project.fastjson.version}</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
