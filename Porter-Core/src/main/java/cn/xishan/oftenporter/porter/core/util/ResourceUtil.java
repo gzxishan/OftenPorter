@@ -1,13 +1,12 @@
 package cn.xishan.oftenporter.porter.core.util;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -64,13 +63,13 @@ public class ResourceUtil
 
     public static String getAbsoluteResourceString(String path, String encoding)
     {
-        try
+        try (InputStream inputStream = getAbsoluteResourceStream(path))
         {
             URL url = getAbsoluteResource(path);
             String str = null;
             if (url != null)
             {
-                str = FileTool.getString(url.openStream(), 1024, encoding);
+                str = FileTool.getString(inputStream, 1024, encoding);
             }
             return str;
         } catch (Exception e)
@@ -82,15 +81,7 @@ public class ResourceUtil
     public static InputStream getAbsoluteResourceStream(String path) throws IOException
     {
         URL url = getAbsoluteResource(path);
-        String protocol = url.getProtocol();
-        if ("file".equals(protocol))
-        {
-            File file = new File(url.getFile());
-            return new FileInputStream(file);
-        } else
-        {
-            return url.openStream();
-        }
+        return url.openStream();
     }
 
 
@@ -99,13 +90,41 @@ public class ResourceUtil
         return _getAbsoluteResource(path, true);
     }
 
+    private static final Pattern PROTOCOL_PATTERN = Pattern.compile("^([a-zA-Z0-9]{2,}):");
+
+    private static URL _fromNotClassResource(String path)
+    {
+        Matcher matcher = PROTOCOL_PATTERN.matcher(path);
+        if (matcher.find())
+        {
+            try
+            {
+                return new URL(path);
+            } catch (MalformedURLException e)
+            {
+                throw new RuntimeException(e);
+            }
+        } else
+        {
+            return null;
+        }
+    }
+
     private static URL _getAbsoluteResource(String path, boolean recursive)
     {
+        URL url = null;
         if (path.startsWith("classpath:"))
         {
             path = path.substring("classpath:".length());
+        } else
+        {
+            url = _fromNotClassResource(path);
+            if (url != null)
+            {
+                return url;
+            }
         }
-        URL url = null;
+
         for (ClassLoader classLoader : theClassLoaders)
         {
             url = classLoader.getResource(path);
@@ -133,6 +152,15 @@ public class ResourceUtil
         if (path.startsWith("classpath:"))
         {
             path = path.substring("classpath:".length());
+        } else
+        {
+            URL url = _fromNotClassResource(path);
+            if (url != null)
+            {
+                Set<URL> set = new HashSet<>(1);
+                set.add(url);
+                return new EnumerationImpl<>(set);
+            }
         }
         Enumeration<URL> enumeration = EnumerationImpl.getEMPTY();
         for (ClassLoader classLoader : theClassLoaders)

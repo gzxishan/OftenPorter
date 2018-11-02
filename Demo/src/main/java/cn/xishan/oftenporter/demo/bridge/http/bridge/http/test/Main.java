@@ -14,7 +14,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
  */
 public class Main {
     public static void main(String[] args) {
-        HMain hMain = new HMain(true, new PName("HMain"), "utf-8", HttpUtil.getClient(null),
+        HMain hMain = new HMain(true, new PName("HMain"), "utf-8", HttpUtil.getClient(),
                                 "http://127.0.0.1:8080/Demo/RemoteBridge/");
 
         hMain.getPLinker().currentBridge()
