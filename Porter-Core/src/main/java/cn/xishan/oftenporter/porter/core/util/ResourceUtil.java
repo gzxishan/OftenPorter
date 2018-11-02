@@ -10,6 +10,18 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
+ * <p>
+ * path支持的格式：
+ * <ol>
+ * <li>
+ * classpath:或省略，表示java资源
+ * </li>
+ * <li>
+ * file等：表示其他协议的资源
+ * </li>
+ * </ol>
+ * </p>
+ *
  * @author Created by https://github.com/CLovinr on 2018-07-02.
  */
 public class ResourceUtil
@@ -49,30 +61,6 @@ public class ResourceUtil
         return _getAbsoluteResources(path, true);
     }
 
-    private static Enumeration<URL> _getAbsoluteResources(String path, boolean recursive) throws IOException
-    {
-        Enumeration<URL> enumeration = EnumerationImpl.getEMPTY();
-        for (ClassLoader classLoader : theClassLoaders)
-        {
-            enumeration = classLoader.getResources(path);
-            if (enumeration.hasMoreElements())
-            {
-                break;
-            }
-        }
-        if (recursive && !enumeration.hasMoreElements())
-        {
-            if (path.startsWith("/"))
-            {
-                path = path.substring(1);
-            } else
-            {
-                path = "/" + path;
-            }
-            enumeration = _getAbsoluteResources(path, false);
-        }
-        return enumeration;
-    }
 
     public static String getAbsoluteResourceString(String path, String encoding)
     {
@@ -93,10 +81,6 @@ public class ResourceUtil
 
     public static InputStream getAbsoluteResourceStream(String path) throws IOException
     {
-        if (path.startsWith("classpath:"))
-        {
-            path = path.substring("classpath:".length());
-        }
         URL url = getAbsoluteResource(path);
         String protocol = url.getProtocol();
         if ("file".equals(protocol))
@@ -117,6 +101,10 @@ public class ResourceUtil
 
     private static URL _getAbsoluteResource(String path, boolean recursive)
     {
+        if (path.startsWith("classpath:"))
+        {
+            path = path.substring("classpath:".length());
+        }
         URL url = null;
         for (ClassLoader classLoader : theClassLoaders)
         {
@@ -138,5 +126,34 @@ public class ResourceUtil
             url = _getAbsoluteResource(path, false);
         }
         return url;
+    }
+
+    private static Enumeration<URL> _getAbsoluteResources(String path, boolean recursive) throws IOException
+    {
+        if (path.startsWith("classpath:"))
+        {
+            path = path.substring("classpath:".length());
+        }
+        Enumeration<URL> enumeration = EnumerationImpl.getEMPTY();
+        for (ClassLoader classLoader : theClassLoaders)
+        {
+            enumeration = classLoader.getResources(path);
+            if (enumeration.hasMoreElements())
+            {
+                break;
+            }
+        }
+        if (recursive && !enumeration.hasMoreElements())
+        {
+            if (path.startsWith("/"))
+            {
+                path = path.substring(1);
+            } else
+            {
+                path = "/" + path;
+            }
+            enumeration = _getAbsoluteResources(path, false);
+        }
+        return enumeration;
     }
 }

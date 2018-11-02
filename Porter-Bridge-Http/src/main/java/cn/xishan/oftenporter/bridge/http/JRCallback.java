@@ -10,12 +10,4 @@ public interface JRCallback
 {
     void onResult(JResponse jResponse);
 
-    public static final JRCallback EMPTY = new JRCallback()
-    {
-        @Override
-        public void onResult(JResponse jResponse)
-        {
-
-        }
-    };
 }
