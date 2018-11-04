@@ -265,7 +265,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         {
             LOGGER.warn(e.getMessage(), e);
         }
-        WebSocketHandle.handleWS(config.getServletContext());
+        //WebSocketHandle.handleWS(config.getServletContext());
         super.init(config);
     }
 
@@ -371,8 +371,6 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         }
         PorterConf porterConf = porterMain.newPorterConf();
         porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
-        porterConf.addContextAutoSet(WebSocketHandle.WS_SERVER_CONTAINER_NAME,
-                getServletContext().getAttribute(WebSocketHandle.WS_SERVER_CONTAINER_NAME));
         porterConf.addContextAutoSet(ServletContext.class, getServletConfig().getServletContext());
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
         porterConf.addContextAutoSet(OPServlet.class, this);

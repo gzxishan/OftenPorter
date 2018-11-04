@@ -22,8 +22,7 @@ public class ProgrammaticServer extends Endpoint
 
             WObject wObject = bridgeData.wObject;
             PorterOfFun porterOfFun = bridgeData.porterOfFun;
-
-            porterOfFun.invoke(new Object[]{wObject, WS.newWS(type, session, isLast, value)});
+            porterOfFun.invokeByHandleArgs(wObject,WS.newWS(type, session, isLast, value));
         } catch (Exception e)
         {
             throw new WCallException(e);
@@ -36,12 +35,8 @@ public class ProgrammaticServer extends Endpoint
         BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
         WebSocket webSocket = bridgeData.webSocket;
 
-        WSConfig wsConfig = new WSConfig();
-        wsConfig.setMaxBinaryBuffer(webSocket.maxBinaryBuffer());
-        wsConfig.setMaxTextBuffer(webSocket.maxTextBuffer());
-        wsConfig.setMaxIdleTime(webSocket.maxIdleTime());
-        wsConfig.setPartial(webSocket.isPartial());
-        doInvoke(session, WebSocket.Type.ON_OPEN, true, wsConfig);
+        WSConfig wsConfig = bridgeData.wsConfig;
+        doInvoke(session, WebSocket.Type.ON_OPEN, true, null);
 
         int maxBinaryBuffer = wsConfig.getMaxBinaryBuffer();
         if (maxBinaryBuffer > 0)

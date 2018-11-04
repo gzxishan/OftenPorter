@@ -35,6 +35,12 @@
         <!--end-->
 
         <dependency>
+            <groupId>com.xishankeji</groupId>
+            <artifactId>Porter-Bridge-ServletWebSocket</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Core</artifactId>
             <version>${project.parent.version}</version>

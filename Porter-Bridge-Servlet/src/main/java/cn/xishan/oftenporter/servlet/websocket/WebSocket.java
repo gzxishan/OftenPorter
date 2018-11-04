@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 
 /**
  * <pre>
- * 1.被注解的函数形参必须是:({@linkplain WObject},{@linkplain WS})
+ * 1.被注解的函数形参是:({@linkplain WObject},{@linkplain WS})
  * 2.不具有继承性
  * 3.对于ON_MESSAGE*类型与是否是部分传输方式的对应关系见{@linkplain MessageHandler.Whole}与{@linkplain MessageHandler.Partial}
  * </pre>
@@ -33,6 +33,10 @@ public @interface WebSocket
 {
     public enum Type
     {
+        /**
+         * 进行配置，初始化时调用一次
+         */
+        ON_CONFIG,
         /**
          * 进行协议升级前。
          */

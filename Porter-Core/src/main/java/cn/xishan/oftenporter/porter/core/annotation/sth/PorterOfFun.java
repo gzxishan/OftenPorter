@@ -314,4 +314,12 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             }
         }
     }
+
+    public String getPath()
+    {
+        Porter porter = getFinalPorter();
+        String path = porter.getContextName() + "/" + porter.getPortIn().getTiedNames()[0] + "/" + getMethodPortIn()
+                .getTiedNames()[0];
+        return path;
+    }
 }

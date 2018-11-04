@@ -11,9 +11,6 @@ public interface DefaultReturnFactory
 
     Object getNullReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod);
 
-    default Object getExReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod,
-            Throwable throwable) throws Throwable
-    {
-        throw throwable;
-    }
+    Object getExReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod,
+            Throwable throwable) throws Throwable;
 }

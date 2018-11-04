@@ -81,7 +81,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
 
         String ctype = request.getContentType();
-        if (ctype != null && ctype.indexOf(ContentType.APP_FORM_URLENCODED.getType()) != -1)
+        if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
         {
             String encode = getEncode(ctype);
 

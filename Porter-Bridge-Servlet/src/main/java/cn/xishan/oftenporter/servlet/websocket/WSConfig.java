@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
+import cn.xishan.oftenporter.servlet.tomcat.WebSocketOption;
+
 /**
  * @author Created by https://github.com/CLovinr on 2018/4/28.
  */
@@ -9,6 +11,8 @@ public class WSConfig
     private int maxTextBuffer = -1;
     private long maxIdleTime = -1;
     private boolean isPartial = false;
+
+    private WebSocketOption webSocketOption;
 
 
     @Override
@@ -63,5 +67,15 @@ public class WSConfig
     public void setMaxIdleTime(long maxIdleTime)
     {
         this.maxIdleTime = maxIdleTime;
+    }
+
+    public WebSocketOption getWebSocketOption()
+    {
+        return webSocketOption;
+    }
+
+    public void setWebSocketOption(WebSocketOption webSocketOption)
+    {
+        this.webSocketOption = webSocketOption;
     }
 }

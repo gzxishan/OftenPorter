@@ -42,19 +42,23 @@ public abstract class WS
     }
 
     /**
-     * <pre>
-     *     返回值类型:
-     *     0.{@linkplain Type#ON_CONNECTING}:{@linkplain Connecting}
-     *     1.{@linkplain Type#ON_OPEN}:{@linkplain WSConfig}
-     *     2.{@linkplain Type#ON_MESSAGE}:String
-     *     3.{@linkplain Type#ON_ERROR}:Throwable
-     *     4.{@linkplain Type#ON_CLOSE}:{@linkplain CloseReason}
-     *     5.{@linkplain Type#ON_PONG}:{@linkplain PongMessage}
-     *     6.{@linkplain Type#ON_BINARY_BYTE_ARRAY}:byte[]
-     *     7.{@linkplain Type#ON_BINARY_BYTE_BUFFER}:{@linkplain java.nio.ByteBuffer}
-     *     8.{@linkplain Type#ON_BINARY_INPUT_STREAM}:{@linkplain java.io.InputStream}
-     *     9.{@linkplain Type#ON_MESSAGE_READER}:{@linkplain java.io.Reader}
-     * </pre>
+     * <p>
+     * 返回值类型:
+     * <ol>
+     * <li>{@linkplain Type#ON_CONFIG}:{@linkplain WSConfig}</li>
+     * <li>{@linkplain Type#ON_CONNECTING}:{@linkplain Connecting}</li>
+     * <li>{@linkplain Type#ON_OPEN}:null</li>
+     * <li>{@linkplain Type#ON_MESSAGE}:String</li>
+     * <li>{@linkplain Type#ON_ERROR}:Throwable</li>
+     * <li>{@linkplain Type#ON_CLOSE}:{@linkplain CloseReason}</li>
+     * <li>{@linkplain Type#ON_PONG}:{@linkplain PongMessage}</li>
+     * <li>{@linkplain Type#ON_BINARY_BYTE_ARRAY}:byte[]</li>
+     * <li>{@linkplain Type#ON_BINARY_BYTE_BUFFER}:{@linkplain java.nio.ByteBuffer}</li>
+     * <li>{@linkplain Type#ON_BINARY_INPUT_STREAM}:{@linkplain java.io.InputStream}</li>
+     * <li>{@linkplain Type#ON_MESSAGE_READER}:{@linkplain java.io.Reader}</li>
+     * <li></li>
+     * </ol>
+     * </p>
      *
      * @param <T>
      * @return

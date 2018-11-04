@@ -53,6 +53,7 @@
         <module>Porter-Bridge-Servlet</module>
         <module>Porter-Bridge-Http</module>
         <module>Demo</module>
+        <module>Porter-Bridge-ServletWebSocket</module>
     </modules>
 
 

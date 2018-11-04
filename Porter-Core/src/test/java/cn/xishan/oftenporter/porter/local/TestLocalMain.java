@@ -84,6 +84,13 @@ public class TestLocalMain
             {
                 return "null-return";
             }
+
+            @Override
+            public Object getExReturn(WObject wObject, Object finalPorterObject, Object handleObject,
+                    Object handleMethod, Throwable throwable) throws Throwable
+            {
+                throw throwable;
+            }
         });
 
         final Logger logger = LoggerFactory.getLogger(getClass());
