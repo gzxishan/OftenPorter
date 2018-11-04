@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +24,8 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WServletRequest.class);
 
-    private HttpServletRequest request;
-    private HttpServletResponse response;
+    private WeakReference<HttpServletRequest> request;
+    private WeakReference<HttpServletResponse> response;
 
     /**
      * @param request
@@ -38,26 +39,26 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     {
         super(null, method, WPTool.notNullAndEmpty(path) ? path : OPServlet.getPath(request),
                 false);
-        this.request = request;
-        this.response = response;
+        this.request = new WeakReference<>(request);
+        this.response = new WeakReference<>(response);
     }
 
     @Override
     public HttpServletRequest getOriginalRequest()
     {
-        return request;
+        return request.get();
     }
 
     @Override
     public HttpServletResponse getOriginalResponse()
     {
-        return response;
+        return response.get();
     }
 
 
     public AsyncContext startAsync()
     {
-        return request.startAsync(request, response);
+        return request.get().startAsync(request.get(), response.get());
     }
 
     @Override
@@ -66,7 +67,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
         if (super.params == null)
         {
             params = new HashMap<>();
-            Enumeration<String> e = request.getParameterNames();
+            Enumeration<String> e = request.get().getParameterNames();
 
             while (e.hasMoreElements())
             {
@@ -84,7 +85,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     @Override
     public Object getParameter(String name)
     {
-        String[] values = request.getParameterValues(name);
+        String[] values = request.get().getParameterValues(name);
         Object v = values == null || values.length == 0 ? null : values[0];
         return v;
     }
@@ -246,6 +247,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      */
     public String getHost(boolean http2Https)
     {
+        HttpServletRequest request = this.request.get();
         String host;
         if (http2Https && request.getScheme().equals("http"))
         {

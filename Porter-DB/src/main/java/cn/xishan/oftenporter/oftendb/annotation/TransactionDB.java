@@ -18,9 +18,8 @@ import java.lang.annotation.*;
         ElementType.TYPE, ElementType.METHOD
 })
 @Documented
-@Inherited
 @AspectOperationOfNormal(handle = TransactionJDBCHandle.class)
-public @interface TransactionJDBC
+public @interface TransactionDB
 {
 
     /**

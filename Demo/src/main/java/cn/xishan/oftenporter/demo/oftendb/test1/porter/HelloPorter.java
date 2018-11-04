@@ -4,14 +4,13 @@ import java.util.Date;
 
 import cn.xishan.oftenporter.demo.oftendb.test1.entity.Hello;
 import cn.xishan.oftenporter.demo.oftendb.test1.unit.HelloUnit;
-import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
+import cn.xishan.oftenporter.oftendb.annotation.TransactionDB;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.IdGen;
 import cn.xishan.oftenporter.porter.core.util.KeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -76,7 +75,7 @@ public class HelloPorter
 
     @PortIn(nece = "names")
     @Parse(paramNames = "names", parser = StringArrayParser.class)
-    @TransactionJDBC
+    @TransactionDB
     public Object transactionFailed(WObject wObject)
     {
         String[] names = wObject.fnOf(0);
@@ -102,7 +101,7 @@ public class HelloPorter
         LogUtil.printErrPos(helloUnit.listAll());
     }
 
-    @TransactionJDBC
+    @TransactionDB
     public void _testSavePoint(WObject wObject)
     {
         helloUnit.clearAll();

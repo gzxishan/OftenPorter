@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.demo.oftendb.test1.unit;
 
 import cn.xishan.oftenporter.demo.oftendb.test1.entity.Hello;
-import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
+import cn.xishan.oftenporter.oftendb.annotation.TransactionDB;
 import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.util.IdGen;
@@ -18,12 +18,12 @@ public class HelloUnit
     @AutoSet
     IHelloDao helloDao;
 
-    @TransactionJDBC
+    @TransactionDB
     public void initTable(){
         helloDao.initTable();
     }
 
-    @TransactionJDBC(level = Isolation.DEFAULT)
+    @TransactionDB(level = Isolation.DEFAULT)
     public void add(Hello hello)
     {
         hello.setCreatetime(new Date());
@@ -31,30 +31,30 @@ public class HelloUnit
         helloDao.add(hello);
     }
 
-    @TransactionJDBC
+    @TransactionDB
     public void deleteById(String id)
     {
         helloDao.deleteById(id);
     }
 
-    @TransactionJDBC
+    @TransactionDB
     public void updateName(String name, String newName)
     {
         helloDao.updateName(name, newName);
     }
 
-    @TransactionJDBC
+    @TransactionDB
     public void deleteByName(String name)
     {
         helloDao.deleteByName(name);
     }
 
-    @TransactionJDBC
+    @TransactionDB
     public void clearAll(){
         helloDao.clearAll();
     }
 
-    @TransactionJDBC(setSavePoint = true)
+    @TransactionDB(setSavePoint = true)
     public void addHasSavePoint(Hello hello,boolean willFail)throws Exception
     {
         hello.setCreatetime(new Date());

@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.oftendb.db.sql;
 
-import cn.xishan.oftenporter.oftendb.annotation.TransactionJDBC;
+import cn.xishan.oftenporter.oftendb.annotation.TransactionDB;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
@@ -21,11 +21,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
-public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter<TransactionJDBC>
+public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter<TransactionDB>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionJDBCHandle.class);
 
-    private TransactionJDBC transactionJDBC;
+    private TransactionDB transactionDB;
     private String source;
 
     private static final Method __openSession;
@@ -68,18 +68,18 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     }
 
     @Override
-    public boolean init(TransactionJDBC current, IConfigData configData, @MayNull Object originObject,
+    public boolean init(TransactionDB current, IConfigData configData, @MayNull Object originObject,
             Class originClass,Method originMethod) throws Exception
     {
-        this.transactionJDBC = current;
-        if ("mybatis".equals(transactionJDBC.type()))
+        this.transactionDB = current;
+        if ("mybatis".equals(transactionDB.type()))
         {
 
         } else
         {
-            throw new RuntimeException("unknown type:" + transactionJDBC.type());
+            throw new RuntimeException("unknown type:" + transactionDB.type());
         }
-        this.source = transactionJDBC.dbSource();
+        this.source = transactionDB.dbSource();
         return configData.getBoolean("enableTransactionJDBC", true);
     }
 
@@ -89,14 +89,14 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             Object lastReturn) throws Throwable
     {
         IConnection iConnection = threadLocal.get().get(source);
-        if (transactionJDBC.setSavePoint())
+        if (transactionDB.setSavePoint())
         {
             SavePointHolder savePointHolder = new SavePointHolder();
             savePointStackThreadLocal.get().push(savePointHolder);
         }
         if (iConnection == null || iConnection.willStartTransactionOk())
         {
-            if ("mybatis".equals(transactionJDBC.type()))
+            if ("mybatis".equals(transactionDB.type()))
             {
                 LOGGER.debug("open source({}) for mybatis...", source);
                 Object rs = __openSession.invoke(null, source);
@@ -106,13 +106,13 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER.debug("start transaction:source={},queryTimeoutSeconds={},readonly={},level={},method={}.{}",
-                        source, transactionJDBC.queryTimeoutSeconds(), transactionJDBC.readonly(),
-                        transactionJDBC.level(), originMethod.getDeclaringClass().getName(), originMethod.getName());
+                        source, transactionDB.queryTimeoutSeconds(), transactionDB.readonly(),
+                        transactionDB.level(), originMethod.getDeclaringClass().getName(), originMethod.getName());
             }
             iConnection = threadLocal.get().get(source);
-            if (transactionJDBC.queryTimeoutSeconds() != -1)
+            if (transactionDB.queryTimeoutSeconds() != -1)
             {
-                iConnection.setQueryTimeoutSeconds(transactionJDBC.queryTimeoutSeconds());
+                iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
             }
             Connection connection = iConnection.getConnection();
             connection.setAutoCommit(false);
@@ -123,11 +123,11 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             }
         }
 
-        iConnection.setReadonly(transactionJDBC.readonly());
-        iConnection.setLevel(transactionJDBC.level());
-        iConnection.setQueryTimeoutSeconds(transactionJDBC.queryTimeoutSeconds());
+        iConnection.setReadonly(transactionDB.readonly());
+        iConnection.setLevel(transactionDB.level());
+        iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
 
-        if (transactionJDBC.setSavePoint())
+        if (transactionDB.setSavePoint())
         {
             Connection connection = iConnection.getConnection();
             SavePointHolder savePointHolder = savePointStackThreadLocal.get().peek();
@@ -139,7 +139,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
 
     private void checkCommit(Method originMethod) throws Throwable
     {
-        IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
+        IConnection iConnection = threadLocal.get().get(transactionDB.dbSource());
 
         if (iConnection != null && iConnection.willCommit())
         {
@@ -148,11 +148,11 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
                 LOGGER.debug("commit... transaction:source={},method={}.{}", source,
                         originMethod.getDeclaringClass().getName(), originMethod.getName());
             }
-            __removeConnection__(transactionJDBC.dbSource());
+            __removeConnection__(transactionDB.dbSource());
             iConnection.doCommit();
             LOGGER.debug("commit-ok transaction:source={},method={}", source, originMethod.getName());
         }
-        if (transactionJDBC.setSavePoint())
+        if (transactionDB.setSavePoint())
         {
             savePointStackThreadLocal.get().pop();
         }
@@ -172,11 +172,11 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
             AspectOperationOfNormal.Invoker invoker, Object[] args, Throwable throwable) throws Throwable
     {
 
-        IConnection iConnection = threadLocal.get().get(transactionJDBC.dbSource());
+        IConnection iConnection = threadLocal.get().get(transactionDB.dbSource());
         if (iConnection != null)
         {
             boolean needRollback = true;
-            if (transactionJDBC.setSavePoint())
+            if (transactionDB.setSavePoint())
             {
                 SavePointHolder savePointHolder = savePointStackThreadLocal.get().pop();
                 if (savePointHolder.savepoint != null)
@@ -201,7 +201,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
                             WPTool.getCause(throwable).toString());
                 }
 
-                __removeConnection__(transactionJDBC.dbSource());
+                __removeConnection__(transactionDB.dbSource());
                 iConnection.doRollback();
                 LOGGER.debug("rollback-finished transaction:source={},method={}", source, originMethod.getName());
             }
