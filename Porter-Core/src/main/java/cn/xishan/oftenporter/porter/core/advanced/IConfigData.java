@@ -68,7 +68,7 @@ public interface IConfigData
      */
     <T> T set(String key, Object object);
 
-    void setAll(Map<?,?> map);
+    void putAll(Map<?,?> map);
 
     /**
      * 见{@linkplain #set(String, Object)}.

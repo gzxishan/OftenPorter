@@ -60,7 +60,7 @@ public @interface ImportProperties
                 InputStream in = ResourceUtil.getAbsoluteResourceStream(path);
                 Properties properties = new Properties();
                 properties.load(in);
-                configData.setAll(properties);
+                configData.putAll(properties);
             }
         }
     }

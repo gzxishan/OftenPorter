@@ -244,7 +244,7 @@ public class DefaultConfigData implements IConfigData
     }
 
     @Override
-    public void setAll(Map<?, ?> map)
+    public void putAll(Map<?, ?> map)
     {
         properties.putAll(map);
     }

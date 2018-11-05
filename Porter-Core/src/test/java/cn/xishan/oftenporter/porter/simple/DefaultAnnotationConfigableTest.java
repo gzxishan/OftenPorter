@@ -20,7 +20,7 @@ public class DefaultAnnotationConfigableTest
         properties.setProperty("age", "12");
 
         IAnnotationConfigable annotationConfigable = new DefaultAnnotationConfigable();
-        annotationConfigable.getConfigData().setAll(properties);
+        annotationConfigable.getConfigData().putAll(properties);
 
         String value = "${name}";
         Assert.assertEquals("tom", annotationConfigable.getAnnotationStringValue(value));

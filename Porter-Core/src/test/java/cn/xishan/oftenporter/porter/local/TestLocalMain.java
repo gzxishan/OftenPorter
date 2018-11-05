@@ -63,7 +63,7 @@ public class TestLocalMain
         Properties properties = new Properties();
         properties.setProperty("isTest", String.valueOf(true));
         properties.setProperty("pname", "P1");
-        porterConf.getConfigData().setAll(properties);
+        porterConf.getConfigData().putAll(properties);
 
         //porterConf.setEnableTiedNameDefault(false);
         porterConf.addContextAutoSet("globalName", "全局对象");
