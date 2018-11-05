@@ -1,7 +1,11 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -52,4 +56,55 @@ public interface ParamSource
      * @return
      */
     Enumeration<Map.Entry<String, Object>> params();
+
+
+    public static ParamSource fromMap(Map<String, Object> params)
+    {
+        Map<String, Object> finalParams = Collections.unmodifiableMap(params);
+        ParamSource paramSource = new ParamSource()
+        {
+            @Override
+            public void setUrlResult(UrlDecoder.Result result)
+            {
+                throw new WCallException("not support!");
+            }
+
+            @Override
+            public <T> T getParam(String name)
+            {
+                return (T) finalParams.get(name);
+            }
+
+            @Override
+            public <T> T getNeceParam(String name, String errmsgOfEmpty)
+            {
+                return DefaultParamSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+            }
+
+            @Override
+            public <T> T getNeceParam(String name)
+            {
+                return DefaultParamSource.getNeceParamUtil(this,name);
+            }
+
+            @Override
+            public void putNewParams(Map<String, ?> newParams)
+            {
+                throw new WCallException("not support!");
+            }
+
+            @Override
+            public Enumeration<String> paramNames()
+            {
+                return new EnumerationImpl<String>(finalParams.keySet());
+            }
+
+            @Override
+            public Enumeration<Map.Entry<String, Object>> params()
+            {
+                return new EnumerationImpl<Map.Entry<String, Object>>(finalParams.entrySet());
+            }
+        };
+        return paramSource;
+    }
 }
