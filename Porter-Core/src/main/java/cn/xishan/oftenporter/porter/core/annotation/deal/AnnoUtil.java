@@ -339,9 +339,9 @@ public class AnnoUtil
         return isAnnotationPresent(true, method, annotationClasses);
     }
 
-    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)
+    public static boolean isAllOfAnnotationsPresent(Field field, Class<?>... annotationClasses)
     {
-        return isAnnotationPresent(false, clazz, annotationClasses);
+        return isAnnotationPresent(true, field, annotationClasses);
     }
 
     public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Method method, Class<?>... annotationClasses)
@@ -350,9 +350,20 @@ public class AnnoUtil
                 annotationClasses);
     }
 
+    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)
+    {
+        return isAnnotationPresent(false, clazz, annotationClasses);
+    }
+
+
     public static boolean isOneOfAnnotationsPresent(Method method, Class<?>... annotationClasses)
     {
         return isAnnotationPresent(false, method, annotationClasses);
+    }
+
+    public static boolean isOneOfAnnotationsPresent(Field field, Class<?>... annotationClasses)
+    {
+        return isAnnotationPresent(false, field, annotationClasses);
     }
 
     private static boolean isAnnotationPresent(boolean isAll, Class<?> clazz, Class<?>... annotationClasses)
@@ -376,6 +387,18 @@ public class AnnoUtil
             return (boolean) cache;
         }
         boolean rs = NoCache.isAnnotationPresent(isAll, method, annotationClasses);
+        return rs;
+    }
+
+    private static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
+    {
+        CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field", annotationClasses);
+        Object cache = cacheKey.getCache();
+        if (cache != null && cache != NULL)
+        {
+            return (boolean) cache;
+        }
+        boolean rs = NoCache.isAnnotationPresent(isAll, field, annotationClasses);
         return rs;
     }
 
@@ -970,6 +993,12 @@ public class AnnoUtil
 
         public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
         {
+            return _getAnnotation(clazz, annotationClass, true);
+        }
+
+        private static <A extends Annotation> A _getAnnotation(Class<?> clazz, Class<A> annotationClass,
+                boolean willProxy)
+        {
             A t = clazz.getAnnotation(annotationClass);
             if (t == null && Modifier.isInterface(clazz.getModifiers()) && annotationClass
                     .isAnnotationPresent(Inherited.class))
@@ -977,20 +1006,25 @@ public class AnnoUtil
                 Class<?>[] ins = clazz.getInterfaces();
                 for (Class<?> inClass : ins)
                 {
-                    t = getAnnotation(inClass, annotationClass);//递归调用
+                    t = _getAnnotation(inClass, annotationClass, willProxy);//递归调用
                     if (t != null)
                     {
                         return t;//已经代理过
                     }
                 }
             }
-            return proxyAnnotationForAttr(t);
+            return willProxy ? proxyAnnotationForAttr(t) : t;
         }
 
         public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
         {
+            return _getAnnotation(field, annotationClass, true);
+        }
+
+        private static <A extends Annotation> A _getAnnotation(Field field, Class<A> annotationClass, boolean willProxy)
+        {
             A t = field.getAnnotation(annotationClass);
-            return proxyAnnotationForAttr(t);
+            return willProxy ? proxyAnnotationForAttr(t) : t;
         }
 
         /**
@@ -1303,7 +1337,7 @@ public class AnnoUtil
             {
                 for (Class c : annotationClasses)
                 {
-                    if (getAnnotation(clazz, c) != null)
+                    if (_getAnnotation(clazz, c, false) != null)
                     {
                         if (!isAll)
                         {
@@ -1330,6 +1364,33 @@ public class AnnoUtil
                 for (Class c : annotationClasses)
                 {
                     Annotation t = _getAnnotation(method, c, false);
+                    if (t != null)
+                    {
+                        if (!isAll)
+                        {
+                            rs = true;
+                            break outer;
+                        }
+                    } else if (isAll)
+                    {
+                        rs = false;
+                        break outer;
+                    }
+                }
+                rs = isAll;
+            } while (false);
+            return rs;
+        }
+
+        public static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
+        {
+            boolean rs;
+            outer:
+            do
+            {
+                for (Class c : annotationClasses)
+                {
+                    Annotation t = _getAnnotation(field, c, false);
                     if (t != null)
                     {
                         if (!isAll)

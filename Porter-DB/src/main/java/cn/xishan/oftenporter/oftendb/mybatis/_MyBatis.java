@@ -2,11 +2,10 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
+import cn.xishan.oftenporter.oftendb.data.DataUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
-import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -14,10 +13,10 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/10.
@@ -125,11 +124,27 @@ class _MyBatis
         this.xmlParamsMap = map;
     }
 
+    private void putAllNotOverride(Map<String, Object> from, Map<String, Object> to)
+    {
+        if (from == null)
+        {
+            return;
+        }
+        for (Map.Entry<String, Object> entry : from.entrySet())
+        {
+            if (to.containsKey(entry.getKey()))
+            {
+                continue;
+            }
+            to.put(entry.getKey(), entry.getValue());
+        }
+    }
+
     public String replaceSqlParams(String _sql) throws Exception
     {
         StringBuilder sqlBuilder = new StringBuilder(_sql);
         int loopCount = 0;
-        Map<String, Object> localParams = new HashMap<>(xmlParamsMap);
+        Map<String, Object> _localParams = new HashMap<>(xmlParamsMap);
         if (paths == null)
         {
             paths = new ArrayList<>();
@@ -161,11 +176,8 @@ class _MyBatis
                         throw new RuntimeException("illegal format:" + sqlBuilder.substring(index));
                     }
                     JSONObject params = JSON.parseObject(sqlBuilder.substring(index + keyPrefix.length(), index2));
-                    if (params != null)
-                    {
-                        localParams.putAll(params);
-                    }
-                    sqlBuilder.delete(index, index2+keySuffix.length());
+                    putAllNotOverride(params, _localParams);
+                    sqlBuilder.delete(index, index2 + keySuffix.length());
                 } while (false);
             }
 
@@ -206,10 +218,7 @@ class _MyBatis
                         {
                             JSONObject params = JSON.parseObject(path.substring(indexX + 1));
                             path = path.substring(0, indexX);
-                            if (params != null)
-                            {
-                                localParams.putAll(params);
-                            }
+                            putAllNotOverride(params, _localParams);
                         }
                         path = path.trim();
                         if (i == 0 || i == 1)
@@ -259,37 +268,32 @@ class _MyBatis
                                 throw new RuntimeException(e);
                             }
                         }
-                        sqlBuilder.delete(index, index2+keySuffix.length());
-                        sqlBuilder.insert(index, content);
+                        sqlBuilder.replace(index, index2 + keySuffix.length(), content);
                     } while (false);
                 }
 
             }
 
-            for (Map.Entry<String, Object> entry : localParams.entrySet())
-            {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if (value == null)
-                {
-                    continue;
-                }
-                key = "$[" + key + "]";
-                while (true)
-                {
-                    int index = sqlBuilder.indexOf(key);
-                    if (index == -1)
-                    {
-                        break;
-                    }
-                    found = true;
-                    sqlBuilder.delete(index, index + key.length());
-                    sqlBuilder.insert(index, String.valueOf(value));
-
-
-                }
-
-            }
+//            for (Map.Entry<String, Object> entry : localParams.entrySet())
+//            {
+//                String key = entry.getKey();
+//                Object value = entry.getValue();
+//                if(value==null){
+//                    value="";
+//                }
+//                key = "$[" + key + "]";
+//                while (true)
+//                {
+//                    int index = sqlBuilder.indexOf(key);
+//                    if (index == -1)
+//                    {
+//                        break;
+//                    }
+//                    found = true;
+//                    sqlBuilder.replace(index,index+key.length(),String.valueOf(value));
+//                }
+//
+//            }
 
             if (!found)
             {
@@ -297,6 +301,146 @@ class _MyBatis
             } else
             {
                 loopCount++;
+            }
+        }
+
+        Pattern VAR_PATTERN = Pattern.compile("\\$\\[([a-zA-Z0-9\\-_$]+)\\]");
+        {//$[varName]变量处理,不存在的替换成空字符串
+            while (true)
+            {
+                Matcher matcher = VAR_PATTERN.matcher(sqlBuilder);
+                if (!matcher.find())
+                {
+                    break;
+                }
+                int index = matcher.start();
+                int index2 = matcher.end();
+                String varName = matcher.group(1);
+                Object value = _localParams.get(varName);
+                sqlBuilder.replace(index, index2, value == null ? "" : String.valueOf(value));
+            }
+        }
+
+        {//处理insert与update
+
+            if (sqlBuilder.indexOf("$[insert-part:") >= 0 || sqlBuilder.indexOf("$[update-part:") >= 0)
+            {
+                Pattern exceptPattern = Pattern.compile("except=\\{([a-zA-Z0-9_,\\s]*)\\}");
+                List<String> dbColumns;
+                List<String> refColumns;
+                dbColumns = new ArrayList<>();
+                refColumns = new ArrayList<>();
+                Field[] fields = WPTool.getAllFields(entityClass);
+                for (Field field : fields)
+                {
+                    String columnName = DataUtil.getTiedName(field);
+                    if (columnName != null)
+                    {
+                        dbColumns.add("`" + columnName + "`");
+                        refColumns.add("#{" + field.getName() + "}");
+                    }
+                }
+
+                while (true)
+                {
+                    String tag = "$[insert-part:";
+                    int index = sqlBuilder.indexOf(tag);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    int index2 = sqlBuilder.indexOf("]", index + 1);
+                    if (index2 == -1)
+                    {
+                        throw new InitException("expected ']' for:" + tag);
+                    }
+
+                    Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+                    String[] excepts = null;
+
+                    if (matcher.find())
+                    {
+                        excepts = StrUtil.split(matcher.group(1).trim(), ",");
+                        for (int i = 0; i < excepts.length; i++)
+                        {
+                            excepts[i] = excepts[i].trim();
+                        }
+                        Arrays.sort(excepts);
+                    }
+                    List<String> _dbColumns = dbColumns;
+                    List<String> _refColumns = refColumns;
+                    if (excepts.length > 0)
+                    {
+                        _dbColumns = new ArrayList<>();
+                        _refColumns = new ArrayList<>();
+                        for (int i = 0; i < dbColumns.size(); i++)
+                        {
+                            if (Arrays.binarySearch(excepts, dbColumns.get(i)) >= 0)
+                            {
+                                continue;
+                            }
+                            _dbColumns.add(dbColumns.get(i));
+                            _refColumns.add(refColumns.get(i));
+                        }
+                    }
+                    String insertPart = "(" + StrUtil.join(",", _dbColumns) + ") VALUES (" + StrUtil
+                            .join(",", _refColumns) + ")";
+                    sqlBuilder.replace(index, index2 + 1, insertPart);
+                }
+
+                while (true)
+                {
+
+                    String tag = "$[update-part:";
+                    int index = sqlBuilder.indexOf(tag);
+                    if (index == -1)
+                    {
+                        break;
+                    }
+                    int index2 = sqlBuilder.indexOf("]", index + 1);
+                    if (index2 == -1)
+                    {
+                        throw new InitException("expected ']' for:" + tag);
+                    }
+
+                    Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+                    String[] excepts = null;
+
+                    if (matcher.find())
+                    {
+                        excepts = StrUtil.split(matcher.group(1).trim(), ",");
+                        for (int i = 0; i < excepts.length; i++)
+                        {
+                            excepts[i] = excepts[i].trim();
+                        }
+                        Arrays.sort(excepts);
+                    }
+                    List<String> _dbColumns = dbColumns;
+                    List<String> _refColumns = refColumns;
+                    if (excepts.length > 0)
+                    {
+                        _dbColumns = new ArrayList<>();
+                        _refColumns = new ArrayList<>();
+                        for (int i = 0; i < dbColumns.size(); i++)
+                        {
+                            if (Arrays.binarySearch(excepts, dbColumns.get(i)) >= 0)
+                            {
+                                continue;
+                            }
+                            _dbColumns.add(dbColumns.get(i));
+                            _refColumns.add(refColumns.get(i));
+                        }
+                    }
+
+                    List<String> list = new ArrayList<>(_dbColumns.size());
+                    for (int i = 0; i < _dbColumns.size(); i++)
+                    {
+                        list.add(_dbColumns.get(i) + "=" + _refColumns.get(i));
+                    }
+                    String updatePart = StrUtil.join(",", list);
+                    sqlBuilder.replace(index, "$[update-part]".length(), updatePart);
+                }
+
             }
         }
 

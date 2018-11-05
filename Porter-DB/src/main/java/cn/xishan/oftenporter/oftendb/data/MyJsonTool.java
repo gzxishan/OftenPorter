@@ -88,8 +88,8 @@ public class MyJsonTool
 
         AnnotationSearch.searchPublicFields(field -> {
             field.setAccessible(true);
-            DBField DBField = AnnoUtil.getAnnotation(field,DBField.class);
-            jsonObject.put(DBField.value().equals("") ? field.getName() : DBField.value(), field.get(object));
+            DBField dbField = AnnoUtil.getAnnotation(field,DBField.class);
+            jsonObject.put(dbField.value().equals("") ? field.getName() : dbField.value(), field.get(object));
 
         },PortUtil.getRealClass( object), exceptFieldsName, DBField.class);
 
@@ -111,16 +111,10 @@ public class MyJsonTool
     {
         final JSONObject jsonObject = new JSONObject();
 
-        AnnotationSearch.searchPublicFields(new MyConsumer<Field, Exception>()
-        {
+        AnnotationSearch.searchPublicFields(field -> {
+            field.setAccessible(true);
+            jsonObject.put(field.getName(), field.get(object));
 
-            @Override
-            public void accept(Field field) throws Exception
-            {
-                field.setAccessible(true);
-                jsonObject.put(field.getName(), field.get(object));
-
-            }
         }, PortUtil.getRealClass(object), exceptFieldsName, annotations);
 
         return jsonObject;
