@@ -110,14 +110,14 @@ public class AspectHandleOfPortInUtil
         } catch (WCallException e)
         {
             throw e;
-        } catch (Exception e)
+        } catch (Throwable e)
         {
             throw new WCallException(e);
         }
     }
 
     public static final Object doHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
-            Object failedObject) throws Exception
+            Object failedObject) throws Throwable
     {
         //处理AspectFunOperation
         AspectOperationOfPortIn.Handle[] handles = funPort.getHandles();

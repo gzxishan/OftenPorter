@@ -443,7 +443,13 @@ public final class Porter
             _BindEntities.CLASS clazz = one.getEntityClazz();
             if (clazz != null)
             {
-                clazz.init();
+                try
+                {
+                    clazz.init();
+                } catch (Exception e)
+                {
+                    LOGGER.error(e.getMessage(),e);
+                }
             }
         }
     }

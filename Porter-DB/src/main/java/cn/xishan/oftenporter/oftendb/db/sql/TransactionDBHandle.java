@@ -21,9 +21,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
-public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter<TransactionDB>
+public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<TransactionDB>
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionJDBCHandle.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionDBHandle.class);
 
     private TransactionDB transactionDB;
     private String source;
@@ -86,7 +86,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     @Override
     public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked,
-            Object lastReturn) throws Throwable
+            Object lastReturn) throws Exception
     {
         IConnection iConnection = threadLocal.get().get(source);
         if (transactionDB.setSavePoint())
@@ -137,7 +137,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
         return false;
     }
 
-    private void checkCommit(Method originMethod) throws Throwable
+    private void checkCommit(Method originMethod) throws Exception
     {
         IConnection iConnection = threadLocal.get().get(transactionDB.dbSource());
 
@@ -160,7 +160,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
 
     @Override
     public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-            AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+            AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Exception
     {
         checkCommit(originMethod);
         return lastReturn;

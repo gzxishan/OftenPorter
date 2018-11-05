@@ -38,9 +38,7 @@ public interface ParamDealt
      */
 
     FailedReason deal(@MayNull WObject wObject, InNames.Name[] names, @MayNull _Nece[] neceDeals, Object[] values,
-            boolean isNecessary,
-            ParamSource paramSource,
-            TypeParserStore typeParserStore, String namePrefix);
+            boolean isNecessary,ParamSource paramSource,TypeParserStore typeParserStore, String namePrefix);
 
 
 }

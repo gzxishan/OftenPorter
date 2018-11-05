@@ -87,7 +87,7 @@ public @interface AspectOperationOfNormal
         @Override
         public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
-                Object[] args, boolean hasInvoked, Object lastReturn) throws Throwable
+                Object[] args, boolean hasInvoked, Object lastReturn) throws Exception
         {
             LOGGER.debug("not Override.");
             return false;
@@ -104,7 +104,7 @@ public @interface AspectOperationOfNormal
 
         @Override
         public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+                Invoker invoker, Object[] args, Object lastReturn) throws Exception
         {
             LOGGER.debug("not Override.");
             return lastReturn;
@@ -158,7 +158,7 @@ public @interface AspectOperationOfNormal
                 Invoker invoker,
                 Object[] args,
                 boolean hasInvoked,
-                Object lastReturn) throws Throwable;
+                Object lastReturn) throws Exception;
 
 
         Object doInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
@@ -169,7 +169,7 @@ public @interface AspectOperationOfNormal
         Object afterInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args,
-                Object lastReturn) throws Throwable;
+                Object lastReturn) throws Exception;
 
         void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Throwable throwable) throws Throwable;

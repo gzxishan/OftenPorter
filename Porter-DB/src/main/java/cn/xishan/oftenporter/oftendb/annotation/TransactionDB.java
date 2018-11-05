@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.oftendb.annotation;
 
 import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.oftendb.annotation.tx.Readonly;
-import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
+import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 
@@ -18,7 +18,7 @@ import java.lang.annotation.*;
         ElementType.TYPE, ElementType.METHOD
 })
 @Documented
-@AspectOperationOfNormal(handle = TransactionJDBCHandle.class)
+@AspectOperationOfNormal(handle = TransactionDBHandle.class)
 public @interface TransactionDB
 {
 

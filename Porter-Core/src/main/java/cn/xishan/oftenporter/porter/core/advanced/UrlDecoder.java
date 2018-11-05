@@ -50,5 +50,5 @@ public interface UrlDecoder
         void setParam(String name, Object value);
     }
 
-    Result decode(String path);
+    Result decode(String path)throws Exception;
 }

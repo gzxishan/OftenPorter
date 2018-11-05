@@ -34,7 +34,7 @@ public final class _BindEntities
             this.bindEntityDealtHandle = bindEntityDealtHandle;
         }
 
-        public void init()
+        public void init()throws Exception
         {
             if (bindEntityDealtHandle != null)
             {
@@ -50,12 +50,12 @@ public final class _BindEntities
             }
         }
 
-        public Object deal(WObject wObject, Porter porter, @NotNull Object object)
+        public Object deal(WObject wObject, Porter porter, @NotNull Object object)throws Exception
         {
             return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, porter, object);
         }
 
-        public Object deal(WObject wObject, PorterOfFun fun, @NotNull Object object)
+        public Object deal(WObject wObject, PorterOfFun fun, @NotNull Object object)throws Exception
         {
             return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, fun, object);
         }

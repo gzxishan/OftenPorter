@@ -83,7 +83,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
         private List<OPServletInitializer> servletInitializerList;
 
         public StartupServletImpl(ServletContext servletContext,
-                Set<Class<?>> servletInitializerClasses) throws Throwable
+                Set<Class<?>> servletInitializerClasses) throws Exception
         {
             super("", true);
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());

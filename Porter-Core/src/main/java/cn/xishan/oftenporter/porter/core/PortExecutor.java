@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
 import org.slf4j.Logger;
@@ -113,7 +114,7 @@ public final class PortExecutor
         return contextMap.get(contextName);
     }
 
-    public PorterOfFun getPorterOfFun(String pathWithContextName, PortMethod method)
+    public PorterOfFun getPorterOfFun(String pathWithContextName, PortMethod method) throws Exception
     {
         UrlDecoder.Result result = urlDecoder.decode(pathWithContextName);
         Context context = contextMap.get(result.contextName());
@@ -182,7 +183,16 @@ public final class PortExecutor
     public PreRequest forRequest(WRequest request, final WResponse response)
     {
         String path = request.getPath();
-        UrlDecoder.Result result = urlDecoder.decode(path);
+        UrlDecoder.Result result = null;
+        try
+        {
+            result = urlDecoder.decode(path);
+        } catch (Exception e)
+        {
+            logger(null).warn(e.getMessage(), e);
+            exDealUrl(request, response, e.getMessage(), responseWhenException);
+            return null;
+        }
         Context context;
         if (result == null || (context = contextMap.get(result.contextName())) == null || !context.isEnable)
         {
@@ -311,6 +321,18 @@ public final class PortExecutor
         close(response);
     }
 
+    private final void exDealUrl(WRequest request, WResponse response, String msg, boolean responseWhenException)
+    {
+        response.toErr();
+        if (responseWhenException)
+        {
+            JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
+            jResponse.setDescription(msg);
+            doFinalWriteOf404(request, response, jResponse);
+        }
+        close(response);
+    }
+
 
     /**
      * 用于处理对象绑定。
@@ -322,7 +344,7 @@ public final class PortExecutor
      */
     private ParamDealt.FailedReason paramDealOfPortInEntities(Context context,
             OPEntities opEntities,
-            boolean isInClass, Porter porter, PorterOfFun porterOfFun, WObjectImpl wObjectImpl)
+            boolean isInClass, Porter porter, PorterOfFun porterOfFun, WObjectImpl wObjectImpl) throws Exception
     {
         if (opEntities == null)
         {
@@ -384,12 +406,20 @@ public final class PortExecutor
             _BindEntities.CLASS clazz = one.getEntityClazz();
             if (clazz != null)
             {
-                if (isInClass)
+                try
                 {
-                    object = clazz.deal(wObjectImpl, porter, object);
-                } else
+                    if (isInClass)
+                    {
+                        object = clazz.deal(wObjectImpl, porter, object);
+                    } else
+                    {
+                        object = clazz.deal(wObjectImpl, porterOfFun, object);
+                    }
+                } catch (Exception e)
                 {
-                    object = clazz.deal(wObjectImpl, porterOfFun, object);
+                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    object = DefaultFailedReason.parseOPEntitiesException(throwable.getMessage());
+                    logger(wObjectImpl).warn(throwable.getMessage(), throwable);
                 }
 
             }
@@ -530,8 +560,15 @@ public final class PortExecutor
 
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(context, classPort.getOPEntities(), true,
-                classPort, funPort, wObject);
+        try
+        {
+            failedReason = paramDealOfPortInEntities(context, classPort.getOPEntities(), true,
+                    classPort, funPort, wObject);
+        } catch (Exception e)
+        {
+            exNotNull(wObject, funPort, wObject.getResponse(), e, responseWhenException);
+            return;
+        }
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);
@@ -636,8 +673,15 @@ public final class PortExecutor
         }
         ///////////////////////////
         //转换成类或接口对象
-        failedReason = paramDealOfPortInEntities(context, funPort.getOPEntities(), false,
-                funPort.getPorter(), funPort, wObject);
+        try
+        {
+            failedReason = paramDealOfPortInEntities(context, funPort.getOPEntities(), false,
+                    funPort.getPorter(), funPort, wObject);
+        } catch (Exception e)
+        {
+            exNotNull(wObject, funPort, wObject.getResponse(), e, responseWhenException);
+            return;
+        }
         if (failedReason != null)
         {
             exParamDeal(wObject, funPort, failedReason, responseWhenException);

@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
-import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
+import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
@@ -303,11 +303,11 @@ class MyBatisDaoGen implements AutoSetGen
                 Object rs = method.invoke(dao, args);
                 if (connectionWrap.getAutoCommit())
                 {
-                    TransactionJDBCHandle.__removeConnection__(source);
+                    TransactionDBHandle.__removeConnection__(source);
                     connectionWrap.close();
                 } else if (connectionWrap.isBridgeConnection())
                 {
-                    TransactionJDBCHandle.__removeConnection__(source);
+                    TransactionDBHandle.__removeConnection__(source);
                 }
                 return rs;
             }

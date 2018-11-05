@@ -74,7 +74,7 @@ public @interface AspectOperationOfPortIn
         }
 
         @Override
-        public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+        public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
             LOGGER.debug("default invoke.");
             return porterOfFun.invokeByHandleArgs(wObject, lastReturn);
@@ -187,7 +187,7 @@ public @interface AspectOperationOfPortIn
          * @return
          * @throws Exception
          */
-        Object invoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Exception;
+        Object invoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Throwable;
 
 
         /**
@@ -196,7 +196,7 @@ public @interface AspectOperationOfPortIn
          * @param wObject
          * @param porterOfFun
          */
-        void afterInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn);
+        void afterInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)throws Exception;
 
 
         /**
@@ -206,7 +206,7 @@ public @interface AspectOperationOfPortIn
          * @param porterOfFun
          */
         void onFinal(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn,
-                @MayNull Object failedObject);
+                @MayNull Object failedObject)throws Exception;
 
         /**
          * 修改类或函数的输出类型。

@@ -7,9 +7,11 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  */
 public interface DefaultReturnFactory
 {
-    Object getVoidReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod);
+    Object getVoidReturn(WObject wObject, Object finalPorterObject, Object handleObject,
+            Object handleMethod) throws Exception;
 
-    Object getNullReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod);
+    Object getNullReturn(WObject wObject, Object finalPorterObject, Object handleObject,
+            Object handleMethod) throws Exception;
 
     Object getExReturn(WObject wObject, Object finalPorterObject, Object handleObject, Object handleMethod,
             Throwable throwable) throws Throwable;

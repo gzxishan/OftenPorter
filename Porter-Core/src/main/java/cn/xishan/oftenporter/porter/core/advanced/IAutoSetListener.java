@@ -36,5 +36,5 @@ public interface IAutoSetListener
      * @return null或Will.willSet为true表示进行设置，否则表示不进行设置（有一个不设置则最终不会进行设置,会继续执行后面的监听对象）。
      */
     Will willSet(_AutoSet autoSet, Class currentClass, @MayNull Object currentObject, Field field,
-            Class realFieldType, @NotNull Will lastWill);
+            Class realFieldType, @NotNull Will lastWill)throws Exception;
 }

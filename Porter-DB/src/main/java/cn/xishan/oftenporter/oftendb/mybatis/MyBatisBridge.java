@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.db.DBException;
-import cn.xishan.oftenporter.oftendb.db.sql.TransactionJDBCHandle;
+import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -159,7 +159,7 @@ public class MyBatisBridge
     @KeepFromProguard
     static ConnectionWrap __openSession(String source)
     {
-        ConnectionWrap connection = (ConnectionWrap) TransactionJDBCHandle.__getConnection__(source);
+        ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
         if (connection != null)
         {
             return connection;
@@ -195,7 +195,7 @@ public class MyBatisBridge
         }
         ConnectionWrap connection = new ConnectionWrap(sqlSession, iConnectionBridge, bridgeConnection);
 
-        TransactionJDBCHandle.__setConnection__(source, connection);
+        TransactionDBHandle.__setConnection__(source, connection);
 
         return connection;
     }

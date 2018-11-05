@@ -37,7 +37,7 @@ public @interface BindEntityDealt
          * @param option
          * @param method 对应的接口函数
          */
-        void init(String option, Method method);
+        void init(String option, Method method)throws Exception;
 
         /**
          * 初始化,在接口开始({@linkplain PortIn.PortStart})前调用。
@@ -45,7 +45,7 @@ public @interface BindEntityDealt
          * @param option
          * @param clazz 对应的接口类
          */
-        void init(String option, Class<?> clazz);
+        void init(String option, Class<?> clazz)throws Exception;
 
         /**
          * 可以返回{@linkplain ParamDealt.FailedReason}.
@@ -54,7 +54,7 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(WObject wObject, Porter porter, @NotNull T object);
+        Object deal(WObject wObject, Porter porter, @NotNull T object)throws Exception;
 
         /**
          * * 可以返回{@linkplain ParamDealt.FailedReason}.
@@ -63,7 +63,7 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(WObject wObject, PorterOfFun fun, @NotNull T object);
+        Object deal(WObject wObject, PorterOfFun fun, @NotNull T object)throws Exception;
     }
 
     /**

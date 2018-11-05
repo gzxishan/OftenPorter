@@ -81,5 +81,5 @@ public abstract class StartupServlet extends OPServlet
         isStarted = true;
     }
 
-    public abstract void onStart()throws Throwable;
+    public abstract void onStart()throws Exception;
 }

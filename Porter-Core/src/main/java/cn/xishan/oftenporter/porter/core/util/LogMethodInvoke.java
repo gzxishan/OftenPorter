@@ -50,7 +50,7 @@ public @interface LogMethodInvoke
 
         @Override
         public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
-                AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+                AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Exception
         {
             if (LOGGER.isDebugEnabled())
             {
