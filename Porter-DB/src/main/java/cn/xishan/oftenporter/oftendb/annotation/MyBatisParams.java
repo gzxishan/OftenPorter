@@ -23,17 +23,17 @@ import java.lang.annotation.*;
  * &#60;!--$json:JsonString--&#62;:表示导入配置,会覆盖之前的同名参数
  * </li>
  * <li>
- * &#60;!--$enable:varName--&#62;...&#60;!--$enable-end:varName--&#62;:表示是否启用代码块，当varName为逻辑假时或varName为空时、中间的代码会被移除
+ * &#60;!--$enable:varName--&#62;...&#60;!--$enable-end:varName--&#62;:表示是否启用代码块，当varName为逻辑假时、中间的代码会被移除
  * </li>
  * <li>
- * varName判断为真或假的方式：1）为逻辑假的情况，变量本身为false、空字符串(trim后的)、null、空数组、空集合、空Map、数字0、字符0、字符串0；2）其余情况为真。
+ * 判断varName变量为真或假的方式：1）为逻辑假的情况，变量名为空,变量本身为false、空字符串(trim后的)、null、空数组、空集合、空Map、数字0、字符0、字符串0；2）其余情况为真。
  * </li>
  * <li>
  * <strong>默认参数:</strong>
  * <ul>
  * <li>如果设置了{@linkplain MyBatisMapper#entityClass()},$[entity]为当前实体类简单名称(如User)，$[entityClass]为当前实体类名(如cn.xishan.xxx
  * .entity.User)</li>
- * <li>$[mapperDao]为当前接口类简单名称，$[mapperDaoClass]为当前接口类类名</li>
+ * <li>$[mapperDao]为当前接口简单名称，$[mapperDaoClass]为当前接口类名</li>
  * </ul>
  * </li>
  * <li>

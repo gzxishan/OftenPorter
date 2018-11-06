@@ -140,8 +140,13 @@ class _MyBatis
         }
     }
 
-    private boolean isTRUE(Object object)
+    private boolean isTRUE(Map<String, Object> _localParams, String varName)
     {
+        if (varName.trim().equals(""))
+        {
+            return false;
+        }
+        Object object = _localParams.get(varName);
         boolean is = true;
         if (WPTool.isEmpty(object))
         {
@@ -359,7 +364,7 @@ class _MyBatis
                 }
 
                 sqlBuilder.delete(endStart, endEnd);//删除结束标记
-                if (WPTool.isEmpty(varName) || !isTRUE(_localParams.get(varName)))
+                if (!isTRUE(_localParams, varName))
                 {
                     sqlBuilder.delete(startEnd, endStart);//删除中间内容
                 }
