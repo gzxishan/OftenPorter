@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
-import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
 import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities.CLASS;
 import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.InNames;

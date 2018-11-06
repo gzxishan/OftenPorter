@@ -378,6 +378,10 @@ public final class PortExecutor
         if (one != null)
         {
             Object value = wObject.getParamSource().getParam(key);
+            if (value == null)
+            {
+                value = wObject.getParamSource().getParam(one.clazz.getName());
+            }
             if (value != null && WPTool.isAssignable(value.getClass(), one.clazz))
             {
                 return value;//如果获取的变量是相应类型，直接返回。
