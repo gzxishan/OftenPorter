@@ -11,19 +11,22 @@ import java.lang.annotation.*;
  * </p>
  * <ol>
  * <li>
- * &#60;!--$classpath:path[!JsonString]--&#62;表示导入包内path资源内容,相对于对应的Dao的类路径(utf8编码),会覆盖之前的同名参数
+ * &#60;!--$classpath:path[!JsonString]--&#62;:表示导入包内path资源内容,相对于对应的Dao的类路径(utf8编码),会覆盖之前的同名参数
  * </li>
  * <li>
- * &#60;!--$path:path[!JsonString]--&#62;表示导入包内path资源内容,相对于当前mapper的路径(utf8编码),会覆盖之前的同名参数
+ * &#60;!--$path:path[!JsonString]--&#62;:表示导入包内path资源内容,相对于当前mapper的路径(utf8编码),会覆盖之前的同名参数
  * </li>
  * <li>
- * &#60;!--$file:path[!JsonString]--&#62;表示导入path文件内容(utf8编码),会覆盖之前的同名参数
+ * &#60;!--$file:path[!JsonString]--&#62;:表示导入path文件内容(utf8编码),会覆盖之前的同名参数
  * </li>
  * <li>
- * &#60;!--$json:JsonString--&#62;表示导入配置,会覆盖之前的同名参数
+ * &#60;!--$json:JsonString--&#62;:表示导入配置,会覆盖之前的同名参数
  * </li>
  * <li>
- * value为json格式的字符串{key:value}.
+ * &#60;!--$enable:varName--&#62;...&#60;!--$enable-end:varName--&#62;:表示是否启用代码块，当varName为逻辑假时或varName为空时、中间的代码会被移除
+ * </li>
+ * <li>
+ * varName判断为真或假的方式：1）为逻辑假的情况，变量本身为false、空字符串(trim后的)、null、空数组、空集合、空Map、数字0、字符0、字符串0；2）其余情况为真。
  * </li>
  * <li>
  * <strong>默认参数:</strong>

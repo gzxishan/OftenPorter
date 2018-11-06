@@ -140,6 +140,26 @@ class _MyBatis
         }
     }
 
+    private boolean isTRUE(Object object)
+    {
+        boolean is = true;
+        if (WPTool.isEmpty(object))
+        {
+            is = false;
+        } else if (object instanceof Boolean)
+        {
+            is = (Boolean) object;
+        } else if (object instanceof Number)
+        {
+            is = ((Number) object).doubleValue() != 0;
+        } else if (object instanceof CharSequence || object instanceof Character)
+        {
+            String str = String.valueOf(object).trim();
+            is = !"".equals(str) && !"0".equals(str);
+        }
+        return is;
+    }
+
     public String replaceSqlParams(String _sql) throws Exception
     {
         StringBuilder sqlBuilder = new StringBuilder(_sql);
@@ -304,8 +324,51 @@ class _MyBatis
             }
         }
 
-        Pattern VAR_PATTERN = Pattern.compile("\\$\\[([a-zA-Z0-9\\-_$]+)\\]");
+        {//处理$enable
+            String keyPrefix = "<!--$enable:";
+            String keySuffix = "-->";
+            while (true)
+            {
+                int startStart = sqlBuilder.indexOf(keyPrefix);
+                if (startStart == -1)
+                {
+                    break;
+                }
+                int startEnd = sqlBuilder.indexOf(keySuffix, startStart + keyPrefix.length());
+                if (startEnd == -1)
+                {
+                    throw new InitException("expected '-->' for:" + keyPrefix);
+                }
+                String varName = sqlBuilder.substring(startStart + keyPrefix.length(), startEnd).trim();
+                startEnd += keySuffix.length();
+
+                Pattern pattern = Pattern.compile("<!--\\$enable-end:\\s*" + varName + "\\s*-->");
+                Matcher matcher = pattern.matcher(sqlBuilder);
+                int endStart, endEnd;
+                if (!matcher.find())
+                {
+                    endStart = matcher.start();
+                    endEnd = matcher.end();
+                    if (endStart <= startEnd)
+                    {
+                        throw new InitException("illegal position:<!--$enable-end:" + varName + "-->");
+                    }
+                } else
+                {
+                    throw new InitException("expected:<!--$enable-end:" + varName + "-->");
+                }
+
+                sqlBuilder.delete(endStart, endEnd);//删除结束标记
+                if (WPTool.isEmpty(varName) || !isTRUE(_localParams.get(varName)))
+                {
+                    sqlBuilder.delete(startEnd, endStart);//删除中间内容
+                }
+                sqlBuilder.delete(startStart, startEnd);//删除开始标记
+            }
+        }
+
         {//$[varName]变量处理,不存在的替换成空字符串
+            Pattern VAR_PATTERN = Pattern.compile("\\$\\[([a-zA-Z0-9\\-_$]+)\\]");
             while (true)
             {
                 Matcher matcher = VAR_PATTERN.matcher(sqlBuilder);
@@ -438,7 +501,7 @@ class _MyBatis
                         list.add(_dbColumns.get(i) + "=" + _refColumns.get(i));
                     }
                     String updatePart = StrUtil.join(",", list);
-                    sqlBuilder.replace(index, "$[update-part]".length(), updatePart);
+                    sqlBuilder.replace(index, index2 + 1, updatePart);
                 }
 
             }

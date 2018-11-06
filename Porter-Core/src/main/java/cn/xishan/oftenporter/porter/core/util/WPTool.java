@@ -48,12 +48,24 @@ public class WPTool
      */
     public static boolean isEmpty(Object object)
     {
-        boolean rs = object == null
-                || (object instanceof CharSequence) && "".equals(String.valueOf(object))
-                || (object instanceof Collection && ((Collection<?>) object).isEmpty())
-                || (object instanceof Map && ((Map<?, ?>) object).isEmpty())
-                || (object.getClass().isArray() && Array.getLength(object) == 0);
-        return rs;
+        boolean is = false;
+        if (object == null)
+        {
+            is = true;
+        } else if (object instanceof CharSequence)
+        {
+            is = "".equals(String.valueOf(object));
+        } else if (object instanceof Collection)
+        {
+            is = ((Collection<?>) object).isEmpty();
+        } else if (object instanceof Map)
+        {
+            is = ((Map<?, ?>) object).isEmpty();
+        } else if (object.getClass().isArray())
+        {
+            is = Array.getLength(object) == 0;
+        }
+        return is;
     }
 
     /**
@@ -380,7 +392,7 @@ public class WPTool
             msg = cause.toString();
         }
         StackTraceElement[] elements = cause.getStackTrace();
-        return msg + " " + LogUtil.toString(elements.length>0?elements[0]:null);
+        return msg + " " + LogUtil.toString(elements.length > 0 ? elements[0] : null);
     }
 
     public static Throwable getCause(Throwable throwable)
