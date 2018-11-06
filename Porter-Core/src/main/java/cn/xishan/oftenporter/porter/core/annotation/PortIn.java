@@ -26,7 +26,7 @@ import java.lang.annotation.*;
  * 返回值见{@linkplain PortOut}
  * </li>
  * <li>
- * <strong>参数的参数：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
+ * <strong>声明参数的配置选项：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
  * </li>
  * <li>
  * 参数处理见:{@linkplain Parse},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等

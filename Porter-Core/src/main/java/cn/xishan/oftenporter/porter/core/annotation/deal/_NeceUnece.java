@@ -6,7 +6,6 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 public class _NeceUnece
 {
     String varName;
-    Object defaultValue;
 
     public _NeceUnece()
     {
@@ -17,19 +16,10 @@ public class _NeceUnece
         this.varName = varName;
     }
 
-    public _NeceUnece(String varName, Object defaultValue)
-    {
-        this.varName = varName;
-        this.defaultValue = defaultValue;
-    }
 
     public String getVarName()
     {
         return varName;
     }
 
-    public Object getDefaultValue()
-    {
-        return defaultValue;
-    }
 }

@@ -27,6 +27,8 @@ public class InNames
          */
         public String typeParserId;
 
+        private String defaultValue;
+
         private ITypeParserOption parserOption;
         private Object dealt;
 
@@ -60,15 +62,31 @@ public class InNames
                 {
                     this.parserOption = () -> varConfig;
                 }
-                varName = varName.substring(0, index1);
+                varName = varName.substring(0, index1) + varName.substring(index2 + 1);
             } else
             {
                 this.parserOption = NULL_TYPE_PARSER_OPTION;
             }
 
-            this.varName = varName;
+            {//默认值
+                index1 = varName.indexOf('[');
+                index2 = varName.lastIndexOf(']');
+                if (index1 != -1 || index2 != -1)
+                {
+                    if (index1 == -1 || index2 == -1 || index1 > index2)
+                    {
+                        throw new InitException("var name default value error:" + varName);
+                    }
+                    this.defaultValue = varName.substring(index1 + 1, index2).trim();
+                    varName = varName.substring(0, index1);
+                }
+            }
+            this.varName = varName.trim();
+        }
 
-
+        public String getDefaultValue()
+        {
+            return defaultValue;
         }
 
         public <D> D getDealt()
