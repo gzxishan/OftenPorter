@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
+import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities.CLASS;
 import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 
@@ -11,8 +12,11 @@ import java.lang.reflect.Field;
  */
 public class One
 {
+    /**
+     * 等于{@linkplain CLASS#clazz}
+     */
     public final Class<?> clazz;
-    private _BindEntities.CLASS entityClazz;
+    private CLASS entityClazz;
     /**
      * {@linkplain InNames#inner}无效。
      */
@@ -38,12 +42,12 @@ public class One
         this.jsonObjVarnames = jsonObjVarnames;
     }
 
-    public _BindEntities.CLASS getEntityClazz()
+    public CLASS getEntityClazz()
     {
         return entityClazz;
     }
 
-    public void setEntityClazz(_BindEntities.CLASS entityClazz)
+    public void setEntityClazz(CLASS entityClazz)
     {
         this.entityClazz = entityClazz;
     }

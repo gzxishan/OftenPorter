@@ -377,6 +377,12 @@ public final class PortExecutor
         One one = extraEntityOneMap.get(key);
         if (one != null)
         {
+            Object value = wObject.getParamSource().getParam(key);
+            if (value != null && WPTool.isAssignable(value.getClass(), one.clazz))
+            {
+                return value;//如果获取的变量是相应类型，直接返回。
+            }
+
             PorterOfFun porterOfFun = wObject.porterOfFun;
             Object object = paramDealOfOne(wObject.context, false, porterOfFun.getPorter(), porterOfFun, wObject, one);
             if (object instanceof ParamDealt.FailedReason)
