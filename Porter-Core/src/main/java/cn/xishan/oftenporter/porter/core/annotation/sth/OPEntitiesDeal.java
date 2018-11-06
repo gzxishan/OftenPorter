@@ -153,20 +153,20 @@ public class OPEntitiesDeal
             _Unece unNece;
             if (nece != null)
             {
-                nameStr = nece.getValue();
+                nameStr = nece.getVarName();
                 nameList = neceNames;
                 neceDeals.add(nece);
                 fieldList = neces;
             } else if ((unNece = annotationDealt.unNece(field)) != null)
             {
-                nameStr = unNece.getValue();
+                nameStr = unNece.getVarName();
                 nameList = unneceNames;
                 fieldList = unneces;
             }
 
             if (nameList != null)
             {
-                name = new Name(nameStr, backableSeek.getTypeId(nameStr));
+                name = new Name(nameStr, backableSeek);
                 _Parse[] parses = annotationDealt.parses(field);
                 if (parses.length > 0)
                 {
@@ -207,8 +207,7 @@ public class OPEntitiesDeal
     }
 
     public static Name getName(String nameStr, Class<?> type, TypeParserStore typeParserStore,
-            boolean notFoundThrows) throws
-            ClassNotFoundException
+            boolean notFoundThrows) throws ClassNotFoundException
     {
         Class<? extends ITypeParser> typeParser = ParserUtil.getTypeParser(type, notFoundThrows);
         String typeId = null;

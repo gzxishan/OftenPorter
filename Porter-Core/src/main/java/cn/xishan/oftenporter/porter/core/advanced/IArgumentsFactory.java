@@ -10,6 +10,9 @@ import java.lang.reflect.Method;
 
 /**
  * <p>
+ *     porter函数的形参处理。
+ * </p>
+ * <p>
  * 支持的注解：{@linkplain Nece},{@linkplain Unece}
  * </p>
  * <p>

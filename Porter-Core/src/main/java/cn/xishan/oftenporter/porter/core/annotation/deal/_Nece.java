@@ -8,9 +8,8 @@ import java.util.Arrays;
 /**
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public final class _Nece
+public final class _Nece extends _NeceUnece
 {
-    String value;
 
     PortMethod[] forMethods;
     String[] forClassTieds;
@@ -46,11 +45,6 @@ public final class _Nece
             return false;
         }
 
-    }
-
-    public String getValue()
-    {
-        return value;
     }
 
     public boolean isToUnece()

@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.sysset;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.FunParam;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
 /**
@@ -11,7 +12,8 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * </pre>
  * Created by chenyg on 2017-04-26.
  */
-public interface SyncPorter {
+public interface SyncPorter
+{
     <T> T request(@MayNull WObject wObject);
 
     <T> T request(@MayNull WObject wObject, AppValues appValues);
@@ -23,6 +25,17 @@ public interface SyncPorter {
      * @return
      */
     <T> T requestSimple(@MayNull WObject wObject, Object... nameValues);
+
+    /**
+     * 等同于 requestSimple(wObject,objects[0].getClass().getName(),objects[0],FunParam.getName(),FunParam.getValue(),...)。
+     * 另见:{@linkplain FunParam}.
+     *
+     * @param wObject
+     * @param objects
+     * @param <T>
+     * @return
+     */
+    <T> T invokeWithObjects(@MayNull WObject wObject, Object... objects);
 
     <T> T requestWNull();
 

@@ -292,10 +292,10 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 }
                 if (nece != null)
                 {
-                    name = nece.getValue();
+                    name = nece.getVarName();
                 } else if (unece != null)
                 {
-                    name = unece.getValue();
+                    name = unece.getVarName();
                 } else
                 {
                     name = paramName;

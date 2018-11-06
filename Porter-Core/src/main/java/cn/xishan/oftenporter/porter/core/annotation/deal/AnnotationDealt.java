@@ -62,7 +62,7 @@ public final class AnnotationDealt
         startMap = new HashMap<>();
     }
 
-    public _SyncPorterOption syncPorterOption(Field field,PorterParamGetterImpl porterParamGetter)
+    public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter)
 
     {
         SyncPorterOption option = AnnoUtil.getAnnotation(field, SyncPorterOption.class);
@@ -173,13 +173,13 @@ public final class AnnotationDealt
         _Nece _nece = new _Nece();
         if (WPTool.isEmptyOfAll(nece.value(), nece.varName()))
         {
-            _nece.value = fieldName;
+            _nece.varName = fieldName;
         } else if (WPTool.notNullAndEmpty(nece.value()))
         {
-            _nece.value = nece.value();
+            _nece.varName = nece.value();
         } else
         {
-            _nece.value = nece.varName();
+            _nece.varName = nece.varName();
         }
         _nece.toUnece = nece.toUnece();
         _nece.forMethods = nece.forMethods();
@@ -210,13 +210,13 @@ public final class AnnotationDealt
 
         if (WPTool.isEmptyOfAll(unece.value(), unece.varName()))
         {
-            _unece.value = fieldName;
+            _unece.varName = fieldName;
         } else if (WPTool.notNullAndEmpty(unece.value()))
         {
-            _unece.value = unece.value();
+            _unece.varName = unece.value();
         } else
         {
-            _unece.value = unece.varName();
+            _unece.varName = unece.varName();
         }
         return _unece;
     }
@@ -315,6 +315,28 @@ public final class AnnotationDealt
         _BindEntities _bindEntities = new _BindEntities();
         _bindEntities.value = classes;
         return _bindEntities;
+    }
+
+    public _BindEntities bindEntity(Class<?> entityClass, Class clazz, Method method)
+    {
+        _BindEntities _bindEntities1 = clazz == null ? null : bindEntities(clazz);
+        _BindEntities _bindEntities2 = method == null ? null : bindEntities(entityClass, method);
+
+        Set<_BindEntities.CLASS> set = new HashSet<>();
+
+        if (_bindEntities1 != null)
+        {
+            WPTool.addAll(set, _bindEntities1.value);
+        }
+
+        if (_bindEntities2 != null)
+        {
+            WPTool.addAll(set, _bindEntities2.value);
+        }
+
+        _BindEntities bindEntities = new _BindEntities();
+        bindEntities.value = set.toArray(new _BindEntities.CLASS[0]);
+        return bindEntities;
     }
 
     public _BindEntities bindEntity(Class<?> entityClass, Method method)

@@ -127,7 +127,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
     public abstract <T> T centity(int index);
 
     /**
-     * 见{@linkplain IExtraEntitySupport}
+     * 见{@linkplain IExtraEntitySupport},对于porter函数的形参、会以key和类名进行获取。
      *
      * @param key
      * @param <T>

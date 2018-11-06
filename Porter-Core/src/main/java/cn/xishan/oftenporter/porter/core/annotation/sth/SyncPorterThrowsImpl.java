@@ -9,12 +9,16 @@ import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
 import cn.xishan.oftenporter.porter.core.sysset.SyncPorterThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by chenyg on 2018-03-02.
  */
 class SyncPorterThrowsImpl implements SyncPorterThrows
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SyncPorterThrowsImpl.class);
+
     private SyncPorterImpl syncPorter;
     @AutoSet
     private Delivery delivery;
@@ -56,7 +60,7 @@ class SyncPorterThrowsImpl implements SyncPorterThrows
                     throw throwable;
                 } catch (Throwable e)
                 {
-                    e.printStackTrace();
+                    LOGGER.error(e.getMessage(),e);
                 }
             }
             throw new WCallException((JResponse) t);
@@ -84,6 +88,13 @@ class SyncPorterThrowsImpl implements SyncPorterThrows
     public <T> T requestSimple(WObject wObject, Object... nameValues)
     {
         T t = syncPorter.requestSimple(wObject, nameValues);
+        return deal(t);
+    }
+
+    @Override
+    public <T> T invokeWithObjects(WObject wObject, Object... objects)
+    {
+        T t = syncPorter.invokeWithObjects(wObject, objects);
         return deal(t);
     }
 

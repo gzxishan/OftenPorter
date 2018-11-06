@@ -200,8 +200,7 @@ class SthUtil
 
     }
 
-    static String putTypeParser(Class<? extends ITypeParser> clazz,
-            TypeParserStore typeParserStore)
+    static String putTypeParser(Class<? extends ITypeParser> clazz,TypeParserStore typeParserStore)
     {
         ITypeParser typeParser;
         try

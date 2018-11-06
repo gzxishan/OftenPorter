@@ -34,7 +34,7 @@ public final class _BindEntities
             this.bindEntityDealtHandle = bindEntityDealtHandle;
         }
 
-        public void init()throws Exception
+        public void init() throws Exception
         {
             if (bindEntityDealtHandle != null)
             {
@@ -50,12 +50,37 @@ public final class _BindEntities
             }
         }
 
-        public Object deal(WObject wObject, Porter porter, @NotNull Object object)throws Exception
+        @Override
+        public int hashCode()
+        {
+            return clazz.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj instanceof CLASS)
+            {
+                CLASS clazz = (CLASS) obj;
+                if (method != null)
+                {
+                    return method.equals(clazz.method);
+                } else
+                {
+                    return this.clazz.equals(clazz.clazz);
+                }
+            } else
+            {
+                return false;
+            }
+        }
+
+        public Object deal(WObject wObject, Porter porter, @NotNull Object object) throws Exception
         {
             return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, porter, object);
         }
 
-        public Object deal(WObject wObject, PorterOfFun fun, @NotNull Object object)throws Exception
+        public Object deal(WObject wObject, PorterOfFun fun, @NotNull Object object) throws Exception
         {
             return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, fun, object);
         }

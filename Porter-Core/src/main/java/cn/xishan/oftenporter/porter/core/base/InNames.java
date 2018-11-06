@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.core.advanced.BackableSeek;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
@@ -29,7 +30,19 @@ public class InNames
         private ITypeParserOption parserOption;
         private Object dealt;
 
-        public Name(String varName, String typeParserId)
+        public Name(String varNameWithConfig, BackableSeek backableSeek)
+        {
+            this(varNameWithConfig);
+            this.typeParserId = backableSeek.getTypeId(varName);
+        }
+
+        public Name(String varName, String typeId)
+        {
+            this(varName);
+            this.typeParserId = typeId;
+        }
+
+        public Name(String varName)
         {
             int index1 = varName.indexOf('(');
             int index2 = varName.lastIndexOf(')');
@@ -54,10 +67,8 @@ public class InNames
             }
 
             this.varName = varName;
-            if (typeParserId != null)
-            {
-                this.typeParserId = typeParserId;
-            }
+
+
         }
 
         public <D> D getDealt()
@@ -129,7 +140,7 @@ public class InNames
         Name[] names = new Name[strs.length];
         for (int i = 0; i < names.length; i++)
         {
-            names[i] = new Name(strs[i], null);
+            names[i] = new Name(strs[i]);
         }
         return names;
     }

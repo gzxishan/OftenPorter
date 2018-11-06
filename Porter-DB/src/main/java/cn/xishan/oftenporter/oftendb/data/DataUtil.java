@@ -7,6 +7,8 @@ import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
 import cn.xishan.oftenporter.oftendb.db.NameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
+import cn.xishan.oftenporter.porter.core.annotation.deal._NeceUnece;
 import cn.xishan.oftenporter.porter.core.annotation.param.*;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class DataUtil
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
+    private static final AnnotationDealt ANNOTATION_DEALT = AnnotationDealt.newInstance(true);
 
     /**
      * 见{@linkplain #toNameValues(Object, boolean, boolean, String...)}
@@ -60,8 +63,9 @@ public class DataUtil
     private static boolean isJsonFieldOrJson(Object object, Field field,
             NameValues nameValues) throws IllegalAccessException
     {
-        JsonObj jsonObj = AnnoUtil.getAnnotation(field,JsonObj.class);
-        if(jsonObj!=null){
+        JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
+        if (jsonObj != null)
+        {
             String name = jsonObj.value();
             if (name.equals(""))
             {
@@ -77,7 +81,8 @@ public class DataUtil
         }
 
         JsonField jsonField = AnnoUtil.getAnnotation(field, JsonField.class);
-        if(jsonField!=null){
+        if (jsonField != null)
+        {
             String name = jsonField.value();
             if (name.equals(""))
             {
@@ -92,8 +97,9 @@ public class DataUtil
             return true;
         }
 
-        JSONSerialize jsonSerialize=AnnoUtil.getAnnotation(field, JSONSerialize.class);
-        if(jsonSerialize!=null){
+        JSONSerialize jsonSerialize = AnnoUtil.getAnnotation(field, JSONSerialize.class);
+        if (jsonSerialize != null)
+        {
             String name = jsonSerialize.value();
             if (name.equals(""))
             {
@@ -190,34 +196,46 @@ public class DataUtil
             return null;
         }
         field.setAccessible(true);
-        String name = null;
-        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
-        if (nece != null)
+
+        _NeceUnece neceUnece = null;
+
+        neceUnece = ANNOTATION_DEALT.nece(field);
+        if (neceUnece == null)
         {
-            name = PortUtil.tied(nece, field, true);
-        } else
-        {
-            Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
-            if (unece != null)
-            {
-                name = PortUtil.tied(unece, field, true);
-            }
+            neceUnece = ANNOTATION_DEALT.unNece(field);
         }
-        if (name == null)
+
+//        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
+//        if (nece != null)
+//        {
+//            name = PortUtil.tied(nece, field, true);
+//        } else
+//        {
+//            Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
+//            if (unece != null)
+//            {
+//                name = PortUtil.tied(unece, field, true);
+//            }
+//        }
+        if (neceUnece == null)
         {
             DBField dbField = AnnoUtil.getAnnotation(field, DBField.class);
             if (dbField != null)
             {
+                String name;
                 name = field.getName();
                 if (!dbField.value().equals(""))
                 {
                     name = dbField.value();
                 }
+                neceUnece = new _NeceUnece(name);
             }
         }
 
-        if (name != null)
+        String name = null;
+        if (neceUnece != null)
         {
+            name = neceUnece.getVarName();
             int index = name.indexOf('(');
             if (index >= 0)//去除参数。
             {

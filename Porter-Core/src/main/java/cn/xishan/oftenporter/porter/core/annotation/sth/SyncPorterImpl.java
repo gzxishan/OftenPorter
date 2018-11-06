@@ -6,75 +6,116 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by chenyg on 2017-04-26.
  */
-class SyncPorterImpl implements SyncNotInnerPorter {
+class SyncPorterImpl implements SyncNotInnerPorter
+{
     @AutoSet
     Delivery delivery;
     boolean isInner;
 
     private _SyncPorterOption syncPorterOption;
 
-    private static class Temp {
+    private static class Temp
+    {
         Object rs = null;
     }
 
     @AutoSet.SetOk(priority = Integer.MAX_VALUE)
-    public void setOk() {
+    public void setOk()
+    {
         syncPorterOption.setOk();
     }
 
-    public SyncPorterImpl(_SyncPorterOption syncPorterOption,boolean isInner) {
+    public SyncPorterImpl(_SyncPorterOption syncPorterOption, boolean isInner)
+    {
         this.syncPorterOption = syncPorterOption;
-        this.isInner=isInner;
+        this.isInner = isInner;
     }
 
     @Override
-    public <T> T request(WObject wObject) {
+    public <T> T request(WObject wObject)
+    {
         return request(wObject, null);
     }
 
     @Override
-    public <T> T request(WObject wObject, AppValues appValues) {
+    public <T> T request(WObject wObject, AppValues appValues)
+    {
         PRequest request;
-        if (wObject == null) {
-            request = new PRequest(null,syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
-        } else {
+        if (wObject == null)
+        {
+            request = new PRequest(null, syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
+        } else
+        {
             request = new PRequest(wObject, syncPorterOption.getPathWithContext());
             request.setMethod(syncPorterOption.getMethod());
         }
 
         request.addParamAll(appValues);
         Temp temp = new Temp();
-        if(isInner){
+        if (isInner)
+        {
             delivery.innerBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
-        }else{
+        } else
+        {
             delivery.currentBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
         }
         return (T) temp.rs;
     }
 
     @Override
-    public <T> T requestSimple(WObject wObject, Object... nameValues) {
+    public <T> T requestSimple(WObject wObject, Object... nameValues)
+    {
         AppValues appValues = SimpleAppValues.fromArray(nameValues);
         return request(wObject, appValues);
     }
 
     @Override
-    public <T> T requestWNull() {
+    public <T> T invokeWithObjects(WObject wObject, Object... objects)
+    {
+        List<Object> list = new ArrayList<>();
+        for (Object obj : objects)
+        {
+            if(obj instanceof FunParam){
+                FunParam funParam = (FunParam) obj;
+                if(WPTool.isEmpty(funParam.getName())){
+                    throw new NullPointerException("empty FunParam name!");
+                }
+                list.add(funParam.getName());
+                list.add(funParam.getValue());
+            }
+            else if (obj != null)
+            {
+                list.add(obj.getClass().getName());
+                list.add(obj);
+            }
+        }
+        return requestSimple(wObject, list.toArray(new Object[0]));
+    }
+
+    @Override
+    public <T> T requestWNull()
+    {
         return request(null, null);
     }
 
     @Override
-    public <T> T requestWNull(AppValues appValues) {
+    public <T> T requestWNull(AppValues appValues)
+    {
         return request(null, appValues);
     }
 
     @Override
-    public <T> T requestWNullSimple(Object... nameValues) {
+    public <T> T requestWNullSimple(Object... nameValues)
+    {
         AppValues appValues = SimpleAppValues.fromArray(nameValues);
         return request(null, appValues);
     }
