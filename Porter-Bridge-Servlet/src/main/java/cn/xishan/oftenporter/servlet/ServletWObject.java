@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 
 /**
- * 可用于{@linkplain SyncPorter SyncPorter}
+ * 可用于{@linkplain PorterSync PorterSync}
  *
  * @author Created by https://github.com/CLovinr on 2017/6/9.
  */

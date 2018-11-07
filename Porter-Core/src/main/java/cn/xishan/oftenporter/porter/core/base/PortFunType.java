@@ -4,9 +4,9 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorterThrows;
+import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
+import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
 
 /**
  * 用于与{@linkplain PortIn PortIn}进行配合。
@@ -20,8 +20,8 @@ public enum PortFunType
     DEFAULT,
     /**
      * <p>
-     * 只能在{@linkplain SyncPorter SyncPorter}、{@linkplain SyncPorterThrows SyncPorterThrows
-     * }、{@linkplain SyncNotInnerPorter SyncNotInnerPorter}、
+     * 只能在{@linkplain PorterSync PorterSync}、{@linkplain PorterThrowsSync PorterThrowsSync
+     * }、{@linkplain PorterNotInnerSync PorterNotInnerSync}、
      * {@linkplain Delivery#currentBridge() Delivery.currentBridge()}、{@linkplain Delivery#innerBridge() Delivery.innerBridge()}中调用。
      *
      * </p>
@@ -30,7 +30,7 @@ public enum PortFunType
 
     /**
      * <p>
-     * 只能在{@linkplain SyncPorter SyncPorter}、{@linkplain SyncNotInnerPorter SyncNotInnerPorter}、
+     * 只能在{@linkplain PorterSync PorterSync}、{@linkplain PorterNotInnerSync PorterNotInnerSync}、
      * {@linkplain Delivery#currentBridge() Delivery.currentBridge()}、{@linkplain Delivery#innerBridge() Delivery.innerBridge()}中调用，且不会进行类参数处理、检测处理等，找到绑定后直接调用。
      * </p>
      * <p>

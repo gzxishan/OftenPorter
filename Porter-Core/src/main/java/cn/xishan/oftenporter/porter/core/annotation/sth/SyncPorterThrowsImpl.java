@@ -7,15 +7,14 @@ import cn.xishan.oftenporter.porter.core.base.AppValues;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorterThrows;
+import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by chenyg on 2018-03-02.
  */
-class SyncPorterThrowsImpl implements SyncPorterThrows
+class SyncPorterThrowsImpl implements PorterThrowsSync
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncPorterThrowsImpl.class);
 

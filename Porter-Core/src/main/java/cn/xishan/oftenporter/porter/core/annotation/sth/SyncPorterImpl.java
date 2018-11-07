@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
 
@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by chenyg on 2017-04-26.
  */
-class SyncPorterImpl implements SyncNotInnerPorter
+class SyncPorterImpl implements PorterNotInnerSync
 {
     @AutoSet
     Delivery delivery;

@@ -14,8 +14,8 @@ import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
-import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import org.slf4j.Logger;
 
@@ -93,10 +93,10 @@ import java.lang.annotation.*;
  * {@linkplain Logger Logger}
  * </li>
  * <li>
- * {@linkplain SyncPorter SyncPorter}
+ * {@linkplain PorterSync PorterSync}
  * </li>
  * <li>
- * {@linkplain SyncNotInnerPorter SyncNotInnerPorter}
+ * {@linkplain PorterNotInnerSync PorterNotInnerSync}
  * </li>
  * <li>
  * {@linkplain IConfigData}

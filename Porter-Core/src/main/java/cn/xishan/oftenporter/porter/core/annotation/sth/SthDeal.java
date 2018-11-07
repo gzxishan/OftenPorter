@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
@@ -477,7 +477,7 @@ public class SthDeal
         return entitiesDeal.dealOPEntity(entityClass, method, innerContextBridge, autoSetHandle);
     }
 
-    public static SyncPorter newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery)
+    public static PorterSync newSyncPorter(_SyncPorterOption syncPorterOption, boolean isInner, Delivery delivery)
     {
         SyncPorterImpl syncPorter = new SyncPorterImpl(syncPorterOption, isInner);
         syncPorter.delivery = delivery;

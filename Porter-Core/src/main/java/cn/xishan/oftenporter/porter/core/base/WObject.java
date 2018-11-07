@@ -8,8 +8,8 @@ import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
-import cn.xishan.oftenporter.porter.core.sysset.SyncNotInnerPorter;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 import org.slf4j.Logger;
@@ -327,14 +327,14 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
         return tiedValue == null ? null : tiedValue.classTied;
     }
 
-    public SyncPorter newSyncPorter(SyncOption syncOption)
+    public PorterSync newSyncPorter(SyncOption syncOption)
     {
         return syncOption.build(this, true);
     }
 
-    public SyncNotInnerPorter newSyncNotInnerPorter(SyncOption syncOption)
+    public PorterNotInnerSync newSyncNotInnerPorter(SyncOption syncOption)
     {
-        return (SyncNotInnerPorter) syncOption.build(this, false);
+        return (PorterNotInnerSync) syncOption.build(this, false);
     }
 
     public WObject original()

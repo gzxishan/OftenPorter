@@ -3,10 +3,11 @@ package cn.xishan.oftenporter.porter.core.sysset;
 
 /**
  * <pre>
- * 1.见{@linkplain SyncPorter}
+ * 1.见{@linkplain PorterSync}
  * </pre>
  * Created by chenyg on 2017-04-26.
  */
-public interface SyncNotInnerPorter extends SyncPorter {
+public interface PorterNotInnerSync extends PorterSync
+{
 
 }

@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.IdGen;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -47,7 +47,7 @@ public class StartPorter
     @PortStart
     public void onStart(WObject wObject)
     {
-        SyncPorter syncPorter = wObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
-        LOGGER.debug("[{},{},{}] on start!", getClass(), wObject, syncPorter.requestWNull());
+        PorterSync porterSync = wObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
+        LOGGER.debug("[{},{},{}] on start!", getClass(), wObject, porterSync.requestWNull());
     }
 }

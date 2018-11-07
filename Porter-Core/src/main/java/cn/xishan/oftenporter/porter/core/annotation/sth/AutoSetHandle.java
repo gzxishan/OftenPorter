@@ -1113,11 +1113,11 @@ public class AutoSetHandle
         } else if (typeName.equals(Logger.class.getName()))
         {
             sysset = LogUtil.logger(currentObjectClass);
-        } else if (typeName.equals(SyncPorter.class.getName()) || typeName.equals(SyncNotInnerPorter.class.getName()) ||
-                typeName.equals(SyncPorterThrows.class.getName()))
+        } else if (typeName.equals(PorterSync.class.getName()) || typeName.equals(PorterNotInnerSync.class.getName()) ||
+                typeName.equals(PorterThrowsSync.class.getName()))
         {
 
-            boolean isInner = !typeName.equals(SyncNotInnerPorter.class.getName());
+            boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(currentContextName);
@@ -1125,8 +1125,8 @@ public class AutoSetHandle
             if (porter == null)
             {
                 LOGGER.debug("auto set {} in not porter[{}]",
-                        (isInner ? SyncPorter.class : SyncNotInnerPorter.class).getSimpleName(), currentObjectClass);
-                //throw new FatalInitException(SyncPorter.class.getSimpleName() + "just allowed in porter!");
+                        (isInner ? PorterSync.class : PorterNotInnerSync.class).getSimpleName(), currentObjectClass);
+                //throw new FatalInitException(PorterSync.class.getSimpleName() + "just allowed in porter!");
                 if (!f.isAnnotationPresent(SyncPorterOption.class) && finalObject != null)
                 {
                     porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(finalObject)));
@@ -1141,7 +1141,7 @@ public class AutoSetHandle
 
             porterParamGetter.check();
             sysset = new SyncPorterImpl(syncPorterOption, isInner);
-            if (typeName.equals(SyncPorterThrows.class.getName()))
+            if (typeName.equals(PorterThrowsSync.class.getName()))
             {
                 sysset = new SyncPorterThrowsImpl((SyncPorterImpl) sysset);
             }

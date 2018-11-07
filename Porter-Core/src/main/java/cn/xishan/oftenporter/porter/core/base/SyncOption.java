@@ -4,7 +4,7 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
-import cn.xishan.oftenporter.porter.core.sysset.SyncPorter;
+import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 
 /**
  * Created by chenyg on 2017-05-11.
@@ -14,7 +14,7 @@ public class SyncOption
     private String contextName, classTied, funTied;
     private PortMethod method;
 
-    SyncPorter build(WObject wObject,boolean isInner)
+    PorterSync build(WObject wObject,boolean isInner)
     {
         SyncOption syncOption = this;
         if (syncOption.contextName == null)
@@ -32,8 +32,8 @@ public class SyncOption
         _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
         syncPorterOption.setMethod(syncOption.method);
         syncPorterOption.setOk();
-        SyncPorter syncPorter = SthDeal.newSyncPorter(syncPorterOption,isInner,wObject.delivery());
-        return syncPorter;
+        PorterSync porterSync = SthDeal.newSyncPorter(syncPorterOption,isInner,wObject.delivery());
+        return porterSync;
     }
 
 

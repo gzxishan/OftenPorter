@@ -12,7 +12,7 @@ import cn.xishan.oftenporter.porter.core.base.WObject;
  * </pre>
  * Created by chenyg on 2017-04-26.
  */
-public interface SyncPorter
+public interface PorterSync
 {
     <T> T request(@MayNull WObject wObject);
 
