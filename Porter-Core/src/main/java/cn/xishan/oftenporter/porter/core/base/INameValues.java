@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
-public interface AppValues
+public interface INameValues
 {
 
     /**

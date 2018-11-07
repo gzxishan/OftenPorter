@@ -143,12 +143,12 @@ public class PRequest implements WRequest
         return (T) originRequest;
     }
 
-    public synchronized PRequest addParamAll(AppValues appValues)
+    public synchronized PRequest addParamAll(INameValues INameValues)
     {
-        if (appValues != null)
+        if (INameValues != null)
         {
-            String[] names = appValues.getNames();
-            Object[] values = appValues.getValues();
+            String[] names = INameValues.getNames();
+            Object[] values = INameValues.getValues();
             for (int i = 0; i < names.length; i++)
             {
                 params.put(names[i], values[i]);

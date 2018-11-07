@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.WCallException;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
@@ -77,9 +77,9 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
     }
 
     @Override
-    public <T> T request(WObject wObject, AppValues appValues)
+    public <T> T request(WObject wObject, INameValues INameValues)
     {
-        T t = syncPorter.request(wObject, appValues);
+        T t = syncPorter.request(wObject, INameValues);
         return deal(t);
     }
 
@@ -105,9 +105,9 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
     }
 
     @Override
-    public <T> T requestWNull(AppValues appValues)
+    public <T> T requestWNull(INameValues INameValues)
     {
-        T t = syncPorter.requestWNull(appValues);
+        T t = syncPorter.requestWNull(INameValues);
         return deal(t);
     }
 

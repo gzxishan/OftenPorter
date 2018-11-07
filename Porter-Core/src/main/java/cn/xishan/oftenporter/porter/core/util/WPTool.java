@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.util;
 
 
-import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
+import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -701,8 +701,8 @@ public class WPTool
      */
     public static JSONObject fromArray2JSON(Object... nameValues)
     {
-        SimpleAppValues simpleAppValues = SimpleAppValues.fromArray(nameValues);
-        return simpleAppValues.toJson();
+        DefaultNameValues defaultNameValues = DefaultNameValues.fromArray(nameValues);
+        return defaultNameValues.toJson();
     }
 
 }

@@ -256,12 +256,12 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      * 使用当前请求的接口方法。
      *
      * @param funTied
-     * @param appValues
+     * @param INameValues
      * @param callback
      */
-    public void innerRequest(String funTied, AppValues appValues, PCallback callback)
+    public void innerRequest(String funTied, INameValues INameValues, PCallback callback)
     {
-        innerRequest(funTied, getRequest().getMethod(), appValues, callback, true);
+        innerRequest(funTied, getRequest().getMethod(), INameValues, callback, true);
     }
 
 
@@ -273,11 +273,11 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
     /**
      * @param funTied
      * @param method
-     * @param appValues
+     * @param INameValues
      * @param callback
      * @param throwWCallException 是否在返回码不为成功时抛出异常。
      */
-    public void innerRequest(String funTied, PortMethod method, AppValues appValues, PCallback callback,
+    public void innerRequest(String funTied, PortMethod method, INameValues INameValues, PCallback callback,
             boolean throwWCallException)
     {
         StringBuilder builder = new StringBuilder();
@@ -285,7 +285,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
         builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
         builder.append(funTied == null ? "" : funTied);
         PRequest request = PRequest.withNewPath(this, builder.toString(), method, getRequest(), true);
-        request.addParamAll(appValues);
+        request.addParamAll(INameValues);
         if (throwWCallException)
         {
             WCallException[] wCallExceptions = new WCallException[1];

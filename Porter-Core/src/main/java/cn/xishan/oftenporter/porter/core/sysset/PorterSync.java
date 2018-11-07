@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.sysset;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.SyncPorterOption;
-import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.FunParam;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 
@@ -16,7 +16,7 @@ public interface PorterSync
 {
     <T> T request(@MayNull WObject wObject);
 
-    <T> T request(@MayNull WObject wObject, AppValues appValues);
+    <T> T request(@MayNull WObject wObject, INameValues INameValues);
 
     /**
      * @param wObject
@@ -39,7 +39,7 @@ public interface PorterSync
 
     <T> T requestWNull();
 
-    <T> T requestWNull(AppValues appValues);
+    <T> T requestWNull(INameValues INameValues);
 
     /**
      * @param nameValues name,value,name,value...

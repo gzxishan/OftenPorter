@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.oftendb.db;
 
-import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 
@@ -14,7 +14,8 @@ import java.util.Set;
  *
  * @author ZhuiFeng
  */
-public class NameValues implements AppValues {
+public class DBNameValues implements INameValues
+{
 
     public interface Foreach {
         /**
@@ -31,17 +32,17 @@ public class NameValues implements AppValues {
     private boolean filterNullAndEmpty = false;
     private Set<String> filterNullKeys;
 
-    public NameValues() {
+    public DBNameValues() {
         names = new ArrayList<>();
         values = new ArrayList<>();
     }
 
-    public NameValues(String name, Object value) {
+    public DBNameValues(String name, Object value) {
         this();
         append(name, value);
     }
 
-    public NameValues(int capacity) {
+    public DBNameValues(int capacity) {
         names = new ArrayList<String>(capacity);
         values = new ArrayList<Object>(capacity);
     }
@@ -51,7 +52,7 @@ public class NameValues implements AppValues {
      *
      * @param filterNullKeys
      */
-    public NameValues setFilterNullKeys(String... filterNullKeys) {
+    public DBNameValues setFilterNullKeys(String... filterNullKeys) {
         if (filterNullKeys.length == 0) {
             this.filterNullKeys = null;
         } else {
@@ -70,7 +71,7 @@ public class NameValues implements AppValues {
      * @param filterNullAndEmpty
      * @return
      */
-    public NameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
+    public DBNameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
         this.filterNullAndEmpty = filterNullAndEmpty;
         return this;
     }
@@ -82,7 +83,7 @@ public class NameValues implements AppValues {
      * @param value
      * @return
      */
-    public NameValues append(String name, Object value) {
+    public DBNameValues append(String name, Object value) {
         if (!(filterNullAndEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || WPTool.notNullAndEmpty(value)) {
             names.add(name);
             values.add(value);

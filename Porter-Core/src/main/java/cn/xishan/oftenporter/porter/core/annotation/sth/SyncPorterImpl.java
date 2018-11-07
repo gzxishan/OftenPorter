@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
-import cn.xishan.oftenporter.porter.simple.SimpleAppValues;
+import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +47,7 @@ class SyncPorterImpl implements PorterNotInnerSync
     }
 
     @Override
-    public <T> T request(WObject wObject, AppValues appValues)
+    public <T> T request(WObject wObject, INameValues INameValues)
     {
         PRequest request;
         if (wObject == null)
@@ -59,7 +59,7 @@ class SyncPorterImpl implements PorterNotInnerSync
             request.setMethod(syncPorterOption.getMethod());
         }
 
-        request.addParamAll(appValues);
+        request.addParamAll(INameValues);
         Temp temp = new Temp();
         if (isInner)
         {
@@ -74,8 +74,8 @@ class SyncPorterImpl implements PorterNotInnerSync
     @Override
     public <T> T requestSimple(WObject wObject, Object... nameValues)
     {
-        AppValues appValues = SimpleAppValues.fromArray(nameValues);
-        return request(wObject, appValues);
+        INameValues INameValues = DefaultNameValues.fromArray(nameValues);
+        return request(wObject, INameValues);
     }
 
     @Override
@@ -108,15 +108,15 @@ class SyncPorterImpl implements PorterNotInnerSync
     }
 
     @Override
-    public <T> T requestWNull(AppValues appValues)
+    public <T> T requestWNull(INameValues INameValues)
     {
-        return request(null, appValues);
+        return request(null, INameValues);
     }
 
     @Override
     public <T> T requestWNullSimple(Object... nameValues)
     {
-        AppValues appValues = SimpleAppValues.fromArray(nameValues);
-        return request(null, appValues);
+        INameValues INameValues = DefaultNameValues.fromArray(nameValues);
+        return request(null, INameValues);
     }
 }

@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
@@ -61,9 +61,9 @@ class PRequestWithSource extends PRequest
     }
 
     @Override
-    public PRequest addParamAll(AppValues appValues)
+    public PRequest addParamAll(INameValues INameValues)
     {
-        return request.addParamAll(appValues);
+        return request.addParamAll(INameValues);
     }
 
     @Override

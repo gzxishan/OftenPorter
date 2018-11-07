@@ -4,7 +4,7 @@ package cn.xishan.oftenporter.oftendb.data;
 import cn.xishan.oftenporter.oftendb.annotation.DBField;
 import cn.xishan.oftenporter.oftendb.annotation.ExceptDBField;
 import cn.xishan.oftenporter.oftendb.db.MultiNameValues;
-import cn.xishan.oftenporter.oftendb.db.NameValues;
+import cn.xishan.oftenporter.oftendb.db.DBNameValues;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
@@ -36,7 +36,7 @@ public class DataUtil
      * @return
      * @throws IllegalAccessException
      */
-    public static NameValues toNameValues(Object object, boolean filterNullAndEmpty)
+    public static DBNameValues toNameValues(Object object, boolean filterNullAndEmpty)
     {
         return toNameValues(object, filterNullAndEmpty, true);
     }
@@ -48,7 +48,7 @@ public class DataUtil
      * @param keyNames
      * @return
      */
-    public static NameValues toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
+    public static DBNameValues toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
             String... keyNames)
     {
         try
@@ -61,7 +61,7 @@ public class DataUtil
     }
 
     private static boolean isJsonFieldOrJson(Object object, Field field,
-            NameValues nameValues) throws IllegalAccessException
+            DBNameValues DBNameValues) throws IllegalAccessException
     {
         JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
         if (jsonObj != null)
@@ -75,7 +75,7 @@ public class DataUtil
             Object fieldObj = field.get(object);
             if (fieldObj != null)
             {
-                nameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
+                DBNameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
             }
             return true;
         }
@@ -92,7 +92,7 @@ public class DataUtil
             Object fieldObj = field.get(object);
             if (!jsonField.filterNullAndEmpty() || WPTool.notNullAndEmpty(fieldObj))
             {
-                nameValues.append(name, fieldObj);
+                DBNameValues.append(name, fieldObj);
             }
             return true;
         }
@@ -109,7 +109,7 @@ public class DataUtil
             Object fieldObj = field.get(object);
             if (!jsonSerialize.filterNullAndEmpty() || WPTool.notNullAndEmpty(fieldObj))
             {
-                nameValues.append(name, JSON.toJSON(fieldObj));
+                DBNameValues.append(name, JSON.toJSON(fieldObj));
             }
             return true;
         }
@@ -118,19 +118,19 @@ public class DataUtil
         return false;
     }
 
-    private static NameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
+    private static DBNameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
             String... keyNames) throws IllegalAccessException
     {
         Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(object));
 
-        NameValues nameValues = new NameValues(fields.length);
-        nameValues.filterNullAndEmpty(filterNullAndEmpty);
+        DBNameValues DBNameValues = new DBNameValues(fields.length);
+        DBNameValues.filterNullAndEmpty(filterNullAndEmpty);
         if (isExcept)
         {
             for (int i = 0; i < fields.length; i++)
             {
                 Field field = fields[i];
-                if (isJsonFieldOrJson(object, field, nameValues))
+                if (isJsonFieldOrJson(object, field, DBNameValues))
                 {
                     continue;
                 }
@@ -150,7 +150,7 @@ public class DataUtil
                 if (name != null)
                 {
                     field.setAccessible(true);
-                    nameValues.append(name, field.get(object));
+                    DBNameValues.append(name, field.get(object));
                 }
             }
         } else
@@ -159,7 +159,7 @@ public class DataUtil
             for (int i = 0; i < fields.length; i++)
             {
                 Field field = fields[i];
-                if (isJsonFieldOrJson(object, field, nameValues))
+                if (isJsonFieldOrJson(object, field, DBNameValues))
                 {
                     continue;
                 }
@@ -173,14 +173,14 @@ public class DataUtil
                     if (c.equals(name))
                     {
                         field.setAccessible(true);
-                        nameValues.append(name, field.get(object));
+                        DBNameValues.append(name, field.get(object));
                         break;
                     }
                 }
             }
         }
 
-        return nameValues;
+        return DBNameValues;
     }
 
     /**
@@ -268,14 +268,14 @@ public class DataUtil
     }
 
 
-    public static NameValues toNameValues(JSONObject jsonObject)
+    public static DBNameValues toNameValues(JSONObject jsonObject)
     {
-        NameValues nameValues = new NameValues(jsonObject.size());
+        DBNameValues DBNameValues = new DBNameValues(jsonObject.size());
         for (Map.Entry<String, Object> entry : jsonObject.entrySet())
         {
-            nameValues.append(entry.getKey(), entry.getValue());
+            DBNameValues.append(entry.getKey(), entry.getValue());
         }
-        return nameValues;
+        return DBNameValues;
     }
 
     public static MultiNameValues toMultiNameValues(JSONArray jsonArray)
@@ -413,9 +413,9 @@ public class DataUtil
      * @param containsNull 是否包含null值键值对
      * @return
      */
-    public static NameValues toNameValues(WObject wObject, boolean containsNull)
+    public static DBNameValues toNameValues(WObject wObject, boolean containsNull)
     {
-        NameValues nameValues = new NameValues();
+        DBNameValues DBNameValues = new DBNameValues();
 
         try
         {
@@ -426,7 +426,7 @@ public class DataUtil
                 {
                     continue;
                 }
-                nameValues.append(names[i].varName, wObject.fn[i]);
+                DBNameValues.append(names[i].varName, wObject.fn[i]);
             }
             names = wObject.fInNames.unece;
             for (int i = 0; i < names.length; i++)
@@ -435,7 +435,7 @@ public class DataUtil
                 {
                     continue;
                 }
-                nameValues.append(names[i].varName, wObject.fu[i]);
+                DBNameValues.append(names[i].varName, wObject.fu[i]);
             }
             names = wObject.fInNames.inner;
             for (int i = 0; i < names.length; i++)
@@ -444,14 +444,14 @@ public class DataUtil
                 {
                     continue;
                 }
-                nameValues.append(names[i].varName, wObject.finner[i]);
+                DBNameValues.append(names[i].varName, wObject.finner[i]);
             }
         } catch (JSONException e)
         {
             LOGGER.warn(e.getMessage(), e);
         }
 
-        return nameValues;
+        return DBNameValues;
     }
 
     /**

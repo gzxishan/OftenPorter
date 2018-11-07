@@ -1,13 +1,13 @@
 package cn.xishan.oftenporter.porter.simple;
 
 
-import cn.xishan.oftenporter.porter.core.base.AppValues;
+import cn.xishan.oftenporter.porter.core.base.INameValues;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.Iterator;
 import java.util.Map;
 
-public class SimpleAppValues implements AppValues
+public class DefaultNameValues implements INameValues
 {
 
     private String[] names;
@@ -19,12 +19,12 @@ public class SimpleAppValues implements AppValues
      * @param nameValues 必须是key(String),value(Object),key,value...的形式
      * @return
      */
-    public static SimpleAppValues fromArray(Object ... nameValues){
+    public static DefaultNameValues fromArray(Object ... nameValues){
         if (nameValues.length % 2 != 0)
         {
             throw new IllegalArgumentException("Illegal arguments length:" + nameValues.length);
         }
-        SimpleAppValues appValues = new SimpleAppValues();
+        DefaultNameValues appValues = new DefaultNameValues();
         String[] names = new String[nameValues.length / 2];
         Object[] values = new Object[nameValues.length / 2];
         for (int i = 0, k = 0; i < nameValues.length; i += 2, k++)
@@ -56,14 +56,14 @@ public class SimpleAppValues implements AppValues
      * @param jsonObject 要提取的json对象
      * @return 提取结果
      */
-    public static SimpleAppValues fromJSON(JSONObject jsonObject)
+    public static DefaultNameValues fromJSON(JSONObject jsonObject)
     {
-        SimpleAppValues simpleAppValues = new SimpleAppValues();
+        DefaultNameValues defaultNameValues = new DefaultNameValues();
 
         String[] names = new String[jsonObject.size()];
         Object[] values = new Object[jsonObject.size()];
-        simpleAppValues.names = names;
-        simpleAppValues.values = values;
+        defaultNameValues.names = names;
+        defaultNameValues.values = values;
 
         Iterator<Map.Entry<String, Object>> iterator = jsonObject.entrySet().iterator();
         int i = 0;
@@ -74,16 +74,16 @@ public class SimpleAppValues implements AppValues
             values[i++] = entry.getValue();
         }
 
-        return simpleAppValues;
+        return defaultNameValues;
     }
 
-    public SimpleAppValues add(AppValues appValues)
+    public DefaultNameValues add(INameValues INameValues)
     {
 
-        if (appValues != null)
+        if (INameValues != null)
         {
-            String[] names = appValues.getNames();
-            Object[] values = appValues.getValues();
+            String[] names = INameValues.getNames();
+            Object[] values = INameValues.getValues();
 
             String[] strs;
             Object[] objects;
@@ -110,7 +110,7 @@ public class SimpleAppValues implements AppValues
         return this;
     }
 
-    public SimpleAppValues(String... names)
+    public DefaultNameValues(String... names)
     {
         names(names);
     }
@@ -134,7 +134,7 @@ public class SimpleAppValues implements AppValues
      * @param values 值列表
      * @return 返回自己
      */
-    public SimpleAppValues values(Object... values)
+    public DefaultNameValues values(Object... values)
     {
         this.values = values;
         return this;
@@ -146,7 +146,7 @@ public class SimpleAppValues implements AppValues
      * @param names 名称列表
      * @return 返回自己
      */
-    public SimpleAppValues names(String... names)
+    public DefaultNameValues names(String... names)
     {
         this.names = names;
         return this;
