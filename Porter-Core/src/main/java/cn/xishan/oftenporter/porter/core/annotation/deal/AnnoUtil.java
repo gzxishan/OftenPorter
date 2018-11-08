@@ -1879,7 +1879,8 @@ public class AnnoUtil
         }
 
 
-        private static Class<?> getRealType(Class<?> declaringClass, Class<?> realClass, Type genericType)
+        private static Class<?> getRealType(Class<?> declaringClass, Class<?> realClass, Class sourceType,
+                Type genericType)
         {
             if (genericType instanceof Class)
             {
@@ -1933,6 +1934,20 @@ public class AnnoUtil
                     }
                 }
             }
+            if (rt == null && genericType instanceof ParameterizedType)
+            {
+                ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                Type[] types = parameterizedType.getActualTypeArguments();
+                if (types.length == 1 && types[0] instanceof WildcardType)
+                {
+                    WildcardType wildcardType = (WildcardType) types[0];
+                    Type[] upperBounds = wildcardType.getUpperBounds();
+                    if (upperBounds.length == 1 && upperBounds[0] instanceof Class)
+                    {
+                        rt = (Class<?>) upperBounds[0];
+                    }
+                }
+            }
             return rt;
         }
 
@@ -1958,7 +1973,7 @@ public class AnnoUtil
                     return (Class<?>) cache;
                 }
             }
-            Class type = getRealType(field.getDeclaringClass(), realClass, field.getGenericType());
+            Class type = getRealType(field.getDeclaringClass(), realClass, field.getType(), field.getGenericType());
             if (type == null)
             {
                 type = field.getType();
@@ -2010,7 +2025,7 @@ public class AnnoUtil
                     return (Class<?>) cache;
                 }
             }
-            Class type = getRealType(method.getDeclaringClass(), realClass,
+            Class type = getRealType(method.getDeclaringClass(), realClass, method.getParameterTypes()[argIndex],
                     method.getGenericParameterTypes()[argIndex]);
             if (type == null)
             {
@@ -2042,7 +2057,8 @@ public class AnnoUtil
                     return (Class<?>) cache;
                 }
             }
-            Class type = getRealType(method.getDeclaringClass(), realClass, method.getGenericReturnType());
+            Class type = getRealType(method.getDeclaringClass(), realClass,
+                    method.getReturnType(), method.getGenericReturnType());
             if (type == null)
             {
                 type = method.getReturnType();

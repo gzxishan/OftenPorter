@@ -140,6 +140,25 @@ public final class AnnotationDealt
             {
                 LOGGER.warn(e.getMessage(), e);
             }
+
+            try
+            {
+                AutoSetToThatForMixin autoSetToThatForMixin =
+                        AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
+                if (autoSetToThatForMixin != null)
+                {
+                    _AutoSet _autoSet = new _AutoSet();
+                    _autoSet.willRecursive = true;
+                    _autoSet.value = "";
+                    _autoSet.nullAble = true;
+                    _autoSet.range = AutoSet.Range.Context;
+                    return _autoSet;
+                }
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+
             return null;
         }
         _AutoSet _autoSet = new _AutoSet();

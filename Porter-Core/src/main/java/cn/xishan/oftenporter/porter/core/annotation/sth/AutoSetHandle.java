@@ -547,14 +547,20 @@ public class AutoSetHandle
             {
                 continue;
             }
-            if (autoSetToThatForMixin.key().equals("") && autoSetToThatForMixin.value()
-                    .equals(AutoSet.class))
+            String key;
+            if (autoSetToThatForMixin.key().equals("") && autoSetToThatForMixin.value().equals(AutoSet.class))
             {
-                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
-                        .getSimpleName() + " is empty  for field '" + field + "'");
+//                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
+//                        .getSimpleName() + " is empty  for field '" + field + "'");
+                key = AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), field).getName();
+            } else if (WPTool.notNullAndEmpty(autoSetToThatForMixin.key()))
+            {
+                key = autoSetToThatForMixin.key();
+            } else
+            {
+                key = autoSetToThatForMixin.value().getName();
             }
-            String key = autoSetToThatForMixin.key().equals("") ? autoSetToThatForMixin.value()
-                    .getName() : autoSetToThatForMixin.key();
+
             if (fromGet.containsKey(key))
             {
                 LOGGER.warn("already exists key '{}', current field is [{}],last field is [{}]", field,
@@ -586,6 +592,20 @@ public class AutoSetHandle
                 String key = autoSetThatForMixin.key().equals("") ? autoSetThatForMixin.value()
                         .getName() : autoSetThatForMixin.key();
                 Field getField = fromGet.get(key);
+                if (getField == null && autoSetThatForMixin.searchChild())
+                {
+                    //尝试查找子类型
+                    Class type = AnnoUtil.Advance.getRealTypeOfField(objectForSet.getClass(), field);
+                    for (Field f : fromGet.values())
+                    {
+                        if (WPTool.isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
+                        {
+                            getField = f;
+                            break;
+                        }
+                    }
+                }
+
                 if (getField == null)
                 {
                     value = null;

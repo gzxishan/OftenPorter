@@ -407,6 +407,12 @@ public class WPTool
         {
             cause = throwable;
         }
+        Throwable thr = unwrapThrowable(cause);
+        cause = thr.getCause();
+        if (cause == null)
+        {
+            cause = thr;
+        }
         return cause;
     }
 

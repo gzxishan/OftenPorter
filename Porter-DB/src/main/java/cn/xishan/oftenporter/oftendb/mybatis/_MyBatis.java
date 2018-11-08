@@ -350,7 +350,7 @@ class _MyBatis
                 Pattern pattern = Pattern.compile("<!--\\$enable-end:\\s*" + varName + "\\s*-->");
                 Matcher matcher = pattern.matcher(sqlBuilder);
                 int endStart, endEnd;
-                if (!matcher.find())
+                if (matcher.find())
                 {
                     endStart = matcher.start();
                     endEnd = matcher.end();
