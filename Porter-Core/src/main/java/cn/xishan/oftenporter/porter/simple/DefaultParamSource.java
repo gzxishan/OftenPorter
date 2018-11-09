@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.WRequest;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
@@ -62,7 +62,7 @@ public class DefaultParamSource implements ParamSource {
             JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
             jResponse.setDescription(failedReason.desc());
             jResponse.setExtra(failedReason.toJSON());
-            throw new WCallException(jResponse);
+            throw new OftenCallException(jResponse);
         }
 
         return (T) value;

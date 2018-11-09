@@ -70,6 +70,12 @@ public class MyBatisOption implements Cloneable
      */
     public boolean checkMapperFileChange = false;
 
+
+    /**
+     * 设置字段被包裹的内容，默认为"`"。
+     */
+    public String columnCoverString="`";
+
     public IMybatisStateListener mybatisStateListener;
 
     /**

@@ -380,10 +380,10 @@ public final class Porter
         }
     }
 
-    public InNames.Name getName(String varName, Class<?> type, _Parse parse, _Nece nece) throws ClassNotFoundException
+    public InNames.Name getName(AnnotationDealt annotationDealt,String varName, Class<?> type, _Parse parse, _Nece nece) throws ClassNotFoundException
     {
-        InNames.Name theName = OPEntitiesDeal.getName(varName, type, typeParserStore, false);
-        SthUtil.bindTypeParse(InNames.temp(theName, nece), parse, typeParserStore, null,
+        InNames.Name theName = OPEntitiesDeal.getName(annotationDealt,nece, varName, type, typeParserStore, false);
+        SthUtil.bindTypeParse(InNames.temp(theName), parse, typeParserStore, null,
                 BackableSeek.SeekType.NotAdd_NotBind);
         dealName(theName);
         return theName;
@@ -448,7 +448,7 @@ public final class Porter
                     clazz.init();
                 } catch (Exception e)
                 {
-                    LOGGER.error(e.getMessage(),e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }

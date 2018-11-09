@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +115,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                         } catch (InterruptedException e)
                         {
                             LOGGER.error(e.getMessage(), e);
-                            throw new WCallException(e);
+                            throw new OftenCallException(e);
                         }
                         LOGGER.debug("acquired resource:key={},thread={},previous={}", key, current.thread,
                                 previous.thread);

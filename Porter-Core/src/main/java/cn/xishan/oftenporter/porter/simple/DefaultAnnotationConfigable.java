@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 配置对象为{@linkplain Properties}类型,配置数据为{@linkplain DefaultConfigData}.
+ * 配置对象为{@linkplain Properties}类型,配置数据为{@linkplain DefaultConfigData},获取变量的格式为"${properName}"
  *
  * @author Created by https://github.com/CLovinr on 2018-06-29.
  */

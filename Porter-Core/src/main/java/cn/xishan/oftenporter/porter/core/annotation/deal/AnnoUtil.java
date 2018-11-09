@@ -320,8 +320,7 @@ public class AnnoUtil
             //只代理含有String或String[]的注解。
             AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable);
             Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
-                    t.annotationType(),
-                    AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
+                    t.annotationType(),AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
             }, handler);
             t = (A) obj;
         }

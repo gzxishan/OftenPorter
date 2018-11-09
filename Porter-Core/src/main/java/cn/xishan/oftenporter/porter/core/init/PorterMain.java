@@ -330,6 +330,7 @@ public final class PorterMain
 
     private void _startOne(PorterBridge bridge)
     {
+        long time;
         CheckPassable[] alls = null;
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
@@ -403,8 +404,11 @@ public final class PorterMain
 
         try
         {
+            LOGGER.debug("start seek...");
+            time=System.currentTimeMillis();
             classCheckPassableMap = contextPorter
                     .initSeek(sthDeal, IListenerAdder, porterConf, autoSetHandle, portIniterList);
+            LOGGER.debug("seek finished,time={}ms",System.currentTimeMillis()-time);
         } catch (Exception e)
         {
             throw new Error(WPTool.getCause(e));
@@ -446,9 +450,10 @@ public final class PorterMain
             portExecutor.putAllExtraEntity(entityOneMap);
 
             LOGGER.debug("start doAutoSet...");
+            time=System.currentTimeMillis();
             autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
             autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);
-            LOGGER.debug("doAutoSetFinished.");
+            LOGGER.debug("doAutoSetFinished,time={}ms",System.currentTimeMillis()-time);
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class
                     .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();

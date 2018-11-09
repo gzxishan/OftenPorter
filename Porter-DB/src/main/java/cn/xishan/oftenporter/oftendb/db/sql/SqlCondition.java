@@ -11,6 +11,7 @@ public class SqlCondition extends Condition
 {
 
     private boolean isAnd = true;
+    private String coverString = "`";
     private Class<?> dealNamesClass;
 
     /**
@@ -32,6 +33,15 @@ public class SqlCondition extends Condition
 
 
     public static final Operator TRUE = new MyOperator("TRUE");
+
+    public SqlCondition(String coverString)
+    {
+        this.coverString = coverString;
+    }
+
+    public SqlCondition()
+    {
+    }
 
     /**
      * 返回为一个Object[]{whereSql,args}
@@ -253,7 +263,7 @@ public class SqlCondition extends Condition
                 args.add(cUnit.getParam1());
             } else
             {
-                appendName(cUnit.getParam1(), stringBuilder);
+                appendName(coverString, cUnit.getParam1(), stringBuilder);
             }
             stringBuilder.append(" ");
         }
@@ -377,11 +387,11 @@ public class SqlCondition extends Condition
             args.add(cUnit.getParam2());
         } else
         {
-            appendName(cUnit.getParam2(), stringBuilder);
+            appendName(coverString, cUnit.getParam2(), stringBuilder);
         }
     }
 
-    static void appendName(Object name, StringBuilder builder)
+    static void appendName(String coverString, Object name, StringBuilder builder)
     {
         String nameStr = (String) name;
         checkName(nameStr);
@@ -391,12 +401,23 @@ public class SqlCondition extends Condition
             builder.append(nameStr.substring(0, dotIndex + 1));
             nameStr = nameStr.substring(dotIndex + 1);
         }
-        builder.append("`").append(nameStr).append("`");
+        builder.append(coverString).append(nameStr).append(coverString);
     }
 
     @Override
     public void dealNames(Class<?> c)
     {
         this.dealNamesClass = c;
+    }
+
+
+    public String getCoverString()
+    {
+        return coverString;
+    }
+
+    public void setCoverString(String coverString)
+    {
+        this.coverString = coverString;
     }
 }

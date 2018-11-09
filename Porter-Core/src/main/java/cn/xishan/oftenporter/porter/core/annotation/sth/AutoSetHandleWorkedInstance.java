@@ -41,8 +41,7 @@ class AutoSetHandleWorkedInstance
         boolean isWorked = false;
         if (object != null)
         {
-            Package pkg = PortUtil.getRealClass(object).getPackage();
-            if (pkg != null && (pkg.getName().startsWith("java.") || pkg.getName().startsWith("javax.")))
+            if (PortUtil.willIgnoreAdvanced(PortUtil.getRealClass(object)))
             {
                 isWorked = true;
             } else

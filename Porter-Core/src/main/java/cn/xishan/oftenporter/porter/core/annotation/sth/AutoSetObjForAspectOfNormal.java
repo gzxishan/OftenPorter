@@ -55,7 +55,7 @@ public class AutoSetObjForAspectOfNormal
             this.origin = origin;
             this.originMethod = originMethod;
             this.args = args;
-            this.isTop = wObject == null || wObject.isTopRequest();
+            this.isTop = wObject == null || wObject.isOriginalRequest();
         }
 
         AspectOperationOfNormal.DefaultInvoker invoker = new AspectOperationOfNormal.DefaultInvoker()
@@ -229,8 +229,7 @@ public class AutoSetObjForAspectOfNormal
             {
                 continue;
             }
-            Package pkg = method.getDeclaringClass().getPackage();
-            if (pkg != null && (pkg.getName().startsWith("java.") || pkg.getName().startsWith("javax.")))
+            if (PortUtil.willIgnoreAdvanced(method.getDeclaringClass()))
             {
                 continue;
             }
@@ -292,7 +291,8 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = 0; i < annotationList.size(); i++)
                 {
                     Annotation annotation = annotationList.get(i)[0];
-                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList.get(i)[1];
+                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList
+                            .get(i)[1];
 
                     AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
                     if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))

@@ -608,7 +608,7 @@ public class WPTool
 
     private static void getAllFields(Class<?> clazz, List<Field> list)
     {
-        if (clazz.equals(Object.class))
+        if (clazz==null||clazz.equals(Object.class))
         {
             return;
         }
@@ -618,9 +618,7 @@ public class WPTool
         {
             list.add(fields[i]);
         }
-
         getAllFields(clazz.getSuperclass(), list);
-
     }
 
     /**

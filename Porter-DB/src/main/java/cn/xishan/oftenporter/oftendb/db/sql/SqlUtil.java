@@ -120,13 +120,14 @@ public class SqlUtil
      * @param withSemicolon 是否以分号结尾
      * @return
      */
-    public static String toInsertOrReplace(boolean isInsert, String tableName, String[] names, boolean withSemicolon)
+    public static String toInsertOrReplace(boolean isInsert, String tableName, String[] names, String coverString,
+            boolean withSemicolon)
     {
 
         StringBuilder nameBuilder = new StringBuilder(), valueBuilder = new StringBuilder();
         for (int i = 0; i < names.length; i++)
         {
-            nameBuilder.append("`").append(names[i]).append("`,");
+            nameBuilder.append(coverString).append(names[i]).append(coverString).append(",");
             valueBuilder.append("?,");
         }
 
@@ -137,7 +138,8 @@ public class SqlUtil
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(isInsert ? "INSERT" : "REPLACE").append(" INTO `").append(tableName).append('`');
+        stringBuilder.append(isInsert ? "INSERT" : "REPLACE").append(" INTO ").append(coverString).append(tableName)
+                .append(coverString);
 
         stringBuilder.append(" (").append(nameBuilder).append(") VALUES(").append(valueBuilder).append(")");
         if (withSemicolon)
@@ -157,7 +159,7 @@ public class SqlUtil
      * @param basicCondition
      * @return
      */
-    public static WhereSQL toSetValues(String tableName, String[] names, Condition basicCondition,
+    public static WhereSQL toSetValues(String tableName, String[] names, Condition basicCondition, String coverString,
             boolean withSemicolon)
     {
         WhereSQL whereSQL = new WhereSQL();
@@ -165,7 +167,7 @@ public class SqlUtil
         for (int i = 0; i < names.length; i++)
         {
             String name = names[i];
-            setValues.append('`').append(name).append("`=").append("?,");
+            setValues.append(coverString).append(name).append(coverString).append("=").append("?,");
         }
 
         if (setValues.length() > 0)
@@ -173,7 +175,8 @@ public class SqlUtil
             BaseEasier.removeEndChar(setValues, ',');
         }
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("UPDATE `").append(tableName).append("` SET ").append(setValues);
+        stringBuilder.append("UPDATE ").append(coverString).append(tableName).append(coverString).append(" SET ")
+                .append(setValues);
         if (basicCondition != null)
         {
             Object[] result = (Object[]) basicCondition.toFinalObject();
@@ -190,11 +193,13 @@ public class SqlUtil
         return whereSQL;
     }
 
-    public static WhereSQL toUpdate(String tableName, Condition condition, String setName, boolean withSemicolon)
+    public static WhereSQL toUpdate(String tableName, Condition condition, String setName, String coverString,
+            boolean withSemicolon)
     {
         WhereSQL whereSQL = new WhereSQL();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("UPDATE  `").append(tableName).append("` SET `").append(setName).append("`=?");
+        stringBuilder.append("UPDATE  ").append(coverString).append(tableName).append(coverString).append(" SET ")
+                .append(coverString).append(setName).append(coverString).append("=?");
 
         if (condition != null)
         {
@@ -216,11 +221,11 @@ public class SqlUtil
         return whereSQL;
     }
 
-    public static WhereSQL toDelete(String tableName, Condition condition, boolean withSemicolon)
+    public static WhereSQL toDelete(String tableName, Condition condition, String coverString, boolean withSemicolon)
     {
         WhereSQL whereSQL = new WhereSQL();
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("DELETE FROM  `").append(tableName).append("`");
+        stringBuilder.append("DELETE FROM  ").append(coverString).append(tableName).append(coverString);
 
         if (condition != null)
         {
@@ -263,12 +268,13 @@ public class SqlUtil
      * 转换成sql语句，参数用？代替
      */
     public static WhereSQL toCountSelect(String tableName, String columnName, Condition basicCondition,
+            String coverString,
             boolean withSemicolon)
     {
         WhereSQL whereSQL = new WhereSQL();
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("SELECT count(1) ").append(columnName);
-        stringBuilder.append(" FROM `").append(tableName).append('`');
+        stringBuilder.append(" FROM ").append(coverString).append(tableName).append(coverString);
 
         if (basicCondition != null)
         {
@@ -293,6 +299,7 @@ public class SqlUtil
      * 转换成sql语句，参数用？代替
      */
     public static WhereSQL toSelect(String tableName, Condition basicCondition, QuerySettings querySettings,
+            String coverString,
             boolean withSemicolon,
             String... keys)
     {
@@ -306,7 +313,7 @@ public class SqlUtil
         {
             for (String key : keys)
             {
-                stringBuilder.append('`').append(key).append("`,");
+                stringBuilder.append(coverString).append(key).append(coverString).append(",");
             }
         }
 
@@ -314,7 +321,7 @@ public class SqlUtil
         {
             BaseEasier.removeEndChar(stringBuilder, ',');
         }
-        stringBuilder.append(" FROM `").append(tableName).append('`');
+        stringBuilder.append(" FROM ").append(coverString).append(tableName).append(coverString);
 
 
         if (basicCondition != null)
@@ -328,7 +335,7 @@ public class SqlUtil
             whereSQL.args = EMPTY_OBJS;
         }
 
-        String order = toOrder(querySettings, withSemicolon);
+        String order = toOrder(querySettings, coverString, withSemicolon);
 
         stringBuilder.append(order);
 
@@ -337,7 +344,7 @@ public class SqlUtil
     }
 
 
-    public static Object toFinalObject(QuerySettings settings)
+    public static Object toFinalObject(QuerySettings settings, String coverString)
     {
         if (settings == null || settings.getOrders().size() == 0)
         {
@@ -351,7 +358,7 @@ public class SqlUtil
         {
             QuerySettings.Order order = orders.get(i);
 
-            SqlCondition.appendName(order.name, sbuilder);
+            SqlCondition.appendName(coverString, order.name, sbuilder);
             if (order.n == 1)
             {
                 sbuilder.append(" ASC");
@@ -368,12 +375,12 @@ public class SqlUtil
         return sbuilder;
     }
 
-    public static String toOrder(QuerySettings querySettings, boolean withSemicolon)
+    public static String toOrder(QuerySettings querySettings, String coverString, boolean withSemicolon)
     {
         StringBuilder stringBuilder = new StringBuilder();
         if (querySettings != null)
         {
-            Object object = toFinalObject(querySettings);
+            Object object = toFinalObject(querySettings, coverString);
             if (object != null)
             {
                 stringBuilder.append(" ORDER BY ").append(object);
@@ -435,14 +442,14 @@ public class SqlUtil
      * @return
      */
     public static List<CreateTable> exportCreateTable(String tableNamePattern, String host, String dbname,
-            String mysqlUser, String mysqlPassword)
+            String mysqlUser, String mysqlPassword, String coverString)
     {
         try
         {
             return exportCreateTable(tableNamePattern,
                     "jdbc:sql://" + host + "/" + dbname + "?user=" + URLEncoder
                             .encode(mysqlUser, "utf-8") + "&password=" + URLEncoder.encode(mysqlPassword, "utf-8"),
-                    "com.sql.jdbc.Driver");
+                    "com.sql.jdbc.Driver", coverString);
         } catch (UnsupportedEncodingException e)
         {
             throw new RuntimeException(e);
@@ -455,7 +462,8 @@ public class SqlUtil
      * @param driverClass
      * @return
      */
-    public static List<CreateTable> exportCreateTable(String tableNamePattern, String connectionUrl, String driverClass)
+    public static List<CreateTable> exportCreateTable(String tableNamePattern, String connectionUrl, String driverClass,
+            String coverString)
     {
         Connection conn = null;
         try
@@ -477,7 +485,8 @@ public class SqlUtil
                 do
                 {
                     String tableName = tables.getString("TABLE_NAME");
-                    PreparedStatement ps = conn.prepareStatement("SHOW CREATE TABLE `" + tableName + "`");
+                    PreparedStatement ps = conn
+                            .prepareStatement("SHOW CREATE TABLE " + coverString + tableName + coverString);
                     ResultSet resultSet = ps.executeQuery();
                     resultSet.next();
                     String createTable = resultSet.getString("Create Table");

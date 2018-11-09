@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.ExceptColumns;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
 import cn.xishan.oftenporter.oftendb.data.DataUtil;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -21,6 +23,7 @@ import java.util.regex.Pattern;
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/10.
  */
+@ExceptColumns
 class _MyBatis
 {
 
@@ -37,6 +40,8 @@ class _MyBatis
     }
 
     private static final Logger LOGGER = LogUtil.logger(_MyBatis.class);
+    private static final ExceptColumns DEFAULT_EXCEPT_COLUMNS = AnnoUtil
+            .getAnnotation(_MyBatis.class, ExceptColumns.class);
 
     MyBatisMapper.Type type;
     String resourceDir;
@@ -51,8 +56,9 @@ class _MyBatis
     private Map<String, Object> xmlParamsMap;
     private MSqlSessionFactoryBuilder.FileListener fileListener;
     private List<String> paths;
+    private String columnCoverString;
 
-    public _MyBatis(Alias[] aliases, MyBatisMapper.Type type, String resourceDir, String name)
+    public _MyBatis(Alias[] aliases, MyBatisMapper.Type type, String columnCoverString, String resourceDir, String name)
     {
         this.aliases = aliases;
         if (resourceDir != null && !resourceDir.endsWith("/"))
@@ -60,6 +66,7 @@ class _MyBatis
             resourceDir += "/";
         }
         this.type = type;
+        this.columnCoverString = columnCoverString;
         this.resourceDir = resourceDir;
         this.name = name;
     }
@@ -142,27 +149,37 @@ class _MyBatis
 
     private boolean isTRUE(Map<String, Object> _localParams, String varName)
     {
-        if (varName.trim().equals(""))
+        varName = varName.trim();
+        boolean isNot = false;
+        if (varName.startsWith("!"))
         {
-            return false;
+            isNot = true;
+            varName = varName.substring(1).trim();
         }
-        Object object = _localParams.get(varName);
         boolean is = true;
-        if (WPTool.isEmpty(object))
+        if (varName.equals(""))
         {
             is = false;
-        } else if (object instanceof Boolean)
+        } else
         {
-            is = (Boolean) object;
-        } else if (object instanceof Number)
-        {
-            is = ((Number) object).doubleValue() != 0;
-        } else if (object instanceof CharSequence || object instanceof Character)
-        {
-            String str = String.valueOf(object).trim();
-            is = !"".equals(str) && !"0".equals(str);
+            Object object = _localParams.get(varName);
+            if (WPTool.isEmpty(object))
+            {
+                is = false;
+            } else if (object instanceof Boolean)
+            {
+                is = (Boolean) object;
+            } else if (object instanceof Number)
+            {
+                is = ((Number) object).doubleValue() != 0;
+            } else if (object instanceof CharSequence || object instanceof Character)
+            {
+                String str = String.valueOf(object).trim();
+                is = !"".equals(str) && !"0".equals(str);
+            }
         }
-        return is;
+
+        return isNot != is;
     }
 
     public String replaceSqlParams(String _sql) throws Exception
@@ -274,7 +291,12 @@ class _MyBatis
                                     content = FileTool.getString(file, 1024, "utf-8");
                                 } else
                                 {
-                                    content = FileTool.getString(daoClass.getResourceAsStream(path), 1024, "utf-8");
+                                    InputStream in = ResourceUtil.getAbsoluteResourceStream(path);
+                                    if (in == null)
+                                    {
+                                        throw new RuntimeException("not found:" + path);
+                                    }
+                                    content = FileTool.getString(in, 1024, "utf-8");
                                 }
                                 paths.add("classpath:" + path);
                             } catch (IOException e)
@@ -298,27 +320,6 @@ class _MyBatis
                 }
 
             }
-
-//            for (Map.Entry<String, Object> entry : localParams.entrySet())
-//            {
-//                String key = entry.getKey();
-//                Object value = entry.getValue();
-//                if(value==null){
-//                    value="";
-//                }
-//                key = "$[" + key + "]";
-//                while (true)
-//                {
-//                    int index = sqlBuilder.indexOf(key);
-//                    if (index == -1)
-//                    {
-//                        break;
-//                    }
-//                    found = true;
-//                    sqlBuilder.replace(index,index+key.length(),String.valueOf(value));
-//                }
-//
-//            }
 
             if (!found)
             {
@@ -393,7 +394,7 @@ class _MyBatis
 
             if (sqlBuilder.indexOf("$[insert-part:") >= 0 || sqlBuilder.indexOf("$[update-part:") >= 0)
             {
-                Pattern exceptPattern = Pattern.compile("except=\\{([a-zA-Z0-9_,\\s]*)\\}");
+
                 List<String> dbColumns;
                 List<String> refColumns;
                 dbColumns = new ArrayList<>();
@@ -404,7 +405,7 @@ class _MyBatis
                     String columnName = DataUtil.getTiedName(field);
                     if (columnName != null)
                     {
-                        dbColumns.add("`" + columnName + "`");
+                        dbColumns.add(columnCoverString + columnName + columnCoverString);
                         refColumns.add("#{" + field.getName() + "}");
                     }
                 }
@@ -423,18 +424,8 @@ class _MyBatis
                         throw new InitException("expected ']' for:" + tag);
                     }
 
-                    Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
-                    String[] excepts = null;
+                    String[] excepts = getExcepts(false, sqlBuilder, tag, index, index2);
 
-                    if (matcher.find())
-                    {
-                        excepts = StrUtil.split(matcher.group(1).trim(), ",");
-                        for (int i = 0; i < excepts.length; i++)
-                        {
-                            excepts[i] = excepts[i].trim();
-                        }
-                        Arrays.sort(excepts);
-                    }
                     List<String> _dbColumns = dbColumns;
                     List<String> _refColumns = refColumns;
                     if (excepts.length > 0)
@@ -471,18 +462,9 @@ class _MyBatis
                         throw new InitException("expected ']' for:" + tag);
                     }
 
-                    Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
-                    String[] excepts = null;
 
-                    if (matcher.find())
-                    {
-                        excepts = StrUtil.split(matcher.group(1).trim(), ",");
-                        for (int i = 0; i < excepts.length; i++)
-                        {
-                            excepts[i] = excepts[i].trim();
-                        }
-                        Arrays.sort(excepts);
-                    }
+                    String[] excepts = getExcepts(true, sqlBuilder, tag, index, index2);
+
                     List<String> _dbColumns = dbColumns;
                     List<String> _refColumns = refColumns;
                     if (excepts.length > 0)
@@ -517,6 +499,51 @@ class _MyBatis
             setFileListener(fileListener);
         }
         return sqlBuilder.toString();
+    }
+
+    private String[] getExcepts(boolean isUpdate, StringBuilder sqlBuilder, String tag, int index, int index2)
+    {
+        Pattern exceptPattern = Pattern.compile("except=\\{([a-zA-Z0-9_,\\s]*)\\}");
+        ExceptColumns exceptColumns = AnnoUtil.getAnnotation(entityClass, ExceptColumns.class);
+        if (exceptColumns == null)
+        {
+            exceptColumns = DEFAULT_EXCEPT_COLUMNS;
+        }
+
+        String[] excepts = null;
+        if (exceptColumns.enableXmlConfiged())
+        {
+            Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+            if (matcher.find())
+            {
+                excepts = StrUtil.split(matcher.group(1).trim(), ",");
+            } else
+            {
+                excepts = new String[0];
+            }
+
+        } else
+        {
+            excepts = new String[0];
+        }
+
+        List<String> list = new ArrayList<>();
+        WPTool.addAll(list, excepts);
+        WPTool.addAll(list, exceptColumns.fields());
+        if (isUpdate)
+        {
+            WPTool.addAll(list, exceptColumns.updatePart());
+        } else
+        {
+            WPTool.addAll(list, exceptColumns.insertPart());
+        }
+        excepts = list.toArray(new String[0]);
+        for (int i = 0; i < excepts.length; i++)
+        {
+            excepts[i] = columnCoverString + excepts[i].trim() + columnCoverString;
+        }
+        Arrays.sort(excepts);
+        return excepts;
     }
 
     List<File> getRelatedFile(List<String> paths)

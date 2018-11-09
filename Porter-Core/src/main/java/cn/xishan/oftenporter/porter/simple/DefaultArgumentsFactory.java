@@ -13,7 +13,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 
@@ -118,7 +118,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
                 jResponse.setExtra(failedReason.toJSON());
                 jResponse.setDescription(failedReason.desc());
-                throw new WCallException(jResponse);
+                throw new OftenCallException(jResponse);
             }
             return v;
         }
@@ -169,7 +169,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
                 jResponse.setExtra(failedReason.toJSON());
                 jResponse.setDescription(failedReason.desc());
-                throw new WCallException(jResponse);
+                throw new OftenCallException(jResponse);
             }
             return v;
         }
@@ -268,8 +268,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 return new WObjectArgDealt();
             }
 
-            _Nece nece = annotationDealt
-                    .nece(AnnoUtil.getAnnotation(paramAnnotations, Nece.class), paramName);
+            _Nece nece = annotationDealt.nece(AnnoUtil.getAnnotation(paramAnnotations, Nece.class), paramName);
             _Unece unece = null;
             if (nece == null)
             {
@@ -301,7 +300,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     name = paramName;
                 }
 
-                InNames.Name theName = porterOfFun.getPorter().getName(name, paramRealType, _parse, nece);
+                InNames.Name theName = porterOfFun.getPorter().getName(annotationDealt,name, paramRealType, _parse, nece);
                 if (nece != null)
                 {
                     argHandle = new NeceArgDealt(nece, theName, paramRealType.getName(), typeParserStore);

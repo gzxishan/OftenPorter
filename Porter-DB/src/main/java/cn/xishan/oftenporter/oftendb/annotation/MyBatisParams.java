@@ -26,7 +26,18 @@ import java.lang.annotation.*;
  * &#60;!--$enable:varName--&#62;...&#60;!--$enable-end:varName--&#62;:表示是否启用代码块，当varName为逻辑假时、中间的代码会被移除
  * </li>
  * <li>
- * 判断varName变量为真或假的方式：1）为逻辑假的情况，变量名为空,变量本身为false、空字符串(trim后的)、null、空数组、空集合、空Map、数字0、字符0、字符串0；2）其余情况为真。
+ * 判断varName变量为真或假的方式：
+ * <ol>
+ * <li>
+ * 假：为逻辑假的情况，变量名为空,变量本身为false、空字符串(trim后的)、null、空数组、空集合、空Map、数字0、字符0、字符串0；
+ * </li>
+ * <li>
+ * 真：其余情况为真。
+ * </li>
+ * <li>
+ * 支持否：!varName表示取反。
+ * </li>
+ * </ol>
  * </li>
  * <li>
  * <strong>默认参数:</strong>
@@ -46,7 +57,7 @@ import java.lang.annotation.*;
  * $[update-part:【except={}】]:"`column`=#{column},..."
  * </li>
  * <li>
- * except:可选项、用于排除的数据库字段名(例如有的表妹remark字段)、多个用逗号隔开
+ * except:可选项、用于排除的数据库字段名(例如有的表妹remark字段)、多个用逗号隔开；也可在实体上增加{@linkplain ExceptColumns}来设置排除的字段。
  * </li>
  * </ul>
  * </li>

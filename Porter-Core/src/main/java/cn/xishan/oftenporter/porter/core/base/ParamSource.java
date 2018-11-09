@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
@@ -66,7 +66,7 @@ public interface ParamSource
             @Override
             public void setUrlResult(UrlDecoder.Result result)
             {
-                throw new WCallException("not support!");
+                throw new OftenCallException("not support!");
             }
 
             @Override
@@ -90,7 +90,7 @@ public interface ParamSource
             @Override
             public void putNewParams(Map<String, ?> newParams)
             {
-                throw new WCallException("not support!");
+                throw new OftenCallException("not support!");
             }
 
             @Override

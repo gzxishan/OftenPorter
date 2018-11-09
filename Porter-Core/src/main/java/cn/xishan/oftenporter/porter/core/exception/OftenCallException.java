@@ -7,11 +7,11 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 
 /**
- * Created by 刚帅 on 2015/10/23.
+ * Created by cyg on 2015/10/23.
  *
  * @see #theJResponse()
  */
-public class WCallException extends RuntimeException
+public class OftenCallException extends RuntimeException
 {
     private JResponse jResponse;
     private JSONObject jsonObject;
@@ -21,7 +21,7 @@ public class WCallException extends RuntimeException
      *
      * @param msg
      */
-    public WCallException(String msg)
+    public OftenCallException(String msg)
     {
         this(ResultCode.OK_BUT_FAILED, msg);
     }
@@ -31,7 +31,7 @@ public class WCallException extends RuntimeException
      *
      * @param msg
      */
-    public WCallException(int code, String msg)
+    public OftenCallException(int code, String msg)
     {
         this(ResultCode.toResponseCode(code), msg);
     }
@@ -41,29 +41,29 @@ public class WCallException extends RuntimeException
      *
      * @param msg
      */
-    public WCallException(ResultCode code, String msg)
+    public OftenCallException(ResultCode code, String msg)
     {
         JResponse jResponse = new JResponse(code);
         jResponse.setDescription(msg);
         this.jResponse = jResponse;
     }
 
-    public WCallException(JSONObject jsonObject)
+    public OftenCallException(JSONObject jsonObject)
     {
         this.jsonObject = jsonObject;
     }
 
-    public WCallException(String msg, Throwable throwable)
+    public OftenCallException(String msg, Throwable throwable)
     {
         super(msg, throwable);
     }
 
-    public WCallException(Throwable cause)
+    public OftenCallException(Throwable cause)
     {
         super(cause);
     }
 
-    public WCallException(JResponse jResponse)
+    public OftenCallException(JResponse jResponse)
     {
         setJResponse(jResponse);
     }
@@ -103,6 +103,7 @@ public class WCallException extends RuntimeException
     @Override
     public String toString()
     {
-        return toJSON().toJSONString();
+        JSONObject json = toJSON();
+        return json == null ? super.toString() : json.toJSONString();
     }
 }

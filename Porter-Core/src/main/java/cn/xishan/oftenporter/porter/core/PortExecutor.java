@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
@@ -9,7 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -17,6 +18,7 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -272,7 +274,7 @@ public final class PortExecutor
             if (LOGGER.isWarnEnabled())
             {
                 Throwable ex = getCause(e);
-                if (ex instanceof WCallException)
+                if (ex instanceof OftenCallException)
                 {
                     LOGGER.warn(ex.getMessage(), ex);
                 } else
@@ -355,7 +357,7 @@ public final class PortExecutor
 
         for (int i = 0; i < ones.length; i++)
         {
-            Object object = paramDealOfOne(context, isInClass, porter, porterOfFun, wObjectImpl, ones[i]);
+            Object object = paramDealOfOne(context, isInClass, porter, porterOfFun, wObjectImpl, ones[i], null);
             if (object instanceof ParamDealt.FailedReason)
             {
                 return (ParamDealt.FailedReason) object;
@@ -377,25 +379,16 @@ public final class PortExecutor
         One one = extraEntityOneMap.get(key);
         if (one != null)
         {
-            Object value = wObject.getParamSource().getParam(key);
-            if (value == null)
-            {
-                value = wObject.getParamSource().getParam(one.clazz.getName());
-            }
-            if (value != null && WPTool.isAssignable(value.getClass(), one.clazz))
-            {
-                return value;//如果获取的变量是相应类型，直接返回。
-            }
-
             PorterOfFun porterOfFun = wObject.porterOfFun;
-            Object object = paramDealOfOne(wObject.context, false, porterOfFun.getPorter(), porterOfFun, wObject, one);
+            Object object = paramDealOfOne(wObject.context, false, porterOfFun.getPorter(), porterOfFun, wObject, one,
+                    key);
             if (object instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) object;
                 JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
                 jResponse.setDescription(failedReason.desc());
                 jResponse.setExtra(failedReason.toJSON());
-                throw new WCallException(jResponse);
+                throw new OftenCallException(jResponse);
             }
             return object;
         }
@@ -403,13 +396,13 @@ public final class PortExecutor
     }
 
     private Object paramDealOfOne(Context context, boolean isInClass, Porter porter, PorterOfFun porterOfFun,
-            WObjectImpl wObjectImpl, One one)
+            WObjectImpl wObjectImpl, One one, @MayNull String optionKey)
     {
         TypeParserStore currentTypeParserStore = context.innerContextBridge.innerBridge.globalParserStore;
         boolean ignoreTypeParser = isInClass ? porter.getPortIn().ignoreTypeParser() : porterOfFun.getMethodPortIn()
                 .ignoreTypeParser();
         Object object = portUtil.paramDealOne(wObjectImpl, ignoreTypeParser, context.innerContextBridge.paramDealt,
-                one, wObjectImpl.getParamSource(), currentTypeParserStore);
+                one, optionKey, wObjectImpl.getParamSource(), currentTypeParserStore);
 
         if (!(object instanceof ParamDealt.FailedReason))
         {
@@ -857,10 +850,7 @@ public final class PortExecutor
                 Logger logger = logger(wObject);
                 if (logger.isWarnEnabled())
                 {
-                    if (ex instanceof WCallException)
-                    {
-                        logger.warn(ex.getMessage(), ex);
-                    } else
+                    if (!(ex instanceof OftenCallException))
                     {
                         logger.warn(ex.getMessage(), ex);
                     }
@@ -991,9 +981,13 @@ public final class PortExecutor
             {
                 JResponse jResponse = (JResponse) object;
                 Throwable throwable = jResponse.getExCause();
-                if (throwable instanceof WCallException)
+                if (throwable instanceof OftenCallException)
                 {
-                    object = ((WCallException) throwable).toJSON();
+                    JResponse jr = ((OftenCallException) throwable).theJResponse();
+                    if (jr != null)
+                    {
+                        object = jr;
+                    }
                 }
                 wObject.getResponse().toErr();
                 if (LOGGER.isDebugEnabled())
@@ -1045,7 +1039,7 @@ public final class PortExecutor
         Logger logger = logger(wObject);
         if (logger.isWarnEnabled())
         {
-            if (throwable instanceof WCallException)
+            if (throwable instanceof OftenCallException)
             {
                 logger.warn(wObject.url() + ":" + throwable.getMessage(), throwable);
             } else
@@ -1057,9 +1051,18 @@ public final class PortExecutor
         if (responseWhenException)
         {
             Object object;
-            if (throwable instanceof WCallException)
+            if (throwable instanceof OftenCallException)
             {
-                object = ((WCallException) throwable).toJSON();
+                OftenCallException oftenCallException = (OftenCallException) throwable;
+                JResponse jr = oftenCallException.theJResponse();
+                if (jr != null)
+                {
+                    object = jr;
+                } else
+                {
+                    JSONObject json = oftenCallException.toJSON();
+                    object = json.toJSONString();
+                }
             } else
             {
                 JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
@@ -1164,7 +1167,8 @@ public final class PortExecutor
             {
                 responseHandle = wObject.context.defaultResponseHandle;
             }
-            if (responseHandle != null && responseHandle.hasDoneWrite(wObject, porterOfFun, object))
+            if (wObject.isInnerRequest() && responseHandle != null && responseHandle
+                    .hasDoneWrite(wObject, porterOfFun, object))
             {
                 return false;
             }
@@ -1175,7 +1179,7 @@ public final class PortExecutor
             if (logger.isWarnEnabled())
             {
                 Throwable ex = getCause(e);
-                if (ex instanceof WCallException)
+                if (ex instanceof OftenCallException)
                 {
                     logger.warn(ex.getMessage(), ex);
                 } else
@@ -1205,7 +1209,7 @@ public final class PortExecutor
             if (logger.isWarnEnabled())
             {
                 Throwable ex = getCause(e);
-                if (ex instanceof WCallException)
+                if (ex instanceof OftenCallException)
                 {
                     logger.warn(ex.getMessage(), ex);
                 } else

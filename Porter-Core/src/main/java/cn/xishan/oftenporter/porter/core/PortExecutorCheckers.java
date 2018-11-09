@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 
 import java.util.ArrayList;
@@ -161,9 +161,9 @@ class PortExecutorCheckers extends CheckHandle
     {
         if (failedObject != null)
         {
-            if (failedObject instanceof WCallException)
+            if (failedObject instanceof OftenCallException)
             {
-                WCallException callException = (WCallException) failedObject;
+                OftenCallException callException = (OftenCallException) failedObject;
                 failedObject = callException.theJResponse();
             }
             handle.go(failedObject);

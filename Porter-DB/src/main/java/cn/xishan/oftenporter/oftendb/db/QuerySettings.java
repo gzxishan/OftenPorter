@@ -84,15 +84,6 @@ public class QuerySettings
     }
 
     /**
-     * 使用{@linkplain #appendOrder(String, int)}
-     */
-    @Deprecated
-    public QuerySettings putOrder(String name, int n)
-    {
-        return appendOrder(name, n);
-    }
-
-    /**
      * @param name
      * @param n    其中1为升序排列，而-1是用于降序排列
      * @return

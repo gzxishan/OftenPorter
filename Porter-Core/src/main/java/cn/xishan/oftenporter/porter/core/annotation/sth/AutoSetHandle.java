@@ -744,7 +744,7 @@ public class AutoSetHandle
                 }
             }
 
-            _AutoSet autoSet = annotationDealt.autoSet(f);
+            _AutoSet autoSet = annotationDealt.autoSet(currentObjectClass,f);
             if (autoSet == null)
             {
                 Object value = f.get(currentObject);

@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -10,6 +11,8 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import java.util.Map;
 
 import cn.xishan.oftenporter.porter.core.base.InNames.Name;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 默认的参数处理实现。
@@ -17,14 +20,17 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  */
 public class DefaultParamDealt implements ParamDealt
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultParamDealt.class);
+
     @Override
-    public FailedReason deal(WObject wObject, Name[] names, _Nece[] neceDeals, Object[] values, boolean isNecessary,
+    public FailedReason deal(WObject wObject, Name[] names, Object[] values, boolean isNecessary,
             ParamSource paramSource,
             TypeParserStore typeParserStore, String namePrefix)
     {
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
+            _Nece nece = isNecessary ? name.getNece() : null;
             Object value = getParam(wObject, namePrefix, name, paramSource, typeParserStore.byId(name.typeParserId),
                     name.getDealt());
             if (value != null)
@@ -36,7 +42,7 @@ public class DefaultParamDealt implements ParamDealt
                 {
                     values[i] = value;
                 }
-            } else if (isNecessary && (neceDeals == null || neceDeals[i].isNece(wObject)))
+            } else if (isNecessary && (nece == null || nece.isNece(wObject)))
             {
                 return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", namePrefix + name.varName);
             }
@@ -55,6 +61,22 @@ public class DefaultParamDealt implements ParamDealt
     {
         String name = namePrefix == null ? theName.varName : namePrefix + theName.varName;
         Object v = paramSource.getParam(name);
+        if (v == null)
+        {
+            try
+            {
+                v = theName.getTypeObject(wObject, paramSource);//见PortUtil.paramDealOne
+            } catch (Throwable e)
+            {
+                e = WPTool.getCause(e);
+                LOGGER.warn(e.getMessage(), e);
+                return DefaultFailedReason.parseOPEntitiesException(e.getMessage());
+            }
+            if(v instanceof FailedReason){
+                return v;
+            }
+        }
+
         if (WPTool.isEmpty(v))
         {
             v = theName.getDefaultValue();

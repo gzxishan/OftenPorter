@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.*;
@@ -111,7 +111,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public abstract boolean isInnerRequest();
 
-    public boolean isTopRequest()
+    public boolean isOriginalRequest()
     {
         return original() == this;
     }
@@ -267,7 +267,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
 //    private static class Temp
 //    {
-//        WCallException exception;
+//        OftenCallException exception;
 //    }
 
     /**
@@ -288,7 +288,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
         request.addParamAll(INameValues);
         if (throwWCallException)
         {
-            WCallException[] wCallExceptions = new WCallException[1];
+            OftenCallException[] oftenCallExceptions = new OftenCallException[1];
             delivery().innerBridge().request(request, lResponse ->
             {
                 Object rs = lResponse.getResponse();
@@ -297,7 +297,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
                     JResponse jResponse = (JResponse) rs;
                     if (jResponse.isNotSuccess())
                     {
-                        wCallExceptions[0] = new WCallException(jResponse);
+                        oftenCallExceptions[0] = new OftenCallException(jResponse);
                         return;
                     }
                 }
@@ -306,9 +306,9 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
                     callback.onResponse(lResponse);
                 }
             });
-            if (wCallExceptions[0] != null)
+            if (oftenCallExceptions[0] != null)
             {
-                throw wCallExceptions[0];
+                throw oftenCallExceptions[0];
             }
         } else
         {
@@ -363,7 +363,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public <T> T putRequestData(String name, Object value)
     {
-        LOGGER.debug("name={},value={}",name,value);
+        LOGGER.debug("name={},value={}", name, value);
         WObject wObject = original();
         if (wObject.requestDataMap == null)
         {
@@ -389,7 +389,7 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
      */
     public <T> T putCurrentRequestData(String name, Object value)
     {
-        LOGGER.debug("name={},value={}",name,value);
+        LOGGER.debug("name={},value={}", name, value);
         if (this.requestDataMap == null)
         {
             this.requestDataMap = new HashMap<>();

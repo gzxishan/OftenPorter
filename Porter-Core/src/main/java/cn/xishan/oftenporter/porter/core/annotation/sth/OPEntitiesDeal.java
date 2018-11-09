@@ -64,7 +64,7 @@ public class OPEntitiesDeal
     One dealOPEntity(Class<?> entityClass, Method method, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
-        _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntity(entityClass,method);
+        _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntity(entityClass, method);
         OPEntities opEntities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
         return opEntities.ones[0];
     }
@@ -83,7 +83,7 @@ public class OPEntitiesDeal
             for (int i = 0; i < types.length; i++)
             {
                 _BindEntities.CLASS clzz = types[i];
-                ones[i] = bindOne(clzz.clazz, innerContextBridge,true);
+                ones[i] = bindOne(clzz.clazz, innerContextBridge, true);
                 ones[i].setEntityClazz(clzz);
                 cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
                 if (clzz.bindEntityDealtHandle != null)
@@ -97,7 +97,8 @@ public class OPEntitiesDeal
     }
 
 
-    One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge,boolean notFoundTypeParserThrows) throws Exception
+    One bindOne(Class<?> clazz, InnerContextBridge innerContextBridge,
+            boolean notFoundTypeParserThrows) throws Exception
     {
 
         One one;
@@ -115,7 +116,7 @@ public class OPEntitiesDeal
         Field[] fields = WPTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
         List<Name> neceNames = new ArrayList<>();
-        List<_Nece> neceDeals = new ArrayList<>();
+        // List<_Nece> neceDeals = new ArrayList<>();
         List<Field> unneces = new ArrayList<>();
         List<Name> unneceNames = new ArrayList<>();
 
@@ -134,7 +135,7 @@ public class OPEntitiesDeal
             if (jsonObj != null && jsonObj.willSetForRequest())
             {
                 CacheOne cacheOne = innerContextBridge.innerBridge.cacheTool
-                        .getCacheOne(field.getType(), innerContextBridge,notFoundTypeParserThrows);
+                        .getCacheOne(field.getType(), innerContextBridge, notFoundTypeParserThrows);
                 jsonObjFields.add(field);
                 jsonObjOnes.add(cacheOne.getOne());
                 String varName = (jsonObj.value().equals("") ? field.getName() : jsonObj
@@ -155,7 +156,7 @@ public class OPEntitiesDeal
             {
                 nameStr = nece.getVarName();
                 nameList = neceNames;
-                neceDeals.add(nece);
+                //neceDeals.add(nece);
                 fieldList = neces;
             } else if ((unNece = annotationDealt.unNece(field)) != null)
             {
@@ -192,21 +193,21 @@ public class OPEntitiesDeal
                     }
 
                 }
+                name.setType(annotationDealt, AnnoUtil.Advance.getRealTypeOfField(clazz, field), nece);
                 nameList.add(name);
                 fieldList.add(field);
             }
 
         }
-        one = new One(clazz,
-                new InNames(neceNames.toArray(new Name[0]), neceDeals.toArray(new _Nece[0]),
-                        unneceNames.toArray(new Name[0]), null),
+        one = new One(clazz, new InNames(neceNames.toArray(new Name[0]), unneceNames.toArray(new Name[0]), null),
                 neces.toArray(new Field[0]), unneces.toArray(new Field[0]), jsonObjFields.toArray(new Field[0]),
                 jsonObjOnes.toArray(new One[0]), jsonObjVarnames.toArray(new String[0]));
 
         return one;
     }
 
-    public static Name getName(String nameStr, Class<?> type, TypeParserStore typeParserStore,
+    public static Name getName(AnnotationDealt annotationDealt, _Nece nece, String nameStr, Class<?> type,
+            TypeParserStore typeParserStore,
             boolean notFoundThrows) throws ClassNotFoundException
     {
         Class<? extends ITypeParser> typeParser = ParserUtil.getTypeParser(type, notFoundThrows);
@@ -216,6 +217,7 @@ public class OPEntitiesDeal
             typeId = SthUtil.putTypeParser(typeParser, typeParserStore);
         }
         Name name = new Name(nameStr, typeId);
+        name.setType(annotationDealt, type, nece);
         return name;
     }
 

@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,12 +107,12 @@ public class AspectHandleOfPortInUtil
                 }
                 throw throwable;
             }
-        } catch (WCallException e)
+        } catch (OftenCallException e)
         {
             throw e;
         } catch (Throwable e)
         {
-            throw new WCallException(e);
+            throw new OftenCallException(e);
         }
     }
 

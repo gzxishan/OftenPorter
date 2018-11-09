@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -136,7 +136,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
             _page = (String) obj;
         } else
         {
-            throw new WCallException("unknown return type:" + obj);
+            throw new OftenCallException("unknown return type:" + obj);
         }
 
 

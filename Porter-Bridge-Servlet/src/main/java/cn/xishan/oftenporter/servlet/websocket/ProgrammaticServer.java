@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.servlet.websocket;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
 
 import javax.websocket.*;
@@ -25,7 +25,7 @@ public class ProgrammaticServer extends Endpoint
             porterOfFun.invokeByHandleArgs(wObject,WS.newWS(type, session, isLast, value));
         } catch (Exception e)
         {
-            throw new WCallException(e);
+            throw new OftenCallException(e);
         }
     }
 

@@ -23,10 +23,7 @@ class SyncPorterImpl implements PorterNotInnerSync
 
     private _SyncPorterOption syncPorterOption;
 
-    private static class Temp
-    {
-        Object rs = null;
-    }
+
 
     @AutoSet.SetOk(priority = Integer.MAX_VALUE)
     public void setOk()
@@ -60,15 +57,15 @@ class SyncPorterImpl implements PorterNotInnerSync
         }
 
         request.addParamAll(INameValues);
-        Temp temp = new Temp();
+        Object[] temp=new Object[1];
         if (isInner)
         {
-            delivery.innerBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+            delivery.innerBridge().request(request, lResponse -> temp[0] = lResponse.getResponse());
         } else
         {
-            delivery.currentBridge().request(request, lResponse -> temp.rs = lResponse.getResponse());
+            delivery.currentBridge().request(request, lResponse -> temp[0] = lResponse.getResponse());
         }
-        return (T) temp.rs;
+        return (T) temp[0];
     }
 
     @Override
@@ -81,24 +78,27 @@ class SyncPorterImpl implements PorterNotInnerSync
     @Override
     public <T> T invokeWithObjects(WObject wObject, Object... objects)
     {
-        List<Object> list = new ArrayList<>();
+        List<String> names = new ArrayList<>();
+        List<Object> values = new ArrayList<>();
         for (Object obj : objects)
         {
-            if(obj instanceof FunParam){
+            if (obj instanceof FunParam)
+            {
                 FunParam funParam = (FunParam) obj;
-                if(WPTool.isEmpty(funParam.getName())){
+                if (WPTool.isEmpty(funParam.getName()))
+                {
                     throw new NullPointerException("empty FunParam name!");
                 }
-                list.add(funParam.getName());
-                list.add(funParam.getValue());
-            }
-            else if (obj != null)
+                names.add(funParam.getName());
+                values.add(funParam.getValue());
+            } else if (obj != null)
             {
-                list.add(obj.getClass().getName());
-                list.add(obj);
+                names.add(obj.getClass().getName());
+                values.add(obj);
             }
         }
-        return requestSimple(wObject, list.toArray(new Object[0]));
+        DefaultNameValues defaultNameValues = new DefaultNameValues(names, values);
+        return request(wObject, defaultNameValues);
     }
 
     @Override

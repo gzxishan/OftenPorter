@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.advanced;
 
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
@@ -38,6 +39,24 @@ public class PortUtil
         LOGGER = LogUtil.logger(PortUtil.class);
     }
 
+    /**
+     * 是否忽略某些类的高级处理。
+     *
+     * @param clazz
+     * @return
+     */
+    public static final boolean willIgnoreAdvanced(Class clazz)
+    {
+        Package pkg = clazz.getPackage();
+        String pkgName = pkg != null ? pkg.getName() : null;
+        if (pkgName != null && (pkgName.startsWith("java.") || pkgName.startsWith("javax.")||clazz.isPrimitive()))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
 
     /**
      * 得到类的绑定名。
@@ -314,10 +333,12 @@ public class PortUtil
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
     public Object paramDealOne(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+            String optionKey,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
-        return paramDealOne(wObject, ignoreTypeParser, paramDealt, one, paramSource, currentTypeParserStore, "");
+        return paramDealOne(wObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource, currentTypeParserStore,
+                "");
     }
 
     /**
@@ -325,12 +346,52 @@ public class PortUtil
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
     private Object paramDealOne(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+            String optionKey,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore, String namePrefix)
     {
         Object obj;
         try
         {
+
+            {
+                Object value = null;
+                if (WPTool.notNullAndEmpty(optionKey))
+                {
+                    value = paramSource.getParam(optionKey);
+                }
+                if (value == null)
+                {
+                    value = paramSource.getParam(one.clazz.getName());
+                }
+                if (value != null && WPTool.isAssignable(value.getClass(), one.clazz))
+                {
+                    Name[] neces = one.inNames.nece;
+                    //判断必须值
+                    for (int i = 0; i < neces.length; i++)
+                    {
+                        Field f = one.neceObjFields[i];
+                        if (neces[i].getNece().isNece(wObject) && WPTool.isEmpty(f.get(value)))
+                        {
+                            value = DefaultFailedReason
+                                    .lackNecessaryParams("Lack necessary params!", neces[i].varName);
+                            break;
+                        }
+                    }
+                    if (!(value instanceof ParamDealt.FailedReason))
+                    {
+                        //转换内嵌对象
+                        Object fieldObject = parseInnerOnes(wObject, ignoreTypeParser, paramDealt, one, paramSource,
+                                value, currentTypeParserStore, namePrefix);//见DefaultParamDealt.getParam
+                        if (fieldObject instanceof ParamDealt.FailedReason)
+                        {
+                            value = fieldObject;
+                        }
+                    }
+
+                    return value;//如果获取的变量是相应类型，直接返回。
+                }
+            }
             Object[] neces = PortUtil.newArray(one.inNames.nece);
             Object[] unneces = PortUtil.newArray(one.inNames.unece);
             Object reason = paramDeal(wObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces, paramSource,
@@ -354,19 +415,11 @@ public class PortUtil
                 obj = object;
 
                 //转换内嵌对象
-                for (int i = 0; i < one.jsonObjFields.length; i++)
+                Object fieldObject = parseInnerOnes(wObject, ignoreTypeParser, paramDealt, one, paramSource, object,
+                        currentTypeParserStore, namePrefix);
+                if (fieldObject instanceof ParamDealt.FailedReason)
                 {
-
-                    Object fieldObject = paramDealOne(wObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i],
-                            paramSource, currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
-                    if (fieldObject instanceof ParamDealt.FailedReason)
-                    {
-                        obj = fieldObject;
-                        break;
-                    } else
-                    {
-                        one.jsonObjFields[i].set(object, fieldObject);
-                    }
+                    obj = fieldObject;
                 }
             } else
             {
@@ -376,6 +429,29 @@ public class PortUtil
         {
             LOGGER.warn(e.getMessage(), e);
             obj = DefaultFailedReason.parseOPEntitiesException(WPTool.getMessage(e));
+        }
+        return obj;
+    }
+
+    private Object parseInnerOnes(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+            ParamSource paramSource, Object object,
+            TypeParserStore currentTypeParserStore, String namePrefix) throws Exception
+    {
+        Object obj = null;
+        //转换内嵌对象
+        for (int i = 0; i < one.jsonObjFields.length; i++)
+        {
+
+            Object fieldObject = paramDealOne(wObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i], null,
+                    paramSource, currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
+            if (fieldObject instanceof ParamDealt.FailedReason)
+            {
+                obj = fieldObject;
+                break;
+            } else
+            {
+                one.jsonObjFields[i].set(object, fieldObject);
+            }
         }
         return obj;
     }
@@ -417,7 +493,8 @@ public class PortUtil
                 Name[] names = inNames.nece;
                 for (int i = 0; i < nece.length; i++)
                 {
-                    if (inNames.neceDeals == null || inNames.neceDeals[i].isNece(wObject))
+                    _Nece neceDeal = names[i].getNece();
+                    if (neceDeal == null || neceDeal.isNece(wObject))
                     {
                         nece[i] = paramSource.getNeceParam(namePrefix + names[i].varName);
                     } else
@@ -432,13 +509,12 @@ public class PortUtil
                 }
             } else
             {
-                reason = paramDealt.deal(wObject, inNames.nece, inNames.neceDeals, nece, true, paramSource,
+                reason = paramDealt.deal(wObject, inNames.nece, nece, true, paramSource,
                         currentTypeParserStore, namePrefix);
                 if (reason == null)
                 {
-                    reason = paramDealt
-                            .deal(wObject, inNames.unece, null, unece, false, paramSource, currentTypeParserStore,
-                                    namePrefix);
+                    reason = paramDealt.deal(wObject, inNames.unece, unece, false,
+                            paramSource, currentTypeParserStore, namePrefix);
                 }
             }
         } catch (Exception e)

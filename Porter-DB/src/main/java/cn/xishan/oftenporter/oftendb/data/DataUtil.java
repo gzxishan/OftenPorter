@@ -205,18 +205,6 @@ public class DataUtil
             neceUnece = ANNOTATION_DEALT.unNece(field);
         }
 
-//        Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
-//        if (nece != null)
-//        {
-//            name = PortUtil.tied(nece, field, true);
-//        } else
-//        {
-//            Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
-//            if (unece != null)
-//            {
-//                name = PortUtil.tied(unece, field, true);
-//            }
-//        }
         if (neceUnece == null)
         {
             DBField dbField = AnnoUtil.getAnnotation(field, DBField.class);
@@ -235,12 +223,7 @@ public class DataUtil
         String name = null;
         if (neceUnece != null)
         {
-            name = neceUnece.getVarName();
-            int index = name.indexOf('(');
-            if (index >= 0)//去除参数。
-            {
-                name = name.substring(0, index);
-            }
+            name = InNames.Name.removeConfig(neceUnece.getVarName());
         }
 
         return name;

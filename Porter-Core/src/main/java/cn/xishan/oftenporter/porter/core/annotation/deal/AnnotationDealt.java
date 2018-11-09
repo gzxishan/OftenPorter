@@ -104,7 +104,17 @@ public final class AnnotationDealt
     }
 
 
-    public _AutoSet autoSet(Field field)
+    public _AutoSet autoSet(Class declaredClass, Field field)
+    {
+        _AutoSet autoSet = autoSet(field);
+        if (autoSet != null)
+        {
+            autoSet.willRecursive = !PortUtil.willIgnoreAdvanced(declaredClass);
+        }
+        return autoSet;
+    }
+
+    private _AutoSet autoSet(Field field)
     {
         AutoSet autoSet = AnnoUtil.getAnnotation(field, AutoSet.class);
         if (autoSet == null)

@@ -237,7 +237,8 @@ class MyBatisDaoGen implements AutoSetGen
 
 
     @Override
-    public Object genObject(IConfigData iConfigData,Class<?> currentObjectClass, Object currentObject, Field field, Class<?> realFieldType,
+    public Object genObject(IConfigData iConfigData, Class<?> currentObjectClass, Object currentObject, Field field,
+            Class<?> realFieldType,
             _AutoSet autoSet,
             String option)
     {
@@ -366,15 +367,18 @@ class MyBatisDaoGen implements AutoSetGen
             MyBatisAlias myBatisAlias = myBatisAliases[i];
             aliases[i] = new _MyBatis.Alias(myBatisAlias.alias(), myBatisAlias.type());
         }
+        MybatisConfig.MOption option = moption();
 
-        _MyBatis myBatis = new _MyBatis(aliases, theType, moption().myBatisOption.resourcesDir, name);
+        _MyBatis myBatis = new _MyBatis(aliases, theType, option.myBatisOption.columnCoverString,
+                option.myBatisOption.resourcesDir,
+                name);
         myBatis.daoClass = mapperClass;
 
         Class<?> entityClass = null;
 
         if (myBatisMapper != null)
         {
-            myBatis.isAutoAlias = moption().myBatisOption.autoRegisterAlias;
+            myBatis.isAutoAlias = option.myBatisOption.autoRegisterAlias;
             myBatis.entityClass = myBatisMapper.entityClass();
             entityClass = myBatis.entityClass;
             if (myBatis.entityClass.equals(MyBatisMapper.class) && myBatisMapper
@@ -408,15 +412,15 @@ class MyBatisDaoGen implements AutoSetGen
         LOGGER.debug("mapper={},type={},entity={},dao={}", path, theType, entityClass, mapperClass);
 
         MyBatisDaoImpl myBatisDao = new MyBatisDaoImpl(this, myBatis, path);
-        if (moption().myBatisOption.resourcesDir != null && theType == MyBatisMapper.Type.RESOURCES)
+        if (option.myBatisOption.resourcesDir != null && theType == MyBatisMapper.Type.RESOURCES)
         {
-            File file = new File(moption().myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
+            File file = new File(option.myBatisOption.resourcesDir + getFileRelativePath(myBatis, path));
             if (file.exists() && file.isFile())
             {
                 myBatisDao.setMapperFile(file);
             }
         }
-        moption().mSqlSessionFactoryBuilder.addListener(myBatisDao);
+        option.mSqlSessionFactoryBuilder.addListener(myBatisDao);
         return myBatisDao;
     }
 }

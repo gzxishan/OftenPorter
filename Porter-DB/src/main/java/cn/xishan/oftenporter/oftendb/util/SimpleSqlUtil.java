@@ -86,7 +86,35 @@ public class SimpleSqlUtil
         public String order;
     }
 
-    public static SQLPart from(TableOption tableOption)
+    private String columnCoverString = "`";
+
+    private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil();
+
+    public static SimpleSqlUtil getInstance()
+    {
+        return INSTANCE;
+    }
+
+    public SimpleSqlUtil()
+    {
+    }
+
+    public String getColumnCoverString()
+    {
+        return columnCoverString;
+    }
+
+    /**
+     * 设置字段被包裹的内容，默认为"`"。
+     *
+     * @param columnCoverString
+     */
+    public void setColumnCoverString(String columnCoverString)
+    {
+        this.columnCoverString = columnCoverString;
+    }
+
+    public SQLPart from(TableOption tableOption)
     {
         List order = null;
         if (tableOption.settings != null)
@@ -102,7 +130,7 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
-    public static SQLPart fromNameValues(Map query, List order, Object... nameValues)
+    public SQLPart fromNameValues(Map query, List order, Object... nameValues)
     {
         return from(query, toQueryArray(nameValues), order);
     }
@@ -135,7 +163,7 @@ public class SimpleSqlUtil
      * @param nameValues
      * @return
      */
-    public static JSONArray toQueryArray(Object... nameValues)
+    public JSONArray toQueryArray(Object... nameValues)
     {
         JSONArray queryArray = new JSONArray();
         for (int i = 0; i < nameValues.length; )
@@ -193,7 +221,7 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
-    public static SQLPart from(Map query, JSONArray queryArray, List order)
+    public SQLPart from(Map query, JSONArray queryArray, List order)
     {
         if (query == null)
         {
@@ -202,8 +230,8 @@ public class SimpleSqlUtil
         {
             query = new HashMap(query);
         }
-        String noWhere = SimpleSqlUtil.toNoWhereStr(queryArray, query);
-        String noOrderStr = SimpleSqlUtil.toNoOrderStr(order);
+        String noWhere = toNoWhereStr(queryArray, query);
+        String noOrderStr = toNoOrderStr(order);
         String orderStr = "";
         if (!noOrderStr.equals(""))
         {
@@ -221,7 +249,7 @@ public class SimpleSqlUtil
         return sqlPart;
     }
 
-    public static String toOrderStr(List order)
+    public String toOrderStr(List order)
     {
         String noOrderStr = toNoOrderStr(order);
         return WPTool.isEmpty(noOrderStr) ? noOrderStr : "ORDER BY " + noOrderStr;
@@ -233,7 +261,7 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
-    public static String toNoOrderStr(List order)
+    public String toNoOrderStr(List order)
     {
         String orderStr = "";
         if (order != null && order.size() > 0)
@@ -245,10 +273,10 @@ public class SimpleSqlUtil
                 Integer n = (Integer) order.get(i + 1);
                 if (n != null)
                 {
-                    querySettings.putOrder(field, n);
+                    querySettings.appendOrder(field, n);
                 }
             }
-            orderStr = SqlUtil.toOrder(querySettings, false);
+            orderStr = SqlUtil.toOrder(querySettings, columnCoverString, false);
             String orderBy = "ORDER BY";
             int index = orderStr.indexOf(orderBy);
             orderStr = orderStr.substring(index + orderBy.length()).trim();
@@ -287,7 +315,7 @@ public class SimpleSqlUtil
      * @param queryArray 见{@linkplain TableOption#queryArray}
      * @return
      */
-    public static String toNoWhereStr(JSONArray queryArray, Map<String, Object> forQuery)
+    public String toNoWhereStr(JSONArray queryArray, Map<String, Object> forQuery)
     {
         if (forQuery == null)
         {
@@ -298,7 +326,7 @@ public class SimpleSqlUtil
         {
             return "";
         }
-        SqlCondition rootCondition = new SqlCondition();
+        SqlCondition rootCondition = new SqlCondition(columnCoverString);
 
         SqlCondition current = rootCondition;
         Stack<SqlCondition> conditionStack = new Stack<>();
@@ -315,21 +343,21 @@ public class SimpleSqlUtil
 
             if (name.equals("$and["))
             {
-                SqlCondition and = new SqlCondition();
+                SqlCondition and = new SqlCondition(columnCoverString);
                 current.append(Condition.AND, and);
                 current = and;
                 conditionStack.push(current);
                 continue;
             } else if (name.equals("$or["))
             {
-                SqlCondition or = new SqlCondition();
+                SqlCondition or = new SqlCondition(columnCoverString);
                 current.append(Condition.OR, or);
                 current = or;
                 conditionStack.push(current);
                 continue;
             } else if (name.equals("$not["))
             {
-                SqlCondition not = new SqlCondition();
+                SqlCondition not = new SqlCondition(columnCoverString);
                 current.append(Condition.NOT, not);
                 current = not;
                 conditionStack.push(current);
@@ -341,11 +369,12 @@ public class SimpleSqlUtil
                 continue;
             } else if (name.startsWith("$ignull:"))
             {
-                if(WPTool.isEmpty(value)){
+                if (WPTool.isEmpty(value))
+                {
                     //忽略空值
                     continue;
                 }
-                name=name.substring(8);
+                name = name.substring(8);
             }
 
             boolean willAddName = true;
@@ -353,15 +382,15 @@ public class SimpleSqlUtil
             int index = 0;
             if (WPTool.isEmpty(value))
             {
-                String oldName=name;
+                String oldName = name;
                 if (name.startsWith("$ne:"))
                 {
                     name = "$notnull:" + name.substring(4);
-                    LOGGER.warn("change sql op:{} -> {}",oldName,name);
+                    LOGGER.warn("change sql op:{} -> {}", oldName, name);
                 } else if (name.startsWith("$eq:"))
                 {
                     name = "$null:" + name.substring(4);
-                    LOGGER.warn("change sql op:{} -> {}",oldName,name);
+                    LOGGER.warn("change sql op:{} -> {}", oldName, name);
                 }
             }
 
@@ -455,7 +484,7 @@ public class SimpleSqlUtil
                         {
                             if (type.equals("$iin:") || type.equals("$inin:"))
                             {
-                                LOGGER.warn("ignore in or nin when empty:{}{}",type,name);
+                                LOGGER.warn("ignore in or nin when empty:{}{}", type, name);
                                 continue;//忽略
                             }
                             if (type.equals("$in:"))
@@ -465,7 +494,7 @@ public class SimpleSqlUtil
                             {
                                 operator = SqlCondition.TRUE;
                             }
-                            LOGGER.warn("change sql op:{}{} -> {}",type,name,operator== SqlCondition.TRUE);
+                            LOGGER.warn("change sql op:{}{} -> {}", type, name, operator == SqlCondition.TRUE);
                             willAddName = false;
                         } else
                         {

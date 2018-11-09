@@ -2,29 +2,31 @@ package cn.xishan.oftenporter.porter.simple;
 
 
 import cn.xishan.oftenporter.porter.core.base.INameValues;
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class DefaultNameValues implements INameValues
 {
 
-    private String[] names;
-    private Object[] values;
+    private List<String> names;
+    private List<Object> values;
 
 
     /**
-     *
      * @param nameValues 必须是key(String),value(Object),key,value...的形式
      * @return
      */
-    public static DefaultNameValues fromArray(Object ... nameValues){
+    public static DefaultNameValues fromArray(Object... nameValues)
+    {
         if (nameValues.length % 2 != 0)
         {
             throw new IllegalArgumentException("Illegal arguments length:" + nameValues.length);
         }
-        DefaultNameValues appValues = new DefaultNameValues();
         String[] names = new String[nameValues.length / 2];
         Object[] values = new Object[nameValues.length / 2];
         for (int i = 0, k = 0; i < nameValues.length; i += 2, k++)
@@ -32,21 +34,22 @@ public class DefaultNameValues implements INameValues
             names[k] = (String) nameValues[i];
             values[k] = nameValues[i + 1];
         }
-        appValues.names(names).values(values);
-        return appValues;
+        DefaultNameValues defaultNameValues = new DefaultNameValues();
+        defaultNameValues.append(names, values);
+        return defaultNameValues;
     }
 
     public JSONObject toJson()
     {
-        JSONObject jsonpObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         if (names != null)
         {
-            for (int i = 0; i < names.length; i++)
+            for (int i = 0; i < names.size(); i++)
             {
-                jsonpObject.put(names[i], values[i]);
+                jsonObject.put(names.get(i), values.get(i));
             }
         }
-        return jsonpObject;
+        return jsonObject;
     }
 
 
@@ -58,13 +61,9 @@ public class DefaultNameValues implements INameValues
      */
     public static DefaultNameValues fromJSON(JSONObject jsonObject)
     {
-        DefaultNameValues defaultNameValues = new DefaultNameValues();
 
         String[] names = new String[jsonObject.size()];
         Object[] values = new Object[jsonObject.size()];
-        defaultNameValues.names = names;
-        defaultNameValues.values = values;
-
         Iterator<Map.Entry<String, Object>> iterator = jsonObject.entrySet().iterator();
         int i = 0;
         while (iterator.hasNext())
@@ -73,83 +72,69 @@ public class DefaultNameValues implements INameValues
             names[i] = entry.getKey();
             values[i++] = entry.getValue();
         }
-
+        DefaultNameValues defaultNameValues = new DefaultNameValues();
+        defaultNameValues.append(names, values);
         return defaultNameValues;
     }
 
-    public DefaultNameValues add(INameValues INameValues)
+    public DefaultNameValues append(INameValues INameValues)
     {
 
         if (INameValues != null)
         {
             String[] names = INameValues.getNames();
             Object[] values = INameValues.getValues();
-
-            String[] strs;
-            Object[] objects;
-
-            int len1 = this.names == null ? 0 : this.names.length;
-            int len2 = names == null ? 0 : names.length;
-            strs = new String[len1 + len2];
-            objects = new Object[strs.length];
-            int offset = 0;
-            if (len1 > 0)
-            {
-                System.arraycopy(this.names, 0, strs, offset, len1);
-                System.arraycopy(this.values, 0, objects, offset, len1);
-                offset += len1;
-            }
-            if (len2 > 0)
-            {
-                System.arraycopy(names, 0, strs, offset, len2);
-                System.arraycopy(values, 0, objects, offset, len2);
-            }
-            this.names = strs;
-            this.values = objects;
+            append(names, values);
         }
         return this;
     }
 
-    public DefaultNameValues(String... names)
+    public DefaultNameValues(List<String> names, List<Object> values)
     {
-        names(names);
+        this();
+        append(names, values);
+    }
+
+    public DefaultNameValues(String[] names, Object[] values)
+    {
+        this();
+        append(names, values);
+    }
+
+    public DefaultNameValues()
+    {
+        names = new ArrayList<>();
+        values = new ArrayList<>();
     }
 
     @Override
     public String[] getNames()
     {
-        return names;
+        return names.toArray(new String[0]);
     }
 
     @Override
     public Object[] getValues()
     {
-        return values;
+        return values.toArray(new Object[0]);
     }
 
 
-    /**
-     * 设置值
-     *
-     * @param values 值列表
-     * @return 返回自己
-     */
-    public DefaultNameValues values(Object... values)
+    public DefaultNameValues append(List<String> names, List<Object> values)
     {
-        this.values = values;
+        return this.append(names.toArray(new String[0]), values.toArray(new Object[0]));
+    }
+
+    public DefaultNameValues append(String[] names, Object[] values)
+    {
+        if (names.length != values.length)
+        {
+            throw new IllegalArgumentException("names's length not values's");
+        }
+        WPTool.addAll(this.names, names);
+        WPTool.addAll(this.values, values);
         return this;
     }
 
-    /**
-     * 设置名称
-     *
-     * @param names 名称列表
-     * @return 返回自己
-     */
-    public DefaultNameValues names(String... names)
-    {
-        this.names = names;
-        return this;
-    }
 
 }

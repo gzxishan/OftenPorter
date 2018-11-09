@@ -5,18 +5,15 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.exception.WCallException;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Created by chenyg on 2018-03-02.
  */
 class SyncPorterThrowsImpl implements PorterThrowsSync
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SyncPorterThrowsImpl.class);
 
     private SyncPorterImpl syncPorter;
     @AutoSet
@@ -40,14 +37,14 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
         {
             return null;
         }
-        if (t instanceof WCallException)
+        if (t instanceof OftenCallException)
         {
-            throw (WCallException) t;
+            throw (OftenCallException) t;
         } else if (t instanceof Throwable)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setExCause((Throwable) t);
-            throw new WCallException(jResponse);
+            throw new OftenCallException(jResponse);
         } else if (t instanceof JResponse && ((JResponse) t).isNotSuccess())
         {
             JResponse jResponse = (JResponse) t;
@@ -59,10 +56,10 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
                     throw throwable;
                 } catch (Throwable e)
                 {
-                    LOGGER.error(e.getMessage(),e);
+
                 }
             }
-            throw new WCallException((JResponse) t);
+            throw new OftenCallException((JResponse) t);
         } else
         {
             return t;
