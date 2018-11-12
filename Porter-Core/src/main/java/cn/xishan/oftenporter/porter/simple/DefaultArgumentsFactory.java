@@ -21,7 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/5/12.
@@ -300,7 +300,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     name = paramName;
                 }
 
-                InNames.Name theName = porterOfFun.getPorter().getName(annotationDealt,name, paramRealType, _parse, nece);
+                InNames.Name theName = porterOfFun.getPorter()
+                        .getName(annotationDealt, name, paramRealType, _parse, nece);
                 if (nece != null)
                 {
                     argHandle = new NeceArgDealt(nece, theName, paramRealType.getName(), typeParserStore);
@@ -316,8 +317,6 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     }
 
 
-    private Map<PorterOfFun, IArgsHandle> handleMap = new ConcurrentHashMap<>();
-
     public DefaultArgumentsFactory()
     {
     }
@@ -331,15 +330,10 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     @Override
     public final void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
     {
-        handleMap.put(porterOfFun, newIArgsHandle(porterOfFun, typeParserStore));
+        IArgsHandle iArgsHandle = newIArgsHandle(porterOfFun, typeParserStore);
+        porterOfFun.setArgsHandle(iArgsHandle);
     }
 
-    @Override
-    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
-    {
-        IArgsHandle handle = handleMap.get(porterOfFun);
-        return handle;
-    }
 
     public static Object invokeWithArgs(Object object, Method method, Object... optionArgs) throws Exception
     {

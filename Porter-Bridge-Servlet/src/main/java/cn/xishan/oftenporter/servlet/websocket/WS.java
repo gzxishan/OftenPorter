@@ -12,9 +12,10 @@ import java.io.IOException;
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
-public abstract class WS
+public final class WS
 {
     private final Type type;
+    private Object object;
 
     public Type type()
     {
@@ -63,12 +64,16 @@ public abstract class WS
      * @param <T>
      * @return
      */
-    public abstract <T> T object();
-
-    public WS(Type type, Session session, boolean isLast)
+    public <T> T object()
     {
-        this.type = type;
+        return (T) object;
+    }
+
+    public WS(Session session, Type type, Object object, boolean isLast)
+    {
         this.session = session;
+        this.type = type;
+        this.object = object;
         this.isLast = isLast;
     }
 
@@ -90,14 +95,7 @@ public abstract class WS
 
     static WS newWS(Type type, Session session, boolean isLast, Object value)
     {
-        return new WS(type, session, isLast)
-        {
-            @Override
-            public <T> T object()
-            {
-                return (T) value;
-            }
-        };
+        return new WS(session, type, value, isLast);
     }
 
     public final <T> T removeAttribute(Class<?> clazzKey)

@@ -44,6 +44,4 @@ public interface IArgumentsFactory
      */
     void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception;
 
-
-    IArgsHandle getArgsHandle(PorterOfFun porterOfFun);
 }

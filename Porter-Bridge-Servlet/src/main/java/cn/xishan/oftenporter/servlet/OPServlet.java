@@ -15,6 +15,8 @@ import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
+import cn.xishan.oftenporter.servlet.tomcat.WsMain;
+import cn.xishan.oftenporter.servlet.tomcat.websocket.server.WsServerContainer;
 import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,6 +251,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     @Override
     public void init(ServletConfig config) throws ServletException
     {
+        WsMain.init(config.getServletContext());
         try
         {
             //检查mapping是否正确
@@ -589,6 +592,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     {
         destroyAll();
         super.destroy();
+        WsMain.destroy();
     }
 
 }

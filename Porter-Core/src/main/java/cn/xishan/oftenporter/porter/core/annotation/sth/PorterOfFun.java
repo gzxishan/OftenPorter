@@ -10,6 +10,8 @@ import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +23,8 @@ import java.util.Map;
  */
 public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupportImpl implements ObjectGetter
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PorterOfFun.class);
 
     public static class ArgData
     {
@@ -43,15 +47,25 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     }
 
     Method method;
-    //函数的形参个数。
-    int argCount;
     _PortOut portOut;
     _PortIn portIn;
     OPEntities opEntities;
     Porter porter;
+    private IArgsHandle argsHandle;
+
 
     private AspectOperationOfPortIn.Handle[] handles;
 
+    public IArgsHandle getArgsHandle()
+    {
+        return argsHandle;
+    }
+
+    public void setArgsHandle(IArgsHandle argsHandle)
+    {
+        LOGGER.debug("{}",argsHandle);
+        this.argsHandle = argsHandle;
+    }
 
     public PorterOfFun(Method method)
     {
@@ -148,26 +162,6 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         return javaMethod.invoke(getObject(), args);
     }
 
-
-    /**
-     * 函数的参数列表为()或(WObject)
-     *
-     * @param wObject
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     */
-    public final Object invoke(WObject wObject) throws InvocationTargetException, IllegalAccessException
-    {
-        Method javaMethod = getMethod();
-        if (getArgCount() == 0)
-        {
-            return javaMethod.invoke(getObject());
-        } else
-        {
-            return javaMethod.invoke(getObject(), wObject);
-        }
-    }
-
     /**
      * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)},
      * {@linkplain #putInvokeArg(WObject, String, Object)}.
@@ -181,8 +175,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     public final Object invokeByHandleArgs(WObject wObject, Object... args) throws Exception
     {
         Method javaMethod = getMethod();
-        IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
-        IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
+        IArgsHandle argsHandle = this.argsHandle;
         Object[] finalArgs = argsHandle.getInvokeArgs(wObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
     }
@@ -216,8 +209,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     public boolean hasParameterType(WObject wObject, Class type)
     {
-        IArgumentsFactory argumentsFactory = porter.getArgumentsFactory();
-        IArgsHandle argsHandle = argumentsFactory.getArgsHandle(this);
+        IArgsHandle argsHandle = this.argsHandle;
         return argsHandle.hasParameterType(wObject, this, getMethod(), type);
     }
 
@@ -260,32 +252,6 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         return portIn;
     }
 
-    /**
-     * 函数的形参列表数。
-     *
-     * @return
-     */
-    public final int getArgCount()
-    {
-        return argCount;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return method.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (obj == null || !(obj instanceof PorterOfFun))
-        {
-            return false;
-        }
-        PorterOfFun fun = (PorterOfFun) obj;
-        return method.equals(fun.method);
-    }
 
     @Override
     public String toString()
@@ -318,7 +284,8 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     public String getPath()
     {
         Porter porter = getFinalPorter();
-        String path = porter.getContextName() + "/" + porter.getPortIn().getTiedNames()[0] + "/" + getMethodPortIn()
+        String path = "/" + porter.getContextName() + "/" + porter.getPortIn()
+                .getTiedNames()[0] + "/" + getMethodPortIn()
                 .getTiedNames()[0];
         return path;
     }

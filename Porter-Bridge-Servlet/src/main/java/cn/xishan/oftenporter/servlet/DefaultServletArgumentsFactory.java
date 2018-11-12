@@ -107,10 +107,4 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
         return new IArgsHandleImpl3(porterOfFun, typeParserStore);
     }
 
-    @Override
-    public IArgsHandle getArgsHandle(PorterOfFun porterOfFun)
-    {
-        IArgsHandle iArgsHandle = super.getArgsHandle(porterOfFun);
-        return iArgsHandle;
-    }
 }

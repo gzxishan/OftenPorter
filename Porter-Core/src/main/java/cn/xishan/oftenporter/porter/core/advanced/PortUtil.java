@@ -257,6 +257,14 @@ public class PortUtil
                 .isOneOfAnnotationsPresent(clazz, MixinOnly.class) && getMixinTos(clazz).length == 0;
     }
 
+    /**
+     * 是否是Porter或混入Porter。
+     * @param clazz
+     * @return
+     */
+    public static boolean isPorter(Class clazz){
+        return isJustPortInClass(clazz)||isMixinPortClass(clazz);
+    }
 
     /**
      * 判断是否是接口类。

@@ -744,7 +744,7 @@ public class AutoSetHandle
                 }
             }
 
-            _AutoSet autoSet = annotationDealt.autoSet(currentObjectClass,f);
+            _AutoSet autoSet = annotationDealt.autoSet(currentObjectClass, f);
             if (autoSet == null)
             {
                 Object value = f.get(currentObject);
@@ -889,7 +889,7 @@ public class AutoSetHandle
                 }
             }
 
-            if (porter == null)
+            if (porter == null && !PortUtil.isPorter(currentObjectClass))
             {
                 addOtherStartDestroy(currentObject, currentObjectClass);
             }

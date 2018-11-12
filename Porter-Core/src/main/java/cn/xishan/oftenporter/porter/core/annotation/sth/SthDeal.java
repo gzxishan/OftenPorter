@@ -90,8 +90,7 @@ public class SthDeal
         }
 
 
-        Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter,
-                autoSetHandle.getArgumentsFactory());
+        Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();
         porter.childrenWithMethod = childrenWithMethod;
 
@@ -445,7 +444,6 @@ public class SthDeal
                 };
                 porterOfFun.porter = porter;
                 porterOfFun.portIn = portIn;
-                porterOfFun.argCount = parameters.length;
 
                 entitiesDeal.sthUtil.addCheckPassable(innerContextBridge.checkPassableForCFTemps, portIn.getChecks());
                 TypeParserStore typeParserStore = innerContextBridge.innerBridge.globalParserStore;

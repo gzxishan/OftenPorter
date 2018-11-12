@@ -184,19 +184,19 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     public <T> T cnOf(int index)
     {
-        T t = (T) cn[index];
+        T t = cn == null ? null : (T) cn[index];
         return t;
     }
 
     public <T> T cuOf(int index)
     {
-        T t = (T) cu[index];
+        T t = cu == null ? null : (T) cu[index];
         return t;
     }
 
     public <T> T cuOf(int index, T defaultValue)
     {
-        T t = (T) cu[index];
+        T t = cu == null ? null : (T) cu[index];
         if (t == null)
         {
             t = defaultValue;
@@ -206,19 +206,19 @@ public abstract class WObject implements IListenerAdder<WObject.IFinalListener>
 
     public <T> T fnOf(int index)
     {
-        T t = (T) fn[index];
+        T t = fn == null ? null : (T) fn[index];
         return t;
     }
 
     public <T> T fuOf(int index)
     {
-        T t = (T) fu[index];
+        T t = fu == null ?null:(T) fu[index];
         return t;
     }
 
     public <T> T fuOf(int index, T defaultValue)
     {
-        T t = (T) fu[index];
+        T t = fu == null ? null : (T) fu[index];
         if (t == null)
         {
             t = defaultValue;

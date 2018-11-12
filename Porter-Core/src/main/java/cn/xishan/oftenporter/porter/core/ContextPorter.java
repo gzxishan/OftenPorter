@@ -435,14 +435,15 @@ public class ContextPorter implements IOtherStartDestroy
 
 
     public void beforeStart(Map<String, One> extraEntityMap, SthDeal sthDeal,
-            InnerContextBridge innerContextBridge) throws Exception
+            InnerContextBridge innerContextBridge,
+            AutoSetHandle autoSetHandle) throws Exception
     {
         Iterator<Porter> iterator = portMap.values().iterator();
         try
         {
             while (iterator.hasNext())
             {
-                iterator.next().initArgumentsFactory();
+                iterator.next().initArgumentsFactory(autoSetHandle.getArgumentsFactory());
             }
         } catch (Exception e)
         {

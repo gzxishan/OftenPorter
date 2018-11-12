@@ -28,9 +28,8 @@ import java.util.Arrays;
 public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSocket>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
+    private WSConfig wsConfig = new WSConfig();
     private WebSocket webSocket;
-    private WSConfig wsConfig;
-
     private PorterOfFun thePorterOfFun;
 
     @AutoSet.SetOk

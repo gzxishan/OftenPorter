@@ -168,11 +168,9 @@ public final class Porter
 
     OPEntities opEntities;
     private AutoSetHandle autoSetHandle;
-    private IArgumentsFactory iArgumentsFactory;
     private TypeParserStore typeParserStore;
 
-    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter,
-            IArgumentsFactory argumentsFactory)
+    public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
         this.clazz = clazz;
         this.finalPorter = this;
@@ -180,7 +178,6 @@ public final class Porter
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
-        this.iArgumentsFactory = argumentsFactory;
     }
 
 
@@ -380,9 +377,10 @@ public final class Porter
         }
     }
 
-    public InNames.Name getName(AnnotationDealt annotationDealt,String varName, Class<?> type, _Parse parse, _Nece nece) throws ClassNotFoundException
+    public InNames.Name getName(AnnotationDealt annotationDealt, String varName, Class<?> type, _Parse parse,
+            _Nece nece) throws ClassNotFoundException
     {
-        InNames.Name theName = OPEntitiesDeal.getName(annotationDealt,nece, varName, type, typeParserStore, false);
+        InNames.Name theName = OPEntitiesDeal.getName(annotationDealt, nece, varName, type, typeParserStore, false);
         SthUtil.bindTypeParse(InNames.temp(theName), parse, typeParserStore, null,
                 BackableSeek.SeekType.NotAdd_NotBind);
         dealName(theName);
@@ -408,7 +406,7 @@ public final class Porter
         autoSetHandle = null;
     }
 
-    public void initArgumentsFactory() throws Exception
+    public void initArgumentsFactory(IArgumentsFactory iArgumentsFactory) throws Exception
     {
         for (PorterOfFun fun : childrenWithMethod.values())
         {
@@ -647,10 +645,6 @@ public final class Porter
         return map;
     }
 
-    public final IArgumentsFactory getArgumentsFactory()
-    {
-        return iArgumentsFactory;
-    }
 
     void getMixinToThatCouldSet(Map<Class, Porter> map)
     {
