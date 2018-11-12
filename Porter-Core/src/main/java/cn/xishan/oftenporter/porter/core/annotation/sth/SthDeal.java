@@ -24,12 +24,12 @@ import java.util.*;
 public class SthDeal
 {
     private final Logger LOGGER;
-    private OPEntitiesDeal entitiesDeal;
+    private OftenEntitiesDeal entitiesDeal;
 
     public SthDeal()
     {
         LOGGER = LogUtil.logger(SthDeal.class);
-        entitiesDeal = new OPEntitiesDeal();
+        entitiesDeal = new OftenEntitiesDeal();
     }
 
 
@@ -135,7 +135,7 @@ public class SthDeal
 
         try
         {
-            porter.opEntities = entitiesDeal.dealOPEntities(clazz, innerContextBridge, autoSetHandle);
+            porter.oftenEntities = entitiesDeal.dealOftenEntities(clazz, innerContextBridge, autoSetHandle);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -432,8 +432,6 @@ public class SthDeal
             try
             {
                 method.setAccessible(true);
-                Class<?>[] parameters = method.getParameterTypes();
-
                 porterOfFun = new PorterOfFun(method)
                 {
                     @Override
@@ -456,8 +454,8 @@ public class SthDeal
                     SthUtil.bindTypeParse(portIn.getInNames(), null, typeParserStore, backableSeek,
                             BackableSeek.SeekType.NotAdd_Bind);
                 }
-                porterOfFun.opEntities = entitiesDeal
-                        .dealOPEntities(porter.getClazz(), method, innerContextBridge, autoSetHandle);
+                porterOfFun.oftenEntities = entitiesDeal
+                        .dealOftenEntities(porter.getClazz(), method, innerContextBridge, autoSetHandle);
                 porterOfFun.portOut = annotationDealt.portOut(porter, method);
             } catch (Exception e)
             {

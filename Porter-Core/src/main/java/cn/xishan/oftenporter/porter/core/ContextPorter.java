@@ -434,7 +434,7 @@ public class ContextPorter implements IOtherStartDestroy
     }
 
 
-    public void beforeStart(Map<String, One> extraEntityMap, SthDeal sthDeal,
+    public void initPorter(Map<String, One> extraEntityMap, SthDeal sthDeal,
             InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
@@ -443,7 +443,7 @@ public class ContextPorter implements IOtherStartDestroy
         {
             while (iterator.hasNext())
             {
-                iterator.next().initArgumentsFactory(autoSetHandle.getArgumentsFactory());
+                iterator.next().initArgsHandle(autoSetHandle.getArgumentsFactory());
             }
         } catch (Exception e)
         {
@@ -456,7 +456,7 @@ public class ContextPorter implements IOtherStartDestroy
         while (iterator.hasNext())
         {
             //内部会调用addAutoSetsForNotPorter
-            iterator.next().initOPEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
+            iterator.next().initOftenEntitiesHandle(extraEntityMap, sthDeal, innerContextBridge);
         }
     }
 

@@ -875,18 +875,7 @@ public class AutoSetHandle
             for (Method method : methods)
             {
                 dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
-                SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
-                if (setOk != null)
-                {
-                    method.setAccessible(true);
-                    if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
-                    {
-                        LOGGER.warn("ignore SetOk method for no instance:method={}", method);
-                    } else
-                    {
-                        setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(), LOGGER));
-                    }
-                }
+                dealMethodSetOk(currentObject, method);
             }
 
             if (porter == null && !PortUtil.isPorter(currentObjectClass))
@@ -1023,6 +1012,23 @@ public class AutoSetHandle
         } catch (Exception e)
         {
             throw new InitException(e);
+        }
+    }
+
+
+    private void dealMethodSetOk(Object currentObject, Method method)
+    {
+        SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
+        if (setOk != null)
+        {
+            method.setAccessible(true);
+            if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
+            {
+                LOGGER.warn("ignore SetOk method for no instance:method={}", method);
+            } else
+            {
+                setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(), LOGGER));
+            }
         }
     }
 

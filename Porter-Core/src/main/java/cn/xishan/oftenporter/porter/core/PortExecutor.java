@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._BindEntities;
-import cn.xishan.oftenporter.porter.core.annotation.sth.OPEntities;
+import cn.xishan.oftenporter.porter.core.annotation.sth.OftenEntities;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -339,20 +339,20 @@ public final class PortExecutor
     /**
      * 用于处理对象绑定。
      *
-     * @param opEntities
+     * @param oftenEntities
      * @param isInClass
      * @param wObjectImpl
      * @return
      */
     private ParamDealt.FailedReason paramDealOfPortInEntities(Context context,
-            OPEntities opEntities,
+            OftenEntities oftenEntities,
             boolean isInClass, Porter porter, PorterOfFun porterOfFun, WObjectImpl wObjectImpl) throws Exception
     {
-        if (opEntities == null)
+        if (oftenEntities == null)
         {
             return null;
         }
-        One[] ones = opEntities.ones;
+        One[] ones = oftenEntities.ones;
         Object[] entities = new Object[ones.length];
 
         for (int i = 0; i < ones.length; i++)
@@ -421,7 +421,7 @@ public final class PortExecutor
                 } catch (Exception e)
                 {
                     Throwable throwable = WPTool.unwrapThrowable(e);
-                    object = DefaultFailedReason.parseOPEntitiesException(throwable.getMessage());
+                    object = DefaultFailedReason.parseOftenEntitiesException(throwable.getMessage());
                     logger(wObjectImpl).warn(throwable.getMessage(), throwable);
                 }
 
@@ -565,7 +565,7 @@ public final class PortExecutor
         //转换成类或接口对象
         try
         {
-            failedReason = paramDealOfPortInEntities(context, classPort.getOPEntities(), true,
+            failedReason = paramDealOfPortInEntities(context, classPort.getOftenEntities(), true,
                     classPort, funPort, wObject);
         } catch (Exception e)
         {
@@ -678,7 +678,7 @@ public final class PortExecutor
         //转换成类或接口对象
         try
         {
-            failedReason = paramDealOfPortInEntities(context, funPort.getOPEntities(), false,
+            failedReason = paramDealOfPortInEntities(context, funPort.getOftenEntities(), false,
                     funPort.getPorter(), funPort, wObject);
         } catch (Exception e)
         {

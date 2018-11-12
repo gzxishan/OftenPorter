@@ -70,7 +70,7 @@ public class DefaultParamDealt implements ParamDealt
             {
                 e = WPTool.getCause(e);
                 LOGGER.warn(e.getMessage(), e);
-                return DefaultFailedReason.parseOPEntitiesException(e.getMessage());
+                return DefaultFailedReason.parseOftenEntitiesException(e.getMessage());
             }
             if(v instanceof FailedReason){
                 return v;

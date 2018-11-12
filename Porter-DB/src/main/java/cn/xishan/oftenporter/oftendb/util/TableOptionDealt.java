@@ -129,7 +129,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
                 String key = tableOption.queryArray.getString(i);
                 if (Arrays.binarySearch(queryArrayContains, key) < 0)
                 {
-                    obj = DefaultFailedReason.parseOPEntitiesException("queryArray could not contains:" + key);
+                    obj = DefaultFailedReason.parseOftenEntitiesException("queryArray could not contains:" + key);
                     break;
                 }
             }
@@ -156,7 +156,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
                     String key = jsonArray.getString(i);
                     if (Arrays.binarySearch(orderContains, key) < 0)
                     {
-                        obj = DefaultFailedReason.parseOPEntitiesException("order could not contains:" + key);
+                        obj = DefaultFailedReason.parseOftenEntitiesException("order could not contains:" + key);
                         break;
                     }
                 }
@@ -245,7 +245,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
         {
             if (Arrays.binarySearch(contains, key) < 0)
             {
-                return DefaultFailedReason.parseOPEntitiesException(attr + " could not contains:" + key);
+                return DefaultFailedReason.parseOftenEntitiesException(attr + " could not contains:" + key);
             }
         }
         return null;

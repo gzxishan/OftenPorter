@@ -26,54 +26,54 @@ import cn.xishan.oftenporter.porter.core.base.InNames.Name;
  *
  * @author Created by https://github.com/CLovinr on 2016/9/27.
  */
-public class OPEntitiesDeal
+public class OftenEntitiesDeal
 {
     private final Logger LOGGER;
     SthUtil sthUtil;
 
 
-    public OPEntitiesDeal()
+    public OftenEntitiesDeal()
     {
-        LOGGER = LogUtil.logger(OPEntitiesDeal.class);
+        LOGGER = LogUtil.logger(OftenEntitiesDeal.class);
         sthUtil = new SthUtil();
     }
 
     /**
      * 处理接口函数上的对象绑定。
      */
-    OPEntities dealOPEntities(Class<?> porterClass, Method method,
+    OftenEntities dealOftenEntities(Class<?> porterClass, Method method,
             InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
-        OPEntities entities = null;
+        OftenEntities entities = null;
         _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntities(porterClass, method);
         if (bindEntities != null)
         {
-            entities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
+            entities = dealOftenEntities(bindEntities, innerContextBridge, autoSetHandle);
         }
 
         return entities;
     }
 
-    OPEntities dealOPEntities(Class<?> clazz, InnerContextBridge innerContextBridge,
+    OftenEntities dealOftenEntities(Class<?> clazz, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntities(clazz);
-        return dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
+        return dealOftenEntities(bindEntities, innerContextBridge, autoSetHandle);
     }
 
     One dealOPEntity(Class<?> entityClass, Method method, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         _BindEntities bindEntities = innerContextBridge.annotationDealt.bindEntity(entityClass, method);
-        OPEntities opEntities = dealOPEntities(bindEntities, innerContextBridge, autoSetHandle);
-        return opEntities.ones[0];
+        OftenEntities oftenEntities = dealOftenEntities(bindEntities, innerContextBridge, autoSetHandle);
+        return oftenEntities.ones[0];
     }
 
-    private OPEntities dealOPEntities(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
+    private OftenEntities dealOftenEntities(_BindEntities bindEntities, InnerContextBridge innerContextBridge,
             AutoSetHandle autoSetHandle) throws Exception
     {
         CacheTool cacheTool = innerContextBridge.innerBridge.cacheTool;
-        OPEntities OPEntities = null;
+        OftenEntities OftenEntities = null;
 
         if (bindEntities != null)
         {
@@ -91,9 +91,9 @@ public class OPEntitiesDeal
                     autoSetHandle.addAutoSetsForNotPorter(clzz.bindEntityDealtHandle);
                 }
             }
-            OPEntities = new OPEntities(ones);
+            OftenEntities = new OftenEntities(ones);
         }
-        return OPEntities;
+        return OftenEntities;
     }
 
 

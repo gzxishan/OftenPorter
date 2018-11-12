@@ -436,7 +436,7 @@ public class PortUtil
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
-            obj = DefaultFailedReason.parseOPEntitiesException(WPTool.getMessage(e));
+            obj = DefaultFailedReason.parseOftenEntitiesException(WPTool.getMessage(e));
         }
         return obj;
     }
@@ -528,7 +528,7 @@ public class PortUtil
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
-            reason = DefaultFailedReason.parseOPEntitiesException(WPTool.getMessage(e));
+            reason = DefaultFailedReason.parseOftenEntitiesException(WPTool.getMessage(e));
         }
         return reason;
     }

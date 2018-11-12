@@ -49,7 +49,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     Method method;
     _PortOut portOut;
     _PortIn portIn;
-    OPEntities opEntities;
+    OftenEntities oftenEntities;
     Porter porter;
     private IArgsHandle argsHandle;
 
@@ -63,7 +63,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     public void setArgsHandle(IArgsHandle argsHandle)
     {
-        LOGGER.debug("{}",argsHandle);
+        LOGGER.debug("{}:{}",this,argsHandle);
         this.argsHandle = argsHandle;
     }
 
@@ -176,6 +176,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     {
         Method javaMethod = getMethod();
         IArgsHandle argsHandle = this.argsHandle;
+        LOGGER.debug("{}:{}",this,argsHandle);
         Object[] finalArgs = argsHandle.getInvokeArgs(wObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
     }
@@ -218,15 +219,15 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         return portOut;
     }
 
-    public OPEntities getOPEntities()
+    public OftenEntities getOftenEntities()
     {
-        return opEntities;
+        return oftenEntities;
     }
 
     void initEntities(Map<String, One> extraEntityMap, SthDeal sthDeal,
             InnerContextBridge innerContextBridge, AutoSetHandle autoSetHandle) throws Exception
     {
-        porter.initOPEntitiesHandle(getOPEntities());
+        porter.initOftenEntitiesHandle(getOftenEntities());
         initAndGetExtraEntities(extraEntityMap, sthDeal, innerContextBridge, autoSetHandle);
     }
 
@@ -236,7 +237,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         for (String key : getExtraKeySet())
         {
             One one = sthDeal.dealOPEntity(getExtraEntity(key), method, innerContextBridge, autoSetHandle);
-            porter.initOPEntitiesHandle(one);
+            porter.initOftenEntitiesHandle(one);
             extraEntityMap.put(key, one);
         }
         clearExtra();
@@ -253,11 +254,11 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     }
 
 
-    @Override
-    public String toString()
-    {
-        return method.toString();
-    }
+//    @Override
+//    public String toString()
+//    {
+//        return method.toString();
+//    }
 
     public void startHandles(WObject wObject)
     {

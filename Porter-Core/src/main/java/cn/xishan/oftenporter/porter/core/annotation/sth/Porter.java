@@ -17,7 +17,6 @@ import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import org.slf4j.Logger;
 
-import javax.swing.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -33,7 +32,7 @@ public final class Porter
     {
         Object getFinalPorterObject();
 
-        OPEntities getOPEntities();
+        OftenEntities getOftenEntities();
 
         Method getMethod();
 
@@ -92,9 +91,9 @@ public final class Porter
         }
 
         @Override
-        public OPEntities getOPEntities()
+        public OftenEntities getOftenEntities()
         {
-            return fun.getOPEntities();
+            return fun.getOftenEntities();
         }
 
         @Override
@@ -166,7 +165,7 @@ public final class Porter
     Map<String, PorterOfFun> childrenWithMethod;
     Porter[] mixins;
 
-    OPEntities opEntities;
+    OftenEntities oftenEntities;
     private AutoSetHandle autoSetHandle;
     private TypeParserStore typeParserStore;
 
@@ -263,9 +262,9 @@ public final class Porter
         return destroys;
     }
 
-    public OPEntities getOPEntities()
+    public OftenEntities getOftenEntities()
     {
-        return opEntities;
+        return oftenEntities;
     }
 
     public _PortIn getPortIn()
@@ -324,9 +323,9 @@ public final class Porter
     {
         //处理dealtFor
 
-        if (opEntities != null)
+        if (oftenEntities != null)
         {
-            for (One one : opEntities.ones)
+            for (One one : oftenEntities.ones)
             {
                 dealInNames(one.inNames, typeParserStore);
             }
@@ -339,9 +338,9 @@ public final class Porter
         {
             for (Porter porter : mixins)
             {
-                if (porter.opEntities != null)
+                if (porter.oftenEntities != null)
                 {
-                    for (One one : porter.opEntities.ones)
+                    for (One one : porter.oftenEntities.ones)
                     {
                         dealInNames(one.inNames, typeParserStore);
                     }
@@ -352,9 +351,9 @@ public final class Porter
         for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
         {
             PorterOfFun porterOfFun = entry.getValue();
-            if (porterOfFun.opEntities != null)
+            if (porterOfFun.oftenEntities != null)
             {
-                for (One one : porterOfFun.opEntities.ones)
+                for (One one : porterOfFun.oftenEntities.ones)
                 {
                     dealInNames(one.inNames, typeParserStore);
                 }
@@ -380,7 +379,7 @@ public final class Porter
     public InNames.Name getName(AnnotationDealt annotationDealt, String varName, Class<?> type, _Parse parse,
             _Nece nece) throws ClassNotFoundException
     {
-        InNames.Name theName = OPEntitiesDeal.getName(annotationDealt, nece, varName, type, typeParserStore, false);
+        InNames.Name theName = OftenEntitiesDeal.getName(annotationDealt, nece, varName, type, typeParserStore, false);
         SthUtil.bindTypeParse(InNames.temp(theName), parse, typeParserStore, null,
                 BackableSeek.SeekType.NotAdd_NotBind);
         dealName(theName);
@@ -406,7 +405,7 @@ public final class Porter
         autoSetHandle = null;
     }
 
-    public void initArgumentsFactory(IArgumentsFactory iArgumentsFactory) throws Exception
+    public void initArgsHandle(IArgumentsFactory iArgumentsFactory) throws Exception
     {
         for (PorterOfFun fun : childrenWithMethod.values())
         {
@@ -414,26 +413,26 @@ public final class Porter
         }
     }
 
-    public void initOPEntitiesHandle(Map<String, One> extraEntityMap, SthDeal sthDeal,
+    public void initOftenEntitiesHandle(Map<String, One> extraEntityMap, SthDeal sthDeal,
             InnerContextBridge innerContextBridge) throws Exception
     {
-        initOPEntitiesHandle(opEntities);
+        initOftenEntitiesHandle(oftenEntities);
         for (PorterOfFun fun : childrenWithMethod.values())
         {
             fun.initEntities(extraEntityMap, sthDeal, innerContextBridge, autoSetHandle);
         }
     }
 
-    void initOPEntitiesHandle(OPEntities entities)
+    void initOftenEntitiesHandle(OftenEntities entities)
     {
         if (entities == null)
         {
             return;
         }
-        initOPEntitiesHandle(entities.ones);
+        initOftenEntitiesHandle(entities.ones);
     }
 
-    void initOPEntitiesHandle(One... ones)
+    void initOftenEntitiesHandle(One... ones)
     {
 
         for (One one : ones)

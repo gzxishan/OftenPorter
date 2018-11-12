@@ -446,7 +446,7 @@ public final class PorterMain
         try
         {
             Map<String, One> entityOneMap = new HashMap<>();
-            contextPorter.beforeStart(entityOneMap, sthDeal, innerContextBridge,autoSetHandle);
+            contextPorter.initPorter(entityOneMap, sthDeal, innerContextBridge,autoSetHandle);
             portExecutor.putAllExtraEntity(entityOneMap);
 
             LOGGER.debug("start doAutoSet...");
