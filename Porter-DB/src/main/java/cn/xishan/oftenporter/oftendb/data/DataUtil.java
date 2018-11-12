@@ -41,6 +41,11 @@ public class DataUtil
         return toNameValues(object, filterNullAndEmpty, true);
     }
 
+    public static JSONObject toJSON(Object object, boolean filterNullAndEmpty)
+    {
+        return toNameValues(object, filterNullAndEmpty, true).toJSON();
+    }
+
     /**
      * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}、{@linkplain JsonField}、{@linkplain JsonObj}
      * @param filterNullAndEmpty 是否过滤null或空字符串
