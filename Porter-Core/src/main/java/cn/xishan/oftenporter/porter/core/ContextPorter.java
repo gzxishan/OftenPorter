@@ -409,8 +409,9 @@ public class ContextPorter implements IOtherStartDestroy
                 {
                     if (portMap.containsKey(tiedName))
                     {
-                        LOGGER.warn("class tiedName '{}' added before.(current:{},last:{})", tiedName,
-                                clazz, portMap.get(tiedName).getClazz());
+                        throw new InitException(
+                                String.format("class tiedName '%s' added before.(current:%s,last:%s)", tiedName,
+                                        clazz, portMap.get(tiedName).getClazz()));
                     }
                     portMap.put(tiedName, porter);
                 }
