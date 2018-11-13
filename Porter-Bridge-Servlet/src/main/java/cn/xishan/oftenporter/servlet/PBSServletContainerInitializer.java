@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ import java.util.Set;
 @HandlesTypes(OPServletInitializer.class)
 public class PBSServletContainerInitializer implements ServletContainerInitializer
 {
-   public static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
+    public static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PBSServletContainerInitializer.class);
 
@@ -113,7 +114,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
             }
 
             @Override
-            public PorterConf newPorterConfWithImporterClasses(Class ... importers)
+            public PorterConf newPorterConfWithImporterClasses(Class... importers)
             {
                 return StartupServletImpl.this.newPorterConf(importers);
             }
@@ -130,6 +131,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
                                 httpServlet);
                 LOGGER.debug("mapping:{}", urlPattern);
                 dynamic.addMapping(urlPattern);
+                dynamic.setAsyncSupported(true);
                 dynamic.setLoadOnStartup(1);
                 if (customServletPaths != null)
                 {
@@ -258,6 +260,7 @@ public class PBSServletContainerInitializer implements ServletContainerInitializ
                     .addServlet(startupServlet.toString(), startupServlet);
             dynamic.setAsyncSupported(true);
             dynamic.setLoadOnStartup(1);
+            WebSocketHandle.initFilter(servletContext);
         } catch (Throwable e)
         {
             throw new ServletException(e);

@@ -166,8 +166,10 @@ public final class Porter
     Porter[] mixins;
 
     OftenEntities oftenEntities;
-    private AutoSetHandle autoSetHandle;
     private TypeParserStore typeParserStore;
+
+    private AutoSetHandle autoSetHandle;
+    private OftenContextInfo contextInfo;
 
     public Porter(Class clazz, AutoSetHandle autoSetHandle, WholeClassCheckPassableGetter wholeClassCheckPassableGetter)
     {
@@ -176,6 +178,7 @@ public final class Porter
         this.typeParserStore = autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
+        this.contextInfo=autoSetHandle.getOftenContextInfo();
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
     }
 
@@ -187,28 +190,9 @@ public final class Porter
         return portOut;
     }
 
-    public String getContextName()
+    public OftenContextInfo getContextInfo()
     {
-        return autoSetHandle.getContextName();
-    }
-
-    public PName getPName()
-    {
-        return autoSetHandle.getPName();
-    }
-
-    public static String getClassName(Type type)
-    {
-        if (type == null)
-        {
-            return null;
-        }
-        String className = type.toString();
-        if (className.startsWith(TYPE_NAME_PREFIX))
-        {
-            className = className.substring(TYPE_NAME_PREFIX.length());
-        }
-        return className;
+        return contextInfo;
     }
 
     public WholeClassCheckPassableGetter getWholeClassCheckPassableGetter()

@@ -37,7 +37,7 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     WServletRequest(HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
-        super(null, method, WPTool.notNullAndEmpty(path) ? path : OPServlet.getPath(request),
+        super(null, method, WPTool.notNullAndEmpty(path) ? path : OPServlet.getOftenPath(request),
                 false);
         this.request = new WeakReference<>(request);
         this.response = new WeakReference<>(response);
@@ -230,7 +230,8 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
      */
     public static String getHost(HttpServletRequest request, boolean isHttp2Https)
     {
-        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(request);
+        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
+                request);
         return host;
     }
 
@@ -265,6 +266,11 @@ public final class WServletRequest extends PRequest// implements IAttributeFacto
     public static String getPath(HttpServletRequest request)
     {
         return OPServlet.getPath(request);
+    }
+
+    public static String getOftenPath(HttpServletRequest request)
+    {
+        return OPServlet.getOftenPath(request);
     }
 
 }

@@ -3,24 +3,25 @@ package cn.xishan.oftenporter.servlet.websocket;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.servlet.tomcat.WebSocketOption;
-import cn.xishan.oftenporter.servlet.tomcat.WsMain;
-import cn.xishan.oftenporter.servlet.tomcat.websocket.server.UpgradeUtil;
-import cn.xishan.oftenporter.servlet.tomcat.websocket.server.WsMappingResult;
-import cn.xishan.oftenporter.servlet.tomcat.websocket.server.WsServerContainer;
+import cn.xishan.oftenporter.servlet.WServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
+import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
@@ -31,11 +32,29 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     private WSConfig wsConfig = new WSConfig();
     private WebSocket webSocket;
     private PorterOfFun thePorterOfFun;
+    private String path;
+
+    private static Set<String> webSocketPaths = ConcurrentHashMap.newKeySet();
+
+    @AutoSet
+    private ServerContainer serverContainer;
+
 
     @AutoSet.SetOk
     public void setOk(WObject wObject) throws Exception
     {
         initWithServerContainer(wObject, thePorterOfFun);
+    }
+
+    public static boolean isWebSocket(HttpServletRequest request)
+    {
+        return webSocketPaths.contains(WServletRequest.getOftenPath(request));
+    }
+
+    @PortIn.PortDestroy
+    public void destroy()
+    {
+        webSocketPaths.remove(path);
     }
 
     @Override
@@ -67,9 +86,8 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
         WebSocketOption webSocketOption = wsConfig.getWebSocketOption();
 
-        WsServerContainer wsServerContainer = WsMain.getInstance();
-        String path = fun.getPath();
-        ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, path)
+        this.path = fun.getPath();
+        ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, this.path)
                 .configurator(new HttpSessionConfigurator());
         if (webSocketOption != null)
         {
@@ -79,20 +97,14 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
             builder.extensions(Arrays.asList(webSocketOption.getExtensions()));
         }
         ServerEndpointConfig config = builder.build();
-        wsServerContainer.addEndpoint(config);
+        serverContainer.addEndpoint(config);
+        webSocketPaths.add(this.path);
     }
 
 
     @Override
     public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
-        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
-        HttpServletResponse response = wObject.getRequest().getOriginalResponse();
-        if (!UpgradeUtil.isWebSocketUpgradeRequest(request, response))
-        {
-            response.sendError(400);
-            return null;
-        }
         if (webSocket.needConnectingState())
         {
             WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
@@ -116,25 +128,18 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         {
             doConnect(wObject, porterOfFun);
         }
-
-
         return null;
     }
 
     private void doConnect(WObject wObject, PorterOfFun porterOfFun) throws ServletException, IOException
     {
         HttpServletRequest request = wObject.getRequest().getOriginalRequest();
-        HttpServletResponse response = wObject.getRequest().getOriginalResponse();
-
-        WsServerContainer wsServerContainer = WsMain.getInstance();
-        String path = porterOfFun.getPath();
-        WsMappingResult wsMappingResult = wsServerContainer.findMapping(path);
 
         BridgeData bridgeData = new BridgeData(wObject, porterOfFun, webSocket, wsConfig);
-        request.setAttribute(BridgeData.class.getName(), bridgeData);
+        HttpSession session = request.getSession();
+        session.setAttribute(BridgeData.class.getName(), bridgeData);
+        request.setAttribute(BridgeData.class.getName(), true);
 
-        UpgradeUtil.doUpgrade(wsServerContainer, request, response, wsMappingResult.getConfig(),
-                wsMappingResult.getPathParams());
     }
 
     @Override
@@ -174,4 +179,22 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 //            LOGGER.debug("handle jetty error:{}", e);
 //        }
 //    }
+
+
+    public static void initFilter(ServletContext servletContext)
+    {
+        if (servletContext.getAttribute(OftenWebSocketFilter.class.getName()) != null)
+        {
+            return;
+        }
+
+        OftenWebSocketFilter oftenWebSocketFilter = new OftenWebSocketFilter();
+        FilterRegistration.Dynamic dynamic = servletContext.addFilter(OftenWebSocketFilter.class.getName(),
+                oftenWebSocketFilter);
+        dynamic.setAsyncSupported(true);
+        dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false,
+                "/*");
+        servletContext.setAttribute(OftenWebSocketFilter.class.getName(), oftenWebSocketFilter);
+
+    }
 }

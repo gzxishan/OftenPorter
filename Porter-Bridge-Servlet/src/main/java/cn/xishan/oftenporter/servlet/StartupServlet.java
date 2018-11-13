@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.util.WPTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,8 @@ import javax.servlet.ServletException;
  * </p>
  *
  * <p>
- * 默认支持的形式参数：HttpServletRequest,HttpServletResponse,HttpSession,ServletContext。见{@linkplain DefaultServletArgumentsFactory}
+ * 默认支持的形式参数：HttpServletRequest,HttpServletResponse,HttpSession,
+ * ServletContext。见{@linkplain DefaultServletArgumentsFactory}
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/2/23.
@@ -75,11 +77,10 @@ public abstract class StartupServlet extends OPServlet
             onStart();
         } catch (Throwable e)
         {
-            LOGGER.error(e.getMessage(),e);
-            throw new ServletException(e);
+            throw new ServletException(WPTool.getCause(e));
         }
         isStarted = true;
     }
 
-    public abstract void onStart()throws Exception;
+    public abstract void onStart() throws Exception;
 }

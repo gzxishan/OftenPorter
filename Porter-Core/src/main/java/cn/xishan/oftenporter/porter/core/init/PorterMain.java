@@ -306,17 +306,6 @@ public final class PorterMain
             commonMainHashMap.put(this.pLinker.currentPName().getName(), commonMain);
             _startOne(bridge);
             currentPNameForLogger = null;
-        } catch (Throwable e)
-        {
-            e = WPTool.getCause(e);
-            LOGGER.error(e.getMessage(), e);
-            try
-            {
-                throw e;
-            } catch (Throwable throwable)
-            {
-                throwable.printStackTrace();
-            }
         } finally
         {
             LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);

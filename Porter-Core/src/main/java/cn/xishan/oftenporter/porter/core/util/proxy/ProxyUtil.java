@@ -29,7 +29,7 @@ public class ProxyUtil
 
     private static final Pattern CGLIB_NAME_PATTERN = Pattern.compile("\\$\\$[^\\s]*CGLIB[^\\s]*\\$\\$");
 
-    public static <T> T newProxyInstance(ClassLoader loader,Class<?>[] interfaces,InvocationHandler h)
+    public static <T> T newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h)
     {
         List<Class<?>> list = new ArrayList<>(interfaces.length + 1);
         WPTool.addAll(list, interfaces);
@@ -45,6 +45,7 @@ public class ProxyUtil
     {
         return unwrapProxyForGeneric(object.getClass());
     }
+
     public static Class unwrapProxyForGeneric(Class clazz)
     {
         clazz = PortUtil.getRealClass(clazz);
@@ -93,6 +94,7 @@ public class ProxyUtil
 
     /**
      * 复制成员变量值（除了static但包括final类型）,变量以src中的变量为准。
+     *
      * @param src
      * @param target
      * @param fromSrc2target true表示从src复制到target；false表示从target复制到src。
@@ -104,10 +106,12 @@ public class ProxyUtil
         {
             if (LOGGER.isDebugEnabled())
             {
-                if(fromSrc2target){
+                if (fromSrc2target)
+                {
                     LOGGER.debug("copy fields from:[{}] to [{}]", src.getClass() + "@" + src.hashCode(),
                             target.getClass() + "@" + target.hashCode());
-                }else{
+                } else
+                {
                     LOGGER.debug("copy fields from:[{}] to [{}]", target.getClass() + "@" + target.hashCode(),
                             src.getClass() + "@" + src.hashCode());
                 }

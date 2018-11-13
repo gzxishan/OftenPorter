@@ -1,4 +1,4 @@
-package cn.xishan.oftenporter.servlet.tomcat;
+package cn.xishan.oftenporter.servlet.websocket;
 
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;

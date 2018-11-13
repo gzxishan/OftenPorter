@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
+import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -307,21 +308,21 @@ public class AutoSetHandle
     private Set<Object> autoSetDealtSet = new HashSet<>();
     private AutoSetHandleWorkedInstance workedInstance;
     private IConfigData iConfigData;
-    private String currentContextName;
+    private OftenContextInfo oftenContextInfo;
     private IOtherStartDestroy iOtherStartDestroy;
 
     private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
-            String currentContextName)
+            String contextName)
     {
         this.iConfigData = iConfigData;
         this.argumentsFactory = argumentsFactory;
         this.innerContextBridge = innerContextBridge;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
-        this.currentContextName = currentContextName;
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
+        this.oftenContextInfo = new OftenContextInfo(thisDelivery.currentPName(), contextName);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
@@ -388,14 +389,9 @@ public class AutoSetHandle
         return argumentsFactory;
     }
 
-    public String getContextName()
+    public OftenContextInfo getOftenContextInfo()
     {
-        return currentContextName;
-    }
-
-    public PName getPName()
-    {
-        return thisDelivery.currentPName();
+        return oftenContextInfo;
     }
 
     public synchronized void addAutoSetSeekPackages(List<String> packages, ClassLoader classLoader)
@@ -1146,7 +1142,7 @@ public class AutoSetHandle
             boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
-            porterParamGetter.setContext(currentContextName);
+            porterParamGetter.setContext(getOftenContextInfo().getContextName());
 
             if (porter == null)
             {

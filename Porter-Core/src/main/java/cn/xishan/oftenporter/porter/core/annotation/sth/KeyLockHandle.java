@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
+import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock.Locker;
@@ -128,6 +129,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                     this.concurrentKeyLock = new ConcurrentKeyLock<>(locker);
                 } else
                 {
+                    OftenContextInfo contextInfo = porter.getContextInfo();
                     switch (keyLock.range())
                     {
                         case STATIC:
@@ -138,15 +140,15 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                             this.concurrentKeyLock = staticKeyLock;
                             break;
                         case PNAME:
-                            this.concurrentKeyLock = getKeyLock(porter.getPName().getName());
+                            this.concurrentKeyLock = getKeyLock(contextInfo.getName().getName());
                             break;
                         case CONTEXT:
                             this.concurrentKeyLock = getKeyLock(
-                                    porter.getPName().getName() + "/" + porter.getContextName());
+                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName());
                             break;
                         case PORTER:
                             this.concurrentKeyLock = getKeyLock(
-                                    porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
+                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + WPTool
                                             .join(":", porter.getPortIn().getTiedNames()));
                             break;
                         case FUN:
@@ -155,7 +157,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                                 throw new RuntimeException(KeyLock.LockRange.FUN + " is not for class!");
                             }
                             this.concurrentKeyLock = getKeyLock(
-                                    porter.getPName().getName() + "/" + porter.getContextName() + "/" + WPTool
+                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + WPTool
                                             .join(":", porter.getPortIn().getTiedNames()) + "/" + WPTool
                                             .join(":", porterOfFun.getMethodPortIn().getTiedNames()));
                             break;

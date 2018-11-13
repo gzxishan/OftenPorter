@@ -215,14 +215,15 @@ public class ContextPorter implements IOtherStartDestroy
 
         try
         {
+            OftenContextInfo contextInfo = autoSetHandle.getOftenContextInfo();
             //添加接口
-            LOGGER.debug("添加接口开始:{}**********************[", autoSetHandle.getContextName());
+            LOGGER.debug("添加接口开始:{}**********************[", contextInfo.getContextName());
             for (Map.Entry<Class, SrcPorter> entry : class_porterMap.entrySet())
             {
                 SrcPorter porter = entry.getValue();
                 addPorter(porter, autoSetHandle, sthDeal, portIniterList);
             }
-            LOGGER.debug("添加接口完毕:{}*****************************]", autoSetHandle.getContextName());
+            LOGGER.debug("添加接口完毕:{}*****************************]", contextInfo.getContextName());
             class_porterMap = null;
             mixinToMap = null;
         } catch (FatalInitException e)

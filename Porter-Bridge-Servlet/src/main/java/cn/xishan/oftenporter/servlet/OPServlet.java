@@ -15,15 +15,11 @@ import cn.xishan.oftenporter.porter.core.util.StrUtil;
 import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
-import cn.xishan.oftenporter.servlet.tomcat.WsMain;
-import cn.xishan.oftenporter.servlet.tomcat.websocket.server.WsServerContainer;
-import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
+import cn.xishan.oftenporter.servlet.websocket.OftenWebSocketFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -32,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.regex.Pattern;
 
 @CorsAccess
@@ -92,8 +89,9 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         this.responseWhenException = responseWhenException;
     }
 
+
     @Override
-    protected void service(HttpServletRequest request,
+    public void service(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException
     {
         String method = request.getMethod();
@@ -144,6 +142,11 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         {
             return uri.substring(length);
         }
+    }
+
+    static String getOftenPath(HttpServletRequest request)
+    {
+        return request.getRequestURI().substring(getUriPrefix(request).length());
     }
 
     static String getUriPrefix(HttpServletRequest request)
@@ -251,7 +254,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     @Override
     public void init(ServletConfig config) throws ServletException
     {
-        WsMain.init(config.getServletContext());
+//        WsMain.init(config.getServletContext());
         try
         {
             //检查mapping是否正确
@@ -374,9 +377,14 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
         }
         PorterConf porterConf = porterMain.newPorterConf();
         porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
-        porterConf.addContextAutoSet(ServletContext.class, getServletConfig().getServletContext());
+        ServletContext servletContext = getServletConfig().getServletContext();
+        servletContext.setAttribute(OPServlet.class.getName(), this);
+
+        porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
         porterConf.addContextAutoSet(OPServlet.class, this);
+        porterConf.addContextAutoSet("javax.websocket.server.ServerContainer",
+                servletContext.getAttribute("javax.websocket.server.ServerContainer"));
 
         porterConf.addAutoSetObjectsForSetter(this);
 
@@ -592,7 +600,7 @@ public abstract class OPServlet extends HttpServlet implements CommonMain
     {
         destroyAll();
         super.destroy();
-        WsMain.destroy();
+//        WsMain.destroy();
     }
 
 }

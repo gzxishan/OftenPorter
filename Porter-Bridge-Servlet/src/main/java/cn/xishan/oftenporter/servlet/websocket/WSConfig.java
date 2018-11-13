@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.servlet.tomcat.WebSocketOption;
-
 /**
  * @author Created by https://github.com/CLovinr on 2018/4/28.
  */

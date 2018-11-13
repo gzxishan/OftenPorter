@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory.IArgsHandle;
+import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.WObject;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
@@ -63,7 +64,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     public void setArgsHandle(IArgsHandle argsHandle)
     {
-        LOGGER.debug("{}:{}",this,argsHandle);
+        LOGGER.debug("{}:{}", this, argsHandle);
         this.argsHandle = argsHandle;
     }
 
@@ -176,7 +177,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     {
         Method javaMethod = getMethod();
         IArgsHandle argsHandle = this.argsHandle;
-        LOGGER.debug("{}:{}",this,argsHandle);
+        LOGGER.debug("{}:{}", this, argsHandle);
         Object[] finalArgs = argsHandle.getInvokeArgs(wObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
     }
@@ -285,7 +286,8 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     public String getPath()
     {
         Porter porter = getFinalPorter();
-        String path = "/" + porter.getContextName() + "/" + porter.getPortIn()
+        OftenContextInfo contextInfo = porter.getContextInfo();
+        String path = "/" + contextInfo.getContextName() + "/" + porter.getPortIn()
                 .getTiedNames()[0] + "/" + getMethodPortIn()
                 .getTiedNames()[0];
         return path;
