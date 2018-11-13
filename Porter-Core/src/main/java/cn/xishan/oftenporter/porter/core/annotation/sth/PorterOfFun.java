@@ -177,7 +177,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     {
         Method javaMethod = getMethod();
         IArgsHandle argsHandle = this.argsHandle;
-        LOGGER.debug("{}:{}", this, argsHandle);
+//        LOGGER.debug("{}:{}", this, argsHandle);
         Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
     }
