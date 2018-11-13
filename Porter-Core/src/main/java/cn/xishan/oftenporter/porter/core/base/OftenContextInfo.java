@@ -1,18 +1,18 @@
 package cn.xishan.oftenporter.porter.core.base;
 
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-11-13.
  */
 public class OftenContextInfo
 {
-    private PName pName;
+    private BridgeName bridgeName;
     private String contextName;
 
-    public OftenContextInfo(PName pName, String contextName)
+    public OftenContextInfo(BridgeName bridgeName, String contextName)
     {
-        this.pName = pName;
+        this.bridgeName = bridgeName;
         this.contextName = contextName;
     }
 
@@ -26,13 +26,13 @@ public class OftenContextInfo
         this.contextName = contextName;
     }
 
-    public PName getName()
+    public BridgeName getName()
     {
-        return pName;
+        return bridgeName;
     }
 
-    public void setName(PName pName)
+    public void setName(BridgeName bridgeName)
     {
-        this.pName = pName;
+        this.bridgeName = bridgeName;
     }
 }

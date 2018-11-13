@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.simple.parsers;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,7 +20,7 @@ abstract class DateParser_ extends TypeParser
     }
 
     @Override
-    public ParseResult parse(WObject wObject, String name, Object value, @MayNull Object dealt)
+    public ParseResult parse(OftenObject oftenObject, String name, Object value, @MayNull Object dealt)
     {
         ParseResult result;
         try

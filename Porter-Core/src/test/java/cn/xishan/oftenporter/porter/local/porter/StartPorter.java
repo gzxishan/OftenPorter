@@ -2,11 +2,11 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.IdGen;
 import org.junit.Assert;
@@ -45,9 +45,9 @@ public class StartPorter
     }
 
     @PortStart
-    public void onStart(WObject wObject)
+    public void onStart(OftenObject oftenObject)
     {
-        PorterSync porterSync = wObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
-        LOGGER.debug("[{},{},{}] on start!", getClass(), wObject, porterSync.requestWNull());
+        PorterSync porterSync = oftenObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
+        LOGGER.debug("[{},{},{}] on start!", getClass(), oftenObject, porterSync.requestWNull());
     }
 }

@@ -4,7 +4,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     }
 
     @Override
-    public ParseResult parse(WObject wObject,@NotNull String name, @NotNull Object value, StringDealt stringDealt)
+    public ParseResult parse(OftenObject oftenObject,@NotNull String name, @NotNull Object value, StringDealt stringDealt)
     {
         ParseResult parseResult;
         if (stringDealt != null)
@@ -140,7 +140,7 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     }
 
     @Override
-    public ParseResult parseEmpty(WObject wObject, String name, StringDealt dealt)
+    public ParseResult parseEmpty(OftenObject oftenObject, String name, StringDealt dealt)
     {
         if (dealt != null && dealt instanceof StringEmptyableDealt)
         {

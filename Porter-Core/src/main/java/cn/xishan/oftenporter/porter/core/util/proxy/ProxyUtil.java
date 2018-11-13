@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.util.proxy;
 
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class ProxyUtil
     public static <T> T newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h)
     {
         List<Class<?>> list = new ArrayList<>(interfaces.length + 1);
-        WPTool.addAll(list, interfaces);
+        OftenTool.addAll(list, interfaces);
         list.add(__ProxyUtil_.class);
         interfaces = list.toArray(new Class[0]);
 
@@ -116,7 +116,7 @@ public class ProxyUtil
                             src.getClass() + "@" + src.hashCode());
                 }
             }
-            Field[] fields = WPTool.getAllFields(src.getClass());
+            Field[] fields = OftenTool.getAllFields(src.getClass());
             for (Field field : fields)
             {
                 if (Modifier.isStatic(field.getModifiers()))

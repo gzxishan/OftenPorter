@@ -10,10 +10,10 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNor
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import org.slf4j.Logger;
 
@@ -72,7 +72,7 @@ public class PortUtil
         for (int i = 0; i < names.length; i++)
         {
             String name = names[i];
-            if (WPTool.isEmpty(name))
+            if (OftenTool.isEmpty(name))
             {
                 if (!enableDefaultValue)
                 {
@@ -101,7 +101,7 @@ public class PortUtil
 
     public static Class<?> getRealClass(Class mayProxyChildClass)
     {
-        if (WPTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
+        if (OftenTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
         {
             return mayProxyChildClass.getSuperclass();
         } else
@@ -123,7 +123,7 @@ public class PortUtil
         for (int i = 0; i < names.length; i++)
         {
             String name = names[i];
-            if (WPTool.isEmpty(name))
+            if (OftenTool.isEmpty(name))
             {
                 if (!enableDefaultValue)
                 {
@@ -139,7 +139,7 @@ public class PortUtil
     private static String tied(PortIn portIn)
     {
         String name = portIn.value();
-        if (WPTool.isEmpty(name))
+        if (OftenTool.isEmpty(name))
         {
             name = portIn.tied();
         }
@@ -152,7 +152,7 @@ public class PortUtil
         if (tieds.length == 0)
         {
             String name = portIn.value();
-            if (WPTool.isEmpty(name))
+            if (OftenTool.isEmpty(name))
             {
                 name = portIn.tied();
             }
@@ -171,14 +171,14 @@ public class PortUtil
     private static String getTied(Object neceOrUnece, String name, String varName, Field field,
             boolean enableDefaultValue)
     {
-        if (WPTool.isEmptyOfAll(name, varName))
+        if (OftenTool.isEmptyOfAll(name, varName))
         {
             if (!enableDefaultValue)
             {
                 throw new InitException("default value is not enable for " + neceOrUnece + " in field '" + field + "'");
             }
             name = field.getName();
-        } else if (WPTool.isEmpty(name))
+        } else if (OftenTool.isEmpty(name))
         {
             name = varName;
         }
@@ -202,7 +202,7 @@ public class PortUtil
     public static String tied(PortIn portIn, Class<?> clazz, boolean enableDefaultValue)
     {
         String name = tied(portIn);
-        if (WPTool.isEmpty(name))
+        if (OftenTool.isEmpty(name))
         {
             if (!enableDefaultValue)
             {
@@ -219,7 +219,7 @@ public class PortUtil
     {
         PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         String tiedName = portIn != null ? tied(portIn) : null;
-        if (WPTool.isEmpty(tiedName))
+        if (OftenTool.isEmpty(tiedName))
         {
             tiedName = tiedIgnorePortIn(clazz);
         }
@@ -340,12 +340,12 @@ public class PortUtil
      * 返回结果不为null。
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
-    public Object paramDealOne(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+    public Object paramDealOne(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
             String optionKey,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
-        return paramDealOne(wObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource, currentTypeParserStore,
+        return paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource, currentTypeParserStore,
                 "");
     }
 
@@ -353,7 +353,7 @@ public class PortUtil
      * 返回结果不为null。
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
-    private Object paramDealOne(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+    private Object paramDealOne(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
             String optionKey,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore, String namePrefix)
@@ -364,7 +364,7 @@ public class PortUtil
 
             {
                 Object value = null;
-                if (WPTool.notNullAndEmpty(optionKey))
+                if (OftenTool.notNullAndEmpty(optionKey))
                 {
                     value = paramSource.getParam(optionKey);
                 }
@@ -372,14 +372,14 @@ public class PortUtil
                 {
                     value = paramSource.getParam(one.clazz.getName());
                 }
-                if (value != null && WPTool.isAssignable(value.getClass(), one.clazz))
+                if (value != null && OftenTool.isAssignable(value.getClass(), one.clazz))
                 {
                     Name[] neces = one.inNames.nece;
                     //判断必须值
                     for (int i = 0; i < neces.length; i++)
                     {
                         Field f = one.neceObjFields[i];
-                        if (neces[i].getNece().isNece(wObject) && WPTool.isEmpty(f.get(value)))
+                        if (neces[i].getNece().isNece(oftenObject) && OftenTool.isEmpty(f.get(value)))
                         {
                             value = DefaultFailedReason
                                     .lackNecessaryParams("Lack necessary params!", neces[i].varName);
@@ -389,7 +389,7 @@ public class PortUtil
                     if (!(value instanceof ParamDealt.FailedReason))
                     {
                         //转换内嵌对象
-                        Object fieldObject = parseInnerOnes(wObject, ignoreTypeParser, paramDealt, one, paramSource,
+                        Object fieldObject = parseInnerOnes(oftenObject, ignoreTypeParser, paramDealt, one, paramSource,
                                 value, currentTypeParserStore, namePrefix);//见DefaultParamDealt.getParam
                         if (fieldObject instanceof ParamDealt.FailedReason)
                         {
@@ -402,11 +402,11 @@ public class PortUtil
             }
             Object[] neces = PortUtil.newArray(one.inNames.nece);
             Object[] unneces = PortUtil.newArray(one.inNames.unece);
-            Object reason = paramDeal(wObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces, paramSource,
+            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces, paramSource,
                     currentTypeParserStore, namePrefix);
             if (reason == null)
             {
-                Object object = WPTool.newObject(one.clazz);
+                Object object = OftenTool.newObject(one.clazz);
 
                 for (int k = 0; k < neces.length; k++)
                 {
@@ -423,7 +423,7 @@ public class PortUtil
                 obj = object;
 
                 //转换内嵌对象
-                Object fieldObject = parseInnerOnes(wObject, ignoreTypeParser, paramDealt, one, paramSource, object,
+                Object fieldObject = parseInnerOnes(oftenObject, ignoreTypeParser, paramDealt, one, paramSource, object,
                         currentTypeParserStore, namePrefix);
                 if (fieldObject instanceof ParamDealt.FailedReason)
                 {
@@ -436,12 +436,12 @@ public class PortUtil
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
-            obj = DefaultFailedReason.parseOftenEntitiesException(WPTool.getMessage(e));
+            obj = DefaultFailedReason.parseOftenEntitiesException(OftenTool.getMessage(e));
         }
         return obj;
     }
 
-    private Object parseInnerOnes(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
+    private Object parseInnerOnes(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
             ParamSource paramSource, Object object,
             TypeParserStore currentTypeParserStore, String namePrefix) throws Exception
     {
@@ -450,7 +450,7 @@ public class PortUtil
         for (int i = 0; i < one.jsonObjFields.length; i++)
         {
 
-            Object fieldObject = paramDealOne(wObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i], null,
+            Object fieldObject = paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i], null,
                     paramSource, currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
             if (fieldObject instanceof ParamDealt.FailedReason)
             {
@@ -469,14 +469,14 @@ public class PortUtil
      *
      * @return 返回null表示转换成功，否则表示失败。
      */
-    public ParamDealt.FailedReason paramDeal(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt,
+    public ParamDealt.FailedReason paramDeal(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt,
             InNames inNames,
             Object[] nece,
             Object[] unece,
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
-        return paramDeal(wObject, ignoreTypeParser, paramDealt, inNames, nece, unece, paramSource,
+        return paramDeal(oftenObject, ignoreTypeParser, paramDealt, inNames, nece, unece, paramSource,
                 currentTypeParserStore, "");
     }
 
@@ -486,7 +486,7 @@ public class PortUtil
      *
      * @return 返回null表示转换成功，否则表示失败。
      */
-    private ParamDealt.FailedReason paramDeal(WObject wObject, boolean ignoreTypeParser, ParamDealt paramDealt,
+    private ParamDealt.FailedReason paramDeal(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt,
             InNames inNames,
             Object[] nece,
             Object[] unece,
@@ -502,7 +502,7 @@ public class PortUtil
                 for (int i = 0; i < nece.length; i++)
                 {
                     _Nece neceDeal = names[i].getNece();
-                    if (neceDeal == null || neceDeal.isNece(wObject))
+                    if (neceDeal == null || neceDeal.isNece(oftenObject))
                     {
                         nece[i] = paramSource.getNeceParam(namePrefix + names[i].varName);
                     } else
@@ -517,18 +517,18 @@ public class PortUtil
                 }
             } else
             {
-                reason = paramDealt.deal(wObject, inNames.nece, nece, true, paramSource,
+                reason = paramDealt.deal(oftenObject, inNames.nece, nece, true, paramSource,
                         currentTypeParserStore, namePrefix);
                 if (reason == null)
                 {
-                    reason = paramDealt.deal(wObject, inNames.unece, unece, false,
+                    reason = paramDealt.deal(oftenObject, inNames.unece, unece, false,
                             paramSource, currentTypeParserStore, namePrefix);
                 }
             }
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
-            reason = DefaultFailedReason.parseOftenEntitiesException(WPTool.getMessage(e));
+            reason = DefaultFailedReason.parseOftenEntitiesException(OftenTool.getMessage(e));
         }
         return reason;
     }

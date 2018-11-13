@@ -1,14 +1,14 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.annotation.*;
 
 /**
  * 从@{@linkplain PortIn}类的@{@linkplain OnPorterEntities}上获取对象绑定，且可以获取子类，但优先选择更亲的类。
  * <br>
- * 获取方式为{@linkplain WObject#fentity(int) WObject.fentity(BindEntities.value.length+index)},另见{@linkplain BindEntities}
+ * 获取方式为{@linkplain OftenObject#fentity(int) WObject.fentity(BindEntities.value.length+index)},另见{@linkplain BindEntities}
  * <pre>
  *     如:
  *     class A{}

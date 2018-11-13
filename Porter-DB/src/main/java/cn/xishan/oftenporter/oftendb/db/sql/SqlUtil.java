@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.BaseEasier;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -507,7 +507,7 @@ public class SqlUtil
             throw new DBException(e);
         } finally
         {
-            WPTool.close(conn);
+            OftenTool.close(conn);
         }
 
 

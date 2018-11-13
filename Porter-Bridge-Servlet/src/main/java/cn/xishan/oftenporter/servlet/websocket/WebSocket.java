@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import javax.servlet.ServletContext;
 import javax.websocket.MessageHandler;
@@ -10,13 +10,13 @@ import java.lang.annotation.*;
 
 /**
  * <pre>
- * 1.被注解的函数形参是:({@linkplain WObject},{@linkplain WS})
+ * 1.被注解的函数形参是:({@linkplain OftenObject},{@linkplain WS})
  * 2.不具有继承性
  * 3.对于ON_MESSAGE*类型与是否是部分传输方式的对应关系见{@linkplain MessageHandler.Whole}与{@linkplain MessageHandler.Partial}
  * </pre>
  * <pre>
  *     兼容性：
- *     本注解能够实现的核心部分在{@linkplain WebSocketHandle#doConnect(WObject, PorterOfFun)}(  RequestDispatcher
+ *     本注解能够实现的核心部分在{@linkplain WebSocketHandle#doConnect(OftenObject, PorterOfFun)}(  RequestDispatcher
  *     requestDispatcher = request.getRequestDispatcher(XSServletWSConfig.WS_PATH);...requestDispatcher.forward
  *     (request, response);)
  *     1.tomcat7.0.47+、tomcat8.0.x、8.x(未知)、tomcat9（未知）

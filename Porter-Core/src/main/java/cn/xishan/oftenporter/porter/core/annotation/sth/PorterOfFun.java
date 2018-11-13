@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory.IArgsHandle;
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import org.slf4j.Logger;
@@ -165,54 +165,54 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     /**
      * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)},
-     * {@linkplain #putInvokeArg(WObject, String, Object)}.
+     * {@linkplain #putInvokeArg(OftenObject, String, Object)}.
      *
-     * @param wObject
+     * @param oftenObject
      * @param args
      * @return
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public final Object invokeByHandleArgs(WObject wObject, Object... args) throws Exception
+    public final Object invokeByHandleArgs(OftenObject oftenObject, Object... args) throws Exception
     {
         Method javaMethod = getMethod();
         IArgsHandle argsHandle = this.argsHandle;
         LOGGER.debug("{}:{}", this, argsHandle);
-        Object[] finalArgs = argsHandle.getInvokeArgs(wObject, this, javaMethod, args);
+        Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
     }
 
-    public ArgData getArgData(WObject wObject)
+    public ArgData getArgData(OftenObject oftenObject)
     {
-        ArgData argData = wObject.getCurrentRequestData(ArgData.class);
+        ArgData argData = oftenObject.getCurrentRequestData(ArgData.class);
         return argData;
     }
 
-    public void putInvokeArg(WObject wObject, String argName, Object value)
+    public void putInvokeArg(OftenObject oftenObject, String argName, Object value)
     {
-        ArgData argData = wObject.getCurrentRequestData(ArgData.class);
+        ArgData argData = oftenObject.getCurrentRequestData(ArgData.class);
         if (argData == null)
         {
             argData = new ArgData();
-            wObject.putCurrentRequestData(ArgData.class, argData);
+            oftenObject.putCurrentRequestData(ArgData.class, argData);
         }
         argData.map.put(argName, value);
     }
 
-    public void putInvokeArg(WObject wObject, Class argType, Object value)
+    public void putInvokeArg(OftenObject oftenObject, Class argType, Object value)
     {
-        this.putInvokeArg(wObject, argType.getName(), value);
+        this.putInvokeArg(oftenObject, argType.getName(), value);
     }
 
-    public void putInvokeArg(WObject wObject, Object value)
+    public void putInvokeArg(OftenObject oftenObject, Object value)
     {
-        this.putInvokeArg(wObject, value.getClass(), value);
+        this.putInvokeArg(oftenObject, value.getClass(), value);
     }
 
-    public boolean hasParameterType(WObject wObject, Class type)
+    public boolean hasParameterType(OftenObject oftenObject, Class type)
     {
         IArgsHandle argsHandle = this.argsHandle;
-        return argsHandle.hasParameterType(wObject, this, getMethod(), type);
+        return argsHandle.hasParameterType(oftenObject, this, getMethod(), type);
     }
 
     public _PortOut getPortOut()
@@ -261,13 +261,13 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 //        return method.toString();
 //    }
 
-    public void startHandles(WObject wObject)
+    public void startHandles(OftenObject oftenObject)
     {
         if (handles != null)
         {
             for (AspectOperationOfPortIn.Handle handle : handles)
             {
-                handle.onStart(wObject);
+                handle.onStart(oftenObject);
             }
         }
     }

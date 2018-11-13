@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn.Handle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.KeyLockHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 
 import java.lang.annotation.*;
@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 /**
  * <pre>
  * 1.使用的是{@linkplain ConcurrentKeyLock}加锁.
- * 2.在{@linkplain Handle#beforeInvokeOfMethodCheck(WObject, PorterOfFun)}时加锁，在{@linkplain Handle#onFinal(WObject, PorterOfFun, Object, Object)}时解锁。
+ * 2.在{@linkplain Handle#beforeInvokeOfMethodCheck(OftenObject, PorterOfFun)}时加锁，在{@linkplain Handle#onFinal(OftenObject, PorterOfFun, Object, Object)}时解锁。
  * 3.见{@linkplain KeyLockHandle}
  * </pre>
  *

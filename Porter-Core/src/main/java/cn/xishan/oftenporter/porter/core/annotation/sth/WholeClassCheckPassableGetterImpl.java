@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ class WholeClassCheckPassableGetterImpl implements WholeClassCheckPassableGetter
 
     public void addAll(Class<? extends CheckPassable>[] cps)
     {
-        WPTool.addAll(mixinCheckForWholeClassList, cps);
+        OftenTool.addAll(mixinCheckForWholeClassList, cps);
     }
 
     public void done()

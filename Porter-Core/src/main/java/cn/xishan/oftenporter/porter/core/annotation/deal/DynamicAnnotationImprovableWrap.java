@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ class DynamicAnnotationImprovableWrap implements IDynamicAnnotationImprovable,
         {
             try
             {
-                IDynamicAnnotationImprovable iDynamicAnnotationImprovable = WPTool.newObject(classType);
+                IDynamicAnnotationImprovable iDynamicAnnotationImprovable = OftenTool.newObject(classType);
                 real = iDynamicAnnotationImprovable;
             } catch (Exception e)
             {

@@ -22,7 +22,7 @@ import cn.xishan.oftenporter.porter.core.init.PortIniter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import com.alibaba.fastjson.JSONArray;
 import org.slf4j.Logger;
@@ -44,7 +44,7 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : starts)
         {
-            PortIn.PortStart portStart = AnnoUtil.getAnnotation(method, PortIn.PortStart.class);
+            PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
             otherStartList.add(new OtherStartDestroy(object, method, portStart.order()));
         }
     }
@@ -54,7 +54,7 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : destroys)
         {
-            PortIn.PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortIn.PortDestroy.class);
+            PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
             otherDestroyList.add(new OtherStartDestroy(object, method, portDestroy.order()));
         }
     }
@@ -164,8 +164,7 @@ public class ContextPorter implements IOtherStartDestroy
 
 
     public Map<Class<?>, CheckPassable> initSeek(SthDeal sthDeal, IListenerAdder<OnPorterAddListener> listenerAdder,
-            PorterConf porterConf,
-            AutoSetHandle autoSetHandle, List<PortIniter> portIniterList) throws FatalInitException
+            PorterConf porterConf, AutoSetHandle autoSetHandle, List<PortIniter> portIniterList) throws Throwable
     {
         this.porterConf = porterConf;
         this.listenerAdder = listenerAdder;
@@ -180,40 +179,17 @@ public class ContextPorter implements IOtherStartDestroy
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
         for (Class<?> clazz : forSeek)
         {
-            try
-            {
-                mayAddPorterOfClass(clazz, null);
-            } catch (FatalInitException e)
-            {
-                throw e;
-            } catch (Exception e)
-            {
-                if (LOGGER.isErrorEnabled())
-                {
-                    Throwable throwable = WPTool.unwrapThrowable(e);
-                    LOGGER.error(throwable.getMessage(), throwable);
-                }
-            }
+            mayAddPorterOfClass(clazz, null);
         }
 
         // 3/3:搜索实例
         Set<Object> objectSet = porterConf.getSeekPackages().getObjectsForSeek();
         for (Object object : objectSet)
         {
-            try
-            {
-                mayAddPorterOfClass(PortUtil.getRealClass(object), object);
-            } catch (FatalInitException e)
-            {
-                throw e;
-            } catch (Exception e)
-            {
-                LOGGER.warn(e.getMessage(), e);
-            }
+            mayAddPorterOfClass(PortUtil.getRealClass(object), object);
         }
 
 
-        try
         {
             OftenContextInfo contextInfo = autoSetHandle.getOftenContextInfo();
             //添加接口
@@ -226,16 +202,6 @@ public class ContextPorter implements IOtherStartDestroy
             LOGGER.debug("添加接口完毕:{}*****************************]", contextInfo.getContextName());
             class_porterMap = null;
             mixinToMap = null;
-        } catch (FatalInitException e)
-        {
-            throw e;
-        } catch (Exception e)
-        {
-            if (LOGGER.isErrorEnabled())
-            {
-                Throwable throwable = WPTool.unwrapThrowable(e);
-                LOGGER.error(throwable.getMessage(), throwable);
-            }
         }
 
 
@@ -254,7 +220,7 @@ public class ContextPorter implements IOtherStartDestroy
         PortIniter[] portIniters = portIniterList.toArray(new PortIniter[0]);
         Arrays.sort(portIniters);//排序
         portIniterList.clear();
-        WPTool.addAll(portIniterList, portIniters);
+        OftenTool.addAll(portIniterList, portIniters);
 
         return checkPassableForCF;
     }
@@ -262,7 +228,7 @@ public class ContextPorter implements IOtherStartDestroy
 
     private void mayAddStaticAutoSet(Class<?> clazz)
     {
-        Field[] fields = WPTool.getAllFields(clazz);
+        Field[] fields = OftenTool.getAllFields(clazz);
         for (int i = 0; i < fields.length; i++)
         {
             Field field = fields[i];
@@ -312,7 +278,7 @@ public class ContextPorter implements IOtherStartDestroy
             {
                 if (LOGGER.isErrorEnabled())
                 {
-                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    Throwable throwable = OftenTool.unwrapThrowable(e);
                     LOGGER.error(throwable.getMessage(), throwable);
                 }
             }
@@ -462,7 +428,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    public void start(WObject wObject, IConfigData iConfigData)
+    public void start(OftenObject oftenObject, IConfigData iConfigData)
     {
         OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
         Arrays.sort(otherStartDestroys);
@@ -472,12 +438,12 @@ public class ContextPorter implements IOtherStartDestroy
             try
             {
                 DefaultArgumentsFactory
-                        .invokeWithArgs(otherStartDestroy.object, otherStartDestroy.method, wObject, iConfigData);
+                        .invokeWithArgs(otherStartDestroy.object, otherStartDestroy.method, oftenObject, iConfigData);
             } catch (Exception e)
             {
                 if (LOGGER.isErrorEnabled())
                 {
-                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    Throwable throwable = OftenTool.unwrapThrowable(e);
                     LOGGER.error(throwable.getMessage(), throwable);
                 }
             }
@@ -486,7 +452,7 @@ public class ContextPorter implements IOtherStartDestroy
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().start(wObject, iConfigData);
+            iterator.next().start(oftenObject, iConfigData);
         }
     }
 
@@ -510,7 +476,7 @@ public class ContextPorter implements IOtherStartDestroy
             {
                 if (LOGGER.isErrorEnabled())
                 {
-                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    Throwable throwable = OftenTool.unwrapThrowable(e);
                     LOGGER.error(throwable.getMessage(), throwable);
                 }
             }

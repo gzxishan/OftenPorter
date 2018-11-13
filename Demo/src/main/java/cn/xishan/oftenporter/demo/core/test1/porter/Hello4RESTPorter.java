@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.demo.core.test1.porter;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 /**
  * <pre>
@@ -19,17 +19,17 @@ public class Hello4RESTPorter
 
     @PortIn(nece = {"name"}, unece = {"msg"}, method = PortMethod.POST,
             tiedType = TiedType.REST)
-    public Object add(WObject wObject)
+    public Object add(OftenObject oftenObject)
     {
-        String name = (String) wObject.fn[0];
-        Object msg = wObject.fu[0];
+        String name = (String) oftenObject.fn[0];
+        Object msg = oftenObject.fu[0];
 
-        return name + ":" + msg + ":" + wObject.restValue;
+        return name + ":" + msg + ":" + oftenObject.restValue;
     }
 
     @PortIn(value = "add", nece = "content", method = PortMethod.POST)
-    public Object add2(WObject wObject)
+    public Object add2(OftenObject oftenObject)
     {
-        return "content:" + wObject.fn[0];
+        return "content:" + oftenObject.fn[0];
     }
 }

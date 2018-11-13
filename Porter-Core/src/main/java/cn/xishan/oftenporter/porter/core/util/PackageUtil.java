@@ -232,9 +232,9 @@ public class PackageUtil
             isRelativeDir = true;
         }
 
-        String[] strs = StrUtil.split(path, separatorStr);
+        String[] strs = OftenStrUtil.split(path, separatorStr);
         Stack<String> stack = new Stack<>();
-        WPTool.addAll(stack, strs);
+        OftenTool.addAll(stack, strs);
         if (path.startsWith(separatorStr))
         {
             stack.add(0, "");
@@ -244,7 +244,7 @@ public class PackageUtil
         {
             stack.pop();
         }
-        String[] relatives = StrUtil.split(relative, "/");
+        String[] relatives = OftenStrUtil.split(relative, "/");
         for (int i = 0; i < relatives.length; i++)
         {
             String str = relatives[i];
@@ -264,7 +264,7 @@ public class PackageUtil
         {
             return "";
         }
-        String result = WPTool.join(separatorStr, stack);
+        String result = OftenTool.join(separatorStr, stack);
         if (isRelativeDir && !result.endsWith(separatorStr))
         {
             result += separatorStr;

@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
-        public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public boolean preInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args, boolean hasInvoked, Object lastReturn) throws Exception
         {
@@ -94,7 +94,7 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
-        public Object doInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public Object doInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args, Object lastReturn) throws Throwable
         {
@@ -103,7 +103,7 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
-        public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public Object afterInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Object lastReturn) throws Exception
         {
             LOGGER.debug("not Override.");
@@ -111,7 +111,7 @@ public @interface AspectOperationOfNormal
         }
 
         @Override
-        public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public void onException(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Throwable throwable) throws Throwable
         {
 
@@ -152,26 +152,26 @@ public @interface AspectOperationOfNormal
                 Method originMethod) throws Exception;
 
         /**
-         * 是否会调用{@linkplain #doInvoke(WObject, boolean, Object, Method, Invoker, Object[], Object)}
+         * 是否会调用{@linkplain #doInvoke(OftenObject, boolean, Object, Method, Invoker, Object[], Object)}
          */
-        boolean preInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        boolean preInvoke(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args,
                 boolean hasInvoked,
                 Object lastReturn) throws Exception;
 
 
-        Object doInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        Object doInvoke(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args,
                 Object lastReturn) throws Throwable;
 
-        Object afterInvoke(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        Object afterInvoke(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,
                 Object[] args,
                 Object lastReturn) throws Exception;
 
-        void onException(@MayNull WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        void onException(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Throwable throwable) throws Throwable;
 
     }

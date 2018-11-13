@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.bridge.http.server;
 
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.servlet.OPServlet;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.servlet.OftenServlet;
 
 import javax.servlet.ServletException;
 
@@ -14,7 +14,7 @@ import javax.servlet.ServletException;
  *
  * @author Created by https://github.com/CLovinr on 2016/10/7.
  */
-public abstract class HServerServlet extends OPServlet
+public abstract class HServerServlet extends OftenServlet
 {
     private String contextName;
 

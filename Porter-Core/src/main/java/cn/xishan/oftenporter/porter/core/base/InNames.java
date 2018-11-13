@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 
 import java.lang.reflect.Field;
@@ -120,17 +120,17 @@ public class InNames
             return type;
         }
 
-        public Object getTypeObject(WObject wObject, ParamSource paramSource) throws Exception
+        public Object getTypeObject(OftenObject oftenObject, ParamSource paramSource) throws Exception
         {
             Object v = null;
-            if (type != null && !PortUtil.willIgnoreAdvanced(type) && !WPTool.isAssignable(type, CharSequence.class))
+            if (type != null && !PortUtil.willIgnoreAdvanced(type) && !OftenTool.isAssignable(type, CharSequence.class))
             {
                 v = paramSource.getParam(type.getName());//
-                if (v != null && WPTool.notNullAndEmpty(typeNeces))
+                if (v != null && OftenTool.notNullAndEmpty(typeNeces))
                 {
                     for (int i = 0; i < this.typeNeces.length; i++)
                     {
-                        if (this.typeNeces[i].isNece(wObject) && WPTool.isEmpty(this.typeNeceFields[i].get(v)))
+                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool.isEmpty(this.typeNeceFields[i].get(v)))
                         {
                             String typeVarName = this.typeNeces[i].getVarName();
                             v = DefaultFailedReason
@@ -150,7 +150,7 @@ public class InNames
             this.nece = nece;
             if (nece == null && type != null && !PortUtil.willIgnoreAdvanced(type))
             {
-                Field[] fieds = WPTool.getAllFields(type);
+                Field[] fieds = OftenTool.getAllFields(type);
                 List<_Nece> neceList = new ArrayList<>();
                 List<Field> fieldList = new ArrayList<>();
                 for (Field f : fieds)

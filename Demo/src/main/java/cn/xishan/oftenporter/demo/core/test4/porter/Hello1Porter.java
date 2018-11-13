@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.demo.core.test4.porter;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import cn.xishan.oftenporter.porter.simple.parsers.ShortParser;
 
@@ -26,29 +26,29 @@ public class Hello1Porter
      * 1.当函数上的与类上的Parser.parse出现同名时，则使用函数上的绑定。
      * </pre>
      * 
-     * @param wObject
+     * @param oftenObject
      * @return
      */
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
     @Parse(paramNames = "age", parser = ShortParser.class)
-    public Object say(WObject wObject)
+    public Object say(OftenObject oftenObject)
     {
-	short age = (short) wObject.fn[0];
+	short age = (short) oftenObject.fn[0];
 	return age + "岁";
     }
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
-    public Object say2(WObject wObject)
+    public Object say2(OftenObject oftenObject)
     {
-	int age = (int) wObject.fn[0];
+	int age = (int) oftenObject.fn[0];
 	return age + "岁";
     }
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
-    public Object say3(WObject wObject)
+    public Object say3(OftenObject oftenObject)
     {
-	short age = (short) wObject.fn[0];
+	short age = (short) oftenObject.fn[0];
 	return age + "岁";
     }
 

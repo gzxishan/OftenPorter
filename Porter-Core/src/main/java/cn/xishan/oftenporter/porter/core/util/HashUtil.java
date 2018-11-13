@@ -186,7 +186,7 @@ public class HashUtil
         {
             for (InputStream in : inputs)
             {
-                WPTool.close(in);
+                OftenTool.close(in);
             }
         }
     }

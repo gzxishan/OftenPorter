@@ -8,9 +8,9 @@ import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -24,17 +24,17 @@ import java.util.Map;
 public class HMain extends LocalMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HMain.class);
-    private PLinker pLinker;
+    private BridgeLinker bridgeLinker;
 
-    private static final String HEADER_KEY = KeyUtil.random48Key();
+    private static final String HEADER_KEY = OftenKeyUtil.random48Key();
     private OkHttpClient okHttpClient;
 
-    public HMain(boolean responseWhenException, PName pName,
+    public HMain(boolean responseWhenException, BridgeName bridgeName,
             final String urlEncoding, OkHttpClient httpClient, final String hostUrlPrefix)
     {
         super();
         this.okHttpClient = httpClient;
-        newLocalMain(responseWhenException, pName, urlEncoding, (request, callback) ->
+        newLocalMain(responseWhenException, bridgeName, urlEncoding, (request, callback) ->
         {
             try
             {
@@ -65,7 +65,7 @@ public class HMain extends LocalMain
                         {
                             if (callback != null)
                             {
-                                callback.onResponse(new PResponseImpl(jResponse.isSuccess(), jResponse));
+                                callback.onResponse(new BridgeResponseImpl(jResponse.isSuccess(), jResponse));
                             }
                         });
             } catch (Exception e)
@@ -73,52 +73,52 @@ public class HMain extends LocalMain
                 LOGGER.warn(e.getMessage(), e);
                 if (callback != null)
                 {
-                    callback.onResponse(PResponseImpl.exception(ResultCode.EXCEPTION, e));
+                    callback.onResponse(BridgeResponseImpl.exception(ResultCode.EXCEPTION, e));
                 }
             }
         });
-        pLinker = new PLinker()
+        bridgeLinker = new BridgeLinker()
         {
             @Override
             public LinkListener sendLink()
             {
-                return HMain.super.getPLinker().sendLink();
+                return HMain.super.getBridgeLinker().sendLink();
             }
 
             @Override
-            public void receiveLink(PLinker init, LinkListener linkListener)
+            public void receiveLink(BridgeLinker init, LinkListener linkListener)
             {
-                HMain.super.getPLinker().receiveLink(init, linkListener);
+                HMain.super.getBridgeLinker().receiveLink(init, linkListener);
             }
 
             @Override
-            public PLinker getLinkedPLinker(String pName)
+            public BridgeLinker getLinkedPLinker(String pName)
             {
-                return HMain.super.getPLinker().getLinkedPLinker(pName);
+                return HMain.super.getBridgeLinker().getLinkedPLinker(pName);
             }
 
             @Override
             public void setPorterAttr(PorterAttr porterAttr)
             {
-                HMain.super.getPLinker().setPorterAttr(porterAttr);
+                HMain.super.getBridgeLinker().setPorterAttr(porterAttr);
             }
 
             @Override
             public PorterAttr getPorterAttr()
             {
-                return HMain.super.getPLinker().getPorterAttr();
+                return HMain.super.getBridgeLinker().getPorterAttr();
             }
 
             @Override
-            public void link(PLinker it, Direction direction)
+            public void link(BridgeLinker it, Direction direction)
             {
-                HMain.super.getPLinker().link(it, direction);
+                HMain.super.getBridgeLinker().link(it, direction);
             }
 
             @Override
             public void close()
             {
-                HMain.super.getPLinker().close();
+                HMain.super.getBridgeLinker().close();
             }
 
             @Override
@@ -128,33 +128,33 @@ public class HMain extends LocalMain
             }
 
             @Override
-            public void setForAnyOtherPName(PLinker anyOther)
+            public void setForAnyOtherPName(BridgeLinker anyOther)
             {
-                HMain.super.getPLinker().setForAnyOtherPName(anyOther);
+                HMain.super.getBridgeLinker().setForAnyOtherPName(anyOther);
             }
 
             @Override
-            public PBridge innerBridge()
+            public IBridge innerBridge()
             {
-                return HMain.super.getPLinker().innerBridge();
+                return HMain.super.getBridgeLinker().innerBridge();
             }
 
             @Override
-            public PBridge currentBridge()
+            public IBridge currentBridge()
             {
-                return HMain.super.getPLinker().currentBridge();
+                return HMain.super.getBridgeLinker().currentBridge();
             }
 
             @Override
-            public PBridge toAllBridge()
+            public IBridge toAllBridge()
             {
                 return currentBridge();
             }
 
             @Override
-            public PName currentPName()
+            public BridgeName currentName()
             {
-                return HMain.super.getPLinker().currentPName();
+                return HMain.super.getBridgeLinker().currentName();
             }
 
             @Override
@@ -206,9 +206,9 @@ public class HMain extends LocalMain
     }
 
     @Override
-    public PLinker getPLinker()
+    public BridgeLinker getBridgeLinker()
     {
-        return pLinker;
+        return bridgeLinker;
     }
 
     @Override

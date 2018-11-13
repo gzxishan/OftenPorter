@@ -1,14 +1,11 @@
 package cn.xishan.oftenporter.demo.core.test2;
 
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
 public class Main1 {
@@ -21,7 +18,7 @@ public class Main1 {
          */
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
-        LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+        LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();
@@ -40,26 +37,26 @@ public class Main1 {
         conf.getSeekPackages()
             .addPorters(Main1.class.getPackage().getName() + ".porter");
 
-        PBridge bridge = localMain.getPLinker().currentBridge();
+        IBridge bridge = localMain.getBridgeLinker().currentBridge();
         localMain.startOne(conf);
         logger.debug("****************************************************");
         bridge.request(
-                new PRequest("/Test2Main/Hello1/say").addParam("name", "火星人"),
-                new PCallback() {
+                new BridgeRequest("/Test2Main/Hello1/say").addParam("name", "火星人"),
+                new BridgeCallback() {
 
                     @Override
-                    public void onResponse(PResponse lResponse) {
+                    public void onResponse(BridgeResponse lResponse) {
                         Object obj = lResponse.getResponse();
                         logger.debug("{}",obj);
                     }
                 });
 
         bridge.request(
-                new PRequest("/Test2Main/Hello1/say2").addParam("name", "火星人"),
-                new PCallback() {
+                new BridgeRequest("/Test2Main/Hello1/say2").addParam("name", "火星人"),
+                new BridgeCallback() {
 
                     @Override
-                    public void onResponse(PResponse lResponse) {
+                    public void onResponse(BridgeResponse lResponse) {
                         Object obj = lResponse.getResponse();
                         logger.debug("{}",obj);
                     }

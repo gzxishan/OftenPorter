@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,15 +26,15 @@ public class AspectHandleOfPortInUtil
         OnFinal
     }
 
-    public static void invokeFinalListener_beforeFinal(WObject wObject)
+    public static void invokeFinalListener_beforeFinal(OftenObject oftenObject)
     {
-        Enumeration<WObject.IFinalListener> enumeration = wObject.listeners(-1);
+        Enumeration<OftenObject.IFinalListener> enumeration = oftenObject.listeners(-1);
         while (enumeration.hasMoreElements())
         {
             try
             {
-                WObject.IFinalListener listener = enumeration.nextElement();
-                listener.beforeFinal(wObject);
+                OftenObject.IFinalListener listener = enumeration.nextElement();
+                listener.beforeFinal(oftenObject);
             } catch (Throwable e)
             {
                 LOGGER.error(e.getMessage(), e);
@@ -42,15 +42,15 @@ public class AspectHandleOfPortInUtil
         }
     }
 
-    public static void invokeFinalListener_onFinalException(WObject wObject, Throwable throwable)
+    public static void invokeFinalListener_onFinalException(OftenObject oftenObject, Throwable throwable)
     {
-        Enumeration<WObject.IFinalListener> enumeration = wObject.listeners(-1);
+        Enumeration<OftenObject.IFinalListener> enumeration = oftenObject.listeners(-1);
         while (enumeration.hasMoreElements())
         {
             try
             {
-                WObject.IFinalListener listener = enumeration.nextElement();
-                listener.onFinalException(wObject, throwable);
+                OftenObject.IFinalListener listener = enumeration.nextElement();
+                listener.onFinalException(oftenObject, throwable);
             } catch (Throwable e)
             {
                 LOGGER.error(e.getMessage(), e);
@@ -58,15 +58,15 @@ public class AspectHandleOfPortInUtil
         }
     }
 
-    public static void invokeFinalListener_afterFinal(WObject wObject)
+    public static void invokeFinalListener_afterFinal(OftenObject oftenObject)
     {
-        Enumeration<WObject.IFinalListener> enumeration = wObject.listeners(-1);
+        Enumeration<OftenObject.IFinalListener> enumeration = oftenObject.listeners(-1);
         while (enumeration.hasMoreElements())
         {
             try
             {
-                WObject.IFinalListener listener = enumeration.nextElement();
-                listener.afterFinal(wObject);
+                OftenObject.IFinalListener listener = enumeration.nextElement();
+                listener.afterFinal(oftenObject);
             } catch (Throwable e)
             {
                 LOGGER.error(e.getMessage(), e);
@@ -75,17 +75,17 @@ public class AspectHandleOfPortInUtil
     }
 
 
-    public static final Object tryDoHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
+    public static final Object tryDoHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
             Object failedObject)
 
     {
         boolean hasInvokedException = false;
         if (state == State.OnFinal)
         {
-            invokeFinalListener_beforeFinal(wObject);
+            invokeFinalListener_beforeFinal(oftenObject);
             if (failedObject instanceof Throwable)
             {
-                invokeFinalListener_onFinalException(wObject, (Throwable) failedObject);
+                invokeFinalListener_onFinalException(oftenObject, (Throwable) failedObject);
                 hasInvokedException = true;
             }
         }
@@ -93,17 +93,17 @@ public class AspectHandleOfPortInUtil
         {
             try
             {
-                Object rs = doHandle(state, wObject, funPort, returnObject, failedObject);
+                Object rs = doHandle(state, oftenObject, funPort, returnObject, failedObject);
                 if (!hasInvokedException && state == State.OnFinal)
                 {
-                    invokeFinalListener_afterFinal(wObject);
+                    invokeFinalListener_afterFinal(oftenObject);
                 }
                 return rs;
             } catch (Throwable throwable)
             {
                 if (!hasInvokedException && state == State.OnFinal)
                 {
-                    invokeFinalListener_onFinalException(wObject, throwable);
+                    invokeFinalListener_onFinalException(oftenObject, throwable);
                 }
                 throw throwable;
             }
@@ -116,7 +116,7 @@ public class AspectHandleOfPortInUtil
         }
     }
 
-    public static final Object doHandle(State state, WObject wObject, PorterOfFun funPort, Object returnObject,
+    public static final Object doHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
             Object failedObject) throws Throwable
     {
         //处理AspectFunOperation
@@ -129,13 +129,13 @@ public class AspectHandleOfPortInUtil
                 case BeforeInvokeOfMethodCheck:
                     for (AspectOperationOfPortIn.Handle handle : handles)
                     {
-                        handle.beforeInvokeOfMethodCheck(wObject, funPort);
+                        handle.beforeInvokeOfMethodCheck(oftenObject, funPort);
                     }
                     break;
                 case BeforeInvoke:
                     for (AspectOperationOfPortIn.Handle handle : handles)
                     {
-                        handle.beforeInvoke(wObject, funPort);
+                        handle.beforeInvoke(oftenObject, funPort);
                     }
                     break;
                 case Invoke:
@@ -143,15 +143,15 @@ public class AspectHandleOfPortInUtil
                     boolean hasInvoked = false;
                     for (AspectOperationOfPortIn.Handle handle : handles)
                     {
-                        if (handle.needInvoke(wObject, funPort, returnObject))
+                        if (handle.needInvoke(oftenObject, funPort, returnObject))
                         {
                             hasInvoked = true;
-                            returnObject = handle.invoke(wObject, funPort, returnObject);
+                            returnObject = handle.invoke(oftenObject, funPort, returnObject);
                         }
                     }
                     if (!hasInvoked)
                     {
-                        returnObject = funPort.invokeByHandleArgs(wObject);
+                        returnObject = funPort.invokeByHandleArgs(oftenObject);
                     }
                     return returnObject;
                 }
@@ -159,14 +159,14 @@ public class AspectHandleOfPortInUtil
                 case AfterInvoke:
                     for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handles[i].afterInvoke(wObject, funPort, returnObject);
+                        handles[i].afterInvoke(oftenObject, funPort, returnObject);
                     }
                     break;
 
                 case OnFinal:
                     for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handles[i].onFinal(wObject, funPort, returnObject, failedObject);
+                        handles[i].onFinal(oftenObject, funPort, returnObject, failedObject);
                     }
                     break;
             }

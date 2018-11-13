@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
@@ -17,7 +17,7 @@ class BridgeData implements Serializable
 {
 
     private String id;
-    transient WObject wObject;
+    transient OftenObject oftenObject;
     transient PorterOfFun porterOfFun;
     transient WebSocket webSocket;
     transient WSConfig wsConfig;
@@ -25,13 +25,13 @@ class BridgeData implements Serializable
     private static final Map<String, WeakReference<BridgeData>> BRIDGE_DATA_MAP = new HashMap<>();
     private static long lastCheck;
 
-    public BridgeData(WObject wObject, PorterOfFun porterOfFun, WebSocket webSocket,WSConfig wsConfig)
+    public BridgeData(OftenObject oftenObject, PorterOfFun porterOfFun, WebSocket webSocket,WSConfig wsConfig)
     {
-        this.wObject = wObject;
+        this.oftenObject = oftenObject;
         this.porterOfFun = porterOfFun;
         this.webSocket = webSocket;
         this.wsConfig=wsConfig;
-        this.id = KeyUtil.randomUUID();
+        this.id = OftenKeyUtil.randomUUID();
         synchronized (BRIDGE_DATA_MAP)
         {
             check();

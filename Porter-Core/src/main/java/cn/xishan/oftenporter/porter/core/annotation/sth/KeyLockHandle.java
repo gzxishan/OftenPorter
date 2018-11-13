@@ -6,11 +6,11 @@ import cn.xishan.oftenporter.porter.core.annotation.KeyLock;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock.Locker;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     private boolean combine;
 
     private ConcurrentKeyLock<String> concurrentKeyLock;
-    private final String ATTR_KEY = KeyUtil.random48Key();
+    private final String ATTR_KEY = OftenKeyUtil.random48Key();
     private static Set<CustomerLockerListener> customerLockerListenerSet = new HashSet<>();
 
     /**
@@ -70,7 +70,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     {
         synchronized (KeyLockHandle.class)
         {
-            if (WPTool.notNullAndEmpty(keyLock.lockPrefix()))
+            if (OftenTool.notNullAndEmpty(keyLock.lockPrefix()))
             {
                 lockPrefix = keyLock.lockPrefix();
             }
@@ -106,7 +106,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         break;
                 }
             }
-            if (WPTool.existsNotEmpty(this.locks, this.neceLocks, this.uneceLocks))
+            if (OftenTool.existsNotEmpty(this.locks, this.neceLocks, this.uneceLocks))
             {
                 Locker locker = null;
                 for (CustomerLockerListener lockerListener : customerLockerListenerSet)
@@ -148,7 +148,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                             break;
                         case PORTER:
                             this.concurrentKeyLock = getKeyLock(
-                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + WPTool
+                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + OftenTool
                                             .join(":", porter.getPortIn().getTiedNames()));
                             break;
                         case FUN:
@@ -157,8 +157,8 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                                 throw new RuntimeException(KeyLock.LockRange.FUN + " is not for class!");
                             }
                             this.concurrentKeyLock = getKeyLock(
-                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + WPTool
-                                            .join(":", porter.getPortIn().getTiedNames()) + "/" + WPTool
+                                    contextInfo.getName().getName() + "/" + contextInfo.getContextName() + "/" + OftenTool
+                                            .join(":", porter.getPortIn().getTiedNames()) + "/" + OftenTool
                                             .join(":", porterOfFun.getMethodPortIn().getTiedNames()));
                             break;
                     }
@@ -190,7 +190,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
 
 
     @Override
-    public void beforeInvokeOfMethodCheck(WObject wObject, PorterOfFun porterOfFun)
+    public void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun)
     {
         List<String> keys = new ArrayList<>();
 
@@ -210,7 +210,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                 case NECE_LOCKS:
                     for (String neceName : neceLocks)
                     {
-                        String key = wObject.nece(neceName);
+                        String key = oftenObject.nece(neceName);
                         if (!keys.contains(key))
                         {
                             keys.add(lockPrefix == null ? key : lockPrefix + key);
@@ -220,8 +220,8 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                 case UNECE_LOCKS:
                     for (String uneceName : uneceLocks)
                     {
-                        String key = wObject.unece(uneceName);
-                        if (WPTool.notNullAndEmpty(key))
+                        String key = oftenObject.unece(uneceName);
+                        if (OftenTool.notNullAndEmpty(key))
                         {
                             if (!keys.contains(key))
                             {
@@ -237,33 +237,33 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
         if (combine && locks.length > 0)
         {
             locks = new String[]{
-                    WPTool.join(":", locks)
+                    OftenTool.join(":", locks)
             };
         }
-        LOGGER.debug("locking[{}]:{}", wObject.url(), locks);
+        LOGGER.debug("locking[{}]:{}", oftenObject.url(), locks);
         concurrentKeyLock.locks(locks);
-        LOGGER.debug("locked[{}]:{}", wObject.url(), locks);
-        wObject.putRequestData(ATTR_KEY, locks);
+        LOGGER.debug("locked[{}]:{}", oftenObject.url(), locks);
+        oftenObject.putRequestData(ATTR_KEY, locks);
     }
 
     @Override
-    public boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
+    public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
     {
         return false;
     }
 
     @Override
-    public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
+    public void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
-        String[] locks = wObject.removeRequestData(ATTR_KEY);
+        String[] locks = oftenObject.removeRequestData(ATTR_KEY);
         if (locks == null)
         {
             LOGGER.warn("locks key is null from requestData:attr key={}", ATTR_KEY);
         } else
         {
-            LOGGER.debug("unlocking[{}]:{}", wObject.url(), locks);
+            LOGGER.debug("unlocking[{}]:{}", oftenObject.url(), locks);
             concurrentKeyLock.unlocks(locks);
-            LOGGER.debug("unlocked[{}]:{}", wObject.url(), locks);
+            LOGGER.debug("unlocked[{}]:{}", oftenObject.url(), locks);
         }
     }
 

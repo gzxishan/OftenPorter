@@ -7,11 +7,11 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
@@ -148,7 +148,7 @@ public class SthDeal
         List<_PortDestroy> portDestroys = new ArrayList<>();
 
         /////处理自身接口----开始
-        Method[] methods = WPTool.getAllPublicMethods(clazz);
+        Method[] methods = OftenTool.getAllPublicMethods(clazz);
         ObjectGetter objectGetter = new ObjectGetterImpl(porter);
         for (Method method : methods)
         {
@@ -276,7 +276,7 @@ public class SthDeal
 
             try
             {
-                AspectOperationOfPortIn.Handle handle = WPTool.newObject(aspectOperationOfPortIn.handle());
+                AspectOperationOfPortIn.Handle handle = OftenTool.newObject(aspectOperationOfPortIn.handle());
                 if (object instanceof PorterOfFun)
                 {
                     PorterOfFun porterOfFun = (PorterOfFun) object;
@@ -374,7 +374,7 @@ public class SthDeal
                 for (PortMethod portMethod : portMethods)
                 {
                     String[] tieds = porterOfFun.getMethodPortIn().getTiedNames();
-                    String[] ignoredFunTieds = StrUtil
+                    String[] ignoredFunTieds = OftenStrUtil
                             .newArray(porterOfFun.getPorter().getPortIn().getIgnoredFunTieds());
                     Arrays.sort(ignoredFunTieds);
                     for (String tiedName : tieds)

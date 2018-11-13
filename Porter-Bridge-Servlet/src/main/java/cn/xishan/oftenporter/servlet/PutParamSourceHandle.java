@@ -10,7 +10,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
 import javax.servlet.http.HttpServletRequest;
@@ -76,9 +76,9 @@ public class PutParamSourceHandle implements ParamSourceHandle
     }
 
     @Override
-    public ParamSource get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
+    public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
-        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
 
         String ctype = request.getContentType();
         if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
@@ -91,7 +91,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
                 return null;
             }
             Map paramsMap = fromEncoding(body, encode);
-            ParamSource paramSource = new DefaultParamSource(paramsMap, wObject.getRequest());
+            ParamSource paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
             return paramSource;
         }
         return null;
@@ -100,7 +100,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
     public static Map<String, String> fromEncoding(String encodingContent,
             String encoding) throws UnsupportedEncodingException
     {
-        String[] strs = StrUtil.split(encodingContent, "&");
+        String[] strs = OftenStrUtil.split(encodingContent, "&");
         HashMap<String, String> paramsMap = new HashMap<>(strs.length);
         int index;
         for (String string : strs)

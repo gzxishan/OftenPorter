@@ -33,7 +33,7 @@ public @interface ImportProperties
      */
     String[] keyValues() default {};
 
-    static class Handle implements Importer.Configable<ImportProperties>
+    class Handle implements Importer.Configable<ImportProperties>
     {
         private static final Logger LOGGER = LoggerFactory.getLogger(Handle.class);
 

@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.util;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public @interface LogMethodInvoke
         }
 
         @Override
-        public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public boolean preInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked, Object lastReturn)
         {
             if (LOGGER.isDebugEnabled())
@@ -49,7 +49,7 @@ public @interface LogMethodInvoke
         }
 
         @Override
-        public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public Object afterInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Exception
         {
             if (LOGGER.isDebugEnabled())
@@ -69,7 +69,7 @@ public @interface LogMethodInvoke
         }
 
         @Override
-        public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+        public void onException(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 AspectOperationOfNormal.Invoker invoker, Object[] args,
                 Throwable throwable) throws Throwable
         {

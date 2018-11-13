@@ -3,10 +3,10 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
 
 import java.util.ArrayList;
@@ -38,21 +38,21 @@ class SyncPorterImpl implements PorterNotInnerSync
     }
 
     @Override
-    public <T> T request(WObject wObject)
+    public <T> T request(OftenObject oftenObject)
     {
-        return request(wObject, null);
+        return request(oftenObject, null);
     }
 
     @Override
-    public <T> T request(WObject wObject, INameValues INameValues)
+    public <T> T request(OftenObject oftenObject, INameValues INameValues)
     {
-        PRequest request;
-        if (wObject == null)
+        BridgeRequest request;
+        if (oftenObject == null)
         {
-            request = new PRequest(null, syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
+            request = new BridgeRequest(null, syncPorterOption.getMethod(), syncPorterOption.getPathWithContext());
         } else
         {
-            request = new PRequest(wObject, syncPorterOption.getPathWithContext());
+            request = new BridgeRequest(oftenObject, syncPorterOption.getPathWithContext());
             request.setMethod(syncPorterOption.getMethod());
         }
 
@@ -69,14 +69,14 @@ class SyncPorterImpl implements PorterNotInnerSync
     }
 
     @Override
-    public <T> T requestSimple(WObject wObject, Object... nameValues)
+    public <T> T requestSimple(OftenObject oftenObject, Object... nameValues)
     {
         INameValues INameValues = DefaultNameValues.fromArray(nameValues);
-        return request(wObject, INameValues);
+        return request(oftenObject, INameValues);
     }
 
     @Override
-    public <T> T invokeWithObjects(WObject wObject, Object... objects)
+    public <T> T invokeWithObjects(OftenObject oftenObject, Object... objects)
     {
         List<String> names = new ArrayList<>();
         List<Object> values = new ArrayList<>();
@@ -85,7 +85,7 @@ class SyncPorterImpl implements PorterNotInnerSync
             if (obj instanceof FunParam)
             {
                 FunParam funParam = (FunParam) obj;
-                if (WPTool.isEmpty(funParam.getName()))
+                if (OftenTool.isEmpty(funParam.getName()))
                 {
                     throw new NullPointerException("empty FunParam name!");
                 }
@@ -98,7 +98,7 @@ class SyncPorterImpl implements PorterNotInnerSync
             }
         }
         DefaultNameValues defaultNameValues = new DefaultNameValues(names, values);
-        return request(wObject, defaultNameValues);
+        return request(oftenObject, defaultNameValues);
     }
 
     @Override

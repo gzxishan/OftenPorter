@@ -12,7 +12,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
@@ -205,7 +205,7 @@ class SthUtil
         ITypeParser typeParser;
         try
         {
-            typeParser = WPTool.newObject(clazz);
+            typeParser = OftenTool.newObject(clazz);
         } catch (Exception e)
         {
             LOGGER.warn(e.getMessage(), e);
@@ -228,7 +228,7 @@ class SthUtil
             {
                 try
                 {
-                    checkPassableMap.put(checks[i], WPTool.newObject(checks[i]));
+                    checkPassableMap.put(checks[i], OftenTool.newObject(checks[i]));
                 } catch (Exception e)
                 {
                     LOGGER.warn(e.getMessage(), e);

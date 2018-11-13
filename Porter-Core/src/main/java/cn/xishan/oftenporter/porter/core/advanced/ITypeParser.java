@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.advanced;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 
 import java.util.HashMap;
@@ -34,20 +34,20 @@ public interface ITypeParser<D>
         }
 
         @Override
-        public ParseResult parseEmpty(WObject wObject, String name, D dealt)
+        public ParseResult parseEmpty(OftenObject oftenObject, String name, D dealt)
         {
             return null;
         }
 
         /**
-         * @param wObject
+         * @param oftenObject
          * @param name    参数名
          * @param value   参数值
          * @param dealt   由{@linkplain #initFor(ITypeParserOption)}返回的操作实例。
          * @return
          */
         @Override
-        public ParseResult parse(WObject wObject, String name, Object value, D dealt)
+        public ParseResult parse(OftenObject oftenObject, String name, Object value, D dealt)
         {
             return ITypeParser.ParseResult.failed(PortUtil.getRealClass(this).getSimpleName() + ":see parse(...)");
         }
@@ -61,7 +61,7 @@ public interface ITypeParser<D>
      * @return 返回值不为null。
      */
     @NotNull
-    ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value, @MayNull D dealt);
+    ParseResult parse(OftenObject oftenObject, @NotNull String name, @NotNull Object value, @MayNull D dealt);
 
 
     /**
@@ -72,7 +72,7 @@ public interface ITypeParser<D>
      * @return 返回值可以为null。
      */
     @MayNull
-    ParseResult parseEmpty(WObject wObject, @NotNull String name, @MayNull D dealt);
+    ParseResult parseEmpty(OftenObject oftenObject, @NotNull String name, @MayNull D dealt);
 
     /**
      * 初始化框架时会调用。

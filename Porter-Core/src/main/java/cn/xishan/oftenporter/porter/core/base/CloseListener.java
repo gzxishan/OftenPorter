@@ -14,7 +14,7 @@ public interface CloseListener
     }
 
     /**
-     * 调用{@linkplain WResponse#close()}时。
+     * 调用{@linkplain OftenResponse#close()}时。
      * @param writeObject 写入的对象。
      * @param closeHandle
      */

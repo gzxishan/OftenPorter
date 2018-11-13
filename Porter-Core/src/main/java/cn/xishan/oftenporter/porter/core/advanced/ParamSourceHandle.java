@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.advanced;
 
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.reflect.Method;
 
@@ -14,8 +14,8 @@ public interface ParamSourceHandle
 {
     /**
      * 自定义的可以返回null，此时会转为默认的。
-     * @param wObject 注意：此时的wObject.{@linkplain WObject#getParamSource() getParamSource()}返回null,各种参数也没有处理;
+     * @param oftenObject 注意：此时的wObject.{@linkplain OftenObject#getParamSource() getParamSource()}返回null,各种参数也没有处理;
      * @return
      */
-    ParamSource get(WObject wObject,Class<?> porterClass,Method porterFun)throws Exception;
+    ParamSource get(OftenObject oftenObject,Class<?> porterClass,Method porterFun)throws Exception;
 }

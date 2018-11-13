@@ -2,10 +2,10 @@ package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -44,21 +44,21 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
     }
 
     @Override
-    public ParamSource get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
+    public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
-        ParamSource paramSource = _get(wObject, porterClass, porterFun);
-        if (paramSource == null && dealNormalPut && wObject.getRequest().getMethod() == PortMethod.PUT)
+        ParamSource paramSource = _get(oftenObject, porterClass, porterFun);
+        if (paramSource == null && dealNormalPut && oftenObject.getRequest().getMethod() == PortMethod.PUT)
         {
-            paramSource = super.get(wObject, porterClass, porterFun);
+            paramSource = super.get(oftenObject, porterClass, porterFun);
         }
         return paramSource;
     }
 
-    ParamSource _get(WObject wObject, Class<?> porterClass, Method porterFun) throws Exception
+    ParamSource _get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
 
 
-        Object originalRequest = wObject.getRequest().getOriginalRequest();
+        Object originalRequest = oftenObject.getRequest().getOriginalRequest();
         if (originalRequest == null || !(originalRequest instanceof HttpServletRequest))
         {
             return null;
@@ -70,7 +70,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             {
                 JSONObject jsonObject = JSON.parseObject(
                         FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
-                ParamSource paramSource = new DefaultParamSource(jsonObject, wObject.getRequest());
+                ParamSource paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
                 return paramSource;
             } else
             {
@@ -98,7 +98,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             if (fileItem.isFormField())
             {
                 String encoding = request.getCharacterEncoding();
-                if (WPTool.isEmpty(encoding))
+                if (OftenTool.isEmpty(encoding))
                 {
                     encoding = "utf-8";
                 }
@@ -109,7 +109,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                 File tempFile;
                 if (fileItem.isInMemory())
                 {
-                    tempFile = File.createTempFile(KeyUtil.randomUUID(), ".temp", new File(multiPartOption.tempDir));
+                    tempFile = File.createTempFile(OftenKeyUtil.randomUUID(), ".temp", new File(multiPartOption.tempDir));
                     FileTool.write2File(fileItem.getInputStream(), tempFile, true);
                 } else
                 {
@@ -118,9 +118,9 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                 }
 
                 String origin = fileItem.getName();
-                if (WPTool.isEmpty(origin))
+                if (OftenTool.isEmpty(origin))
                 {
-                    origin = KeyUtil.randomUUID();
+                    origin = OftenKeyUtil.randomUUID();
                 }
 
                 List<Object[]> files = filesMap.get(name);
@@ -149,7 +149,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             map.put(entry.getKey(), new FilePart(origins, files));
         }
 
-        ParamSource paramSource = new DefaultParamSource(map, wObject.getRequest());
+        ParamSource paramSource = new DefaultParamSource(map, oftenObject.getRequest());
 
         return paramSource;
     }

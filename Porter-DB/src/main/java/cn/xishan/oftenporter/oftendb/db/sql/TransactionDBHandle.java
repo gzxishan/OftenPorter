@@ -5,9 +5,9 @@ import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     }
 
     @Override
-    public boolean preInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+    public boolean preInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked,
             Object lastReturn) throws Exception
     {
@@ -159,7 +159,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     }
 
     @Override
-    public Object afterInvoke(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+    public Object afterInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Exception
     {
         checkCommit(originMethod);
@@ -168,7 +168,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
 
 
     @Override
-    public void onException(WObject wObject, boolean isTop, Object originObject, Method originMethod,
+    public void onException(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, Throwable throwable) throws Throwable
     {
 
@@ -185,7 +185,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
                     {
                         LOGGER.debug("rollback savePoint... transaction:source={},method={}.{},errmsg={}", source,
                                 originMethod.getDeclaringClass().getName(), originMethod.getName(),
-                                WPTool.getCause(throwable).toString());
+                                OftenTool.getCause(throwable).toString());
                     }
                     needRollback = iConnection.doRollback(savePointHolder.savepoint);
                     LOGGER.debug("rollback savePoint ok!");
@@ -198,7 +198,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
                 {
                     LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
                             originMethod.getDeclaringClass().getName(), originMethod.getName(),
-                            WPTool.getCause(throwable).toString());
+                            OftenTool.getCause(throwable).toString());
                 }
 
                 __removeConnection__(transactionDB.dbSource());

@@ -12,9 +12,9 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.*;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.EmptyParamSource;
@@ -39,19 +39,19 @@ public final class PortExecutor
     private CheckPassable[] allGlobalChecks;
     private UrlDecoder urlDecoder;
     private boolean responseWhenException;
-    private PName pName;
+    private BridgeName bridgeName;
     private DeliveryBuilder deliveryBuilder;
     private PortUtil portUtil;
     private Map<String, One> extraEntityOneMap = new HashMap<>();
 
-    public PortExecutor(PName pName, PLinker pLinker, UrlDecoder urlDecoder, boolean responseWhenException)
+    public PortExecutor(BridgeName bridgeName, BridgeLinker bridgeLinker, UrlDecoder urlDecoder, boolean responseWhenException)
     {
         _LOGGER = LogUtil.logger(PortExecutor.class);
         portUtil = new PortUtil();
-        this.pName = pName;
+        this.bridgeName = bridgeName;
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
-        deliveryBuilder = DeliveryBuilder.getBuilder(true, pLinker);
+        deliveryBuilder = DeliveryBuilder.getBuilder(true, bridgeLinker);
     }
 
     public void putAllExtraEntity(Map<String, One> entityOneMap)
@@ -59,9 +59,9 @@ public final class PortExecutor
         this.extraEntityOneMap.putAll(entityOneMap);
     }
 
-    private final Logger logger(WObject wObject)
+    private final Logger logger(OftenObject oftenObject)
     {
-        return wObject == null ? _LOGGER : LogUtil.logger(wObject, PortExecutor.class);
+        return oftenObject == null ? _LOGGER : LogUtil.logger(oftenObject, PortExecutor.class);
     }
 
     public void setAllGlobalChecks(CheckPassable[] allGlobalChecks)
@@ -182,7 +182,7 @@ public final class PortExecutor
     }
 
 
-    public PreRequest forRequest(WRequest request, final WResponse response)
+    public PreRequest forRequest(OftenRequest request, final OftenResponse response)
     {
         String path = request.getPath();
         UrlDecoder.Result result = null;
@@ -219,17 +219,17 @@ public final class PortExecutor
         }
     }
 
-    public WObject forPortInit(PName pName, UrlDecoder.Result result, WRequest request, WResponse response,
+    public OftenObject forPortInit(BridgeName bridgeName, UrlDecoder.Result result, OftenRequest request, OftenResponse response,
             Context context, boolean isInnerRequest)
     {
-        WObjectImpl wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
+        OftenObjectImpl wObject = new OftenObjectImpl(bridgeName, result, request, response, context, isInnerRequest);
         wObject.setParamSource(new EmptyParamSource());
         return wObject;
     }
 
-    public final void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
+    public final void doRequest(PreRequest req, OftenRequest request, OftenResponse response, boolean isInnerRequest)
     {
-        WObjectImpl wObject = null;
+        OftenObjectImpl wObject = null;
         try
         {
 
@@ -246,7 +246,7 @@ public final class PortExecutor
                 return;
             }
 
-            wObject = new WObjectImpl(pName, result, request, response, context, isInnerRequest);
+            wObject = new OftenObjectImpl(bridgeName, result, request, response, context, isInnerRequest);
             wObject.porterOfFun = funPort;
             wObject.portExecutor = this;
 
@@ -285,7 +285,7 @@ public final class PortExecutor
             if (responseWhenException)
             {
                 JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-                jResponse.setDescription(WPTool.getMessage(e));
+                jResponse.setDescription(OftenTool.getMessage(e));
                 try
                 {
                     response.write(jResponse);
@@ -298,7 +298,7 @@ public final class PortExecutor
         }
     }
 
-    private final void exNotFoundFun(WRequest request, WResponse response, UrlDecoder.Result result,
+    private final void exNotFoundFun(OftenRequest request, OftenResponse response, UrlDecoder.Result result,
             boolean responseWhenException)
     {
         response.toErr();
@@ -311,7 +311,7 @@ public final class PortExecutor
         close(response);
     }
 
-    private final void exNotFoundClassPort(WRequest request, WResponse response, boolean responseWhenException)
+    private final void exNotFoundClassPort(OftenRequest request, OftenResponse response, boolean responseWhenException)
     {
         response.toErr();
         if (responseWhenException)
@@ -323,7 +323,7 @@ public final class PortExecutor
         close(response);
     }
 
-    private final void exDealUrl(WRequest request, WResponse response, String msg, boolean responseWhenException)
+    private final void exDealUrl(OftenRequest request, OftenResponse response, String msg, boolean responseWhenException)
     {
         response.toErr();
         if (responseWhenException)
@@ -346,7 +346,7 @@ public final class PortExecutor
      */
     private ParamDealt.FailedReason paramDealOfPortInEntities(Context context,
             OftenEntities oftenEntities,
-            boolean isInClass, Porter porter, PorterOfFun porterOfFun, WObjectImpl wObjectImpl) throws Exception
+            boolean isInClass, Porter porter, PorterOfFun porterOfFun, OftenObjectImpl wObjectImpl) throws Exception
     {
         if (oftenEntities == null)
         {
@@ -374,7 +374,7 @@ public final class PortExecutor
         return null;
     }
 
-    Object getExtrwaEntity(WObjectImpl wObject, String key)
+    Object getExtrwaEntity(OftenObjectImpl wObject, String key)
     {
         One one = extraEntityOneMap.get(key);
         if (one != null)
@@ -396,7 +396,7 @@ public final class PortExecutor
     }
 
     private Object paramDealOfOne(Context context, boolean isInClass, Porter porter, PorterOfFun porterOfFun,
-            WObjectImpl wObjectImpl, One one, @MayNull String optionKey)
+            OftenObjectImpl wObjectImpl, One one, @MayNull String optionKey)
     {
         TypeParserStore currentTypeParserStore = context.innerContextBridge.innerBridge.globalParserStore;
         boolean ignoreTypeParser = isInClass ? porter.getPortIn().ignoreTypeParser() : porterOfFun.getMethodPortIn()
@@ -420,7 +420,7 @@ public final class PortExecutor
                     }
                 } catch (Exception e)
                 {
-                    Throwable throwable = WPTool.unwrapThrowable(e);
+                    Throwable throwable = OftenTool.unwrapThrowable(e);
                     object = DefaultFailedReason.parseOftenEntitiesException(throwable.getMessage());
                     logger(wObjectImpl).warn(throwable.getMessage(), throwable);
                 }
@@ -430,7 +430,7 @@ public final class PortExecutor
         return object;
     }
 
-    private final void dealtOfGlobalCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
+    private final void dealtOfGlobalCheck(Context context, OftenObjectImpl wObject, PorterOfFun funPort,
             UrlDecoder.Result result)
     {
         CheckPassable[] allGlobal = this.allGlobalChecks;
@@ -466,7 +466,7 @@ public final class PortExecutor
 
     }
 
-    private final void dealtOfContextCheck(Context context, WObjectImpl wObject, PorterOfFun funPort,
+    private final void dealtOfContextCheck(Context context, OftenObjectImpl wObject, PorterOfFun funPort,
             UrlDecoder.Result result)
     {
         CheckPassable[] contextChecks = context.contextChecks;
@@ -499,7 +499,7 @@ public final class PortExecutor
 
     }
 
-    private final void dealtOfBeforeClassParam(PorterOfFun funPort, WObjectImpl wObject, Context context,
+    private final void dealtOfBeforeClassParam(PorterOfFun funPort, OftenObjectImpl wObject, Context context,
             UrlDecoder.Result result)
     {
         Porter classPort = funPort.getPorter();
@@ -535,7 +535,7 @@ public final class PortExecutor
         }
     }
 
-    private final void dealtOfClassParam(PorterOfFun funPort, WObjectImpl wObject, Context context,
+    private final void dealtOfClassParam(PorterOfFun funPort, OftenObjectImpl wObject, Context context,
             UrlDecoder.Result result)
     {
         Porter classPort = funPort.getPorter();
@@ -612,7 +612,7 @@ public final class PortExecutor
     }
 
 
-    private final void dealtOfBeforeFunParam(PorterOfFun funPort, WObjectImpl wObject,
+    private final void dealtOfBeforeFunParam(PorterOfFun funPort, OftenObjectImpl wObject,
             Context context, UrlDecoder.Result result)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
@@ -650,7 +650,7 @@ public final class PortExecutor
     }
 
 
-    private final void dealtOfFunParam(Context context, WObjectImpl wObject, PorterOfFun funPort,
+    private final void dealtOfFunParam(Context context, OftenObjectImpl wObject, PorterOfFun funPort,
             UrlDecoder.Result result, boolean isFastInner)
     {
         _PortIn funPIn = funPort.getMethodPortIn();
@@ -727,7 +727,7 @@ public final class PortExecutor
 
     }
 
-    private final Object invokeMethod(WObjectImpl wObject, PorterOfFun funPort) throws Throwable
+    private final Object invokeMethod(OftenObjectImpl wObject, PorterOfFun funPort) throws Throwable
     {
         Object returnObject;
         //调用函数
@@ -742,7 +742,7 @@ public final class PortExecutor
         return returnObject;
     }
 
-    private final void dealtOfInvokeMethod(Context context, WObjectImpl wObject, PorterOfFun funPort,
+    private final void dealtOfInvokeMethod(Context context, OftenObjectImpl wObject, PorterOfFun funPort,
             UrlDecoder.Result result, boolean isFastInner)
     {
 
@@ -875,7 +875,7 @@ public final class PortExecutor
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
                                 if (failedObject instanceof Throwable)
                                 {
-                                    jResponse.setDescription(WPTool.getMessage((Throwable) failedObject));
+                                    jResponse.setDescription(OftenTool.getMessage((Throwable) failedObject));
                                     jResponse.setExCause((Throwable) failedObject);
                                 }
                                 jResponse.setExtra(failedObject);
@@ -884,7 +884,7 @@ public final class PortExecutor
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                            jResponse.setDescription(WPTool.getMessage(ex));
+                            jResponse.setDescription(OftenTool.getMessage(ex));
                             jResponse.setExCause(ex);
                             jResponse.setExtra(ex);
                             failedObject = jResponse;
@@ -908,7 +908,7 @@ public final class PortExecutor
      *
      * @return
      */
-    private ParamSource getParamSource(WObjectImpl wObject, Porter classPort, PorterOfFun funPort) throws Exception
+    private ParamSource getParamSource(OftenObjectImpl wObject, Porter classPort, PorterOfFun funPort) throws Exception
     {
         UrlDecoder.Result result = wObject.url();
         Context context = wObject.context;
@@ -949,7 +949,7 @@ public final class PortExecutor
 ////////////////////////////////////////////////
     //////////////////////////////////////////
 
-    private final void dealtOfResponse(WObjectImpl wObject, PorterOfFun porterOfFun, OutType outType, Object rs)
+    private final void dealtOfResponse(OftenObjectImpl wObject, PorterOfFun porterOfFun, OutType outType, Object rs)
     {
         switch (outType)
         {
@@ -971,7 +971,7 @@ public final class PortExecutor
     }
 
 
-    private void responseObject(WObjectImpl wObject, PorterOfFun porterOfFun, Object object, boolean nullClose)
+    private void responseObject(OftenObjectImpl wObject, PorterOfFun porterOfFun, Object object, boolean nullClose)
     {
         if (object != null)
         {
@@ -1009,29 +1009,29 @@ public final class PortExecutor
         }
     }
 
-    private final void close(WObject wObject)
+    private final void close(OftenObject oftenObject)
     {
-        WResponse response = wObject.getResponse();
+        OftenResponse response = oftenObject.getResponse();
         try
         {
             response.close();
         } catch (Exception e)
         {
-            Logger logger = logger(wObject);
+            Logger logger = logger(oftenObject);
             if (logger.isErrorEnabled())
             {
-                logger(wObject).error(wObject.url() + ":" + e.getMessage(), e);
+                logger(oftenObject).error(oftenObject.url() + ":" + e.getMessage(), e);
             }
         }
 
     }
 
-    private void close(WResponse response)
+    private void close(OftenResponse response)
     {
-        WPTool.close(response);
+        OftenTool.close(response);
     }
 
-    private void exNotNull(@NotNull WObjectImpl wObject, PorterOfFun porterOfFun, WResponse response,
+    private void exNotNull(@NotNull OftenObjectImpl wObject, PorterOfFun porterOfFun, OftenResponse response,
             Throwable throwable,
             boolean responseWhenException)
     {
@@ -1066,7 +1066,7 @@ public final class PortExecutor
             } else
             {
                 JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-                jResponse.setDescription(WPTool.getMessage(throwable));
+                jResponse.setDescription(OftenTool.getMessage(throwable));
                 jResponse.setExCause(throwable);
                 object = jResponse;
             }
@@ -1082,7 +1082,7 @@ public final class PortExecutor
     }
 
 
-    private final void exCheckPassable(WObjectImpl wObject, PorterOfFun porterOfFun, Object obj,
+    private final void exCheckPassable(OftenObjectImpl wObject, PorterOfFun porterOfFun, Object obj,
             boolean responseWhenException)
     {
         wObject.getResponse().toErr();
@@ -1111,16 +1111,16 @@ public final class PortExecutor
         }
     }
 
-    private JResponse toJResponse(ParamDealt.FailedReason reason, WObject wObject)
+    private JResponse toJResponse(ParamDealt.FailedReason reason, OftenObject oftenObject)
     {
         JResponse jResponse = new JResponse();
         jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
-        jResponse.setDescription(reason.desc() + "(" + wObject.url() + ":" + wObject.getRequest().getMethod() + ")");
+        jResponse.setDescription(reason.desc() + "(" + oftenObject.url() + ":" + oftenObject.getRequest().getMethod() + ")");
         jResponse.setExtra(reason.toJSON());
         return jResponse;
     }
 
-    private void exParamDeal(WObjectImpl wObject, PorterOfFun porterOfFun, ParamDealt.FailedReason reason,
+    private void exParamDeal(OftenObjectImpl wObject, PorterOfFun porterOfFun, ParamDealt.FailedReason reason,
             boolean responseWhenException)
     {
         Logger LOGGER = logger(wObject);
@@ -1148,7 +1148,7 @@ public final class PortExecutor
 
     private final Throwable getCause(Throwable e)
     {
-        return WPTool.getCause(e);
+        return OftenTool.getCause(e);
     }
 
 
@@ -1158,7 +1158,7 @@ public final class PortExecutor
      * @param wObject
      * @param object
      */
-    private final boolean doWriteAndWillClose(WObjectImpl wObject, PorterOfFun porterOfFun, @NotNull Object object)
+    private final boolean doWriteAndWillClose(OftenObjectImpl wObject, PorterOfFun porterOfFun, @NotNull Object object)
     {
         try
         {
@@ -1197,7 +1197,7 @@ public final class PortExecutor
      * @param response
      * @param jResponse
      */
-    private final void doFinalWriteOf404(WRequest request, WResponse response, JResponse jResponse)
+    private final void doFinalWriteOf404(OftenRequest request, OftenResponse response, JResponse jResponse)
     {
         try
         {

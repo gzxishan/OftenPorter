@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 public @interface MixinOnly
 {
     /**
-     * 是否覆盖，默认为false。
+     * 是否覆盖被混入类的接口方法，默认为false。
      *
      * @return
      */

@@ -5,8 +5,8 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -59,7 +59,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
         orderContains = tableOptionFilter.orderContains();
         if (!TableOption.IHandle.class.equals(tableOptionFilter.handle()))
         {
-            handle = WPTool.newObject(tableOptionFilter.handle());
+            handle = OftenTool.newObject(tableOptionFilter.handle());
         }
 
         Arrays.sort(queryContains);
@@ -67,7 +67,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
 
 
         List<String> settings = new ArrayList<>();
-        WPTool.addAll(settings, settingsContains);
+        OftenTool.addAll(settings, settingsContains);
         settings.add("skip");
         settings.add("limit");
         settings.add("order");
@@ -90,23 +90,23 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
 
 
     @Override
-    public Object deal(WObject wObject, Porter porter, TableOption object) throws Exception
+    public Object deal(OftenObject oftenObject, Porter porter, TableOption object) throws Exception
     {
-        return deal(wObject, object);
+        return deal(oftenObject, object);
     }
 
     @Override
-    public Object deal(WObject wObject, PorterOfFun fun, TableOption object) throws Exception
+    public Object deal(OftenObject oftenObject, PorterOfFun fun, TableOption object) throws Exception
     {
-        return deal(wObject, object);
+        return deal(oftenObject, object);
     }
 
 
-    private final Object deal(WObject wObject, TableOption tableOption) throws Exception
+    private final Object deal(OftenObject oftenObject, TableOption tableOption) throws Exception
     {
         if (handle != null)
         {
-            handle.handle(wObject, tableOption);
+            handle.handle(oftenObject, tableOption);
         }
 
         if (!hasConf)

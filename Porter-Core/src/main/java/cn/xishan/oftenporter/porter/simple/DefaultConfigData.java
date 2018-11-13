@@ -2,8 +2,8 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -45,7 +45,7 @@ public class DefaultConfigData implements IConfigData
     public long getLong(String key, long defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -63,7 +63,7 @@ public class DefaultConfigData implements IConfigData
     public int getInt(String key, int defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -81,7 +81,7 @@ public class DefaultConfigData implements IConfigData
     public float getFloat(String key, float defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -99,7 +99,7 @@ public class DefaultConfigData implements IConfigData
     public double getDouble(String key, double defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -117,7 +117,7 @@ public class DefaultConfigData implements IConfigData
     public boolean getBoolean(String key, boolean defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -135,7 +135,7 @@ public class DefaultConfigData implements IConfigData
     public String getString(String key, String defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -158,18 +158,18 @@ public class DefaultConfigData implements IConfigData
     public String[] getStrings(String key, String defaultValue)
     {
         String str = getString(key, defaultValue);
-        if (WPTool.isEmpty(str))
+        if (OftenTool.isEmpty(str))
         {
             return null;
         }
-        return StrUtil.split(str.replace('，', ','), ",");
+        return OftenStrUtil.split(str.replace('，', ','), ",");
     }
 
     @Override
     public Date getDate(String key)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
         }
         Date dateVal = TypeUtils.castToDate(value);
@@ -180,7 +180,7 @@ public class DefaultConfigData implements IConfigData
     public Date getDate(String key, Date defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -200,7 +200,7 @@ public class DefaultConfigData implements IConfigData
     public Date getDate(String key, String format, Date defaultValue)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return defaultValue;
         }
@@ -212,7 +212,7 @@ public class DefaultConfigData implements IConfigData
     public JSONObject getJSON(String key)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return null;
         } else if (value instanceof JSONObject)
@@ -226,7 +226,7 @@ public class DefaultConfigData implements IConfigData
     public JSONArray getJSONArray(String key)
     {
         Object value = properties.getProperty(key);
-        if (WPTool.isEmpty(value))
+        if (OftenTool.isEmpty(value))
         {
             return null;
         } else if (value instanceof JSONArray)
@@ -259,7 +259,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
-        String[] keys = StrUtil.split(property.value().replace('，', ','), ",");
+        String[] keys = OftenStrUtil.split(property.value().replace('，', ','), ",");
 
         String defaultVal = property.defaultVal().trim();
         if (defaultVal.equals(""))
@@ -275,12 +275,12 @@ public class DefaultConfigData implements IConfigData
             for (String key : keys)
             {
                 rs = getProperty(fieldRealType, key, null);
-                if (WPTool.notNullAndEmpty(rs))
+                if (OftenTool.notNullAndEmpty(rs))
                 {
                     break;
                 }
             }
-            if (WPTool.notNullAndEmptyForAll(keys, defaultVal))
+            if (OftenTool.notNullAndEmptyForAll(keys, defaultVal))
             {
                 rs = getProperty(fieldRealType, keys[0], defaultVal);
             }

@@ -172,17 +172,17 @@ public class TypeTo
         return parse(clazz, paramSource, null);
     }
 
-    public <T> T parse(Class<T> clazz, WObject wObject) throws RuntimeException
+    public <T> T parse(Class<T> clazz, OftenObject oftenObject) throws RuntimeException
     {
-        return parse(clazz, wObject.getParamSource(), wObject);
+        return parse(clazz, oftenObject.getParamSource(), oftenObject);
     }
 
-    public <T> T parse(Class<T> clazz, ParamSource paramSource, @MayNull WObject wObject) throws RuntimeException
+    public <T> T parse(Class<T> clazz, ParamSource paramSource, @MayNull OftenObject oftenObject) throws RuntimeException
     {
         try
         {
             CacheOne cache = getCache(clazz);
-            Object object = portUtil.paramDealOne(wObject, false, innerContextBridge.paramDealt,
+            Object object = portUtil.paramDealOne(oftenObject, false, innerContextBridge.paramDealt,
                     cache.getOne(), null, paramSource,innerContextBridge.innerBridge.globalParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {

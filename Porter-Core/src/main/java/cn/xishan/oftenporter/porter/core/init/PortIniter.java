@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 
 /**
  * Created by chenyg on 2018-03-02.

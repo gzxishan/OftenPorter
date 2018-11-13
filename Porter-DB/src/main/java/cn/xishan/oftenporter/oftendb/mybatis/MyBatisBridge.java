@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
@@ -107,7 +107,7 @@ public class MyBatisBridge
         try
         {
             Class<?> clazz = PackageUtil.newClass(dataSourceClass, null);
-            DataSource dataSource = (DataSource) WPTool.newObject(clazz);
+            DataSource dataSource = (DataSource) OftenTool.newObject(clazz);
             DataSourceFactory factory = new TempFactory(dataSource);
             factory.setProperties(properties);
             return factory.getDataSource();
@@ -129,7 +129,7 @@ public class MyBatisBridge
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
         }
-        if (WPTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject))
+        if (OftenTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject))
         {
             throw new IllegalArgumentException("dataSource is empty!");
         }

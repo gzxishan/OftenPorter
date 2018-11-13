@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.JsonObj;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.parsers.ParserUtil;
 import org.slf4j.Logger;
 
@@ -113,7 +113,7 @@ public class OftenEntitiesDeal
         //绑定类型转换。
         sthUtil.bindParses(clazz, innerContextBridge, null, backableSeek, true, Collections.emptyMap());
 
-        Field[] fields = WPTool.getAllFields(clazz);
+        Field[] fields = OftenTool.getAllFields(clazz);
         List<Field> neces = new ArrayList<>();
         List<Name> neceNames = new ArrayList<>();
         // List<_Nece> neceDeals = new ArrayList<>();

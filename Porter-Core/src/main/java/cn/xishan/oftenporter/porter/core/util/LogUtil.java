@@ -1,8 +1,8 @@
 package cn.xishan.oftenporter.porter.core.util;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +119,7 @@ public class LogUtil
 
     private static Map<String, Logger> loggerMap = new HashMap<>();
 
-    public static synchronized Logger logger(WObject wObject, Class<?> clazz)
+    public static synchronized Logger logger(OftenObject oftenObject, Class<?> clazz)
     {
         if (isDefaultLogger)
         {
@@ -127,21 +127,21 @@ public class LogUtil
         }
         StringBuilder builder = new StringBuilder();
         builder.append(clazz.getName());
-        PName pName = wObject.getPName();
-        if (pName != null)
+        BridgeName bridgeName = oftenObject.getPName();
+        if (bridgeName != null)
         {
-            builder.append(".").append(pName.getName());
+            builder.append(".").append(bridgeName.getName());
         }
-        UrlDecoder.Result result = wObject.url();
-        if (WPTool.notNullAndEmpty(result.contextName()))
+        UrlDecoder.Result result = oftenObject.url();
+        if (OftenTool.notNullAndEmpty(result.contextName()))
         {
             builder.append(".").append(result.contextName());
         }
-        if (WPTool.notNullAndEmpty(result.classTied()))
+        if (OftenTool.notNullAndEmpty(result.classTied()))
         {
             builder.append(".").append(result.classTied());
         }
-        if (WPTool.notNullAndEmpty(result.funTied()))
+        if (OftenTool.notNullAndEmpty(result.funTied()))
         {
             builder.append(".").append(result.funTied());
         }

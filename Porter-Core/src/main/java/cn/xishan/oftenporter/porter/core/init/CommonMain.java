@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
-import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 
 /**
@@ -57,7 +57,7 @@ public interface CommonMain
      */
     void startOne(PorterConf porterConf);
 
-    PLinker getPLinker();
+    BridgeLinker getBridgeLinker();
 
     /**
      * 销毁指定的context。

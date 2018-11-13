@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +58,7 @@ class PortExecutorCheckers extends CheckHandle
 
     private int currentIndex;
     //private boolean inPorters;
-    private WObject wObject;
+    private OftenObject oftenObject;
     private DuringType duringType;
     //private CheckPassable[] checkPassables;
     private CheckHandle handle;
@@ -68,19 +68,19 @@ class PortExecutorCheckers extends CheckHandle
     private PorterOfFun porterOfFun;
 
 
-    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, WObjectImpl wObject, DuringType duringType,
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
             CheckPassable[] checkPassables, CheckHandle handle)
     {
         this(context, porterOfFun, wObject, duringType, checkPassables, handle, false);
     }
 
-    private PortExecutorCheckers(Context context, PorterOfFun porterOfFun, WObjectImpl wObject, DuringType duringType,
+    private PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
             CheckPassable[] checkPassables, CheckHandle handle, boolean isPorterCheckPassablesFirst)
     {
         super(handle);
         this.porterOfFun = porterOfFun;
         currentIndex = 0;
-        this.wObject = wObject;
+        this.oftenObject = wObject;
         this.duringType = duringType;
         checkPassableList = new ArrayList<>(
                 checkPassables.length + (context != null && context.porterCheckPassables != null ? context
@@ -89,22 +89,22 @@ class PortExecutorCheckers extends CheckHandle
         {
             if (context != null && context.porterCheckPassables != null)
             {
-                WPTool.addAll(checkPassableList, context.porterCheckPassables);
+                OftenTool.addAll(checkPassableList, context.porterCheckPassables);
             }
-            WPTool.addAll(checkPassableList, checkPassables);
+            OftenTool.addAll(checkPassableList, checkPassables);
         } else
         {
-            WPTool.addAll(checkPassableList, checkPassables);
+            OftenTool.addAll(checkPassableList, checkPassables);
             if (context != null)
             {
-                WPTool.addAll(checkPassableList, context.porterCheckPassables);
+                OftenTool.addAll(checkPassableList, context.porterCheckPassables);
             }
         }
 
         this.handle = handle;
     }
 
-    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, WObjectImpl wObject, DuringType duringType,
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
             CheckHandle handle,
             Class<? extends CheckPassable>[]... cpss)
     {
@@ -149,7 +149,7 @@ class PortExecutorCheckers extends CheckHandle
             {
                 index = checkPassableList.size() - index - 1;
             }
-            checkPassableList.get(index).willPass(wObject, duringType, this);
+            checkPassableList.get(index).willPass(oftenObject, duringType, this);
         } else
         {
             handle.next();

@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.plugin.Interceptor;
@@ -73,7 +73,7 @@ class MSqlSessionFactoryBuilder
 
         if (watchService != null)
         {
-            WPTool.close(watchService);
+            OftenTool.close(watchService);
             watchService = null;
         }
         needReRegFileCheck = true;
@@ -257,7 +257,7 @@ class MSqlSessionFactoryBuilder
             executorService.shutdownNow();
             executorService = null;
         }
-        WPTool.close(watchService);
+        OftenTool.close(watchService);
         watchService = null;
         if (mybatisStateListener != null)
         {

@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.demo.core.test4.sth.User;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 @PortIn
 @BindEntities(ID.class)
@@ -18,16 +18,16 @@ public class BindSth2Porter
      * 自动绑定的。
      * </pre>
      * 
-     * @param wObject
+     * @param oftenObject
      * @return
      */
 
     @PortIn(method = PortMethod.POST)
     @BindEntities({ User.class })
-    public Object send(WObject wObject)
+    public Object send(OftenObject oftenObject)
     {
-	ID id = wObject.centity(0);
-	User user = wObject.fentity(0);
+	ID id = oftenObject.centity(0);
+	User user = oftenObject.fentity(0);
 	return user + "," + id;
     }
 

@@ -14,7 +14,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 
 import java.lang.annotation.Annotation;
@@ -31,12 +31,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     public interface ArgDealt
     {
         /**
-         * @param wObject
+         * @param oftenObject
          * @param method
          * @param optionArgMap 提供的可选参数
          * @return
          */
-        Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap);
+        Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap);
     }
 
     public static class BindEntityDealtArgDealt implements ArgDealt
@@ -51,9 +51,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            return wObject.extraEntity(key);
+            return oftenObject.extraEntity(key);
         }
     }
 
@@ -61,9 +61,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
 
         @Override
-        public final Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            return wObject;
+            return oftenObject;
         }
     }
 
@@ -100,14 +100,14 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public final Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
             if (v == null)
             {
-                v = DefaultParamDealt.getParam(wObject, name, wObject.getParamSource(),
+                v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
-                if (v == null && nece.isNece(wObject))
+                if (v == null && nece.isNece(oftenObject))
                 {
                     v = DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
                 }
@@ -155,12 +155,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public final Object getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
             if (v == null)
             {
-                v = DefaultParamDealt.getParam(wObject, name, wObject.getParamSource(),
+                v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
             }
             if (v instanceof ParamDealt.FailedReason)
@@ -212,16 +212,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
 
         @Override
-        public boolean hasParameterType(WObject wObject, PorterOfFun fun, Method method, Class<?> type)
+        public boolean hasParameterType(OftenObject oftenObject, PorterOfFun fun, Method method, Class<?> type)
         {
             return types.contains(type);
         }
 
         @Override
-        public Object[] getInvokeArgs(WObject wObject, PorterOfFun fun, Method method, Object[] args)
+        public Object[] getInvokeArgs(OftenObject oftenObject, PorterOfFun fun, Method method, Object[] args)
         {
             Map<String, Object> map;
-            PorterOfFun.ArgData argData = fun == null ? null : fun.getArgData(wObject);
+            PorterOfFun.ArgData argData = fun == null ? null : fun.getArgData(oftenObject);
             if (args.length == 0 && argData == null)
             {
                 map = new HashMap<>(1);
@@ -244,7 +244,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
-                newArgs[i] = argHandles[i].getArg(wObject, method, map);
+                newArgs[i] = argHandles[i].getArg(oftenObject, method, map);
             }
             return newArgs;
         }
@@ -263,7 +263,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 TypeParserStore typeParserStore,
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception
         {
-            if (paramRealType.equals(WObject.class))
+            if (paramRealType.equals(OftenObject.class))
             {
                 return new WObjectArgDealt();
             }
@@ -346,7 +346,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Object obj = null;
             for (Object o : optionArgs)
             {
-                if (WPTool.isAssignable(o, type))
+                if (OftenTool.isAssignable(o, type))
                 {
                     obj = o;
                     break;

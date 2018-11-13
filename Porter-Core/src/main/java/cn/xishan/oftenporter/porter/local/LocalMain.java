@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
@@ -20,24 +20,24 @@ public class LocalMain implements CommonMain
 {
     protected PorterMain porterMain;
 
-    public LocalMain(boolean responseWhenException, PName pName, String urlEncoding)
+    public LocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding)
     {
-        porterMain = new PorterMain(pName, this);
+        porterMain = new PorterMain(bridgeName, this);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
 
     /**
-     * 接着请调用{@linkplain #newLocalMain(boolean, PName, String, PBridge)}
+     * 接着请调用{@linkplain #newLocalMain(boolean, BridgeName, String, IBridge)}
      */
     protected LocalMain()
     {
 
     }
 
-    protected void newLocalMain(boolean responseWhenException, PName pName, String urlEncoding, PBridge bridge)
+    protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding, IBridge bridge)
     {
-        porterMain = new PorterMain(pName, this, bridge, bridge);
+        porterMain = new PorterMain(bridgeName, this, bridge, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
     }
 
@@ -77,9 +77,9 @@ public class LocalMain implements CommonMain
     }
 
     @Override
-    public PLinker getPLinker()
+    public BridgeLinker getBridgeLinker()
     {
-        return porterMain.getPLinker();
+        return porterMain.getBridgeLinker();
     }
 
     @Override

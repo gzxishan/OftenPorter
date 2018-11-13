@@ -14,16 +14,16 @@ public class SyncOption
     private String contextName, classTied, funTied;
     private PortMethod method;
 
-    PorterSync build(WObject wObject,boolean isInner)
+    PorterSync build(OftenObject oftenObject,boolean isInner)
     {
         SyncOption syncOption = this;
         if (syncOption.contextName == null)
         {
-            syncOption.contextName = wObject.url().contextName();
+            syncOption.contextName = oftenObject.url().contextName();
         }
         if (syncOption.classTied == null)
         {
-            syncOption.classTied = wObject.url().classTied();
+            syncOption.classTied = oftenObject.url().classTied();
         }
         PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
         porterParamGetter.setContext(syncOption.contextName);
@@ -32,7 +32,7 @@ public class SyncOption
         _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
         syncPorterOption.setMethod(syncOption.method);
         syncPorterOption.setOk();
-        PorterSync porterSync = SthDeal.newSyncPorter(syncPorterOption,isInner,wObject.delivery());
+        PorterSync porterSync = SthDeal.newSyncPorter(syncPorterOption,isInner, oftenObject.delivery());
         return porterSync;
     }
 

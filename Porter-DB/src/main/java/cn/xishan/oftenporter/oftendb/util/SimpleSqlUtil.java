@@ -6,8 +6,8 @@ import cn.xishan.oftenporter.oftendb.db.Operator;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlCondition;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlUtil;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -168,7 +168,7 @@ public class SimpleSqlUtil
         JSONArray queryArray = new JSONArray();
         for (int i = 0; i < nameValues.length; )
         {
-            if (WPTool.isEmpty(nameValues[i]) || !(nameValues[i] instanceof String))
+            if (OftenTool.isEmpty(nameValues[i]) || !(nameValues[i] instanceof String))
             {
                 throw new IllegalArgumentException("illegal:index=" + i + ",element=" + nameValues[i]);
             }
@@ -191,7 +191,7 @@ public class SimpleSqlUtil
             Object value = null;
             if (noValue)
             {
-                if (i + 1 < nameValues.length && WPTool.isEmpty(nameValues[i + 1]))
+                if (i + 1 < nameValues.length && OftenTool.isEmpty(nameValues[i + 1]))
                 {
                     i += 2;
                 } else
@@ -252,7 +252,7 @@ public class SimpleSqlUtil
     public String toOrderStr(List order)
     {
         String noOrderStr = toNoOrderStr(order);
-        return WPTool.isEmpty(noOrderStr) ? noOrderStr : "ORDER BY " + noOrderStr;
+        return OftenTool.isEmpty(noOrderStr) ? noOrderStr : "ORDER BY " + noOrderStr;
     }
 
     /**
@@ -362,14 +362,14 @@ public class SimpleSqlUtil
                 current = not;
                 conditionStack.push(current);
                 continue;
-            } else if (StrUtil.indexOf(name, "$and]", "$or]", "$not]") >= 0)
+            } else if (OftenStrUtil.indexOf(name, "$and]", "$or]", "$not]") >= 0)
             {
                 conditionStack.pop();
                 current = conditionStack.peek();
                 continue;
             } else if (name.startsWith("$ignull:"))
             {
-                if (WPTool.isEmpty(value))
+                if (OftenTool.isEmpty(value))
                 {
                     //忽略空值
                     continue;
@@ -380,7 +380,7 @@ public class SimpleSqlUtil
             boolean willAddName = true;
             Operator operator = Condition.EQ;
             int index = 0;
-            if (WPTool.isEmpty(value))
+            if (OftenTool.isEmpty(value))
             {
                 String oldName = name;
                 if (name.startsWith("$ne:"))
@@ -396,7 +396,7 @@ public class SimpleSqlUtil
 
             Matcher matcher = TYPE_PATTERN.matcher(name);
             boolean matched = matcher.find();
-            if (!matched && WPTool.isEmpty(value))
+            if (!matched && OftenTool.isEmpty(value))
             {
                 operator = SqlCondition.IS_NULL;
                 willAddName = false;
@@ -549,7 +549,7 @@ public class SimpleSqlUtil
         String sql = (String) objs[0];
         Object[] args = (Object[]) objs[1];
         String where;
-        if (WPTool.notNullAndEmpty(sql) && namesList.size() > 0)
+        if (OftenTool.notNullAndEmpty(sql) && namesList.size() > 0)
         {
             StringBuilder stringBuilder = new StringBuilder();
 

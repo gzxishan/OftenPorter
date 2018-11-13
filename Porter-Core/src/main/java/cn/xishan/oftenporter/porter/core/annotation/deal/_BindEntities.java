@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.reflect.Method;
 
@@ -75,14 +75,14 @@ public final class _BindEntities
             }
         }
 
-        public Object deal(WObject wObject, Porter porter, @NotNull Object object) throws Exception
+        public Object deal(OftenObject oftenObject, Porter porter, @NotNull Object object) throws Exception
         {
-            return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, porter, object);
+            return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(oftenObject, porter, object);
         }
 
-        public Object deal(WObject wObject, PorterOfFun fun, @NotNull Object object) throws Exception
+        public Object deal(OftenObject oftenObject, PorterOfFun fun, @NotNull Object object) throws Exception
         {
-            return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(wObject, fun, object);
+            return bindEntityDealtHandle == null ? object : bindEntityDealtHandle.deal(oftenObject, fun, object);
         }
     }
 

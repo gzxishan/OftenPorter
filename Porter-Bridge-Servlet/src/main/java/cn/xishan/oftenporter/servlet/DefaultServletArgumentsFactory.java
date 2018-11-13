@@ -24,27 +24,27 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
     static class RequestArgDealt implements ArgDealt
     {
         @Override
-        public final HttpServletRequest getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final HttpServletRequest getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            return wObject.getRequest().getOriginalRequest();
+            return oftenObject.getRequest().getOriginalRequest();
         }
     }
 
     static class ResponseArgDealt implements ArgDealt
     {
         @Override
-        public final HttpServletResponse getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final HttpServletResponse getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            return wObject.getRequest().getOriginalResponse();
+            return oftenObject.getRequest().getOriginalResponse();
         }
     }
 
     static class ContextArgDealt implements ArgDealt
     {
         @Override
-        public final ServletContext getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final ServletContext getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+            HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
             return request.getServletContext();
         }
     }
@@ -53,9 +53,9 @@ public class DefaultServletArgumentsFactory extends DefaultArgumentsFactory
     static class SessionArgDealt implements ArgDealt
     {
         @Override
-        public final HttpSession getArg(WObject wObject, Method method, Map<String, Object> optionArgMap)
+        public final HttpSession getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
-            HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+            HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
             return request.getSession();
         }
     }

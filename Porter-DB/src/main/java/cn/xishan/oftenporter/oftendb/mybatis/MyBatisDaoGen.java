@@ -6,7 +6,9 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
@@ -44,7 +46,7 @@ class MyBatisDaoGen implements AutoSetGen
         //LogUtil.printErrPos("....");
     }
 
-    @PortIn.PortStart(order = 100)
+    @PortStart(order = 100)
     public void onStart()
     {
         MyBatisBridge.start();
@@ -55,7 +57,7 @@ class MyBatisDaoGen implements AutoSetGen
         return MyBatisBridge.getMOption(source);
     }
 
-    @PortIn.PortDestroy
+    @PortDestroy
     public void onDestroy()
     {
         MyBatisBridge.destroy();
@@ -85,7 +87,7 @@ class MyBatisDaoGen implements AutoSetGen
         _MyBatis.Alias[] aliases = myBatis.aliases;
         for (_MyBatis.Alias alias : aliases)
         {
-            if (WPTool.isEmpty(alias.alias))
+            if (OftenTool.isEmpty(alias.alias))
             {
                 typeAliasRegistry.registerAlias(alias.type);
                 LOGGER.debug("register alias:type={}", alias.type);

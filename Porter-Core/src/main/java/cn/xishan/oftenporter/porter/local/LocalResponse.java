@@ -1,23 +1,23 @@
 package cn.xishan.oftenporter.porter.local;
 
 import cn.xishan.oftenporter.porter.core.base.CloseListener;
-import cn.xishan.oftenporter.porter.core.base.WResponse;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
+import cn.xishan.oftenporter.porter.core.base.OftenResponse;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeCallback;
 
 import java.io.IOException;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
-public class LocalResponse implements WResponse, CloseListener.CloseHandle
+public class LocalResponse implements OftenResponse, CloseListener.CloseHandle
 {
     protected Object object;
-    private PCallback callback;
+    private BridgeCallback callback;
     private CloseListener closeListener;
     private boolean isErr = false;
     private boolean closed = false;
 
-    public LocalResponse(PCallback callback)
+    public LocalResponse(BridgeCallback callback)
     {
         this.callback = callback;
     }

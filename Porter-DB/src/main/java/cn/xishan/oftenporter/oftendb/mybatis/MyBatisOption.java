@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
@@ -148,7 +148,7 @@ public class MyBatisOption implements Cloneable
     {
         for (String rootDir : rootDirs)
         {
-            if (WPTool.isEmpty(rootDir))
+            if (OftenTool.isEmpty(rootDir))
             {
                 continue;
             }

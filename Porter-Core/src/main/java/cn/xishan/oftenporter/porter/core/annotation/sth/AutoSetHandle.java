@@ -11,19 +11,18 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.*;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import org.slf4j.Logger;
 
@@ -68,11 +67,11 @@ public class AutoSetHandle
             }
         }
 
-        public void invoke(WObject wObject, IConfigData configData) throws Exception
+        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception
         {
             logger.debug("invoke @SetOk:{}", method);
             method.setAccessible(true);
-            DefaultArgumentsFactory.invokeWithArgs(obj, method, wObject, configData);
+            DefaultArgumentsFactory.invokeWithArgs(obj, method, oftenObject, configData);
         }
     }
 
@@ -322,14 +321,14 @@ public class AutoSetHandle
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
-        this.oftenContextInfo = new OftenContextInfo(thisDelivery.currentPName(), contextName);
+        this.oftenContextInfo = new OftenContextInfo(thisDelivery.currentName(), contextName);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
     /**
      * 调用所有的{@linkplain SetOk SetOk}函数。
      */
-    public synchronized void invokeSetOk(WObject wObject)
+    public synchronized void invokeSetOk(OftenObject oftenObject)
     {
         _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
         Arrays.sort(setOkObjects);
@@ -337,7 +336,7 @@ public class AutoSetHandle
         {
             for (_SetOkObject setOkObject : setOkObjects)
             {
-                setOkObject.invoke(wObject, iConfigData);
+                setOkObject.invoke(oftenObject, iConfigData);
             }
             this.setOkObjects = null;
             this.porterMap = null;
@@ -448,7 +447,7 @@ public class AutoSetHandle
                 .getAnnotationsWithSuper(porter.getClazz(), PortIn.ContextSet.class);
         for (PortIn.ContextSet contextSet : contextSets)
         {
-            if (WPTool.isEmpty(contextSet.value()))
+            if (OftenTool.isEmpty(contextSet.value()))
             {
                 if (LOGGER.isWarnEnabled())
                 {
@@ -535,7 +534,7 @@ public class AutoSetHandle
 
         Map<String, Field> fromGet = new HashMap<>();
 
-        Field[] fieldsGet = WPTool.getAllFields(PortUtil.getRealClass(objectForGet));
+        Field[] fieldsGet = OftenTool.getAllFields(PortUtil.getRealClass(objectForGet));
         for (Field field : fieldsGet)
         {
             AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
@@ -549,7 +548,7 @@ public class AutoSetHandle
 //                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
 //                        .getSimpleName() + " is empty  for field '" + field + "'");
                 key = AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), field).getName();
-            } else if (WPTool.notNullAndEmpty(autoSetToThatForMixin.key()))
+            } else if (OftenTool.notNullAndEmpty(autoSetToThatForMixin.key()))
             {
                 key = autoSetToThatForMixin.key();
             } else
@@ -565,7 +564,7 @@ public class AutoSetHandle
             fromGet.put(key, field);
         }
 
-        Field[] fields = WPTool.getAllFields(PortUtil.getRealClass(objectForSet));
+        Field[] fields = OftenTool.getAllFields(PortUtil.getRealClass(objectForSet));
         for (Field field : fields)
         {
             AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field, AutoSetThatForMixin.class);
@@ -594,7 +593,7 @@ public class AutoSetHandle
                     Class type = AnnoUtil.Advance.getRealTypeOfField(objectForSet.getClass(), field);
                     for (Field f : fromGet.values())
                     {
-                        if (WPTool.isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
+                        if (OftenTool.isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
                         {
                             getField = f;
                             break;
@@ -616,7 +615,7 @@ public class AutoSetHandle
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-            if (!WPTool.isAssignable(value.getClass(), field.getType()))
+            if (!OftenTool.isAssignable(value.getClass(), field.getType()))
             {//忽略非继承关系的。
                 continue;
             }
@@ -704,7 +703,7 @@ public class AutoSetHandle
 
         IConfigData configData = getContextObject(IConfigData.class);
 
-        Field[] fields = WPTool.getAllFields(currentObjectClass);
+        Field[] fields = OftenTool.getAllFields(currentObjectClass);
         LOGGER.debug("autoSetSeek:class={},instance={},{}", currentObjectClass.getName(), currentObject,
                 currentObject == null ? "" : currentObject.hashCode());
         RuntimeException thr = null;
@@ -867,7 +866,7 @@ public class AutoSetHandle
             throw thr;
         } else
         {
-            Method[] methods = WPTool.getAllPublicMethods(currentObjectClass);
+            Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
             for (Method method : methods)
             {
                 dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
@@ -895,10 +894,10 @@ public class AutoSetHandle
                 case Global:
                 {
                     value = globalAutoSet.get(keyName);
-                    if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
                     {
 
-//                    value = WPTool.newObjectMayNull(mayNew);
+//                    value = OftenTool.newObjectMayNull(mayNew);
                         value = workedInstance.newAndProxy(mayNew, this);
                         if (value == null)
                         {
@@ -918,9 +917,9 @@ public class AutoSetHandle
                             value = thePorter.getObj();
                         }
                     }
-                    if (value == null && !WPTool.isInterfaceOrAbstract(mayNew))
+                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
                     {
-//                    value = WPTool.newObjectMayNull(mayNew);
+//                    value = OftenTool.newObjectMayNull(mayNew);
                         value = workedInstance.newAndProxy(mayNew, this);
                         if (value == null)
                         {
@@ -931,7 +930,7 @@ public class AutoSetHandle
                 break;
                 case New:
                 {
-//                value = WPTool.newObjectMayNull(mayNew);
+//                value = OftenTool.newObjectMayNull(mayNew);
                     value = workedInstance.newAndProxy(mayNew, this);
                     if (value == null)
                     {
@@ -1063,7 +1062,7 @@ public class AutoSetHandle
             return null;
         }
 
-        AutoSetGen autoSetGen = WPTool.newObject(genClass);
+        AutoSetGen autoSetGen = OftenTool.newObject(genClass);
         addOtherStartDestroy(autoSetGen, genClass);
         autoSetGen = (AutoSetGen) doAutoSetForCurrent(true, autoSetGen, autoSetGen);
         Object value = autoSetGen.genObject(iConfigData, currentObjectClass, currentObject, field,
@@ -1106,7 +1105,7 @@ public class AutoSetHandle
         {
             return value;
         }
-        AutoSetDealt autoSetDealt = WPTool.newObject(autoSetDealtClass);
+        AutoSetDealt autoSetDealt = OftenTool.newObject(autoSetDealtClass);
         addOtherStartDestroy(autoSetDealt, autoSetDealtClass);
         autoSetDealt = (AutoSetDealt) doAutoSetForCurrent(true, autoSetDealt, autoSetDealt);
         Object finalValue = autoSetDealt.deal(iConfigData, finalObject, currentObjectClass, currentObject, field,
@@ -1149,7 +1148,7 @@ public class AutoSetHandle
                 LOGGER.debug("auto set {} in not porter[{}]",
                         (isInner ? PorterSync.class : PorterNotInnerSync.class).getSimpleName(), currentObjectClass);
                 //throw new FatalInitException(PorterSync.class.getSimpleName() + "just allowed in porter!");
-                if (!f.isAnnotationPresent(SyncPorterOption.class) && finalObject != null)
+                if (!f.isAnnotationPresent(PorterSyncOption.class) && finalObject != null)
                 {
                     porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(finalObject)));
                 }
@@ -1171,7 +1170,7 @@ public class AutoSetHandle
         {
             String pName = autoSet.value();
             Delivery delivery;
-            if (WPTool.isEmpty(pName))
+            if (OftenTool.isEmpty(pName))
             {
                 delivery = thisDelivery;
             } else
@@ -1182,7 +1181,7 @@ public class AutoSetHandle
                     throw new Error(
                             String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f, pName));
                 }
-                delivery = commonMain.getPLinker();
+                delivery = commonMain.getBridgeLinker();
             }
 
             sysset = delivery;

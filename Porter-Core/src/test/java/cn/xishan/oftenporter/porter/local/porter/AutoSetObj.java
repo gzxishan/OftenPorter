@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 
@@ -30,8 +30,8 @@ public class AutoSetObj
     }
 
     @AutoSet.SetOk
-    public void setOk(WObject wObject){
-        LogUtil.printErrPos(wObject);
+    public void setOk(OftenObject oftenObject){
+        LogUtil.printErrPos(oftenObject);
     }
 
     @AutoSet.SetOk

@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.demo.core.test1.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 /**
  * <pre>
@@ -17,7 +17,7 @@ public class Hello1Porter
 {
 
 	@PortIn(tied = "say",method = PortMethod.POST)
-	public void sayPost(WObject wObject){
+	public void sayPost(OftenObject oftenObject){
 
 	}
 
@@ -28,11 +28,11 @@ public class Hello1Porter
      * 3.value为""的情况下，表示函数绑定名为函数名，即say
      * </pre>
      *
-     * @param wObject
+     * @param oftenObject
      * @return
      */
     @PortIn(nece = { "name" }, unece = { "msg" })
-    public Object say(WObject wObject)
+    public Object say(OftenObject oftenObject)
     {
 	/**
 	 * 1.通过WObject.cn获取类接口的必需参数值.
@@ -42,9 +42,9 @@ public class Hello1Porter
 	 *
 	 * 各个参数值的索引是与声明顺序一致的。
 	 */
-	Object sth = wObject.cn[0];
-	String name = (String) wObject.fn[0];
-	Object msg = wObject.fu[0];
+	Object sth = oftenObject.cn[0];
+	String name = (String) oftenObject.fn[0];
+	Object msg = oftenObject.fu[0];
 
 	return sth+":"+name+":"+msg;
     }

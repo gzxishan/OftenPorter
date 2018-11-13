@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
@@ -109,7 +109,7 @@ public class DefaultUrlDecoder implements UrlDecoder
     {
         Map<String, Object> params;
         params = new HashMap<>();
-        String[] strs = StrUtil.split(content, "&");
+        String[] strs = OftenStrUtil.split(content, "&");
         try
         {
             for (String string : strs)

@@ -9,7 +9,7 @@ import cn.xishan.oftenporter.porter.core.base.ParamSource;
  */
 public interface UrlDecoder
 {
-    public static class TiedValue
+    class TiedValue
     {
         public String classTied;
         public String funTied;
@@ -50,5 +50,5 @@ public interface UrlDecoder
         void setParam(String name, Object value);
     }
 
-    Result decode(String path)throws Exception;
+    Result decode(String path) throws Exception;
 }

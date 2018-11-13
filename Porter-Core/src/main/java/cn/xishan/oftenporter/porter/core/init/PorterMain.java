@@ -2,25 +2,22 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.*;
 import cn.xishan.oftenporter.porter.core.advanced.*;
-import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.Importer;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
+import cn.xishan.oftenporter.porter.simple.DefaultBridgeLinker;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
-import cn.xishan.oftenporter.porter.simple.DefaultPLinker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +39,7 @@ public final class PorterMain
         /**
          * 返回true表示中断后续操作。
          */
-        boolean beforeDoRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest);
+        boolean beforeDoRequest(PreRequest req, OftenRequest request, OftenResponse response, boolean isInnerRequest);
     }
 
     private PortExecutor portExecutor;
@@ -50,13 +47,13 @@ public final class PorterMain
     private boolean isInit;
     private InnerBridge innerBridge;
     private CommonMain commonMain;
-    private PLinker pLinker;
+    private BridgeLinker bridgeLinker;
     private IListenerAdder<OnPorterAddListener> IListenerAdder;
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
     private Logger LOGGER;
-    private static String currentPNameForLogger;
+    private static String currentBridgeNameForLogger;
     private IArgumentsFactory defaultArgumentsFactory = new DefaultArgumentsFactory();
     private ForRequestListener forRequestListener;
 
@@ -69,16 +66,16 @@ public final class PorterMain
                 @Override
                 public Logger getLogger(String name)
                 {
-                    return LoggerFactory
-                            .getLogger(currentPNameForLogger == null ? name : name + "." + currentPNameForLogger);
+                    return LoggerFactory.getLogger(currentBridgeNameForLogger == null ?
+                            name : name + "." + currentBridgeNameForLogger);
                 }
             });
         }
     }
 
-    public PorterMain(PName pName, CommonMain commonMain)
+    public PorterMain(BridgeName bridgeName, CommonMain commonMain)
     {
-        PBridge inner = (request, callback) ->
+        IBridge inner = (request, callback) ->
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
@@ -87,7 +84,7 @@ public final class PorterMain
                 doRequest(req, request, resp, true);
             }
         };
-        PBridge current = (request, callback) ->
+        IBridge current = (request, callback) ->
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
@@ -97,17 +94,17 @@ public final class PorterMain
             }
         };
 
-        initPorterMain(pName, commonMain, current, inner);
+        initPorterMain(bridgeName, commonMain, current, inner);
     }
 
     /**
-     * @param pName         框架名称。
+     * @param bridgeName    框架名称。
      * @param currentBridge 只能访问当前实例的bridge。
      * @param innerBridge
      */
-    public PorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    public PorterMain(BridgeName bridgeName, CommonMain commonMain, IBridge currentBridge, IBridge innerBridge)
     {
-        initPorterMain(pName, commonMain, currentBridge, innerBridge);
+        initPorterMain(bridgeName, commonMain, currentBridge, innerBridge);
     }
 
     public void setForRequestListener(ForRequestListener forRequestListener)
@@ -116,19 +113,20 @@ public final class PorterMain
     }
 
     /**
-     * @param pName         框架名称。
+     * @param bridgeName    框架名称。
      * @param currentBridge 只能访问当前实例的bridge。
      * @param innerBridge
      */
-    private void initPorterMain(PName pName, CommonMain commonMain, PBridge currentBridge, PBridge innerBridge)
+    private void initPorterMain(BridgeName bridgeName, CommonMain commonMain, IBridge currentBridge,
+            IBridge innerBridge)
     {
         synchronized (PorterMain.class)
         {
             this.commonMain = commonMain;
             this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
             IListenerAdder = new DefaultListenerAdder<>();
-            pLinker = new DefaultPLinker(pName, currentBridge, innerBridge);
-            pLinker.setPorterAttr(contextName ->
+            bridgeLinker = new DefaultBridgeLinker(bridgeName, currentBridge, innerBridge);
+            bridgeLinker.setPorterAttr(contextName ->
             {
                 Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
                 ClassLoader classLoader = null;
@@ -138,9 +136,9 @@ public final class PorterMain
                 }
                 return classLoader;
             });
-            currentPNameForLogger = pName.getName();
+            currentBridgeNameForLogger = bridgeName.getName();
             LOGGER = LogUtil.logger(PorterMain.class);
-            currentPNameForLogger = null;
+            currentBridgeNameForLogger = null;
         }
     }
 
@@ -186,10 +184,10 @@ public final class PorterMain
             throw new RuntimeException("already init!");
         }
         isInit = true;
-        currentPNameForLogger = getPLinker().currentPName().getName();
-        portExecutor = new PortExecutor(pLinker.currentPName(), pLinker, urlDecoder, responseWhenException);
+        currentBridgeNameForLogger = getBridgeLinker().currentName().getName();
+        portExecutor = new PortExecutor(bridgeLinker.currentName(), bridgeLinker, urlDecoder, responseWhenException);
         porterData = new PorterDataImpl(portExecutor);
-        currentPNameForLogger = null;
+        currentBridgeNameForLogger = null;
     }
 
     public UrlDecoder getUrlDecoder()
@@ -197,9 +195,9 @@ public final class PorterMain
         return portExecutor.getUrlDecoder();
     }
 
-    public PLinker getPLinker()
+    public BridgeLinker getBridgeLinker()
     {
-        return pLinker;
+        return bridgeLinker;
     }
 
     private void checkInit()
@@ -236,7 +234,7 @@ public final class PorterMain
 
     public synchronized void seekImporter(PorterConf porterConf, Class[] importers) throws Throwable
     {
-        if (WPTool.isEmpty(importers))
+        if (OftenTool.isEmpty(importers))
         {
             return;
         }
@@ -255,8 +253,8 @@ public final class PorterMain
                         try
                         {
                             LOGGER.debug("init importer:class={}", confClass);
-                            Object object = WPTool.newObject(confClass);
-                            if (WPTool.isAssignable(confClass, Importer.Configable.class))
+                            Object object = OftenTool.newObject(confClass);
+                            if (OftenTool.isAssignable(confClass, Importer.Configable.class))
                             {
                                 LOGGER.debug("init for:{}", Importer.Configable.class);
                                 Importer.Configable configable = (Importer.Configable) object;
@@ -288,10 +286,10 @@ public final class PorterMain
      */
     public synchronized void startOne(PorterBridge bridge)
     {
-        LogUtil.LogKey logKey = new LogUtil.LogKey(KeyUtil.random48Key());
+        LogUtil.LogKey logKey = new LogUtil.LogKey(OftenKeyUtil.random48Key());
         try
         {
-            if (WPTool.isEmpty(bridge.contextName()))
+            if (OftenTool.isEmpty(bridge.contextName()))
             {
                 throw new RuntimeException("Context name is empty!");
             } else if (portExecutor.containsContext(bridge.contextName()))
@@ -300,12 +298,15 @@ public final class PorterMain
             }
             LogUtil.setOrRemoveOnGetLoggerListener(logKey,
                     name -> LoggerFactory.getLogger(
-                            name + "." + getPLinker().currentPName().getName() + "." + bridge.contextName()));
+                            name + "." + getBridgeLinker().currentName().getName() + "." + bridge.contextName()));
             checkInit();
-            currentPNameForLogger = getPLinker().currentPName().getName();
-            commonMainHashMap.put(this.pLinker.currentPName().getName(), commonMain);
+            currentBridgeNameForLogger = getBridgeLinker().currentName().getName();
+            commonMainHashMap.put(this.bridgeLinker.currentName().getName(), commonMain);
             _startOne(bridge);
-            currentPNameForLogger = null;
+            currentBridgeNameForLogger = null;
+        } catch (Throwable e)
+        {
+            throw new Error(OftenTool.getCause(e));
         } finally
         {
             LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
@@ -317,7 +318,7 @@ public final class PorterMain
         return porterData;
     }
 
-    private void _startOne(PorterBridge bridge)
+    private void _startOne(PorterBridge bridge) throws Throwable
     {
         long time;
         CheckPassable[] alls = null;
@@ -365,7 +366,7 @@ public final class PorterMain
         }
 
         AutoSetHandle autoSetHandle = AutoSetHandle
-                .newInstance(iConfigData, argumentsFactory, innerContextBridge, getPLinker(), porterData,
+                .newInstance(iConfigData, argumentsFactory, innerContextBridge, getBridgeLinker(), porterData,
                         autoSetObjForAspectOfNormal, porterConf.getContextName());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
@@ -378,7 +379,7 @@ public final class PorterMain
         LOGGER.debug("add autoSet for addAutoSetsForNotPorter...");
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getAutoSetSeekObjectsForSetter());
 
-        LOGGER.debug(":{}/{} beforeSeek...", pLinker.currentPName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} beforeSeek...", bridgeLinker.currentName(), porterConf.getContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerList);
         ParamSourceHandleManager paramSourceHandleManager = bridge.paramSourceHandleManager();
 
@@ -391,22 +392,18 @@ public final class PorterMain
         SthDeal sthDeal = new SthDeal();
         List<PortIniter> portIniterList = new ArrayList<>();
 
-        try
-        {
-            LOGGER.debug("start seek...");
-            time=System.currentTimeMillis();
-            classCheckPassableMap = contextPorter
-                    .initSeek(sthDeal, IListenerAdder, porterConf, autoSetHandle, portIniterList);
-            LOGGER.debug("seek finished,time={}ms",System.currentTimeMillis()-time);
-        } catch (Exception e)
-        {
-            throw new Error(WPTool.getCause(e));
-        }
+
+        LOGGER.debug("start seek...");
+        time = System.currentTimeMillis();
+        classCheckPassableMap = contextPorter
+                .initSeek(sthDeal, IListenerAdder, porterConf, autoSetHandle, portIniterList);
+        LOGGER.debug("seek finished,time={}ms", System.currentTimeMillis() - time);
+
 
         LOGGER.debug("add autoSet CheckPassable of Class and Method...");
         autoSetHandle.addAutoSetsForNotPorter(classCheckPassableMap.values());
 
-        LOGGER.debug(":{}/{} afterSeek...", pLinker.currentPName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} afterSeek...", bridgeLinker.currentName(), porterConf.getContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
 
         LOGGER.debug("add autoSetSeek...");
@@ -432,73 +429,69 @@ public final class PorterMain
                 innerContextBridge, contextChecks, porterCheckPassables, porterConf.getResponseHandles(),
                 porterConf.getDefaultResponseHandle());
 
-        try
         {
             Map<String, One> entityOneMap = new HashMap<>();
-            contextPorter.initPorter(entityOneMap, sthDeal, innerContextBridge,autoSetHandle);
+            contextPorter.initPorter(entityOneMap, sthDeal, innerContextBridge, autoSetHandle);
             portExecutor.putAllExtraEntity(entityOneMap);
 
             LOGGER.debug("start doAutoSet...");
-            time=System.currentTimeMillis();
+            time = System.currentTimeMillis();
             autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
             autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);
-            LOGGER.debug("doAutoSetFinished,time={}ms",System.currentTimeMillis()-time);
+            LOGGER.debug("doAutoSetFinished,time={}ms", System.currentTimeMillis() - time);
 
             String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class
                     .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
-            PRequest request = new PRequest(PortMethod.GET, path);
-            WResponse response = new LocalResponse(lResponse -> {
+            BridgeRequest request = new BridgeRequest(PortMethod.GET, path);
+            OftenResponse response = new LocalResponse(lResponse -> {
             });
-            WObject wObject = portExecutor
-                    .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
+            OftenObject oftenObject = portExecutor
+                    .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
 
             LOGGER.debug("start invokeSetOk...");
-            autoSetHandle.invokeSetOk(wObject);
+            autoSetHandle.invokeSetOk(oftenObject);
             portExecutor.onContextStarted(context);
 ////////////////////////////////////////////////////////////////////////////////
-            LOGGER.debug(":{}/{} beforeStart...", pLinker.currentPName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getContextName());
 
-            path = "/" + porterConf.getContextName() + "/:" + PortIn.PortStart.class
-                    .getSimpleName() + "/:" + PortIn.PortStart.class.getSimpleName();
+            path = "/" + porterConf.getContextName() + "/:" + PortStart.class
+                    .getSimpleName() + "/:" + PortStart.class.getSimpleName();
             result = getUrlDecoder().decode(path);
-            request = new PRequest(PortMethod.GET, path);
+            request = new BridgeRequest(PortMethod.GET, path);
             response = new LocalResponse(lResponse -> {
             });
 
-            wObject = portExecutor
-                    .forPortInit(getPLinker().currentPName(), result, request, response, context, true);
+            oftenObject = portExecutor
+                    .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
 
 
-            contextPorter.start(wObject, iConfigData);
+            contextPorter.start(oftenObject, iConfigData);
 
-            AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(wObject);
-            AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(wObject);
+            AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(oftenObject);
+            AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(oftenObject);
 
-            LOGGER.debug(":{}/{} afterStart...", pLinker.currentPName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} afterStart...", bridgeLinker.currentName(), porterConf.getContextName());
             stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
             porterConf.initOk();
-            LOGGER.debug(":{}/{} porterOne started!", pLinker.currentPName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} porterOne started!", bridgeLinker.currentName(), porterConf.getContextName());
 
 
             LOGGER.debug("*********************************");
-            LOGGER.debug(":{}/{} before @PortInit...", pLinker.currentPName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} before @PortInit...", bridgeLinker.currentName(), porterConf.getContextName());
             for (PortIniter portIniter : portIniterList)
             {
-                portIniter.init(this.getPLinker());
+                portIniter.init(this.getBridgeLinker());
             }
-            LOGGER.debug(":{}/{} done @PortInit.", pLinker.currentPName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} done @PortInit.", bridgeLinker.currentName(), porterConf.getContextName());
             AnnoUtil.popAnnotationConfigable();
             if (autoSetObjForAspectOfNormal != null)
             {
                 autoSetObjForAspectOfNormal.clearCache();
             }
-            WPTool.clearCache();
+            OftenTool.clearCache();
             AnnoUtil.clearCache();
-        } catch (Exception e)
-        {
-            throw new Error(WPTool.getCause(e));
         }
     }
 
@@ -510,7 +503,7 @@ public final class PorterMain
         synchronized (PorterMain.class)
         {
             checkInit();
-            LOGGER.debug("[{}] destroyAll...", getPLinker().currentPName());
+            LOGGER.debug("[{}] destroyAll...", getBridgeLinker().currentName());
             Iterator<Context> iterator = portExecutor.contextIterator();
             while (iterator.hasNext())
             {
@@ -519,7 +512,7 @@ public final class PorterMain
                 destroyOne(context);
             }
             portExecutor.clear();
-            LOGGER.debug("[{}] destroyAll end!", getPLinker().currentPName());
+            LOGGER.debug("[{}] destroyAll end!", getBridgeLinker().currentName());
         }
     }
 
@@ -538,7 +531,7 @@ public final class PorterMain
             stateListenerForAll.afterDestroy();
             if (portExecutor.contextSize() == 0)
             {
-                commonMainHashMap.remove(pLinker.currentPName().getName());
+                commonMainHashMap.remove(bridgeLinker.currentName().getName());
             }
         }
 
@@ -557,7 +550,7 @@ public final class PorterMain
         portExecutor.enableContext(contextName, enable);
     }
 
-    public void doRequest(PreRequest req, WRequest request, WResponse response, boolean isInnerRequest)
+    public void doRequest(PreRequest req, OftenRequest request, OftenResponse response, boolean isInnerRequest)
     {
         if (forRequestListener != null)
         {
@@ -569,7 +562,7 @@ public final class PorterMain
         portExecutor.doRequest(req, request, response, isInnerRequest);
     }
 
-    public PreRequest forRequest(WRequest request, WResponse response)
+    public PreRequest forRequest(OftenRequest request, OftenResponse response)
     {
         PreRequest preRequest = portExecutor.forRequest(request, response);
         return preRequest;

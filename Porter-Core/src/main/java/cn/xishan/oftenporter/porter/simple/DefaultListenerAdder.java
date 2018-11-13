@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 
 import java.util.*;
 
@@ -27,7 +27,7 @@ public class DefaultListenerAdder<T> implements IListenerAdder<T>
     @Override
     public String addListener(T listener)
     {
-        String name = KeyUtil.randomUUID();
+        String name = OftenKeyUtil.randomUUID();
         addListener(name, listener);
         return name;
     }

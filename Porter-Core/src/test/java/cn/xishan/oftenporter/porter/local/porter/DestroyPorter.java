@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.local.porter;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

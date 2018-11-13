@@ -2,16 +2,13 @@ package cn.xishan.oftenporter.demo.core.test1;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.PCallback;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
-import cn.xishan.oftenporter.porter.core.pbridge.PResponse;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
@@ -26,7 +23,7 @@ public class Main1 {
 
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
-        LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+        LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         LogUtil.printPos(PortMethod.valueOf("GET"));
 
         localMain.getOnPorterAddListenerAdder().addListener("name1", new OnPorterAddListener()
@@ -59,59 +56,59 @@ public class Main1 {
         localMain.startOne(conf);
         logger.debug("****************************************************");
 
-        PBridge bridge = localMain.getPLinker().currentBridge();
+        IBridge bridge = localMain.getBridgeLinker().currentBridge();
 
-        bridge.request(new PRequest("/Test1Main/Hello1/say")
+        bridge.request(new BridgeRequest("/Test1Main/Hello1/say")
                                .addParam("name", "The Earth").addParam("sth", "class-param"),
-                       new PCallback() {
+                       new BridgeCallback() {
 
                            @Override
-                           public void onResponse(PResponse lResponse) {
+                           public void onResponse(BridgeResponse lResponse) {
                                Object obj = lResponse.getResponse();
                                LogUtil.printPos(obj);
                            }
                        });
 
         bridge.request(
-                new PRequest("/Test1Main/Hello2/say").setMethod(PortMethod.POST)
+                new BridgeRequest("/Test1Main/Hello2/say").setMethod(PortMethod.POST)
                                                      .addParam("name", "The Moon").addParam("msg", "beauty"),
-                new PCallback() {
+                new BridgeCallback() {
 
                     @Override
-                    public void onResponse(PResponse lResponse) {
+                    public void onResponse(BridgeResponse lResponse) {
                         Object obj = lResponse.getResponse();
                         LogUtil.printPos(obj);
                     }
                 });
 
-        bridge.request(new PRequest("/Test1Main/Hello3REST/123456")
+        bridge.request(new BridgeRequest("/Test1Main/Hello3REST/123456")
                                .setMethod(PortMethod.POST).addParam("name", "The Sun")
-                               .addParam("msg", "beauty"), new PCallback() {
+                               .addParam("msg", "beauty"), new BridgeCallback() {
 
             @Override
-            public void onResponse(PResponse lResponse) {
+            public void onResponse(BridgeResponse lResponse) {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
             }
         });
 
-        bridge.request(new PRequest("/Test1Main/Hello4REST/abcdef")
+        bridge.request(new BridgeRequest("/Test1Main/Hello4REST/abcdef")
                                .setMethod(PortMethod.POST).addParam("name", "The Mars"),
-                       new PCallback() {
+                       new BridgeCallback() {
 
                            @Override
-                           public void onResponse(PResponse lResponse) {
+                           public void onResponse(BridgeResponse lResponse) {
                                Object obj = lResponse.getResponse();
                                LogUtil.printPos(obj);
                            }
                        });
         bridge.request(
-                new PRequest("/Test1Main/Hello4REST/add")
+                new BridgeRequest("/Test1Main/Hello4REST/add")
                         .addParam("content", "!!!!").setMethod(PortMethod.POST),
-                new PCallback() {
+                new BridgeCallback() {
 
                     @Override
-                    public void onResponse(PResponse lResponse) {
+                    public void onResponse(BridgeResponse lResponse) {
                         Object obj = lResponse.getResponse();
                         LogUtil.printPos(obj);
                     }

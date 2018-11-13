@@ -4,13 +4,13 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
-import cn.xishan.oftenporter.porter.core.pbridge.PLinker;
-import cn.xishan.oftenporter.servlet.OPServlet;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
+import cn.xishan.oftenporter.servlet.OftenServlet;
 
 @WebServlet(urlPatterns = "/RemoteBridge/*", loadOnStartup = 10,
         initParams = {@WebInitParam(name = "pname", value = "HServer"),
                 @WebInitParam(name = "responseWhenException", value = "true")})
-public class MyHServerServlet extends OPServlet
+public class MyHServerServlet extends OftenServlet
 {
 
     /**
@@ -18,7 +18,7 @@ public class MyHServerServlet extends OPServlet
      */
     private static final long serialVersionUID = 1L;
     //public static Delivery delivery;
-    public static PLinker pLinker;
+    public static BridgeLinker bridgeLinker;
 
     public MyHServerServlet()
     {
@@ -32,8 +32,8 @@ public class MyHServerServlet extends OPServlet
     }
 
     @Override
-    public PLinker getPLinker()
+    public BridgeLinker getBridgeLinker()
     {
-        return pLinker;
+        return bridgeLinker;
     }
 }

@@ -10,8 +10,8 @@ public interface CheckPassable
     /**
      * 异步检测。
      *
-     * @param wObject 不同的检测时期，内部初始化情况不同，见{@linkplain DuringType}
+     * @param oftenObject 不同的检测时期，内部初始化情况不同，见{@linkplain DuringType}
      * @param type    检测的时期
      */
-    void willPass(WObject wObject, DuringType type,CheckHandle checkHandle);
+    void willPass(OftenObject oftenObject, DuringType type,CheckHandle checkHandle);
 }

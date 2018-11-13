@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet;
 
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import javax.servlet.ServletException;
  * ：重写{@linkplain #getCustomServletPaths()}
  * </p>
  * <p>
- * <strong>另见</strong>{@linkplain OPServletInitializer}
+ * <strong>另见</strong>{@linkplain OftenInitializer}
  * </p>
  *
  * <p>
@@ -32,7 +32,7 @@ import javax.servlet.ServletException;
  *
  * @author Created by https://github.com/CLovinr on 2018/2/23.
  */
-public abstract class StartupServlet extends OPServlet
+public abstract class StartupServlet extends OftenServlet
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(StartupServlet.class);
 
@@ -77,7 +77,7 @@ public abstract class StartupServlet extends OPServlet
             onStart();
         } catch (Throwable e)
         {
-            throw new ServletException(WPTool.getCause(e));
+            throw new ServletException(OftenTool.getCause(e));
         }
         isStarted = true;
     }

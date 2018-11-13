@@ -1,11 +1,10 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.servlet.OPServlet;
+import cn.xishan.oftenporter.servlet.OftenServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -31,11 +30,11 @@ public class OftenWebSocketFilter implements Filter
     {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        OPServlet opServlet = (OPServlet) request.getServletContext().getAttribute(OPServlet.class.getName());
+        OftenServlet oftenServlet = (OftenServlet) request.getServletContext().getAttribute(OftenServlet.class.getName());
         if (WebSocketHandle.isWebSocket(request))
         {
             //接入框架进行处理
-            opServlet.service(request, response);
+            oftenServlet.service(request, response);
             if (request.getAttribute(BridgeData.class.getName()) == null)
             {//已经成功接入websocket
                 return;

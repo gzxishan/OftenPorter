@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.local.porter2;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInit;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 
 /**
@@ -26,15 +26,15 @@ public class My2Porter
 
     @PortIn
     @PortInit(order = 1)
-    public void init1(WObject wObject)
+    public void init1(OftenObject oftenObject)
     {
-        wObject.putRequestData("name","tome");
+        oftenObject.putRequestData("name","tome");
         LogUtil.printErrPos();
     }
 
     @PortIn
     @PortInit(order = 2)
-    public void init2(WObject wObject)
+    public void init2(OftenObject oftenObject)
     {
         LogUtil.printErrPos();
     }

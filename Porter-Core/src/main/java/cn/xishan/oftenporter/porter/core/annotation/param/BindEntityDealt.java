@@ -5,7 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.annotation.*;
 import java.lang.reflect.Method;
@@ -32,7 +32,7 @@ public @interface BindEntityDealt
     interface IHandle<T>
     {
         /**
-         * 初始化,在接口开始({@linkplain PortIn.PortStart})前调用。
+         * 初始化,在接口开始({@linkplain PortStart})前调用。
          *
          * @param option
          * @param method 对应的接口函数
@@ -40,7 +40,7 @@ public @interface BindEntityDealt
         void init(String option, Method method)throws Exception;
 
         /**
-         * 初始化,在接口开始({@linkplain PortIn.PortStart})前调用。
+         * 初始化,在接口开始({@linkplain PortStart})前调用。
          *
          * @param option
          * @param clazz 对应的接口类
@@ -54,7 +54,7 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(WObject wObject, Porter porter, @NotNull T object)throws Exception;
+        Object deal(OftenObject oftenObject, Porter porter, @NotNull T object)throws Exception;
 
         /**
          * * 可以返回{@linkplain ParamDealt.FailedReason}.
@@ -63,7 +63,7 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(WObject wObject, PorterOfFun fun, @NotNull T object)throws Exception;
+        Object deal(OftenObject oftenObject, PorterOfFun fun, @NotNull T object)throws Exception;
     }
 
     /**

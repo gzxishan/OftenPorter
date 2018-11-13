@@ -7,11 +7,12 @@ import cn.xishan.oftenporter.demo.oftendb.test1.unit.HelloUnit;
 import cn.xishan.oftenporter.oftendb.annotation.TransactionDB;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.KeyUtil;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.simple.parsers.StringArrayParser;
@@ -27,47 +28,47 @@ public class HelloPorter
     @PortIn(inner = {"time", "_id"},
             method = PortMethod.POST)
     @BindEntities(Hello.class)
-    public void add(WObject wObject)
+    public void add(OftenObject oftenObject)
     {
-        Hello hello = wObject.fentity(0);
-        wObject.finner[0] = new Date();
-        wObject.finner[1] = KeyUtil.randomUUID();
+        Hello hello = oftenObject.fentity(0);
+        oftenObject.finner[0] = new Date();
+        oftenObject.finner[1] = OftenKeyUtil.randomUUID();
         helloUnit.add(hello);
     }
 
 
     @PortIn(nece = {"name"})
-    public void del(WObject wObject)
+    public void del(OftenObject oftenObject)
     {
-        String name = wObject.fnOf(0);
+        String name = oftenObject.fnOf(0);
         helloUnit.deleteByName(name);
     }
 
     @PortIn(nece = {"name", "newName"}, tieds = {"update", "update2"}, methods = {PortMethod.PUT, PortMethod.POST})
-    public void update(WObject wObject)
+    public void update(OftenObject oftenObject)
     {
-        String name = wObject.fnOf(0);
-        String newName = wObject.fnOf(1);
+        String name = oftenObject.fnOf(0);
+        String newName = oftenObject.fnOf(1);
         helloUnit.updateName(name, newName);
     }
 
     @PortIn(nece = {"name"})
-    public Object count(WObject wObject)
+    public Object count(OftenObject oftenObject)
     {
-        String name = wObject.fnOf(0);
+        String name = oftenObject.fnOf(0);
         return helloUnit.count(name);
     }
 
 
     @PortIn
-    public Object list(WObject wObject)
+    public Object list(OftenObject oftenObject)
     {
         return helloUnit.listAll();
     }
 
 
     @PortIn
-    public void clear(WObject wObject)
+    public void clear(OftenObject oftenObject)
     {
         helloUnit.clearAll();
     }
@@ -76,9 +77,9 @@ public class HelloPorter
     @PortIn(nece = "names")
     @Parse(paramNames = "names", parser = StringArrayParser.class)
     @TransactionDB
-    public Object transactionFailed(WObject wObject)
+    public Object transactionFailed(OftenObject oftenObject)
     {
-        String[] names = wObject.fnOf(0);
+        String[] names = oftenObject.fnOf(0);
         for (int i = 0; i < names.length; i++)
         {
             String name = names[i];
@@ -87,7 +88,7 @@ public class HelloPorter
         throw new RuntimeException("test transaction failed!");
     }
 
-    @PortIn.PortStart
+    @PortStart
     @LogMethodInvoke
     public void onStart()
     {
@@ -95,14 +96,14 @@ public class HelloPorter
     }
 
     @PortIn
-    public void testSavePoint(WObject wObject)
+    public void testSavePoint(OftenObject oftenObject)
     {
-        _testSavePoint(wObject);
+        _testSavePoint(oftenObject);
         LogUtil.printErrPos(helloUnit.listAll());
     }
 
     @TransactionDB
-    public void _testSavePoint(WObject wObject)
+    public void _testSavePoint(OftenObject oftenObject)
     {
         helloUnit.clearAll();
         Hello hello = new Hello();

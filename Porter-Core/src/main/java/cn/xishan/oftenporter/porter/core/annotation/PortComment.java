@@ -51,12 +51,12 @@ public @interface PortComment
      *
      * @return
      */
-    String[] nece() default {};
+    String[] paramsNece() default {};
 
     /**
      * 非必须参数列表
      *
      * @return
      */
-    String[] unece() default {};
+    String[] paramsUnece() default {};
 }

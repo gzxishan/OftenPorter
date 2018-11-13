@@ -5,11 +5,11 @@ import cn.xishan.oftenporter.porter.core.annotation.param.MixinParseFrom;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
@@ -60,34 +60,34 @@ public class HelloPorter extends SuperSetPorter
     private static TypeTo typeTo;
 
     @PortIn(value = "say", nece = {"name", "age"})
-    public Object say(WObject wObject)
+    public Object say(OftenObject oftenObject)
     {
-        int age = (int) wObject.fn[1];
-        return wObject.fn[0] + "+" + age;
+        int age = (int) oftenObject.fn[1];
+        return oftenObject.fn[0] + "+" + age;
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"}, method = PortMethod.POST)
     @Parse(paramNames = "sex", parser = IntParser.class)
-    public Object sayHelloPost(WObject wObject)
+    public Object sayHelloPost(OftenObject oftenObject)
     {
-        int sex = (int) wObject.fn[0];
-        return wObject.restValue + ":" + sex;
+        int sex = (int) oftenObject.fn[0];
+        return oftenObject.restValue + ":" + sex;
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"})
-    public Object sayHello(WObject wObject)
+    public Object sayHello(OftenObject oftenObject)
     {
-        String sex = (String) wObject.fn[0];
-        return wObject.restValue + "=" + sex;
+        String sex = (String) oftenObject.fn[0];
+        return oftenObject.restValue + "=" + sex;
     }
 
     @PortIn("parseObject")
     @Parse(paramNames = "myAge", parser = IntParser.class)
     @BindEntities({Article.class})
-    public Object parseObject(WObject wObject)
+    public Object parseObject(OftenObject oftenObject)
     {
-        Article article = wObject.fentity(0);
-        User user = wObject.centity(0);
+        Article article = oftenObject.fentity(0);
+        User user = oftenObject.centity(0);
         // LOGGER.debug("{}\n{}", article, user);
 
         return random.nextBoolean() ? user : article;

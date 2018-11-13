@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.demo.testmem;
 
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
@@ -20,7 +20,7 @@ public class Main
 
     static void test()
     {
-        LocalMain localMain = new LocalMain(true, new PName("P"), "utf-8");
+        LocalMain localMain = new LocalMain(true, new BridgeName("P"), "utf-8");
 
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("OP");

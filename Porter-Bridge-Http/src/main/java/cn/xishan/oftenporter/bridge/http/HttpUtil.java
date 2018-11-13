@@ -7,9 +7,9 @@ import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import okhttp3.*;
 
 import javax.net.ssl.SSLContext;
@@ -169,24 +169,24 @@ public class HttpUtil
         }
     }
 
-    private static String dealUrlParams(WObject wObject, String url) throws UnsupportedEncodingException
+    private static String dealUrlParams(OftenObject oftenObject, String url) throws UnsupportedEncodingException
     {
-        if (wObject == null || (wObject.fInNames == null && wObject.cInNames == null))
+        if (oftenObject == null || (oftenObject.fInNames == null && oftenObject.cInNames == null))
         {
             return url;
         }
         StringBuilder stringBuilder = new StringBuilder();
         String encoding = "utf-8";
 
-        if (wObject.fInNames != null)
+        if (oftenObject.fInNames != null)
         {
-            addUrlParams(stringBuilder, wObject.fInNames.nece, wObject.fn, encoding);
-            addUrlParams(stringBuilder, wObject.fInNames.unece, wObject.fu, encoding);
+            addUrlParams(stringBuilder, oftenObject.fInNames.nece, oftenObject.fn, encoding);
+            addUrlParams(stringBuilder, oftenObject.fInNames.unece, oftenObject.fu, encoding);
         }
-        if (wObject.cInNames != null)
+        if (oftenObject.cInNames != null)
         {
-            addUrlParams(stringBuilder, wObject.cInNames.nece, wObject.cn, encoding);
-            addUrlParams(stringBuilder, wObject.cInNames.unece, wObject.cu, encoding);
+            addUrlParams(stringBuilder, oftenObject.cInNames.nece, oftenObject.cn, encoding);
+            addUrlParams(stringBuilder, oftenObject.cInNames.unece, oftenObject.cu, encoding);
         }
 
         if (stringBuilder.length() > 0)
@@ -219,16 +219,16 @@ public class HttpUtil
         }
     }
 
-    private static RequestBody dealBodyParams(WObject wObject) throws
+    private static RequestBody dealBodyParams(OftenObject oftenObject) throws
             UnsupportedEncodingException
     {
         FormBody.Builder builder = new FormBody.Builder();
-        if (!(wObject == null || (wObject.fInNames == null && wObject.cInNames == null)))
+        if (!(oftenObject == null || (oftenObject.fInNames == null && oftenObject.cInNames == null)))
         {
-            addPostParams(builder, wObject.fInNames.nece, wObject.fn);
-            addPostParams(builder, wObject.fInNames.unece, wObject.fu);
-            addPostParams(builder, wObject.cInNames.nece, wObject.cn);
-            addPostParams(builder, wObject.cInNames.unece, wObject.cu);
+            addPostParams(builder, oftenObject.fInNames.nece, oftenObject.fn);
+            addPostParams(builder, oftenObject.fInNames.unece, oftenObject.fu);
+            addPostParams(builder, oftenObject.cInNames.nece, oftenObject.cn);
+            addPostParams(builder, oftenObject.cInNames.unece, oftenObject.cu);
         }
 
         return builder.build();
@@ -250,13 +250,13 @@ public class HttpUtil
             @MayNull OkHttpClient okHttpClient,
             String url, Callback callback) throws IOException
     {
-        return request(new WObjectImpl(requestData), method, okHttpClient, url, callback);
+        return request(new OftenObjectImpl(requestData), method, okHttpClient, url, callback);
     }
 
     /**
      * 把请求进行转发。
      *
-     * @param wObject      可以为null
+     * @param oftenObject      可以为null
      * @param method
      * @param okHttpClient
      * @param url
@@ -264,7 +264,7 @@ public class HttpUtil
      * @return
      * @throws IOException
      */
-    public static Response request(@MayNull WObject wObject, PortMethod method, @MayNull OkHttpClient okHttpClient,
+    public static Response request(@MayNull OftenObject oftenObject, PortMethod method, @MayNull OkHttpClient okHttpClient,
             String url, Callback callback) throws IOException
     {
         if (okHttpClient == null)
@@ -285,26 +285,26 @@ public class HttpUtil
 
                 case PUT:
                 {
-                    RequestBody requestBody = dealBodyParams(wObject);
+                    RequestBody requestBody = dealBodyParams(oftenObject);
                     request = builder.url(url).put(requestBody).build();
                 }
                 break;
                 case POST:
                 {
-                    RequestBody requestBody = dealBodyParams(wObject);
+                    RequestBody requestBody = dealBodyParams(oftenObject);
                     request = builder.url(url).post(requestBody).build();
                 }
                 break;
                 case GET:
                 {
-                    url = dealUrlParams(wObject, url);
+                    url = dealUrlParams(oftenObject, url);
                     request = builder.url(url).get().build();
                 }
 
                 break;
                 case DELETE:
                 {
-                    url = dealUrlParams(wObject, url);
+                    url = dealUrlParams(oftenObject, url);
                     request = builder.url(url).delete().build();
                 }
                 break;
@@ -329,7 +329,7 @@ public class HttpUtil
     public static JResponse requestWPorter(@MayNull RequestData requestData, PortMethod method,
             @MayNull OkHttpClient okHttpClient, String url, JRCallback jrCallback)
     {
-        return requestWPorter(requestData == null ? null : new WObjectImpl(requestData), method, okHttpClient, url,
+        return requestWPorter(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient, url,
                 jrCallback);
     }
 
@@ -365,7 +365,7 @@ public class HttpUtil
             jResponse.setExCause(e);
         } finally
         {
-            WPTool.close(responseBody);
+            OftenTool.close(responseBody);
         }
         return jResponse;
     }
@@ -373,14 +373,14 @@ public class HttpUtil
     /**
      * 把数据发向服务器，并接受响应结果。（同步的）
      *
-     * @param wObject      可以为null
+     * @param oftenObject      可以为null
      * @param method       像服务器发起的请求方法
      * @param okHttpClient
      * @param url          url地址
      * @param jrCallback
      * @return
      */
-    public static JResponse requestWPorter(@MayNull WObject wObject, PortMethod method,
+    public static JResponse requestWPorter(@MayNull OftenObject oftenObject, PortMethod method,
             @MayNull OkHttpClient okHttpClient,
             String url, final JRCallback jrCallback)
     {
@@ -390,11 +390,11 @@ public class HttpUtil
 
             if (jrCallback == null)
             {
-                Response response = request(wObject, method, okHttpClient, url, null);
+                Response response = request(oftenObject, method, okHttpClient, url, null);
                 jResponse = toJResponse(response);
             } else
             {
-                request(wObject, method, okHttpClient, url, new Callback()
+                request(oftenObject, method, okHttpClient, url, new Callback()
                 {
                     @Override
                     public void onFailure(Call call, IOException e)
@@ -437,11 +437,11 @@ public class HttpUtil
 /**
  * Created by chenyg on 2017-03-07.
  */
-class WObjectImpl extends WObject
+class OftenObjectImpl extends OftenObject
 {
     private Map<String, String> headers;
 
-    public WObjectImpl(RequestData requestData)
+    public OftenObjectImpl(RequestData requestData)
     {
         String[] names = new String[requestData.params.size()];
         Object[] values = new Object[names.length];
@@ -458,13 +458,13 @@ class WObjectImpl extends WObject
     }
 
     @Override
-    public WRequest getRequest()
+    public OftenRequest getRequest()
     {
         return null;
     }
 
     @Override
-    public WResponse getResponse()
+    public OftenResponse getResponse()
     {
         return null;
     }
@@ -519,7 +519,7 @@ class WObjectImpl extends WObject
     }
 
     @Override
-    public PName getPName()
+    public BridgeName getPName()
     {
         return null;
     }

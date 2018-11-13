@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.util.Arrays;
 
@@ -20,24 +20,24 @@ public final class _Nece extends _NeceUnece
     {
     }
 
-    public boolean isNece(WObject wObject)
+    public boolean isNece(OftenObject oftenObject)
     {
-        if(toUnece&&wObject!=null&&isIn(wObject)){
+        if(toUnece&& oftenObject !=null&&isIn(oftenObject)){
             return false;
         }else{
             return true;
         }
     }
 
-    private boolean isIn(WObject wObject)
+    private boolean isIn(OftenObject oftenObject)
     {
-        if (Arrays.binarySearch(forMethods, wObject.getRequest().getMethod()) >= 0)
+        if (Arrays.binarySearch(forMethods, oftenObject.getRequest().getMethod()) >= 0)
         {
             return true;
-        } else if (Arrays.binarySearch(forClassTieds, wObject.url().classTied()) >= 0)
+        } else if (Arrays.binarySearch(forClassTieds, oftenObject.url().classTied()) >= 0)
         {
             return true;
-        } else if (Arrays.binarySearch(forFunTieds, wObject.url().funTied()) >= 0)
+        } else if (Arrays.binarySearch(forFunTieds, oftenObject.url().funTied()) >= 0)
         {
             return true;
         } else

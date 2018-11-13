@@ -17,7 +17,7 @@ import java.lang.annotation.*;
  * <li>
  * {@linkplain Handle#init(Annotation, IConfigData, Porter) init(Annotation, IConfigData, Porter)}和
  * {@linkplain Handle#init(Annotation, IConfigData, PorterOfFun) init(Annotation, IConfigData, PorterOfFun)}被调用时，
- * {@linkplain AutoSet}并没有被执行、而是在{@linkplain Handle#onStart(WObject)}时已经被执行。
+ * {@linkplain AutoSet}并没有被执行、而是在{@linkplain Handle#onStart(OftenObject)}时已经被执行。
  * </li>
  * </ol>
  *
@@ -50,7 +50,7 @@ public @interface AspectOperationOfPortIn
         }
 
         @Override
-        public void onStart(WObject wObject)
+        public void onStart(OftenObject oftenObject)
         {
             LOGGER.debug("not Override.");
         }
@@ -62,32 +62,32 @@ public @interface AspectOperationOfPortIn
         }
 
         @Override
-        public void beforeInvokeOfMethodCheck(WObject wObject, PorterOfFun porterOfFun)
+        public void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
             LOGGER.debug("not Override.");
         }
 
         @Override
-        public void beforeInvoke(WObject wObject, PorterOfFun porterOfFun)
+        public void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
             LOGGER.debug("not Override.");
         }
 
         @Override
-        public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
+        public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
             LOGGER.debug("default invoke.");
-            return porterOfFun.invokeByHandleArgs(wObject, lastReturn);
+            return porterOfFun.invokeByHandleArgs(oftenObject, lastReturn);
         }
 
         @Override
-        public void afterInvoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn)
+        public void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
         {
             LOGGER.debug("not Override.");
         }
 
         @Override
-        public void onFinal(WObject wObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
+        public void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
         {
             LOGGER.debug("not Override.");
         }
@@ -120,20 +120,20 @@ public @interface AspectOperationOfPortIn
         }
 
         @Override
-        public boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
+        public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
         {
             return true;
         }
     }
 
     /**
-     * 执行的顺序:{@linkplain #beforeInvokeOfMethodCheck(WObject, PorterOfFun)}--
-     * {@linkplain #beforeInvoke(WObject, PorterOfFun)}--{@linkplain #invoke(WObject, PorterOfFun, Object)}--
-     * {@linkplain #afterInvoke(WObject, PorterOfFun, Object)}--
-     * {@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}
+     * 执行的顺序:{@linkplain #beforeInvokeOfMethodCheck(OftenObject, PorterOfFun)}--
+     * {@linkplain #beforeInvoke(OftenObject, PorterOfFun)}--{@linkplain #invoke(OftenObject, PorterOfFun, Object)}--
+     * {@linkplain #afterInvoke(OftenObject, PorterOfFun, Object)}--
+     * {@linkplain #onFinal(OftenObject, PorterOfFun, Object, Object)}
      * <p>
-     * 其中除了{@linkplain #afterInvoke(WObject, PorterOfFun, Object)}与
-     * {@linkplain #onFinal(WObject, PorterOfFun, Object, Object)}是逆序调用，其余的是顺序调用。
+     * 其中除了{@linkplain #afterInvoke(OftenObject, PorterOfFun, Object)}与
+     * {@linkplain #onFinal(OftenObject, PorterOfFun, Object, Object)}是逆序调用，其余的是顺序调用。
      * </p>
      *
      * @param <T>
@@ -159,53 +159,53 @@ public @interface AspectOperationOfPortIn
          */
         boolean init(T current, IConfigData configData, PorterOfFun porterOfFun);
 
-        void onStart(WObject wObject);
+        void onStart(OftenObject oftenObject);
 
         void onDestroy();
 
         /**
          * 在函数上的检测{@linkplain CheckPassable}执行之前。
          *
-         * @param wObject
+         * @param oftenObject
          * @param porterOfFun
          */
-        void beforeInvokeOfMethodCheck(WObject wObject, PorterOfFun porterOfFun);
+        void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun);
 
         /**
          * 在函数执行之前。
          *
-         * @param wObject
+         * @param oftenObject
          * @param porterOfFun
          */
-        void beforeInvoke(WObject wObject, PorterOfFun porterOfFun);
+        void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun);
 
         /**
          * 调用函数时触发，且注解在类上的先调用。
          *
-         * @param wObject
+         * @param oftenObject
          * @param lastReturn 上一个处理返回的对象。
          * @return
          * @throws Exception
          */
-        Object invoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Throwable;
+        Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Throwable;
 
 
         /**
          * 函数执行完成后.
          *
-         * @param wObject
+         * @param oftenObject
          * @param porterOfFun
          */
-        void afterInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)throws Exception;
+        void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)throws Exception;
 
 
         /**
          * 函数上的检测执行完成或执行错误后都会调用,但在响应之前调用.
          *
-         * @param wObject
+         * @param oftenObject
          * @param porterOfFun
          */
-        void onFinal(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn,
+        void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn,
                 @MayNull Object failedObject)throws Exception;
 
         /**
@@ -231,12 +231,12 @@ public @interface AspectOperationOfPortIn
         PortMethod[] getMethods();
 
         /**
-         * 是否需要调用{@linkplain #invoke(WObject, PorterOfFun, Object)}
+         * 是否需要调用{@linkplain #invoke(OftenObject, PorterOfFun, Object)}
          *
-         * @param wObject
+         * @param oftenObject
          * @return
          */
-        boolean needInvoke(WObject wObject, PorterOfFun porterOfFun, @MayNull Object lastReturn);
+        boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn);
     }
 
     Class<? extends Handle> handle();

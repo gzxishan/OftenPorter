@@ -1,16 +1,15 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
-import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
-import cn.xishan.oftenporter.porter.core.util.StrUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.slf4j.Logger;
@@ -44,7 +43,7 @@ public class AnnoUtil
                 return set;
             });
 
-    private static final Set<String> EXCEPT_CLASS_NAMES = WPTool
+    private static final Set<String> EXCEPT_CLASS_NAMES = OftenTool
             .addAll(new HashSet<>(), CacheKey.class.getName(), AnnoUtil.class.getName(),
                     Advance.class.getName(), NoCache.class.getName());
     private static Map<String, Integer> cacheCount;
@@ -104,7 +103,7 @@ public class AnnoUtil
                     strs.add(count + ":" + key);
                 }
             }
-            LOGGER.info("invoke count:\n\t\t{}", WPTool.join("\n\t\t", strs));
+            LOGGER.info("invoke count:\n\t\t{}", OftenTool.join("\n\t\t", strs));
         }
         annotationCache.clear();
         cacheCount.clear();
@@ -140,11 +139,11 @@ public class AnnoUtil
 
             for (String _classNames : dynamicNames)
             {
-                if (WPTool.isEmpty(_classNames))
+                if (OftenTool.isEmpty(_classNames))
                 {
                     continue;
                 }
-                String[] classNames = StrUtil.split(_classNames.trim(), "\n");
+                String[] classNames = OftenStrUtil.split(_classNames.trim(), "\n");
                 for (String className : classNames)
                 {
                     DynamicAnnotationImprovableWrap dynamic = new DynamicAnnotationImprovableWrap(
@@ -155,7 +154,7 @@ public class AnnoUtil
                         for (String support : supports)
                         {
                             support = support == null ? null : support.trim();
-                            if (WPTool.isEmpty(support))
+                            if (OftenTool.isEmpty(support))
                             {
                                 continue;
                             }
@@ -300,7 +299,7 @@ public class AnnoUtil
                 return t;
             } else
             {
-                Method[] methods = WPTool.getAllMethods(t.annotationType());
+                Method[] methods = OftenTool.getAllMethods(t.annotationType());
                 boolean has = false;
                 for (Method method : methods)
                 {
@@ -540,11 +539,11 @@ public class AnnoUtil
             {
                 try
                 {
-                    AdvancedAnnotation.Handle handle = WPTool.newObject(advancedAnnotation.handle());
+                    AdvancedAnnotation.Handle handle = OftenTool.newObject(advancedAnnotation.handle());
                     _advancedAnnotation.handle = handle;
                 } catch (Throwable e)
                 {
-                    e = WPTool.getCause(e);
+                    e = OftenTool.getCause(e);
                     LOGGER.warn(e.getMessage(), e);
                 }
             }
@@ -860,7 +859,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(clazz, annotationClass);
-        if (WPTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(clazz, annotationClass);
         }
@@ -896,7 +895,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(field, annotationClass);
-        if (WPTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(field, annotationClass);
         }
@@ -933,7 +932,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(method, annotationClass);
-        if (WPTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(method, annotationClass);
         }
@@ -1150,7 +1149,7 @@ public class AnnoUtil
             Set<Class> typeSet = new HashSet<>();
             Annotation[] as = method.getAnnotations();
             List<Annotation> list = new ArrayList<>();
-            WPTool.addAll(list, as);
+            OftenTool.addAll(list, as);
             for (Annotation annotation : as)
             {
                 typeSet.add(annotation.annotationType());
@@ -1864,7 +1863,7 @@ public class AnnoUtil
             Class<?> type = null;
             for (Class<?> clazz : typeList)
             {
-                if (WPTool.isAssignable(clazz, superClassOrInterface))
+                if (OftenTool.isAssignable(clazz, superClassOrInterface))
                 {
                     if (type != null)
                     {
@@ -2212,7 +2211,7 @@ public class AnnoUtil
                     {
                         continue;
                     }
-                    if (WPTool.getAccessType(m) > WPTool.getAccessType(method))
+                    if (OftenTool.getAccessType(m) > OftenTool.getAccessType(method))
                     {
                         continue;
                     }

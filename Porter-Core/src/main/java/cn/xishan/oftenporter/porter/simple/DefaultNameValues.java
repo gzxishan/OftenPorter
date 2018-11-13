@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 
 import cn.xishan.oftenporter.porter.core.base.INameValues;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
@@ -131,8 +131,8 @@ public class DefaultNameValues implements INameValues
         {
             throw new IllegalArgumentException("names's length not values's");
         }
-        WPTool.addAll(this.names, names);
-        WPTool.addAll(this.values, values);
+        OftenTool.addAll(this.names, names);
+        OftenTool.addAll(this.values, values);
         return this;
     }
 

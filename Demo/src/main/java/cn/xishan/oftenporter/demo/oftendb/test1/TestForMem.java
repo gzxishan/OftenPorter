@@ -2,13 +2,12 @@ package cn.xishan.oftenporter.demo.oftendb.test1;
 
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisOption;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 import org.h2.jdbcx.JdbcDataSource;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -27,7 +26,7 @@ public class TestForMem
 
     static void test()
     {
-        LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+        LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()

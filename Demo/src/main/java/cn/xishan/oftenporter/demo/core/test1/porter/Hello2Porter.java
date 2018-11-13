@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.demo.core.test1.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 /**
  * <pre>
@@ -20,14 +20,14 @@ class Hello2Porter
      * 1.设置成POST方法.
      * </pre>
      *
-     * @param wObject
+     * @param oftenObject
      * @return
      */
     @PortIn(nece = { "name" }, unece = { "msg" }, method = PortMethod.POST)
-    public Object say(WObject wObject)
+    public Object say(OftenObject oftenObject)
     {
-	String name = (String) wObject.fn[0];
-	Object msg = wObject.fu[0];
+	String name = (String) oftenObject.fn[0];
+	Object msg = oftenObject.fu[0];
 
 	return name + ":" + msg;
     }

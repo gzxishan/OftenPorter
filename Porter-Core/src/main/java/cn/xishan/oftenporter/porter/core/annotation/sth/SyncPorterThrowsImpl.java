@@ -4,9 +4,9 @@ import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.base.INameValues;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
 
 /**
@@ -67,30 +67,30 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
     }
 
     @Override
-    public <T> T request(WObject wObject)
+    public <T> T request(OftenObject oftenObject)
     {
-        T t = syncPorter.request(wObject);
+        T t = syncPorter.request(oftenObject);
         return deal(t);
     }
 
     @Override
-    public <T> T request(WObject wObject, INameValues INameValues)
+    public <T> T request(OftenObject oftenObject, INameValues INameValues)
     {
-        T t = syncPorter.request(wObject, INameValues);
+        T t = syncPorter.request(oftenObject, INameValues);
         return deal(t);
     }
 
     @Override
-    public <T> T requestSimple(WObject wObject, Object... nameValues)
+    public <T> T requestSimple(OftenObject oftenObject, Object... nameValues)
     {
-        T t = syncPorter.requestSimple(wObject, nameValues);
+        T t = syncPorter.requestSimple(oftenObject, nameValues);
         return deal(t);
     }
 
     @Override
-    public <T> T invokeWithObjects(WObject wObject, Object... objects)
+    public <T> T invokeWithObjects(OftenObject oftenObject, Object... objects)
     {
-        T t = syncPorter.invokeWithObjects(wObject, objects);
+        T t = syncPorter.invokeWithObjects(oftenObject, objects);
         return deal(t);
     }
 

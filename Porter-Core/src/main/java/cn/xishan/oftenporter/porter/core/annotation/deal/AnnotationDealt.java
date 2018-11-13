@@ -3,8 +3,8 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 import cn.xishan.oftenporter.porter.core.advanced.IFun;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortDestroy;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.param.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.ObjectGetter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
@@ -13,7 +13,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 
 import javax.annotation.Resource;
@@ -65,13 +65,13 @@ public final class AnnotationDealt
     public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter)
 
     {
-        SyncPorterOption option = AnnoUtil.getAnnotation(field, SyncPorterOption.class);
+        PorterSyncOption option = AnnoUtil.getAnnotation(field, PorterSyncOption.class);
         if (option != null)
         {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied;
-            if (!SyncPorterOption.class.equals(option.porter()))
+            if (!PorterSyncOption.class.equals(option.porter()))
             {
                 classTied = PortUtil.tied(option.porter());
             } else
@@ -97,7 +97,7 @@ public final class AnnotationDealt
             porterParamGetter.setClassTied(classTied);//用于检测名称是否合法
             porterParamGetter.setFunTied(funTied);
             syncPorterOption.method = PortMethod.GET;
-            LOGGER.debug("Field[{}] not annotated with {}", field, SyncPorterOption.class.getName());
+            LOGGER.debug("Field[{}] not annotated with {}", field, PorterSyncOption.class.getName());
             return syncPorterOption;
         }
 
@@ -200,10 +200,10 @@ public final class AnnotationDealt
             return null;
         }
         _Nece _nece = new _Nece();
-        if (WPTool.isEmptyOfAll(nece.value(), nece.varName()))
+        if (OftenTool.isEmptyOfAll(nece.value(), nece.varName()))
         {
             _nece.varName = fieldName;
-        } else if (WPTool.notNullAndEmpty(nece.value()))
+        } else if (OftenTool.notNullAndEmpty(nece.value()))
         {
             _nece.varName = nece.value();
         } else
@@ -237,10 +237,10 @@ public final class AnnotationDealt
         }
         _Unece _unece = new _Unece();
 
-        if (WPTool.isEmptyOfAll(unece.value(), unece.varName()))
+        if (OftenTool.isEmptyOfAll(unece.value(), unece.varName()))
         {
             _unece.varName = fieldName;
-        } else if (WPTool.notNullAndEmpty(unece.value()))
+        } else if (OftenTool.notNullAndEmpty(unece.value()))
         {
             _unece.varName = unece.value();
         } else
@@ -261,7 +261,7 @@ public final class AnnotationDealt
 
         if (bindEntities != null)
         {
-            WPTool.addAll(classList, bindEntities.value());
+            OftenTool.addAll(classList, bindEntities.value());
         }
 
         if (fromPorterEntities != null)
@@ -286,7 +286,7 @@ public final class AnnotationDealt
                     //寻找最亲的
                     for (int k = 0; k < pclasses.length; k++)
                     {
-                        int _n = WPTool.subclassOf(pclasses[k], fclasses[i]);
+                        int _n = OftenTool.subclassOf(pclasses[k], fclasses[i]);
                         if (_n >= 0 && _n < n)
                         {
                             n = _n;
@@ -330,7 +330,7 @@ public final class AnnotationDealt
                 try
                 {
                     classes[i] = new _BindEntities.CLASS(clazz, method, bindEntityDealt.option(),
-                            WPTool.newObject(handleClass));
+                            OftenTool.newObject(handleClass));
                 } catch (Exception e)
                 {
                     throw new InitException(e);
@@ -355,12 +355,12 @@ public final class AnnotationDealt
 
         if (_bindEntities1 != null)
         {
-            WPTool.addAll(set, _bindEntities1.value);
+            OftenTool.addAll(set, _bindEntities1.value);
         }
 
         if (_bindEntities2 != null)
         {
-            WPTool.addAll(set, _bindEntities2.value);
+            OftenTool.addAll(set, _bindEntities2.value);
         }
 
         _BindEntities bindEntities = new _BindEntities();
@@ -521,7 +521,7 @@ public final class AnnotationDealt
         {
             ObjectGetter objectGetter = () -> object;
 
-            methods = WPTool.getAllPublicMethods(objectClass);
+            methods = OftenTool.getAllPublicMethods(objectClass);
             List<_PortStart> list = new ArrayList<>();
             for (Method method : methods)
             {
@@ -556,7 +556,7 @@ public final class AnnotationDealt
         {
             ObjectGetter objectGetter = () -> object;
 
-            methods = WPTool.getAllMethods(objectClass);
+            methods = OftenTool.getAllMethods(objectClass);
             List<_PortDestroy> list = new ArrayList<>();
             for (Method method : methods)
             {

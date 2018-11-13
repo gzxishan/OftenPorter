@@ -5,7 +5,7 @@ import java.io.IOException;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.base.OutType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 @PortIn
 class Hello1Porter
@@ -17,30 +17,30 @@ class Hello1Porter
      * 2.当没有使用PortOut注解时，默认输出类型也是OutType.Object
      * </pre>
      * 
-     * @param wObject
+     * @param oftenObject
      * @return
      */
     @PortIn(nece = { "name" })
     @PortOut()
-    public Object say(WObject wObject)
+    public Object say(OftenObject oftenObject)
     {
-	String name = (String) wObject.fn[0];
+	String name = (String) oftenObject.fn[0];
 
 	return "Hello World:" + name;
     }
 
     @PortIn(nece = { "name" })
     @PortOut(OutType.NO_RESPONSE)
-    public void say2(WObject wObject)
+    public void say2(OftenObject oftenObject)
     {
-	String name = (String) wObject.fn[0];
+	String name = (String) oftenObject.fn[0];
 	try
 	{
-	    wObject.getResponse().write("self:" + name);
+	    oftenObject.getResponse().write("self:" + name);
 	    /*
 	     * 对于OutType.NoResponse,需要手动关闭。
 	     */
-	    wObject.getResponse().close();
+	    oftenObject.getResponse().close();
 	}
 	catch (IOException e)
 	{

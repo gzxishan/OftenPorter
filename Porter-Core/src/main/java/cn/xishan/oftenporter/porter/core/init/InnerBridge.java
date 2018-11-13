@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheTool;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultTypeParserStore;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class InnerBridge
     {
         this.globalAutoSet = new ConcurrentHashMap<>();
         DefaultTypeParserStore typeParserStore = new DefaultTypeParserStore();
-        if(WPTool.notNullAndEmpty(defaultTypeParserId)){
+        if(OftenTool.notNullAndEmpty(defaultTypeParserId)){
             typeParserStore.setDefaultTypeParser(defaultTypeParserId);
         }
         this.globalParserStore=typeParserStore;

@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -21,7 +21,7 @@ public class TableOption
 {
     public interface IHandle
     {
-        void handle(WObject wObject, TableOption tableOption)throws Exception;
+        void handle(OftenObject oftenObject, TableOption tableOption)throws Exception;
     }
 
     @Nece

@@ -6,10 +6,10 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
-import cn.xishan.oftenporter.porter.core.base.WRequest;
+import cn.xishan.oftenporter.porter.core.base.OftenRequest;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.*;
 
@@ -19,10 +19,10 @@ import java.util.*;
  */
 public class DefaultParamSource implements ParamSource {
     private UrlDecoder.Result result;
-    private WRequest request;
+    private OftenRequest request;
     protected boolean hasRequestParameter = true;
 
-    public DefaultParamSource(WRequest request) {
+    public DefaultParamSource(OftenRequest request) {
         this.request = request;
         this.result = new DefaultUrlResult(new HashMap<>(),null,null,null);
     }
@@ -33,7 +33,7 @@ public class DefaultParamSource implements ParamSource {
             Enumeration<Map.Entry<String, Object>> e = this.result.params();
             while (e.hasMoreElements()) {
                 Map.Entry<String, Object> entry = e.nextElement();
-                if (WPTool.isEmpty(result.getParam(entry.getKey()))) {
+                if (OftenTool.isEmpty(result.getParam(entry.getKey()))) {
                     result.setParam(entry.getKey(), entry.getValue());
                 }
             }
@@ -41,7 +41,7 @@ public class DefaultParamSource implements ParamSource {
         this.result = result;
     }
 
-    public DefaultParamSource(Map<String, Object> map, WRequest request) {
+    public DefaultParamSource(Map<String, Object> map, OftenRequest request) {
         this(request);
         setUrlResult(DefaultUrlDecoder.newResult(map, null, null, null));
     }
@@ -49,7 +49,7 @@ public class DefaultParamSource implements ParamSource {
     @Override
     public <T> T getParam(String name) {
         Object rs = result.getParam(name);
-        if (WPTool.isEmpty(rs)) {
+        if (OftenTool.isEmpty(rs)) {
             rs = request.getParameter(name);
         }
         return (T) rs;
@@ -57,7 +57,7 @@ public class DefaultParamSource implements ParamSource {
 
     public static <T> T getNeceParamUtil(ParamSource paramSource, String name, String errmsgOfEmpty) {
         Object value = paramSource.getParam(name);
-        if (WPTool.isEmpty(value)) {
+        if (OftenTool.isEmpty(value)) {
             ParamDealt.FailedReason failedReason = DefaultFailedReason.lackNecessaryParams(errmsgOfEmpty, name);
             JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
             jResponse.setDescription(failedReason.desc());
@@ -109,7 +109,7 @@ public class DefaultParamSource implements ParamSource {
                 }
                 String name = names.nextElement();
                 Object value = result.getParam(name);
-                if (WPTool.isEmpty(value)) {
+                if (OftenTool.isEmpty(value)) {
                     value = request.getParameter(name);
                 }
                 final Object finalValue = value;

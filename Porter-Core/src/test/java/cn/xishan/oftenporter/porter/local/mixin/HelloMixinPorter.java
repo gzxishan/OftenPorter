@@ -3,11 +3,11 @@ package cn.xishan.oftenporter.porter.local.mixin;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn.PortStart;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,16 +30,16 @@ public class HelloMixinPorter
 
     AtomicInteger atomicInteger = new AtomicInteger();
     @PortIn("helloMixin")
-    public String helloMixin(WObject wObject)
+    public String helloMixin(OftenObject oftenObject)
     {
 
-        wObject.innerRequest("testCurrent", null, lResponse ->
+        oftenObject.innerRequest("testCurrent", null, lResponse ->
         {
             if (atomicInteger.incrementAndGet() % 50000 == 1)
             {
                 LogUtil.printErrPosLn(lResponse, ":", atomicInteger.get());
-                delivery.currentBridge().request(new PRequest(PortMethod.GET,
-                                "/" + wObject.url().contextName() + "/" + wObject.url().classTied() + "/testDelivery"),
+                delivery.currentBridge().request(new BridgeRequest(PortMethod.GET,
+                                "/" + oftenObject.url().contextName() + "/" + oftenObject.url().classTied() + "/testDelivery"),
                         lResponse1 -> LogUtil.printErrPosLn(lResponse1));
             }
         });

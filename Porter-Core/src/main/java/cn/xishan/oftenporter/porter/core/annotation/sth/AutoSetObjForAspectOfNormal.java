@@ -5,8 +5,8 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class AutoSetObjForAspectOfNormal
 
     static class AspectTask
     {
-        WObject wObject;
+        OftenObject oftenObject;
         AspectOperationOfNormal.Handle[] handles;
         Object interceptorObj;
         MethodProxy methodProxy;
@@ -44,18 +44,18 @@ public class AutoSetObjForAspectOfNormal
         boolean isTop;
 
 
-        public AspectTask(WObject wObject,
+        public AspectTask(OftenObject oftenObject,
                 AspectOperationOfNormal.Handle[] handles, Object interceptorObj, MethodProxy methodProxy, Object origin,
                 Method originMethod, Object[] args)
         {
-            this.wObject = wObject;
+            this.oftenObject = oftenObject;
             this.handles = handles;
             this.interceptorObj = interceptorObj;
             this.methodProxy = methodProxy;
             this.origin = origin;
             this.originMethod = originMethod;
             this.args = args;
-            this.isTop = wObject == null || wObject.isOriginalRequest();
+            this.isTop = oftenObject == null || oftenObject.isOriginalRequest();
         }
 
         AspectOperationOfNormal.DefaultInvoker invoker = new AspectOperationOfNormal.DefaultInvoker()
@@ -87,10 +87,10 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = 0; i < handles.length; i++)
                 {
                     AspectOperationOfNormal.Handle handle = handles[i];
-                    if (handle.preInvoke(wObject, isTop, origin, originMethod, invoker, args, isInvoked, lastReturn))
+                    if (handle.preInvoke(oftenObject, isTop, origin, originMethod, invoker, args, isInvoked, lastReturn))
                     {
                         isInvoked = true;
-                        lastReturn = handle.doInvoke(wObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                        lastReturn = handle.doInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
                     }
                 }
                 if (!isInvoked)
@@ -101,7 +101,7 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = handles.length - 1; i >= 0; i--)
                 {
                     AspectOperationOfNormal.Handle handle = handles[i];
-                    lastReturn = handle.afterInvoke(wObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                    lastReturn = handle.afterInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
                 }
             } catch (Throwable th)
             {
@@ -121,7 +121,7 @@ public class AutoSetObjForAspectOfNormal
                 AspectOperationOfNormal.Handle handle = handles[i];
                 try
                 {
-                    handle.onException(wObject, isTop, origin, originMethod, invoker, args, throwable);
+                    handle.onException(oftenObject, isTop, origin, originMethod, invoker, args, throwable);
                 } catch (Throwable e)
                 {
                     LOGGER.error(e.getMessage(), e);
@@ -144,9 +144,9 @@ public class AutoSetObjForAspectOfNormal
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable
         {
-            WObject wObject = WObject.fromThreadLocal();
+            OftenObject oftenObject = OftenObject.fromThreadLocal();
             AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
-            AspectTask aspectTask = new AspectTask(wObject, handles, obj, methodProxy, originRef.get(), method, args);
+            AspectTask aspectTask = new AspectTask(oftenObject, handles, obj, methodProxy, originRef.get(), method, args);
 
             try
             {
@@ -220,7 +220,7 @@ public class AutoSetObjForAspectOfNormal
         }
 
 
-        Method[] methods = WPTool.getAllMethods(clazz);
+        Method[] methods = OftenTool.getAllMethods(clazz);
 
         for (Method method : methods)
         {
@@ -294,7 +294,7 @@ public class AutoSetObjForAspectOfNormal
                     AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList
                             .get(i)[1];
 
-                    AspectOperationOfNormal.Handle handle = WPTool.newObject(aspectOperationOfNormal.handle());
+                    AspectOperationOfNormal.Handle handle = OftenTool.newObject(aspectOperationOfNormal.handle());
                     if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
                     {
                         autoSetHandle.addAutoSetsForNotPorter(handle);
@@ -332,7 +332,7 @@ public class AutoSetObjForAspectOfNormal
             objectMayNull = proxyObject;
         } else if (objectMayNull == null)
         {
-            objectMayNull = WPTool.newObjectMayNull(objectClass);
+            objectMayNull = OftenTool.newObjectMayNull(objectClass);
         }
 
         return objectMayNull;

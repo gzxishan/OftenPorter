@@ -4,7 +4,7 @@ import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
 public class Main2 {
@@ -15,7 +15,7 @@ public class Main2 {
          * 1.StateListener:用于监听框架Context的状态。
          * </pre>
          */
-        LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+        LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();

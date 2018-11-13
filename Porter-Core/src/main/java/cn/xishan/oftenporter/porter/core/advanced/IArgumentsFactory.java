@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.advanced;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 
 import java.lang.reflect.Method;
@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
  * 支持的注解：{@linkplain Nece},{@linkplain Unece}
  * </p>
  * <p>
- * 支持的默认参数：{@linkplain WObject},{@linkplain PorterOfFun}
+ * 支持的默认参数：{@linkplain OftenObject},{@linkplain PorterOfFun}
  * </p>
  * <p>
  * servlet下支持的默认参数：HttpServletRequest,HttpServletResponse,ServletContext,HttpSession
@@ -31,9 +31,9 @@ public interface IArgumentsFactory
 {
     interface IArgsHandle
     {
-        Object[] getInvokeArgs(WObject wObject, PorterOfFun fun, Method method, Object[] args);
+        Object[] getInvokeArgs(OftenObject oftenObject, PorterOfFun fun, Method method, Object[] args);
 
-        boolean hasParameterType(WObject wObject, PorterOfFun fun, Method method, Class<?> type);
+        boolean hasParameterType(OftenObject oftenObject, PorterOfFun fun, Method method, Class<?> type);
     }
 
     /**

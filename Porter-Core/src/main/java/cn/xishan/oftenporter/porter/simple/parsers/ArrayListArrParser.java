@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.simple.parsers;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 
@@ -15,9 +15,9 @@ import java.util.ArrayList;
 public class ArrayListArrParser extends JSONArrayParser
 {
     @Override
-    public ParseResult parse(WObject wObject, @NotNull String name, @NotNull Object value,@MayNull Object dealt)
+    public ParseResult parse(OftenObject oftenObject, @NotNull String name, @NotNull Object value,@MayNull Object dealt)
     {
-        ParseResult result = super.parse(wObject,name, value,dealt);
+        ParseResult result = super.parse(oftenObject,name, value,dealt);
         try
         {
             if (result.isLegal())

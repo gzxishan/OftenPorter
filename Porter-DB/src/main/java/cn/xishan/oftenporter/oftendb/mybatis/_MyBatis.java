@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.ExceptColumns;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
-import cn.xishan.oftenporter.oftendb.data.DataUtil;
+import cn.xishan.oftenporter.oftendb.util.DataUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.*;
@@ -101,7 +101,7 @@ class _MyBatis
         map.put("mapperDaoClass", daoClass.getName());
 
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
-        if (WPTool.notNullAndEmpty(params) || myBatisParams != null)
+        if (OftenTool.notNullAndEmpty(params) || myBatisParams != null)
         {
             if (params != null)
             {
@@ -163,7 +163,7 @@ class _MyBatis
         } else
         {
             Object object = _localParams.get(varName);
-            if (WPTool.isEmpty(object))
+            if (OftenTool.isEmpty(object))
             {
                 is = false;
             } else if (object instanceof Boolean)
@@ -399,7 +399,7 @@ class _MyBatis
                 List<String> refColumns;
                 dbColumns = new ArrayList<>();
                 refColumns = new ArrayList<>();
-                Field[] fields = WPTool.getAllFields(entityClass);
+                Field[] fields = OftenTool.getAllFields(entityClass);
                 for (Field field : fields)
                 {
                     String columnName = DataUtil.getTiedName(field);
@@ -442,7 +442,7 @@ class _MyBatis
                             _refColumns.add(refColumns.get(i));
                         }
                     }
-                    String insertPart = "(" + StrUtil.join(",", _dbColumns) + ") VALUES (" + StrUtil
+                    String insertPart = "(" + OftenStrUtil.join(",", _dbColumns) + ") VALUES (" + OftenStrUtil
                             .join(",", _refColumns) + ")";
                     sqlBuilder.replace(index, index2 + 1, insertPart);
                 }
@@ -487,7 +487,7 @@ class _MyBatis
                     {
                         list.add(_dbColumns.get(i) + "=" + _refColumns.get(i));
                     }
-                    String updatePart = StrUtil.join(",", list);
+                    String updatePart = OftenStrUtil.join(",", list);
                     sqlBuilder.replace(index, index2 + 1, updatePart);
                 }
 
@@ -516,7 +516,7 @@ class _MyBatis
             Matcher matcher = exceptPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
             if (matcher.find())
             {
-                excepts = StrUtil.split(matcher.group(1).trim(), ",");
+                excepts = OftenStrUtil.split(matcher.group(1).trim(), ",");
             } else
             {
                 excepts = new String[0];
@@ -528,14 +528,14 @@ class _MyBatis
         }
 
         List<String> list = new ArrayList<>();
-        WPTool.addAll(list, excepts);
-        WPTool.addAll(list, exceptColumns.fields());
+        OftenTool.addAll(list, excepts);
+        OftenTool.addAll(list, exceptColumns.fields());
         if (isUpdate)
         {
-            WPTool.addAll(list, exceptColumns.updatePart());
+            OftenTool.addAll(list, exceptColumns.updatePart());
         } else
         {
-            WPTool.addAll(list, exceptColumns.insertPart());
+            OftenTool.addAll(list, exceptColumns.insertPart());
         }
         excepts = list.toArray(new String[0]);
         for (int i = 0; i < excepts.length; i++)

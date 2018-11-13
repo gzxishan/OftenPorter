@@ -6,9 +6,9 @@ import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.TiedType;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.pbridge.Delivery;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import org.slf4j.Logger;
 
@@ -26,41 +26,41 @@ abstract class HServerPorter
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.GET)
     @PortOut(OutType.NO_RESPONSE)
-    public void get(WObject wObject)
+    public void get(OftenObject oftenObject)
     {
-        delivery(wObject);
+        delivery(oftenObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.POST)
     @PortOut(OutType.NO_RESPONSE)
-    public void post(WObject wObject)
+    public void post(OftenObject oftenObject)
     {
-        delivery(wObject);
+        delivery(oftenObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.PUT)
     @PortOut(OutType.NO_RESPONSE)
-    public void put(WObject wObject)
+    public void put(OftenObject oftenObject)
     {
-        delivery(wObject);
+        delivery(oftenObject);
     }
 
     @PortIn(tiedType = TiedType.REST, method = PortMethod.DELETE)
     @PortOut(OutType.NO_RESPONSE)
-    public void delete(WObject wObject)
+    public void delete(OftenObject oftenObject)
     {
-        delivery(wObject);
+        delivery(oftenObject);
     }
 
-    private void delivery(final WObject wObject)
+    private void delivery(final OftenObject oftenObject)
     {
-        delivery.toAllBridge().request(new PRequest(wObject, wObject.restValue), lResponse ->
+        delivery.toAllBridge().request(new BridgeRequest(oftenObject, oftenObject.restValue), lResponse ->
         {
             if (lResponse != null)
             {
                 try
                 {
-                    wObject.getResponse().write(lResponse.getResponse());
+                    oftenObject.getResponse().write(lResponse.getResponse());
                 } catch (IOException e)
                 {
                     LOGGER.warn(e.getMessage(), e);
@@ -68,7 +68,7 @@ abstract class HServerPorter
                 {
                     try
                     {
-                        wObject.getResponse().close();
+                        oftenObject.getResponse().close();
                     } catch (IOException e)
                     {
                         LOGGER.warn(e.getMessage(), e);

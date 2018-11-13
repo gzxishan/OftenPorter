@@ -85,8 +85,8 @@ public class FileTool
             throw e;
         } finally
         {
-            WPTool.close(fos);
-            WPTool.close(in);
+            OftenTool.close(fos);
+            OftenTool.close(in);
         }
     }
 
@@ -139,7 +139,7 @@ public class FileTool
             throw e;
         } finally
         {
-            WPTool.close(in);
+            OftenTool.close(in);
         }
     }
 
@@ -171,7 +171,7 @@ public class FileTool
             throw e;
         } finally
         {
-            WPTool.close(in);
+            OftenTool.close(in);
         }
     }
 
@@ -211,8 +211,8 @@ public class FileTool
             throw e;
         } finally
         {
-            WPTool.close(os);
-            WPTool.close(in);
+            OftenTool.close(os);
+            OftenTool.close(in);
         }
     }
 

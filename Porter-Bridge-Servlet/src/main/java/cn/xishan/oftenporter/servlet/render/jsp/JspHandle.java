@@ -6,12 +6,12 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.ConcurrentKeyLock;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
 import cn.xishan.oftenporter.servlet.render.RenderPage;
 import org.slf4j.Logger;
 
@@ -91,11 +91,11 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
                 stdJsp += "<%@ page isELIgnored=\"false\"%>\n";
             }
 
-            if (WPTool.notNullAndEmpty(jspOption.appendJspContent))
+            if (OftenTool.notNullAndEmpty(jspOption.appendJspContent))
             {
                 stdJsp += jspOption.appendJspContent;
             }
-            if (WPTool.notNullAndEmpty(jsp.appendJspContent()))
+            if (OftenTool.notNullAndEmpty(jsp.appendJspContent()))
             {
                 stdJsp += jsp.appendJspContent();
             }
@@ -115,12 +115,12 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
 
     @Override
-    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
-        Object obj = porterOfFun.invokeByHandleArgs(wObject, lastReturn);
+        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, lastReturn);
 
         String _page;
-        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
 
 
         if (obj instanceof RenderPage)
@@ -196,7 +196,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
 
         request.getRequestDispatcher(path)
-                .forward(request, wObject.getRequest().getOriginalResponse());
+                .forward(request, oftenObject.getRequest().getOriginalResponse());
 
         return null;
     }

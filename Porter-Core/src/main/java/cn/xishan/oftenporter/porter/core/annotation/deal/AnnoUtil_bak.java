@@ -11,7 +11,7 @@
 //import cn.xishan.oftenporter.porter.core.util.LogUtil;
 //import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 //import cn.xishan.oftenporter.porter.core.util.StrUtil;
-//import cn.xishan.oftenporter.porter.core.util.WPTool;
+//import cn.xishan.oftenporter.porter.core.util.OftenTool;
 //import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 //import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 //import org.slf4j.Logger;
@@ -202,7 +202,7 @@
 //                    strs.add(count + ":" + key);
 //                }
 //            }
-//            LOGGER.info("invoke times:\n\t\t{}", WPTool.join("\n\t\t", strs));
+//            LOGGER.info("invoke times:\n\t\t{}", OftenTool.join("\n\t\t", strs));
 //        }
 //        annotationCache.clear();
 //        cacheCount.clear();
@@ -236,7 +236,7 @@
 //            {
 //                for (String _classNames : dynamics)
 //                {
-//                    if (WPTool.isEmpty(_classNames))
+//                    if (OftenTool.isEmpty(_classNames))
 //                    {
 //                        continue;
 //                    }
@@ -414,7 +414,7 @@
 //            Class<?> type = null;
 //            for (Class<?> clazz : typeList)
 //            {
-//                if (WPTool.isAssignable(clazz, superClassOrInterface))
+//                if (OftenTool.isAssignable(clazz, superClassOrInterface))
 //                {
 //                    if (type != null)
 //                    {
@@ -546,7 +546,7 @@
 //                    {
 //                        continue;
 //                    }
-//                    if (WPTool.getAccessType(m) > WPTool.getAccessType(method))
+//                    if (OftenTool.getAccessType(m) > OftenTool.getAccessType(method))
 //                    {
 //                        continue;
 //                    }
@@ -1382,7 +1382,7 @@
 //                return t;
 //            } else
 //            {
-//                Method[] methods = WPTool.getAllMethods(t.annotationType());
+//                Method[] methods = OftenTool.getAllMethods(t.annotationType());
 //                boolean has = false;
 //                for (Method method : methods)
 //                {
@@ -1423,7 +1423,7 @@
 //    public static String tied(_Unece unNece, Field field, boolean enableDefaultValue)
 //    {
 //        String name = unNece.getValue();
-//        if (WPTool.isEmpty(name))
+//        if (OftenTool.isEmpty(name))
 //        {
 //            if (!enableDefaultValue)
 //            {
@@ -1437,7 +1437,7 @@
 //    public static String tied(_Nece nece, Field field, boolean enableDefaultValue)
 //    {
 //        String name = nece.getValue();
-//        if (WPTool.isEmpty(name))
+//        if (OftenTool.isEmpty(name))
 //        {
 //            if (!enableDefaultValue)
 //            {
@@ -1700,7 +1700,7 @@
 //        Set<Class> typeSet = new HashSet<>();
 //        Annotation[] as = method.getAnnotations();
 //        List<Annotation> list = new ArrayList<>();
-//        WPTool.addAll(list, as);
+//        OftenTool.addAll(list, as);
 //        for (Annotation annotation : as)
 //        {
 //            typeSet.add(annotation.annotationType());

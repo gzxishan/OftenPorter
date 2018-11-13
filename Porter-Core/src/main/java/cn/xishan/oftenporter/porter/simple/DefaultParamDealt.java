@@ -2,11 +2,10 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
-import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.Map;
 
@@ -23,7 +22,7 @@ public class DefaultParamDealt implements ParamDealt
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultParamDealt.class);
 
     @Override
-    public FailedReason deal(WObject wObject, Name[] names, Object[] values, boolean isNecessary,
+    public FailedReason deal(OftenObject oftenObject, Name[] names, Object[] values, boolean isNecessary,
             ParamSource paramSource,
             TypeParserStore typeParserStore, String namePrefix)
     {
@@ -31,7 +30,7 @@ public class DefaultParamDealt implements ParamDealt
         {
             Name name = names[i];
             _Nece nece = isNecessary ? name.getNece() : null;
-            Object value = getParam(wObject, namePrefix, name, paramSource, typeParserStore.byId(name.typeParserId),
+            Object value = getParam(oftenObject, namePrefix, name, paramSource, typeParserStore.byId(name.typeParserId),
                     name.getDealt());
             if (value != null)
             {
@@ -42,7 +41,7 @@ public class DefaultParamDealt implements ParamDealt
                 {
                     values[i] = value;
                 }
-            } else if (isNecessary && (nece == null || nece.isNece(wObject)))
+            } else if (isNecessary && (nece == null || nece.isNece(oftenObject)))
             {
                 return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", namePrefix + name.varName);
             }
@@ -50,13 +49,13 @@ public class DefaultParamDealt implements ParamDealt
         return null;
     }
 
-    public static Object getParam(WObject wObject, Name theName, ParamSource paramSource,
+    public static Object getParam(OftenObject oftenObject, Name theName, ParamSource paramSource,
             ITypeParser typeParser, Object dealt)
     {
-        return getParam(wObject, null, theName, paramSource, typeParser, dealt);
+        return getParam(oftenObject, null, theName, paramSource, typeParser, dealt);
     }
 
-    public static Object getParam(WObject wObject, String namePrefix, Name theName, ParamSource paramSource,
+    public static Object getParam(OftenObject oftenObject, String namePrefix, Name theName, ParamSource paramSource,
             ITypeParser typeParser, Object dealt)
     {
         String name = namePrefix == null ? theName.varName : namePrefix + theName.varName;
@@ -65,10 +64,10 @@ public class DefaultParamDealt implements ParamDealt
         {
             try
             {
-                v = theName.getTypeObject(wObject, paramSource);//见PortUtil.paramDealOne
+                v = theName.getTypeObject(oftenObject, paramSource);//见PortUtil.paramDealOne
             } catch (Throwable e)
             {
-                e = WPTool.getCause(e);
+                e = OftenTool.getCause(e);
                 LOGGER.warn(e.getMessage(), e);
                 return DefaultFailedReason.parseOftenEntitiesException(e.getMessage());
             }
@@ -77,15 +76,15 @@ public class DefaultParamDealt implements ParamDealt
             }
         }
 
-        if (WPTool.isEmpty(v))
+        if (OftenTool.isEmpty(v))
         {
             v = theName.getDefaultValue();
         }
         if (typeParser != null)
         {
-            if (WPTool.isEmpty(v))
+            if (OftenTool.isEmpty(v))
             {
-                ITypeParser.ParseResult parseResult = typeParser.parseEmpty(wObject, name, dealt);
+                ITypeParser.ParseResult parseResult = typeParser.parseEmpty(oftenObject, name, dealt);
                 if (parseResult != null)
                 {
                     if (parseResult.isLegal())
@@ -108,7 +107,7 @@ public class DefaultParamDealt implements ParamDealt
                 }
             } else
             {
-                ITypeParser.ParseResult parseResult = typeParser.parse(wObject, name, v, dealt);
+                ITypeParser.ParseResult parseResult = typeParser.parse(oftenObject, name, v, dealt);
                 if (parseResult.isLegal())
                 {
                     Object obj = parseResult.getValue();

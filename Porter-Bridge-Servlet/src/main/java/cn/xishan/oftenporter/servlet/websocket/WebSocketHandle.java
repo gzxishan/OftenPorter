@@ -3,13 +3,14 @@ package cn.xishan.oftenporter.servlet.websocket;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.servlet.WServletRequest;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.servlet.OftenServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,17 +42,17 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
 
     @AutoSet.SetOk
-    public void setOk(WObject wObject) throws Exception
+    public void setOk(OftenObject oftenObject) throws Exception
     {
-        initWithServerContainer(wObject, thePorterOfFun);
+        initWithServerContainer(oftenObject, thePorterOfFun);
     }
 
     public static boolean isWebSocket(HttpServletRequest request)
     {
-        return webSocketPaths.contains(WServletRequest.getOftenPath(request));
+        return webSocketPaths.contains(OftenServletRequest.getOftenPath(request));
     }
 
-    @PortIn.PortDestroy
+    @PortDestroy
     public void destroy()
     {
         webSocketPaths.remove(path);
@@ -65,7 +66,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         return true;
     }
 
-    private void initWithServerContainer(WObject wObject, PorterOfFun fun) throws Exception
+    private void initWithServerContainer(OftenObject oftenObject, PorterOfFun fun) throws Exception
     {
         _PortIn funIn = fun.getMethodPortIn();
         if (funIn.getMethods().length != 1 || funIn.getMethods()[0] != PortMethod.GET)
@@ -82,7 +83,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         wsConfig.setPartial(webSocket.isPartial());
 
         //进行配置
-        fun.invokeByHandleArgs(wObject, WS.newWS(WebSocket.Type.ON_CONFIG, null, true, wsConfig));
+        fun.invokeByHandleArgs(oftenObject, WS.newWS(WebSocket.Type.ON_CONFIG, null, true, wsConfig));
 
         WebSocketOption webSocketOption = wsConfig.getWebSocketOption();
 
@@ -103,7 +104,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
 
     @Override
-    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         if (webSocket.needConnectingState())
         {
@@ -112,10 +113,10 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
                 {
                     if (will)
                     {
-                        doConnect(wObject, porterOfFun);
+                        doConnect(oftenObject, porterOfFun);
                     } else
                     {
-                        wObject.getResponse().close();
+                        oftenObject.getResponse().close();
                     }
                 } catch (Exception e)
                 {
@@ -123,19 +124,19 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
                 }
 
             });
-            porterOfFun.invokeByHandleArgs(wObject, ws);
+            porterOfFun.invokeByHandleArgs(oftenObject, ws);
         } else
         {
-            doConnect(wObject, porterOfFun);
+            doConnect(oftenObject, porterOfFun);
         }
         return null;
     }
 
-    private void doConnect(WObject wObject, PorterOfFun porterOfFun) throws ServletException, IOException
+    private void doConnect(OftenObject oftenObject, PorterOfFun porterOfFun) throws ServletException, IOException
     {
-        HttpServletRequest request = wObject.getRequest().getOriginalRequest();
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
 
-        BridgeData bridgeData = new BridgeData(wObject, porterOfFun, webSocket, wsConfig);
+        BridgeData bridgeData = new BridgeData(oftenObject, porterOfFun, webSocket, wsConfig);
         HttpSession session = request.getSession();
         session.setAttribute(BridgeData.class.getName(), bridgeData);
         request.setAttribute(BridgeData.class.getName(), true);
@@ -163,7 +164,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 //                LOGGER.debug("{} is null.", clazz);
 //                return;
 //            }
-//            Filter filter = (Filter) WPTool.newObject(filterClazz);
+//            Filter filter = (Filter) OftenTool.newObject(filterClazz);
 //            String pathSpc = XSServletWSConfig.WS_PATH;
 //            FilterRegistration.Dynamic dynamic = servletContext.addFilter(WebSocketHandle.class.getName(), filter);
 //            dynamic.setAsyncSupported(true);

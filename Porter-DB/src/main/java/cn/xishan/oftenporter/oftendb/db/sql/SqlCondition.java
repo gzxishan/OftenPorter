@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.oftendb.db.sql;
 
 
 import cn.xishan.oftenporter.oftendb.db.*;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -234,7 +234,7 @@ public class SqlCondition extends Condition
     private static void checkName(String name)
     {
 
-        if (WPTool.isEmpty(name) || name.indexOf('{') >= 0 || name.indexOf('}') >= 0)
+        if (OftenTool.isEmpty(name) || name.indexOf('{') >= 0 || name.indexOf('}') >= 0)
         {
             throw new RuntimeException("illegal name of '" + name + "'");
         } else if (name.indexOf('`') >= 0)

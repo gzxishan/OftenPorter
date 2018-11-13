@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 import cn.xishan.oftenporter.porter.core.base.INameValues;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
@@ -84,7 +84,7 @@ public class DBNameValues implements INameValues
      * @return
      */
     public DBNameValues append(String name, Object value) {
-        if (!(filterNullAndEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || WPTool.notNullAndEmpty(value)) {
+        if (!(filterNullAndEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || OftenTool.notNullAndEmpty(value)) {
             names.add(name);
             values.add(value);
         }

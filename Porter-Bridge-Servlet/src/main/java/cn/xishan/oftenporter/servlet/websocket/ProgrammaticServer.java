@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
@@ -20,9 +20,9 @@ public class ProgrammaticServer extends Endpoint
         {
             BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
 
-            WObject wObject = bridgeData.wObject;
+            OftenObject oftenObject = bridgeData.oftenObject;
             PorterOfFun porterOfFun = bridgeData.porterOfFun;
-            porterOfFun.invokeByHandleArgs(wObject,WS.newWS(type, session, isLast, value));
+            porterOfFun.invokeByHandleArgs(oftenObject,WS.newWS(type, session, isLast, value));
         } catch (Exception e)
         {
             throw new OftenCallException(e);

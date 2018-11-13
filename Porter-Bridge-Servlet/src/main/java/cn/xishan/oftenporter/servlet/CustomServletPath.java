@@ -118,7 +118,7 @@ public class CustomServletPath
 
         void doRequest(HttpServletRequest request, HttpServletResponse response, PortMethod method) throws IOException
         {
-            String path = OPServlet.getPath(request);
+            String path = OftenServlet.getPath(request);
             if (!path.startsWith("/"))
             {
                 path = pathPrefix + "/" + path;

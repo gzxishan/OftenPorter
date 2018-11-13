@@ -10,7 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
 
 import java.util.*;
@@ -220,7 +220,7 @@ public class PorterConf
      */
     public void addAutoSetSeekPackages(String... autoSetSeekPackages)
     {
-        WPTool.addAll(this.autoSetSeekPackages, autoSetSeekPackages);
+        OftenTool.addAll(this.autoSetSeekPackages, autoSetSeekPackages);
     }
 
     /**
@@ -231,7 +231,7 @@ public class PorterConf
      */
     public void addAutoSetObjectsForSetter(Object... objects)
     {
-        WPTool.addAll(this.autoSetObjects, objects);
+        OftenTool.addAll(this.autoSetObjects, objects);
     }
 
     public List<Object> getAutoSetSeekObjectsForSetter()
@@ -249,7 +249,7 @@ public class PorterConf
      */
     public void addStaticAutoSetPackages(String... staticAutoSetPackages)
     {
-        WPTool.addAll(this.staticAutoSetPackages, staticAutoSetPackages);
+        OftenTool.addAll(this.staticAutoSetPackages, staticAutoSetPackages);
     }
 
     public List<String> getStaticAutoSetPackages()
@@ -267,7 +267,7 @@ public class PorterConf
      */
     public void addStaticAutoSetClasses(Class<?>... staticAutoSetClasses)
     {
-        WPTool.addAll(this.staticAutoSetClasses, staticAutoSetClasses);
+        OftenTool.addAll(this.staticAutoSetClasses, staticAutoSetClasses);
     }
 
     public List<Class<?>> getStaticAutoSetClasses()
@@ -285,7 +285,7 @@ public class PorterConf
      */
     public void addStaticAutoSetClasses(String... staticAutoSetClasses)
     {
-        WPTool.addAll(this.staticAutoSetClassStrs, staticAutoSetClasses);
+        OftenTool.addAll(this.staticAutoSetClassStrs, staticAutoSetClasses);
     }
 
     public List<String> getStaticAutoSetClassStrs()

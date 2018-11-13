@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
-import cn.xishan.oftenporter.porter.core.base.WObject;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -34,21 +34,21 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
         private WSClientConfig wsClientConfig;
         private boolean isDestroyed = false;
         private ScheduledExecutorService scheduledExecutorService;
-        private WObject wObject;
+        private OftenObject oftenObject;
         private long lastRetryTime;
         private int retriedCount;
 
         private ScheduledFuture firstStartCheckFuture;
 
-        void start(WObject wObject)
+        void start(OftenObject oftenObject)
         {
 
             try
             {
-                this.wObject = wObject;
+                this.oftenObject = oftenObject;
                 this.wsClient.set(ClientWebSocket.Type.ON_CONFIG, null);
                 WSClientConfig wsClientConfig = (WSClientConfig) porterOfFun
-                        .invokeByHandleArgs(wObject, wsClient);
+                        .invokeByHandleArgs(oftenObject, wsClient);
                 this.wsClientConfig = wsClientConfig;
 
                 scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -205,7 +205,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_OPEN, null);
-                        Object obj = porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -219,7 +219,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_MESSAGE, message);
-                        Object obj = porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -233,7 +233,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, bytes);
-                        Object obj = porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -249,7 +249,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     {
                         ByteBuffer byteBuffer = f.getPayloadData();
                         wsClient.set(ClientWebSocket.Type.ON_PONG, byteBuffer);
-                        Object obj = porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -264,7 +264,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_CLOSE, new ClientCloseReason(code, reason));
-                        porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                     } catch (Exception e)
                     {
                         LOGGER.debug(e.getMessage(), e);
@@ -281,7 +281,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_ERROR, ex);
-                        porterOfFun.invokeByHandleArgs(wObject, wsClient);
+                        porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
                     } catch (Exception e)
                     {
                         throw new RuntimeException(e);
@@ -318,7 +318,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
     }
 
     @Override
-    public void onStart(WObject wObject)
+    public void onStart(OftenObject oftenObject)
     {
         if (clientWebSocket.autoStart())
         {
@@ -326,7 +326,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             {
                 SyncOption syncOption = new SyncOption(porterOfFun.getMethodPortIn().getMethods()[0],
                         porterOfFun.getMethodPortIn().getTiedNames()[0]);
-                wObject.newSyncPorter(syncOption).request(wObject);
+                oftenObject.newSyncPorter(syncOption).request(oftenObject);
             }
         }
 
@@ -351,10 +351,10 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
     }
 
     @Override
-    public Object invoke(WObject wObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         Handle handle = new Handle();
-        handle.start(wObject);
+        handle.start(oftenObject);
         handleSet.add(handle);
         return null;
     }

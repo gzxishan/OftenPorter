@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
-import cn.xishan.oftenporter.porter.core.pbridge.PBridge;
-import cn.xishan.oftenporter.porter.core.pbridge.PName;
-import cn.xishan.oftenporter.porter.core.pbridge.PRequest;
+import cn.xishan.oftenporter.porter.core.bridge.IBridge;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.local.LocalMain;
 
 import java.io.File;
@@ -21,7 +21,7 @@ import java.util.Random;
 public class Main1
 {
 
-    static LocalMain localMain = new LocalMain(true, new PName("P1"), "utf-8");
+    static LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
 
     public static void main(String[] args)
     {
@@ -103,58 +103,58 @@ public class Main1
     {
         final Logger logger = LoggerFactory.getLogger(Main1.class);
 
-        PBridge bridge = localMain.getPLinker().currentBridge();
+        IBridge bridge = localMain.getBridgeLinker().currentBridge();
 
 
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/testSavePoint"),
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/testSavePoint"),
                 lResponse -> logger.debug(lResponse.toString()));
 
         for (int i = 0; i < 10; i++)
         {
-            bridge.request(new PRequest(PortMethod.POST, "/T1/Hello/add")
+            bridge.request(new BridgeRequest(PortMethod.POST, "/T1/Hello/add")
                     .addParam("name", "小明-" + (new Random().nextInt(3))), lResponse ->
             {
                 Object obj = lResponse.getResponse();
                 LogUtil.printPos(obj);
             });
         }
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/count")
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/count")
                 .addParam("name", "小明-1"), lResponse -> logger.debug(lResponse.toString()));
 
-        bridge.request(new PRequest(PortMethod.POST, "/T1/Hello/update")
+        bridge.request(new BridgeRequest(PortMethod.POST, "/T1/Hello/update")
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.PUT, "/T1/Hello/update2")
+        bridge.request(new BridgeRequest(PortMethod.PUT, "/T1/Hello/update2")
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.POST, "/T1/Hello/update")
+        bridge.request(new BridgeRequest(PortMethod.POST, "/T1/Hello/update")
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.PUT, "/T1/Hello/update2")
+        bridge.request(new BridgeRequest(PortMethod.PUT, "/T1/Hello/update2")
                 .addParam("name", "小明-5"), lResponse -> logger.debug(lResponse.toString()));
 
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/del")
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/del")
                 .addParam("name", "小明-10"), lResponse -> logger.debug(lResponse.toString()));
 
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/testJBatis"), null);
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/testJBatis"), null);
 
 
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/list"),
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/list"),
                 lResponse -> logger.debug(lResponse.toString()));
 
         ///////////////
         bridge.request(
-                new PRequest(PortMethod.GET, "/T1/Hello/transactionOk")
+                new BridgeRequest(PortMethod.GET, "/T1/Hello/transactionOk")
                         .addParam("names", "['小明-1','小明-2','小明-3','小明']"),
                 lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/list"),
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/list"),
                 lResponse -> logger.debug(lResponse.toString()));
 
         /////////////
         bridge.request(
-                new PRequest(PortMethod.GET, "/T1/Hello/transactionFailed")
+                new BridgeRequest(PortMethod.GET, "/T1/Hello/transactionFailed")
                         .addParam("names", "['小明-1','小明-2','小明-3','小明']"),
                 lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/list"),
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/list"),
                 lResponse -> logger.debug(lResponse.toString()));
-        bridge.request(new PRequest(PortMethod.GET, "/T1/Hello/clear"),
+        bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Hello/clear"),
                 lResponse -> logger.debug(lResponse.toString()));
 
         Object as = new String[]{"1", "2", "3"};

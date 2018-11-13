@@ -1,74 +1,74 @@
 package cn.xishan.oftenporter.porter.core;
 
-import cn.xishan.oftenporter.porter.core.base.WObject;
-import cn.xishan.oftenporter.porter.core.pbridge.*;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/28.
  */
 class DeliveryImpl implements Delivery
 {
-    private PLinker pLinker;
-    private WObject wObject;
-    private PBridgeImpl toAll, current, inner;
+    private BridgeLinker bridgeLinker;
+    private OftenObject oftenObject;
+    private IBridgeImpl toAll, current, inner;
 
 
-    public class PBridgeImpl implements PBridge
+    public class IBridgeImpl implements IBridge
     {
-        private PBridge pBridge;
+        private IBridge iBridge;
 
-        public PBridgeImpl(PBridge pBridge)
+        public IBridgeImpl(IBridge iBridge)
         {
-            this.pBridge = pBridge;
+            this.iBridge = iBridge;
         }
 
         @Override
-        public void request(PRequest request, PCallback callback)
+        public void request(BridgeRequest request, BridgeCallback callback)
         {
-            pBridge.request(new PRequestWithSource(request, wObject), callback);
+            iBridge.request(new BridgeRequestWithSource(request, oftenObject), callback);
         }
     }
 
 
-    public DeliveryImpl(PLinker pLinker, WObject wObject)
+    public DeliveryImpl(BridgeLinker bridgeLinker, OftenObject oftenObject)
     {
-        this.pLinker = pLinker;
-        this.wObject = wObject;
+        this.bridgeLinker = bridgeLinker;
+        this.oftenObject = oftenObject;
     }
 
     @Override
-    public synchronized PBridge currentBridge()
+    public synchronized IBridge currentBridge()
     {
         if (current == null)
         {
-            current = new PBridgeImpl(pLinker.currentBridge());
+            current = new IBridgeImpl(bridgeLinker.currentBridge());
         }
         return current;
     }
 
     @Override
-    public synchronized PBridge innerBridge()
+    public synchronized IBridge innerBridge()
     {
         if (inner == null)
         {
-            inner = new PBridgeImpl(pLinker.innerBridge());
+            inner = new IBridgeImpl(bridgeLinker.innerBridge());
         }
         return inner;
     }
 
     @Override
-    public synchronized PBridge toAllBridge()
+    public synchronized IBridge toAllBridge()
     {
         if (toAll == null)
         {
-            toAll = new PBridgeImpl(pLinker.toAllBridge());
+            toAll = new IBridgeImpl(bridgeLinker.toAllBridge());
         }
         return toAll;
     }
 
     @Override
-    public PName currentPName()
+    public BridgeName currentName()
     {
-        return pLinker.currentPName();
+        return bridgeLinker.currentName();
     }
 }

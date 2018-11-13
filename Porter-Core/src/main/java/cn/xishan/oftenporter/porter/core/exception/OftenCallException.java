@@ -3,7 +3,7 @@ package cn.xishan.oftenporter.porter.core.exception;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.util.WPTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 
 /**
@@ -95,7 +95,7 @@ public class OftenCallException extends RuntimeException
         } else
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-            jResponse.setDescription(WPTool.getMessage(this));
+            jResponse.setDescription(OftenTool.getMessage(this));
             return jResponse.toJSON();
         }
     }
