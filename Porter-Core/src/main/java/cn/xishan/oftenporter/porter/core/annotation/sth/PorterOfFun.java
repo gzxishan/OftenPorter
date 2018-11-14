@@ -64,7 +64,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
     public void setArgsHandle(IArgsHandle argsHandle)
     {
-        LOGGER.debug("{}:{}", this, argsHandle);
+//        LOGGER.debug("{}:{}", this, argsHandle);
         this.argsHandle = argsHandle;
     }
 
