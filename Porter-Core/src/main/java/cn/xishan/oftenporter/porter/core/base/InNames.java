@@ -6,13 +6,14 @@ import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
-import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 用于存储参数的名称
@@ -44,6 +45,10 @@ public class InNames
         private ITypeParserOption parserOption;
         private Object dealt;
 
+        static final Pattern VAR_NAME_PATTERN = Pattern.compile("^([a-zA-Z0-9%_.$\\-]+)");
+        static final Pattern VAR_NAME_CONF_PATTERN = Pattern.compile("^\\(([^()]*)\\)");
+        static final Pattern VAR_NAME_DEFAULT_PATTERN = Pattern.compile("^\\[([^\\[\\]]*)\\]");
+
         public Name(String varNameWithConfig, BackableSeek backableSeek)
         {
             this(varNameWithConfig);
@@ -56,17 +61,34 @@ public class InNames
             this.typeParserId = typeId;
         }
 
-        public Name(String varName)
+        public Name(String str)
         {
-            int index1 = varName.indexOf('(');
-            int index2 = varName.lastIndexOf(')');
-            if (index1 != -1 || index2 != -1)
+            str = str.trim();
+            Matcher matcher = VAR_NAME_PATTERN.matcher(str);
+            if (!matcher.find())
             {
-                if (index1 == -1 || index2 == -1 || index1 > index2)
-                {
-                    throw new InitException("var name config error:" + varName);
-                }
-                String varConfig = varName.substring(index1 + 1, index2).trim();
+                throw new RuntimeException("illegal var name");
+            }
+            this.varName = matcher.group(1);
+            str = str.substring(matcher.end()).trim();
+
+            if (str.startsWith("("))
+            {
+                str = findConf(str);
+                str = findDefault(str);
+            } else
+            {
+                str = findDefault(str);
+                str = findConf(str);
+            }
+        }
+
+        private String findConf(String str)
+        {
+            Matcher matcher = VAR_NAME_CONF_PATTERN.matcher(str);
+            if (matcher.find())
+            {
+                String varConfig = matcher.group(1).trim();
                 if (varConfig.equals(""))
                 {
                     this.parserOption = EMPTY_TYPE_PARSER_OPTION;
@@ -74,45 +96,35 @@ public class InNames
                 {
                     this.parserOption = () -> varConfig;
                 }
-                varName = varName.substring(0, index1) + varName.substring(index2 + 1);
+                str = str.substring(matcher.end()).trim();
             } else
             {
                 this.parserOption = NULL_TYPE_PARSER_OPTION;
             }
+            return str;
+        }
 
-            {//默认值
-                index1 = varName.indexOf('[');
-                index2 = varName.lastIndexOf(']');
-                if (index1 != -1 || index2 != -1)
-                {
-                    if (index1 == -1 || index2 == -1 || index1 > index2)
-                    {
-                        throw new InitException("var name default value error:" + varName);
-                    }
-                    this.defaultValue = varName.substring(index1 + 1, index2).trim();
-                    varName = varName.substring(0, index1);
-                }
+        private String findDefault(String str)
+        {
+            Matcher matcher = VAR_NAME_DEFAULT_PATTERN.matcher(str);
+            if (matcher.find())
+            {
+                this.defaultValue = matcher.group(1).trim();
+                str = str.substring(matcher.end()).trim();
             }
-            this.varName = varName.trim();
+            return str;
         }
 
 
         public static String removeConfig(String varName)
         {
-            int index1 = varName.indexOf('(');
-            if (index1 != -1)
+            Matcher matcher = VAR_NAME_PATTERN.matcher(varName);
+            if (!matcher.find())
             {
-                int index2 = varName.lastIndexOf(')');
-                varName = varName.substring(0, index1) + varName.substring(index2 + 1);
+                throw new RuntimeException("illegal var name");
             }
-
-            index1 = varName.indexOf('[');
-            if (index1 != -1)
-            {
-                int index2 = varName.lastIndexOf(']');
-                varName = varName.substring(0, index1) + varName.substring(index2 + 1);
-            }
-            return varName.trim();
+            varName = matcher.group(1);
+            return varName;
         }
 
         public Class getType()
