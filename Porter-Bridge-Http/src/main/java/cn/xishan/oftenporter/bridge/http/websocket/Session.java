@@ -19,9 +19,9 @@ public interface Session
 
     public boolean isClosed();
 
-    public void sendPing();
+    public void sendPing(ByteBuffer applicationData);
 
-    public void sendPong(ByteBuffer data);
+    public void sendPong(ByteBuffer applicationData);
 
     public void send(String text);
 

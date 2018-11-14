@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.framing.PingFrame;
 import org.java_websocket.framing.PongFrame;
 
 import java.nio.ByteBuffer;
@@ -45,17 +46,23 @@ class SessionImpl implements Session
     }
 
     @Override
-    public void sendPing()
+    public void sendPing(ByteBuffer applicationData)
     {
-        webSocketClient.sendPing();
+        PingFrame pingFrame = new PingFrame();
+        if (applicationData != null)
+        {
+            pingFrame.setPayload(applicationData);
+        }
+        webSocketClient.sendFrame(pingFrame);
     }
 
     @Override
-    public void sendPong(ByteBuffer data)
+    public void sendPong(ByteBuffer applicationData)
     {
         PongFrame pongFrame = new PongFrame();
-        if(data!=null){
-            pongFrame.setPayload(data);
+        if (applicationData != null)
+        {
+            pongFrame.setPayload(applicationData);
         }
         webSocketClient.sendFrame(pongFrame);
     }

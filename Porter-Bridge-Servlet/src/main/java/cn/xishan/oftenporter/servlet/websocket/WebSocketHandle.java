@@ -4,7 +4,6 @@ import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
@@ -88,14 +87,17 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         WebSocketOption webSocketOption = wsConfig.getWebSocketOption();
 
         this.path = fun.getPath();
-        ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, this.path)
-                .configurator(new HttpSessionConfigurator());
+        ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, this.path);
         if (webSocketOption != null)
         {
             builder.encoders(Arrays.asList(webSocketOption.getEncoders()));
             builder.decoders(Arrays.asList(webSocketOption.getDecoders()));
             builder.subprotocols(Arrays.asList(webSocketOption.getSubprotocols()));
             builder.extensions(Arrays.asList(webSocketOption.getExtensions()));
+            builder.configurator(new HttpSessionConfigurator(webSocketOption.getConfigurator()));
+        } else
+        {
+            builder.configurator(new HttpSessionConfigurator(null));
         }
         ServerEndpointConfig config = builder.build();
         serverContainer.addEndpoint(config);

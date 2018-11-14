@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.servlet.websocket;
 import javax.websocket.Decoder;
 import javax.websocket.Encoder;
 import javax.websocket.Extension;
+import javax.websocket.server.ServerEndpointConfig;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/11/4.
@@ -16,6 +17,8 @@ public class WebSocketOption
     private Class<? extends Encoder>[] encoders;
 
     private Extension[] extensions;
+
+    private ServerEndpointConfig.Configurator configurator;
 
 
     public String[] getSubprotocols()
@@ -56,5 +59,15 @@ public class WebSocketOption
     public void setExtensions(Extension[] extensions)
     {
         this.extensions = extensions;
+    }
+
+    public ServerEndpointConfig.Configurator getConfigurator()
+    {
+        return configurator;
+    }
+
+    public void setConfigurator(ServerEndpointConfig.Configurator configurator)
+    {
+        this.configurator = configurator;
     }
 }
