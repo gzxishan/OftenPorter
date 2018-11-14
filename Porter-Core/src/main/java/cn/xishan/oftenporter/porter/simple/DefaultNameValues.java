@@ -39,7 +39,8 @@ public class DefaultNameValues implements INameValues
         return defaultNameValues;
     }
 
-    public JSONObject toJson()
+    @Override
+    public JSONObject toJSON()
     {
         JSONObject jsonObject = new JSONObject();
         if (names != null)
@@ -95,10 +96,17 @@ public class DefaultNameValues implements INameValues
         append(names, values);
     }
 
+
     public DefaultNameValues(String[] names, Object[] values)
     {
         this();
         append(names, values);
+    }
+
+    public DefaultNameValues(int capacity)
+    {
+        names = new ArrayList<>(capacity);
+        values = new ArrayList<>(capacity);
     }
 
     public DefaultNameValues()
@@ -119,6 +127,13 @@ public class DefaultNameValues implements INameValues
         return values.toArray(new Object[0]);
     }
 
+
+    public DefaultNameValues append(String name, Object value)
+    {
+        this.names.add(name);
+        this.values.add(value);
+        return this;
+    }
 
     public DefaultNameValues append(List<String> names, List<Object> values)
     {

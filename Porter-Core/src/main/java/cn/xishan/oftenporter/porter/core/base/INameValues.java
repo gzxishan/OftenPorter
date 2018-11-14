@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 
+import com.alibaba.fastjson.JSONObject;
+
 public interface INameValues
 {
 
@@ -17,5 +19,7 @@ public interface INameValues
      * @return 键名或字段值列表
      */
     Object[] getValues();
+
+    JSONObject toJSON();
 
 }

@@ -608,7 +608,7 @@ public class OftenTool
 
     private static void getAllFields(Class<?> clazz, List<Field> list)
     {
-        if (clazz==null||clazz.equals(Object.class))
+        if (clazz == null || clazz.equals(Object.class))
         {
             return;
         }
@@ -706,7 +706,7 @@ public class OftenTool
     public static JSONObject fromArray2JSON(Object... nameValues)
     {
         DefaultNameValues defaultNameValues = DefaultNameValues.fromArray(nameValues);
-        return defaultNameValues.toJson();
+        return defaultNameValues.toJSON();
     }
 
 }

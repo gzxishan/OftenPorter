@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
+import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
+
 /**
  * @author Created by https://github.com/CLovinr on 2018-11-06.
  */
@@ -36,5 +38,13 @@ public class FunParam
     public void setValue(Object value)
     {
         this.value = value;
+    }
+
+    public static INameValues toNameValues(FunParam[] funParams){
+        DefaultNameValues defaultNameValues = new DefaultNameValues();
+        for(FunParam funParam:funParams){
+            defaultNameValues.append(funParam.getName(),funParam.getValue());
+        }
+        return defaultNameValues;
     }
 }
