@@ -45,7 +45,7 @@ public class InNames
         private ITypeParserOption parserOption;
         private Object dealt;
 
-        static final Pattern VAR_NAME_PATTERN = Pattern.compile("^([a-zA-Z0-9%_.$\\-]+)");
+        static final Pattern VAR_NAME_PATTERN = Pattern.compile("^([a-zA-Z0-9%_.$*=\\-]+)");
         static final Pattern VAR_NAME_CONF_PATTERN = Pattern.compile("^\\(([^()]*)\\)");
         static final Pattern VAR_NAME_DEFAULT_PATTERN = Pattern.compile("^\\[([^\\[\\]]*)\\]");
 
