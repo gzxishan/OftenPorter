@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
 
 import javax.websocket.*;
@@ -23,9 +24,9 @@ public class ProgrammaticServer extends Endpoint
             OftenObject oftenObject = bridgeData.oftenObject;
             PorterOfFun porterOfFun = bridgeData.porterOfFun;
             porterOfFun.invokeByHandleArgs(oftenObject,WS.newWS(type, session, isLast, value));
-        } catch (Exception e)
+        } catch (Throwable e)
         {
-            throw new OftenCallException(e);
+            throw new OftenCallException(OftenTool.getCause(e));
         }
     }
 
