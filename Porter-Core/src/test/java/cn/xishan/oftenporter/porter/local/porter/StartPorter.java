@@ -32,7 +32,7 @@ public class StartPorter
         Assert.assertEquals("P1",pname);
     }
 
-    @AutoSet
+    @AutoSet.Invoke
     public void testAutoSet(@Property("pname") String pname)
     {
         this.pname=pname;

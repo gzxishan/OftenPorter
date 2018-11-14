@@ -30,7 +30,7 @@ import java.lang.annotation.*;
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描。
  *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
  *     4.含有@{@linkplain Property}的变量也会被设置。
- *     5.注解在函数(public)上时，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
+ *     5.注解在函数(public)上用{@linkplain Invoke，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
  * </pre>
  * <hr>
  * <p>
@@ -142,11 +142,22 @@ import java.lang.annotation.*;
  * //TODO 循环设置的考虑
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD})
 @Documented
 public @interface AutoSet
 {
 
+    /**
+     * 自动调用函数，具有继承性。
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Documented
+    @Inherited
+    @interface Invoke
+    {
+
+    }
 
     /**
      * <pre>

@@ -53,7 +53,6 @@ public class AutoSetHandle
         @Override
         public int compareTo(_SetOkObject o)
         {
-
             int n = o.priority - priority;
             if (n == 0)
             {
@@ -976,8 +975,8 @@ public class AutoSetHandle
 
     private void dealMethodAutoSet(Object currentObject, Class currentClass, Method method, IConfigData iConfigData)
     {
-        AutoSet autoSet = AnnoUtil.getAnnotation(method, AutoSet.class);
-        if (autoSet == null)
+        AutoSet.Invoke invokeFun = AnnoUtil.getAnnotation(method, AutoSet.Invoke.class);
+        if (invokeFun == null)
         {
             return;
         }
