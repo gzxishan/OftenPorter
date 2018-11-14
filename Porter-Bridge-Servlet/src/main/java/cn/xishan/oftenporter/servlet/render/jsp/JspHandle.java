@@ -63,9 +63,9 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
         }
 
 
-        prefix = jsp.prefix().equals("") ? jspOption.prefix : jsp.prefix();
-        suffix = jsp.suffix().equals("") ? jspOption.suffix : jsp.suffix();
-        useStdTag = (jsp.useStdTag() == -1 && jspOption.useStdTag || jsp.useStdTag() != -1 && jsp
+        prefix = jsp.prefix().equals("") ? jspOption.getPrefix() : jsp.prefix();
+        suffix = jsp.suffix().equals("") ? jspOption.getSuffix() : jsp.suffix();
+        useStdTag = (jsp.useStdTag() == -1 && jspOption.isUseStdTag() || jsp.useStdTag() != -1 && jsp
                 .useStdTag() != 0) && suffix
                 .equals(".jsp");
 
@@ -76,7 +76,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
                             .getResourceAsStream("/" + PackageUtil
                                     .getPackageWithRelative(PortUtil.getRealClass(this), "std.jsp", '/')));
 
-            pageEncoding = jsp.pageEncoding().equals("") ? jspOption.pageEncoding : jsp.pageEncoding();
+            pageEncoding = jsp.pageEncoding().equals("") ? jspOption.getPageEncoding() : jsp.pageEncoding();
             if (pageEncoding.equals(""))
             {
                 pageEncoding = "utf-8";
@@ -84,16 +84,16 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
             stdJsp = stdJsp.replace("#{pageEncoding}", pageEncoding);
 
-            if (jsp.enableEL() == -1 && jspOption.enableEL || jsp.enableEL() != -1 && jsp
+            if (jsp.enableEL() == -1 && jspOption.isEnableEL() || jsp.enableEL() != -1 && jsp
                     .enableEL() != 0)
             {
                 //启用EL表达式
                 stdJsp += "<%@ page isELIgnored=\"false\"%>\n";
             }
 
-            if (OftenTool.notNullAndEmpty(jspOption.appendJspContent))
+            if (OftenTool.notNullAndEmpty(jspOption.getAppendJspContent()))
             {
-                stdJsp += jspOption.appendJspContent;
+                stdJsp += jspOption.getAppendJspContent();
             }
             if (OftenTool.notNullAndEmpty(jsp.appendJspContent()))
             {

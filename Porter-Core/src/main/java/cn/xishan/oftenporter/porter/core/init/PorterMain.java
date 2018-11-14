@@ -59,7 +59,7 @@ public final class PorterMain
 
     static
     {
-        if (!LogUtil.isDefaultLogger)
+        if (!LogUtil.isDefaultLogger())
         {
             LogUtil.setDefaultOnGetLoggerListener(new LogUtil.OnGetLoggerListener()
             {
@@ -120,26 +120,23 @@ public final class PorterMain
     private void initPorterMain(BridgeName bridgeName, CommonMain commonMain, IBridge currentBridge,
             IBridge innerBridge)
     {
-        synchronized (PorterMain.class)
+        this.commonMain = commonMain;
+        this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
+        IListenerAdder = new DefaultListenerAdder<>();
+        bridgeLinker = new DefaultBridgeLinker(bridgeName, currentBridge, innerBridge);
+        bridgeLinker.setPorterAttr(contextName ->
         {
-            this.commonMain = commonMain;
-            this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
-            IListenerAdder = new DefaultListenerAdder<>();
-            bridgeLinker = new DefaultBridgeLinker(bridgeName, currentBridge, innerBridge);
-            bridgeLinker.setPorterAttr(contextName ->
+            Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
+            ClassLoader classLoader = null;
+            if (context != null)
             {
-                Context context = portExecutor == null ? null : portExecutor.getContext(contextName);
-                ClassLoader classLoader = null;
-                if (context != null)
-                {
-                    classLoader = context.contextPorter.getClassLoader();
-                }
-                return classLoader;
-            });
-            currentBridgeNameForLogger = bridgeName.getName();
-            LOGGER = LogUtil.logger(PorterMain.class);
-            currentBridgeNameForLogger = null;
-        }
+                classLoader = context.contextPorter.getClassLoader();
+            }
+            return classLoader;
+        });
+        currentBridgeNameForLogger = bridgeName.getName();
+        LOGGER = LogUtil.logger(PorterMain.class);
+        currentBridgeNameForLogger = null;
     }
 
     public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()

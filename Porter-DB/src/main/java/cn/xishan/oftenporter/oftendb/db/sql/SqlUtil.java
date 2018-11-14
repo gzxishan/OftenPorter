@@ -417,12 +417,32 @@ public class SqlUtil
 
     public static class CreateTable
     {
-        public String tableName;
-        public String createTableSql;
+        private String tableName;
+        private String createTableSql;
 
         public CreateTable(String tableName, String createTableSql)
         {
             this.tableName = tableName;
+            this.createTableSql = createTableSql;
+        }
+
+        public String getTableName()
+        {
+            return tableName;
+        }
+
+        public void setTableName(String tableName)
+        {
+            this.tableName = tableName;
+        }
+
+        public String getCreateTableSql()
+        {
+            return createTableSql;
+        }
+
+        public void setCreateTableSql(String createTableSql)
+        {
             this.createTableSql = createTableSql;
         }
 

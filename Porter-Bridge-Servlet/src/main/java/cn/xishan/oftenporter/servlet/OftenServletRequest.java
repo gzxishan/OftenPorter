@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,20 +47,31 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     @Override
     public HttpServletRequest getOriginalRequest()
     {
-        return request.get();
+        HttpServletRequest request = this.request.get();
+        if (request == null)
+        {
+            throw new OftenCallException("request weak reference is released!");
+        }
+        return request;
     }
 
     @Override
     public HttpServletResponse getOriginalResponse()
     {
-        return response.get();
+        HttpServletResponse response = this.response.get();
+        if (response == null)
+        {
+            throw new OftenCallException("response weak reference is released!");
+        }
+        return response;
     }
 
 
     public AsyncContext startAsync()
     {
-        return request.get().startAsync(request.get(), response.get());
+        return getOriginalRequest().startAsync(request.get(), response.get());
     }
+
 
     @Override
     public Map<String, Object> getParameterMap()
@@ -67,7 +79,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         if (super.params == null)
         {
             params = new HashMap<>();
-            Enumeration<String> e = request.get().getParameterNames();
+            Enumeration<String> e = getOriginalRequest().getParameterNames();
 
             while (e.hasMoreElements())
             {
@@ -85,7 +97,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     @Override
     public Object getParameter(String name)
     {
-        String[] values = request.get().getParameterValues(name);
+        String[] values = getOriginalRequest().getParameterValues(name);
         Object v = values == null || values.length == 0 ? null : values[0];
         return v;
     }
@@ -102,7 +114,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      * 获得接口地址。见{@linkplain #getPortUrl(OftenObject, String, String, String, String, String, boolean)}。
      *
      * @param oftenObject
-     * @param funTied 若为null，则使用当前的。
+     * @param funTied     若为null，则使用当前的。
      * @return
      */
     public static String getPortUrl(OftenObject oftenObject, String funTied, boolean http2Https)
@@ -114,7 +126,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      * 获得接口地址。见{@linkplain #getPortUrl(OftenObject, String, String, String, String, String, boolean)}。
      *
      * @param oftenObject
-     * @param funTied 若为null，则使用当前的。
+     * @param funTied     若为null，则使用当前的。
      * @return
      */
     public static String getPortUrl(OftenObject oftenObject, String classTied, String funTied, boolean http2Https)
@@ -248,7 +260,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      */
     public String getHost(boolean http2Https)
     {
-        HttpServletRequest request = this.request.get();
+        HttpServletRequest request = getOriginalRequest();
         String host;
         if (http2Https && request.getScheme().equals("http"))
         {

@@ -157,9 +157,9 @@ public class ResourceUtil
             URL url = _fromNotClassResource(path);
             if (url != null)
             {
-                Set<URL> set = new HashSet<>(1);
-                set.add(url);
-                return new EnumerationImpl<>(set);
+                List<URL> list = new ArrayList<>(1);
+                list.add(url);
+                return new EnumerationImpl<>(list);
             }
         }
         Enumeration<URL> enumeration = EnumerationImpl.getEMPTY();

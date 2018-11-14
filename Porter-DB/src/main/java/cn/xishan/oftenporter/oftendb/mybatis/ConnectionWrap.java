@@ -23,7 +23,8 @@ class ConnectionWrap implements Connection, IConnection
     private Isolation lastLevel = Isolation.DEFAULT;
     private MyBatisOption.IConnectionBridge iConnectionBridge;
 
-    public ConnectionWrap(SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,Connection bridgeConnection)
+    public ConnectionWrap(SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,
+            Connection bridgeConnection)
     {
         this.sqlSession = sqlSession;
         this.iConnectionBridge = iConnectionBridge;
@@ -146,7 +147,14 @@ class ConnectionWrap implements Connection, IConnection
     {
         if (queryTimeoutSeconds != -1)
         {
-            statement.setQueryTimeout(queryTimeoutSeconds);
+            try
+            {
+                statement.setQueryTimeout(queryTimeoutSeconds);
+            } catch (SQLException e)
+            {
+                statement.close();
+                throw e;
+            }
         }
         return statement;
     }

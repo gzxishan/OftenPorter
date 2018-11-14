@@ -3,12 +3,9 @@ package cn.xishan.oftenporter.bridge.http;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.bridge.Delivery;
-import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import okhttp3.*;
 
@@ -219,18 +216,19 @@ public class HttpUtil
         }
     }
 
-    private static RequestBody dealBodyParams(OftenObject oftenObject) throws
-            UnsupportedEncodingException
+    private static RequestBody dealBodyParams(OftenObject oftenObject)
     {
         FormBody.Builder builder = new FormBody.Builder();
-        if (!(oftenObject == null || (oftenObject.fInNames == null && oftenObject.cInNames == null)))
-        {
-            addPostParams(builder, oftenObject.fInNames.nece, oftenObject.fn);
-            addPostParams(builder, oftenObject.fInNames.unece, oftenObject.fu);
-            addPostParams(builder, oftenObject.cInNames.nece, oftenObject.cn);
-            addPostParams(builder, oftenObject.cInNames.unece, oftenObject.cu);
+        if(oftenObject!=null){
+            if(oftenObject.fInNames != null){
+                addPostParams(builder, oftenObject.fInNames.nece, oftenObject.fn);
+                addPostParams(builder, oftenObject.fInNames.unece, oftenObject.fu);
+            }
+            if(oftenObject.cInNames!=null){
+                addPostParams(builder, oftenObject.cInNames.nece, oftenObject.cn);
+                addPostParams(builder, oftenObject.cInNames.unece, oftenObject.cu);
+            }
         }
-
         return builder.build();
     }
 
@@ -256,7 +254,7 @@ public class HttpUtil
     /**
      * 把请求进行转发。
      *
-     * @param oftenObject      可以为null
+     * @param oftenObject  可以为null
      * @param method
      * @param okHttpClient
      * @param url
@@ -264,8 +262,8 @@ public class HttpUtil
      * @return
      * @throws IOException
      */
-    public static Response request(@MayNull OftenObject oftenObject, PortMethod method, @MayNull OkHttpClient okHttpClient,
-            String url, Callback callback) throws IOException
+    public static Response request(@MayNull OftenObject oftenObject, PortMethod method,
+            @MayNull OkHttpClient okHttpClient, String url, Callback callback) throws IOException
     {
         if (okHttpClient == null)
         {
@@ -275,6 +273,18 @@ public class HttpUtil
         try
         {
             Request.Builder builder = new Request.Builder();
+            if (oftenObject instanceof OftenObjectImpl)
+            {
+                OftenObjectImpl impl = (OftenObjectImpl) oftenObject;
+                Map<String, String> headers = impl.getHeaders();
+                if (OftenTool.notNullAndEmpty(headers))
+                {
+                    for (Map.Entry<String, String> entry : headers.entrySet())
+                    {
+                        builder.addHeader(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
             Request request;
             if (method == null)
             {
@@ -373,7 +383,7 @@ public class HttpUtil
     /**
      * 把数据发向服务器，并接受响应结果。（同步的）
      *
-     * @param oftenObject      可以为null
+     * @param oftenObject  可以为null
      * @param method       像服务器发起的请求方法
      * @param okHttpClient
      * @param url          url地址
@@ -381,8 +391,7 @@ public class HttpUtil
      * @return
      */
     public static JResponse requestWPorter(@MayNull OftenObject oftenObject, PortMethod method,
-            @MayNull OkHttpClient okHttpClient,
-            String url, final JRCallback jrCallback)
+            @MayNull OkHttpClient okHttpClient, String url, final JRCallback jrCallback)
     {
         JResponse jResponse = null;
         try
@@ -433,94 +442,3 @@ public class HttpUtil
 
 }
 
-
-/**
- * Created by chenyg on 2017-03-07.
- */
-class OftenObjectImpl extends OftenObject
-{
-    private Map<String, String> headers;
-
-    public OftenObjectImpl(RequestData requestData)
-    {
-        String[] names = new String[requestData.params.size()];
-        Object[] values = new Object[names.length];
-
-        int k = 0;
-        for (Map.Entry<String, Object> entry : requestData.params.entrySet())
-        {
-            names[k] = entry.getKey();
-            values[k++] = entry.getValue();
-        }
-        fInNames = InNames.fromStringArray(null, names, null);
-        fu = values;
-        this.headers = requestData.headers;
-    }
-
-    @Override
-    public OftenRequest getRequest()
-    {
-        return null;
-    }
-
-    @Override
-    public OftenResponse getResponse()
-    {
-        return null;
-    }
-
-    @Override
-    public ParamSource getParamSource()
-    {
-        return null;
-    }
-
-    @Override
-    public boolean isInnerRequest()
-    {
-        return false;
-    }
-
-    @Override
-    public <T> T fentity(int index)
-    {
-        return null;
-    }
-
-    @Override
-    public <T> T centity(int index)
-    {
-        return null;
-    }
-
-
-    @Override
-    public <T> T savedObject(String key)
-    {
-        return null;
-    }
-
-    @Override
-    public <T> T gsavedObject(String key)
-    {
-        return null;
-    }
-
-    @Override
-    public Delivery delivery()
-    {
-        return null;
-    }
-
-    @Override
-    public UrlDecoder.Result url()
-    {
-        return null;
-    }
-
-    @Override
-    public BridgeName getPName()
-    {
-        return null;
-    }
-}

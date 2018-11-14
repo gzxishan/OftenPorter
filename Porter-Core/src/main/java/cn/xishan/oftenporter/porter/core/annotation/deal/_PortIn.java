@@ -10,10 +10,12 @@ import cn.xishan.oftenporter.porter.core.base.*;
  */
 public final class _PortIn
 {
-    String[] tiedNames, ignoredFunTieds;
+    String[] tiedNames;
+    String[] ignoredFunTieds;
     InNames inNames;
     PortMethod[] methods;
-    Class<? extends CheckPassable>[] checks, checksForWholeClass;
+    Class<? extends CheckPassable>[] checks;
+    Class<? extends CheckPassable>[] checksForWholeClass;
     private TiedType tiedType;
     boolean ignoreTypeParser;
     boolean enableMixinTo;
@@ -23,17 +25,19 @@ public final class _PortIn
 
     Class<?> toPorterKey;
 
-    public _PortIn(PortFunType portFunType,AspectPosition aspectPosition, String[] ignoredFunTieds,boolean enableMixinTo)
+    public _PortIn(PortFunType portFunType, AspectPosition aspectPosition, String[] ignoredFunTieds,
+            boolean enableMixinTo)
     {
         this.portFunType = portFunType;
-        this.aspectPosition=aspectPosition;
+        this.aspectPosition = aspectPosition;
         this.ignoredFunTieds = ignoredFunTieds;
-        this.enableMixinTo=enableMixinTo;
+        this.enableMixinTo = enableMixinTo;
     }
 
     public void setPortFunType(PortFunType portFunType)
     {
-        if(portFunType==null){
+        if (portFunType == null)
+        {
             return;
         }
         this.portFunType = PortFunType.type(this.portFunType, portFunType);

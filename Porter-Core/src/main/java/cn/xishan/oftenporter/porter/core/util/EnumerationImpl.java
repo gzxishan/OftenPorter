@@ -1,8 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
@@ -37,9 +35,9 @@ public class EnumerationImpl<E> implements Enumeration<E>
         this.iterator = iterator;
     }
 
-    public EnumerationImpl(Set<E> set)
+    public EnumerationImpl(Collection<E> collection)
     {
-        this(set.iterator());
+        this(collection.iterator());
     }
 
     @Override

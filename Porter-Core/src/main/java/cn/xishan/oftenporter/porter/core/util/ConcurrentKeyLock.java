@@ -111,7 +111,11 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                                 previous.thread);
                         try
                         {
-                            previous.semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+                          boolean rs =  previous.semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+                          if(!rs){
+                            unlock(key);
+                            throw new OftenCallException("lock timeout!");
+                          }
                         } catch (InterruptedException e)
                         {
                             LOGGER.error(e.getMessage(), e);

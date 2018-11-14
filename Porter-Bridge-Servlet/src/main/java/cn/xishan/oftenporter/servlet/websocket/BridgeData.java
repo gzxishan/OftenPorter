@@ -16,6 +16,7 @@ import java.util.Map;
 class BridgeData implements Serializable
 {
 
+    private static final long serialVersionUID = -5131511912361825548L;
     private String id;
     transient OftenObject oftenObject;
     transient PorterOfFun porterOfFun;

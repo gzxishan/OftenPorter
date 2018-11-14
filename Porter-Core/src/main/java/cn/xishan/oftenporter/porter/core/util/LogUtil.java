@@ -59,12 +59,22 @@ public class LogUtil
     }
 
     private static Map<LogKey, OnGetLoggerListener> onGetLoggerMap = new HashMap<>();
-    public static boolean isDefaultLogger = true;
+    private static boolean isDefaultLogger = true;
     private static OnGetLoggerListener defaultOnGetLoggerListener = name -> LoggerFactory.getLogger(name);
 
     public synchronized static void setDefaultOnGetLoggerListener(OnGetLoggerListener defaultOnGetLoggerListener)
     {
         LogUtil.defaultOnGetLoggerListener = defaultOnGetLoggerListener;
+    }
+
+    public static boolean isDefaultLogger()
+    {
+        return isDefaultLogger;
+    }
+
+    public static void setDefaultLogger(boolean isDefaultLogger)
+    {
+        LogUtil.isDefaultLogger = isDefaultLogger;
     }
 
     public synchronized static Logger logger(Class<?> clazz)

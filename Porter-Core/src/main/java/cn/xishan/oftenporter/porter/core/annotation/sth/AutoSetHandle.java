@@ -593,7 +593,8 @@ public class AutoSetHandle
                     Class type = AnnoUtil.Advance.getRealTypeOfField(objectForSet.getClass(), field);
                     for (Field f : fromGet.values())
                     {
-                        if (OftenTool.isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
+                        if (OftenTool
+                                .isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
                         {
                             getField = f;
                             break;
@@ -615,7 +616,7 @@ public class AutoSetHandle
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-            if (!OftenTool.isAssignable(value.getClass(), field.getType()))
+            if (value==null||!OftenTool.isAssignable(value.getClass(), field.getType()))
             {//忽略非继承关系的。
                 continue;
             }
@@ -1122,7 +1123,7 @@ public class AutoSetHandle
     {
         Object sysset = null;
         String typeName = f.getType().getName();
-        if (typeName.equals(IConfigData.class))
+        if (typeName.equals(IConfigData.class.getName()))
         {
             sysset = iConfigData;
         } else if (typeName.equals(TypeTo.class.getName()))
@@ -1134,11 +1135,11 @@ public class AutoSetHandle
         } else if (typeName.equals(Logger.class.getName()))
         {
             sysset = LogUtil.logger(currentObjectClass);
-        } else if (typeName.equals(PorterSync.class.getName()) || typeName.equals(PorterNotInnerSync.class.getName()) ||
-                typeName.equals(PorterThrowsSync.class.getName()))
+        } else if (typeName.equals(PorterSync.class.getName())
+                || typeName.equals(PorterNotInnerSync.class.getName())
+                || typeName.equals(PorterThrowsSync.class.getName()))
         {
-
-            boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
+             boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(getOftenContextInfo().getContextName());
