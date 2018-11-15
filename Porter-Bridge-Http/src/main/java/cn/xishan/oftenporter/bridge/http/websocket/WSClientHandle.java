@@ -293,6 +293,12 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             {
                 webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
             }
+            if (wsClientConfig.pingTimeSecond != null)
+            {
+                webSocketClient.setPingTime(wsClientConfig.pingTimeSecond);
+            }
+            webSocketClient.setEnablePing(wsClientConfig.enablePing);
+
             LOGGER.debug("connect to WebSocket server...:{}", wsUrl);
             webSocketClient.connectBlocking();
             if(firstStartCheckFuture!=null){

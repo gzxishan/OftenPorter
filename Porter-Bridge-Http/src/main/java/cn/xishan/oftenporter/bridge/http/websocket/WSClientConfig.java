@@ -27,7 +27,21 @@ public abstract class WSClientConfig
      */
     public int connectTimeout = 10 * 1000;
 
+    /**
+     * 是否主动进行ping操作。
+     */
+    public boolean enablePing=false;
+
+    /**
+     * ping的时间
+     */
+    public Integer pingTimeSecond=60;
+
+    /**
+     * 判断失去连接的时间
+     */
     public Integer connectionLostTimeoutSecond = null;
+
 
 
     public abstract String getWSUrl();

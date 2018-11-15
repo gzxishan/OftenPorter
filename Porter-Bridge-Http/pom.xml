@@ -15,8 +15,9 @@
     <name>Porter-Bridge-Http</name>
     <description>
         转接远程的http接口,服务器响应正确的数据格式必须是JResponse定义的格式。
+        客户端websocket使用"org.java-websocket:Java-WebSocket:1.3.9",项目地址https://github.com/TooTallNate/Java-WebSocket；
+        对Java-WebSocket做了适当修改。
     </description>
-
 
     <properties>
         <project.Java_Websocket.version>1.3.9</project.Java_Websocket.version>
@@ -25,12 +26,12 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>${project.Java_Websocket.version}</version>
-            <optional>true</optional>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.java-websocket</groupId>-->
+            <!--<artifactId>Java-WebSocket</artifactId>-->
+            <!--<version>${project.Java_Websocket.version}</version>-->
+            <!--<optional>true</optional>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
