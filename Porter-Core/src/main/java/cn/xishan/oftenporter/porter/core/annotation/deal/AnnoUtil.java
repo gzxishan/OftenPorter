@@ -378,7 +378,7 @@ public class AnnoUtil
 
     private static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses)
     {
-        CacheKey cacheKey = new CacheKey(method, "isAnnotationPresent-Method", annotationClasses);
+        CacheKey cacheKey = new CacheKey(method, "isAnnotationPresent-Method"+isAll, annotationClasses);
         Object cache = cacheKey.getCache();
         if (cache != null && cache != NULL)
         {
@@ -390,7 +390,7 @@ public class AnnoUtil
 
     private static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
     {
-        CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field", annotationClasses);
+        CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field"+isAll, annotationClasses);
         Object cache = cacheKey.getCache();
         if (cache != null && cache != NULL)
         {
@@ -559,7 +559,7 @@ public class AnnoUtil
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
-            cacheKey = new CacheKey(annotationClass, "getAnnotation[]");
+            cacheKey = new CacheKey(annotationClass, "getAnnotation[]",annotations);
             Object cache = cacheKey.getCache();
             if (cache != null)
             {
