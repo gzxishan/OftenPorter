@@ -59,7 +59,7 @@ public class HMain extends LocalMain
                     requestData.setHeaders(headers);
                 }
 
-                HttpUtil.requestWPorter(requestData, PortMethod.valueOf(request.getMethod().name()),
+                HttpUtil.requestJResponse(requestData, PortMethod.valueOf(request.getMethod().name()),
                         okHttpClient, url,
                         jResponse ->
                         {

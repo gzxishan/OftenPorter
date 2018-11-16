@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import okhttp3.*;
 
@@ -219,12 +220,15 @@ public class HttpUtil
     private static RequestBody dealBodyParams(OftenObject oftenObject)
     {
         FormBody.Builder builder = new FormBody.Builder();
-        if(oftenObject!=null){
-            if(oftenObject.fInNames != null){
+        if (oftenObject != null)
+        {
+            if (oftenObject.fInNames != null)
+            {
                 addPostParams(builder, oftenObject.fInNames.nece, oftenObject.fn);
                 addPostParams(builder, oftenObject.fInNames.unece, oftenObject.fu);
             }
-            if(oftenObject.cInNames!=null){
+            if (oftenObject.cInNames != null)
+            {
                 addPostParams(builder, oftenObject.cInNames.nece, oftenObject.cn);
                 addPostParams(builder, oftenObject.cInNames.unece, oftenObject.cu);
             }
@@ -240,7 +244,7 @@ public class HttpUtil
      * @param method
      * @param okHttpClient
      * @param url
-     * @param callback     为null表示同步,则返回response；否则表示异步，返回的response一定为null。
+     * @param callback     为null表示同步,则返回response；否则表示异步，返回的response为null。
      * @return
      * @throws IOException
      */
@@ -248,7 +252,8 @@ public class HttpUtil
             @MayNull OkHttpClient okHttpClient,
             String url, Callback callback) throws IOException
     {
-        return request(new OftenObjectImpl(requestData), method, okHttpClient, url, callback);
+        return request(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient, url,
+                callback);
     }
 
     /**
@@ -258,7 +263,7 @@ public class HttpUtil
      * @param method
      * @param okHttpClient
      * @param url
-     * @param callback     为null表示同步,则返回response；否则表示异步，返回的response一定为null。
+     * @param callback     为null表示同步,则返回response；否则表示异步，返回的response为null。
      * @return
      * @throws IOException
      */
@@ -336,13 +341,44 @@ public class HttpUtil
         return response;
     }
 
-    public static JResponse requestWPorter(@MayNull RequestData requestData, PortMethod method,
+    public static JResponse requestJResponse(@MayNull RequestData requestData, PortMethod method,
             @MayNull OkHttpClient okHttpClient, String url, JRCallback jrCallback)
     {
-        return requestWPorter(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient, url,
+        return requestJResponse(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient,
+                url,
                 jrCallback);
     }
 
+    public static String requestString(@MayNull RequestData requestData, PortMethod method,
+            @MayNull OkHttpClient okHttpClient, String url)
+    {
+        ResponseBody responseBody = null;
+        try
+        {
+            Response response = request(requestData, method, okHttpClient, url, null);
+            int code = response.code();
+            if (code == 200 || code == 201)
+            {
+                responseBody = response.body();
+                return responseBody.string();
+            } else if (code == 204)
+            {
+                return null;
+            } else
+            {
+                throw new OftenCallException("errcode=" + code + ",msg=" + response.message());
+            }
+        } catch (OftenCallException e)
+        {
+            throw e;
+        } catch (Throwable e)
+        {
+            throw new OftenCallException(e);
+        } finally
+        {
+            OftenTool.close(responseBody);
+        }
+    }
 
     private static JResponse toJResponse(Response response)
     {
@@ -390,7 +426,7 @@ public class HttpUtil
      * @param jrCallback
      * @return
      */
-    public static JResponse requestWPorter(@MayNull OftenObject oftenObject, PortMethod method,
+    public static JResponse requestJResponse(@MayNull OftenObject oftenObject, PortMethod method,
             @MayNull OkHttpClient okHttpClient, String url, final JRCallback jrCallback)
     {
         JResponse jResponse = null;
