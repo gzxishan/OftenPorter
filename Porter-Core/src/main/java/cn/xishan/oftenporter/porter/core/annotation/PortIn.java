@@ -79,14 +79,14 @@ public @interface PortIn
     String tied() default "";
 
     /**
-     * 注解在函数上，且大小不为0时有效。
+     * 在函数或类上，且大小不为0时有效。
      *
      * @return
      */
     String[] tieds() default {};
 
     /**
-     * 大小不为0时有效。
+     * 在函数且大小不为0时有效。
      *
      * @return
      */

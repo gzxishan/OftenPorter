@@ -54,9 +54,9 @@ public class TestLocalMain
         final LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("Local-1");
-        porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".porter");
-        porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".porter3");
-        porterConf.getSeekPackages().addPorters(getClass().getPackage().getName() + ".mixin");
+        porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter");
+        porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter3");
+        porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".mixin");
         porterConf.getSeekPackages().addClassPorter(My2Porter.class)
                 .addObjectPorter(new MyPorter("Hello MyPorter!"));
 
@@ -199,7 +199,7 @@ public class TestLocalMain
         FileTool.write2File(getClass().getResourceAsStream("/hot/hot1.jar"), clazzFile, true);
         PorterConf conf = commonMain.newPorterConf();
         conf.setClassLoader(new URLClassLoader(new URL[]{clazzFile.toURI().toURL()}));
-        conf.getSeekPackages().addPorters("cn.xishan.oftenporter.porter.local.hot");
+        conf.getSeekPackages().addPackages("cn.xishan.oftenporter.porter.local.hot");
         conf.setContextName("hot-test");
         commonMain.startOne(conf);
         commonMain.getBridgeLinker().currentBridge()
@@ -210,7 +210,7 @@ public class TestLocalMain
         FileTool.write2File(getClass().getResourceAsStream("/hot/hot2.jar"), clazzFile, true);
         conf = commonMain.newPorterConf();
         conf.setClassLoader(new URLClassLoader(new URL[]{clazzFile.toURI().toURL()}));
-        conf.getSeekPackages().addPorters("cn.xishan.oftenporter.porter.local.hot");
+        conf.getSeekPackages().addPackages("cn.xishan.oftenporter.porter.local.hot");
         conf.setContextName("hot-test");
         commonMain.startOne(conf);
         commonMain.getBridgeLinker().currentBridge()

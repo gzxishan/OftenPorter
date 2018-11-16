@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterParamGetterImpl;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.init.SeekPackages;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
@@ -620,13 +621,7 @@ public final class AnnotationDealt
         return _portOut;
     }
 
-
-    public _PortIn portIn(Class<?> clazz)
-    {
-        return portIn(clazz, false);
-    }
-
-    public _PortIn portIn(Class<?> clazz, boolean isMixin)
+    public _PortIn portIn(Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean isMixin)
     {
         PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         if (portIn == null && isMixin)
@@ -638,7 +633,7 @@ public final class AnnotationDealt
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(), null, portIn.ignoredFunTieds(), portIn.enableMixinTo());
-        _portIn.tiedNames = PortUtil.tieds(portIn, clazz, isMixin || enableDefaultValue);
+        _portIn.tiedNames = PortUtil.tieds(portIn, clazz,classTiedfix, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();

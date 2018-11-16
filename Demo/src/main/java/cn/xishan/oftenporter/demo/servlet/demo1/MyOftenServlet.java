@@ -72,7 +72,7 @@ public class MyOftenServlet extends StartupServlet
         });
 
         porterConf.getSeekPackages()
-                .addPorters(getClass().getPackage().getName() + ".porter");
+                .addPackages(getClass().getPackage().getName() + ".porter");
         porterConf.setContextName("T1");
 
         startOne(porterConf);
@@ -83,7 +83,7 @@ public class MyOftenServlet extends StartupServlet
         PorterConf porterConf2 = localMain.newPorterConf();
         porterConf2.setContextName("T2");
         porterConf2.getSeekPackages()
-                .addPorters(getClass().getPackage().getName() + ".lporter");
+                .addPackages(getClass().getPackage().getName() + ".lporter");
         localMain.startOne(porterConf2);
 
         localMain.getBridgeLinker().link(servletInit, Direction.BothAll);

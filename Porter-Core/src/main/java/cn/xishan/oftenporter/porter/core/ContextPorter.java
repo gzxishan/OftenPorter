@@ -16,10 +16,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
-import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
-import cn.xishan.oftenporter.porter.core.init.PortIniter;
-import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -93,11 +90,23 @@ public class ContextPorter implements IOtherStartDestroy
     {
         Class<?> clazz;
         Object object;
+        SeekPackages.Tiedfix classTiedfix;
+        String classTiedSuffix;
 
         public SrcPorter(Class<?> clazz, Object object)
         {
             this.clazz = clazz;
             this.object = object;
+        }
+
+        public SeekPackages.Tiedfix getClassTiedfix()
+        {
+            return classTiedfix;
+        }
+
+        public String getClassTiedSuffix()
+        {
+            return classTiedSuffix;
         }
 
         public Class<?> getClazz()
@@ -173,20 +182,20 @@ public class ContextPorter implements IOtherStartDestroy
 
         autoSetHandle.setIOtherStartDestroy(this);
         // 1/3:搜索包:最终是搜索Class类
-        seek(porterConf.getSeekPackages().getPackages());
+        seekPackages(porterConf.getSeekPackages().getPackages(),porterConf.getSeekPackages().getTiedfixPkgs());
 
         // 2/3:搜索Class类
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
         for (Class<?> clazz : forSeek)
         {
-            mayAddPorterOfClass(clazz, null);
+            mayAddPorterOfClass(clazz, null, null);
         }
 
         // 3/3:搜索实例
         Set<Object> objectSet = porterConf.getSeekPackages().getObjectsForSeek();
         for (Object object : objectSet)
         {
-            mayAddPorterOfClass(PortUtil.getRealClass(object), object);
+            mayAddPorterOfClass(PortUtil.getRealClass(object), object, null);
         }
 
 
@@ -240,7 +249,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    private void seek(@NotNull JSONArray packages) throws FatalInitException
+    private void seekPackages(@NotNull JSONArray packages,List<SeekPackages.TiedfixPkg> tiedfixPkgList) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -248,19 +257,30 @@ public class ContextPorter implements IOtherStartDestroy
             if (classLoader instanceof PackageUtil.IClassLoader)
             {
                 PackageUtil.IClassLoader iClassLoader = (PackageUtil.IClassLoader) classLoader;
-                List list = packages;
+                List<String> list = new ArrayList<>();
+                for (int i = 0; i < packages.size(); i++)
+                {
+                    list.add(packages.getString(i));
+                }
+                for(SeekPackages.TiedfixPkg tiedfixPkg:tiedfixPkgList){
+                    list.add(tiedfixPkg.getPackageName());
+                }
                 iClassLoader.setPackages(list);
             }
         }
 
         for (int i = 0; i < packages.size(); i++)
         {
-            seekPackage(packages.getString(i));
+            seekPackage(packages.getString(i), null);
+        }
+        for (SeekPackages.TiedfixPkg tiedfixPkg : tiedfixPkgList)
+        {
+            seekPackage(tiedfixPkg.getPackageName(), tiedfixPkg.getClassTiedfix());
         }
     }
 
 
-    private void seekPackage(String packageStr) throws FatalInitException
+    private void seekPackage(String packageStr, SeekPackages.Tiedfix classTiedfix) throws FatalInitException
     {
         LOGGER.debug("***********");
         LOGGER.debug("扫描包：{}", packageStr);
@@ -270,7 +290,7 @@ public class ContextPorter implements IOtherStartDestroy
             try
             {
                 Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
-                mayAddPorterOfClass(clazz, null);
+                mayAddPorterOfClass(clazz, null, classTiedfix);
             } catch (FatalInitException e)
             {
                 throw e;
@@ -305,12 +325,15 @@ public class ContextPorter implements IOtherStartDestroy
         return willSeek;
     }
 
-    private void mayAddPorterOfClass(Class<?> clazz, Object objectPorter) throws FatalInitException, Exception
+    private void mayAddPorterOfClass(Class<?> clazz, Object objectPorter,
+            SeekPackages.Tiedfix classTiedfix) throws FatalInitException, Exception
     {
         if (PortUtil.isJustPortInClass(clazz) && willSeek(clazz))
         {
             LOGGER.debug("will add porter:{}({})", clazz, objectPorter);
-            class_porterMap.put(clazz, new SrcPorter(clazz, objectPorter));
+            SrcPorter srcPorter = new SrcPorter(clazz, objectPorter);
+            srcPorter.classTiedfix = classTiedfix;
+            class_porterMap.put(clazz, srcPorter);
             //addPorter(clazz, objectPorter, autoSetHandle, sthDeal, portIniterList);
         } else if (!isMixinTo(clazz, objectPorter))
         {
@@ -354,7 +377,7 @@ public class ContextPorter implements IOtherStartDestroy
         LOGGER.debug("添加接口：{}", clazz);
         //LOGGER.debug("\n\t\t\t\t\t" + clazz.getName() + ".<init>(" + clazz.getSimpleName() + ".java:1)");
 
-        Porter porter = sthDeal.porter(srcPorter, mixinToMap, porterConf.getContextName(), autoSetHandle);
+        Porter porter = sthDeal.porter(srcPorter, mixinToMap, autoSetHandle);
         if (porter != null)
         {
             boolean willAdd = true;

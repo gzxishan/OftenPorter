@@ -12,6 +12,7 @@ import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.init.SeekPackages;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
@@ -65,9 +66,8 @@ public class PortUtil
      * @param clazz
      * @return
      */
-    public static String[] tieds(PortIn portIn, Class<?> clazz, boolean enableDefaultValue)
+    public static String[] tieds(PortIn portIn, Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean enableDefaultValue)
     {
-
         String[] names = tieds(portIn);
         for (int i = 0; i < names.length; i++)
         {
@@ -79,6 +79,14 @@ public class PortUtil
                     throw new InitException("default value is not enable for " + clazz);
                 }
                 name = tiedIgnorePortIn(clazz);
+            }
+            if(classTiedfix!=null){
+                if(classTiedfix.getPrefix()!=null&&(!classTiedfix.isCheckExists()||!name.startsWith(classTiedfix.getPrefix()))){
+                    name=classTiedfix.getPrefix()+name;
+                }
+                if(classTiedfix.getSuffix()!=null&&(!classTiedfix.isCheckExists()||!name.endsWith(classTiedfix.getSuffix()))){
+                    name+=classTiedfix.getSuffix();
+                }
             }
             names[i] = checkTied(name);
         }

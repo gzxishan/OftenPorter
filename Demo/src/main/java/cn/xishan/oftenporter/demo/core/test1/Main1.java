@@ -48,7 +48,7 @@ public class Main1 {
         conf.setContextName("Test1Main");
         // 添加扫描的包（包含子包）
         conf.getSeekPackages()
-            .addPorters(Main1.class.getPackage().getName() + ".porter");
+            .addPackages(Main1.class.getPackage().getName() + ".porter");
 
         /**
          * 使用当前配置启动一个context

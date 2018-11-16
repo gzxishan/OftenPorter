@@ -25,7 +25,7 @@ public class Main
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("OP");
 
-        porterConf.getSeekPackages().addPorters(PackageUtil.getPackageWithRelative(Main.class, "./porter", '.'));
+        porterConf.getSeekPackages().addPackages(PackageUtil.getPackageWithRelative(Main.class, "./porter", '.'));
 
         localMain.startOne(porterConf);
         localMain.destroyOne(porterConf.getContextName());

@@ -20,7 +20,7 @@ public class Main1 {
         PorterConf conf = localMain.newPorterConf();
         conf.setContextName("Test3Main");
         conf.getSeekPackages()
-            .addPorters(Main1.class.getPackage().getName() + ".porter");
+            .addPackages(Main1.class.getPackage().getName() + ".porter");
 
         localMain.startOne(conf);
 

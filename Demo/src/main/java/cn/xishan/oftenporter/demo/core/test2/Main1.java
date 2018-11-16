@@ -35,7 +35,7 @@ public class Main1 {
 
         conf.setContextName("Test2Main");
         conf.getSeekPackages()
-            .addPorters(Main1.class.getPackage().getName() + ".porter");
+            .addPackages(Main1.class.getPackage().getName() + ".porter");
 
         IBridge bridge = localMain.getBridgeLinker().currentBridge();
         localMain.startOne(conf);

@@ -52,11 +52,9 @@ public class SthDeal
 
 
     public Porter porter(ContextPorter.SrcPorter srcPorter,
-            Map<Class, Set<_MixinPorter>> mixinToMap,
-            String currentContextName,
-            AutoSetHandle autoSetHandle) throws Exception
+            Map<Class, Set<_MixinPorter>> mixinToMap, AutoSetHandle autoSetHandle) throws Exception
     {
-        return porter(srcPorter, mixinToMap, currentContextName, null, autoSetHandle, false, null);
+        return porter(srcPorter, mixinToMap, null, autoSetHandle, false, null);
     }
 
 
@@ -67,8 +65,7 @@ public class SthDeal
      * </pre>
      */
     private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MixinPorter>> mixinToMap,
-            String currentContextName, String currentClassTied,
-            AutoSetHandle autoSetHandle,
+            String currentClassTied, AutoSetHandle autoSetHandle,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws Exception
 
     {
@@ -83,7 +80,7 @@ public class SthDeal
 
         InnerContextBridge innerContextBridge = autoSetHandle.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(clazz, isMixin);
+        _PortIn portIn = annotationDealt.portIn(clazz, srcPorter.getClassTiedfix(), isMixin);
         if (portIn == null)
         {
             return null;
@@ -188,8 +185,7 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(new ContextPorter.SrcPorter(_mixinPorter.getClazz(), _mixinPorter.getObject()),
-                    mixinToMap, currentContextName, currentClassTied,
-                    autoSetHandle, true, wholeClassCheckPassableGetter);
+                    mixinToMap, currentClassTied, autoSetHandle, true, wholeClassCheckPassableGetter);
             if (mixinPorter == null)
             {
                 continue;

@@ -43,7 +43,7 @@ public class Main1
         PorterConf porterConf = localMain.newPorterConf();
         porterConf.setContextName("T1");
         porterConf.getSeekPackages()
-                .addPorters(Main1.class.getPackage().getName() + ".porter");
+                .addPackages(Main1.class.getPackage().getName() + ".porter");
 
         {
             MyBatisOption myBatisOption = new MyBatisOption(null,"/oftendb/test1mapper/", true);
