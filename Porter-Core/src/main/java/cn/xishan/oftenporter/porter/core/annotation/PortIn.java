@@ -51,6 +51,7 @@ public @interface PortIn
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
+    @Inherited
     @Documented
     @interface ContextSet
     {
