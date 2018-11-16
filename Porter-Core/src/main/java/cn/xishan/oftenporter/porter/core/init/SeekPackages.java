@@ -63,7 +63,7 @@ public class SeekPackages
         private String packageName;
 
         /**
-         * @param classTiedfix      给所有Porter加上该前缀。
+         * @param classTiedfix      给包内所有Porter加上前缀或后缀。
          * @param packageName
          */
         public TiedfixPkg(Tiedfix classTiedfix, String packageName)
