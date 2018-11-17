@@ -233,7 +233,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
             }
         }
 
-        String[] locks = keys.toArray(new String[0]);
+        String[] locks = keys.toArray(OftenTool.EMPTY_STRING_ARRAY);
         if (combine && locks.length > 0)
         {
             locks = new String[]{

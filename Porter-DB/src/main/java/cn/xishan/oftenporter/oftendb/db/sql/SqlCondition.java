@@ -103,7 +103,7 @@ public class SqlCondition extends Condition
                 break;
             }
         }
-        return new Object[]{result.toString(), list.toArray(new Object[0])};
+        return new Object[]{result.toString(), list.toArray(OftenTool.EMPTY_OBJECT_ARRAY)};
     }
 
 
@@ -299,7 +299,7 @@ public class SqlCondition extends Condition
                 if (cUnit.getParam2() instanceof List)
                 {
                     List list = (List) cUnit.getParam2();
-                    objects = list.toArray(new Object[0]);
+                    objects = list.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
                 } else
                 {
                     objects = (Object[]) cUnit.getParam2();

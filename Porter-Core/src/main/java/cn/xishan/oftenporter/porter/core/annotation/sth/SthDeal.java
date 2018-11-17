@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.ContextPorter;
 import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSetStatic;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -86,6 +87,12 @@ public class SthDeal
             return null;
         }
 
+        //处理AutoSetStatic
+        List<AutoSetStatic> autoSetStatics = AnnoUtil.getAnnotationsWithSuper(clazz, AutoSetStatic.class);
+        for (AutoSetStatic autoSetStatic : autoSetStatics)
+        {
+            autoSetHandle.addStaticAutoSet(null, null, Arrays.asList(autoSetStatic.value()), null);
+        }
 
         Porter porter = new Porter(clazz, autoSetHandle, wholeClassCheckPassableGetter);
         Map<String, PorterOfFun> childrenWithMethod = new HashMap<>();

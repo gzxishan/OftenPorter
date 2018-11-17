@@ -93,11 +93,11 @@ public class DBNameValues implements INameValues
 
 
     public String[] names() {
-        return names.toArray(new String[0]);
+        return names.toArray(OftenTool.EMPTY_STRING_ARRAY);
     }
 
     public Object[] values() {
-        return values.toArray(new Object[0]);
+        return values.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
     }
 
     public void forEach(Foreach foreach) {

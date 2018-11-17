@@ -62,22 +62,22 @@ public class HelloPorter extends SuperSetPorter
     @PortIn(value = "say", nece = {"name", "age"})
     public Object say(OftenObject oftenObject)
     {
-        int age = (int) oftenObject.fn[1];
-        return oftenObject.fn[0] + "+" + age;
+        int age = (int) oftenObject._fn[1];
+        return oftenObject._fn[0] + "+" + age;
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"}, method = PortMethod.POST)
     @Parse(paramNames = "sex", parser = IntParser.class)
     public Object sayHelloPost(OftenObject oftenObject)
     {
-        int sex = (int) oftenObject.fn[0];
+        int sex = (int) oftenObject._fn[0];
         return oftenObject.restValue + ":" + sex;
     }
 
     @PortIn(tiedType = TiedType.REST, nece = {"sex"})
     public Object sayHello(OftenObject oftenObject)
     {
-        String sex = (String) oftenObject.fn[0];
+        String sex = (String) oftenObject._fn[0];
         return oftenObject.restValue + "=" + sex;
     }
 

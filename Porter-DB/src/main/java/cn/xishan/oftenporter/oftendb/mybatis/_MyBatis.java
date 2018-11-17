@@ -519,12 +519,12 @@ class _MyBatis
                 excepts = OftenStrUtil.split(matcher.group(1).trim(), ",");
             } else
             {
-                excepts = new String[0];
+                excepts = OftenTool.EMPTY_STRING_ARRAY;
             }
 
         } else
         {
-            excepts = new String[0];
+            excepts = OftenTool.EMPTY_STRING_ARRAY;
         }
 
         List<String> list = new ArrayList<>();
@@ -537,7 +537,7 @@ class _MyBatis
         {
             OftenTool.addAll(list, exceptColumns.insertPart());
         }
-        excepts = list.toArray(new String[0]);
+        excepts = list.toArray(OftenTool.EMPTY_STRING_ARRAY);
         for (int i = 0; i < excepts.length; i++)
         {
             excepts[i] = columnCoverString + excepts[i].trim() + columnCoverString;

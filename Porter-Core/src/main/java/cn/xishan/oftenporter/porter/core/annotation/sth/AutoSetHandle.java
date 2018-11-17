@@ -400,6 +400,10 @@ public class AutoSetHandle
     public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class<?>> classes,
             ClassLoader classLoader)
     {
+        if (OftenTool.isEmptyOfAll(packages, classStrs, classes))
+        {
+            return;
+        }
         iHandles_notporter.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
     }
 
@@ -423,7 +427,7 @@ public class AutoSetHandle
 
     public synchronized void addAutoSetsForNotPorter(Collection objects)
     {
-        addAutoSetsForNotPorter(objects.toArray(new Object[0]));
+        addAutoSetsForNotPorter(objects.toArray(OftenTool.EMPTY_OBJECT_ARRAY));
     }
 
     public synchronized void addAutoSetsForNotPorter(Object... objects)
@@ -615,7 +619,7 @@ public class AutoSetHandle
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-            if (value==null||!OftenTool.isAssignable(value.getClass(), field.getType()))
+            if (value == null || !OftenTool.isAssignable(value.getClass(), field.getType()))
             {//忽略非继承关系的。
                 continue;
             }
@@ -1138,7 +1142,7 @@ public class AutoSetHandle
                 || typeName.equals(PorterNotInnerSync.class.getName())
                 || typeName.equals(PorterThrowsSync.class.getName()))
         {
-             boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
+            boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(getOftenContextInfo().getContextName());

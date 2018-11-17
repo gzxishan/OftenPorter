@@ -24,7 +24,7 @@ class Hello1Porter
     @PortOut()
     public Object say(OftenObject oftenObject)
     {
-	String name = (String) oftenObject.fn[0];
+	String name = (String) oftenObject._fn[0];
 
 	return "Hello World:" + name;
     }
@@ -33,7 +33,7 @@ class Hello1Porter
     @PortOut(OutType.NO_RESPONSE)
     public void say2(OftenObject oftenObject)
     {
-	String name = (String) oftenObject.fn[0];
+	String name = (String) oftenObject._fn[0];
 	try
 	{
 	    oftenObject.getResponse().write("self:" + name);

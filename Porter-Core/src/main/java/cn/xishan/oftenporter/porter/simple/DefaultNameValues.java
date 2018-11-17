@@ -118,13 +118,13 @@ public class DefaultNameValues implements INameValues
     @Override
     public String[] getNames()
     {
-        return names.toArray(new String[0]);
+        return names.toArray(OftenTool.EMPTY_STRING_ARRAY);
     }
 
     @Override
     public Object[] getValues()
     {
-        return values.toArray(new Object[0]);
+        return values.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
     }
 
 
@@ -137,7 +137,7 @@ public class DefaultNameValues implements INameValues
 
     public DefaultNameValues append(List<String> names, List<Object> values)
     {
-        return this.append(names.toArray(new String[0]), values.toArray(new Object[0]));
+        return this.append(names.toArray(OftenTool.EMPTY_STRING_ARRAY), values.toArray(OftenTool.EMPTY_OBJECT_ARRAY));
     }
 
     public DefaultNameValues append(String[] names, Object[] values)

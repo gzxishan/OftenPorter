@@ -18,6 +18,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})
 @Inherited
 @Documented
+@AdvancedAnnotation(enableCache = false)
 public @interface PortDestroy
 {
     /**

@@ -21,8 +21,8 @@ public class Hello4RESTPorter
             tiedType = TiedType.REST)
     public Object add(OftenObject oftenObject)
     {
-        String name = (String) oftenObject.fn[0];
-        Object msg = oftenObject.fu[0];
+        String name = (String) oftenObject._fn[0];
+        Object msg = oftenObject._fu[0];
 
         return name + ":" + msg + ":" + oftenObject.restValue;
     }
@@ -30,6 +30,6 @@ public class Hello4RESTPorter
     @PortIn(value = "add", nece = "content", method = PortMethod.POST)
     public Object add2(OftenObject oftenObject)
     {
-        return "content:" + oftenObject.fn[0];
+        return "content:" + oftenObject._fn[0];
     }
 }

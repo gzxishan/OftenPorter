@@ -330,13 +330,12 @@ public class PortUtil
     }
 
 
-    private static final Object[] EMPTY = new Object[0];
 
     public static Object[] newArray(Name[] names)
     {
         if (names.length == 0)
         {
-            return EMPTY;
+            return OftenTool.EMPTY_OBJECT_ARRAY;
         } else
         {
             return new Object[names.length];

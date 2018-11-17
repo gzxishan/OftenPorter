@@ -29,8 +29,8 @@ public class Hello3RESTPorter
 	    tiedType = TiedType.REST)
     public Object add(OftenObject oftenObject)
     {
-	String name = (String) oftenObject.fn[0];
-	Object msg = oftenObject.fu[0];
+	String name = (String) oftenObject._fn[0];
+	Object msg = oftenObject._fu[0];
 
 	return name + ":" + msg + ":" + oftenObject.restValue;
     }

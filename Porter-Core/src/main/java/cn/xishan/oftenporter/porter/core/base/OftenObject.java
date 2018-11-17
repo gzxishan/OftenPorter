@@ -11,6 +11,7 @@ import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,30 +49,30 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     /**
      * 类必须参数值数组。
      */
-    public Object[] cn;
+    public Object[] _cn = OftenTool.EMPTY_OBJECT_ARRAY;
     /**
      * 类非必需参数值数组。
      */
-    public Object[] cu;
-    public Object[] cinner;
+    public Object[] _cu = OftenTool.EMPTY_OBJECT_ARRAY;
+    public Object[] _cinner = OftenTool.EMPTY_OBJECT_ARRAY;
     /**
      * 类参数名称对象。
      */
-    public InNames cInNames;
+    public InNames _cInNames = InNames.EMPTY;
 
     /**
      * 函数必须参数值数组。
      */
-    public Object[] fn;
+    public Object[] _fn = OftenTool.EMPTY_OBJECT_ARRAY;
     /**
      * 函数非必需参数值数组。
      */
-    public Object[] fu;
-    public Object[] finner;
+    public Object[] _fu = OftenTool.EMPTY_OBJECT_ARRAY;
+    public Object[] _finner = OftenTool.EMPTY_OBJECT_ARRAY;
     /**
      * 函数参数名称对象。
      */
-    public InNames fInNames;
+    public InNames _fInNames = InNames.EMPTY;
 
     /**
      * 如果当前是rest，则其值为""或非空;否则为null.
@@ -184,19 +185,19 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public <T> T cnOf(int index)
     {
-        T t = cn == null ? null : (T) cn[index];
+        T t = (T) _cn[index];
         return t;
     }
 
     public <T> T cuOf(int index)
     {
-        T t = cu == null ? null : (T) cu[index];
+        T t = (T) _cu[index];
         return t;
     }
 
     public <T> T cuOf(int index, T defaultValue)
     {
-        T t = cu == null ? null : (T) cu[index];
+        T t =  (T) _cu[index];
         if (t == null)
         {
             t = defaultValue;
@@ -206,19 +207,19 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public <T> T fnOf(int index)
     {
-        T t = fn == null ? null : (T) fn[index];
+        T t =  (T) _fn[index];
         return t;
     }
 
     public <T> T fuOf(int index)
     {
-        T t = fu == null ?null:(T) fu[index];
+        T t =  (T) _fu[index];
         return t;
     }
 
     public <T> T fuOf(int index, T defaultValue)
     {
-        T t = fu == null ? null : (T) fu[index];
+        T t =  (T) _fu[index];
         if (t == null)
         {
             t = defaultValue;

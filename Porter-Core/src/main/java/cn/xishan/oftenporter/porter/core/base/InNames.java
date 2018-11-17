@@ -21,6 +21,9 @@ import java.util.regex.Pattern;
  */
 public class InNames
 {
+    public static InNames EMPTY = InNames
+            .fromStringArray(OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY);
+
     private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = () -> null;
     private static final ITypeParserOption EMPTY_TYPE_PARSER_OPTION = () -> "";
 
@@ -233,12 +236,12 @@ public class InNames
     }
 
 
-    private static final Name[] EMPTY = new Name[0];
+    private static final Name[] EMPTY_NAME = new Name[0];
 
 
     public static InNames temp(Name name)
     {
-        return new InNames(new Name[]{name}, EMPTY, EMPTY);
+        return new InNames(new Name[]{name}, EMPTY_NAME, EMPTY_NAME);
     }
 
 
@@ -251,7 +254,7 @@ public class InNames
     {
         if (strs == null)
         {
-            return EMPTY;
+            return EMPTY_NAME;
         }
         Name[] names = new Name[strs.length];
         for (int i = 0; i < names.length; i++)

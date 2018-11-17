@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 
@@ -54,16 +55,8 @@ public class ServletOftenObject extends OftenObject
 
     private ServletOftenObject(String contextName, String classTied, String funTied, UrlDecoder.Result result)
     {
-        this.result = result != null ? result : DefaultUrlDecoder
-                .newResult(new HashMap<>(0), contextName, classTied, funTied);
-        cn = new Object[0];
-        cu = new Object[0];
-        cinner = new Object[0];
-        fn = new Object[0];
-        fu = new Object[0];
-        finner = new Object[0];
-        cInNames = InNames.fromStringArray(new String[0], new String[0], new String[0]);
-        fInNames = InNames.fromStringArray(new String[0], new String[0], new String[0]);
+        this.result = result != null ? result :
+                DefaultUrlDecoder.newResult(new HashMap<>(0), contextName, classTied, funTied);
     }
 
     @Override

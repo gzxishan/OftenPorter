@@ -33,12 +33,12 @@ public class HelloPorter
     @PortIn(value = "say", nece = { "name", "age", "sex" })
     public Object say(OftenObject oftenObject)
     {
-	int age = (int) oftenObject.fn[1];
-	return "Hello World!" + oftenObject.fn[0]
+	int age = (int) oftenObject._fn[1];
+	return "Hello World!" + oftenObject._fn[0]
 		+ ",age="
 		+ age
 		+ ",sex="
-		+ oftenObject.fn[2];
+		+ oftenObject._fn[2];
     }
 
     @PortIn(tiedType = TiedType.REST)

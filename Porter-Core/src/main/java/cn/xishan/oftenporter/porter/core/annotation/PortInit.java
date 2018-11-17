@@ -3,13 +3,14 @@ package cn.xishan.oftenporter.porter.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * 在框架启动成功后调用,调用完成后接口函数失效。
+ * 在框架启动成功后调用,调用完成后接口函数失效,只对{@linkplain PortIn}有效。
  * Created by chenyg on 2018-03-02.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Inherited
 @Documented
+@AdvancedAnnotation(enableCache = false)
 public @interface PortInit
 {
     /**

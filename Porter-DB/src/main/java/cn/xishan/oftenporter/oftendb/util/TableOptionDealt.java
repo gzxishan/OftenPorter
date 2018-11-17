@@ -71,7 +71,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
         settings.add("skip");
         settings.add("limit");
         settings.add("order");
-        settingsContains = settings.toArray(new String[0]);
+        settingsContains = settings.toArray(OftenTool.EMPTY_STRING_ARRAY);
         Arrays.sort(settingsContains);
         Arrays.sort(orderContains);
 

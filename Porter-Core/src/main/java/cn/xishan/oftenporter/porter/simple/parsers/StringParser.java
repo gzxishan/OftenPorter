@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -87,8 +88,8 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
                 toList.add(to);
             }
 
-            this.in = inList.toArray(new String[0]);
-            this.to = toList.toArray(new String[0]);
+            this.in = inList.toArray(OftenTool.EMPTY_STRING_ARRAY);
+            this.to = toList.toArray(OftenTool.EMPTY_STRING_ARRAY);
         }
 
         @Override

@@ -34,21 +34,21 @@ public class Hello1Porter
     @Parse(paramNames = "age", parser = ShortParser.class)
     public Object say(OftenObject oftenObject)
     {
-	short age = (short) oftenObject.fn[0];
+	short age = (short) oftenObject._fn[0];
 	return age + "岁";
     }
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
     public Object say2(OftenObject oftenObject)
     {
-	int age = (int) oftenObject.fn[0];
+	int age = (int) oftenObject._fn[0];
 	return age + "岁";
     }
 
     @PortIn(method = PortMethod.POST, nece = { "age" })
     public Object say3(OftenObject oftenObject)
     {
-	short age = (short) oftenObject.fn[0];
+	short age = (short) oftenObject._fn[0];
 	return age + "岁";
     }
 

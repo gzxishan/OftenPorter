@@ -169,22 +169,22 @@ public class HttpUtil
 
     private static String dealUrlParams(OftenObject oftenObject, String url) throws UnsupportedEncodingException
     {
-        if (oftenObject == null || (oftenObject.fInNames == null && oftenObject.cInNames == null))
+        if (oftenObject == null || (oftenObject._fInNames == null && oftenObject._cInNames == null))
         {
             return url;
         }
         StringBuilder stringBuilder = new StringBuilder();
         String encoding = "utf-8";
 
-        if (oftenObject.fInNames != null)
+        if (oftenObject._fInNames != null)
         {
-            addUrlParams(stringBuilder, oftenObject.fInNames.nece, oftenObject.fn, encoding);
-            addUrlParams(stringBuilder, oftenObject.fInNames.unece, oftenObject.fu, encoding);
+            addUrlParams(stringBuilder, oftenObject._fInNames.nece, oftenObject._fn, encoding);
+            addUrlParams(stringBuilder, oftenObject._fInNames.unece, oftenObject._fu, encoding);
         }
-        if (oftenObject.cInNames != null)
+        if (oftenObject._cInNames != null)
         {
-            addUrlParams(stringBuilder, oftenObject.cInNames.nece, oftenObject.cn, encoding);
-            addUrlParams(stringBuilder, oftenObject.cInNames.unece, oftenObject.cu, encoding);
+            addUrlParams(stringBuilder, oftenObject._cInNames.nece, oftenObject._cn, encoding);
+            addUrlParams(stringBuilder, oftenObject._cInNames.unece, oftenObject._cu, encoding);
         }
 
         if (stringBuilder.length() > 0)
@@ -222,15 +222,15 @@ public class HttpUtil
         FormBody.Builder builder = new FormBody.Builder();
         if (oftenObject != null)
         {
-            if (oftenObject.fInNames != null)
+            if (oftenObject._fInNames != null)
             {
-                addPostParams(builder, oftenObject.fInNames.nece, oftenObject.fn);
-                addPostParams(builder, oftenObject.fInNames.unece, oftenObject.fu);
+                addPostParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
+                addPostParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
             }
-            if (oftenObject.cInNames != null)
+            if (oftenObject._cInNames != null)
             {
-                addPostParams(builder, oftenObject.cInNames.nece, oftenObject.cn);
-                addPostParams(builder, oftenObject.cInNames.unece, oftenObject.cu);
+                addPostParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
+                addPostParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
             }
         }
         return builder.build();

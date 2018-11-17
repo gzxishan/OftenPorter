@@ -269,7 +269,7 @@ public class DataUtil
     public static MultiNameValues toMultiNameValues(JSONArray jsonArray)
     {
         JSONObject jsonObject = jsonArray.getJSONObject(0);
-        String[] names = jsonObject.keySet().toArray(new String[0]);
+        String[] names = jsonObject.keySet().toArray(OftenTool.EMPTY_STRING_ARRAY);
         MultiNameValues multiNameValues = new MultiNameValues();
         multiNameValues.names(names);
 
@@ -407,32 +407,32 @@ public class DataUtil
 
         try
         {
-            InNames.Name[] names = oftenObject.fInNames.nece;
+            InNames.Name[] names = oftenObject._fInNames.nece;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.fn[i] == null)
+                if (!containsNull && oftenObject._fn[i] == null)
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject.fn[i]);
+                DBNameValues.append(names[i].varName, oftenObject._fn[i]);
             }
-            names = oftenObject.fInNames.unece;
+            names = oftenObject._fInNames.unece;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.fu[i] == null)
+                if (!containsNull && oftenObject._fu[i] == null)
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject.fu[i]);
+                DBNameValues.append(names[i].varName, oftenObject._fu[i]);
             }
-            names = oftenObject.fInNames.inner;
+            names = oftenObject._fInNames.inner;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.finner[i] == null)
+                if (!containsNull && oftenObject._finner[i] == null)
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject.finner[i]);
+                DBNameValues.append(names[i].varName, oftenObject._finner[i]);
             }
         } catch (JSONException e)
         {
@@ -456,32 +456,32 @@ public class DataUtil
 
         try
         {
-            InNames.Name[] names = oftenObject.fInNames.nece;
+            InNames.Name[] names = oftenObject._fInNames.nece;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.fn[i] == null)
+                if (!containsNull && oftenObject._fn[i] == null)
                 {
                     continue;
                 }
-                jsonObject.put(names[i].varName, oftenObject.fn[i]);
+                jsonObject.put(names[i].varName, oftenObject._fn[i]);
             }
-            names = oftenObject.fInNames.unece;
+            names = oftenObject._fInNames.unece;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.fu[i] == null)
+                if (!containsNull && oftenObject._fu[i] == null)
                 {
                     continue;
                 }
-                jsonObject.put(names[i].varName, oftenObject.fu[i]);
+                jsonObject.put(names[i].varName, oftenObject._fu[i]);
             }
-            names = oftenObject.fInNames.inner;
+            names = oftenObject._fInNames.inner;
             for (int i = 0; i < names.length; i++)
             {
-                if (!containsNull && oftenObject.finner[i] == null)
+                if (!containsNull && oftenObject._finner[i] == null)
                 {
                     continue;
                 }
-                jsonObject.put(names[i].varName, oftenObject.finner[i]);
+                jsonObject.put(names[i].varName, oftenObject._finner[i]);
             }
         } catch (JSONException e)
         {

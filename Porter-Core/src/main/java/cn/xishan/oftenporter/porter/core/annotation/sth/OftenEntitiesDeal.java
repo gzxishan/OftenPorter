@@ -201,7 +201,7 @@ public class OftenEntitiesDeal
         }
         one = new One(clazz, new InNames(neceNames.toArray(new Name[0]), unneceNames.toArray(new Name[0]), null),
                 neces.toArray(new Field[0]), unneces.toArray(new Field[0]), jsonObjFields.toArray(new Field[0]),
-                jsonObjOnes.toArray(new One[0]), jsonObjVarnames.toArray(new String[0]));
+                jsonObjOnes.toArray(new One[0]), jsonObjVarnames.toArray(OftenTool.EMPTY_STRING_ARRAY));
 
         return one;
     }

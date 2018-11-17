@@ -31,8 +31,8 @@ public class HelloPorter
     public void add(OftenObject oftenObject)
     {
         Hello hello = oftenObject.fentity(0);
-        oftenObject.finner[0] = new Date();
-        oftenObject.finner[1] = OftenKeyUtil.randomUUID();
+        oftenObject._finner[0] = new Date();
+        oftenObject._finner[1] = OftenKeyUtil.randomUUID();
         helloUnit.add(hello);
     }
 

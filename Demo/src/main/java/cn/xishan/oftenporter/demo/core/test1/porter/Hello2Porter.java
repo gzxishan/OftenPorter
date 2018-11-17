@@ -26,8 +26,8 @@ class Hello2Porter
     @PortIn(nece = { "name" }, unece = { "msg" }, method = PortMethod.POST)
     public Object say(OftenObject oftenObject)
     {
-	String name = (String) oftenObject.fn[0];
-	Object msg = oftenObject.fu[0];
+	String name = (String) oftenObject._fn[0];
+	Object msg = oftenObject._fu[0];
 
 	return name + ":" + msg;
     }

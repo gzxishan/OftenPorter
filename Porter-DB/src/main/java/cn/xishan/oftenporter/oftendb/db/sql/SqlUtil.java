@@ -16,7 +16,6 @@ import java.util.List;
 public class SqlUtil
 {
 
-    private static final Object[] EMPTY_OBJS = new Object[0];
 
     public static class WhereSQL
     {
@@ -185,7 +184,7 @@ public class SqlUtil
             whereSQL.args = (Object[]) result[1];
         } else
         {
-            whereSQL.args = EMPTY_OBJS;
+            whereSQL.args = OftenTool.EMPTY_OBJECT_ARRAY;
         }
         if (withSemicolon)
             stringBuilder.append(";");
@@ -209,7 +208,7 @@ public class SqlUtil
             whereSQL.args = (Object[]) result[1];
         } else
         {
-            whereSQL.args = EMPTY_OBJS;
+            whereSQL.args = OftenTool.EMPTY_OBJECT_ARRAY;
         }
 
         if (withSemicolon)
@@ -235,7 +234,7 @@ public class SqlUtil
             whereSQL.args = (Object[]) result[1];
         } else
         {
-            whereSQL.args = EMPTY_OBJS;
+            whereSQL.args = OftenTool.EMPTY_OBJECT_ARRAY;
         }
 
         if (withSemicolon)
@@ -283,7 +282,7 @@ public class SqlUtil
             whereSQL.args = (Object[]) result[1];
         } else
         {
-            whereSQL.args = EMPTY_OBJS;
+            whereSQL.args = OftenTool.EMPTY_OBJECT_ARRAY;
         }
 
         if (withSemicolon)
@@ -332,7 +331,7 @@ public class SqlUtil
             whereSQL.args = (Object[]) result[1];
         } else
         {
-            whereSQL.args = EMPTY_OBJS;
+            whereSQL.args = OftenTool.EMPTY_OBJECT_ARRAY;
         }
 
         String order = toOrder(querySettings, coverString, withSemicolon);

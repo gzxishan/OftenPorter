@@ -42,9 +42,9 @@ public class Hello1Porter
 	 *
 	 * 各个参数值的索引是与声明顺序一致的。
 	 */
-	Object sth = oftenObject.cn[0];
-	String name = (String) oftenObject.fn[0];
-	Object msg = oftenObject.fu[0];
+	Object sth = oftenObject._cn[0];
+	String name = (String) oftenObject._fn[0];
+	Object msg = oftenObject._fu[0];
 
 	return sth+":"+name+":"+msg;
     }

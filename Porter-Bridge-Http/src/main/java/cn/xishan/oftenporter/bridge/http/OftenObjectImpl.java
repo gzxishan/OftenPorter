@@ -25,8 +25,8 @@ class OftenObjectImpl extends OftenObject
             names[k] = entry.getKey();
             values[k++] = entry.getValue();
         }
-        fInNames = InNames.fromStringArray(null, names, null);
-        fu = values;
+        _fInNames = InNames.fromStringArray(null, names, null);
+        _fu = values;
         this.headers = requestData.headers;
     }
 

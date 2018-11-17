@@ -15,12 +15,7 @@ import java.lang.annotation.*;
  * 3.对于ON_MESSAGE*类型与是否是部分传输方式的对应关系见{@linkplain MessageHandler.Whole}与{@linkplain MessageHandler.Partial}
  * </pre>
  * <pre>
- *     兼容性：
- *     本注解能够实现的核心部分在{@linkplain WebSocketHandle#doConnect(OftenObject, PorterOfFun)}(  RequestDispatcher
- *     requestDispatcher = request.getRequestDispatcher(XSServletWSConfig.WS_PATH);...requestDispatcher.forward
- *     (request, response);)
- *     1.tomcat7.0.47+、tomcat8.0.x、8.x(未知)、tomcat9（未知）
- *     2.jetty9.4.8.v20171121、其他未知。见{@linkplain WebSocketHandle#handleWS(ServletContext)}
+ *     兼容性：基于jsr356。
  * </pre>
  *
  * @author Created by https://github.com/CLovinr on 2017/10/12.
@@ -34,7 +29,7 @@ public @interface WebSocket
     public enum Type
     {
         /**
-         * 进行配置，初始化时调用一次
+         * 进行配置，初始化时调用一次。<strong>注意：</strong>是直接调用，即通过{@linkplain OftenObject}获取参数可能会报错。
          */
         ON_CONFIG,
         /**
