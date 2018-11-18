@@ -23,11 +23,11 @@ import java.util.regex.Pattern;
  * <li>
  * 参数query支持的：<br>
  * <ul>
- * <li>name或$eq:name：等于。</li>
+ * <li>name或$eq:name：等于,当值为空时会变成$null:name。</li>
  * <li>$null:name：值为null</li>
  * <li>$notnull:name：值不为null</li>
  * <li>$emptystr:name：为空字符串</li>
- * <li>$gt:name(大于),$gte:name(大于等于),$lt:name(小于),$lte:name(小于等于),$ne:name(不等于)</li>
+ * <li>$gt:name(大于),$gte:name(大于等于),$lt:name(小于),$lte:name(小于等于),$ne:name(不等于,当值为空时会变成$notnull:name)</li>
  * <li>$substr:name,$notsubstr:name：匹配包含或不包含某字符串</li>
  * <li>$startsWith:name,$notstartsWith:name：匹配以或不以某字符串开头</li>
  * <li>$endsWith:name,$notendsWith:name：匹配以或不以某字符串结尾</li>
