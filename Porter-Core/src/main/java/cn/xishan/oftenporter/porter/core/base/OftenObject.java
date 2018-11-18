@@ -74,11 +74,6 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
      */
     public InNames _fInNames = InNames.EMPTY;
 
-    /**
-     * 如果当前是rest，则其值为""或非空;否则为null.
-     */
-    public String restValue;
-
     private Map<String, Object> requestDataMap = null;
 
     protected static final ThreadLocal<WeakReference<OftenObject>> threadLocal = new ThreadLocal<>();
@@ -176,6 +171,21 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public abstract UrlDecoder.Result url();
 
+    public String contextName()
+    {
+        return url().contextName();
+    }
+
+    public String classTied()
+    {
+        return url().classTied();
+    }
+
+    public String funTied()
+    {
+        return url().funTied();
+    }
+
     /**
      * 得到所属的接口框架名称。
      *
@@ -197,7 +207,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public <T> T cuOf(int index, T defaultValue)
     {
-        T t =  (T) _cu[index];
+        T t = (T) _cu[index];
         if (t == null)
         {
             t = defaultValue;
@@ -207,19 +217,19 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public <T> T fnOf(int index)
     {
-        T t =  (T) _fn[index];
+        T t = (T) _fn[index];
         return t;
     }
 
     public <T> T fuOf(int index)
     {
-        T t =  (T) _fu[index];
+        T t = (T) _fu[index];
         return t;
     }
 
     public <T> T fuOf(int index, T defaultValue)
     {
-        T t =  (T) _fu[index];
+        T t = (T) _fu[index];
         if (t == null)
         {
             t = defaultValue;

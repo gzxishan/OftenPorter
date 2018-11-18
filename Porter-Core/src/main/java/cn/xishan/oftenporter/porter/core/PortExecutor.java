@@ -250,11 +250,6 @@ public final class PortExecutor
             oftenObject.porterOfFun = funPort;
             oftenObject.portExecutor = this;
 
-            if (funPort.getMethodPortIn().getTiedType().isRest())
-            {
-                oftenObject.restValue = result.funTied();
-            }
-
             ParamSource paramSource = getParamSource(oftenObject, classPort, funPort);
             oftenObject.setParamSource(paramSource);
 

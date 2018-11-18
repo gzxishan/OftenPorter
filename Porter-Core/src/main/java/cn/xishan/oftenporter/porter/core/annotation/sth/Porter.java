@@ -279,7 +279,7 @@ public final class Porter
     }
 
     /**
-     * 对于rest，会优先获取非{@linkplain TiedType#REST}接口。
+     * 对于rest，会优先获取非{@linkplain TiedType#METHOD}接口。
      *
      * @param result 地址解析结果
      * @param method 请求方法
@@ -293,7 +293,7 @@ public final class Porter
 
     public PorterOfFun getChild(String funTied, PortMethod method)
     {
-        PorterOfFun porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());
+        PorterOfFun porterOfFun = childrenWithMethod.get(funTied + TIED_KEY_SEPARATOR + method.name());//METHOD
         if (porterOfFun == null)
         {
             porterOfFun = childrenWithMethod.get(method.name());
@@ -606,8 +606,8 @@ public final class Porter
 
         switch (tiedType)
         {
-            case REST:
-            case FORCE_REST:
+            case METHOD:
+            case FORCE_METHOD:
                 path = "/" + contextName + "/" + classTied + "/";
                 fkey = "";
                 break;

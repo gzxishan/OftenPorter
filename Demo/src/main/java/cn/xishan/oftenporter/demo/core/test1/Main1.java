@@ -17,7 +17,7 @@ public class Main1 {
     public static void main(String[] args) {
 
         /*
-         * 1.PortIn：用于标记web接口 2.设置生成REST
+         * 1.PortIn：用于标记web接口 2.设置生成METHOD
          *
          */
 

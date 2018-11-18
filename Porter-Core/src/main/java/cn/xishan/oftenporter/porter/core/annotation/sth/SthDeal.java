@@ -340,8 +340,8 @@ public class SthDeal
         switch (tiedType)
         {
 
-            case REST:
-            case FORCE_REST:
+            case METHOD:
+            case FORCE_METHOD:
             {
                 PortMethod[] portMethods = porterOfFun.getMethodPortIn().getMethods();
                 for (PortMethod portMethod : portMethods)

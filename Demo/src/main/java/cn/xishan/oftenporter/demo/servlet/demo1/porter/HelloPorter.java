@@ -18,7 +18,7 @@ import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-@PortIn(value = "", tiedType = TiedType.REST)
+@PortIn(value = "", tiedType = TiedType.METHOD)
 @Parse(paramNames = "age", parser = IntParser.class)
 @Parse(paramNames = "sex", parser = StringParser.class)
 public class HelloPorter
@@ -41,11 +41,11 @@ public class HelloPorter
 		+ oftenObject._fn[2];
     }
 
-    @PortIn(tiedType = TiedType.REST)
+    @PortIn(tiedType = TiedType.METHOD)
     public Object sayHello(OftenObject oftenObject)
     {
 	HttpServletRequest request = (HttpServletRequest) oftenObject.getRequest().getOriginalRequest();
-	return "Hello World-REST!" + oftenObject.restValue
+	return "Hello World-REST!" + oftenObject.funTied()
 		+ ":dt="
 		+ ((System.nanoTime() - (long) request.getAttribute("time"))
 			/ 1000000.0)+"ms";

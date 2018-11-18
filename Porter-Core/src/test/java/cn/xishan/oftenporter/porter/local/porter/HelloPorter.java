@@ -29,7 +29,7 @@ import java.util.Random;
 //@Parser({
 //        @Parser.parse(paramNames = "age", parser = IntParser.class)
 //})
-@PortIn(tied = "Hello", tiedType = TiedType.REST)
+@PortIn(tied = "Hello", tiedType = TiedType.METHOD)
 @BindEntities({User.class})
 @Mixin({HelloMixinPorter.class})
 @MixinParseFrom({MinxParseTest.class})
@@ -66,19 +66,19 @@ public class HelloPorter extends SuperSetPorter
         return oftenObject._fn[0] + "+" + age;
     }
 
-    @PortIn(tiedType = TiedType.REST, nece = {"sex"}, method = PortMethod.POST)
+    @PortIn(tiedType = TiedType.METHOD, nece = {"sex"}, method = PortMethod.POST)
     @Parse(paramNames = "sex", parser = IntParser.class)
     public Object sayHelloPost(OftenObject oftenObject)
     {
         int sex = (int) oftenObject._fn[0];
-        return oftenObject.restValue + ":" + sex;
+        return oftenObject.funTied() + ":" + sex;
     }
 
-    @PortIn(tiedType = TiedType.REST, nece = {"sex"})
+    @PortIn(tiedType = TiedType.METHOD, nece = {"sex"})
     public Object sayHello(OftenObject oftenObject)
     {
         String sex = (String) oftenObject._fn[0];
-        return oftenObject.restValue + "=" + sex;
+        return oftenObject.funTied() + "=" + sex;
     }
 
     @PortIn("parseObject")

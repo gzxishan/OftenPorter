@@ -17,35 +17,35 @@ import java.io.IOException;
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/7.
  */
-@PortIn(value = "HServer", tiedType = TiedType.REST)
+@PortIn(value = "HServer", tiedType = TiedType.METHOD)
 abstract class HServerPorter
 {
     private static final Logger LOGGER = LogUtil.logger(HServerPorter.class);
     @AutoSet("hServerDelivery")
     Delivery delivery;
 
-    @PortIn(tiedType = TiedType.REST, method = PortMethod.GET)
+    @PortIn(tiedType = TiedType.METHOD, method = PortMethod.GET)
     @PortOut(OutType.NO_RESPONSE)
     public void get(OftenObject oftenObject)
     {
         delivery(oftenObject);
     }
 
-    @PortIn(tiedType = TiedType.REST, method = PortMethod.POST)
+    @PortIn(tiedType = TiedType.METHOD, method = PortMethod.POST)
     @PortOut(OutType.NO_RESPONSE)
     public void post(OftenObject oftenObject)
     {
         delivery(oftenObject);
     }
 
-    @PortIn(tiedType = TiedType.REST, method = PortMethod.PUT)
+    @PortIn(tiedType = TiedType.METHOD, method = PortMethod.PUT)
     @PortOut(OutType.NO_RESPONSE)
     public void put(OftenObject oftenObject)
     {
         delivery(oftenObject);
     }
 
-    @PortIn(tiedType = TiedType.REST, method = PortMethod.DELETE)
+    @PortIn(tiedType = TiedType.METHOD, method = PortMethod.DELETE)
     @PortOut(OutType.NO_RESPONSE)
     public void delete(OftenObject oftenObject)
     {
@@ -54,7 +54,7 @@ abstract class HServerPorter
 
     private void delivery(final OftenObject oftenObject)
     {
-        delivery.toAllBridge().request(new BridgeRequest(oftenObject, oftenObject.restValue), lResponse ->
+        delivery.toAllBridge().request(new BridgeRequest(oftenObject, oftenObject.funTied()), lResponse ->
         {
             if (lResponse != null)
             {
