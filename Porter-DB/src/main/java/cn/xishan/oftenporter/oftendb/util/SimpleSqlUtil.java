@@ -287,25 +287,25 @@ public class SimpleSqlUtil
     private static final Pattern TYPE_PATTERN = Pattern.compile("^(\\$[^:]+:)");
 
 
-    private static JSONArray combine(Map<String, Object> query, JSONArray queryArray)
+    private static JSONArray getQueryArray(Map<String, Object> query, JSONArray queryArray)
     {
-        if (queryArray == null)
+
+        if (queryArray != null)
         {
-            queryArray = new JSONArray();
-        } else
+            return queryArray;
+        } else if (query == null)
         {
-            queryArray = new JSONArray(queryArray);
+            return new JSONArray();
         }
-        if (query != null)
+        queryArray = new JSONArray();
+        for (Map.Entry entry : query.entrySet())
         {
-            for (Map.Entry entry : query.entrySet())
-            {
-                JSONObject json = new JSONObject(2);
-                json.put("key", entry.getKey());
-                json.put("value", entry.getValue());
-                queryArray.add(json);
-            }
+            JSONObject json = new JSONObject(2);
+            json.put("key", entry.getKey());
+            json.put("value", entry.getValue());
+            queryArray.add(json);
         }
+
         return queryArray;
     }
 
@@ -321,7 +321,7 @@ public class SimpleSqlUtil
         {
             throw new NullPointerException("forQuery param is null!");
         }
-        queryArray = combine(forQuery, queryArray);
+        queryArray = getQueryArray(forQuery, queryArray);
         if (queryArray.size() == 0)
         {
             return "";

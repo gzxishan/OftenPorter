@@ -24,7 +24,7 @@ public class TableOption
         void handle(OftenObject oftenObject, TableOption tableOption)throws Exception;
     }
 
-    @Nece
+    @Unece
     public JSONObject query;
 
     /**
@@ -36,7 +36,7 @@ public class TableOption
     /**
      * 格式:{limit:int,skip:int,order:[key,intOrder,...]或{key:intOrder,...}}
      */
-    @Nece
+    @Unece
     public JSONObject settings;
 
     private static IHandle iHandle;
