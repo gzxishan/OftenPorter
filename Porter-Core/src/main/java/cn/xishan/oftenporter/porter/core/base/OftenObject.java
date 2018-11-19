@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.annotation.sth.SyncPorterThrowsImpl;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -267,36 +268,80 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
      * 使用当前请求的接口方法。
      *
      * @param funTied
-     * @param INameValues
+     * @param nameValues
      * @param callback
      */
-    public void innerRequest(String funTied, INameValues INameValues, BridgeCallback callback)
+    public void innerRequest(String funTied, INameValues nameValues, BridgeCallback callback)
     {
-        innerRequest(funTied, getRequest().getMethod(), INameValues, callback, true);
+        innerRequest(getRequest().getMethod(), null, funTied, nameValues, callback, true);
     }
 
+    /**
+     * 另见{@linkplain FunParam#toNameValues(Object...)}.
+     * @param method
+     * @param funTied
+     * @param objects
+     * @param <T>
+     * @return
+     */
+    public <T> T invokePorter(PortMethod method, String funTied, Object... objects)
+    {
+        return invokePorter(method, null, funTied, FunParam.toNameValues(objects));
+    }
 
-//    private static class Temp
-//    {
-//        OftenCallException exception;
-//    }
+    public <T> T invokePorter(PortMethod method, String funTied, INameValues nameValues)
+    {
+        return invokePorter(method, null, funTied, nameValues);
+    }
+
+    public <T> T invokePorter(PortMethod method, String classTied, String funTied, INameValues nameValues)
+    {
+        Object[] temp = new Object[1];
+        innerRequest(method, classTied, funTied, nameValues, lResponse -> temp[0] = lResponse.getResponse(), false);
+        Object rs = temp[0];
+        return SyncPorterThrowsImpl.deal(rs);
+    }
 
     /**
-     * @param funTied
      * @param method
-     * @param INameValues
+     * @param funTied
+     * @param nameValues
      * @param callback
      * @param throwWCallException 是否在返回码不为成功时抛出异常。
      */
-    public void innerRequest(String funTied, PortMethod method, INameValues INameValues, BridgeCallback callback,
+    public void innerRequest(PortMethod method, String funTied, INameValues nameValues, BridgeCallback callback,
             boolean throwWCallException)
     {
-        StringBuilder builder = new StringBuilder();
+        innerRequest(method, null, funTied, nameValues, callback, throwWCallException);
+    }
+
+    /**
+     * @param method
+     * @param funTied
+     * @param nameValues
+     * @param callback
+     * @param throwWCallException 是否在返回码不为成功时抛出异常。
+     */
+    public void innerRequest(PortMethod method, String classTied, String funTied, INameValues nameValues,
+            BridgeCallback callback,
+            boolean throwWCallException)
+    {
         UrlDecoder.Result result = url();
-        builder.append('/').append(result.contextName()).append('/').append(result.classTied()).append('/');
+
+        StringBuilder builder = new StringBuilder();
+        builder.append('/').append(result.contextName()).append('/');
+        if (OftenTool.notNullAndEmpty(classTied))
+        {
+            builder.append(classTied);
+        } else
+        {
+            builder.append(result.classTied());
+        }
+        builder.append('/');
         builder.append(funTied == null ? "" : funTied);
+
         BridgeRequest request = BridgeRequest.withNewPath(this, builder.toString(), method, getRequest(), true);
-        request.addParamAll(INameValues);
+        request.addParamAll(nameValues);
         if (throwWCallException)
         {
             OftenCallException[] oftenCallExceptions = new OftenCallException[1];

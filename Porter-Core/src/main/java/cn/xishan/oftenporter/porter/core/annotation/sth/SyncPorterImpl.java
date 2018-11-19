@@ -24,7 +24,6 @@ class SyncPorterImpl implements PorterNotInnerSync
     private _SyncPorterOption syncPorterOption;
 
 
-
     @AutoSet.SetOk(priority = Integer.MAX_VALUE)
     public void setOk()
     {
@@ -57,7 +56,7 @@ class SyncPorterImpl implements PorterNotInnerSync
         }
 
         request.addParamAll(INameValues);
-        Object[] temp=new Object[1];
+        Object[] temp = new Object[1];
         if (isInner)
         {
             delivery.innerBridge().request(request, lResponse -> temp[0] = lResponse.getResponse());
@@ -78,27 +77,7 @@ class SyncPorterImpl implements PorterNotInnerSync
     @Override
     public <T> T invokeWithObjects(OftenObject oftenObject, Object... objects)
     {
-        List<String> names = new ArrayList<>();
-        List<Object> values = new ArrayList<>();
-        for (Object obj : objects)
-        {
-            if (obj instanceof FunParam)
-            {
-                FunParam funParam = (FunParam) obj;
-                if (OftenTool.isEmpty(funParam.getName()))
-                {
-                    throw new NullPointerException("empty FunParam name!");
-                }
-                names.add(funParam.getName());
-                values.add(funParam.getValue());
-            } else if (obj != null)
-            {
-                names.add(obj.getClass().getName());
-                values.add(obj);
-            }
-        }
-        DefaultNameValues defaultNameValues = new DefaultNameValues(names, values);
-        return request(oftenObject, defaultNameValues);
+        return request(oftenObject, FunParam.toNameValues(objects));
     }
 
     @Override

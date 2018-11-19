@@ -12,7 +12,7 @@ import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
 /**
  * Created by chenyg on 2018-03-02.
  */
-class SyncPorterThrowsImpl implements PorterThrowsSync
+public class SyncPorterThrowsImpl implements PorterThrowsSync
 {
 
     private SyncPorterImpl syncPorter;
@@ -31,7 +31,7 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
         syncPorter.setOk();
     }
 
-    private static <T> T deal(T t)
+    public static <T> T deal(Object t)
     {
         if (t == null)
         {
@@ -62,7 +62,7 @@ class SyncPorterThrowsImpl implements PorterThrowsSync
             throw new OftenCallException((JResponse) t);
         } else
         {
-            return t;
+            return (T) t;
         }
     }
 

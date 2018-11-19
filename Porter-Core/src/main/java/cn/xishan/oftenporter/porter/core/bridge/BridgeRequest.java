@@ -50,7 +50,11 @@ public class BridgeRequest implements OftenRequest
                 originalObject = oftenObject;
             }
         }
-        this.originalObject = originalObject;
+        if (originalObject != null)
+        {
+            this.originalObject = originalObject;
+            initOrigin(originalObject.getRequest());
+        }
         this.method = method;
         this.requestPath = requestPath;
         if (initMap)
@@ -68,7 +72,6 @@ public class BridgeRequest implements OftenRequest
             Map.Entry<String, Object> entry = e.nextElement();
             params.put(entry.getKey(), entry.getValue());
         }
-        initOrigin(originalObject.getRequest());
     }
 
 
@@ -90,12 +93,11 @@ public class BridgeRequest implements OftenRequest
         return withNewPath(originalObject, newPath, getMethod(), this, false);
     }
 
-    public static BridgeRequest withNewPath(OftenObject originalObject, String newPath, PortMethod method, OftenRequest oftenRequest,
-            boolean willCloneParamsMap)
+    public static BridgeRequest withNewPath(OftenObject originalObject, String newPath, PortMethod method,
+            OftenRequest oftenRequest, boolean willCloneParamsMap)
     {
         BridgeRequest request = new BridgeRequest(originalObject, method, newPath, willCloneParamsMap);
-        request.originRequest = oftenRequest.getOriginalRequest();
-        request.originResponse = oftenRequest.getOriginalResponse();
+
         if (willCloneParamsMap)
         {
             request.addParamAll(oftenRequest.getParameterMap());

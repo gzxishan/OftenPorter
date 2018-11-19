@@ -356,6 +356,8 @@ public final class PortExecutor
             if (object instanceof ParamDealt.FailedReason)
             {
                 return (ParamDealt.FailedReason) object;
+            }else{
+                oftenObjectImpl.url().setParam(ones[i].clazz.getName(),object);//设置对象，从而让对应的形参可以获取。
             }
             entities[i] = object;
         }
@@ -1160,7 +1162,7 @@ public final class PortExecutor
             {
                 responseHandle = oftenObject.context.defaultResponseHandle;
             }
-            if (oftenObject.isInnerRequest() && responseHandle != null && responseHandle
+            if (!oftenObject.isInnerRequest() && responseHandle != null && responseHandle
                     .hasDoneWrite(oftenObject, porterOfFun, object))
             {
                 return false;
