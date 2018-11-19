@@ -264,34 +264,21 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         return t;
     }
 
-    /**
-     * 使用当前请求的接口方法。
-     *
-     * @param funTied
-     * @param nameValues
-     * @param callback
-     */
-    public void innerRequest(String funTied, INameValues nameValues, BridgeCallback callback)
-    {
-        innerRequest(getRequest().getMethod(), null, funTied, nameValues, callback, true);
-    }
 
     /**
      * 另见{@linkplain FunParam#toNameValues(Object...)}.
-     * @param method
-     * @param funTied
-     * @param objects
-     * @param <T>
-     * @return
      */
     public <T> T invokePorter(PortMethod method, String funTied, Object... objects)
     {
         return invokePorter(method, null, funTied, FunParam.toNameValues(objects));
     }
 
-    public <T> T invokePorter(PortMethod method, String funTied, INameValues nameValues)
+    /**
+     * 另见{@linkplain FunParam#toNameValues(Object...)}.
+     */
+    public <T> T invokePorter(PortMethod method, String classTied, String funTied, Object... objects)
     {
-        return invokePorter(method, null, funTied, nameValues);
+        return invokePorter(method, classTied, funTied, FunParam.toNameValues(objects));
     }
 
     public <T> T invokePorter(PortMethod method, String classTied, String funTied, INameValues nameValues)
@@ -302,17 +289,17 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         return SyncPorterThrowsImpl.deal(rs);
     }
 
+
     /**
-     * @param method
+     * 使用当前请求的接口方法。
+     *
      * @param funTied
      * @param nameValues
      * @param callback
-     * @param throwWCallException 是否在返回码不为成功时抛出异常。
      */
-    public void innerRequest(PortMethod method, String funTied, INameValues nameValues, BridgeCallback callback,
-            boolean throwWCallException)
+    public void innerRequest(String funTied, INameValues nameValues, BridgeCallback callback)
     {
-        innerRequest(method, null, funTied, nameValues, callback, throwWCallException);
+        innerRequest(getRequest().getMethod(), null, funTied, nameValues, callback, true);
     }
 
     /**
