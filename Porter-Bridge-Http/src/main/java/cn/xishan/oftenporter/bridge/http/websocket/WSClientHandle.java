@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -20,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
@@ -27,6 +29,7 @@ import java.util.concurrent.*;
 class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSocket>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(WSClientHandle.class);
+    private static AtomicInteger count = new AtomicInteger();
 
     class Handle implements SessionImpl.OnClose
     {
@@ -53,6 +56,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
                 scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r -> {
                     Thread thread = new Thread(r);
+                    thread.setName("porter-bridge-http-thread-"+count.getAndIncrement());
                     thread.setDaemon(true);
                     return thread;
                 });
@@ -155,14 +159,15 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             try
             {
                 _connect();
-            } catch (Exception e)
+            } catch (Throwable e)
             {
+                e= OftenTool.getCause(e);
                 LOGGER.error(e.getMessage(), e);
             }
         }
 
 
-        private void _connect() throws Exception
+        private void _connect() throws Throwable
         {
             if (wsClient.session != null && wsClient.session.webSocketClient.isOpen())
             {
@@ -289,16 +294,15 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                 }
             };
             wsClient.setSession(new SessionImpl(webSocketClient, this));
-            if (wsClientConfig.connectionLostTimeoutSecond != null)
-            {
-                webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
-            }
             if (wsClientConfig.pingTimeSecond != null)
             {
                 webSocketClient.setPingTime(wsClientConfig.pingTimeSecond);
             }
+            if (wsClientConfig.connectionLostTimeoutSecond != null)
+            {
+                webSocketClient.setConnectionLostTimeout(wsClientConfig.connectionLostTimeoutSecond);
+            }
             webSocketClient.setEnablePing(wsClientConfig.enablePing);
-
             LOGGER.debug("connect to WebSocket server...:{}", wsUrl);
             webSocketClient.connectBlocking();
             if(firstStartCheckFuture!=null){
