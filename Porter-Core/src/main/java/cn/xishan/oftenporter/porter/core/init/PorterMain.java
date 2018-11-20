@@ -57,6 +57,7 @@ public final class PorterMain
     private IArgumentsFactory defaultArgumentsFactory = new DefaultArgumentsFactory();
     private ForRequestListener forRequestListener;
 
+
     static
     {
         if (!LogUtil.isDefaultLogger())
@@ -71,6 +72,16 @@ public final class PorterMain
                 }
             });
         }
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+        {
+            private final Logger logger = LoggerFactory.getLogger(PorterMain.class);
+
+            @Override
+            public void uncaughtException(Thread t, Throwable e)
+            {
+                logger.error("uncaughtException:" + t.getName() + ":" + e.getMessage(), e);
+            }
+        });
     }
 
     public PorterMain(BridgeName bridgeName, CommonMain commonMain)
