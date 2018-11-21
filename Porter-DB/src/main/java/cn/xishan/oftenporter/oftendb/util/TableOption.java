@@ -89,6 +89,14 @@ public class TableOption
         return this;
     }
 
+    public JSONArray getOrder(){
+        if(settings==null){
+            return null;
+        }else{
+            return settings.getJSONArray("order");
+        }
+    }
+
     public TableOption addOrder(String key, int order)
     {
         if (settings == null)
