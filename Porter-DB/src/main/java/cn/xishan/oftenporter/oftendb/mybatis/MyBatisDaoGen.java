@@ -301,7 +301,7 @@ class MyBatisDaoGen implements AutoSetGen
             @Override
             public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
             {
-                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source);
                 Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
                 Object rs = method.invoke(dao, args);
                 if (connectionWrap.getAutoCommit())

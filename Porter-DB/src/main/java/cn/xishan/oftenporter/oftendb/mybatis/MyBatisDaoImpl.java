@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -49,6 +50,13 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     {
         Object dao = MyBatisDaoGen.doProxy(this, clazz, myBatisDaoGen.source);
         return (T) dao;
+    }
+
+    @Override
+    public Connection currentConnection()
+    {
+        Connection connection = MyBatisBridge.__openConnection(myBatisDaoGen.source);
+        return connection;
     }
 
 

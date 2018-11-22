@@ -157,14 +157,14 @@ public class MyBatisBridge
     }
 
     @KeepFromProguard
-    static ConnectionWrap __openSession(String source)
+    static ConnectionWrap __openConnection(String source)
     {
         ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
         if (connection != null)
         {
             return connection;
         }
-        return __openSession__(source);
+        return __openConnection__(source);
     }
 
     static SqlSession __getSqlSession__(String source)
@@ -175,14 +175,14 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-    static ConnectionWrap __openSession__(String source)
+    private static ConnectionWrap __openConnection__(String source)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
         SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.getFactory();
 
         MyBatisOption.IConnectionBridge iConnectionBridge = mOption.iConnectionBridge;
-        SqlSession sqlSession = null;
+        SqlSession sqlSession;
         Connection bridgeConnection = null;
         if (iConnectionBridge != null)
         {

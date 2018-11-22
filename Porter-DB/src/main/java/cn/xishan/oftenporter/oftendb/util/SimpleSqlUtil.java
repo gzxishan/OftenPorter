@@ -29,8 +29,8 @@ import java.util.regex.Pattern;
  * <li>$emptystr:name：为空字符串</li>
  * <li>$gt:name(大于),$gte:name(大于等于),$lt:name(小于),$lte:name(小于等于),$ne:name(不等于,当值为空时会变成$notnull:name)</li>
  * <li>$substr:name,$notsubstr:name：匹配包含或不包含某字符串</li>
- * <li>$startsWith:name,$notstartsWith:name：匹配以或不以某字符串开头</li>
- * <li>$endsWith:name,$notendsWith:name：匹配以或不以某字符串结尾</li>
+ * <li>$startsWith:name(或$starts:name),$notstartsWith:name(或$notstarts:name),匹配以或不以某字符串开头</li>
+ * <li>$endsWith:name(或$ends:name),$notendsWith:name(或$notends:name)：匹配以或不以某字符串结尾</li>
  * <li>$in:name,$nin:name,$iin:name,$inin:name：值为数组或list，匹配在或不在指定列表中，
  * 注意当提供的数组或list为空时:'$in:name'变成'$false','$nin:name':'$true','$iin:'与'$inin:'会忽略。</li>
  * <li>$ignull:+其他，当为值空时忽略条件</li>
@@ -396,7 +396,7 @@ public class SimpleSqlUtil
 
             Matcher matcher = TYPE_PATTERN.matcher(name);
             boolean matched = matcher.find();
-            if (!matched && OftenTool.isEmpty(value))
+            if (!matched && OftenTool.isEmpty(value) && !name.startsWith("$"))
             {
                 operator = SqlCondition.IS_NULL;
                 willAddName = false;
@@ -429,15 +429,19 @@ public class SimpleSqlUtil
                     case "$notsubstr:":
                         operator = Condition.NOTSUBSTR;
                         break;
+                    case "$starts:":
                     case "$startsWith:":
                         operator = Condition.STARTSWITH;
                         break;
+                    case "$notstarts:":
                     case "$notstartsWith:":
                         operator = Condition.NOTSTARTSWITH;
                         break;
+                    case "$ends:":
                     case "$endsWith:":
                         operator = Condition.ENDSSWITH;
                         break;
+                    case "$notends:":
                     case "$notendsWith:":
                         operator = Condition.NOTENDSSWITH;
                         break;
