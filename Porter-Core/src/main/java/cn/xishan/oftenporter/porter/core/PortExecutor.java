@@ -845,11 +845,7 @@ public final class PortExecutor
                 Logger logger = logger(oftenObject);
                 if (logger.isWarnEnabled())
                 {
-                    if (!(ex instanceof OftenCallException))
-                    {
-                        logger.warn(ex.getMessage(), ex);
-                    }
-
+                    logger.warn(ex.getMessage(), ex);
                 }
 
                 CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
