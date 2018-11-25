@@ -59,6 +59,12 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return connection;
     }
 
+    @Override
+    public void reloadMybatis() throws Throwable
+    {
+        myBatisDaoGen.moption().mSqlSessionFactoryBuilder.reload();
+    }
+
 
     Object getMapperDao(SqlSession sqlSession, Class<?> otherClass) throws Exception
     {

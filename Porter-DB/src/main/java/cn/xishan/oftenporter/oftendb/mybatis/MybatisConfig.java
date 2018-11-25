@@ -47,7 +47,7 @@ class MybatisConfig
             try
             {
                 mOption.mSqlSessionFactoryBuilder.onStart();
-            } catch (Exception e)
+            } catch (Throwable e)
             {
                 LOGGER.warn(e.getMessage(), e);
             }

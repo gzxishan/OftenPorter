@@ -177,10 +177,8 @@ class MSqlSessionFactoryBuilder
                         Thread.sleep(1000);
                         try
                         {
-                            LOGGER.info("start reload mybatis...");
-                            build();
-                            LOGGER.info("reload mybatis complete!");
-                        } catch (Exception e)
+                            reload();
+                        } catch (Throwable e)
                         {
                             LOGGER.error(e.getMessage(), e);
                         }
@@ -235,7 +233,7 @@ class MSqlSessionFactoryBuilder
 
     }
 
-    public synchronized void onStart() throws Exception
+    public synchronized void onStart() throws Throwable
     {
         if (isStarted)
         {
@@ -291,7 +289,20 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    public synchronized void build() throws Exception
+    public synchronized void reload() throws Throwable
+    {
+        LOGGER.info("start reload mybatis...");
+        if (watchService != null)
+        {
+            watchService.close();
+            watchService = null;
+        }
+        tableColumnsMap.clear();
+        build();
+        LOGGER.info("reload mybatis complete!");
+    }
+
+    public synchronized void build() throws Throwable
     {
         SqlSessionFactory _sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
@@ -377,7 +388,8 @@ class MSqlSessionFactoryBuilder
      */
     public synchronized Set<String> getTableColumns(String tableName)
     {
-        if(tableName==null){
+        if (tableName == null)
+        {
             return Collections.emptySet();
         }
         Set<String> columnsSet = tableColumnsMap.get(tableName);
@@ -392,8 +404,8 @@ class MSqlSessionFactoryBuilder
                     String colName = rs.getString("COLUMN_NAME");
                     set.add(colName);
                 }
-                tableColumnsMap.put(tableName,set);
-                columnsSet=set;
+                tableColumnsMap.put(tableName, set);
+                columnsSet = set;
             } catch (Exception e)
             {
                 LOGGER.error(e.getMessage(), e);

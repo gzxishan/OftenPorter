@@ -29,8 +29,14 @@ public interface MyBatisDao
 
     /**
      * 如果开启了事务，则返回当前连接；否则返回新的连接对象。
+     *
      * @return
      */
     Connection currentConnection();
+
+    /**
+     * 重新加载mybatis。
+     */
+    void reloadMybatis() throws Throwable;
 
 }
