@@ -19,6 +19,12 @@ public @interface ExceptColumns
     String[] fields() default {};
 
     /**
+     * select-part排除的字段
+     * @return
+     */
+    String[] selectPart()default {};
+
+    /**
      * insert-part排除的字段
      * @return
      */

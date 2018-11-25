@@ -17,7 +17,9 @@ import java.io.File;
 import java.nio.file.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +63,7 @@ class MSqlSessionFactoryBuilder
     private List<Interceptor> interceptors;
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
     private Environment environment;
+    private Map<String, Set<String>> tableColumnsMap = new HashMap<>();
 
     Map<String, String> methodMap;
 
@@ -323,7 +326,7 @@ class MSqlSessionFactoryBuilder
             {
                 for (String sql : sqls)
                 {
-                    LOGGER.debug("init sql={}",sql);
+                    LOGGER.debug("init sql={}", sql);
                     PreparedStatement ps = connection.prepareStatement(sql);
                     ps.execute();
                     ps.close();
@@ -353,6 +356,50 @@ class MSqlSessionFactoryBuilder
         {
             listener.onParse();
         }
+    }
+
+    private static String getSchema(Connection conn) throws Exception
+    {
+        String schema = conn.getMetaData().getUserName();
+        if (OftenTool.isEmpty(schema))
+        {
+            throw new Exception("ORACLE数据库模式不允许为空");
+        }
+        return schema.toUpperCase();
+
+    }
+
+    /**
+     * 得到数据表的字段列表
+     *
+     * @param tableName
+     * @return
+     */
+    public synchronized Set<String> getTableColumns(String tableName)
+    {
+        if(tableName==null){
+            return Collections.emptySet();
+        }
+        Set<String> columnsSet = tableColumnsMap.get(tableName);
+        if (columnsSet == null)
+        {
+            try (Connection connection = environment.getDataSource().getConnection())
+            {
+                Set<String> set = new HashSet<>();
+                ResultSet rs = connection.getMetaData().getColumns(null, getSchema(connection), tableName, "%");
+                while (rs.next())
+                {
+                    String colName = rs.getString("COLUMN_NAME");
+                    set.add(colName);
+                }
+                tableColumnsMap.put(tableName,set);
+                columnsSet=set;
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+        return columnsSet == null ? Collections.emptySet() : columnsSet;
     }
 
     public synchronized void addListener(BuilderListener builderListener)

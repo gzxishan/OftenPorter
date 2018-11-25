@@ -54,9 +54,11 @@ class _MyBatis
     boolean isAutoAlias;
 
     private Map<String, Object> xmlParamsMap;
+    MSqlSessionFactoryBuilder builder;
     private MSqlSessionFactoryBuilder.FileListener fileListener;
     private List<String> paths;
     private String columnCoverString;
+    private String tableName;
 
     public _MyBatis(Alias[] aliases, MyBatisMapper.Type type, String columnCoverString, String resourceDir, String name)
     {
@@ -390,24 +392,79 @@ class _MyBatis
             }
         }
 
-        {//处理insert与update
+        {//处理<!--$set-table:name=tableName-->
+            Pattern TABLE_NAME_PATTERN = Pattern.compile("<!--\\$set-table:\\s*name\\s*=\\s*([a-zA-Z0-9_]+)\\s*-->");
+            Matcher matcher = TABLE_NAME_PATTERN.matcher(sqlBuilder);
+            while (matcher.find())
+            {
+                String tableName = matcher.group(1);
+                this.tableName = tableName;
+                LOGGER.info("set table name:{}", tableName);
+            }
+        }
 
-            if (sqlBuilder.indexOf("$[insert-part:") >= 0 || sqlBuilder.indexOf("$[update-part:") >= 0)
+        {//处理select,insert与update
+
+            if (sqlBuilder.indexOf("$[select-part:") >= 0
+                    || sqlBuilder.indexOf("$[insert-part:") >= 0
+                    || sqlBuilder.indexOf("$[update-part:") >= 0
+            )
             {
 
-                List<String> dbColumns;
-                List<String> refColumns;
-                dbColumns = new ArrayList<>();
-                refColumns = new ArrayList<>();
-                Field[] fields = OftenTool.getAllFields(entityClass);
-                for (Field field : fields)
+                List<String> dbColumnsOfCurrent = getDBColumns(entityClass);
+                List<String> refColumnsOfCurrent = getRefColumns(entityClass);
+
+                while (true)
                 {
-                    String columnName = DataUtil.getTiedName(field);
-                    if (columnName != null)
+                    String tag = "$[select-part:";
+                    int index = sqlBuilder.indexOf(tag);
+                    if (index == -1)
                     {
-                        dbColumns.add(columnCoverString + columnName + columnCoverString);
-                        refColumns.add("#{" + field.getName() + "}");
+                        break;
                     }
+                    int index2 = sqlBuilder.indexOf("]", index + 1);
+                    if (index2 == -1)
+                    {
+                        throw new InitException("expected ']' for:" + tag);
+                    }
+
+                    String[] excepts = getExcepts(ExceptPartType.SELECT, sqlBuilder, tag, index, index2);
+
+                    String tname = "";
+
+                    {
+                        Pattern tnamePattern = Pattern.compile("tname[\\s]*=[\\s]*([a-zA-Z0-9_]*)");
+                        Matcher matcher = tnamePattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+                        if (matcher.find())
+                        {
+                            tname = matcher.group(1);
+                        }
+                    }
+
+                    List<String> dbColumns = getDBColumns(dbColumnsOfCurrent, sqlBuilder, tag, index, index2);
+
+                    List<String> _dbColumns = dbColumns;
+                    if (excepts.length > 0)
+                    {
+                        _dbColumns = new ArrayList<>();
+
+                        for (int i = 0; i < dbColumns.size(); i++)
+                        {
+                            if (Arrays.binarySearch(excepts, dbColumns.get(i)) >= 0)
+                            {
+                                continue;
+                            }
+                            if (OftenTool.isEmpty(tname))
+                            {
+                                _dbColumns.add(dbColumns.get(i));
+                            } else
+                            {
+                                _dbColumns.add(tname + "." + dbColumns.get(i));
+                            }
+                        }
+                    }
+                    String selectPart = OftenStrUtil.join(",", _dbColumns);
+                    sqlBuilder.replace(index, index2 + 1, selectPart);
                 }
 
                 while (true)
@@ -424,10 +481,12 @@ class _MyBatis
                         throw new InitException("expected ']' for:" + tag);
                     }
 
-                    String[] excepts = getExcepts(false, sqlBuilder, tag, index, index2);
+                    String[] excepts = getExcepts(ExceptPartType.INSERT, sqlBuilder, tag, index, index2);
+
+                    List<String> dbColumns = dbColumnsOfCurrent;
 
                     List<String> _dbColumns = dbColumns;
-                    List<String> _refColumns = refColumns;
+                    List<String> _refColumns = refColumnsOfCurrent;
                     if (excepts.length > 0)
                     {
                         _dbColumns = new ArrayList<>();
@@ -439,7 +498,7 @@ class _MyBatis
                                 continue;
                             }
                             _dbColumns.add(dbColumns.get(i));
-                            _refColumns.add(refColumns.get(i));
+                            _refColumns.add(refColumnsOfCurrent.get(i));
                         }
                     }
                     String insertPart = "(" + OftenStrUtil.join(",", _dbColumns) + ") VALUES (" + OftenStrUtil
@@ -463,10 +522,12 @@ class _MyBatis
                     }
 
 
-                    String[] excepts = getExcepts(true, sqlBuilder, tag, index, index2);
+                    String[] excepts = getExcepts(ExceptPartType.UPDATE, sqlBuilder, tag, index, index2);
+
+                    List<String> dbColumns = dbColumnsOfCurrent;
 
                     List<String> _dbColumns = dbColumns;
-                    List<String> _refColumns = refColumns;
+                    List<String> _refColumns = refColumnsOfCurrent;
                     if (excepts.length > 0)
                     {
                         _dbColumns = new ArrayList<>();
@@ -478,7 +539,7 @@ class _MyBatis
                                 continue;
                             }
                             _dbColumns.add(dbColumns.get(i));
-                            _refColumns.add(refColumns.get(i));
+                            _refColumns.add(refColumnsOfCurrent.get(i));
                         }
                     }
 
@@ -501,7 +562,61 @@ class _MyBatis
         return sqlBuilder.toString();
     }
 
-    private String[] getExcepts(boolean isUpdate, StringBuilder sqlBuilder, String tag, int index, int index2)
+    enum ExceptPartType
+    {
+        SELECT, INSERT, UPDATE
+    }
+
+
+    private List<String> getRefColumns(Class entityClass)
+    {
+        Set<String> realColumnsSet = builder.getTableColumns(tableName);
+        List<String> refColumns = new ArrayList<>();
+        Field[] _fields = OftenTool.getAllFields(entityClass);
+        for (Field field : _fields)
+        {
+            String columnName = DataUtil.getTiedName(field);
+            if (columnName != null && (realColumnsSet.isEmpty() || realColumnsSet.contains(columnName)))
+            {
+                refColumns.add("#{" + field.getName() + "}");
+            }
+        }
+        return refColumns;
+    }
+
+    private List<String> getDBColumns(Class entityClass)
+    {
+        Set<String> realColumnsSet = builder.getTableColumns(tableName);
+        List<String> dbColumns = new ArrayList<>();
+        Field[] _fields = OftenTool.getAllFields(entityClass);
+        for (Field field : _fields)
+        {
+            String columnName = DataUtil.getTiedName(field);
+            if (columnName != null && (realColumnsSet.isEmpty() || realColumnsSet.contains(columnName)))
+            {
+                dbColumns.add(columnCoverString + columnName + columnCoverString);
+            }
+        }
+        return dbColumns;
+    }
+
+    private List<String> getDBColumns(List<String> dbColumnsOfCurrent, StringBuilder sqlBuilder, String tag, int index,
+            int index2) throws ClassNotFoundException
+    {
+        Pattern entityPattern = Pattern.compile("entityClass[\\s]*=[\\s]*([a-zA-Z0-9_.$]+)");
+        Matcher matcher = entityPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+        if (matcher.find())
+        {
+            String entityClassName = matcher.group(1);
+            return getDBColumns(PackageUtil.newClass(entityClassName, null));
+        } else
+        {
+            return dbColumnsOfCurrent;
+        }
+    }
+
+    private String[] getExcepts(ExceptPartType exceptPartType, StringBuilder sqlBuilder, String tag, int index,
+            int index2)
     {
         Pattern exceptPattern = Pattern.compile("except=\\{([a-zA-Z0-9_,\\s]*)\\}");
         ExceptColumns exceptColumns = AnnoUtil.getAnnotation(entityClass, ExceptColumns.class);
@@ -530,13 +645,20 @@ class _MyBatis
         List<String> list = new ArrayList<>();
         OftenTool.addAll(list, excepts);
         OftenTool.addAll(list, exceptColumns.fields());
-        if (isUpdate)
+        switch (exceptPartType)
         {
-            OftenTool.addAll(list, exceptColumns.updatePart());
-        } else
-        {
-            OftenTool.addAll(list, exceptColumns.insertPart());
+
+            case SELECT:
+                OftenTool.addAll(list, exceptColumns.selectPart());
+                break;
+            case INSERT:
+                OftenTool.addAll(list, exceptColumns.insertPart());
+                break;
+            case UPDATE:
+                OftenTool.addAll(list, exceptColumns.updatePart());
+                break;
         }
+
         excepts = list.toArray(OftenTool.EMPTY_STRING_ARRAY);
         for (int i = 0; i < excepts.length; i++)
         {

@@ -26,6 +26,9 @@ import java.lang.annotation.*;
  * &#60;!--$enable:varName--&#62;...&#60;!--$enable-end:varName--&#62;:表示是否启用代码块，当varName为逻辑假时、中间的代码会被移除
  * </li>
  * <li>
+ * &#60;!--$set-table:name=tableName--&#62;:用于设置当前表的名称,设置了表名后，会自动排除所有不存在的字段(对insert-part,update-part,select-part等有用)。
+ * </li>
+ * <li>
  * 判断varName变量为真或假的方式：
  * <ol>
  * <li>
@@ -55,6 +58,9 @@ import java.lang.annotation.*;
  * </li>
  * <li>
  * $[update-part:【except={}】]:"`column`=#{column},..."
+ * </li>
+ * <li>
+ * $[select-part:【except={}】【tname=别名】【entityClass=，默认为当前】]:"[tname.]`column`,..."
  * </li>
  * <li>
  * except:可选项、用于排除的数据库字段名(例如有的表妹remark字段)、多个用逗号隔开；也可在实体上增加{@linkplain ExceptColumns}来设置排除的字段。

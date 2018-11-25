@@ -375,6 +375,7 @@ class MyBatisDaoGen implements AutoSetGen
                 option.myBatisOption.resourcesDir,
                 name);
         myBatis.daoClass = mapperClass;
+        myBatis.builder = option.mSqlSessionFactoryBuilder;
 
         Class<?> entityClass = null;
 
