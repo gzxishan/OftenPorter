@@ -40,6 +40,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.xishankeji</groupId>
+            <artifactId>Porter-Core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
             <version>${project.parent.version}</version>
