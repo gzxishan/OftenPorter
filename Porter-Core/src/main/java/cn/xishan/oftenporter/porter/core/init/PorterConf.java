@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortOut;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
@@ -55,6 +56,8 @@ public class PorterConf
     private Map<Class, ResponseHandle> responseHandleMap;
     private ResponseHandle defaultResponseHandle;
 
+    private List<AutoSetObjForAspectOfNormal.AdvancedHandle> advancedHandleList;
+
 
     PorterConf()
     {
@@ -68,6 +71,7 @@ public class PorterConf
         iAnnotationConfigable = new DefaultAnnotationConfigable();
         classLoader = Thread.currentThread().getContextClassLoader();
         responseHandleMap = new HashMap<>();
+        advancedHandleList = new ArrayList<>();
     }
 
     /**
@@ -498,6 +502,16 @@ public class PorterConf
         return paramSourceHandleManager;
     }
 
+    public void addNormalAspectAdvancedHandle(AutoSetObjForAspectOfNormal.AdvancedHandle advancedHandle)
+    {
+        advancedHandleList.add(advancedHandle);
+    }
+
+    public List<AutoSetObjForAspectOfNormal.AdvancedHandle> getAdvancedHandleList()
+    {
+        return advancedHandleList;
+    }
+
     void initOk()
     {
         isInited = true;
@@ -516,5 +530,6 @@ public class PorterConf
         autoSetListenerList = null;
         responseHandleMap = null;
         defaultResponseHandle = null;
+        advancedHandleList = null;
     }
 }

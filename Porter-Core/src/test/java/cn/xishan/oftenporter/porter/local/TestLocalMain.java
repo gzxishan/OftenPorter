@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.local;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
@@ -59,6 +60,10 @@ public class TestLocalMain
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".mixin");
         porterConf.getSeekPackages().addClassPorter(My2Porter.class)
                 .addObjectPorter(new MyPorter("Hello MyPorter!"));
+
+
+        porterConf.addNormalAspectAdvancedHandle(
+                new AutoSetObjForAspectOfNormal.AdvancedHandle(false, new AspectHandle("*(*OftenObject)*")));
 
         Properties properties = new Properties();
         properties.setProperty("isTest", String.valueOf(true));
@@ -230,7 +235,8 @@ public class TestLocalMain
             if (executorService == null)
             {
                 bridge.request(
-                        new BridgeRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明").addParam("age", "22")
+                        new BridgeRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明")
+                                .addParam("age", "22")
                                 .addParam("myAge", 22),
                         lResponse -> assertEquals("小明+22", lResponse.getResponse()));
             } else
@@ -239,7 +245,8 @@ public class TestLocalMain
                 {
                     long time = System.currentTimeMillis();
 
-                    bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/parseObject").addParam("title", "转换成对象")
+                    bridge.request(
+                            new BridgeRequest(PortMethod.GET, "/Local-1/Hello/parseObject").addParam("title", "转换成对象")
                                     .addParam("comments", "['c1','c2']")
                                     .addParam("content", "this is content!")
                                     .addParam("time", String.valueOf(System.currentTimeMillis()))

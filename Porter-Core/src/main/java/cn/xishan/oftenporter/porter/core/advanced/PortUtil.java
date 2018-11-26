@@ -15,6 +15,7 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.SeekPackages;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 import org.slf4j.Logger;
 
@@ -109,13 +110,14 @@ public class PortUtil
 
     public static Class<?> getRealClass(Class mayProxyChildClass)
     {
-        if (OftenTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
-        {
-            return mayProxyChildClass.getSuperclass();
-        } else
-        {
-            return mayProxyChildClass;
-        }
+//        if (OftenTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
+//        {
+//            return mayProxyChildClass.getSuperclass();
+//        } else
+//        {
+//            return mayProxyChildClass;
+//        }
+        return ProxyUtil.unwrapProxyForGeneric(mayProxyChildClass);
     }
 
     /**

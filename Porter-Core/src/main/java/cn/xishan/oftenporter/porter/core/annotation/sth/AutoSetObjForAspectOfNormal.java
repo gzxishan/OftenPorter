@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
@@ -18,6 +19,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/6/30.
@@ -25,6 +28,95 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AutoSetObjForAspectOfNormal
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoSetObjForAspectOfNormal.class);
+
+    public abstract static class PatternHandle implements AspectOperationOfNormal.Handle
+    {
+
+        private String methodPattern;
+
+        /**
+         * @param methodPattern 用于匹配方法（支持的字符集：[a-zA-Z0-9\s_\[\]$.(),?*]），支持通配符:?与*。见{@linkplain Method#toString()}。
+         */
+        public PatternHandle(String methodPattern)
+        {
+            this.methodPattern = methodPattern;
+        }
+
+        @Override
+        public final boolean init(Annotation current, IConfigData configData, Object originObject, Class originClass,
+                Method originMethod) throws Exception
+        {
+            return init(configData, originObject, originClass, originMethod);
+        }
+
+        public abstract boolean init(IConfigData configData, Object originObject, Class originClass,
+                Method originMethod) throws Exception;
+
+        public String getMethodPattern()
+        {
+            return methodPattern;
+        }
+
+        public void setMethodPattern(String methodPattern)
+        {
+            this.methodPattern = methodPattern;
+        }
+    }
+
+    public static class AdvancedHandle
+    {
+
+        private static final String[] SPECIALS = {"[", "]", "(", ")", "$", "."};
+        private static final Pattern LEGAL_PATTERN = Pattern.compile("^[a-zA-Z0-9\\s_\\[\\]$.(),?*]+$");
+
+        private Pattern pattern;
+        private boolean isAfter;
+        private PatternHandle handle;
+
+        /**
+         * @param isAfter true放在注解切面的后面；false放在注解切面的前面。
+         * @param handle
+         */
+        public AdvancedHandle(boolean isAfter, PatternHandle handle)
+        {
+            String methodPattern = handle.getMethodPattern();
+            methodPattern = methodPattern.trim();
+
+            if (!LEGAL_PATTERN.matcher(methodPattern).find())
+            {
+                throw new InitException("illegal pattern:" + methodPattern);
+            }
+
+            for (String spe : SPECIALS)
+            {
+                methodPattern = methodPattern.replace(spe, "\\" + spe);
+            }
+
+            methodPattern = methodPattern.replace("?", ".?");
+            methodPattern = methodPattern.replace("*", ".*");
+
+            methodPattern = "^" + methodPattern + "$";
+
+            this.pattern = Pattern.compile(methodPattern);
+            this.isAfter = isAfter;
+            this.handle = handle;
+        }
+
+        public Pattern getPattern()
+        {
+            return pattern;
+        }
+
+        public boolean isAfter()
+        {
+            return isAfter;
+        }
+
+        public AspectOperationOfNormal.Handle getHandle()
+        {
+            return handle;
+        }
+    }
 
     @KeepFromProguard
     public interface IOPProxy
@@ -87,10 +179,12 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = 0; i < handles.length; i++)
                 {
                     AspectOperationOfNormal.Handle handle = handles[i];
-                    if (handle.preInvoke(oftenObject, isTop, origin, originMethod, invoker, args, isInvoked, lastReturn))
+                    if (handle
+                            .preInvoke(oftenObject, isTop, origin, originMethod, invoker, args, isInvoked, lastReturn))
                     {
                         isInvoked = true;
-                        lastReturn = handle.doInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                        lastReturn = handle
+                                .doInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
                     }
                 }
                 if (!isInvoked)
@@ -101,7 +195,8 @@ public class AutoSetObjForAspectOfNormal
                 for (int i = handles.length - 1; i >= 0; i--)
                 {
                     AspectOperationOfNormal.Handle handle = handles[i];
-                    lastReturn = handle.afterInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
+                    lastReturn = handle
+                            .afterInvoke(oftenObject, isTop, origin, originMethod, invoker, args, lastReturn);
                 }
             } catch (Throwable th)
             {
@@ -146,7 +241,8 @@ public class AutoSetObjForAspectOfNormal
         {
             OftenObject oftenObject = OftenObject.fromThreadLocal();
             AspectOperationOfNormal.Handle[] handles = this.aspectHandleMap.get(method);
-            AspectTask aspectTask = new AspectTask(oftenObject, handles, obj, methodProxy, originRef.get(), method, args);
+            AspectTask aspectTask = new AspectTask(oftenObject, handles, obj, methodProxy, originRef.get(), method,
+                    args);
 
             try
             {
@@ -161,8 +257,11 @@ public class AutoSetObjForAspectOfNormal
     }
 
     private static Set<String> aspectMethodHandleCache;
-    private Map<String, List<Annotation[]>> methodHanldeCache;
+
+    //*********List的Object类型：Annotation[]，AdvancedHandle
+    private Map<String, List<Object>> methodHanldeCache;
     private Set<Object> seekedObjectSet = Collections.newSetFromMap(new WeakHashMap<>());
+    private List<AdvancedHandle> advancedHandleList;
 
     private static CallbackFilter callbackFilter = method -> {//static类型，防止当前类被引用无法释放。
         synchronized (AutoSetObjForAspectOfNormal.class)
@@ -173,9 +272,10 @@ public class AutoSetObjForAspectOfNormal
     };
 
 
-    public AutoSetObjForAspectOfNormal()
+    public AutoSetObjForAspectOfNormal(List<AdvancedHandle> advancedHandleList)
     {
         clearCache();
+        this.advancedHandleList = advancedHandleList;
     }
 
 
@@ -202,7 +302,9 @@ public class AutoSetObjForAspectOfNormal
         }
 
         Class<?> clazz = objectMayNull == null ? objectClass : PortUtil.getRealClass(objectMayNull);
-        Map<Method, List<Annotation[]>> methodTypeMap = new WeakHashMap<>();
+
+        //*********List的Object类型：Annotation[]，AdvancedHandle
+        Map<Method, List<Object>> methodTypeMap = new WeakHashMap<>();
 
         Map<Annotation, AspectOperationOfNormal> classAspectOperationMap = new HashMap<>();
 
@@ -235,7 +337,8 @@ public class AutoSetObjForAspectOfNormal
             }
 
             String mkey = method.toString();
-            List<Annotation[]> list = methodHanldeCache.get(mkey);
+
+            List<Object> list = methodHanldeCache.get(mkey);
 
             if (list == null)
             {
@@ -257,6 +360,22 @@ public class AutoSetObjForAspectOfNormal
                     }
                 }
                 methodHanldeCache.put(mkey, list);
+
+                int beforeIndex = 0;
+                for (AdvancedHandle advancedHandle : advancedHandleList)
+                {
+                    Matcher matcher = advancedHandle.getPattern().matcher(mkey);
+                    if (matcher.find())
+                    {
+                        if (advancedHandle.isAfter())
+                        {
+                            list.add(advancedHandle.getHandle());
+                        } else
+                        {
+                            list.add(beforeIndex++, advancedHandle.getHandle());
+                        }
+                    }
+                }
             }
 
             if (list.size() > 0)
@@ -283,18 +402,29 @@ public class AutoSetObjForAspectOfNormal
             IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
 
             Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
-            for (Map.Entry<Method, List<Annotation[]>> entry : methodTypeMap.entrySet())
+            for (Map.Entry<Method, List<Object>> entry : methodTypeMap.entrySet())
             {
-                List<Annotation[]> annotationList = entry.getValue();
+                List<Object> annotationList = entry.getValue();
                 List<AspectOperationOfNormal.Handle> handles = new ArrayList<>(annotationList.size());
 
                 for (int i = 0; i < annotationList.size(); i++)
                 {
-                    Annotation annotation = annotationList.get(i)[0];
-                    AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotationList
-                            .get(i)[1];
+                    AspectOperationOfNormal.Handle handle;
+                    Annotation annotation = null;
+                    Object handleObject = annotationList.get(i);
 
-                    AspectOperationOfNormal.Handle handle = OftenTool.newObject(aspectOperationOfNormal.handle());
+                    if (handleObject instanceof Object[])
+                    {
+                        Annotation[] annotations = (Annotation[]) handleObject;
+                        annotation = annotations[0];
+                        AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotations[1];
+
+                        handle = OftenTool.newObject(aspectOperationOfNormal.handle());
+                    } else
+                    {
+                        handle = (AspectOperationOfNormal.Handle) handleObject;
+                    }
+
                     if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
                     {
                         autoSetHandle.addAutoSetsForNotPorter(handle);

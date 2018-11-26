@@ -369,7 +369,7 @@ public final class PorterMain
         AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal = null;
         if (porterConf.isEnableAspectOfNormal())
         {
-            autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal();
+            autoSetObjForAspectOfNormal = new AutoSetObjForAspectOfNormal(porterConf.getAdvancedHandleList());
             LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
         }
 

@@ -12,11 +12,13 @@ import cn.xishan.oftenporter.porter.core.base.TiedType;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.local.AspectHandle;
 import cn.xishan.oftenporter.porter.local.mixin.HelloMixinPorter;
 import cn.xishan.oftenporter.porter.local.mixin.MinxParseTest;
 import cn.xishan.oftenporter.porter.local.proxy.ProxyUnit;
 import cn.xishan.oftenporter.porter.simple.parsers.IntParser;
 import com.alibaba.fastjson.JSONObject;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +64,7 @@ public class HelloPorter extends SuperSetPorter
     @PortIn(value = "say", nece = {"name", "age"})
     public Object say(OftenObject oftenObject)
     {
+        Assert.assertEquals(AspectHandle.class,oftenObject.getRequestData("aspect-handle"));
         int age = (int) oftenObject._fn[1];
         return oftenObject._fn[0] + "+" + age;
     }

@@ -48,7 +48,7 @@ public class ProxyUtil
 
     public static Class unwrapProxyForGeneric(Class clazz)
     {
-        clazz = PortUtil.getRealClass(clazz);
+        //clazz = PortUtil.getRealClass(clazz);
         if (CGLIB_NAME_PATTERN.matcher(clazz.getName()).find())
         {
             return clazz.getSuperclass();
@@ -58,7 +58,7 @@ public class ProxyUtil
         }
     }
 
-    public static Object proxyObject(Object object, Class[] interfaces, IMethodFilter methodFilter,
+    public static Object proxyObject(Object object,boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
             IInvocationable invocationable) throws Exception
     {
         Callback[] callbacks =
@@ -71,7 +71,7 @@ public class ProxyUtil
 
         Enhancer enhancer = new Enhancer();
         enhancer.setCallbacks(callbacks);
-        enhancer.setUseCache(false);
+        enhancer.setUseCache(useCache);
         enhancer.setCallbackFilter(method -> {
             if (methodFilter.contains(object, method))
             {

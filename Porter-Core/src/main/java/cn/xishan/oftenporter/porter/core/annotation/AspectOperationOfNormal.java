@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public @interface AspectOperationOfNormal
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
 
         @Override
-        public boolean init(T current, IConfigData configData,@MayNull Object originObject,Class originClass,
+        public boolean init(T current, IConfigData configData, @MayNull Object originObject, Class originClass,
                 Method originMethod) throws Exception
         {
             LOGGER.debug("not Override.");
@@ -143,16 +144,17 @@ public @interface AspectOperationOfNormal
         /**
          * 不支持@AutoSet
          *
-         * @param current
+         * @param current      当为null时、表示为{@linkplain AutoSetObjForAspectOfNormal.AdvancedHandle}类型的切面处理。
          * @param originObject
          * @param originMethod
          * @return true表示添加，false不添加。
          */
-        boolean init(T current, IConfigData configData, @MayNull Object originObject, Class originClass,
+        boolean init(@MayNull T current, IConfigData configData, @MayNull Object originObject, Class originClass,
                 Method originMethod) throws Exception;
 
         /**
-         * 是否会调用{@linkplain #doInvoke(OftenObject, boolean, Object, Method, Invoker, Object[], Object)}
+         * 是否会调用{@linkplain #doInvoke(OftenObject, boolean, Object, Method, Invoker, Object[], Object)}.
+         * @param isTop 是否是顶层调用。
          */
         boolean preInvoke(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker,

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.local.porter2;
 
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
@@ -14,7 +15,7 @@ public class My2Porter
     @PortIn("hello")
     public String hello()
     {
-        return getClass().getSimpleName();
+        return PortUtil.getRealClass(getClass()).getSimpleName();
     }
 
     @PortIn
@@ -26,9 +27,9 @@ public class My2Porter
 
     @PortIn
     @PortInit(order = 1)
-    public void init1(OftenObject oftenObject)
+    public void init1(OftenObject oftenObject) throws Exception
     {
-        oftenObject.putRequestData("name","tome");
+        oftenObject.putRequestData("name", "tome");
         LogUtil.printErrPos();
     }
 
