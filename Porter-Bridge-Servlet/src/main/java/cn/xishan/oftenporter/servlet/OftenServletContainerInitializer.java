@@ -236,34 +236,32 @@ public final class OftenServletContainerInitializer implements ServletContainerI
     public void onStartup(Set<Class<?>> servletInitializerClasses,
             ServletContext servletContext) throws ServletException
     {
-        if (servletInitializerClasses == null || servletInitializerClasses.size() == 0)
+        if (servletInitializerClasses != null && servletInitializerClasses.size() > 0)
         {
-            return;
-        }
-        Set<Class<?>> initialClasses = new HashSet<>();
-        for (Class<?> c : servletInitializerClasses)
-        {
-            if (!Modifier.isAbstract(c.getModifiers()))
+            Set<Class<?>> initialClasses = new HashSet<>();
+            for (Class<?> c : servletInitializerClasses)
             {
-                initialClasses.add(c);
+                if (!Modifier.isAbstract(c.getModifiers()))
+                {
+                    initialClasses.add(c);
+                }
+            }
+            if (initialClasses.size() > 0)
+            {
+                servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
+                try
+                {
+                    StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
+                    ServletRegistration.Dynamic dynamic = servletContext
+                            .addServlet(startupServlet.toString(), startupServlet);
+                    dynamic.setAsyncSupported(true);
+                    dynamic.setLoadOnStartup(1);
+                } catch (Throwable e)
+                {
+                    throw new ServletException(e);
+                }
             }
         }
-        if (initialClasses.size() == 0)
-        {
-            return;
-        }
-        servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
-        try
-        {
-            StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
-            ServletRegistration.Dynamic dynamic = servletContext
-                    .addServlet(startupServlet.toString(), startupServlet);
-            dynamic.setAsyncSupported(true);
-            dynamic.setLoadOnStartup(1);
-            WebSocketHandle.initFilter(servletContext);
-        } catch (Throwable e)
-        {
-            throw new ServletException(e);
-        }
+        WebSocketHandle.initFilter(servletContext);
     }
 }
