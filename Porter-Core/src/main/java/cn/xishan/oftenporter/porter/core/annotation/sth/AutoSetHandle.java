@@ -888,9 +888,9 @@ public class AutoSetHandle
     private Object getFieldObject(Object currentObject, Class currentObjectClass, String keyName, Field field,
             Class<?> mayNew, _AutoSet autoSet) throws Exception
     {
-        Object value = doAutoSetGen(autoSet, currentObjectClass, currentObject, field);//先生成
-        if (value == null)
-        {
+        Object value = null;
+
+        {//先获取
             Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
             Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
             switch (autoSet.range())
@@ -943,6 +943,11 @@ public class AutoSetHandle
                 }
                 break;
             }
+        }
+
+        if (value == null)
+        {//再生成
+            value = doAutoSetGen(autoSet, currentObjectClass, currentObject, field);
         }
 
 

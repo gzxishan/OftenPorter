@@ -25,17 +25,8 @@ public class Main1
 
     public static void main(String[] args)
     {
-        Thread thread = new Thread(Main1::init);
-        thread.setDaemon(true);
-        thread.start();
-        try
-        {
-            Thread.sleep(300 * 1000);
-            localMain.destroyAll();
-        } catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        init();
+        localMain.destroyAll();
     }
 
     static void init()
@@ -46,9 +37,9 @@ public class Main1
                 .addPackages(Main1.class.getPackage().getName() + ".porter");
 
         {
-            MyBatisOption myBatisOption = new MyBatisOption(null,"/oftendb/test1mapper/", true);
+            MyBatisOption myBatisOption = new MyBatisOption(null, "/oftendb/test1mapper/", true);
             JdbcDataSource jdbcDataSource = new JdbcDataSource();
-            jdbcDataSource.setURL("jdbc:h2:~/PorterDemo/oftendb2;MODE=MySQL");
+            jdbcDataSource.setURL("jdbc:h2:~/OftenPorterDemo/oftendb2;MODE=MySQL");
             jdbcDataSource.setUser("sa");
             jdbcDataSource.setPassword("");
             myBatisOption.dataSourceObject = jdbcDataSource;
