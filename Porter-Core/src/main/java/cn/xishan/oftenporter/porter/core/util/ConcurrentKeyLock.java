@@ -49,7 +49,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
 
     public interface Locker<K>
     {
-        void lock(K key);
+        void lock(long timeout, K key);
 
         void unlock(K key);
     }
@@ -90,7 +90,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
         locker = new Locker<K>()
         {
             @Override
-            public void lock(K key)
+            public void lock(long timeout, K key)
             {
                 if (key == null)
                     return;
@@ -111,11 +111,12 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                                 previous.thread);
                         try
                         {
-                          boolean rs =  previous.semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
-                          if(!rs){
-                            unlock(key);
-                            throw new OftenCallException("lock timeout!");
-                          }
+                            boolean rs = previous.semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+                            if (!rs)
+                            {
+                                //unlock(key);
+                                throw new OftenCallException("lock timeout!");
+                            }
                         } catch (InterruptedException e)
                         {
                             LOGGER.error(e.getMessage(), e);
@@ -183,10 +184,20 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      *
      * @param key
      */
+    public void lock(long timeout, K key)
+    {
+        if (timeout == -1)
+        {
+            timeout = this.timeout;
+        }
+        locker.lock(timeout, key);
+    }
+
     public void lock(K key)
     {
-        locker.lock(key);
+        lock(-1, key);
     }
+
 
     /**
      * 释放key，唤醒其他等待此key的线程
@@ -204,12 +215,17 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      *
      * @param keys
      */
-    public void locks(K... keys)
+    public void locks(long timeout, K... keys)
     {
         for (K key : keys)
         {
-            lock(key);
+            lock(timeout, key);
         }
+    }
+
+    public void locks(K... keys)
+    {
+        locks(-1, keys);
     }
 
     /**

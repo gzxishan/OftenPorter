@@ -964,7 +964,7 @@ public class AutoSetHandle
 
     private void saveFieldObject(String keyName, Object value, _AutoSet autoSet)
     {
-        if (value != null && autoSet.notNullPut())
+        if (autoSet.isWillSave() && value != null && autoSet.notNullPut())
         {
             Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
             Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;

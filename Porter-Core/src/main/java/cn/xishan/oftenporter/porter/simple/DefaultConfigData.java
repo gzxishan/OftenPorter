@@ -252,7 +252,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public <T> T get(String key)
     {
-        Object rs = properties.getProperty(key);
+        Object rs = properties.get(key);
         return (T) rs;
     }
 

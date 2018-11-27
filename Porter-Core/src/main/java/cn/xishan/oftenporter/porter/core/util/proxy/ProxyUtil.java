@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util.proxy;
 
-import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
+
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
@@ -58,7 +58,24 @@ public class ProxyUtil
         }
     }
 
-    public static Object proxyObject(Object object,boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
+    public static Object proxyObject(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
+            IInvocationable invocationable) throws Exception
+    {
+        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable);
+        Object proxyObject = enhancer.create();
+        initFieldsValue(object, proxyObject, true);
+        return proxyObject;
+    }
+
+    public static Class proxyClass(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
+            IInvocationable invocationable) throws Exception
+    {
+        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable);
+        return enhancer.createClass();
+    }
+
+    private static Enhancer proxySetting(Object object, boolean useCache, Class[] interfaces,
+            IMethodFilter methodFilter,
             IInvocationable invocationable) throws Exception
     {
         Callback[] callbacks =
@@ -86,9 +103,7 @@ public class ProxyUtil
         {
             enhancer.setInterfaces(interfaces);
         }
-        Object proxyObject = enhancer.create();
-        initFieldsValue(object, proxyObject, true);
-        return proxyObject;
+        return enhancer;
     }
 
 

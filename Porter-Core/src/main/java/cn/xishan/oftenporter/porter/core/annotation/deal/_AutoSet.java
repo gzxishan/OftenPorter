@@ -24,8 +24,24 @@ public final class _AutoSet
      */
     boolean willRecursive=true;
 
+    private boolean willSave=true;
+
     public _AutoSet()
     {
+    }
+
+    /**
+     * 是否会保存实例的总开关，默认为true。
+     * @return
+     */
+    public boolean isWillSave()
+    {
+        return willSave;
+    }
+
+    public void setWillSave(boolean willSave)
+    {
+        this.willSave = willSave;
     }
 
     public boolean willRecursive()
