@@ -37,7 +37,7 @@ public interface IArgumentsFactory
     }
 
     /**
-     * 启动时会调用一次。
+     * 启动时会调用一次,用于设置{@linkplain PorterOfFun#setArgsHandle(IArgsHandle)}。
      *
      * @param porterOfFun
      * @return
