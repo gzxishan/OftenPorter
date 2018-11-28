@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -91,24 +92,30 @@ class DefaultUrlResult implements UrlDecoder.Result
     @Override
     public Object getParam(String name)
     {
-        return params.get(name);
+        Object v = params.get(name);
+        if (v instanceof CharSequence && OftenTool.isEmpty(v))
+        {
+            v = null;
+        }
+        return v;
     }
 
     @Override
-    public void setUrlResult(UrlDecoder.Result result) {
+    public void setUrlResult(UrlDecoder.Result result)
+    {
 
     }
 
     @Override
     public <T> T getNeceParam(String name, String errmsgOfEmpty)
     {
-        return DefaultParamSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+        return DefaultParamSource.getNeceParamUtil(this, name, errmsgOfEmpty);
     }
 
     @Override
     public <T> T getNeceParam(String name)
     {
-        return DefaultParamSource.getNeceParamUtil(this,name);
+        return DefaultParamSource.getNeceParamUtil(this, name);
     }
 
     @Override

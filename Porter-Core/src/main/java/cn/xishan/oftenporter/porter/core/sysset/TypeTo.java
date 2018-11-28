@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -128,7 +129,12 @@ public class TypeTo
             @Override
             public Object getParam(String name)
             {
-                return jsonObject.get(name);
+                Object obj = jsonObject.get(name);
+                if (obj instanceof CharSequence && OftenTool.isEmpty(obj))
+                {
+                    obj = null;
+                }
+                return obj;
             }
 
             @Override
@@ -177,13 +183,14 @@ public class TypeTo
         return parse(clazz, oftenObject.getParamSource(), oftenObject);
     }
 
-    public <T> T parse(Class<T> clazz, ParamSource paramSource, @MayNull OftenObject oftenObject) throws RuntimeException
+    public <T> T parse(Class<T> clazz, ParamSource paramSource,
+            @MayNull OftenObject oftenObject) throws RuntimeException
     {
         try
         {
             CacheOne cache = getCache(clazz);
             Object object = portUtil.paramDealOne(oftenObject, false, innerContextBridge.paramDealt,
-                    cache.getOne(), null, paramSource,innerContextBridge.innerBridge.globalParserStore);
+                    cache.getOne(), null, paramSource, innerContextBridge.innerBridge.globalParserStore);
             if (object instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason reason = (ParamDealt.FailedReason) object;

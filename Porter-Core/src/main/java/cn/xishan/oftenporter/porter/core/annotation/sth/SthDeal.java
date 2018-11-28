@@ -55,7 +55,7 @@ public class SthDeal
     public Porter porter(ContextPorter.SrcPorter srcPorter,
             Map<Class, Set<_MixinPorter>> mixinToMap, AutoSetHandle autoSetHandle) throws Exception
     {
-        return porter(srcPorter, mixinToMap, null, autoSetHandle, false, null);
+        return porter(srcPorter, null, mixinToMap, null, autoSetHandle, false, null);
     }
 
 
@@ -65,7 +65,8 @@ public class SthDeal
      *
      * </pre>
      */
-    private Porter porter(ContextPorter.SrcPorter srcPorter, Map<Class, Set<_MixinPorter>> mixinToMap,
+    private Porter porter(ContextPorter.SrcPorter srcPorter, Porter forFinalPorter,
+            Map<Class, Set<_MixinPorter>> mixinToMap,
             String currentClassTied, AutoSetHandle autoSetHandle,
             boolean isMixin, WholeClassCheckPassableGetterImpl wholeClassCheckPassableGetter) throws Exception
 
@@ -104,6 +105,12 @@ public class SthDeal
         porter.portIn = portIn;
         //自动设置,会确保接口对象已经实例化
         porter.addAutoSet();
+
+        if(forFinalPorter!=null){
+            porter.finalObject=forFinalPorter.getFinalPorterObject();
+            porter.finalPorter=forFinalPorter.getFinalPorter();
+        }
+
         if (porter.object instanceof IPorter)
         {
             IPorter iPorter = (IPorter) porter.object;
@@ -192,7 +199,7 @@ public class SthDeal
                 continue;
             }
             Porter mixinPorter = porter(new ContextPorter.SrcPorter(_mixinPorter.getClazz(), _mixinPorter.getObject()),
-                    mixinToMap, currentClassTied, autoSetHandle, true, wholeClassCheckPassableGetter);
+                    porter, mixinToMap, currentClassTied, autoSetHandle, true, wholeClassCheckPassableGetter);
             if (mixinPorter == null)
             {
                 continue;
@@ -204,8 +211,7 @@ public class SthDeal
             {
                 putFun(mixinIt.next(), childrenWithMethod, true, true, _mixinPorter.isOverride());
             }
-            mixinPorter.finalObject = porter.getFinalPorterObject();
-            mixinPorter.finalPorter = porter.getFinalPorter();
+
             mixinPorter.childrenWithMethod.clear();
             wholeClassCheckPassableGetter.addAll(mixinPorter.getPortIn().getCheckPassablesForWholeClass());
             autoSetHandle.addAutoSetThatOfMixin(porter.getObj(), mixinPorter.getObj());

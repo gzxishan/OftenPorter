@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.base;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
 import java.util.Collections;
@@ -22,7 +23,7 @@ public interface ParamSource
      * 根据名称得到参数,路径参数优先。
      *
      * @param name 参数名称
-     * @return 返回参数值, 可能为null且字符串可能为""。
+     * @return 返回参数值, 可能为null(不会返回空字符串)。
      */
     <T> T getParam(String name);
 
@@ -72,7 +73,11 @@ public interface ParamSource
             @Override
             public <T> T getParam(String name)
             {
-                return (T) finalParams.get(name);
+                T t = (T) finalParams.get(name);
+                if(t instanceof CharSequence&& OftenTool.isEmpty(t)){
+                    t=null;
+                }
+                return t;
             }
 
             @Override
