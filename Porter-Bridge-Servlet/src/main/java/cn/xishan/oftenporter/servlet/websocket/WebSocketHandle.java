@@ -18,16 +18,17 @@ import javax.servlet.http.*;
 import javax.websocket.server.ServerContainer;
 import javax.websocket.server.ServerEndpointConfig;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSocket>
 {
+    private static List<Supplier<Void>> supplierListForInitWebsocket = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WSConfig wsConfig = new WSConfig();
     private WebSocket webSocket;
@@ -198,6 +199,24 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false,
                 "/*");
         servletContext.setAttribute(OftenWebSocketFilter.class.getName(), oftenWebSocketFilter);
+        for (Supplier<Void> supplier : supplierListForInitWebsocket)
+        {
+            supplier.get();
+        }
+        supplierListForInitWebsocket = null;
+    }
 
+    /**
+     * WebSocket初始化完成后调用。
+     * @param supplier
+     */
+    public static void afterInitWebSocket(Supplier<Void> supplier)
+    {
+        if (supplierListForInitWebsocket == null)
+        {
+            supplier.get();
+            return;
+        }
+        supplierListForInitWebsocket.add(supplier);
     }
 }
