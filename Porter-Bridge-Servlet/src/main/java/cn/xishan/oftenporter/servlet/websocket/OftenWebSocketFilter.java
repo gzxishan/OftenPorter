@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.servlet.OftenServlet;
+import cn.xishan.oftenporter.servlet.WrapperFilterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +26,26 @@ public class OftenWebSocketFilter implements Filter
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    public void doFilter(ServletRequest _servletRequest, ServletResponse _servletResponse,
             FilterChain chain) throws IOException, ServletException
     {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
-        OftenServlet oftenServlet = (OftenServlet) request.getServletContext().getAttribute(OftenServlet.class.getName());
+        HttpServletRequest request = (HttpServletRequest) _servletRequest;
+        HttpServletResponse response = (HttpServletResponse) _servletResponse;
+
+        WrapperFilterManager wrapperFilterManager = WrapperFilterManager
+                .getWrapperFilterManager(request.getServletContext());
+        for (WrapperFilterManager.WrapperFilter wrapperFilter : wrapperFilterManager.wrapperFilters())
+        {
+            WrapperFilterManager.Wrapper wrapper = wrapperFilter.doFilter(request, response);
+            if (wrapper != null)
+            {
+                request = wrapper.getRequest();
+                response = wrapper.getResponse();
+            }
+        }
+
+        OftenServlet oftenServlet = (OftenServlet) request.getServletContext()
+                .getAttribute(OftenServlet.class.getName());
         if (WebSocketHandle.isWebSocket(request))
         {
             //接入框架进行处理
@@ -40,7 +55,7 @@ public class OftenWebSocketFilter implements Filter
                 return;
             }
         }
-        chain.doFilter(servletRequest, servletResponse);
+        chain.doFilter(request, response);
     }
 
     @Override

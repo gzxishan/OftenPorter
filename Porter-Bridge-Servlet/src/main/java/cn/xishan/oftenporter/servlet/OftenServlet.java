@@ -26,7 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 @CorsAccess
@@ -56,6 +58,23 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
      * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
      */
     protected boolean addPutDealt = true;
+
+    private WrapperFilterManager wrapperFilterManager = new WrapperFilterManager()
+    {
+        private List<WrapperFilter> wrapperFilterList = new ArrayList<>();
+
+        @Override
+        public void addWrapperFilter(WrapperFilter wrapperFilter)
+        {
+            wrapperFilterList.add(wrapperFilter);
+        }
+
+        @Override
+        public List<WrapperFilter> wrapperFilters()
+        {
+            return wrapperFilterList;
+        }
+    };
 
     public OftenServlet()
     {
@@ -369,6 +388,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
         ServletContext servletContext = getServletConfig().getServletContext();
         servletContext.setAttribute(OftenServlet.class.getName(), this);
+        servletContext.setAttribute(WrapperFilterManager.class.getName(), wrapperFilterManager);
 
         porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
