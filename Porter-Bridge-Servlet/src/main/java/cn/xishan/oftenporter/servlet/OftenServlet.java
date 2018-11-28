@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -194,27 +193,27 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             OftenServletResponse wResponse, PortMethod method) throws IOException
     {
-        if (isHttp2Https && request.getScheme().equals("http"))
-        {
-            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request)
-            {
-                @Override
-                public String getScheme()
-                {
-                    return "https";
-                }
-
-                @Override
-                public StringBuffer getRequestURL()
-                {
-                    StringBuffer buffer = new StringBuffer();
-                    String host = OftenServletRequest.getHost(this, true);
-                    buffer.append(host).append(getRequestURI());
-                    return buffer;
-                }
-            };
-            request = requestWrapper;
-        }
+//        if (isHttp2Https && request.getScheme().equals("http"))
+//        {
+//            HttpServletRequestWrapper requestWrapper = new HttpServletRequestWrapper(request)
+//            {
+//                @Override
+//                public String getScheme()
+//                {
+//                    return "https";
+//                }
+//
+//                @Override
+//                public StringBuffer getRequestURL()
+//                {
+//                    StringBuffer buffer = new StringBuffer();
+//                    String host = OftenServletRequest.getHost(this, true);
+//                    buffer.append(host).append(getRequestURI());
+//                    return buffer;
+//                }
+//            };
+//            request = requestWrapper;
+//        }
 
         OftenServletRequest wreq = new OftenServletRequest(request, path, response, method);
         if (wreq.getPath().startsWith("/="))
