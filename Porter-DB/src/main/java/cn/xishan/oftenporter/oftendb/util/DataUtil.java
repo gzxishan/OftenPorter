@@ -10,11 +10,11 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._NeceUnece;
 import cn.xishan.oftenporter.porter.core.annotation.param.*;
+import cn.xishan.oftenporter.porter.core.base.FilterEmpty;
 import cn.xishan.oftenporter.porter.core.base.InNames;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
@@ -23,11 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DataUtil
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataUtil.class);
     private static final AnnotationDealt ANNOTATION_DEALT = AnnotationDealt.newInstance(true);
+    private static final Map<Class, DataUtilCacheEntity> DATA_UTIL_CACHE_ENTITY_MAP = new ConcurrentHashMap<>();
 
     /**
      * 见{@linkplain #toNameValues(Object, boolean, boolean, String...)}
@@ -59,14 +61,13 @@ public class DataUtil
         try
         {
             return _toNameValues(object, filterNullAndEmpty, isExcept, keyNames);
-        } catch (IllegalAccessException e)
+        } catch (Throwable e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    private static boolean isJsonFieldOrJson(Object object, Field field,
-            DBNameValues DBNameValues) throws IllegalAccessException
+    private static boolean seekJsonFieldOrJson(Class realClazz, Field field, DataUtilCacheEntity dataUtilCacheEntity)
     {
         JsonObj jsonObj = AnnoUtil.getAnnotation(field, JsonObj.class);
         if (jsonObj != null)
@@ -76,12 +77,10 @@ public class DataUtil
             {
                 name = field.getName();
             }
-            field.setAccessible(true);
-            Object fieldObj = field.get(object);
-            if (fieldObj != null)
-            {
-                DBNameValues.append(name, _toNameValues(fieldObj, jsonObj.filterNullAndEmpty(), true).toJSON());
-            }
+            Class fieldRealClazz = AnnoUtil.Advance.getRealTypeOfField(realClazz, field);
+            dataUtilCacheEntity
+                    .addField(new DataUtilCacheEntity.RecursiveEField(field, name, jsonObj.filterNullAndEmpty(),
+                            seekCacheEntityField(FilterEmpty.AUTO, fieldRealClazz)));
             return true;
         }
 
@@ -93,12 +92,8 @@ public class DataUtil
             {
                 name = field.getName();
             }
-            field.setAccessible(true);
-            Object fieldObj = field.get(object);
-            if (!jsonField.filterNullAndEmpty() || OftenTool.notNullAndEmpty(fieldObj))
-            {
-                DBNameValues.append(name, fieldObj);
-            }
+            dataUtilCacheEntity
+                    .addField(new DataUtilCacheEntity.EField(field, name, jsonField.filterNullAndEmpty()));
             return true;
         }
 
@@ -110,82 +105,56 @@ public class DataUtil
             {
                 name = field.getName();
             }
-            field.setAccessible(true);
-            Object fieldObj = field.get(object);
-            if (!jsonSerialize.filterNullAndEmpty() || OftenTool.notNullAndEmpty(fieldObj))
-            {
-                DBNameValues.append(name, JSON.toJSON(fieldObj));
-            }
+            dataUtilCacheEntity
+                    .addField(new DataUtilCacheEntity.JsonEField(field, name, jsonSerialize.filterNullAndEmpty()));
             return true;
         }
-
-
         return false;
     }
 
-    private static DBNameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
-            String... keyNames) throws IllegalAccessException
+    private static DataUtilCacheEntity seekCacheEntityField(FilterEmpty filterEmpty, Class realClazz)
     {
-        Field[] fields = OftenTool.getAllFields(PortUtil.getRealClass(object));
 
-        DBNameValues DBNameValues = new DBNameValues(fields.length);
-        DBNameValues.filterNullAndEmpty(filterNullAndEmpty);
-        if (isExcept)
+        DataUtilCacheEntity dataUtilCacheEntity = DATA_UTIL_CACHE_ENTITY_MAP.get(realClazz);
+        if (dataUtilCacheEntity != null)
         {
-            for (int i = 0; i < fields.length; i++)
-            {
-                Field field = fields[i];
-                if (isJsonFieldOrJson(object, field, DBNameValues))
-                {
-                    continue;
-                }
-                String name = getTiedName(field);
-                if (name == null)
-                {
-                    continue;
-                }
-                for (String e : keyNames)
-                {
-                    if (e.equals(name))
-                    {
-                        name = null;
-                        break;
-                    }
-                }
-                if (name != null)
-                {
-                    field.setAccessible(true);
-                    DBNameValues.append(name, field.get(object));
-                }
-            }
-        } else
-        {
-            String[] contains = keyNames;
-            for (int i = 0; i < fields.length; i++)
-            {
-                Field field = fields[i];
-                if (isJsonFieldOrJson(object, field, DBNameValues))
-                {
-                    continue;
-                }
-                String name = getTiedName(field);
-                if (name == null)
-                {
-                    continue;
-                }
-                for (String c : contains)
-                {
-                    if (c.equals(name))
-                    {
-                        field.setAccessible(true);
-                        DBNameValues.append(name, field.get(object));
-                        break;
-                    }
-                }
-            }
+            return dataUtilCacheEntity;
         }
 
-        return DBNameValues;
+        dataUtilCacheEntity = new DataUtilCacheEntity(filterEmpty);
+        DATA_UTIL_CACHE_ENTITY_MAP.put(realClazz, dataUtilCacheEntity);
+
+        Field[] fields = OftenTool.getAllFields(realClazz);
+
+        for (int i = 0; i < fields.length; i++)
+        {
+            Field field = fields[i];
+            if (seekJsonFieldOrJson(realClazz, field, dataUtilCacheEntity))
+            {
+                continue;
+            }
+            String name = getTiedName(field);
+            if (name == null)
+            {
+                continue;
+            }
+            dataUtilCacheEntity.addField(new DataUtilCacheEntity.EField(field, name, FilterEmpty.AUTO));
+        }
+        dataUtilCacheEntity.setReady(true);
+        return dataUtilCacheEntity;
+    }
+
+    private static DBNameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
+            String... keyNames) throws Throwable
+    {
+        Class clazz = PortUtil.getRealClass(object);
+        DataUtilCacheEntity dataUtilCacheEntity = DATA_UTIL_CACHE_ENTITY_MAP.get(clazz);
+        if (dataUtilCacheEntity == null || !dataUtilCacheEntity.isReady())
+        {
+            dataUtilCacheEntity = seekCacheEntityField(FilterEmpty.AUTO, clazz);
+        }
+        DBNameValues nameValues = dataUtilCacheEntity.toDBNameValues(object, filterNullAndEmpty, isExcept, keyNames);
+        return nameValues;
     }
 
     /**

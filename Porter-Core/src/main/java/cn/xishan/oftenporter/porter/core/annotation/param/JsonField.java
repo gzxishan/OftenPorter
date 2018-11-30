@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
+import cn.xishan.oftenporter.porter.core.base.FilterEmpty;
+
 import java.lang.annotation.*;
 
 /**
@@ -16,5 +18,5 @@ public @interface JsonField
      */
     String value() default "";
 
-    boolean filterNullAndEmpty() default false;
+    FilterEmpty filterNullAndEmpty() default FilterEmpty.AUTO;
 }

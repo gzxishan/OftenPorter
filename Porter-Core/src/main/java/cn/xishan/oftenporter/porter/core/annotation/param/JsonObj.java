@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
+import cn.xishan.oftenporter.porter.core.base.FilterEmpty;
+
 import java.lang.annotation.*;
 
 /**
@@ -17,7 +19,12 @@ public @interface JsonObj
      */
     String value() default "";
 
-    boolean filterNullAndEmpty() default false;
+    /**
+     * 是否过滤内部的空field。
+     *
+     * @return
+     */
+    FilterEmpty filterNullAndEmpty() default FilterEmpty.AUTO;
 
     /**
      * 请求时，是否设置内部变量

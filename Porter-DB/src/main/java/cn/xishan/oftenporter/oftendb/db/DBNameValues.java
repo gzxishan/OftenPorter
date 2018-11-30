@@ -43,8 +43,8 @@ public class DBNameValues implements INameValues
     }
 
     public DBNameValues(int capacity) {
-        names = new ArrayList<String>(capacity);
-        values = new ArrayList<Object>(capacity);
+        names = new ArrayList<>(capacity);
+        values = new ArrayList<>(capacity);
     }
 
     /**
@@ -74,6 +74,11 @@ public class DBNameValues implements INameValues
     public DBNameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
         this.filterNullAndEmpty = filterNullAndEmpty;
         return this;
+    }
+
+    public boolean isFilterNullAndEmpty()
+    {
+        return filterNullAndEmpty;
     }
 
     /**
