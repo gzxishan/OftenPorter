@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.util;
 
 import cn.xishan.oftenporter.oftendb.db.DBNameValues;
 import cn.xishan.oftenporter.porter.core.base.FilterEmpty;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
@@ -34,9 +35,20 @@ class DataUtilCacheEntity
         {
             nameValues.append(name, field.get(obj));
         }
+
+        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        {
+            Object value = field.get(obj);
+            if (filterEmpty && OftenTool.isEmpty(value))
+            {
+                return;
+            }
+            json.put(name, value);
+        }
     }
 
-    static class RecursiveEField extends EField{
+    static class RecursiveEField extends EField
+    {
         DataUtilCacheEntity recursive;
 
         public RecursiveEField(Field field, String name, FilterEmpty filterEmpty,
@@ -53,10 +65,25 @@ class DataUtilCacheEntity
             JSONObject json = null;
             if (fieldObj != null)
             {
-                DBNameValues nvs = recursive.toDBNameValues(fieldObj, nameValues.isFilterNullAndEmpty(), true);
-                json = nvs.toJSON();
+                json = recursive.toJSON(fieldObj, nameValues.isFilterNullAndEmpty(), true);
             }
             nameValues.append(name, json);
+        }
+
+        @Override
+        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        {
+            Object fieldObj = field.get(obj);
+            JSONObject _json = null;
+            if (fieldObj != null)
+            {
+                _json = recursive.toJSON(fieldObj, filterEmpty, true);
+            }
+            if (filterEmpty && OftenTool.isEmpty(_json))
+            {
+                return;
+            }
+            json.put(name, _json);
         }
     }
 
@@ -72,12 +99,28 @@ class DataUtilCacheEntity
         public void append(DBNameValues nameValues, Object obj) throws Throwable
         {
             Object fieldObj = field.get(obj);
-            JSONObject json = null;
+            Object json = null;
             if (fieldObj != null)
             {
-                JSON.toJSON(fieldObj);
+                json = JSON.toJSON(fieldObj);
             }
             nameValues.append(name, json);
+        }
+
+        @Override
+        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        {
+            Object fieldObj = field.get(obj);
+            Object _json = null;
+            if (fieldObj != null)
+            {
+                _json = JSON.toJSON(fieldObj);
+            }
+            if (filterEmpty && OftenTool.isEmpty(_json))
+            {
+                return;
+            }
+            json.put(name, _json);
         }
     }
 
@@ -104,6 +147,45 @@ class DataUtilCacheEntity
     public void addField(EField field)
     {
         fieldList.add(field);
+    }
+
+    public JSONObject toJSON(Object object, boolean parentToEmpty, boolean isExcept,
+            String... keyNames) throws Throwable
+    {
+        boolean isFilterEmpty = !(filterEmpty == FilterEmpty.NO || !parentToEmpty);
+        Arrays.sort(keyNames);
+
+        JSONObject jsonObject = new JSONObject(5);
+        if (keyNames.length > 0)
+        {
+            if (isExcept)
+            {
+                for (EField field : fieldList)
+                {
+                    if (Arrays.binarySearch(keyNames, field.name) >= 0)
+                    {
+                        continue;
+                    }
+                    field.put(isFilterEmpty, jsonObject, object);
+                }
+            } else
+            {
+                for (EField field : fieldList)
+                {
+                    if (Arrays.binarySearch(keyNames, field.name) >= 0)
+                    {
+                        field.put(isFilterEmpty, jsonObject, object);
+                    }
+                }
+            }
+        } else
+        {
+            for (EField field : fieldList)
+            {
+                field.put(isFilterEmpty, jsonObject, object);
+            }
+        }
+        return jsonObject;
     }
 
     public DBNameValues toDBNameValues(Object object, boolean parentToEmpty, boolean isExcept,

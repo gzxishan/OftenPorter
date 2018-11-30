@@ -45,7 +45,27 @@ public class DataUtil
 
     public static JSONObject toJSON(Object object, boolean filterNullAndEmpty)
     {
-        return toNameValues(object, filterNullAndEmpty, true).toJSON();
+        return toJSON(object, filterNullAndEmpty, true);
+    }
+
+    /**
+     * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}、{@linkplain JsonField}、{@linkplain JsonObj}
+     * @param filterNullAndEmpty 是否过滤null或空字符串
+     * @param isExcept
+     * @param keyNames
+     * @return
+     */
+    public static JSONObject toJSON(Object object, boolean filterNullAndEmpty, boolean isExcept,
+            String... keyNames)
+    {
+        try
+        {
+            DataUtilCacheEntity dataUtilCacheEntity = getDataUtilCacheEntity(object);
+            return dataUtilCacheEntity.toJSON(object, filterNullAndEmpty, isExcept, keyNames);
+        } catch (Throwable e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -60,7 +80,10 @@ public class DataUtil
     {
         try
         {
-            return _toNameValues(object, filterNullAndEmpty, isExcept, keyNames);
+            DataUtilCacheEntity dataUtilCacheEntity = getDataUtilCacheEntity(object);
+            DBNameValues nameValues = dataUtilCacheEntity
+                    .toDBNameValues(object, filterNullAndEmpty, isExcept, keyNames);
+            return nameValues;
         } catch (Throwable e)
         {
             throw new RuntimeException(e);
@@ -144,8 +167,7 @@ public class DataUtil
         return dataUtilCacheEntity;
     }
 
-    private static DBNameValues _toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
-            String... keyNames) throws Throwable
+    private static DataUtilCacheEntity getDataUtilCacheEntity(Object object) throws Throwable
     {
         Class clazz = PortUtil.getRealClass(object);
         DataUtilCacheEntity dataUtilCacheEntity = DATA_UTIL_CACHE_ENTITY_MAP.get(clazz);
@@ -153,8 +175,7 @@ public class DataUtil
         {
             dataUtilCacheEntity = seekCacheEntityField(FilterEmpty.AUTO, clazz);
         }
-        DBNameValues nameValues = dataUtilCacheEntity.toDBNameValues(object, filterNullAndEmpty, isExcept, keyNames);
-        return nameValues;
+        return dataUtilCacheEntity;
     }
 
     /**
