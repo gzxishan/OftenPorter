@@ -336,7 +336,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             {
                 SyncOption syncOption = new SyncOption(porterOfFun.getMethodPortIn().getMethods()[0],
                         porterOfFun.getMethodPortIn().getTiedNames()[0]);
-                oftenObject.newSyncPorter(syncOption).request(oftenObject);
+                oftenObject.newSyncPorter(syncOption).invokeWithNameValues(oftenObject);
             }
         }
 

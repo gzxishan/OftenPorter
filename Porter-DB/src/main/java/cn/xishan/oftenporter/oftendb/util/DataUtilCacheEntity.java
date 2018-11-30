@@ -31,12 +31,12 @@ class DataUtilCacheEntity
             this.filterEmpty = filterEmpty;
         }
 
-        public void append(DBNameValues nameValues, Object obj) throws Throwable
+        public void append(int deep, DBNameValues nameValues, Object obj) throws Throwable
         {
             nameValues.append(name, field.get(obj));
         }
 
-        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        public void put(int deep, boolean filterEmpty, JSONObject json, Object obj) throws Throwable
         {
             Object value = field.get(obj);
             if (filterEmpty && OftenTool.isEmpty(value))
@@ -59,25 +59,25 @@ class DataUtilCacheEntity
         }
 
         @Override
-        public void append(DBNameValues nameValues, Object obj) throws Throwable
+        public void append(int deep, DBNameValues nameValues, Object obj) throws Throwable
         {
             Object fieldObj = field.get(obj);
             JSONObject json = null;
             if (fieldObj != null)
             {
-                json = recursive.toJSON(fieldObj, nameValues.isFilterNullAndEmpty(), true);
+                json = recursive._toJSON(deep + 1, fieldObj, nameValues.isFilterNullAndEmpty(), true);
             }
             nameValues.append(name, json);
         }
 
         @Override
-        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        public void put(int deep, boolean filterEmpty, JSONObject json, Object obj) throws Throwable
         {
             Object fieldObj = field.get(obj);
             JSONObject _json = null;
             if (fieldObj != null)
             {
-                _json = recursive.toJSON(fieldObj, filterEmpty, true);
+                _json = recursive._toJSON(deep + 1, fieldObj, filterEmpty, true);
             }
             if (filterEmpty && OftenTool.isEmpty(_json))
             {
@@ -96,7 +96,7 @@ class DataUtilCacheEntity
         }
 
         @Override
-        public void append(DBNameValues nameValues, Object obj) throws Throwable
+        public void append(int deep, DBNameValues nameValues, Object obj) throws Throwable
         {
             Object fieldObj = field.get(obj);
             Object json = null;
@@ -108,7 +108,7 @@ class DataUtilCacheEntity
         }
 
         @Override
-        public void put(boolean filterEmpty, JSONObject json, Object obj) throws Throwable
+        public void put(int deep, boolean filterEmpty, JSONObject json, Object obj) throws Throwable
         {
             Object fieldObj = field.get(obj);
             Object _json = null;
@@ -149,15 +149,25 @@ class DataUtilCacheEntity
         fieldList.add(field);
     }
 
+
     public JSONObject toJSON(Object object, boolean parentToEmpty, boolean isExcept,
             String... keyNames) throws Throwable
     {
-        boolean isFilterEmpty = !(filterEmpty == FilterEmpty.NO || !parentToEmpty);
-        Arrays.sort(keyNames);
+        return _toJSON(0, object, parentToEmpty, isExcept, keyNames);
+    }
 
+    private JSONObject _toJSON(int deep, Object object, boolean parentToEmpty, boolean isExcept,
+            String... keyNames) throws Throwable
+    {
+        if (deep > 64)
+        {
+            throw new RuntimeException("too deep invoke,may loop ref:"+object);
+        }
+        boolean isFilterEmpty = !(filterEmpty == FilterEmpty.NO || !parentToEmpty);
         JSONObject jsonObject = new JSONObject(5);
         if (keyNames.length > 0)
         {
+            Arrays.sort(keyNames);
             if (isExcept)
             {
                 for (EField field : fieldList)
@@ -166,7 +176,7 @@ class DataUtilCacheEntity
                     {
                         continue;
                     }
-                    field.put(isFilterEmpty, jsonObject, object);
+                    field.put(deep, isFilterEmpty, jsonObject, object);
                 }
             } else
             {
@@ -174,7 +184,7 @@ class DataUtilCacheEntity
                 {
                     if (Arrays.binarySearch(keyNames, field.name) >= 0)
                     {
-                        field.put(isFilterEmpty, jsonObject, object);
+                        field.put(deep, isFilterEmpty, jsonObject, object);
                     }
                 }
             }
@@ -182,7 +192,7 @@ class DataUtilCacheEntity
         {
             for (EField field : fieldList)
             {
-                field.put(isFilterEmpty, jsonObject, object);
+                field.put(deep, isFilterEmpty, jsonObject, object);
             }
         }
         return jsonObject;
@@ -205,7 +215,7 @@ class DataUtilCacheEntity
                     {
                         continue;
                     }
-                    field.append(nameValues, object);
+                    field.append(0, nameValues, object);
                 }
             } else
             {
@@ -213,7 +223,7 @@ class DataUtilCacheEntity
                 {
                     if (Arrays.binarySearch(keyNames, field.name) >= 0)
                     {
-                        field.append(nameValues, object);
+                        field.append(0, nameValues, object);
                     }
                 }
             }
@@ -221,7 +231,7 @@ class DataUtilCacheEntity
         {
             for (EField field : fieldList)
             {
-                field.append(nameValues, object);
+                field.append(0, nameValues, object);
             }
         }
         return nameValues;

@@ -266,25 +266,25 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
 
     /**
-     * 另见{@linkplain FunParam#toNameValues(Object...)}.
+     * 另见{@linkplain FunParam#toJSON(Object...)} .
      */
     public <T> T invokePorter(PortMethod method, String funTied, Object... objects)
     {
-        return invokePorter(method, null, funTied, FunParam.toNameValues(objects));
+        return invokePorter(method, null, funTied, FunParam.toJSON(objects));
     }
 
     /**
-     * 另见{@linkplain FunParam#toNameValues(Object...)}.
+     * 另见{@linkplain FunParam#toJSON(Object...)}.
      */
     public <T> T invokePorter(PortMethod method, String classTied, String funTied, Object... objects)
     {
-        return invokePorter(method, classTied, funTied, FunParam.toNameValues(objects));
+        return invokePorter(method, classTied, funTied, FunParam.toJSON(objects));
     }
 
-    public <T> T invokePorter(PortMethod method, String classTied, String funTied, INameValues nameValues)
+    public <T> T invokePorter(PortMethod method, String classTied, String funTied, Map<String,Object> params)
     {
         Object[] temp = new Object[1];
-        innerRequest(method, classTied, funTied, nameValues, lResponse -> temp[0] = lResponse.getResponse(), false);
+        innerRequest(method, classTied, funTied, params, lResponse -> temp[0] = lResponse.getResponse(), false);
         Object rs = temp[0];
         return SyncPorterThrowsImpl.deal(rs);
     }
@@ -294,22 +294,22 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
      * 使用当前请求的接口方法。
      *
      * @param funTied
-     * @param nameValues
+     * @param params
      * @param callback
      */
-    public void innerRequest(String funTied, INameValues nameValues, BridgeCallback callback)
+    public void innerRequest(String funTied, Map<String,Object> params, BridgeCallback callback)
     {
-        innerRequest(getRequest().getMethod(), null, funTied, nameValues, callback, true);
+        innerRequest(getRequest().getMethod(), null, funTied, params, callback, true);
     }
 
     /**
      * @param method
      * @param funTied
-     * @param nameValues
+     * @param params
      * @param callback
      * @param throwWCallException 是否在返回码不为成功时抛出异常。
      */
-    public void innerRequest(PortMethod method, String classTied, String funTied, INameValues nameValues,
+    public void innerRequest(PortMethod method, String classTied, String funTied, Map<String,Object> params,
             BridgeCallback callback,
             boolean throwWCallException)
     {
@@ -328,7 +328,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         builder.append(funTied == null ? "" : funTied);
 
         BridgeRequest request = BridgeRequest.withNewPath(this, builder.toString(), method, getRequest(), true);
-        request.addParamAll(nameValues);
+        request.addParamAll(params);
         if (throwWCallException)
         {
             OftenCallException[] oftenCallExceptions = new OftenCallException[1];

@@ -1,10 +1,8 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
-import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
+import com.alibaba.fastjson.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018-11-06.
@@ -44,14 +42,14 @@ public class FunParam
         this.value = value;
     }
 
-    public static INameValues toNameValues(FunParam[] funParams)
+    public static JSONObject toJSON(FunParam[] funParams)
     {
-        DefaultNameValues defaultNameValues = new DefaultNameValues();
+        JSONObject jsonObject = new JSONObject();
         for (FunParam funParam : funParams)
         {
-            defaultNameValues.append(funParam.getName(), funParam.getValue());
+            jsonObject.put(funParam.getName(), funParam.getValue());
         }
-        return defaultNameValues;
+        return jsonObject;
     }
 
     /**
@@ -60,10 +58,9 @@ public class FunParam
      * @param objects
      * @return
      */
-    public static INameValues toNameValues(Object... objects)
+    public static JSONObject toJSON(Object... objects)
     {
-        List<String> names = new ArrayList<>();
-        List<Object> values = new ArrayList<>();
+        JSONObject jsonObject = new JSONObject();
         for (Object obj : objects)
         {
             if (obj instanceof FunParam)
@@ -73,15 +70,12 @@ public class FunParam
                 {
                     throw new NullPointerException("empty FunParam name!");
                 }
-                names.add(funParam.getName());
-                values.add(funParam.getValue());
+                jsonObject.put(funParam.getName(), funParam.getValue());
             } else if (obj != null)
             {
-                names.add(obj.getClass().getName());
-                values.add(obj);
+                jsonObject.put(obj.getClass().getName(), obj);
             }
         }
-        DefaultNameValues defaultNameValues = new DefaultNameValues(names, values);
-        return defaultNameValues;
+        return jsonObject;
     }
 }

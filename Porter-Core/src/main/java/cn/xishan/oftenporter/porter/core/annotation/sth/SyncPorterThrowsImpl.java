@@ -3,11 +3,12 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
+
+import java.util.Map;
 
 /**
  * Created by chenyg on 2018-03-02.
@@ -67,23 +68,16 @@ public class SyncPorterThrowsImpl implements PorterThrowsSync
     }
 
     @Override
-    public <T> T request(OftenObject oftenObject)
+    public <T> T invokeWithMap(OftenObject oftenObject, Map<String, Object> params)
     {
-        T t = syncPorter.request(oftenObject);
+        T t = syncPorter.invokeWithMap(oftenObject, params);
         return deal(t);
     }
 
     @Override
-    public <T> T request(OftenObject oftenObject, INameValues INameValues)
+    public <T> T invokeWithNameValues(OftenObject oftenObject, Object... nameValues)
     {
-        T t = syncPorter.request(oftenObject, INameValues);
-        return deal(t);
-    }
-
-    @Override
-    public <T> T requestSimple(OftenObject oftenObject, Object... nameValues)
-    {
-        T t = syncPorter.requestSimple(oftenObject, nameValues);
+        T t = syncPorter.invokeWithNameValues(oftenObject, nameValues);
         return deal(t);
     }
 
@@ -94,24 +88,5 @@ public class SyncPorterThrowsImpl implements PorterThrowsSync
         return deal(t);
     }
 
-    @Override
-    public <T> T requestWNull()
-    {
-        T t = syncPorter.requestWNull();
-        return deal(t);
-    }
 
-    @Override
-    public <T> T requestWNull(INameValues INameValues)
-    {
-        T t = syncPorter.requestWNull(INameValues);
-        return deal(t);
-    }
-
-    @Override
-    public <T> T requestWNullSimple(Object... nameValues)
-    {
-        T t = syncPorter.requestWNullSimple(nameValues);
-        return deal(t);
-    }
 }

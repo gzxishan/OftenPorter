@@ -2,9 +2,10 @@ package cn.xishan.oftenporter.porter.core.sysset;
 
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.PorterSyncOption;
-import cn.xishan.oftenporter.porter.core.base.INameValues;
 import cn.xishan.oftenporter.porter.core.base.FunParam;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+
+import java.util.Map;
 
 /**
  * <pre>
@@ -14,17 +15,18 @@ import cn.xishan.oftenporter.porter.core.base.OftenObject;
  */
 public interface PorterSync
 {
-    <T> T request(@MayNull OftenObject oftenObject);
 
-    <T> T request(@MayNull OftenObject oftenObject, INameValues INameValues);
+    <T> T invokeWithMap(@MayNull OftenObject oftenObject, Map<String, Object> params);
+
 
     /**
+     *
      * @param oftenObject
      * @param nameValues name,value,name,value...
      * @param <T>
      * @return
      */
-    <T> T requestSimple(@MayNull OftenObject oftenObject, Object... nameValues);
+    <T> T invokeWithNameValues(@MayNull OftenObject oftenObject,Object...nameValues);
 
     /**
      * 等同于 requestSimple(wObject,objects[0].getClass().getName(),objects[0],FunParam.getName(),FunParam.getValue(),...)。
@@ -37,14 +39,4 @@ public interface PorterSync
      */
     <T> T invokeWithObjects(@MayNull OftenObject oftenObject, Object... objects);
 
-    <T> T requestWNull();
-
-    <T> T requestWNull(INameValues INameValues);
-
-    /**
-     * @param nameValues name,value,name,value...
-     * @param <T>
-     * @return
-     */
-    <T> T requestWNullSimple(Object... nameValues);
 }

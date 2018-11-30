@@ -51,8 +51,8 @@ public class DataUtil
     /**
      * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}、{@linkplain JsonField}、{@linkplain JsonObj}
      * @param filterNullAndEmpty 是否过滤null或空字符串
-     * @param isExcept
-     * @param keyNames
+     * @param isExcept           true表示排除，false表示包含
+     * @param keyNames           被排除或包含的key。
      * @return
      */
     public static JSONObject toJSON(Object object, boolean filterNullAndEmpty, boolean isExcept,
@@ -71,8 +71,8 @@ public class DataUtil
     /**
      * @param object             用于提取的实例，见{@linkplain #getTiedName(Field)}、{@linkplain JsonField}、{@linkplain JsonObj}
      * @param filterNullAndEmpty 是否过滤null或空字符串
-     * @param isExcept
-     * @param keyNames
+     * @param isExcept           true表示排除，false表示包含
+     * @param keyNames           被排除或包含的key。
      * @return
      */
     public static DBNameValues toNameValues(Object object, boolean filterNullAndEmpty, boolean isExcept,
@@ -248,12 +248,12 @@ public class DataUtil
 
     public static DBNameValues toNameValues(JSONObject jsonObject)
     {
-        DBNameValues DBNameValues = new DBNameValues(jsonObject.size());
+        DBNameValues nameValues = new DBNameValues(jsonObject.size());
         for (Map.Entry<String, Object> entry : jsonObject.entrySet())
         {
-            DBNameValues.append(entry.getKey(), entry.getValue());
+            nameValues.append(entry.getKey(), entry.getValue());
         }
-        return DBNameValues;
+        return nameValues;
     }
 
     public static MultiNameValues toMultiNameValues(JSONArray jsonArray)

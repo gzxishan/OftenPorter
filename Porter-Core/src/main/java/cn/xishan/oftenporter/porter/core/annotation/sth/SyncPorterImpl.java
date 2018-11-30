@@ -6,11 +6,10 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+
 
 /**
  * Created by chenyg on 2017-04-26.
@@ -37,13 +36,13 @@ class SyncPorterImpl implements PorterNotInnerSync
     }
 
     @Override
-    public <T> T request(OftenObject oftenObject)
+    public <T> T invokeWithNameValues(OftenObject oftenObject, Object... nameValues)
     {
-        return request(oftenObject, null);
+        return invokeWithMap(oftenObject, DefaultNameValues.fromArray(nameValues).toJSON());
     }
 
     @Override
-    public <T> T request(OftenObject oftenObject, INameValues INameValues)
+    public <T> T invokeWithMap(OftenObject oftenObject, Map<String, Object> params)
     {
         BridgeRequest request;
         if (oftenObject == null)
@@ -55,7 +54,7 @@ class SyncPorterImpl implements PorterNotInnerSync
             request.setMethod(syncPorterOption.getMethod());
         }
 
-        request.addParamAll(INameValues);
+        request.addParamAll(params);
         Object[] temp = new Object[1];
         if (isInner)
         {
@@ -67,35 +66,12 @@ class SyncPorterImpl implements PorterNotInnerSync
         return (T) temp[0];
     }
 
-    @Override
-    public <T> T requestSimple(OftenObject oftenObject, Object... nameValues)
-    {
-        INameValues INameValues = DefaultNameValues.fromArray(nameValues);
-        return request(oftenObject, INameValues);
-    }
 
     @Override
     public <T> T invokeWithObjects(OftenObject oftenObject, Object... objects)
     {
-        return request(oftenObject, FunParam.toNameValues(objects));
+        return invokeWithMap(oftenObject, FunParam.toJSON(objects));
     }
 
-    @Override
-    public <T> T requestWNull()
-    {
-        return request(null, null);
-    }
 
-    @Override
-    public <T> T requestWNull(INameValues INameValues)
-    {
-        return request(null, INameValues);
-    }
-
-    @Override
-    public <T> T requestWNullSimple(Object... nameValues)
-    {
-        INameValues INameValues = DefaultNameValues.fromArray(nameValues);
-        return request(null, INameValues);
-    }
 }

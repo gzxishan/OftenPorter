@@ -48,6 +48,6 @@ public class StartPorter
     public void onStart(OftenObject oftenObject)
     {
         PorterSync porterSync = oftenObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
-        LOGGER.debug("[{},{},{}] on start!", getClass(), oftenObject, porterSync.requestWNull());
+        LOGGER.debug("[{},{},{}] on start!", getClass(), oftenObject, porterSync.invokeWithNameValues(null));
     }
 }
