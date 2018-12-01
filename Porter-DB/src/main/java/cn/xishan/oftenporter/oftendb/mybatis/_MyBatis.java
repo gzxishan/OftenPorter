@@ -504,6 +504,7 @@ class _MyBatis
                     String insertPart = "(" + OftenStrUtil.join(",", _dbColumns) + ") VALUES (" + OftenStrUtil
                             .join(",", _refColumns) + ")";
                     sqlBuilder.replace(index, index2 + 1, insertPart);
+                    LOGGER.debug("{} insert-part={}",tableName,insertPart);
                 }
 
                 while (true)
@@ -550,6 +551,7 @@ class _MyBatis
                     }
                     String updatePart = OftenStrUtil.join(",", list);
                     sqlBuilder.replace(index, index2 + 1, updatePart);
+                    LOGGER.debug("{} update-part={}",tableName,updatePart);
                 }
 
             }

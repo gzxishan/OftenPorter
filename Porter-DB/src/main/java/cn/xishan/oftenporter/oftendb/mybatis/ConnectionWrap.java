@@ -22,10 +22,14 @@ class ConnectionWrap implements Connection, IConnection
     private Readonly lastReadonly = Readonly.DEFAULT;
     private Isolation lastLevel = Isolation.DEFAULT;
     private MyBatisOption.IConnectionBridge iConnectionBridge;
+    private String builderId;
+    private MSqlSessionFactoryBuilder builder;
 
-    public ConnectionWrap(SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,
+    public ConnectionWrap(MSqlSessionFactoryBuilder builder,SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,
             Connection bridgeConnection)
     {
+        this.builderId=builder.getId();
+        this.builder=builder;
         this.sqlSession = sqlSession;
         this.iConnectionBridge = iConnectionBridge;
         if (iConnectionBridge != null)
@@ -134,6 +138,10 @@ class ConnectionWrap implements Connection, IConnection
 
     public SqlSession getSqlSession()
     {
+        if(!this.builderId.equals(builder.getId())){
+            sqlSession=builder.getFactory().openSession(connection);
+            this.builderId=builder.getId();
+        }
         return sqlSession;
     }
 

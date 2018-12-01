@@ -178,8 +178,8 @@ public class MyBatisBridge
     private static ConnectionWrap __openConnection__(String source)
     {
         MybatisConfig.MOption mOption = getMOption(source);
-        MSqlSessionFactoryBuilder sqlSessionFactoryBuilder = mOption.mSqlSessionFactoryBuilder;
-        SqlSessionFactory sqlSessionFactory = sqlSessionFactoryBuilder.getFactory();
+        MSqlSessionFactoryBuilder builder = mOption.mSqlSessionFactoryBuilder;
+        SqlSessionFactory sqlSessionFactory = builder.getFactory();
 
         MyBatisOption.IConnectionBridge iConnectionBridge = mOption.iConnectionBridge;
         SqlSession sqlSession;
@@ -193,7 +193,7 @@ public class MyBatisBridge
         {
             sqlSession = sqlSessionFactory.openSession(true);
         }
-        ConnectionWrap connection = new ConnectionWrap(sqlSession, iConnectionBridge, bridgeConnection);
+        ConnectionWrap connection = new ConnectionWrap(builder, sqlSession, iConnectionBridge, bridgeConnection);
 
         TransactionDBHandle.__setConnection__(source, connection);
 

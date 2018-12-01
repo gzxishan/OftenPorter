@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.mapping.Environment;
@@ -19,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -56,7 +56,6 @@ class MSqlSessionFactoryBuilder
     private boolean checkMapperFileChange;
     private boolean isDestroyed = false;
     private boolean isStarted = false;
-    private boolean needReRegFileCheck = false;
     private JSONObject dataSourceConf;
     private DataSource dataSourceObject;
     private String[] initSqls;
@@ -64,6 +63,8 @@ class MSqlSessionFactoryBuilder
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
     private Environment environment;
     private Map<String, Set<String>> tableColumnsMap = new HashMap<>();
+
+    private String id;
 
     Map<String, String> methodMap;
 
@@ -79,11 +80,10 @@ class MSqlSessionFactoryBuilder
             OftenTool.close(watchService);
             watchService = null;
         }
-        needReRegFileCheck = true;
     }
 
     //检测文件修改
-    private synchronized void regFileCheck(boolean isForInit) throws Exception
+    private synchronized void regFileCheck() throws Exception
     {
         if (builderListenerSet.size() == 0 && !checkMapperFileChange)
         {
@@ -115,7 +115,7 @@ class MSqlSessionFactoryBuilder
 
         final WatchService finalWatchService = this.watchService;
         final boolean[] state = {true};
-        //final Set<String> regedNames = new HashSet<>();
+        String currentId = this.id;
         Set<String> reged = new HashSet<>();
         FileListener fileListener = files -> {
             if (files == null || !state[0])
@@ -124,7 +124,6 @@ class MSqlSessionFactoryBuilder
             }
             for (File file : files)
             {
-                //regedNames.add(file.getAbsolutePath());
                 File dir = file.getParentFile();
                 if (reged.contains(dir.getAbsolutePath()))
                 {
@@ -163,29 +162,21 @@ class MSqlSessionFactoryBuilder
                         {
                             LOGGER.info("change event:{}-->{}", path.toAbsolutePath(), event.kind());
                         }
-//                        String filePath = path.toAbsolutePath().toFile().getAbsolutePath();
-//                        if (regedNames.contains(filePath))
-//                        {
-//                            willBuild = true;
-//                            break;
-//                        }
                         willBuild = true;
-                        //break;
                     }
                     if (willBuild)
                     {
-                        Thread.sleep(1000);
-                        try
+                        if (currentId.equals(id))
                         {
-                            reload();
-                        } catch (Throwable e)
-                        {
-                            LOGGER.error(e.getMessage(), e);
+                            try
+                            {
+                                reload();
+                            } catch (Throwable e)
+                            {
+                                LOGGER.error(e.getMessage(), e);
+                            }
                         }
                         state[0] = false;
-                        needReRegFileCheck = true;
-                        watchService.close();
-                        MSqlSessionFactoryBuilder.this.watchService = null;
                         break;
                     }
                     // 重设WatchKey
@@ -204,33 +195,13 @@ class MSqlSessionFactoryBuilder
                 }
 
             }
-
-            if (needReRegFileCheck)
-            {
-                needReRegFileCheck = false;
-                LOGGER.info("will rereg...");
-                try
-                {
-                    if (!isForInit && mybatisStateListener != null)
-                    {
-                        mybatisStateListener.beforeReload();
-                    }
-                    regFileCheck(false);
-                    if (!isForInit && mybatisStateListener != null)
-                    {
-                        mybatisStateListener.afterReload();
-                    }
-                } catch (Exception e)
-                {
-                    if (!isForInit && mybatisStateListener != null)
-                    {
-                        mybatisStateListener.onReloadFailed(e);
-                    }
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
         });
 
+    }
+
+    public String getId()
+    {
+        return id;
     }
 
     public synchronized void onStart() throws Throwable
@@ -239,8 +210,7 @@ class MSqlSessionFactoryBuilder
         {
             return;
         }
-        build();
-        regFileCheck(true);
+        reload();
         isStarted = true;
         isDestroyed = false;
         if (mybatisStateListener != null)
@@ -291,15 +261,42 @@ class MSqlSessionFactoryBuilder
 
     public synchronized void reload() throws Throwable
     {
+        id = OftenKeyUtil.randomUUID();
         LOGGER.info("start reload mybatis...");
-        if (watchService != null)
+        if (this.watchService != null)
         {
+            WatchService watchService = this.watchService;
+            this.watchService = null;
             watchService.close();
-            watchService = null;
         }
         tableColumnsMap.clear();
         build();
+        regListener();
         LOGGER.info("reload mybatis complete!");
+    }
+
+    private void regListener()
+    {
+        LOGGER.info("will rereg...");
+        try
+        {
+            if (mybatisStateListener != null)
+            {
+                mybatisStateListener.beforeReload();
+            }
+            regFileCheck();
+            if (mybatisStateListener != null)
+            {
+                mybatisStateListener.afterReload();
+            }
+        } catch (Exception e)
+        {
+            if (mybatisStateListener != null)
+            {
+                mybatisStateListener.onReloadFailed(e);
+            }
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     public synchronized void build() throws Throwable
