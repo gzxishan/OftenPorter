@@ -35,6 +35,10 @@ public @interface MixinTo
      */
     Class<?> toPorter();
 
+    String funTiedPrefix() default "";
+
+    String funTiedSuffix() default "";
+
     /**
      * 用于添加到context set列表。
      *

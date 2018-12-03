@@ -32,4 +32,8 @@ public @interface Mixin
      * @return
      */
     Class<?>[] value() default {};
+
+    String funTiedPrefix() default "";
+
+    String funTiedSuffix() default "";
 }

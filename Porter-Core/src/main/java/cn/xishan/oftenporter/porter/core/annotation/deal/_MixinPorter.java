@@ -8,12 +8,16 @@ public class _MixinPorter
     Class<?> clazz;
     Object object;
     boolean override;
+    String funTiedPrefix;
+    String funTiedSuffix;
 
-    public _MixinPorter(Class<?> clazz, Object object, boolean override)
+    public _MixinPorter(Class<?> clazz, Object object, boolean override, String funTiedPrefix, String funTiedSuffix)
     {
         this.clazz = clazz;
         this.object = object;
         this.override = override;
+        this.funTiedPrefix = funTiedPrefix;
+        this.funTiedSuffix = funTiedSuffix;
     }
 
     @Override

@@ -182,7 +182,7 @@ public class ContextPorter implements IOtherStartDestroy
 
         autoSetHandle.setIOtherStartDestroy(this);
         // 1/3:搜索包:最终是搜索Class类
-        seekPackages(porterConf.getSeekPackages().getPackages(),porterConf.getSeekPackages().getTiedfixPkgs());
+        seekPackages(porterConf.getSeekPackages().getPackages(), porterConf.getSeekPackages().getTiedfixPkgs());
 
         // 2/3:搜索Class类
         Set<Class<?>> forSeek = porterConf.getSeekPackages().getClassesForSeek();
@@ -249,7 +249,8 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    private void seekPackages(@NotNull JSONArray packages,List<SeekPackages.TiedfixPkg> tiedfixPkgList) throws FatalInitException
+    private void seekPackages(@NotNull JSONArray packages,
+            List<SeekPackages.TiedfixPkg> tiedfixPkgList) throws FatalInitException
     {
         if (classLoader != null)
         {
@@ -262,7 +263,8 @@ public class ContextPorter implements IOtherStartDestroy
                 {
                     list.add(packages.getString(i));
                 }
-                for(SeekPackages.TiedfixPkg tiedfixPkg:tiedfixPkgList){
+                for (SeekPackages.TiedfixPkg tiedfixPkg : tiedfixPkgList)
+                {
                     list.add(tiedfixPkg.getPackageName());
                 }
                 iClassLoader.setPackages(list);
@@ -347,7 +349,8 @@ public class ContextPorter implements IOtherStartDestroy
         MixinTo[] mixinTos = PortUtil.getMixinTos(clazz);
         for (MixinTo mixinTo : mixinTos)
         {
-            _MixinPorter minxinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override());
+            _MixinPorter mixinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override(),
+                    mixinTo.funTiedPrefix(), mixinTo.funTiedSuffix());
             Set<_MixinPorter> set = mixinToMap.get(mixinTo.toPorter());
             if (set == null)
             {
@@ -355,7 +358,7 @@ public class ContextPorter implements IOtherStartDestroy
                 mixinToMap.put(mixinTo.toPorter(), set);
             }
             LOGGER.debug("add to mixinToMap:{}", clazz);
-            set.add(minxinPorter);
+            set.add(mixinPorter);
         }
         return mixinTos.length > 0;
     }

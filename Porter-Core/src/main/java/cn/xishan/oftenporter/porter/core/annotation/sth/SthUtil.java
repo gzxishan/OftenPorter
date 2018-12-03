@@ -200,7 +200,7 @@ class SthUtil
 
     }
 
-    static String putTypeParser(Class<? extends ITypeParser> clazz,TypeParserStore typeParserStore)
+    static String putTypeParser(Class<? extends ITypeParser> clazz, TypeParserStore typeParserStore)
     {
         ITypeParser typeParser;
         try
@@ -241,9 +241,9 @@ class SthUtil
     static _MixinPorter[] getMixin(Class<?> clazz, Map<Class, Set<_MixinPorter>> mixinToMap)
     {
         List<_MixinPorter> list = new ArrayList<>(1);
-        if (clazz.isAnnotationPresent(Mixin.class))
+        Mixin mixin = AnnoUtil.getAnnotation(clazz, Mixin.class);
+        if (mixin != null)
         {
-            Mixin mixin = AnnoUtil.getAnnotation(clazz, Mixin.class);
             Class[] classes = mixin.value().length > 0 ? mixin.value() : mixin.porters();
             int k = -1;
             for (Class c : classes)
@@ -255,7 +255,8 @@ class SthUtil
                     LOGGER.debug("mixin not enable:[{}] to [{}]", c, clazz);
                     continue;
                 }
-                _MixinPorter mixinPorter = new _MixinPorter(c, null, mixinOnly != null && mixinOnly.override());
+                _MixinPorter mixinPorter = new _MixinPorter(c, null,
+                        mixinOnly != null && mixinOnly.override(), mixin.funTiedPrefix(), mixin.funTiedSuffix());
                 if (list.contains(mixinPorter))
                 {
                     LOGGER.debug("mixin ignore for duplicate:index={},[{}] to [{}]", k, c, clazz);
