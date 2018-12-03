@@ -50,4 +50,14 @@ public class _MixinPorter
     {
         return override;
     }
+
+    public String getFunTiedPrefix()
+    {
+        return funTiedPrefix;
+    }
+
+    public String getFunTiedSuffix()
+    {
+        return funTiedSuffix;
+    }
 }

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
 
+import cn.xishan.oftenporter.porter.core.ContextPorter;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
@@ -51,7 +52,7 @@ public class PortUtil
     {
         Package pkg = clazz.getPackage();
         String pkgName = pkg != null ? pkg.getName() : null;
-        if (pkgName != null && (pkgName.startsWith("java.") || pkgName.startsWith("javax.")||clazz.isPrimitive()))
+        if (pkgName != null && (pkgName.startsWith("java.") || pkgName.startsWith("javax.") || clazz.isPrimitive()))
         {
             return true;
         } else
@@ -67,7 +68,8 @@ public class PortUtil
      * @param clazz
      * @return
      */
-    public static String[] tieds(PortIn portIn, Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean enableDefaultValue)
+    public static String[] tieds(PortIn portIn, Class<?> clazz, SeekPackages.Tiedfix classTiedfix,
+            boolean enableDefaultValue)
     {
         String[] names = tieds(portIn);
         for (int i = 0; i < names.length; i++)
@@ -81,12 +83,17 @@ public class PortUtil
                 }
                 name = tiedIgnorePortIn(clazz);
             }
-            if(classTiedfix!=null){
-                if(classTiedfix.getPrefix()!=null&&(!classTiedfix.isCheckExists()||!name.startsWith(classTiedfix.getPrefix()))){
-                    name=classTiedfix.getPrefix()+name;
+            if (classTiedfix != null)
+            {
+                if (classTiedfix.getPrefix() != null && (!classTiedfix.isCheckExists() || !name
+                        .startsWith(classTiedfix.getPrefix())))
+                {
+                    name = classTiedfix.getPrefix() + name;
                 }
-                if(classTiedfix.getSuffix()!=null&&(!classTiedfix.isCheckExists()||!name.endsWith(classTiedfix.getSuffix()))){
-                    name+=classTiedfix.getSuffix();
+                if (classTiedfix.getSuffix() != null && (!classTiedfix.isCheckExists() || !name
+                        .endsWith(classTiedfix.getSuffix())))
+                {
+                    name += classTiedfix.getSuffix();
                 }
             }
             names[i] = checkTied(name);
@@ -127,7 +134,8 @@ public class PortUtil
      * @param method
      * @return
      */
-    public static String[] tieds(PortIn portIn, Method method, boolean enableDefaultValue)
+    public static String[] tieds(ContextPorter.SrcPorter srcPorter, PortIn portIn, Method method,
+            boolean enableDefaultValue)
     {
         String[] names = tieds(portIn);
         for (int i = 0; i < names.length; i++)
@@ -140,6 +148,14 @@ public class PortUtil
                     throw new InitException("default value is not enable for " + method);
                 }
                 name = method.getName();
+            }
+            if (OftenTool.notNullAndEmpty(srcPorter.getFunTiedPrefix()))
+            {
+                name = srcPorter.getFunTiedPrefix() + name;
+            }
+            if (OftenTool.notNullAndEmpty(srcPorter.getFunTiedSuffix()))
+            {
+                name = name + srcPorter.getFunTiedSuffix();
             }
             names[i] = checkTied(name);
         }
@@ -269,11 +285,13 @@ public class PortUtil
 
     /**
      * 是否是Porter或混入Porter。
+     *
      * @param clazz
      * @return
      */
-    public static boolean isPorter(Class clazz){
-        return isJustPortInClass(clazz)||isMixinPortClass(clazz);
+    public static boolean isPorter(Class clazz)
+    {
+        return isJustPortInClass(clazz) || isMixinPortClass(clazz);
     }
 
     /**
@@ -332,7 +350,6 @@ public class PortUtil
     }
 
 
-
     public static Object[] newArray(Name[] names)
     {
         if (names.length == 0)
@@ -354,7 +371,8 @@ public class PortUtil
             ParamSource paramSource,
             TypeParserStore currentTypeParserStore)
     {
-        return paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource, currentTypeParserStore,
+        return paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource,
+                currentTypeParserStore,
                 "");
     }
 
@@ -411,7 +429,8 @@ public class PortUtil
             }
             Object[] neces = PortUtil.newArray(one.inNames.nece);
             Object[] unneces = PortUtil.newArray(one.inNames.unece);
-            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces, paramSource,
+            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces,
+                    paramSource,
                     currentTypeParserStore, namePrefix);
             if (reason == null)
             {

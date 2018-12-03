@@ -91,7 +91,8 @@ public class ContextPorter implements IOtherStartDestroy
         Class<?> clazz;
         Object object;
         SeekPackages.Tiedfix classTiedfix;
-        String classTiedSuffix;
+        String funTiedPrefix = "";
+        String funTiedSuffix = "";
 
         public SrcPorter(Class<?> clazz, Object object)
         {
@@ -99,15 +100,18 @@ public class ContextPorter implements IOtherStartDestroy
             this.object = object;
         }
 
+        public SrcPorter(_MixinPorter mixinPorter)
+        {
+            this(mixinPorter.getClazz(), mixinPorter.getObject());
+            this.funTiedPrefix = mixinPorter.getFunTiedPrefix();
+            this.funTiedSuffix = mixinPorter.getFunTiedSuffix();
+        }
+
         public SeekPackages.Tiedfix getClassTiedfix()
         {
             return classTiedfix;
         }
 
-        public String getClassTiedSuffix()
-        {
-            return classTiedSuffix;
-        }
 
         public Class<?> getClazz()
         {
@@ -117,6 +121,16 @@ public class ContextPorter implements IOtherStartDestroy
         public Object getObject()
         {
             return object;
+        }
+
+        public String getFunTiedPrefix()
+        {
+            return funTiedPrefix;
+        }
+
+        public String getFunTiedSuffix()
+        {
+            return funTiedSuffix;
         }
     }
 

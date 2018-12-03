@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.ContextPorter;
 import cn.xishan.oftenporter.porter.core.advanced.IFun;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
@@ -648,7 +649,7 @@ public final class AnnotationDealt
         return _portIn;
     }
 
-    public _PortIn portIn(Porter porter, Method method)
+    public _PortIn portIn(ContextPorter.SrcPorter srcPorter,Porter porter, Method method)
     {
         _PortIn class_PortIn = porter.getPortIn();
         _PortIn _portInOfMethod = null;
@@ -666,8 +667,7 @@ public final class AnnotationDealt
                 _portInOfMethod.tiedNames = new String[]{""};
             } else
             {
-                _portInOfMethod.tiedNames = PortUtil
-                        .tieds(portIn, method, enableDefaultValue);
+                _portInOfMethod.tiedNames = PortUtil.tieds(srcPorter,portIn, method, enableDefaultValue);
             }
 
 

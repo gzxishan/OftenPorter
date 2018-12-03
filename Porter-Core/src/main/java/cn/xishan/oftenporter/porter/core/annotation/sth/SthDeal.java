@@ -106,9 +106,10 @@ public class SthDeal
         //自动设置,会确保接口对象已经实例化
         porter.addAutoSet();
 
-        if(forFinalPorter!=null){
-            porter.finalObject=forFinalPorter.getFinalPorterObject();
-            porter.finalPorter=forFinalPorter.getFinalPorter();
+        if (forFinalPorter != null)
+        {
+            porter.finalObject = forFinalPorter.getFinalPorterObject();
+            porter.finalPorter = forFinalPorter.getFinalPorter();
         }
 
         if (porter.object instanceof IPorter)
@@ -170,7 +171,7 @@ public class SthDeal
                 continue;
             }
             backableSeek.push();
-            PorterOfFun porterOfFun = porterOfFun(porter, method, innerContextBridge, backableSeek, autoSetHandle);
+            PorterOfFun porterOfFun = porterOfFun(srcPorter,porter, method, innerContextBridge, backableSeek, autoSetHandle);
             backableSeek.pop();
             if (porterOfFun != null)
             {
@@ -198,8 +199,8 @@ public class SthDeal
             {
                 continue;
             }
-            Porter mixinPorter = porter(new ContextPorter.SrcPorter(_mixinPorter.getClazz(), _mixinPorter.getObject()),
-                    porter, mixinToMap, currentClassTied, autoSetHandle, true, wholeClassCheckPassableGetter);
+            Porter mixinPorter = porter(new ContextPorter.SrcPorter(_mixinPorter), porter, mixinToMap,
+                    currentClassTied, autoSetHandle, true, wholeClassCheckPassableGetter);
             if (mixinPorter == null)
             {
                 continue;
@@ -430,11 +431,11 @@ public class SthDeal
 
     }
 
-    private PorterOfFun porterOfFun(Porter porter, Method method, InnerContextBridge innerContextBridge,
+    private PorterOfFun porterOfFun(ContextPorter.SrcPorter srcPorter,Porter porter, Method method, InnerContextBridge innerContextBridge,
             BackableSeek backableSeek, AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(porter, method);
+        _PortIn portIn = annotationDealt.portIn(srcPorter,porter, method);
         PorterOfFun porterOfFun = null;
         if (portIn != null)
         {
