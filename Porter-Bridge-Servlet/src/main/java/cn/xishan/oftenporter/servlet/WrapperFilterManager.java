@@ -11,14 +11,42 @@ import java.util.List;
  */
 public interface WrapperFilterManager
 {
-    class Wrapper{
+    enum FilterResult
+    {
+        /**
+         * 终止后面的
+         */
+        BREAK,
+        /**
+         * 继续
+         */
+        CONTINUE,
+        /**
+         * 返回并终止servlet过滤器的执行
+         */
+        RETURN
+    }
+
+    class Wrapper
+    {
         private HttpServletRequest request;
         private HttpServletResponse response;
+        private FilterResult filterResult = FilterResult.CONTINUE;
 
         public Wrapper(HttpServletRequest request, HttpServletResponse response)
         {
             this.request = request;
             this.response = response;
+        }
+
+        public FilterResult getFilterResult()
+        {
+            return filterResult;
+        }
+
+        public void setFilterResult(FilterResult filterResult)
+        {
+            this.filterResult = filterResult;
         }
 
         public HttpServletRequest getRequest()
@@ -44,7 +72,8 @@ public interface WrapperFilterManager
 
     public interface WrapperFilter
     {
-        public Wrapper doFilter(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException;
+        public Wrapper doFilter(HttpServletRequest request,
+                HttpServletResponse response) throws IOException, ServletException;
     }
 
     public static WrapperFilterManager getWrapperFilterManager(ServletContext servletContext)

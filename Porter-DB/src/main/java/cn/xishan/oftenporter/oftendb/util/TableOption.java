@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
@@ -140,11 +141,18 @@ public class TableOption
         return this;
     }
 
+
     public String getQueryValue(String key)
     {
+        return getQueryValue(key, null);
+    }
+
+    public String getQueryValue(String key, String defaultValue)
+    {
+        String value = null;
         if (query != null && query.containsKey(key))
         {
-            return query.getString(key);
+            value = query.getString(key);
         } else if (queryArray != null)
         {
             for (int i = 0; i < queryArray.size(); i++)
@@ -152,11 +160,16 @@ public class TableOption
                 JSONObject json = queryArray.getJSONObject(i);
                 if (key.equals(json.getString("key")))
                 {
-                    return json.getString("value");
+                    value = json.getString("value");
+                    break;
                 }
             }
         }
-        return null;
+        if (OftenTool.isEmpty(value))
+        {
+            value = defaultValue;
+        }
+        return value;
     }
 
     public JSONArray getQueryArray()

@@ -34,6 +34,7 @@ public class OftenWebSocketFilter implements Filter
 
         WrapperFilterManager wrapperFilterManager = WrapperFilterManager
                 .getWrapperFilterManager(request.getServletContext());
+        for_outer:
         for (WrapperFilterManager.WrapperFilter wrapperFilter : wrapperFilterManager.wrapperFilters())
         {
             WrapperFilterManager.Wrapper wrapper = wrapperFilter.doFilter(request, response);
@@ -41,12 +42,21 @@ public class OftenWebSocketFilter implements Filter
             {
                 request = wrapper.getRequest();
                 response = wrapper.getResponse();
+                switch (wrapper.getFilterResult())
+                {
+                    case RETURN:
+                        return;
+                    case BREAK:
+                        break for_outer;
+                    case CONTINUE:
+                        break;
+                }
             }
         }
 
         OftenServlet oftenServlet = (OftenServlet) request.getServletContext()
                 .getAttribute(OftenServlet.class.getName());
-        if (WebSocketHandle.isWebSocket(request))
+        if (oftenServlet != null && WebSocketHandle.isWebSocket(request))
         {
             //接入框架进行处理
             oftenServlet.service(request, response);
