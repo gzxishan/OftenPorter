@@ -7,11 +7,11 @@ import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.*;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
@@ -270,8 +270,9 @@ class MyBatisDaoGen implements AutoSetGen
             _MyBatisField _myBatisField = new _MyBatisField();
             _myBatisField.value = realFieldType;
             myBatisDao = genObject(_myBatisField);
+            boolean wrapDaoThrowable = moption().myBatisOption.wrapDaoThrowable;
             //代理
-            result = doProxy(myBatisDao, realFieldType, source);
+            result = doProxy(myBatisDao, realFieldType, source, wrapDaoThrowable);
         }
 
         return result;
@@ -283,7 +284,7 @@ class MyBatisDaoGen implements AutoSetGen
     }
 
 
-    static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source)
+    static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source, boolean wrapDaoThrowable)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
         InvocationHandlerWithCommon invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
@@ -295,7 +296,25 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     return type.getName() + "@@" + myBatisDao.getClass().getSimpleName() + myBatisDao.hashCode();
                 }
-                return super.invoke(proxy, method, args);
+                if (wrapDaoThrowable)
+                {
+                    try
+                    {
+                        return super.invoke(proxy, method, args);
+                    } catch (Throwable e)
+                    {
+                        if (e instanceof OftenCallException)
+                        {
+                            throw e;
+                        } else
+                        {
+                            throw new OftenCallException(e);
+                        }
+                    }
+                } else
+                {
+                    return super.invoke(proxy, method, args);
+                }
             }
 
             @Override

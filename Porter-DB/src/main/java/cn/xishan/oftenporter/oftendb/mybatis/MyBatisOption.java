@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
@@ -66,6 +67,11 @@ public class MyBatisOption implements Cloneable
     public boolean enableMapperOverride = true;
 
     /**
+     * 是否用{@linkplain OftenCallException}包装所有dao抛出的异常,默认为false。
+     */
+    public boolean wrapDaoThrowable = false;
+
+    /**
      * 是否检测mapper文件变动,主要用于开发阶段,默认false。
      */
     public boolean checkMapperFileChange = false;
@@ -74,7 +80,7 @@ public class MyBatisOption implements Cloneable
     /**
      * 设置字段被包裹的内容，默认为"`"。
      */
-    public String columnCoverString="`";
+    public String columnCoverString = "`";
 
     public IMybatisStateListener mybatisStateListener;
 
@@ -131,7 +137,8 @@ public class MyBatisOption implements Cloneable
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      * @param rootDirs              资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      */
-    public MyBatisOption(@MayNull IConnectionBridge iConnectionBridge, boolean checkMapperFileChange, String... rootDirs)
+    public MyBatisOption(@MayNull IConnectionBridge iConnectionBridge, boolean checkMapperFileChange,
+            String... rootDirs)
     {
         this.iConnectionBridge = iConnectionBridge;
         this.rootDirSet = new HashSet<>();

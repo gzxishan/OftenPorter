@@ -48,7 +48,8 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public <T> T mapper(Class<T> clazz)
     {
-        Object dao = MyBatisDaoGen.doProxy(this, clazz, myBatisDaoGen.source);
+        Object dao = MyBatisDaoGen.doProxy(this, clazz, myBatisDaoGen.source,
+                myBatisDaoGen.moption().myBatisOption.wrapDaoThrowable);
         return (T) dao;
     }
 
