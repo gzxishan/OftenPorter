@@ -21,7 +21,7 @@ public class TableOption
 {
     public interface IHandle
     {
-        void handle(OftenObject oftenObject, TableOption tableOption)throws Exception;
+        void handle(OftenObject oftenObject, TableOption tableOption) throws Exception;
     }
 
     @Unece
@@ -89,10 +89,13 @@ public class TableOption
         return this;
     }
 
-    public JSONArray getOrder(){
-        if(settings==null){
+    public JSONArray getOrder()
+    {
+        if (settings == null)
+        {
             return null;
-        }else{
+        } else
+        {
             return settings.getJSONArray("order");
         }
     }
@@ -135,6 +138,25 @@ public class TableOption
         }
         queryArray.add(json);
         return this;
+    }
+
+    public String getQueryValue(String key)
+    {
+        if (query != null && query.containsKey(key))
+        {
+            return query.getString(key);
+        } else if (queryArray != null)
+        {
+            for (int i = 0; i < queryArray.size(); i++)
+            {
+                JSONObject json = queryArray.getJSONObject(i);
+                if (key.equals(json.getString("key")))
+                {
+                    return json.getString("value");
+                }
+            }
+        }
+        return null;
     }
 
     public JSONArray getQueryArray()
