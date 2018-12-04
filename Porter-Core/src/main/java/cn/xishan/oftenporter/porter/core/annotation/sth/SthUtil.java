@@ -256,7 +256,7 @@ class SthUtil
                     continue;
                 }
                 _MixinPorter mixinPorter = new _MixinPorter(c, null,
-                        mixinOnly != null && mixinOnly.override(), mixin.funTiedPrefix(), mixin.funTiedSuffix());
+                        mixinOnly != null && mixinOnly.override(), "", "");
                 if (list.contains(mixinPorter))
                 {
                     LOGGER.debug("mixin ignore for duplicate:index={},[{}] to [{}]", k, c, clazz);
