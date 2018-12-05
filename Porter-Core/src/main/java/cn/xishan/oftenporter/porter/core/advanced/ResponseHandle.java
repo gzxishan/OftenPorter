@@ -16,7 +16,7 @@ public interface ResponseHandle
      * @param oftenObject
      * @param porterOfFun
      * @param object
-     * @return true,已经进行了输出（需要自己关闭连接）；false，没有进行输出。
+     * @return true,已经进行了输出（不会调用close，需要自己关闭连接）；false，没有进行输出（可能会调用close）。
      * @throws Throwable
      */
     boolean hasDoneWrite(OftenObject oftenObject, PorterOfFun porterOfFun, @NotNull Object object)throws Throwable;

@@ -44,7 +44,8 @@ public final class PortExecutor
     private PortUtil portUtil;
     private Map<String, One> extraEntityOneMap = new HashMap<>();
 
-    public PortExecutor(BridgeName bridgeName, BridgeLinker bridgeLinker, UrlDecoder urlDecoder, boolean responseWhenException)
+    public PortExecutor(BridgeName bridgeName, BridgeLinker bridgeLinker, UrlDecoder urlDecoder,
+            boolean responseWhenException)
     {
         _LOGGER = LogUtil.logger(PortExecutor.class);
         portUtil = new PortUtil();
@@ -219,10 +220,12 @@ public final class PortExecutor
         }
     }
 
-    public OftenObject forPortInit(BridgeName bridgeName, UrlDecoder.Result result, OftenRequest request, OftenResponse response,
+    public OftenObject forPortInit(BridgeName bridgeName, UrlDecoder.Result result, OftenRequest request,
+            OftenResponse response,
             Context context, boolean isInnerRequest)
     {
-        OftenObjectImpl oftenObject = new OftenObjectImpl(bridgeName, result, request, response, context, isInnerRequest);
+        OftenObjectImpl oftenObject = new OftenObjectImpl(bridgeName, result, request, response, context,
+                isInnerRequest);
         oftenObject.setParamSource(new EmptyParamSource());
         return oftenObject;
     }
@@ -265,17 +268,17 @@ public final class PortExecutor
         {
 
             response.toErr();
-            Logger LOGGER = logger(null);
-            if (LOGGER.isWarnEnabled())
+            Logger logger = logger(null);
+            Throwable ex = getCause(e);
+            if (ex instanceof OftenCallException)
             {
-                Throwable ex = getCause(e);
-                if (ex instanceof OftenCallException)
+                if (logger.isDebugEnabled())
                 {
-                    LOGGER.warn(ex.getMessage(), ex);
-                } else
-                {
-                    LOGGER.warn(ex.getMessage(), ex);
+                    logger.debug(ex.getMessage(), ex);
                 }
+            } else if (logger.isWarnEnabled())
+            {
+                logger.warn(ex.getMessage(), ex);
             }
             if (responseWhenException)
             {
@@ -286,7 +289,7 @@ public final class PortExecutor
                     response.write(jResponse);
                 } catch (IOException e1)
                 {
-                    LOGGER.warn(e1.getMessage(), e1);
+                    logger.warn(e1.getMessage(), e1);
                 }
             }
             close(response);
@@ -318,7 +321,8 @@ public final class PortExecutor
         close(response);
     }
 
-    private final void exDealUrl(OftenRequest request, OftenResponse response, String msg, boolean responseWhenException)
+    private final void exDealUrl(OftenRequest request, OftenResponse response, String msg,
+            boolean responseWhenException)
     {
         response.toErr();
         if (responseWhenException)
@@ -356,8 +360,9 @@ public final class PortExecutor
             if (object instanceof ParamDealt.FailedReason)
             {
                 return (ParamDealt.FailedReason) object;
-            }else{
-                oftenObjectImpl.url().setParam(ones[i].clazz.getName(),object);//设置对象，从而让对应的形参可以获取。
+            } else
+            {
+                oftenObjectImpl.url().setParam(ones[i].clazz.getName(), object);//设置对象，从而让对应的形参可以获取。
             }
             entities[i] = object;
         }
@@ -377,7 +382,8 @@ public final class PortExecutor
         if (one != null)
         {
             PorterOfFun porterOfFun = oftenObject.porterOfFun;
-            Object object = paramDealOfOne(oftenObject.context, false, porterOfFun.getPorter(), porterOfFun, oftenObject, one,
+            Object object = paramDealOfOne(oftenObject.context, false, porterOfFun.getPorter(), porterOfFun,
+                    oftenObject, one,
                     key);
             if (object instanceof ParamDealt.FailedReason)
             {
@@ -417,7 +423,7 @@ public final class PortExecutor
                     }
                 } catch (Exception e)
                 {
-                    Throwable throwable = OftenTool.unwrapThrowable(e);
+                    Throwable throwable = OftenTool.getCause(e);
                     object = DefaultFailedReason.parseOftenEntitiesException(throwable.getMessage());
                     logger(oftenObjectImpl).warn(throwable.getMessage(), throwable);
                 }
@@ -564,7 +570,7 @@ public final class PortExecutor
         {
             failedReason = paramDealOfPortInEntities(context, classPort.getOftenEntities(), true,
                     classPort, funPort, oftenObject);
-        } catch (Exception e)
+        } catch (Throwable e)
         {
             exNotNull(oftenObject, funPort, oftenObject.getResponse(), e, responseWhenException);
             return;
@@ -662,7 +668,7 @@ public final class PortExecutor
         //函数参数处理
         ParamDealt.FailedReason failedReason = portUtil
                 .paramDeal(oftenObject, funPIn.ignoreTypeParser(), context.innerContextBridge.paramDealt, inNames,
-                        oftenObject._fn,oftenObject._fu,oftenObject.getParamSource(),
+                        oftenObject._fn, oftenObject._fu, oftenObject.getParamSource(),
                         context.innerContextBridge.innerBridge.globalParserStore);
         if (failedReason != null)
         {
@@ -675,7 +681,7 @@ public final class PortExecutor
         {
             failedReason = paramDealOfPortInEntities(context, funPort.getOftenEntities(), false,
                     funPort.getPorter(), funPort, oftenObject);
-        } catch (Exception e)
+        } catch (Throwable e)
         {
             exNotNull(oftenObject, funPort, oftenObject.getResponse(), e, responseWhenException);
             return;
@@ -688,7 +694,8 @@ public final class PortExecutor
         //////////////////////////////
 
         AspectHandleOfPortInUtil
-                .tryDoHandle(AspectHandleOfPortInUtil.State.BeforeInvokeOfMethodCheck, oftenObject, funPort, null, null);
+                .tryDoHandle(AspectHandleOfPortInUtil.State.BeforeInvokeOfMethodCheck, oftenObject, funPort, null,
+                        null);
 
         //函数通过检测,参数已经准备好
         if (isFastInner || funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
@@ -742,6 +749,7 @@ public final class PortExecutor
     {
 
         _PortIn funPIn = funPort.getMethodPortIn();
+        Object exReturnObject = null;
         try
         {
             AspectHandleOfPortInUtil
@@ -755,8 +763,10 @@ public final class PortExecutor
                     returnObject = invokeMethod(oftenObject, funPort);
                 } catch (Throwable e)
                 {
-                    returnObject = context.defaultReturnFactory.getExReturn(oftenObject, funPort.getFinalPorterObject(),
-                            funPort.getObject(), funPort.getMethod(), e);
+                    exReturnObject = context.defaultReturnFactory
+                            .getExReturn(oftenObject, funPort.getFinalPorterObject(),
+                                    funPort.getObject(), funPort.getMethod(), e);
+                    throw e;
                 }
             } else
             {
@@ -838,16 +848,29 @@ public final class PortExecutor
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null)
             {
                 AspectHandleOfPortInUtil.tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal,
-                        oftenObject, funPort, null, e);
-                exNotNull(oftenObject, funPort, oftenObject.getResponse(), ex, responseWhenException);
+                        oftenObject, funPort, exReturnObject, e);
+                if (exReturnObject != null)
+                {
+                    dealtOfResponse(oftenObject, funPort, OutType.OBJECT, exReturnObject);
+                } else
+                {
+                    exNotNull(oftenObject, funPort, oftenObject.getResponse(), ex, responseWhenException);
+                }
             } else
             {
                 Logger logger = logger(oftenObject);
-                if (logger.isWarnEnabled())
+                if (ex instanceof OftenCallException)
+                {
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug(ex.getMessage(), ex);
+                    }
+                } else if (logger.isWarnEnabled())
                 {
                     logger.warn(ex.getMessage(), ex);
                 }
 
+                Object finalExReturnObject = exReturnObject;
                 CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
                         funPort.getFinalPorterObject(),
                         funPort.getObject(),
@@ -857,7 +880,8 @@ public final class PortExecutor
                     public void go(Object failedObject)
                     {
                         AspectHandleOfPortInUtil
-                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort, null,
+                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
+                                        finalExReturnObject,
                                         failedObject);
                         if (failedObject != null)
                         {
@@ -872,6 +896,9 @@ public final class PortExecutor
                                 jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
+                        } else if (finalExReturnObject != null)
+                        {
+                            failedObject = finalExReturnObject;
                         } else
                         {
                             JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
@@ -881,7 +908,6 @@ public final class PortExecutor
                             failedObject = jResponse;
                         }
                         dealtOfResponse(oftenObject, funPort, OutType.OBJECT, failedObject);
-
                     }
                 };
                 PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
@@ -899,7 +925,8 @@ public final class PortExecutor
      *
      * @return
      */
-    private ParamSource getParamSource(OftenObjectImpl oftenObject, Porter classPort, PorterOfFun funPort) throws Exception
+    private ParamSource getParamSource(OftenObjectImpl oftenObject, Porter classPort,
+            PorterOfFun funPort) throws Exception
     {
         UrlDecoder.Result result = oftenObject.url();
         Context context = oftenObject.context;
@@ -972,6 +999,9 @@ public final class PortExecutor
             {
                 JResponse jResponse = (JResponse) object;
                 Throwable throwable = jResponse.getExCause();
+                if(throwable!=null){
+                    throwable=OftenTool.getCause(throwable);
+                }
                 if (throwable instanceof OftenCallException)
                 {
                     JResponse jr = ((OftenCallException) throwable).theJResponse();
@@ -1023,20 +1053,19 @@ public final class PortExecutor
     }
 
     private void exNotNull(@NotNull OftenObjectImpl oftenObject, PorterOfFun porterOfFun, OftenResponse response,
-            Throwable throwable,
-            boolean responseWhenException)
+            Throwable throwable, boolean responseWhenException)
     {
         response.toErr();
         Logger logger = logger(oftenObject);
-        if (logger.isWarnEnabled())
+        if (throwable instanceof OftenCallException)
         {
-            if (throwable instanceof OftenCallException)
+            if (logger.isDebugEnabled())
             {
-                logger.warn(oftenObject.url() + ":" + throwable.getMessage(), throwable);
-            } else
-            {
-                logger.warn(oftenObject.url() + ":" + throwable.getMessage(), throwable);
+                logger.debug(oftenObject.url() + ":" + throwable.getMessage(), throwable);
             }
+        } else if (logger.isWarnEnabled())
+        {
+            logger.warn(oftenObject.url() + ":" + throwable.getMessage(), throwable);
         }
 
         if (responseWhenException)
@@ -1106,7 +1135,8 @@ public final class PortExecutor
     {
         JResponse jResponse = new JResponse();
         jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
-        jResponse.setDescription(reason.desc() + "(" + oftenObject.url() + ":" + oftenObject.getRequest().getMethod() + ")");
+        jResponse.setDescription(
+                reason.desc() + "(" + oftenObject.url() + ":" + oftenObject.getRequest().getMethod() + ")");
         jResponse.setExtra(reason.toJSON());
         return jResponse;
     }
@@ -1149,7 +1179,8 @@ public final class PortExecutor
      * @param oftenObject
      * @param object
      */
-    private final boolean doWriteAndWillClose(OftenObjectImpl oftenObject, PorterOfFun porterOfFun, @NotNull Object object)
+    private final boolean doWriteAndWillClose(OftenObjectImpl oftenObject, PorterOfFun porterOfFun,
+            @NotNull Object object)
     {
         try
         {
@@ -1167,16 +1198,16 @@ public final class PortExecutor
         } catch (Throwable e)
         {
             Logger logger = logger(oftenObject);
-            if (logger.isWarnEnabled())
+            Throwable ex = getCause(e);
+            if (ex instanceof OftenCallException)
             {
-                Throwable ex = getCause(e);
-                if (ex instanceof OftenCallException)
+                if (logger.isDebugEnabled())
                 {
-                    logger.warn(ex.getMessage(), ex);
-                } else
-                {
-                    logger.warn(ex.getMessage(), ex);
+                    logger.debug(ex.getMessage(), ex);
                 }
+            } else if (logger.isWarnEnabled())
+            {
+                logger.warn(ex.getMessage(), ex);
             }
         }
         return true;
@@ -1202,8 +1233,11 @@ public final class PortExecutor
                 Throwable ex = getCause(e);
                 if (ex instanceof OftenCallException)
                 {
-                    logger.warn(ex.getMessage(), ex);
-                } else
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug(ex.getMessage(), ex);
+                    }
+                } else if (logger.isWarnEnabled())
                 {
                     logger.warn(ex.getMessage(), ex);
                 }

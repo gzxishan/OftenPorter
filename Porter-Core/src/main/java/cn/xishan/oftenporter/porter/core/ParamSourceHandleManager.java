@@ -19,7 +19,7 @@ import java.util.Map;
 public class ParamSourceHandleManager
 {
 
-    private Map<String, ParamSourceHandle> nameMap = new HashMap<>();
+    private Map<String, ParamSourceHandle> classTiedsMap = new HashMap<>();
     private Map<PortMethod, ParamSourceHandle> methodMap = new HashMap<>();
 
 
@@ -27,13 +27,13 @@ public class ParamSourceHandleManager
      * 通过接口类的绑定名来绑定。优先于{@linkplain #addByMethod(ParamSourceHandle, PortMethod...)}
      *
      * @param handle
-     * @param names
+     * @param classTieds
      */
-    public void addByName(ParamSourceHandle handle, String... names)
+    public void addByName(ParamSourceHandle handle, String... classTieds)
     {
-        for (int i = 0; i < names.length; i++)
+        for (int i = 0; i < classTieds.length; i++)
         {
-            nameMap.put(names[i], handle);
+            classTiedsMap.put(classTieds[i], handle);
         }
     }
 
@@ -59,11 +59,11 @@ public class ParamSourceHandleManager
     /**
      * 优先于{@linkplain #fromMethod(PortMethod)}.
      *
-     * @param name 对应与顶层{@linkplain PortIn}的Class的绑定名。
+     * @param classTied 对应与顶层{@linkplain PortIn}的Class的绑定名。
      * @return
      */
-    public ParamSourceHandle fromName(String name)
+    public ParamSourceHandle fromName(String classTied)
     {
-        return nameMap.get(name);
+        return classTiedsMap.get(classTied);
     }
 }
