@@ -5,7 +5,8 @@ package cn.xishan.oftenporter.porter.core;
  *
  * @author Administrator
  */
-public enum ResultCode {
+public enum ResultCode
+{
     /**
      * 响应成功，将得到请求的内容。
      */
@@ -85,15 +86,12 @@ public enum ResultCode {
      * 重定向
      */
     REDIRECT(-14),
-    Other;
+    Other(-1);
 
     private int code;
 
-    ResultCode() {
-        this.code = -100;
-    }
-
-    ResultCode(int code) {
+    ResultCode(int code)
+    {
         this.code = code;
     }
 
@@ -102,13 +100,16 @@ public enum ResultCode {
      *
      * @return 整型的结果码
      */
-    public int toCode() {
+    public int toCode()
+    {
         return code;
     }
 
-    public static ResultCode toResponseCode(int code) {
+    public static ResultCode toResponseCode(int code)
+    {
         ResultCode responseCode;
-        switch (code) {
+        switch (code)
+        {
             case 0:
                 responseCode = SUCCESS;
                 break;
@@ -156,7 +157,6 @@ public enum ResultCode {
                 break;
             default:
                 responseCode = Other;
-                responseCode.code = code;
                 break;
         }
         return responseCode;
