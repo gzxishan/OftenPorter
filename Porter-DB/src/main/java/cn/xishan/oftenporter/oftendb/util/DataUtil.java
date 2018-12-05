@@ -326,7 +326,7 @@ public class DataUtil
     {
         Object rs = jResponse.getResult();
 
-        if (jResponse.isSuccess() && rs != null && (rs instanceof Boolean) && (Boolean) rs)
+        if (jResponse.isSuccess() && (rs instanceof Boolean) && (Boolean) rs)
         {
             return true;
         } else

@@ -62,7 +62,7 @@ public class JResponse
     //public static final String REQUEST_URI_FIELD = "uri";
 
 
-    private ResultCode code = ResultCode.Other;
+    private Object code = ResultCode.Other;
     private String description;
     private Object result, extra;
     private Throwable exCause;
@@ -221,7 +221,7 @@ public class JResponse
 
     public void setCode(int code)
     {
-        this.code = ResultCode.toResponseCode(code);
+        this.code = code;
     }
 
     /**
@@ -249,14 +249,16 @@ public class JResponse
         this.result = result;
     }
 
-    public ResultCode getCode()
-    {
-        return code;
-    }
 
     public int getIntCode()
     {
-        return code.toCode();
+        if (code instanceof ResultCode)
+        {
+            return ((ResultCode) code).toCode();
+        } else
+        {
+            return (int) code;
+        }
     }
 
     /**
@@ -314,12 +316,12 @@ public class JResponse
 
     public boolean isSuccess()
     {
-        return code == ResultCode.SUCCESS || code == ResultCode.OK;
+        return getIntCode() == ResultCode.SUCCESS.toCode();
     }
 
     public boolean isNotSuccess()
     {
-        return code != ResultCode.SUCCESS && code != ResultCode.OK;
+        return getIntCode() != ResultCode.SUCCESS.toCode();
     }
 
     /**
@@ -360,9 +362,11 @@ public class JResponse
     public JSONObject toJSON()
     {
         JSONObject json = new JSONObject(5);
-        ResultCode resultCode = code != null ? code : ResultCode.Other;
-        json.put(CODE_FIELD, resultCode.toCode());
-        json.put(CODE_NAME_FIELD, resultCode.name());
+        json.put(CODE_FIELD, getIntCode());
+        if (code instanceof ResultCode)
+        {
+            json.put(CODE_NAME_FIELD, ((ResultCode) code).name());
+        }
         json.put(DESCRIPTION_FIELD, description);
 
         Object result = this.result;
@@ -405,13 +409,14 @@ public class JResponse
 
     public static JResponse failed(String desc)
     {
-        return failed(ResultCode.OK_BUT_FAILED,desc);
+        return failed(ResultCode.OK_BUT_FAILED, desc);
     }
 
-    public static JResponse failed(ResultCode code,String desc)
+    public static JResponse failed(ResultCode code, String desc)
     {
-        if(code==ResultCode.SUCCESS||code==ResultCode.OK){
-            throw new IllegalArgumentException("illegal code:"+code);
+        if (code == ResultCode.SUCCESS || code == ResultCode.OK)
+        {
+            throw new IllegalArgumentException("illegal code:" + code);
         }
         JResponse jResponse = new JResponse(code);
         jResponse.setDescription(desc);
