@@ -353,9 +353,10 @@ public class HttpUtil
             @MayNull OkHttpClient okHttpClient, String url)
     {
         ResponseBody responseBody = null;
+        Response response = null;
         try
         {
-            Response response = request(requestData, method, okHttpClient, url, null);
+             response = request(requestData, method, okHttpClient, url, null);
             int code = response.code();
             if (code == 200 || code == 201)
             {
@@ -377,6 +378,7 @@ public class HttpUtil
         } finally
         {
             OftenTool.close(responseBody);
+            OftenTool.close(response);
         }
     }
 
@@ -412,6 +414,7 @@ public class HttpUtil
         } finally
         {
             OftenTool.close(responseBody);
+            OftenTool.close(response);
         }
         return jResponse;
     }
