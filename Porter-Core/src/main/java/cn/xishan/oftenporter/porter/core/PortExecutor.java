@@ -999,8 +999,9 @@ public final class PortExecutor
             {
                 JResponse jResponse = (JResponse) object;
                 Throwable throwable = jResponse.getExCause();
-                if(throwable!=null){
-                    throwable=OftenTool.getCause(throwable);
+                if (throwable != null)
+                {
+                    throwable = OftenTool.getCause(throwable);
                 }
                 if (throwable instanceof OftenCallException)
                 {

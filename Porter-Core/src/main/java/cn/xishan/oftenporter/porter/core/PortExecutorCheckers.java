@@ -68,13 +68,15 @@ class PortExecutorCheckers extends CheckHandle
     private PorterOfFun porterOfFun;
 
 
-    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject,
+            DuringType duringType,
             CheckPassable[] checkPassables, CheckHandle handle)
     {
         this(context, porterOfFun, wObject, duringType, checkPassables, handle, false);
     }
 
-    private PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
+    private PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject,
+            DuringType duringType,
             CheckPassable[] checkPassables, CheckHandle handle, boolean isPorterCheckPassablesFirst)
     {
         super(handle);
@@ -104,7 +106,8 @@ class PortExecutorCheckers extends CheckHandle
         this.handle = handle;
     }
 
-    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject, DuringType duringType,
+    public PortExecutorCheckers(Context context, PorterOfFun porterOfFun, OftenObjectImpl wObject,
+            DuringType duringType,
             CheckHandle handle,
             Class<? extends CheckPassable>[]... cpss)
     {
@@ -161,6 +164,10 @@ class PortExecutorCheckers extends CheckHandle
     {
         if (failedObject != null)
         {
+            if (failedObject instanceof Throwable)
+            {
+                failedObject = OftenTool.getCause((Throwable) failedObject);
+            }
             if (failedObject instanceof OftenCallException)
             {
                 OftenCallException callException = (OftenCallException) failedObject;
