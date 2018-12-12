@@ -3,7 +3,7 @@
     <parent>
         <artifactId>OftenPorter</artifactId>
         <groupId>com.xishankeji</groupId>
-        <version>1.1.1.21.Final</version>
+        <version>1.1.1.22.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -11,6 +11,7 @@
     <packaging>jar</packaging>
 
     <name>Demo</name>
+    <url>https://github.com/gzxishan/OftenPorter</url>
 
     <dependencies>
         <dependency>

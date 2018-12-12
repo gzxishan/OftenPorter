@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.1.1.21.Final</version>
+        <version>1.1.1.22.Final</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -14,6 +14,7 @@
 
     <name>Porter-Bridge-Servlet</name>
     <description>对servlet方式的支持</description>
+    <url>https://github.com/gzxishan/OftenPorter</url>
 
     <properties>
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
