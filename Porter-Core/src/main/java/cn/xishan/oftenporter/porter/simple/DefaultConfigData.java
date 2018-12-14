@@ -52,7 +52,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public long getLong(String key, long defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -70,7 +70,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public int getInt(String key, int defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -88,7 +88,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public float getFloat(String key, float defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -106,7 +106,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public double getDouble(String key, double defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -124,7 +124,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public boolean getBoolean(String key, boolean defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -142,7 +142,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public String getString(String key, String defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -170,13 +170,18 @@ public class DefaultConfigData implements IConfigData
         {
             return null;
         }
-        return OftenStrUtil.split(str.replace('，', ','), ",");
+        String[] strs = OftenStrUtil.split(str.replace('，', ','), ",");
+        for (int i = 0; i < strs.length; i++)
+        {
+            strs[i] = strs[i].trim();
+        }
+        return strs;
     }
 
     @Override
     public Date getDate(String key)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
         }
@@ -187,7 +192,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, Date defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -199,7 +204,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, String format)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         Date dateVal = TypeUtils.castToDate(value, format);
         return dateVal;
     }
@@ -207,7 +212,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Date getDate(String key, String format, Date defaultValue)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return defaultValue;
@@ -219,7 +224,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public JSONObject getJSON(String key)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return null;
@@ -233,7 +238,7 @@ public class DefaultConfigData implements IConfigData
     @Override
     public JSONArray getJSONArray(String key)
     {
-        Object value = properties.getProperty(key);
+        Object value = get(key);
         if (OftenTool.isEmpty(value))
         {
             return null;
@@ -261,6 +266,10 @@ public class DefaultConfigData implements IConfigData
     public <T> T get(String key)
     {
         Object rs = properties.get(key);
+        if (rs instanceof CharSequence)
+        {
+            rs = String.valueOf(rs).trim();
+        }
         return (T) rs;
     }
 
@@ -283,12 +292,12 @@ public class DefaultConfigData implements IConfigData
             for (String key : keys)
             {
                 rs = getProperty(fieldRealType, key, null);
-                if (OftenTool.notNullAndEmpty(rs))
+                if (OftenTool.notEmpty(rs))
                 {
                     break;
                 }
             }
-            if (OftenTool.notNullAndEmptyForAll(keys, defaultVal))
+            if (OftenTool.notEmptyForAll(keys, defaultVal))
             {
                 rs = getProperty(fieldRealType, keys[0], defaultVal);
             }
