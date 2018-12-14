@@ -29,10 +29,6 @@ public class SqlCondition extends Condition
 
     public static final Operator IS_NOT_NULL = new MyOperator("is not NULL");
 
-    public static final Operator FALSE = new MyOperator("FALSE");
-
-
-    public static final Operator TRUE = new MyOperator("TRUE");
 
     public SqlCondition(String coverString)
     {

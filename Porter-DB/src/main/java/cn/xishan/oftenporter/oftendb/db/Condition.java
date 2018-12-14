@@ -91,6 +91,10 @@ public abstract class Condition implements ToFinal
      */
     public static final Operator NOT = new MyOperator("NOT");
 
+    public static final Operator FALSE = new MyOperator("FALSE");
+
+    public static final Operator TRUE = new MyOperator("TRUE");
+
     public static class MyOperator extends Operator
     {
         private static int count;
