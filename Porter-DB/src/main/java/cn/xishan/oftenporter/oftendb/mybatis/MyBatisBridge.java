@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.KeepFromProguard;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -36,18 +37,18 @@ public class MyBatisBridge
         AnnoUtil.Advance.addWhite(IDynamicAnnotationImprovableForDao.class.getName());
     }
 
-    static void start()
+    static void start(IConfigData configData)
     {
         if (mybatisConfig == null)
         {
             throw new InitException("not init!");
         }
-        mybatisConfig.start();
+        mybatisConfig.start(configData);
     }
 
     static void destroy()
     {
-        mybatisConfig.start();
+        mybatisConfig.destroy();
     }
 
     static MybatisConfig.MOption getMOption(String source)
@@ -76,6 +77,10 @@ public class MyBatisBridge
         propertiesJson = new JSONObject();
         propertiesJson.putAll(json);
         String dsType = (String) propertiesJson.remove("dsType");
+        if (OftenTool.isEmpty(dsType))
+        {
+            dsType = (String) propertiesJson.remove("type");
+        }
         Properties properties = new Properties();
         for (String key : propertiesJson.keySet())
         {
@@ -129,7 +134,8 @@ public class MyBatisBridge
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
         }
-        if (OftenTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject))
+        if (OftenTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject,
+                myBatisOption.dataSourceProperPrefix))
         {
             throw new IllegalArgumentException("dataSource is empty!");
         }

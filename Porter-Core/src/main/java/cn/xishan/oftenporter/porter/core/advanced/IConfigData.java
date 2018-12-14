@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 可以通过@{@linkplain AutoSet}引入该对象实例,见{@linkplain DefaultConfigData}。
@@ -59,6 +60,12 @@ public interface IConfigData
     JSONObject getJSON(String key);
 
     JSONArray getJSONArray(String key);
+
+    /**
+     * 获得所有属性名。
+     * @return
+     */
+    Set<String> propertyNames();
 
     /**
      * @param key

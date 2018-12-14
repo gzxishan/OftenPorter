@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +41,13 @@ class MybatisConfig
         optionMap = new HashMap<>();
     }
 
-    public void start()
+    public void start(IConfigData configData)
     {
         for (MOption mOption : optionMap.values())
         {
             try
             {
-                mOption.mSqlSessionFactoryBuilder.onStart();
+                mOption.mSqlSessionFactoryBuilder.onStart(configData);
             } catch (Throwable e)
             {
                 LOGGER.warn(e.getMessage(), e);
