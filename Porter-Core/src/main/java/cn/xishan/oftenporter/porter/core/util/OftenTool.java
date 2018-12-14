@@ -20,8 +20,8 @@ import java.util.*;
  */
 public class OftenTool
 {
-    public static Object[] EMPTY_OBJECT_ARRAY=new Object[0];
-    public static String[] EMPTY_STRING_ARRAY=new String[0];
+    public static Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+    public static String[] EMPTY_STRING_ARRAY = new String[0];
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenTool.class);
 
@@ -106,15 +106,41 @@ public class OftenTool
     }
 
     /**
+     * 用{@linkplain #notEmpty(Object)}
+     *
+     * @param object
+     * @return
+     */
+    @Deprecated
+    public static boolean notNullAndEmpty(Object object)
+    {
+        return notEmpty(object);
+    }
+
+    /**
      * 是否不为空，见{@linkplain #isEmpty(Object)}.
      *
      * @param object
      * @return
      */
-    public static boolean notNullAndEmpty(Object object)
+    public static boolean notEmpty(Object object)
     {
         return !isEmpty(object);
     }
+
+
+    /**
+     * 用{@linkplain #notEmptyForAll(Object...)}
+     *
+     * @param objects
+     * @return
+     */
+    @Deprecated
+    public static boolean notNullAndEmptyForAll(Object... objects)
+    {
+        return notEmptyForAll(objects);
+    }
+
 
     /**
      * 判断是否全部都不为空，见{@linkplain #isEmpty(Object)}.
@@ -122,7 +148,7 @@ public class OftenTool
      * @param objects
      * @return
      */
-    public static boolean notNullAndEmptyForAll(Object... objects)
+    public static boolean notEmptyForAll(Object... objects)
     {
         for (Object object : objects)
         {

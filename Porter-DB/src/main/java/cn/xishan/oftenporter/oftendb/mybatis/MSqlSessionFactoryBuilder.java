@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
@@ -57,6 +58,7 @@ class MSqlSessionFactoryBuilder
     private boolean isDestroyed = false;
     private boolean isStarted = false;
     private JSONObject dataSourceConf;
+    private String dataSourceProperPrefix;
     private DataSource dataSourceObject;
     private String[] initSqls;
     private List<Interceptor> interceptors;
@@ -204,12 +206,26 @@ class MSqlSessionFactoryBuilder
         return id;
     }
 
-    public synchronized void onStart() throws Throwable
+    public synchronized void onStart(IConfigData configData) throws Throwable
     {
         if (isStarted)
         {
             return;
         }
+        if (dataSourceConf == null && OftenTool.notEmpty(dataSourceProperPrefix))
+        {
+            JSONObject jsonObject = new JSONObject();
+            for (String propName : configData.propertyNames())
+            {
+                if (propName.startsWith(dataSourceProperPrefix))
+                {
+                    jsonObject.put(propName.substring(dataSourceProperPrefix.length()), configData.get(propName));
+                }
+            }
+            dataSourceConf = jsonObject;
+            dataSourceProperPrefix = null;
+        }
+
         reload();
         isStarted = true;
         isDestroyed = false;
@@ -244,6 +260,7 @@ class MSqlSessionFactoryBuilder
         {
             this.dataSourceConf = myBatisOption.dataSource;
         }
+        this.dataSourceProperPrefix = myBatisOption.dataSourceProperPrefix;
         this.enableMapperOverride = myBatisOption.enableMapperOverride;
         this.checkMapperFileChange = myBatisOption.checkMapperFileChange;
         this.configData = configData;

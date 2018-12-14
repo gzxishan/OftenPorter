@@ -12,6 +12,7 @@ import com.alibaba.fastjson.util.TypeUtils;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
@@ -24,9 +25,16 @@ public class DefaultConfigData implements IConfigData
     public DefaultConfigData(Properties properties)
     {
         this.properties = new Properties();
-        if(properties!=null){
+        if (properties != null)
+        {
             this.properties.putAll(properties);
         }
+    }
+
+    @Override
+    public Set<String> propertyNames()
+    {
+        return properties.stringPropertyNames();
     }
 
     @Override

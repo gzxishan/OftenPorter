@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -96,12 +97,22 @@ public class MyBatisOption implements Cloneable
     public String resourcesDir;
 
     /**
-     * 用于配置数据源:其中dsType为{@linkplain javax.sql.DataSource}的实现类。
+     * 用于配置数据源:其中dsType(或type)为{@linkplain javax.sql.DataSource}的实现类。
      * <pre>
      *     1.会忽略以"--ignore"结尾的属性。
      * </pre>
      */
     public JSONObject dataSource;
+
+
+    /**
+     * 用于配置数据源属性前缀，如“datasource.,datasource.type--ignore”,另见{@linkplain IConfigData},优先级高于低于{@linkplain #dataSource}:其中dsType(或type)
+     * 为{@linkplain javax.sql.DataSource}的实现类。
+     * <pre>
+     *     1.会忽略以"--ignore"结尾的属性。
+     * </pre>
+     */
+    public String dataSourceProperPrefix;
 
     /**
      * 优先级高于{@linkplain #dataSource}
