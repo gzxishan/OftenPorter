@@ -2,30 +2,63 @@ package cn.xishan.oftenporter.porter.core.util;
 
 import com.alibaba.fastjson.JSONArray;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/6.
  */
 public class OftenStrUtil
 {
+
     /**
-     * 分隔字符串。
+     * 分割字符串，不包括空字符串。
      *
-     * @param srcString
-     * @param splitStr
+     * @param srcString 待分割的字符串
+     * @param splitStr  分隔内容
      * @return
      */
     public static String[] split(String srcString, String splitStr)
     {
-        StringTokenizer tokenizer = new StringTokenizer(srcString, splitStr);
-        String[] rs = new String[tokenizer.countTokens()];
-        for (int i = 0; i < rs.length; i++)
+        return split(srcString, splitStr, false);
+    }
+
+    /**
+     * 分隔字符串。
+     *
+     * @param srcString           待分割的字符串
+     * @param splitStr            分隔内容
+     * @param containsEmptyString 是否包含空的字符串
+     * @return
+     */
+    public static String[] split(String srcString, String splitStr, boolean containsEmptyString)
+    {
+        List<String> list = new ArrayList<>();
+        if (srcString!=null)
         {
-            rs[i] = tokenizer.nextToken();
+            int from = 0;
+            int slen=splitStr.length();
+            while (from < srcString.length())
+            {
+                int index = srcString.indexOf(splitStr, from);
+                if (index != -1)
+                {
+                    if (containsEmptyString || index > from)
+                    {
+                        list.add(srcString.substring(from, index));
+                    }
+                    from = index + slen;
+                } else
+                {
+                    list.add(srcString.substring(from));
+                    break;
+                }
+            }
+            if (containsEmptyString && (srcString.length()==0||srcString.length() >= splitStr.length() && srcString.endsWith(splitStr)))
+            {
+                list.add("");
+            }
         }
+        String[] rs = list.toArray(new String[0]);
         return rs;
     }
 

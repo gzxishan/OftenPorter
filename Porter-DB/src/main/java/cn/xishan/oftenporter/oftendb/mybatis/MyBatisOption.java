@@ -97,6 +97,11 @@ public class MyBatisOption implements Cloneable
     public String resourcesDir;
 
     /**
+     * 从数据库获取的字段名的大小写如何转换：null表示默认，true表示转换为小写，false表示转换为大写。默认为null。
+     */
+    public Boolean metaDataTableColumnsToLowercase=null;
+
+    /**
      * 用于配置数据源:其中dsType(或type)为{@linkplain javax.sql.DataSource}的实现类。
      * <pre>
      *     1.会忽略以"--ignore"结尾的属性。

@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.*;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
@@ -57,6 +58,7 @@ class MSqlSessionFactoryBuilder
     private boolean checkMapperFileChange;
     private boolean isDestroyed = false;
     private boolean isStarted = false;
+    private Boolean metaDataTableColumnsToLowercase;
     private JSONObject dataSourceConf;
     private String dataSourceProperPrefix;
     private DataSource dataSourceObject;
@@ -254,6 +256,7 @@ class MSqlSessionFactoryBuilder
 
     public MSqlSessionFactoryBuilder(MyBatisOption myBatisOption, byte[] configData)
     {
+        this.metaDataTableColumnsToLowercase = myBatisOption.metaDataTableColumnsToLowercase;
         this.dataSourceObject = myBatisOption.dataSourceObject;
         this.initSqls = myBatisOption.initSqls;
         if (dataSourceObject == null)
@@ -383,16 +386,6 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    private static String getSchema(Connection conn) throws Exception
-    {
-        String schema = conn.getMetaData().getUserName();
-        if (OftenTool.isEmpty(schema))
-        {
-            throw new Exception("ORACLE数据库模式不允许为空");
-        }
-        return schema.toUpperCase();
-
-    }
 
     /**
      * 得到数据表的字段列表
@@ -411,12 +404,43 @@ class MSqlSessionFactoryBuilder
         {
             try (Connection connection = environment.getDataSource().getConnection())
             {
+                DatabaseMetaData metaData = connection.getMetaData();
                 Set<String> set = new HashSet<>();
-                ResultSet rs = connection.getMetaData().getColumns(null, getSchema(connection), tableName, "%");
-                while (rs.next())
+                ResultSet rs = metaData.getColumns(null, metaData.getUserName(), tableName, "%");
+                boolean has=false;
+                if (!rs.next())
                 {
-                    String colName = rs.getString("COLUMN_NAME");
-                    set.add(colName);
+                    rs.close();
+                    rs = metaData.getColumns(null, "%", tableName, "%");
+                    if (!rs.next())
+                    {
+                        rs.close();
+                        rs = metaData.getColumns(null, null, tableName, "%");
+                        has=rs.next();
+                    }else{
+                        has=true;
+                    }
+                }else{
+                    has=true;
+                }
+
+                if (has)
+                {
+                    do
+                    {
+                        String colName = rs.getString("COLUMN_NAME");
+                        if (metaDataTableColumnsToLowercase != null)
+                        {
+                            if (metaDataTableColumnsToLowercase)
+                            {
+                                colName = colName.toLowerCase();
+                            } else
+                            {
+                                colName = colName.toUpperCase();
+                            }
+                        }
+                        set.add(colName);
+                    } while (rs.next());
                 }
                 tableColumnsMap.put(tableName, set);
                 columnsSet = set;
