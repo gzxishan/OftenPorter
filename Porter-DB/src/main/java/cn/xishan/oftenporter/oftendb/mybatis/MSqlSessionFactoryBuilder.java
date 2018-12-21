@@ -307,7 +307,9 @@ class MSqlSessionFactoryBuilder
         this.dataSourceObject = null;
         this.dataSourceConf = dataSourceConf;
         reload();
-        connectionBridge.onDataSourceChanged(this.dataSourceObject);
+        if(connectionBridge!=null){
+            connectionBridge.onDataSourceChanged(this.dataSourceObject);
+        }
         return last;
     }
 
@@ -324,7 +326,9 @@ class MSqlSessionFactoryBuilder
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = dataSource;
         this.reload();//重新加载
-        connectionBridge.onDataSourceChanged(dataSource);
+        if(connectionBridge!=null){
+            connectionBridge.onDataSourceChanged(dataSource);
+        }
         return last;
     }
 
