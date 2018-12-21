@@ -27,13 +27,14 @@ import java.util.regex.Pattern;
  * <li>$null:name：值为null</li>
  * <li>$notnull:name：值不为null</li>
  * <li>$emptystr:name：为空字符串</li>
- * <li>$gt:name(大于),$gte:name(大于等于),$lt:name(小于),$lte:name(小于等于),$ne:name(不等于,当值为空时会变成$notnull:name)</li>
- * <li>$substr:name,$notsubstr:name：匹配包含或不包含某字符串</li>
- * <li>$startsWith:name(或$starts:name),$notstartsWith:name(或$notstarts:name),匹配以或不以某字符串开头</li>
- * <li>$endsWith:name(或$ends:name),$notendsWith:name(或$notends:name)：匹配以或不以某字符串结尾</li>
+ * <li>$ne:name(不等于,当值为空时会变成$notnull:name)</li>
+ * <li>$gt:name(大于),$gte:name(大于等于),$lt:name(小于),$lte:name(小于等于)。【为空会忽略条件】</li>
+ * <li>$substr:name,$notsubstr:name：匹配包含或不包含某字符串。【为空会忽略条件】</li>
+ * <li>$startsWith:name(或$starts:name),$notstartsWith:name(或$notstarts:name),匹配以或不以某字符串开头。【为空会忽略条件】</li>
+ * <li>$endsWith:name(或$ends:name),$notendsWith:name(或$notends:name)：匹配以或不以某字符串结尾。【为空会忽略条件】</li>
  * <li>$in:name,$nin:name,$iin:name,$inin:name：值为数组或list，匹配在或不在指定列表中，
  * 注意当提供的数组或list为空时:'$in:name'变成'$false','$nin:name':'$true','$iin:'与'$inin:'会忽略。</li>
- * <li>$ignull:+其他，当为值空时忽略条件</li>
+ * <li>$ignull:+其他，当值为空时忽略条件</li>
  * <li>$or[：或开始,</li>
  * <li>$or]：或结束,</li>
  * <li>$not[：非开始,</li>
@@ -135,17 +136,34 @@ public class SimpleSqlUtil
         return from(query, toQueryArray(nameValues), order);
     }
 
-
-    static final String[] NO_VALUE_TAGS_PREFIX = {
+    /**
+     * 没有值的前缀tag
+     */
+    private static final String[] NO_VALUE_TAGS_PREFIX = {
             "$null:", "$notnull:", "$emptystr:"
     };
-    static final String[] NO_VALUE_TAGS_ALL = {
+    /**
+     * 没有值的完整tag
+     */
+    private static final String[] NO_VALUE_TAGS_ALL = {
             "$or[", "$or]", "$not[", "$not]", "$and[", "$and]", "$true", "$false"
+    };
+
+    /**
+     * 为空忽略条件tag
+     */
+    private static final String[] EMPTY_IGNORE_TAGS = {
+            "$gt:", "$gte:", "$lt:", "$lte:",
+            "$substr:", "$notsubstr:",
+            "$startsWith:", "$starts:", "$notstartsWith:", "$notstarts:",
+            "$endsWith:", "$ends:", "$notendsWith:", "$notends:"
     };
 
     static
     {
         Arrays.sort(NO_VALUE_TAGS_ALL);
+        Arrays.sort(EMPTY_IGNORE_TAGS);
+        Arrays.sort(NO_VALUE_TAGS_PREFIX);
     }
 
     /**
@@ -403,6 +421,10 @@ public class SimpleSqlUtil
             } else if (matched)
             {
                 String type = matcher.group(1);
+                if (OftenTool.isEmpty(value) && Arrays.binarySearch(EMPTY_IGNORE_TAGS, type) >= 0)
+                {
+                    continue;//忽略
+                }
                 switch (type)
                 {
                     case "$eq:":
@@ -553,7 +575,7 @@ public class SimpleSqlUtil
         String sql = (String) objs[0];
         Object[] args = (Object[]) objs[1];
         String where;
-        if (OftenTool.notNullAndEmpty(sql) && namesList.size() > 0)
+        if (OftenTool.notEmpty(sql) && namesList.size() > 0)
         {
             StringBuilder stringBuilder = new StringBuilder();
 

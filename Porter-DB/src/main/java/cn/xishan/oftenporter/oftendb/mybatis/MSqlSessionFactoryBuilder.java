@@ -122,21 +122,22 @@ class MSqlSessionFactoryBuilder
         String currentId = this.id;
         Set<String> reged = new HashSet<>();
         FileListener fileListener = files -> {
-            if (files == null || !state[0])
+            synchronized (MSqlSessionFactoryBuilder.this)
             {
-                return;
-            }
-            for (File file : files)
-            {
-                File dir = file.getParentFile();
-                if (reged.contains(dir.getAbsolutePath()))
+                if (files == null || !state[0]||!currentId.equals(MSqlSessionFactoryBuilder.this.id))
                 {
-                    continue;
+                    return;
                 }
-                reged.add(dir.getAbsolutePath());
-                LOGGER.info("listen change of dir:{}", dir);
-                synchronized (this)
+                for (File file : files)
                 {
+                    File dir = file.getParentFile();
+                    if (reged.contains(dir.getAbsolutePath()))
+                    {
+                        continue;
+                    }
+                    reged.add(dir.getAbsolutePath());
+                    LOGGER.info("listen change of dir:{}", dir);
+
                     Paths.get(dir.getAbsolutePath()).register(finalWatchService, StandardWatchEventKinds.ENTRY_MODIFY);
                 }
             }
@@ -307,7 +308,8 @@ class MSqlSessionFactoryBuilder
         this.dataSourceObject = null;
         this.dataSourceConf = dataSourceConf;
         reload();
-        if(connectionBridge!=null){
+        if (connectionBridge != null)
+        {
             connectionBridge.onDataSourceChanged(this.dataSourceObject);
         }
         return last;
@@ -326,7 +328,8 @@ class MSqlSessionFactoryBuilder
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = dataSource;
         this.reload();//重新加载
-        if(connectionBridge!=null){
+        if (connectionBridge != null)
+        {
             connectionBridge.onDataSourceChanged(dataSource);
         }
         return last;

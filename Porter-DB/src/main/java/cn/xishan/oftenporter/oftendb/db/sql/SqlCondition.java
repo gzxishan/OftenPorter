@@ -70,10 +70,10 @@ public class SqlCondition extends Condition
             }
         }
 
-        if (stringBuilder.length() == 0)
-        {
-            stringBuilder.append(" TRUE ");
-        }
+//        if (stringBuilder.length() == 0)
+//        {
+//            stringBuilder.append(" TRUE ");
+//        }
 
         StringBuilder result = new StringBuilder();
         List<Object> list = new ArrayList<>(args.size());
