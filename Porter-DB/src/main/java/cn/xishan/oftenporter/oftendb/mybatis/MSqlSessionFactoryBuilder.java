@@ -65,6 +65,7 @@ class MSqlSessionFactoryBuilder
     private String[] initSqls;
     private List<Interceptor> interceptors;
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
+    private MyBatisOption.IConnectionBridge connectionBridge;
     private Map<String, Set<String>> tableColumnsMap = new HashMap<>();
 
     private String id;
@@ -264,6 +265,7 @@ class MSqlSessionFactoryBuilder
         this.configData = configData;
         this.interceptors = myBatisOption.interceptors;
         this.mybatisStateListener = myBatisOption.mybatisStateListener;
+        this.connectionBridge = myBatisOption.iConnectionBridge;
         if (myBatisOption.javaFuns != null)
         {
             methodMap = new HashMap<>();
@@ -297,18 +299,32 @@ class MSqlSessionFactoryBuilder
 
     public synchronized DataSource setDataSourceConf(JSONObject dataSourceConf) throws Throwable
     {
+        if (dataSourceConf == null)
+        {
+            throw new NullPointerException();
+        }
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = null;
         this.dataSourceConf = dataSourceConf;
         reload();
+        connectionBridge.onDataSourceChanged(this.dataSourceObject);
         return last;
     }
 
     public synchronized DataSource setDataSource(DataSource dataSource) throws Throwable
     {
+        if (dataSource == null)
+        {
+            throw new NullPointerException();
+        }
+        if (dataSource == this.dataSourceObject)
+        {
+            return dataSource;
+        }
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = dataSource;
         this.reload();//重新加载
+        connectionBridge.onDataSourceChanged(dataSource);
         return last;
     }
 

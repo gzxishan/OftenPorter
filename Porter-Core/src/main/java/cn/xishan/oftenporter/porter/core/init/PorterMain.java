@@ -228,6 +228,16 @@ public final class PorterMain
         {
             LOGGER.warn("the global object named '{}' added before [{}]", name, last);
         }
+
+        String autoSetName = PorterConf.getAutoSetName(object);
+        if (OftenTool.notEmpty(autoSetName))
+        {
+            last = innerBridge.globalAutoSet.put(autoSetName, object);
+            if (last != null)
+            {
+                LOGGER.warn("the global object named '{}' added before [{}]", name, last);
+            }
+        }
     }
 
     private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls)

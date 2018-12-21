@@ -154,7 +154,7 @@ public class MyBatisBridge
             {
                 myBatisOption.resourcesDir += "/";
             }
-
+            porterConf.addContextAutoSet(myBatisOption.iConnectionBridge);
             mybatisConfig.put(myBatisOption, mSqlSessionFactoryBuilder);
         } catch (Exception e)
         {

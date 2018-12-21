@@ -2,10 +2,7 @@ package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.*;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSetSeek;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
-import cn.xishan.oftenporter.porter.core.annotation.PortOut;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
@@ -381,6 +378,19 @@ public class PorterConf
         return enablePortInTiedNameDefault;
     }
 
+    static String getAutoSetName(Object object)
+    {
+        Class clazz = PortUtil.getRealClass(object);
+        AutoSetName autoSetName = AnnoUtil.getAnnotation(clazz, AutoSetName.class);
+        if (autoSetName != null)
+        {
+            return autoSetName.value();
+        } else
+        {
+            return null;
+        }
+    }
+
     /**
      * 用于对象自动设置。另见{@linkplain AutoSet.Range#Context}
      *
@@ -389,7 +399,17 @@ public class PorterConf
      */
     public void addContextAutoSet(String name, Object object)
     {
+        if (object == null)
+        {
+            return;
+        }
         contextAutoSetMap.put(name, object);
+
+        String autoSetName = getAutoSetName(object);
+        if (OftenTool.notEmpty(autoSetName))
+        {
+            contextAutoSetMap.put(autoSetName, object);
+        }
     }
 
     /**
@@ -399,7 +419,11 @@ public class PorterConf
      */
     public void addContextAutoSet(Object object)
     {
-        addContextAutoSet(PortUtil.getRealClass(object).getName(), object);
+        if (object == null)
+        {
+            return;
+        }
+        addContextAutoSet(PortUtil.getRealClass(object), object);
     }
 
     /**
