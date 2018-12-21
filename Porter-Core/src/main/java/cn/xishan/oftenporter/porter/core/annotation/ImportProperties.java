@@ -13,7 +13,10 @@ import java.lang.annotation.*;
 import java.util.Properties;
 
 /**
- * 导入properties配置，另见:{@linkplain ResourceUtil}
+ * 导入properties配置，另见:{@linkplain ResourceUtil}。
+ * <p>
+ * 支持替换参数:#{properName}。如app.lib=#{basedir}/lib
+ * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018-10-29.
  */

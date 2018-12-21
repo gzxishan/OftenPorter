@@ -68,6 +68,13 @@ public interface IConfigData
     Set<String> propertyNames();
 
     /**
+     * 从key前缀获取json对象。
+     * @param keyPrefix
+     * @return
+     */
+    JSONObject getJSONByKeyPrefix(String keyPrefix);
+
+    /**
      * @param key
      * @param object
      * @param <T>

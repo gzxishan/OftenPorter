@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 /**
  * 获取属性值,见{@linkplain IConfigData}
  * <p>
- * 支持的类型同{@linkplain IConfigData},当配置文件中不存在对应的属性时、从{@linkplain IConfigData#set(String, Object)}途径获取。
+ * 支持的类型同{@linkplain IConfigData},当配置文件中不存在对应的属性时、从{@linkplain IConfigData#get(String)}途径获取。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018-07-20.

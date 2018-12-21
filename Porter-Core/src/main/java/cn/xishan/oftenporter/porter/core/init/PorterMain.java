@@ -285,6 +285,7 @@ public final class PorterMain
             }
         }
         LOGGER.debug("seek importers finished.");
+
     }
 
     /**
@@ -339,6 +340,12 @@ public final class PorterMain
         Logger LOGGER = LogUtil.logger(PorterMain.class);
 
         PorterConf porterConf = bridge.porterConf();
+
+        LOGGER.debug("deal #{propName}...");
+        IConfigData configData = porterConf.getConfigData();
+        DealSharpProperties.dealProperties(configData);
+        LOGGER.debug("deal #{propName} finished");
+
         ContextPorter contextPorter = new ContextPorter();
         contextPorter.setClassLoader(porterConf.getClassLoader());
 

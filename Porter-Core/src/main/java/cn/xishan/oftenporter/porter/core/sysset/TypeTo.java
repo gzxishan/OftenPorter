@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.sysset;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheOne;
 import cn.xishan.oftenporter.porter.core.base.*;
@@ -27,6 +28,7 @@ import java.util.*;
  * <br>
  * Created by https://github.com/CLovinr on 2016/9/10.
  */
+@AspectOperationOfNormal.IgnoreAspect
 public class TypeTo
 {
 

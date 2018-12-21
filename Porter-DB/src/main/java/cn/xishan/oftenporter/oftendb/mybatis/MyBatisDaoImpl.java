@@ -1,9 +1,11 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -64,6 +66,30 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public void reloadMybatis() throws Throwable
     {
         myBatisDaoGen.moption().mSqlSessionFactoryBuilder.reload();
+    }
+
+    @Override
+    public DataSource getDataSource()
+    {
+        return myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getDataSource();
+    }
+
+    @Override
+    public DataSource setDataSource(DataSource dataSource) throws Throwable
+    {
+        return myBatisDaoGen.moption().mSqlSessionFactoryBuilder.setDataSource(dataSource);
+    }
+
+    @Override
+    public JSONObject getDataSourceConf()
+    {
+        return myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getDataSourceConf();
+    }
+
+    @Override
+    public DataSource setDataSourceConf(JSONObject dataSourceConf) throws Throwable
+    {
+        return myBatisDaoGen.moption().mSqlSessionFactoryBuilder.setDataSourceConf(dataSourceConf);
     }
 
 

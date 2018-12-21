@@ -216,14 +216,7 @@ class MSqlSessionFactoryBuilder
         }
         if (dataSourceConf == null && OftenTool.notEmpty(dataSourceProperPrefix))
         {
-            JSONObject jsonObject = new JSONObject();
-            for (String propName : configData.propertyNames())
-            {
-                if (propName.startsWith(dataSourceProperPrefix))
-                {
-                    jsonObject.put(propName.substring(dataSourceProperPrefix.length()), configData.get(propName));
-                }
-            }
+            JSONObject jsonObject = configData.getJSONByKeyPrefix(dataSourceProperPrefix);
             dataSourceConf = jsonObject;
             dataSourceProperPrefix = null;
         }
@@ -295,6 +288,33 @@ class MSqlSessionFactoryBuilder
         LOGGER.info("reload mybatis complete!");
     }
 
+    public synchronized JSONObject getDataSourceConf()
+    {
+        return this.dataSourceConf;
+    }
+
+    public synchronized DataSource setDataSourceConf(JSONObject dataSourceConf) throws Throwable
+    {
+        DataSource last = this.dataSourceObject;
+        this.dataSourceObject = null;
+        this.dataSourceConf = dataSourceConf;
+        reload();
+        return last;
+    }
+
+    public synchronized DataSource setDataSource(DataSource dataSource) throws Throwable
+    {
+        DataSource last = this.dataSourceObject;
+        this.dataSourceObject = dataSource;
+        this.reload();//重新加载
+        return last;
+    }
+
+    public synchronized DataSource getDataSource()
+    {
+        return dataSourceObject;
+    }
+
     private void regListener()
     {
         LOGGER.info("will rereg...");
@@ -335,11 +355,11 @@ class MSqlSessionFactoryBuilder
             dataSource = environment.getDataSource();
         }
 
-        JSONObject dataSourceConf = this.dataSourceConf;
         Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
         builder.transactionFactory(new JdbcTransactionFactory());
         if (dataSource == null)
         {
+            JSONObject dataSourceConf = this.dataSourceConf;
             dataSource = dataSourceObject != null ? dataSourceObject : MyBatisBridge.buildDataSource(dataSourceConf);
         }
         builder.dataSource(dataSource);
@@ -407,7 +427,7 @@ class MSqlSessionFactoryBuilder
                 DatabaseMetaData metaData = connection.getMetaData();
                 Set<String> set = new HashSet<>();
                 ResultSet rs = metaData.getColumns(null, metaData.getUserName(), tableName, "%");
-                boolean has=false;
+                boolean has = false;
                 if (!rs.next())
                 {
                     rs.close();
@@ -416,12 +436,14 @@ class MSqlSessionFactoryBuilder
                     {
                         rs.close();
                         rs = metaData.getColumns(null, null, tableName, "%");
-                        has=rs.next();
-                    }else{
-                        has=true;
+                        has = rs.next();
+                    } else
+                    {
+                        has = true;
                     }
-                }else{
-                    has=true;
+                } else
+                {
+                    has = true;
                 }
 
                 if (has)

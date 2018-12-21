@@ -22,6 +22,18 @@ import java.util.Map;
 @AdvancedAnnotation(enableAdvancedAnnotation = true)
 public @interface AspectOperationOfNormal
 {
+    /**
+     * 忽略切面
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    @Documented
+    @Inherited
+    @interface IgnoreAspect
+    {
+        boolean willIgnore() default true;
+    }
+
     interface Invoker
     {
         /**
@@ -154,6 +166,7 @@ public @interface AspectOperationOfNormal
 
         /**
          * 是否会调用{@linkplain #doInvoke(OftenObject, boolean, Object, Method, Invoker, Object[], Object)}.
+         *
          * @param isTop 是否是顶层调用。
          */
         boolean preInvoke(@MayNull OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,

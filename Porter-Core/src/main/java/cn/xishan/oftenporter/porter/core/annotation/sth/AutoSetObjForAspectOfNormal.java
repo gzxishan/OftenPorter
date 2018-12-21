@@ -321,76 +321,81 @@ public class AutoSetObjForAspectOfNormal
             }
         }
 
+        AspectOperationOfNormal.IgnoreAspect ignoreAspect=AnnoUtil.getAnnotation(clazz,
+                AspectOperationOfNormal.IgnoreAspect.class);
 
-        Method[] methods = OftenTool.getAllMethods(clazz);
+        boolean willIgnore=ignoreAspect!=null&&ignoreAspect.willIgnore();
 
-        for (Method method : methods)
-        {
+       if(!willIgnore){
+           Method[] methods = OftenTool.getAllMethods(clazz);
 
-            if (Modifier.isStatic(method.getModifiers()) || Modifier.isPrivate(method.getModifiers()))
-            {
-                continue;
-            }
-            if (PortUtil.willIgnoreAdvanced(method.getDeclaringClass()))
-            {
-                continue;
-            }
+           for (Method method : methods)
+           {
 
-            String mkey = method.toString();
+               if (Modifier.isStatic(method.getModifiers()) || Modifier.isPrivate(method.getModifiers()))
+               {
+                   continue;
+               }
+               if (PortUtil.willIgnoreAdvanced(method.getDeclaringClass()))
+               {
+                   continue;
+               }
 
-            List<Object> list = methodHanldeCache.get(mkey);
+               String mkey = method.toString();
 
-            if (list == null)
-            {
-                Annotation[] annotations = AnnoUtil.getAnnotations(method);
-                list = new ArrayList<>(5);
-                for (Annotation annotation : annotations)
-                {
-                    AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
-                            .getAspectOperationOfNormal(annotation);
-                    if (aspectOperationOfNormal == null)
-                    {
-                        aspectOperationOfNormal = classAspectOperationMap.get(annotation);//如果函数上不存在指定注解、则获取类上的
-                    }
-                    if (aspectOperationOfNormal != null)
-                    {
-                        list.add(new Annotation[]{
-                                annotation, aspectOperationOfNormal
-                        });
-                    }
-                }
-                methodHanldeCache.put(mkey, list);
+               List<Object> list = methodHanldeCache.get(mkey);
 
-                int beforeIndex = 0;
-                for (AdvancedHandle advancedHandle : advancedHandleList)
-                {
-                    Matcher matcher = advancedHandle.getPattern().matcher(mkey);
-                    if (matcher.find())
-                    {
-                        if (advancedHandle.isAfter())
-                        {
-                            list.add(advancedHandle.getHandle());
-                        } else
-                        {
-                            list.add(beforeIndex++, advancedHandle.getHandle());
-                        }
-                    }
-                }
-            }
+               if (list == null)
+               {
+                   Annotation[] annotations = AnnoUtil.getAnnotations(method);
+                   list = new ArrayList<>(5);
+                   for (Annotation annotation : annotations)
+                   {
+                       AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
+                               .getAspectOperationOfNormal(annotation);
+                       if (aspectOperationOfNormal == null)
+                       {
+                           aspectOperationOfNormal = classAspectOperationMap.get(annotation);//如果函数上不存在指定注解、则获取类上的
+                       }
+                       if (aspectOperationOfNormal != null)
+                       {
+                           list.add(new Annotation[]{
+                                   annotation, aspectOperationOfNormal
+                           });
+                       }
+                   }
+                   methodHanldeCache.put(mkey, list);
 
-            if (list.size() > 0)
-            {
-                if (Modifier.isPrivate(method.getModifiers()))
-                {
-                    LOGGER.warn("ignore private method aspect of normal:{}", method);
-                } else
-                {
-                    aspectMethodHandleCache.add(method.toString());
-                    methodTypeMap.put(method, list);
-                }
-            }
-        }
+                   int beforeIndex = 0;
+                   for (AdvancedHandle advancedHandle : advancedHandleList)
+                   {
+                       Matcher matcher = advancedHandle.getPattern().matcher(mkey);
+                       if (matcher.find())
+                       {
+                           if (advancedHandle.isAfter())
+                           {
+                               list.add(advancedHandle.getHandle());
+                           } else
+                           {
+                               list.add(beforeIndex++, advancedHandle.getHandle());
+                           }
+                       }
+                   }
+               }
 
+               if (list.size() > 0)
+               {
+                   if (Modifier.isPrivate(method.getModifiers()))
+                   {
+                       LOGGER.warn("ignore private method aspect of normal:{}", method);
+                   } else
+                   {
+                       aspectMethodHandleCache.add(method.toString());
+                       methodTypeMap.put(method, list);
+                   }
+               }
+           }
+       }
 
         if (objectMayNull != null)
         {
@@ -449,7 +454,15 @@ public class AutoSetObjForAspectOfNormal
             enhancer.setInterfaces(new Class[]{
                     IOPProxy.class
             });
-            Object proxyObject = enhancer.create();
+            Object proxyObject;
+            try
+            {
+                proxyObject = enhancer.create();
+            } catch (Throwable e)
+            {
+                LOGGER.warn("create proxy object error:class={}",clazz);
+                throw e;
+            }
             if (objectMayNull == null)
             {
                 methodInterceptor.originRef = new WeakReference<>(proxyObject);

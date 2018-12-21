@@ -1,8 +1,10 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 
 
@@ -38,5 +40,31 @@ public interface MyBatisDao
      * 重新加载mybatis。
      */
     void reloadMybatis() throws Throwable;
+
+    /**
+     * 获取当前数据源。
+     *
+     * @return
+     */
+    DataSource getDataSource();
+
+    /**
+     * 设置新的数据源，会导致reload。
+     *
+     * @param dataSource
+     * @return 之前的数据源
+     * @throws Throwable
+     */
+    DataSource setDataSource(DataSource dataSource) throws Throwable;
+
+    JSONObject getDataSourceConf();
+
+    /**
+     * 会设置新的数据源，会导致reload。
+     *
+     * @param dataSourceConf
+     * @return 之前的数据源
+     */
+    DataSource setDataSourceConf(JSONObject dataSourceConf) throws Throwable;
 
 }

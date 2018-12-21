@@ -38,6 +38,20 @@ public class DefaultConfigData implements IConfigData
     }
 
     @Override
+    public JSONObject getJSONByKeyPrefix(String keyPrefix)
+    {
+        JSONObject jsonObject = new JSONObject();
+        for (String propName : propertyNames())
+        {
+            if (propName.startsWith(keyPrefix))
+            {
+                jsonObject.put(propName.substring(keyPrefix.length()), get(propName));
+            }
+        }
+        return jsonObject;
+    }
+
+    @Override
     public boolean contains(String key)
     {
         return properties.containsKey(key);
