@@ -65,7 +65,6 @@ class MSqlSessionFactoryBuilder
     private String[] initSqls;
     private List<Interceptor> interceptors;
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
-    private Environment environment;
     private Map<String, Set<String>> tableColumnsMap = new HashMap<>();
 
     private String id;
@@ -170,17 +169,20 @@ class MSqlSessionFactoryBuilder
                     }
                     if (willBuild)
                     {
-                        if (currentId.equals(id))
+                        state[0] = false;
+                        synchronized (MSqlSessionFactoryBuilder.this)
                         {
-                            try
+                            if (currentId.equals(id))
                             {
-                                reload();
-                            } catch (Throwable e)
-                            {
-                                LOGGER.error(e.getMessage(), e);
+                                try
+                                {
+                                    reload();
+                                } catch (Throwable e)
+                                {
+                                    LOGGER.error(e.getMessage(), e);
+                                }
                             }
                         }
-                        state[0] = false;
                         break;
                     }
                     // 重设WatchKey
@@ -348,22 +350,18 @@ class MSqlSessionFactoryBuilder
         {
             ConfigurationHandle.setForOverride(configuration);
         }
-
-        DataSource dataSource = null;
-        if (environment != null)
-        {
-            dataSource = environment.getDataSource();
-        }
+        DataSource dataSource = this.dataSourceObject;
 
         Environment.Builder builder = new Environment.Builder(MyBatisBridge.class.getName());
         builder.transactionFactory(new JdbcTransactionFactory());
         if (dataSource == null)
         {
             JSONObject dataSourceConf = this.dataSourceConf;
-            dataSource = dataSourceObject != null ? dataSourceObject : MyBatisBridge.buildDataSource(dataSourceConf);
+            dataSource = MyBatisBridge.buildDataSource(dataSourceConf);
         }
+        this.dataSourceObject = dataSource;
         builder.dataSource(dataSource);
-        this.environment = builder.build();
+        Environment environment = builder.build();
 
         if (initSqls != null)
         {
@@ -422,7 +420,7 @@ class MSqlSessionFactoryBuilder
         Set<String> columnsSet = tableColumnsMap.get(tableName);
         if (columnsSet == null)
         {
-            try (Connection connection = environment.getDataSource().getConnection())
+            try (Connection connection = getDataSource().getConnection())
             {
                 DatabaseMetaData metaData = connection.getMetaData();
                 Set<String> set = new HashSet<>();
