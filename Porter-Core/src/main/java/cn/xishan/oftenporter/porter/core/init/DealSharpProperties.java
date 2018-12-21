@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * @author Created by https://github.com/CLovinr on 2018-12-21.
  */
-class DealSharpProperties
+public class DealSharpProperties
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DealSharpProperties.class);
 
@@ -39,6 +39,65 @@ class DealSharpProperties
         {
             String str = originValue.substring(0, startIndex) + propValue + originValue.substring(endIndex);
             return str;
+        }
+    }
+
+    /**
+     * 替换#{properName}变量。
+     *
+     * @param srcMap        待替换属性值的map
+     * @param propertiesMap 提供属性的map
+     */
+    public static void dealSharpProperties(Map srcMap, Map propertiesMap)
+    {
+        Set<String> containsVar = null;
+        boolean isFirst = true;
+        boolean hasSet = true;
+        //处理properties
+        while (hasSet)
+        {
+            hasSet = false;
+            Collection<String> nameCollection;
+            if (isFirst)
+            {
+                nameCollection = srcMap.keySet();
+            } else
+            {
+                nameCollection = containsVar;
+            }
+            containsVar = new HashSet<>();
+            for (String properName : nameCollection)
+            {
+                Object value = srcMap.get(properName);
+                if (!(value instanceof CharSequence))
+                {
+                    continue;
+                }
+                String valueString = String.valueOf(value);
+
+                PropOne propOne = getPropertiesKey(String.valueOf(valueString));
+                if (propOne != null && propOne.getPropKey().equals(properName))
+                {
+                    throw new RuntimeException(
+                            "can not set property of " + properName + " with value \"" + valueString + "\"");
+                } else if (propOne != null && propertiesMap.containsKey(propOne.getPropKey()))
+                {
+                    containsVar.add(properName);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("replace sharp property:key={},replace-attr={},origin-value={}", properName,
+                                propOne.getPropKey(), valueString);
+                    }
+                    String newValue = propOne.replace(String.valueOf(propertiesMap.get(propOne.getPropKey())));
+                    srcMap.put(properName, newValue);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("replace sharp property:key={},new-value={}", properName, newValue);
+                    }
+                    hasSet = true;
+                }
+            }
+            isFirst = false;
         }
     }
 
