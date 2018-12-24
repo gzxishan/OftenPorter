@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * <li>
  * 参数query支持的：<br>
  * <ul>
- * <li>name或$eq:name：等于,当值为空时会变成$null:name。</li>
+ * <li>name或$eq:name：等于。其中,对于name当值为空时会变成$null:name，对于$eq:name当值为空时会忽略条件。</li>
  * <li>$null:name：值为null</li>
  * <li>$notnull:name：值不为null</li>
  * <li>$emptystr:name：为空字符串</li>
@@ -153,7 +153,7 @@ public class SimpleSqlUtil
      * 为空忽略条件tag
      */
     private static final String[] EMPTY_IGNORE_TAGS = {
-            "$gt:", "$gte:", "$lt:", "$lte:",
+            "$gt:", "$gte:", "$lt:", "$lte:", "$eq:",
             "$substr:", "$notsubstr:",
             "$startsWith:", "$starts:", "$notstartsWith:", "$notstarts:",
             "$endsWith:", "$ends:", "$notendsWith:", "$notends:"
@@ -405,10 +405,6 @@ public class SimpleSqlUtil
                 {
                     name = "$notnull:" + name.substring(4);
                     LOGGER.warn("change sql op:{} -> {}", oldName, name);
-                } else if (name.startsWith("$eq:"))
-                {
-                    name = "$null:" + name.substring(4);
-                    LOGGER.warn("change sql op:{} -> {}", oldName, name);
                 }
             }
 
@@ -417,6 +413,7 @@ public class SimpleSqlUtil
             if (!matched && OftenTool.isEmpty(value) && !name.startsWith("$"))
             {
                 operator = SqlCondition.IS_NULL;
+                LOGGER.warn("change sql op:{} -> IS NULL", name);
                 willAddName = false;
             } else if (matched)
             {
