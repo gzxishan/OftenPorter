@@ -483,6 +483,19 @@ class _MyBatis
 
                     String[] excepts = getExcepts(ExceptPartType.INSERT, sqlBuilder, tag, index, index2);
 
+                    String multi = "";
+                    String multiVar = "";
+
+                    {
+                        Pattern multiPattern = Pattern.compile("multi[\\s]*=[\\s]*([a-zA-Z0-9_$]*)");
+                        Matcher matcher = multiPattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
+                        if (matcher.find())
+                        {
+                            multi = matcher.group(1);
+                            multiVar = "item";
+                        }
+                    }
+
                     List<String> dbColumns = dbColumnsOfCurrent;
 
                     List<String> _dbColumns = dbColumns;
@@ -501,10 +514,25 @@ class _MyBatis
                             _refColumns.add(refColumnsOfCurrent.get(i));
                         }
                     }
-                    String insertPart = "(" + OftenStrUtil.join(",", _dbColumns) + ") VALUES (" + OftenStrUtil
-                            .join(",", _refColumns) + ")";
+
+                    String valuesPart;
+                    if (OftenTool.notEmpty(multi))
+                    {
+                        List<String> _refColumns2 = new ArrayList<>(_refColumns.size());
+                        for (String refCol : _refColumns)
+                        {
+                            _refColumns2.add("#{" + multiVar + "." + refCol.substring(2));
+                        }
+                        valuesPart = "<foreach collection ='" + multi + "' item='" + multiVar + "' index= " +
+                                "'index' separator =','>(" +
+                                OftenStrUtil.join(",", _refColumns2) +")</foreach>";
+                    } else
+                    {
+                        valuesPart = "(" + OftenStrUtil.join(",", _refColumns) + ")";
+                    }
+                    String insertPart = "(" + OftenStrUtil.join(",", _dbColumns) + ") VALUES " + valuesPart;
                     sqlBuilder.replace(index, index2 + 1, insertPart);
-                    LOGGER.debug("{} insert-part={}",tableName,insertPart);
+                    LOGGER.debug("{} insert-part={}", tableName, insertPart);
                 }
 
                 while (true)
@@ -551,7 +579,7 @@ class _MyBatis
                     }
                     String updatePart = OftenStrUtil.join(",", list);
                     sqlBuilder.replace(index, index2 + 1, updatePart);
-                    LOGGER.debug("{} update-part={}",tableName,updatePart);
+                    LOGGER.debug("{} update-part={}", tableName, updatePart);
                 }
 
             }

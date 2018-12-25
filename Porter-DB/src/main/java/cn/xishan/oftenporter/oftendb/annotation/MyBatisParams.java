@@ -54,7 +54,7 @@ import java.lang.annotation.*;
  * 默认的insert与update语句,支持的注解：{@linkplain Nece},{@linkplain Unece},{@linkplain DBField}
  * <ul>
  * <li>
- * $[insert-part:【except={}】]:"(`column`,...) VALUES(#{column},...)"
+ * $[insert-part:【except={}】【multi=批量数据变量】]:"(`column`,...) VALUES(#{column},...)【,(...),...】"。如果提供了multi，则表示批量插入。
  * </li>
  * <li>
  * $[update-part:【except={}】]:"`column`=#{column},..."
