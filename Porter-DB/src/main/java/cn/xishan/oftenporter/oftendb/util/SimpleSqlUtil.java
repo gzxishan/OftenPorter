@@ -517,7 +517,7 @@ public class SimpleSqlUtil
                             {
                                 operator = SqlCondition.TRUE;
                             }
-                            LOGGER.warn("change sql op:{}{} -> {}", type, name, operator == SqlCondition.TRUE);
+                            LOGGER.warn("change sql op:{} -> {}", name, operator == SqlCondition.TRUE);
                             willAddName = false;
                         } else
                         {
