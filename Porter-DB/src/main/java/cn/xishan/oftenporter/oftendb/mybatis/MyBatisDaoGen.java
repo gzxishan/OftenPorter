@@ -25,6 +25,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -317,12 +318,12 @@ class MyBatisDaoGen implements AutoSetGen
                 }
             }
 
-            @Override
-            public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
+            private void mayClose(ConnectionWrap connectionWrap) throws SQLException
             {
-                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source);
-                Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
-                Object rs = method.invoke(dao, args);
+                if (connectionWrap == null)
+                {
+                    return;
+                }
                 if (connectionWrap.getAutoCommit())
                 {
                     TransactionDBHandle.__removeConnection__(source);
@@ -331,7 +332,31 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     TransactionDBHandle.__removeConnection__(source);
                 }
-                return rs;
+            }
+
+            @Override
+            public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
+            {
+                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source);
+                boolean isInvokeError = true;
+                try
+                {
+                    Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
+                    Object rs = method.invoke(dao, args);
+                    isInvokeError = false;
+                    mayClose(connectionWrap);
+                    return rs;
+
+                } catch (Throwable throwable)
+                {
+                    if (isInvokeError)
+                    {
+                        mayClose(connectionWrap);
+                    }
+                    throw throwable;
+                }
+
+
             }
         };
 

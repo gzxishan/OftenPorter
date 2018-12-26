@@ -162,11 +162,23 @@ public class MyBatisBridge
         }
     }
 
+
     @KeepFromProguard
     static ConnectionWrap __openConnection(String source)
     {
+        return __openConnection(source, true);
+    }
+
+    /**
+     * @param source
+     * @param openNew 如果当前threadLocal没有，是否开启新的。
+     * @return
+     */
+    @KeepFromProguard
+    static ConnectionWrap __openConnection(String source, boolean openNew)
+    {
         ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
-        if (connection != null)
+        if (connection != null || !openNew)
         {
             return connection;
         }
