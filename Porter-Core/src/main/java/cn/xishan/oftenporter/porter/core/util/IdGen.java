@@ -306,12 +306,9 @@ public class IdGen implements Serializable
         return idGen;
     }
 
-    /**
-     * 根据可用网卡中的最大mac地址生成,8个字符长度
-     *
-     * @return
-     */
-    public static String getNetMac()
+    private static final String NET_MAC;
+
+    static
     {
         long mac = getMac();
         if (mac == -1)
@@ -323,7 +320,17 @@ public class IdGen implements Serializable
         {
             mchid = mchid.substring(mchid.length() - 8);
         }
-        return mchid;
+        NET_MAC = mchid;
+    }
+
+    /**
+     * 根据可用网卡中的最大mac地址生成,8个字符长度
+     *
+     * @return
+     */
+    public static String getNetMac()
+    {
+        return NET_MAC;
     }
 
     private static long getMac()
