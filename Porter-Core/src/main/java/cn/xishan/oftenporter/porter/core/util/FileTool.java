@@ -51,6 +51,17 @@ public class FileTool
         write2File(new ByteArrayInputStream(content.getBytes(encode)), file, createIfNotExist);
     }
 
+    public static void write2Stream(String content, String encode, OutputStream os) throws IOException
+    {
+        try
+        {
+            in2out(new ByteArrayInputStream(content.getBytes(encode)), os, 2048);
+        } finally
+        {
+            OftenTool.close(os);
+        }
+    }
+
     /**
      * 把输入流中的内容写到文件中
      *
@@ -141,6 +152,11 @@ public class FileTool
         {
             OftenTool.close(in);
         }
+    }
+
+    public static String getString(File file, String encode) throws IOException
+    {
+        return getString(file, 2048, encode);
     }
 
     public static String getString(File file, int bufSize, String encode) throws IOException

@@ -37,6 +37,12 @@ public interface MyBatisDao
     Connection currentConnection();
 
     /**
+     * 开启新的连接。
+     * @return
+     */
+    Connection newConnection();
+
+    /**
      * 重新加载mybatis。
      */
     void reloadMybatis() throws Throwable;

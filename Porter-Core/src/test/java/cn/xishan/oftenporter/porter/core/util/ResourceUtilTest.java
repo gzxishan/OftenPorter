@@ -4,7 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
+import static org.junit.Assert.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/11/2.
@@ -22,9 +25,22 @@ public class ResourceUtilTest
 
 //        LogUtil.printPosLn(ResourceUtil.getAbsoluteResourceString("http://www.baidu.com","utf-8"));
 
-        Assert.assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString(pathFile, "utf-8"));
-        Assert.assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("/test.txt", "utf-8"));
-        Assert.assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("classpath:/test.txt", "utf-8"));
-        Assert.assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("classpath:test.txt", "utf-8"));
+        assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString(pathFile, "utf-8"));
+        assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("/test.txt", "utf-8"));
+        assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("classpath:/test.txt", "utf-8"));
+        assertEquals("HelloWorld", ResourceUtil.getAbsoluteResourceString("classpath:test.txt", "utf-8"));
+    }
+
+    @Test
+    public void testListResources() throws IOException
+    {
+        List<ResourceUtil.RFile> list = ResourceUtil.listResources("rfiles",null,true);
+        assertTrue(list.size()>0);
+        for(ResourceUtil.RFile rFile:list){
+            if(!rFile.isDir()){
+                String content=FileTool.getString(rFile.getInputStream());
+                assertEquals(rFile.getPath(),content);
+            }
+        }
     }
 }

@@ -63,6 +63,12 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     }
 
     @Override
+    public Connection newConnection()
+    {
+        return MyBatisBridge.__openNewConnection__(myBatisDaoGen.source);
+    }
+
+    @Override
     public void reloadMybatis() throws Throwable
     {
         myBatisDaoGen.moption().mSqlSessionFactoryBuilder.reload();

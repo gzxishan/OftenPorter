@@ -182,7 +182,7 @@ public class MyBatisBridge
         {
             return connection;
         }
-        return __openConnection__(source);
+        return __openNewConnection__(source);
     }
 
     static SqlSession __getSqlSession__(String source)
@@ -193,7 +193,7 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-    private static ConnectionWrap __openConnection__(String source)
+     static ConnectionWrap __openNewConnection__(String source)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder builder = mOption.mSqlSessionFactoryBuilder;
