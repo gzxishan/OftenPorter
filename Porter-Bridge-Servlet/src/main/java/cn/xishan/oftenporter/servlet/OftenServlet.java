@@ -491,13 +491,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
             {
                 LOGGER.warn("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
             }
-            if (method == PortMethod.GET && Arrays
-                    .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) > 0)
-            {
-                response.setHeader("Access-Control-Allow-Methods", "GET");
-                response.setHeader("Access-Control-Allow-Origin", "*");
-                return false;
-            }
+
             CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)
             {
@@ -507,6 +501,14 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
             {
                 corsAccess = defaultCorsAccess;
             }
+
+            if (method == PortMethod.GET && Arrays
+                    .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) > 0)
+            {
+                setCors(response, corsAccess);
+                return false;
+            }
+
             if (!corsAccess.enabled())
             {
                 try
