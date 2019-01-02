@@ -34,7 +34,7 @@ public class TransactionJDBCHandle extends AspectOperationOfNormal.HandleAdapter
     {
         try
         {
-            __openSession = MyBatisBridge.class.getDeclaredMethod("__openSession", String.class);
+            __openSession = MyBatisBridge.class.getDeclaredMethod("__openConnection", String.class);
             __openSession.setAccessible(true);
         } catch (NoSuchMethodException e)
         {
