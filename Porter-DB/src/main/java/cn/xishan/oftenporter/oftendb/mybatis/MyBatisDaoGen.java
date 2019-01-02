@@ -304,7 +304,6 @@ class MyBatisDaoGen implements AutoSetGen
                 }
                 if (connectionWrap.getAutoCommit())
                 {
-                    TransactionJDBCHandle.__removeConnection__(source);
                     connectionWrap.close();
                 } else if (connectionWrap.isBridgeConnection())
                 {
@@ -315,7 +314,7 @@ class MyBatisDaoGen implements AutoSetGen
             @Override
             public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
             {
-                ConnectionWrap connectionWrap = MyBatisBridge.__openSession(source);
+                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source);
                 boolean isInvokeError = true;
                 try
                 {

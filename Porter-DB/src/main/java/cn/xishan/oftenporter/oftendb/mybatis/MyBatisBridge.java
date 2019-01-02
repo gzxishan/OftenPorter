@@ -20,6 +20,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 
@@ -157,9 +158,12 @@ public class MyBatisBridge
     }
 
     @KeepFromProguard
-    static ConnectionWrap __openSession(String source)
+    static ConnectionWrap __openConnection(String source) throws SQLException
     {
         ConnectionWrap connection = (ConnectionWrap) TransactionJDBCHandle.__getConnection__(source);
+        if(connection!=null&&connection.isClosed()){
+            connection=null;
+        }
         if (connection != null)
         {
             return connection;
@@ -193,7 +197,14 @@ public class MyBatisBridge
         {
             sqlSession = sqlSessionFactory.openSession(true);
         }
-        ConnectionWrap connection = new ConnectionWrap(sqlSession, iConnectionBridge, bridgeConnection);
+        ConnectionWrap connection = new ConnectionWrap(sqlSession, iConnectionBridge, bridgeConnection){
+            @Override
+            public void close() throws SQLException
+            {
+                TransactionJDBCHandle.__removeConnection__(source);
+                super.close();
+            }
+        };
 
         TransactionJDBCHandle.__setConnection__(source, connection);
 
