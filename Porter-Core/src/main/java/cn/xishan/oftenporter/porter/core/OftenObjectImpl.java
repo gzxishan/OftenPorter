@@ -38,7 +38,13 @@ class OftenObjectImpl extends OftenObject
         this.response = response;
         this.context = context;
         this.isInnerRequest = isInnerRequest;
-        threadLocal.set(new WeakReference<>(this));
+        threadLocal.get().push(new WeakReference<>(this));
+    }
+
+    @Override
+    public void release()
+    {
+        threadLocal.get().pop();
     }
 
     @Override
@@ -103,21 +109,6 @@ class OftenObjectImpl extends OftenObject
         return t;
     }
 
-
-    @Override
-    public <T> T savedObject(String key)
-    {
-        T t = (T) context.innerContextBridge.contextAutoSet.get(key);
-        return t;
-    }
-
-    @Override
-    public <T> T gsavedObject(String key)
-    {
-        T t = (T) context.innerContextBridge.innerBridge.globalAutoSet.get(key);
-        return t;
-    }
-
     @Override
     public synchronized Delivery delivery()
     {
@@ -134,4 +125,27 @@ class OftenObjectImpl extends OftenObject
         return result;
     }
 
+    @Override
+    public <T> T getContextSet(String objectName)
+    {
+        return context.getContextSet(objectName);
+    }
+
+    @Override
+    public <T> T getGlobalSet(String objectName)
+    {
+        return context.getGlobalSet(objectName);
+    }
+
+    @Override
+    public <T> T getContextSet(Class<T> objectClass)
+    {
+        return context.getContextSet(objectClass);
+    }
+
+    @Override
+    public <T> T getGlobalSet(Class<T> objectClass)
+    {
+        return context.getGlobalSet(objectClass);
+    }
 }

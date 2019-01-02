@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  * Created by chenyg on 2017-04-10.
  */
-public class DataUtilTest
+public class DataUtilTestEntity
 {
     @Test
     public void testResult()

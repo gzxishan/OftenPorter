@@ -86,31 +86,19 @@ public class ServletOftenObject extends OftenObject
     @Override
     public <T> T fentity(int index)
     {
-        throw new RuntimeException("not allowed");
+        return null;
     }
 
     @Override
     public <T> T centity(int index)
     {
-        throw new RuntimeException("not allowed");
-    }
-
-    @Override
-    public <T> T savedObject(String key)
-    {
-        throw new RuntimeException("not allowed");
-    }
-
-    @Override
-    public <T> T gsavedObject(String key)
-    {
-        throw new RuntimeException("not allowed");
+        return null;
     }
 
     @Override
     public Delivery delivery()
     {
-        throw new RuntimeException("not allowed");
+        return null;
     }
 
     @Override
@@ -136,4 +124,27 @@ public class ServletOftenObject extends OftenObject
         return null;
     }
 
+    @Override
+    public <T> T getContextSet(String objectName)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getGlobalSet(String objectName)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getContextSet(Class<T> objectClass)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getGlobalSet(Class<T> objectClass)
+    {
+        return null;
+    }
 }

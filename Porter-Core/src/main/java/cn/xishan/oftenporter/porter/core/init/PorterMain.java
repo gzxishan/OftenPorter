@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -453,6 +454,7 @@ public final class PorterMain
         Context context = portExecutor.newContext(bridge, contextPorter, stateListenerForAll,
                 innerContextBridge, contextChecks, porterCheckPassables, porterConf.getResponseHandles(),
                 porterConf.getDefaultResponseHandle());
+        autoSetHandle.setAutoVarGetter(context);
 
         {
             Map<String, One> entityOneMap = new HashMap<>();
@@ -476,6 +478,8 @@ public final class PorterMain
 
             LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(oftenObject);
+            oftenObject.release();
+
             portExecutor.onContextStarted(context);
 ////////////////////////////////////////////////////////////////////////////////
             LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getContextName());
@@ -489,12 +493,10 @@ public final class PorterMain
 
             oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
-
-
             contextPorter.start(oftenObject, iConfigData);
-
             AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(oftenObject);
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(oftenObject);
+            oftenObject.release();
 
             LOGGER.debug(":{}/{} afterStart...", bridgeLinker.currentName(), porterConf.getContextName());
             stateListenerForAll.afterStart(porterConf.getUserInitParam());
@@ -592,4 +594,11 @@ public final class PorterMain
         PreRequest preRequest = portExecutor.forRequest(request, response);
         return preRequest;
     }
+
+    public IAutoVarGetter getAutoVarGetter(String contextName)
+    {
+        Context context = portExecutor.getContext(contextName);
+        return context;
+    }
+
 }

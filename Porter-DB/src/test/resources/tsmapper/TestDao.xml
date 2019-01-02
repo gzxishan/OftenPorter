@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="$[mapperDaoClass]">
+
+    <!--****************引入子页面、变量设置***************-->
+    <!--$json:{
+    tableName:'test'
+    }-->
+    <!--$path:./include/base.xml-->
+
+    <update id="initTable">
+        CREATE TABLE IF NOT EXISTS `$[tableName]` (  `id` char(21) NOT NULL,
+        `name` varchar(35) NOT NULL,
+        `createtime` datetime NOT NULL,
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    </update>
+
+    <insert id="insert" parameterType="$[entity]">
+        INSERT INTO `$[tableName]` (`id`,`name`,`createtime`) VALUES(#{id},#{name},#{createtime});
+    </insert>
+
+    <delete id="clearAll">
+        DELETE FROM `$[tableName]`;
+    </delete>
+
+    <select id="contains" resultType="boolean">
+        SELECT COUNT(*)>0 FROM `$[tableName]` WHERE `id`=#{id};
+    </select>
+
+</mapper>

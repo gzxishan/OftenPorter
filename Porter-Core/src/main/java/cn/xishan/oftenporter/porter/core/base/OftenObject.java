@@ -6,8 +6,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SyncPorterThrowsImpl;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.init.CommonMain;
-import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
@@ -21,12 +20,13 @@ import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * 接口中间对象。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalListener>
+public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalListener>, IAutoVarGetter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenObject.class);
 
@@ -77,17 +77,28 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     private Map<String, Object> requestDataMap = null;
 
-    protected static final ThreadLocal<WeakReference<OftenObject>> threadLocal = new ThreadLocal<>();
+    protected static final ThreadLocal<Stack<WeakReference<OftenObject>>> threadLocal = ThreadLocal
+            .withInitial(Stack::new);
 
     public OftenObject()
     {
 
     }
 
-    public static OftenObject fromThreadLocal()
+    public static OftenObject current()
     {
-        WeakReference<OftenObject> reference = threadLocal.get();
+        Stack<WeakReference<OftenObject>> stack = threadLocal.get();
+        if (stack.isEmpty())
+        {
+            return null;
+        }
+        WeakReference<OftenObject> reference = stack.peek();
         return reference == null ? null : reference.get();
+    }
+
+    public void release()
+    {
+
     }
 
     public abstract OftenRequest getRequest();
@@ -135,38 +146,6 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         return null;
     }
 
-    /**
-     * 见{@linkplain #savedObject(String) savedObject(Class.getName())}.
-     */
-    public <T> T savedObject(Class<T> key)
-    {
-        T obj = savedObject(key.getName());
-        return obj;
-    }
-
-
-    /**
-     * 获取当前context运行期对象实例。
-     * 见{@linkplain PorterConf#addContextAutoSet(String, Object)}
-     */
-    public abstract <T> T savedObject(String key);
-
-
-    /**
-     * 见{@linkplain #gsavedObject(String) gsavedObject(Class.getName())}.
-     */
-    public <T> T gsavedObject(Class<T> key)
-    {
-        T obj = gsavedObject(key.getName());
-        return obj;
-    }
-
-
-    /**
-     * 获取全局运行期对象.
-     * 见{@linkplain CommonMain#addGlobalAutoSet(String, Object)}
-     */
-    public abstract <T> T gsavedObject(String key);
 
     public abstract Delivery delivery();
 
@@ -334,7 +313,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
         StringBuilder builder = new StringBuilder();
         builder.append('/').append(result.contextName()).append('/');
-        if (OftenTool.notNullAndEmpty(classTied))
+        if (OftenTool.notEmpty(classTied))
         {
             builder.append(classTied);
         } else

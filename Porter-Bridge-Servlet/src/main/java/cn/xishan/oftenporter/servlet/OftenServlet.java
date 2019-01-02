@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.init.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
@@ -598,6 +599,12 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     public PorterData getPorterData()
     {
         return porterMain.getPorterData();
+    }
+
+    @Override
+    public IAutoVarGetter getAutoVarGetter(String context)
+    {
+        return porterMain.getAutoVarGetter(context);
     }
 
     @Override

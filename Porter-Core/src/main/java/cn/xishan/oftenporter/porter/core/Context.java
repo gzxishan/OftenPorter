@@ -1,9 +1,11 @@
 package cn.xishan.oftenporter.porter.core;
 
 import cn.xishan.oftenporter.porter.core.advanced.ResponseHandle;
+import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 
 import java.util.Map;
@@ -11,7 +13,8 @@ import java.util.Map;
 /**
  * @author Created by https://github.com/CLovinr on 2016/10/3.
  */
-public class Context
+@AspectOperationOfNormal.IgnoreAspect
+public class Context implements IAutoVarGetter
 {
     public final ContextPorter contextPorter;
     InnerContextBridge innerContextBridge;
@@ -68,5 +71,31 @@ public class Context
     public boolean isEnable()
     {
         return isEnable;
+    }
+
+    @Override
+    public <T> T getContextSet(String objectName)
+    {
+        T t = (T) innerContextBridge.contextAutoSet.get(objectName);
+        return t;
+    }
+
+    @Override
+    public <T> T getGlobalSet(String objectName)
+    {
+        T t = (T) innerContextBridge.innerBridge.globalAutoSet.get(objectName);
+        return t;
+    }
+
+    @Override
+    public <T> T getContextSet(Class<T> objectClass)
+    {
+        return getContextSet(objectClass.getName());
+    }
+
+    @Override
+    public <T> T getGlobalSet(Class<T> objectClass)
+    {
+        return getGlobalSet(objectClass.getName());
     }
 }

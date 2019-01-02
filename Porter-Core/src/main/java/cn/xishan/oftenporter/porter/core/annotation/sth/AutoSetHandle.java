@@ -14,12 +14,9 @@ import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.init.CommonMain;
-import cn.xishan.oftenporter.porter.core.init.IOtherStartDestroy;
-import cn.xishan.oftenporter.porter.core.init.PorterMain;
+import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.*;
-import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
@@ -308,6 +305,7 @@ public class AutoSetHandle
     private IConfigData iConfigData;
     private OftenContextInfo oftenContextInfo;
     private IOtherStartDestroy iOtherStartDestroy;
+    private IAutoVarGetter autoVarGetter;
 
     private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge,
@@ -322,6 +320,16 @@ public class AutoSetHandle
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
         this.oftenContextInfo = new OftenContextInfo(thisDelivery.currentName(), contextName);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
+    }
+
+    public IAutoVarGetter getAutoVarGetter()
+    {
+        return autoVarGetter;
+    }
+
+    public void setAutoVarGetter(IAutoVarGetter autoVarGetter)
+    {
+        this.autoVarGetter = autoVarGetter;
     }
 
     /**
@@ -1131,7 +1139,10 @@ public class AutoSetHandle
     {
         Object sysset = null;
         String typeName = f.getType().getName();
-        if (typeName.equals(IConfigData.class.getName()))
+        if (typeName.equals(IAutoVarGetter.class.getName()))
+        {
+            sysset=autoVarGetter;
+        } else if (typeName.equals(IConfigData.class.getName()))
         {
             sysset = iConfigData;
         } else if (typeName.equals(TypeTo.class.getName()))

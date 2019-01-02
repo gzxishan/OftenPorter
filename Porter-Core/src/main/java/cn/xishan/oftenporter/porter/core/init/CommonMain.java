@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 
 /**
@@ -87,5 +88,7 @@ public interface CommonMain
      * @return
      */
     String getDefaultTypeParserId();
+
+    IAutoVarGetter getAutoVarGetter(String context);
 
 }

@@ -1,0 +1,11 @@
+
+<delete id="deleteById">
+    DELETE FROM $[tableName] WHERE `id`=#{id};
+</delete>
+
+<select id="getById" resultType="$[entity]">
+    SELECT * FROM $[tableName] WHERE `id`=#{id};
+</select>
+
+
+

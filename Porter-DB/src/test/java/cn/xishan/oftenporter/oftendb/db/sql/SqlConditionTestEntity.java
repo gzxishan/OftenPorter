@@ -14,7 +14,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since <pre>1/8/2017</pre>
  */
-public class SqlConditionTest
+public class SqlConditionTestEntity
 {
     @Test
     public void test()

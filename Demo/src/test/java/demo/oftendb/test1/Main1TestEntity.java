@@ -6,7 +6,7 @@ import org.junit.Test;
 /**
  * @author Created by https://github.com/CLovinr on 2018-11-27.
  */
-public class Main1Test
+public class Main1TestEntity
 {
     @Test
     public void testMain()

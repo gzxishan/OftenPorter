@@ -42,8 +42,8 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
         K[] keys = threadLocal.get();
         if (keys != null)
         {
-            unlocks(keys);
             threadLocal.remove();
+            unlocks(keys);
         }
     }
 

@@ -293,6 +293,11 @@ public final class PortExecutor
                 }
             }
             close(response);
+        }finally
+        {
+            if(oftenObject!=null){
+                oftenObject.release();
+            }
         }
     }
 

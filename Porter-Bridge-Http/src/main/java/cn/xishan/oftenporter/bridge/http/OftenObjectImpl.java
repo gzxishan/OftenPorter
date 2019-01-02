@@ -73,18 +73,6 @@ class OftenObjectImpl extends OftenObject
 
 
     @Override
-    public <T> T savedObject(String key)
-    {
-        return null;
-    }
-
-    @Override
-    public <T> T gsavedObject(String key)
-    {
-        return null;
-    }
-
-    @Override
     public Delivery delivery()
     {
         return null;
@@ -98,6 +86,30 @@ class OftenObjectImpl extends OftenObject
 
     @Override
     public BridgeName getPName()
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getContextSet(String objectName)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getGlobalSet(String objectName)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getContextSet(Class<T> objectClass)
+    {
+        return null;
+    }
+
+    @Override
+    public <T> T getGlobalSet(Class<T> objectClass)
     {
         return null;
     }

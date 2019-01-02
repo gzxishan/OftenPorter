@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
 import cn.xishan.oftenporter.porter.core.bridge.*;
@@ -35,7 +36,8 @@ public class LocalMain implements CommonMain
 
     }
 
-    protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding, IBridge bridge)
+    protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding,
+            IBridge bridge)
     {
         porterMain = new PorterMain(bridgeName, this, bridge, bridge);
         porterMain.init(new DefaultUrlDecoder(urlEncoding), responseWhenException);
@@ -110,6 +112,12 @@ public class LocalMain implements CommonMain
     public String getDefaultTypeParserId()
     {
         return null;
+    }
+
+    @Override
+    public IAutoVarGetter getAutoVarGetter(String context)
+    {
+        return porterMain.getAutoVarGetter(context);
     }
 
     @Override
