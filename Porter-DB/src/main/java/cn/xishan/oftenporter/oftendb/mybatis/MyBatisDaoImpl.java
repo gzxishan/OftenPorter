@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.db.DBException;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -58,7 +60,14 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public Connection currentConnection()
     {
-        Connection connection = MyBatisBridge.__openConnection(myBatisDaoGen.source);
+        Connection connection;
+        try
+        {
+            connection = MyBatisBridge.__openConnection(myBatisDaoGen.source);
+        } catch (SQLException e)
+        {
+            throw new DBException(e);
+        }
         return connection;
     }
 

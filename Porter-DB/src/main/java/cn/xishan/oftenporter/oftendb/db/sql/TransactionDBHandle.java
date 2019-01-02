@@ -47,6 +47,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
         Savepoint savepoint;
     }
 
+    //!!!!!!:防止获取已经过时的连接，记得清楚、同时获取时判断是否已经closed
     private static final ThreadLocal<Map<String, IConnection>> threadLocal = ThreadLocal.withInitial(
             () -> new ConcurrentHashMap<>(1));
     private static final ThreadLocal<Stack<SavePointHolder>> savePointStackThreadLocal = ThreadLocal

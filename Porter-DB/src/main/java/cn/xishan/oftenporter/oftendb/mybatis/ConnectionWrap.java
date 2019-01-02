@@ -218,12 +218,12 @@ class ConnectionWrap implements Connection, IConnection
     @Override
     public void close() throws SQLException
     {
-        sqlSession.close();
         if (isBridgeConnection())
         {
             this.iConnectionBridge
                     .closeConnection(sqlSession.getConfiguration().getEnvironment().getDataSource(), connection);
         }
+        sqlSession.close();
     }
 
     @Override

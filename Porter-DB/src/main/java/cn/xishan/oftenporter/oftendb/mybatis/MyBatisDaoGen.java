@@ -326,7 +326,6 @@ class MyBatisDaoGen implements AutoSetGen
                 }
                 if (connectionWrap.getAutoCommit())
                 {
-                    TransactionDBHandle.__removeConnection__(source);
                     connectionWrap.close();
                 } else if (connectionWrap.isBridgeConnection())
                 {
