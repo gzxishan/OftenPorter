@@ -204,10 +204,14 @@ class MyBatisDaoGen implements AutoSetGen
 
                 BufferedReader bufferedReader = new BufferedReader(
                         new InputStreamReader(new ByteArrayInputStream(xmlData), Charset.defaultCharset()));
-                String line = bufferedReader.readLine();
-                bufferedReader.close();
-                if (line != null)
-                {//读取第一行的xml编码方式。
+                String line;
+                while ((line = bufferedReader.readLine()) != null)
+                {
+                    if (OftenTool.isEmpty(line))
+                    {
+                        continue;
+                    }
+                    //读取xml编码方式。
                     Pattern encodingPattern = Pattern
                             .compile("encoding([\\s]*)=([\\s]*)(['\"])([^\\r\\n'\"]+)(['\"])",
                                     Pattern.CASE_INSENSITIVE);
@@ -217,12 +221,14 @@ class MyBatisDaoGen implements AutoSetGen
                         encoding = matcher.group(4);
                     }
                 }
+                bufferedReader.close();
+
 
                 if (encoding == null)
                 {
                     encoding = "utf-8";
                 }
-                String xml = new String(xmlData, encoding);
+                String xml = new String(xmlData, encoding).trim();
                 xml = replaceParams(myBatis, xml);
                 xmlData = xml.getBytes(Charset.forName(encoding));
             }
