@@ -2,6 +2,8 @@ package cn.xishan.oftenporter.porter.core.util;
 
 import com.alibaba.fastjson.JSONArray;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 /**
@@ -9,6 +11,31 @@ import java.util.*;
  */
 public class OftenStrUtil
 {
+
+    /**
+     * 将“name1=value1&name2=value2”转换成map。
+     * @param encodingContent
+     * @param encoding
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static Map<String, String> fromEncoding(String encodingContent,
+            String encoding) throws UnsupportedEncodingException
+    {
+        String[] strs = OftenStrUtil.split(encodingContent, "&");
+        HashMap<String, String> paramsMap = new HashMap<>(strs.length);
+        int index;
+        for (String string : strs)
+        {
+            index = string.indexOf('=');
+            if (index != -1)
+            {
+                paramsMap.put(string.substring(0, index),
+                        URLDecoder.decode(string.substring(index + 1), encoding));
+            }
+        }
+        return paramsMap;
+    }
 
     /**
      * 分割字符串，不包括空字符串。

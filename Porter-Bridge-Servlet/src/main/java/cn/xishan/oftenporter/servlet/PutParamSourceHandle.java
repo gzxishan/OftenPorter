@@ -97,22 +97,17 @@ public class PutParamSourceHandle implements ParamSourceHandle
         return null;
     }
 
+    /**
+     * 见{@linkplain OftenStrUtil#fromEncoding(String, String)}
+     * @param encodingContent
+     * @param encoding
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     public static Map<String, String> fromEncoding(String encodingContent,
             String encoding) throws UnsupportedEncodingException
     {
-        String[] strs = OftenStrUtil.split(encodingContent, "&");
-        HashMap<String, String> paramsMap = new HashMap<>(strs.length);
-        int index;
-        for (String string : strs)
-        {
-            index = string.indexOf('=');
-            if (index != -1)
-            {
-                paramsMap.put(string.substring(0, index),
-                        URLDecoder.decode(string.substring(index + 1), encoding));
-            }
-        }
-        return paramsMap;
+        return OftenStrUtil.fromEncoding(encodingContent,encoding);
     }
 
 }

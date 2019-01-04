@@ -513,6 +513,26 @@ public class OftenTool
         }
     }
 
+    /**
+     * 若不为null则调用关闭autoCloseable.close().
+     *
+     * @param autoCloseable
+     */
+    public static void close(AutoCloseable autoCloseable)
+    {
+        if (autoCloseable != null)
+        {
+            try
+            {
+                autoCloseable.close();
+            } catch (Exception e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        }
+    }
+
+
     public static void close(Connection connection)
     {
         if (connection != null)
