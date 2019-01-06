@@ -202,7 +202,7 @@ public class HttpUtil
     }
 
 
-    private static void addPostParams(FormBody.Builder builder, InNames.Name[] names, Object[] values)
+    private static void addFormParams(FormBody.Builder builder, InNames.Name[] names, Object[] values)
     {
         if (names == null || values == null)
         {
@@ -212,7 +212,7 @@ public class HttpUtil
         {
             if (values[i] != null)
             {
-                builder.addEncoded(names[i].varName, String.valueOf(values[i]));
+                builder.add(names[i].varName, String.valueOf(values[i]));
             }
         }
     }
@@ -224,13 +224,13 @@ public class HttpUtil
         {
             if (oftenObject._fInNames != null)
             {
-                addPostParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
-                addPostParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
+                addFormParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
+                addFormParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
             }
             if (oftenObject._cInNames != null)
             {
-                addPostParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
-                addPostParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
+                addFormParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
+                addFormParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
             }
         }
         return builder.build();
@@ -282,7 +282,7 @@ public class HttpUtil
             {
                 OftenObjectImpl impl = (OftenObjectImpl) oftenObject;
                 Map<String, String> headers = impl.getHeaders();
-                if (OftenTool.notNullAndEmpty(headers))
+                if (OftenTool.notEmpty(headers))
                 {
                     for (Map.Entry<String, String> entry : headers.entrySet())
                     {
