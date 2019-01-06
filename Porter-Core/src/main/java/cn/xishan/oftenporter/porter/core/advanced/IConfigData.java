@@ -4,6 +4,8 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.MayProxyObject;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import cn.xishan.oftenporter.porter.simple.DefaultConfigData;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -14,6 +16,10 @@ import java.util.Set;
 
 /**
  * 可以通过@{@linkplain AutoSet}引入该对象实例,见{@linkplain DefaultConfigData}。
+ * <p>
+ * 支持替换参数:#{properName}。如app.lib=#{basedir}/lib。见{@linkplain DealSharpProperties}。
+ * 另外高级注解支持${properName}参数，见{@linkplain AnnoUtil}。
+ * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
@@ -63,12 +69,14 @@ public interface IConfigData
 
     /**
      * 获得所有属性名。
+     *
      * @return
      */
     Set<String> propertyNames();
 
     /**
      * 从key前缀获取json对象。
+     *
      * @param keyPrefix
      * @return
      */
@@ -82,7 +90,7 @@ public interface IConfigData
      */
     <T> T set(String key, Object object);
 
-    void putAll(Map<?,?> map);
+    void putAll(Map<?, ?> map);
 
     /**
      * 见{@linkplain #set(String, Object)}.

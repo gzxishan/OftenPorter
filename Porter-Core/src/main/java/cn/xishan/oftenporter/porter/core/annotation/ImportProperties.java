@@ -15,7 +15,7 @@ import java.util.Properties;
 /**
  * 导入properties配置，另见:{@linkplain ResourceUtil}。
  * <p>
- * 支持替换参数:#{properName}。如app.lib=#{basedir}/lib
+ * 支持替换参数:#{properName}。如app.lib=#{basedir}/lib。见{@linkplain IConfigData}。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018-10-29.

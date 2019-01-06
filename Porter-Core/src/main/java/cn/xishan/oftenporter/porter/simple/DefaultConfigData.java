@@ -291,6 +291,14 @@ public class DefaultConfigData implements IConfigData
     public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
         String[] keys = OftenStrUtil.split(property.value().replace('，', ','), ",");
+        for (int i = 0; i < keys.length; i++)
+        {
+            String key=keys[i].trim();
+            if(key.startsWith("${")&&key.endsWith("}")){
+                key=key.substring(2,key.length()-1);
+            }
+            keys[i]=key;
+        }
 
         String defaultVal = property.defaultVal().trim();
         if (defaultVal.equals(""))

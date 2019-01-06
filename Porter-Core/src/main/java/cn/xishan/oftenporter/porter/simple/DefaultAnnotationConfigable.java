@@ -39,7 +39,7 @@ public class DefaultAnnotationConfigable implements IAnnotationConfigable
             do
             {
                 String key = matcher.group(1);
-                String rs = configData.getString(key, value);
+                String rs = configData.getString(key, "");
                 stringBuilder.append(value, from, matcher.start());
                 stringBuilder.append(rs);
                 from = matcher.end();
