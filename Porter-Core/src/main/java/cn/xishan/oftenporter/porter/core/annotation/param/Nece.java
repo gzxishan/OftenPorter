@@ -14,7 +14,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Inherited
 @Documented
-@Repeatable(Neces.class)
+//@Repeatable(Neces.class)
 public @interface Nece
 {
     /**

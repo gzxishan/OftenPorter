@@ -13,7 +13,7 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.TYPE})
 @Inherited
 @Documented
-@Repeatable(Uneces.class)
+//@Repeatable(Uneces.class)
 public @interface Unece
 {
     /**
