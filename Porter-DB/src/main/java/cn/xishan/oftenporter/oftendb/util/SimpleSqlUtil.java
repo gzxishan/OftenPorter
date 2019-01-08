@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.oftendb.util;
 
-import cn.xishan.oftenporter.oftendb.db.CUnit;
-import cn.xishan.oftenporter.oftendb.db.Condition;
-import cn.xishan.oftenporter.oftendb.db.Operator;
-import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlCondition;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -550,6 +547,7 @@ public class SimpleSqlUtil
             }
 
             name = name.substring(index);
+            checkSqlFieldName(name);
             String queryName = name + "_" + k;
             if (willAddName)
             {
@@ -594,5 +592,32 @@ public class SimpleSqlUtil
             where = sql == null ? "" : sql;
         }
         return where;
+    }
+
+    private static final Pattern LEGAL_SQL_FIELD_NAME_PATTERN = Pattern.compile("^[\\u4e00-\\u9fa5a-zA-Z0-9_$.]+$");
+
+    /**
+     * 判断sql字段名是否合法(只支持字母数字和下划线)，防止sql注入。
+     *
+     * @param fieldName
+     * @return
+     */
+    public static boolean isSqlFieldNameLegal(String fieldName)
+    {
+        Matcher matcher = LEGAL_SQL_FIELD_NAME_PATTERN.matcher(fieldName);
+        return matcher.find();
+    }
+
+    /**
+     * 见{@linkplain #isSqlFieldNameLegal(String)}
+     *
+     * @param fieldName
+     */
+    public static void checkSqlFieldName(String fieldName)
+    {
+        if (!isSqlFieldNameLegal(fieldName))
+        {
+            throw new DBException("illegal field name:" + fieldName);
+        }
     }
 }
