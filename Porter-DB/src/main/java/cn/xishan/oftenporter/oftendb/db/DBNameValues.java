@@ -29,7 +29,7 @@ public class DBNameValues implements INameValues
     // private Map<String, Object> map;
     private List<String> names;
     private List<Object> values;
-    private boolean filterNullAndEmpty = false;
+    private boolean filterEmpty = false;
     private Set<String> filterNullKeys;
 
     public DBNameValues() {
@@ -72,13 +72,13 @@ public class DBNameValues implements INameValues
      * @return
      */
     public DBNameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
-        this.filterNullAndEmpty = filterNullAndEmpty;
+        this.filterEmpty = filterNullAndEmpty;
         return this;
     }
 
     public boolean isFilterNullAndEmpty()
     {
-        return filterNullAndEmpty;
+        return filterEmpty;
     }
 
     /**
@@ -89,7 +89,7 @@ public class DBNameValues implements INameValues
      * @return
      */
     public DBNameValues append(String name, Object value) {
-        if (!(filterNullAndEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || OftenTool.notNullAndEmpty(value)) {
+        if (!(filterEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || OftenTool.notEmpty(value)) {
             names.add(name);
             values.add(value);
         }

@@ -70,7 +70,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     {
         synchronized (KeyLockHandle.class)
         {
-            if (OftenTool.notNullAndEmpty(keyLock.lockPrefix()))
+            if (OftenTool.notEmpty(keyLock.lockPrefix()))
             {
                 lockPrefix = keyLock.lockPrefix();
             }
@@ -221,7 +221,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                     for (String uneceName : uneceLocks)
                     {
                         String key = oftenObject.unece(uneceName);
-                        if (OftenTool.notNullAndEmpty(key))
+                        if (OftenTool.notEmpty(key))
                         {
                             if (!keys.contains(key))
                             {

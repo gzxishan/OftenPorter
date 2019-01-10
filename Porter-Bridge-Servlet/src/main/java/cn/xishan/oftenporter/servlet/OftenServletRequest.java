@@ -38,7 +38,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     OftenServletRequest(HttpServletRequest request, String path,
             HttpServletResponse response, PortMethod method)
     {
-        super(null, method, OftenTool.notNullAndEmpty(path) ? path : OftenServlet.getOftenPath(request),
+        super(null, method, OftenTool.notEmpty(path) ? path : OftenServlet.getOftenPath(request),
                 false);
         this.request = new WeakReference<>(request);
         this.response = new WeakReference<>(response);
@@ -85,7 +85,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
             {
                 String name = e.nextElement();
                 Object value = getParameter(name);
-                if (OftenTool.notNullAndEmpty(value))
+                if (OftenTool.notEmpty(value))
                 {
                     params.put(name, value);
                 }

@@ -141,7 +141,7 @@ public class InNames
             if (type != null && !PortUtil.willIgnoreAdvanced(type) && !OftenTool.isAssignable(type, CharSequence.class))
             {
                 v = paramSource.getParam(type.getName());//
-                if (v != null && OftenTool.notNullAndEmpty(typeNeces))
+                if (v != null && OftenTool.notEmpty(typeNeces))
                 {
                     for (int i = 0; i < this.typeNeces.length; i++)
                     {

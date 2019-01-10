@@ -29,7 +29,7 @@ public class InnerBridge
     {
         this.globalAutoSet = new ConcurrentHashMap<>();
         DefaultTypeParserStore typeParserStore = new DefaultTypeParserStore();
-        if(OftenTool.notNullAndEmpty(defaultTypeParserId)){
+        if(OftenTool.notEmpty(defaultTypeParserId)){
             typeParserStore.setDefaultTypeParser(defaultTypeParserId);
         }
         this.globalParserStore=typeParserStore;

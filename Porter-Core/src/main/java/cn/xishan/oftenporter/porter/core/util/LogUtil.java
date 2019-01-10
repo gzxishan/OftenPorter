@@ -143,15 +143,15 @@ public class LogUtil
             builder.append(".").append(bridgeName.getName());
         }
         UrlDecoder.Result result = oftenObject.url();
-        if (OftenTool.notNullAndEmpty(result.contextName()))
+        if (OftenTool.notEmpty(result.contextName()))
         {
             builder.append(".").append(result.contextName());
         }
-        if (OftenTool.notNullAndEmpty(result.classTied()))
+        if (OftenTool.notEmpty(result.classTied()))
         {
             builder.append(".").append(result.classTied());
         }
-        if (OftenTool.notNullAndEmpty(result.funTied()))
+        if (OftenTool.notEmpty(result.funTied()))
         {
             builder.append(".").append(result.funTied());
         }

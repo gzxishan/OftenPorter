@@ -91,11 +91,11 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
                 stdJsp += "<%@ page isELIgnored=\"false\"%>\n";
             }
 
-            if (OftenTool.notNullAndEmpty(jspOption.getAppendJspContent()))
+            if (OftenTool.notEmpty(jspOption.getAppendJspContent()))
             {
                 stdJsp += jspOption.getAppendJspContent();
             }
-            if (OftenTool.notNullAndEmpty(jsp.appendJspContent()))
+            if (OftenTool.notEmpty(jsp.appendJspContent()))
             {
                 stdJsp += jsp.appendJspContent();
             }

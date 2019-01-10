@@ -559,7 +559,7 @@ public class AutoSetHandle
 //                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
 //                        .getSimpleName() + " is empty  for field '" + field + "'");
                 key = AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), field).getName();
-            } else if (OftenTool.notNullAndEmpty(autoSetToThatForMixin.key()))
+            } else if (OftenTool.notEmpty(autoSetToThatForMixin.key()))
             {
                 key = autoSetToThatForMixin.key();
             } else

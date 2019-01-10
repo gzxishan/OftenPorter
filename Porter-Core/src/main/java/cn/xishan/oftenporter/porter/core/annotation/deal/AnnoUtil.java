@@ -319,7 +319,7 @@ public class AnnoUtil
             //只代理含有String或String[]的注解。
             AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable);
             Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
-                    t.annotationType(),AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
+                    t.annotationType(), AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
             }, handler);
             t = (A) obj;
         }
@@ -378,7 +378,7 @@ public class AnnoUtil
 
     private static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses)
     {
-        CacheKey cacheKey = new CacheKey(method, "isAnnotationPresent-Method"+isAll, annotationClasses);
+        CacheKey cacheKey = new CacheKey(method, "isAnnotationPresent-Method" + isAll, annotationClasses);
         Object cache = cacheKey.getCache();
         if (cache != null && cache != NULL)
         {
@@ -390,7 +390,7 @@ public class AnnoUtil
 
     private static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
     {
-        CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field"+isAll, annotationClasses);
+        CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field" + isAll, annotationClasses);
         Object cache = cacheKey.getCache();
         if (cache != null && cache != NULL)
         {
@@ -559,7 +559,7 @@ public class AnnoUtil
         CacheKey cacheKey = null;
         if (advancedAnnotation.enableCache())
         {
-            cacheKey = new CacheKey(annotationClass, "getAnnotation[]",annotations);
+            cacheKey = new CacheKey(annotationClass, "getAnnotation[]", annotations);
             Object cache = cacheKey.getCache();
             if (cache != null)
             {
@@ -634,6 +634,40 @@ public class AnnoUtil
         }
         a = advancedAnnotation.onGotAnnotation(field, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
+    }
+
+    /**
+     * 首先在函数上找，如果不存在则从类上找。
+     *
+     * @param annotationClass 待获取的注解。
+     * @param <A>
+     * @return
+     */
+    public static <A extends Annotation> A getAnnotation(Method method, Class clazz, Class<A> annotationClass)
+    {
+        A a = getAnnotation(method, annotationClass);
+        if (a == null)
+        {
+            a = getAnnotation(clazz, annotationClass);
+        }
+        return a;
+    }
+
+    /**
+     * 首先在成员变量上找，如果不存在则从类上找。
+     *
+     * @param annotationClass 待获取的注解。
+     * @param <A>
+     * @return
+     */
+    public static <A extends Annotation> A getAnnotation(Field field, Class clazz, Class<A> annotationClass)
+    {
+        A a = getAnnotation(field, annotationClass);
+        if (a == null)
+        {
+            a = getAnnotation(clazz, annotationClass);
+        }
+        return a;
     }
 
     public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)

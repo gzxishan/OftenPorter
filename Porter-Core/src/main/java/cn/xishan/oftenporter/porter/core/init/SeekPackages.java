@@ -68,10 +68,10 @@ public class SeekPackages
          */
         public TiedfixPkg(Tiedfix classTiedfix, String packageName)
         {
-            if(OftenTool.notNullAndEmpty(classTiedfix.prefix)){
+            if(OftenTool.notEmpty(classTiedfix.prefix)){
                 PortUtil.checkName(classTiedfix.prefix);
             }
-            if(OftenTool.notNullAndEmpty(classTiedfix.suffix)){
+            if(OftenTool.notEmpty(classTiedfix.suffix)){
                 PortUtil.checkName(classTiedfix.suffix);
             }
 

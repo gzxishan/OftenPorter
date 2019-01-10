@@ -149,11 +149,11 @@ public class PortUtil
                 }
                 name = method.getName();
             }
-            if (OftenTool.notNullAndEmpty(srcPorter.getFunTiedPrefix()))
+            if (OftenTool.notEmpty(srcPorter.getFunTiedPrefix()))
             {
                 name = srcPorter.getFunTiedPrefix() + name;
             }
-            if (OftenTool.notNullAndEmpty(srcPorter.getFunTiedSuffix()))
+            if (OftenTool.notEmpty(srcPorter.getFunTiedSuffix()))
             {
                 name = name + srcPorter.getFunTiedSuffix();
             }
@@ -391,7 +391,7 @@ public class PortUtil
 
             {
                 Object value = null;
-                if (OftenTool.notNullAndEmpty(optionKey))
+                if (OftenTool.notEmpty(optionKey))
                 {
                     value = paramSource.getParam(optionKey);
                 }

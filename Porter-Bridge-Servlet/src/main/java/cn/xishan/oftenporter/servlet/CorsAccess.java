@@ -76,10 +76,10 @@ public @interface CorsAccess
     String allowHeaders() default "";
 
     /**
-     * 对Access-Control-Max-Age的设置，单位秒。
+     * 对Access-Control-Max-Age的设置，单位秒。默认15000
      *
      * @return
      */
-    String maxAge() default "";
+    String maxAge() default "15000";
 
 }

@@ -205,7 +205,7 @@ public final class AnnotationDealt
         if (OftenTool.isEmptyOfAll(nece.value(), nece.varName()))
         {
             _nece.varName = fieldName;
-        } else if (OftenTool.notNullAndEmpty(nece.value()))
+        } else if (OftenTool.notEmpty(nece.value()))
         {
             _nece.varName = nece.value();
         } else
@@ -242,7 +242,7 @@ public final class AnnotationDealt
         if (OftenTool.isEmptyOfAll(unece.value(), unece.varName()))
         {
             _unece.varName = fieldName;
-        } else if (OftenTool.notNullAndEmpty(unece.value()))
+        } else if (OftenTool.notEmpty(unece.value()))
         {
             _unece.varName = unece.value();
         } else

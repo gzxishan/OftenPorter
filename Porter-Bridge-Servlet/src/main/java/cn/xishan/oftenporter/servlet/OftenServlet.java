@@ -439,15 +439,15 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         response.setHeader("Access-Control-Allow-Credentials", String.valueOf(corsAccess.allowCredentials()));
         response.setHeader("Access-Control-Allow-Origin", corsAccess.allowOrigin());
 
-        if (OftenTool.notNullAndEmpty(corsAccess.exposeHeaders()))
+        if (OftenTool.notEmpty(corsAccess.exposeHeaders()))
         {
             response.setHeader("Access-Control-Expose-Headers", corsAccess.exposeHeaders());
         }
-        if (OftenTool.notNullAndEmpty(corsAccess.allowHeaders()))
+        if (OftenTool.notEmpty(corsAccess.allowHeaders()))
         {
             response.setHeader("Access-Control-Allow-Headers", corsAccess.allowHeaders());
         }
-        if (OftenTool.notNullAndEmpty(corsAccess.maxAge()))
+        if (OftenTool.notEmpty(corsAccess.maxAge()))
         {
             response.setHeader("Access-Control-Max-Age", corsAccess.maxAge());
         }
@@ -485,7 +485,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         }
         String origin = request.getHeader("Origin");
         String host;
-        if (OftenTool.notNullAndEmpty(origin) && !origin.equals((host = OftenServletRequest
+        if (OftenTool.notEmpty(origin) && !origin.equals((host = OftenServletRequest
                 .getHost(request, isHttp2Https))))
         {//跨域请求
             if (LOGGER.isWarnEnabled())

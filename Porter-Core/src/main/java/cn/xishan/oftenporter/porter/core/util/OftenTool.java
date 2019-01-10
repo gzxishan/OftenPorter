@@ -97,7 +97,7 @@ public class OftenTool
     {
         for (Object obj : objects)
         {
-            if (notNullAndEmpty(obj))
+            if (notEmpty(obj))
             {
                 return false;
             }
