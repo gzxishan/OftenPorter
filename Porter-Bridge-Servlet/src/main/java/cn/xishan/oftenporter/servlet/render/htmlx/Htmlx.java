@@ -17,7 +17,7 @@ import java.util.Map;
  * 支持#参数,需要返回{@linkplain RenderPage}或Map，见{@linkplain DealSharpProperties#replaceSharpProperties(String, Map)}。
  * </li>
  * <li>
- *     函数支持的形参：{@linkplain OftenObject},{@linkplain HtmlxDoc}
+ * 函数支持的形参：{@linkplain OftenObject},{@linkplain HtmlxDoc}
  * </li>
  * </ol>
  *
@@ -35,6 +35,8 @@ public @interface Htmlx
      * @return
      */
     String[] path();
+
+    String index() default "index.html";
 
     boolean enable() default true;
 

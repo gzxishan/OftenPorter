@@ -90,13 +90,13 @@ public class HttpCacheUtil
      * 设置缓存。
      *
      * @param forceSeconds 强制缓存时间，在这段时间内浏览器只加载缓存（如果存在资源）、而不会访问服务器进行比对。
-     * @param lastModified 资源上次修改时间
+     * @param lastModified 资源上次修改时间(单位毫秒)。
      * @param response
      */
     public static void setCacheWithModified(int forceSeconds, long lastModified, HttpServletResponse response)
     {
         response.setHeader("Cache-Control", "max-age=" + forceSeconds);
-        response.addDateHeader("Expires",System.currentTimeMillis()+forceSeconds*1000);
+        response.addDateHeader("Expires", System.currentTimeMillis() + forceSeconds * 1000);
         response.addDateHeader("Last-Modified", lastModified);
     }
 
@@ -110,20 +110,23 @@ public class HttpCacheUtil
     public static void setCacheWithEtag(int forceSeconds, String etag, HttpServletResponse response)
     {
         response.setHeader("Cache-Control", "max-age=" + forceSeconds);
-        response.addDateHeader("Expires",System.currentTimeMillis()+forceSeconds*1000);
+        response.addDateHeader("Expires", System.currentTimeMillis() + forceSeconds * 1000);
         response.setHeader("ETag", etag);
     }
 
     /**
      * 判断客户端缓存是否失效,如果没有失效会设置状态码为304。
-     * @param lastModified 资源上次修改时间。
+     *
+     * @param lastModified 资源上次修改时间(单位毫秒)。
      * @param request
      * @return
      */
-    public static boolean isCacheIneffectiveWithModified(long lastModified, HttpServletRequest request,HttpServletResponse response)
+    public static boolean isCacheIneffectiveWithModified(long lastModified, HttpServletRequest request,
+            HttpServletResponse response)
     {
-        long since = request.getDateHeader("If-Modified-Since");
-        if (lastModified <= since)
+        long since = request.getDateHeader("If-Modified-Since") / 1000;
+        lastModified /= 1000;
+        if (lastModified == since)
         {
             notModified(response);
             return false;
@@ -136,15 +139,17 @@ public class HttpCacheUtil
     /**
      * 判断客户端缓存是否失效,如果没有失效会设置状态码为304。
      *
-     * @param etag 资源唯一标识（优先级高于If-Modified-Since）
+     * @param etag    资源唯一标识（优先级高于If-Modified-Since）
      * @param request
      * @return
      */
-    public static boolean isCacheIneffectiveWithEtag(String etag, HttpServletRequest request,HttpServletResponse response)
+    public static boolean isCacheIneffectiveWithEtag(String etag, HttpServletRequest request,
+            HttpServletResponse response)
     {
         String previousTag = request.getHeader("If-None-Match");
         boolean b = !etag.equals(previousTag);
-        if(!b){
+        if (!b)
+        {
             notModified(response);
         }
         return b;
