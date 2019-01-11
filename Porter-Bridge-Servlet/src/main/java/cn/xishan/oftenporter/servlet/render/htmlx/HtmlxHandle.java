@@ -151,6 +151,11 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
                 os.write(bytes);
                 os.flush();
             }
+        }else{
+            if (cacheSeconds> 0)
+            {
+                HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
+            }
         }
         return null;
     }
