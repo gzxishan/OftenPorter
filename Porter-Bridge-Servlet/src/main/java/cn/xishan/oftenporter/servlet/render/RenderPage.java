@@ -44,6 +44,11 @@ public class RenderPage
         return data.get(key);
     }
 
+    public Map<String, Object> getData()
+    {
+        return data;
+    }
+
     public Set<Map.Entry<String, Object>> dataEntrySet()
     {
         return data.entrySet();

@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.IOftenProxy;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
@@ -119,7 +120,7 @@ public class AutoSetObjForAspectOfNormal
     }
 
     @KeepFromProguard
-    public interface IOPProxy
+    public interface IOPProxy extends IOftenProxy
     {
 
     }

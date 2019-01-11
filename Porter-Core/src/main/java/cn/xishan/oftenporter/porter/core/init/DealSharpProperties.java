@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,34 @@ public class DealSharpProperties
     }
 
     /**
+     * 替换所有的#{propertyName}
+     *
+     * @param string
+     * @param properties
+     * @return
+     */
+    public static String replaceSharpProperties(String string, Map<String, ?> properties)
+    {
+        for (Map.Entry<String, ?> entry : properties.entrySet())
+        {
+            if (string.contains("#{" + entry.getKey() + "}"))
+            {
+                String rs;
+                if (entry.getValue() instanceof Map || entry.getValue() instanceof Collection)
+                {
+                    rs = JSON.toJSONString(entry.getValue());
+                } else
+                {
+                    rs = String.valueOf(entry.getValue());
+                }
+                string = string.replace("#{" + entry.getKey() + "}", rs);
+            }
+        }
+        string = string.replaceAll("#\\{[^{}]+\\}", "");//去掉未设置的
+        return string;
+    }
+
+    /**
      * 替换#{properName}变量。
      *
      * @param srcMap        待替换属性值的map
@@ -80,7 +109,7 @@ public class DealSharpProperties
                 {
                     throw new RuntimeException(
                             "can not set property of " + properName + " with value \"" + valueString + "\"");
-                } else if (propOne != null && propertiesMap.containsKey(propOne.getPropKey()))
+                } else if (propOne != null)
                 {
                     containsVar.add(properName);
                     if (LOGGER.isDebugEnabled())
@@ -88,7 +117,17 @@ public class DealSharpProperties
                         LOGGER.debug("replace sharp property:key={},replace-attr={},origin-value={}", properName,
                                 propOne.getPropKey(), valueString);
                     }
-                    String newValue = propOne.replace(String.valueOf(propertiesMap.get(propOne.getPropKey())));
+
+                    String replaceStr;
+                    if (propertiesMap.containsKey(propOne.getPropKey()))
+                    {
+                        replaceStr = String.valueOf(propertiesMap.get(propOne.getPropKey()));
+                    } else
+                    {
+                        replaceStr = "";
+                        LOGGER.warn("proper value with key '{}' is empty", propOne.getPropKey());
+                    }
+                    String newValue = propOne.replace(replaceStr);
                     srcMap.put(properName, newValue);
                     if (LOGGER.isDebugEnabled())
                     {
@@ -99,6 +138,7 @@ public class DealSharpProperties
             }
             isFirst = false;
         }
+
     }
 
     static void dealProperties(IConfigData configData)
@@ -133,7 +173,7 @@ public class DealSharpProperties
                 {
                     throw new RuntimeException(
                             "can not set property of " + properName + " with value \"" + valueString + "\"");
-                } else if (propOne != null && configData.contains(propOne.getPropKey()))
+                } else if (propOne != null)
                 {
                     containsVar.add(properName);
                     if (LOGGER.isDebugEnabled())
@@ -141,7 +181,16 @@ public class DealSharpProperties
                         LOGGER.debug("replace sharp property:key={},replace-attr={},origin-value={}", properName,
                                 propOne.getPropKey(), valueString);
                     }
-                    String newValue = propOne.replace(configData.getString(propOne.getPropKey()));
+                    String replaceStr;
+                    if (configData.contains(propOne.getPropKey()))
+                    {
+                        replaceStr = configData.getString(propOne.getPropKey());
+                    } else
+                    {
+                        replaceStr = "";
+                        LOGGER.warn("proper value with key '{}' is empty", propOne.getPropKey());
+                    }
+                    String newValue = propOne.replace(replaceStr);
                     configData.set(properName, newValue);
                     if (LOGGER.isDebugEnabled())
                     {

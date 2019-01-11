@@ -1,11 +1,13 @@
 package cn.xishan.oftenporter.porter.core.util.proxy;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import net.sf.cglib.proxy.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Modifier;
@@ -58,6 +60,31 @@ public class ProxyUtil
         }
     }
 
+    public static Object getRealObject(Object object)
+    {
+        String fieldName = "CGLIB$CALLBACK_1";
+        try
+        {
+            Field field=object.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
+            {
+                WeakReference reference= (WeakReference) field.get(object);
+                object=reference.get();
+            } else if (object instanceof IOftenProxy)
+            {
+                object=field.get(object);
+            }
+        }catch (NoSuchFieldException e){
+
+        }
+        catch (Throwable e)
+        {
+            LOGGER.warn(e.getMessage(), e);
+        }
+        return object;
+    }
+
     public static Object proxyObject(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
             IInvocationable invocationable) throws Exception
     {
@@ -99,10 +126,13 @@ public class ProxyUtil
             }
         });
         enhancer.setSuperclass(object.getClass());
+        List<Class> list = new ArrayList<>();
+        list.add(IOftenProxy.class);
         if (interfaces != null)
         {
-            enhancer.setInterfaces(interfaces);
+            OftenTool.addAll(list, interfaces);
         }
+        enhancer.setInterfaces(list.toArray(new Class[0]));
         return enhancer;
     }
 

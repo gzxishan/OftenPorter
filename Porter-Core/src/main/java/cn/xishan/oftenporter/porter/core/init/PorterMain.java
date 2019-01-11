@@ -49,7 +49,7 @@ public final class PorterMain
     private InnerBridge innerBridge;
     private CommonMain commonMain;
     private BridgeLinker bridgeLinker;
-    private IListenerAdder<OnPorterAddListener> IListenerAdder;
+    private IListenerAdder<OnPorterAddListener> listenerAdder;
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
@@ -134,7 +134,7 @@ public final class PorterMain
     {
         this.commonMain = commonMain;
         this.innerBridge = new InnerBridge(commonMain.getDefaultTypeParserId());
-        IListenerAdder = new DefaultListenerAdder<>();
+        listenerAdder = new DefaultListenerAdder<>();
         bridgeLinker = new DefaultBridgeLinker(bridgeName, currentBridge, innerBridge);
         bridgeLinker.setPorterAttr(contextName ->
         {
@@ -153,7 +153,7 @@ public final class PorterMain
 
     public IListenerAdder<OnPorterAddListener> getOnPorterAddListenerAdder()
     {
-        return IListenerAdder;
+        return listenerAdder;
     }
 
     /**
@@ -422,7 +422,7 @@ public final class PorterMain
         LOGGER.debug("start seek...");
         time = System.currentTimeMillis();
         classCheckPassableMap = contextPorter
-                .initSeek(sthDeal, IListenerAdder, porterConf, autoSetHandle, portIniterList);
+                .initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
         LOGGER.debug("seek finished,time={}ms", System.currentTimeMillis() - time);
 
 

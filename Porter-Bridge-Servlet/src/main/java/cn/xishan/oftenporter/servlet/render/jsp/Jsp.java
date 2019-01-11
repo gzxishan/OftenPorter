@@ -56,7 +56,7 @@ public @interface Jsp
     String pageEncoding() default "";
 
     /**
-     * 不为""时添加，添加在{@linkplain JspOption#appendJspContent}之后。
+     * 不为""时添加，添加在{@linkplain JspOption#setAppendJspContent(String)}之后。
      *
      * @return
      */

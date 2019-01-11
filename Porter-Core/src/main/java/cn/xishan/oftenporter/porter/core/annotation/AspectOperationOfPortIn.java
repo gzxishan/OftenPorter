@@ -77,7 +77,7 @@ public @interface AspectOperationOfPortIn
         public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
             LOGGER.debug("default invoke.");
-            return porterOfFun.invokeByHandleArgs(oftenObject, lastReturn);
+            return porterOfFun.invokeByHandleArgs(oftenObject);
         }
 
         @Override
