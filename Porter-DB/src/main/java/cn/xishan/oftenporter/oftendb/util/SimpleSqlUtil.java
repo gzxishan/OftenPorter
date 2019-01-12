@@ -305,14 +305,11 @@ public class SimpleSqlUtil
     private static JSONArray getQueryArray(Map<String, Object> query, JSONArray queryArray)
     {
 
-        if (queryArray != null)
+        if (queryArray == null)
         {
-            return queryArray;
-        } else if (query == null)
-        {
-            return new JSONArray();
+            queryArray = new JSONArray();
         }
-        queryArray = new JSONArray();
+
         for (Map.Entry entry : query.entrySet())
         {
             JSONObject json = new JSONObject(2);
