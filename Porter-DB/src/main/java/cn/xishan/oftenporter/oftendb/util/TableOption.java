@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * 支持@{@linkplain TableOptionFilter}
@@ -170,6 +171,62 @@ public class TableOption
             value = defaultValue;
         }
         return value;
+    }
+
+    /**
+     * 替换所有指定key的查询条件，如果不存在、最好会添加
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public TableOption replaceQueryValue(String key, Object value)
+    {
+        boolean replaced = false;
+        if (query != null && query.containsKey(key))
+        {
+            query.put(key, value);
+            replaced = true;
+        }
+        if (queryArray != null)
+        {
+            for (int i = 0; i < queryArray.size(); i++)
+            {
+                JSONObject json = queryArray.getJSONObject(i);
+                if (key.equals(json.getString("key")))
+                {
+                    json.put("value", value);
+                    replaced = true;
+                }
+            }
+        }
+        if (!replaced)
+        {
+            add2QueryArray(key, value);
+        }
+        return this;
+    }
+
+    /**
+     * 移除指定key的查询条件
+     *
+     * @param key
+     */
+    public TableOption removeQuery(String key)
+    {
+        if (query != null)
+        {
+            query.remove(key);
+        }
+
+        if (queryArray != null)
+        {
+            queryArray.removeIf(o -> {
+                JSONObject json = (JSONObject) o;
+                return key.equals(json.getString("key"));
+            });
+        }
+        return this;
     }
 
     public JSONArray getQueryArray()

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.db.ConnectionWrapper;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
@@ -179,8 +180,9 @@ public class MyBatisBridge
     static ConnectionWrap __openConnection(String source, boolean openNew) throws SQLException
     {
         ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
-        if(connection!=null&&connection.isClosed()){
-            connection=null;
+        if (connection != null && connection.isClosed())
+        {
+            connection = null;
         }
         if (connection != null || !openNew)
         {
@@ -197,7 +199,7 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-     static ConnectionWrap __openNewConnection__(String source)
+    static ConnectionWrap __openNewConnection__(String source)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder builder = mOption.mSqlSessionFactoryBuilder;
@@ -210,12 +212,44 @@ public class MyBatisBridge
         {
             bridgeConnection = iConnectionBridge
                     .getConnection(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource());
+            bridgeConnection = new ConnectionWrapper(bridgeConnection)
+            {
+
+                @Override
+                public boolean getAutoCommit() throws SQLException
+                {
+                    if(isClosed()){
+                        return true;
+                    }
+                    return super.getAutoCommit();
+                }
+
+                @Override
+                public void setAutoCommit(boolean autoCommit) throws SQLException
+                {
+                    if (!isClosed())
+                    {
+                        super.setAutoCommit(autoCommit);
+                    }
+                }
+
+                @Override
+                public void close() throws SQLException
+                {
+                    //bridge会进行关闭。
+                    if (!this.isClosed())
+                    {
+                        super.close();
+                    }
+                }
+            };
             sqlSession = sqlSessionFactory.openSession(bridgeConnection);
         } else
         {
             sqlSession = sqlSessionFactory.openSession(true);
         }
-        ConnectionWrap connection = new ConnectionWrap(builder, sqlSession, iConnectionBridge, bridgeConnection){
+        ConnectionWrap connection = new ConnectionWrap(builder, sqlSession, iConnectionBridge, bridgeConnection)
+        {
             @Override
             public void close() throws SQLException
             {
