@@ -129,6 +129,23 @@ public class TableOption
         return this;
     }
 
+    /**
+     * 另见{@linkplain SimpleSqlUtil#toQueryArray(Object...)}.
+     *
+     * @param nameValues
+     * @return
+     */
+    public TableOption add2QueryArray(Object... nameValues)
+    {
+        JSONArray array = SimpleSqlUtil.getInstance().toQueryArray(nameValues);
+        if (queryArray == null)
+        {
+            queryArray = new JSONArray();
+        }
+        queryArray.addAll(array);
+        return this;
+    }
+
     public TableOption add2QueryArray(String key, Object value)
     {
         JSONObject json = new JSONObject(2);
