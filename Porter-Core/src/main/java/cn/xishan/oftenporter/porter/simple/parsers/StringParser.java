@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
  *     10.bool[:defaultValue]表示boolean值，且当为false、0时、结果为false,当为空时为defaultValue（默认为false），其余为true
  *     11.int与long分别表示为int与long型
  *     12.float与double分别表示为float与double型
+ *     13.括号支持转义字符：如"varName(\\(\\))[\\[\\]]"
  * </pre>
  * Created by 宇宙之灵 on 2015/9/14.
  */

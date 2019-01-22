@@ -49,8 +49,8 @@ public class InNames
         private Object dealt;
 
         static final Pattern VAR_NAME_PATTERN = Pattern.compile("^([a-zA-Z0-9%_.$*=\\-]+)");
-        static final Pattern VAR_NAME_CONF_PATTERN = Pattern.compile("^\\(([^()]*)\\)");
-        static final Pattern VAR_NAME_DEFAULT_PATTERN = Pattern.compile("^\\[([^\\[\\]]*)\\]");
+        static final Pattern VAR_NAME_CONF_PATTERN = Pattern.compile("^\\(([\\w\\W]*)(?!\\\\)\\)");
+        static final Pattern VAR_NAME_DEFAULT_PATTERN = Pattern.compile("^\\[([\\w\\W]*)(?!\\\\)\\]");
 
         public Name(String varNameWithConfig, BackableSeek backableSeek)
         {
@@ -91,7 +91,9 @@ public class InNames
             Matcher matcher = VAR_NAME_CONF_PATTERN.matcher(str);
             if (matcher.find())
             {
-                String varConfig = matcher.group(1).trim();
+                String varConfig = matcher.group(1).trim()
+                        .replaceAll("\\\\\\(","(")
+                        .replaceAll("\\\\\\)",")");
                 if (varConfig.equals(""))
                 {
                     this.parserOption = EMPTY_TYPE_PARSER_OPTION;
@@ -112,7 +114,9 @@ public class InNames
             Matcher matcher = VAR_NAME_DEFAULT_PATTERN.matcher(str);
             if (matcher.find())
             {
-                this.defaultValue = matcher.group(1).trim();
+                this.defaultValue = matcher.group(1).trim()
+                        .replaceAll("\\\\\\[","[")
+                        .replaceAll("\\\\\\]","]");
                 str = str.substring(matcher.end()).trim();
             }
             return str;
@@ -192,6 +196,11 @@ public class InNames
             return nece;
         }
 
+
+        public ITypeParserOption getParserOption()
+        {
+            return parserOption;
+        }
 
         public String getDefaultValue()
         {

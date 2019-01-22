@@ -13,6 +13,9 @@ import cn.xishan.oftenporter.porter.core.annotation.NotNull;
  * 默认值："varName[默认值]"
  * </li>
  * <li>
+ *     括号：使用转义字符如"varName[\\[\\]]"
+ * </li>
+ * <li>
  * 例子："sex(0,1,2)[0]"表示字符串变量（未绑定其他类型情况下）sex只能取值"0"或"1"或"2"、且默认为"0"
  * </li>
  * </ol>
