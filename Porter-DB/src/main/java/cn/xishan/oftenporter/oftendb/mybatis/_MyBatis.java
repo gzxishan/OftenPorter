@@ -430,14 +430,14 @@ class _MyBatis
 
                     String[] excepts = getExcepts(ExceptPartType.SELECT, sqlBuilder, tag, index, index2);
 
-                    String tname = "";
+                    String tableAlias = "";
 
                     {
-                        Pattern tnamePattern = Pattern.compile("tname[\\s]*=[\\s]*([a-zA-Z0-9_]*)");
+                        Pattern tnamePattern = Pattern.compile("(tname|alias)[\\s]*=[\\s]*([a-zA-Z0-9_]*)");
                         Matcher matcher = tnamePattern.matcher(sqlBuilder.substring(index + tag.length(), index2));
                         if (matcher.find())
                         {
-                            tname = matcher.group(1);
+                            tableAlias = matcher.group(2);
                         }
                     }
 
@@ -454,12 +454,12 @@ class _MyBatis
                             {
                                 continue;
                             }
-                            if (OftenTool.isEmpty(tname))
+                            if (OftenTool.isEmpty(tableAlias))
                             {
                                 _dbColumns.add(dbColumns.get(i));
                             } else
                             {
-                                _dbColumns.add(tname + "." + dbColumns.get(i));
+                                _dbColumns.add(tableAlias + "." + dbColumns.get(i));
                             }
                         }
                     }

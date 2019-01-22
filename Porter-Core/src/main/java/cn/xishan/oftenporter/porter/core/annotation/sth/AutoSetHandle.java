@@ -868,8 +868,8 @@ public class AutoSetHandle
                 throw e;
             } catch (Exception e)
             {
-                LOGGER.error(e.getMessage(), e);
                 LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
+                LOGGER.error(e.getMessage(), e);
             }
 
         }

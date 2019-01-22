@@ -1978,6 +1978,9 @@ public class AnnoUtil
                     {
                         rt = (Class<?>) upperBounds[0];
                     }
+                } else if (sourceType.equals(Class.class) && types.length == 1 && types[0] instanceof Class)
+                {
+                    rt = (Class<?>) types[0];
                 }
             }
             return rt;
