@@ -2,6 +2,9 @@ package cn.xishan.oftenporter.servlet.render.htmlx;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.util.Iterator;
 
 /**
  * @author Created by https://github.com/CLovinr on 2019-01-11.
@@ -49,6 +52,24 @@ public class HtmlxDoc
             document.head().appendChild(element);
         }
         element.attr("content", content);
+    }
+
+    public String getText(String selector)
+    {
+        Document document = (Document) this.document;
+        Element element = document.selectFirst(selector);
+        return element == null ? null : element.text();
+    }
+
+    public void setText(String selector, String text)
+    {
+        Document document = (Document) this.document;
+        Elements elements = document.select(selector);
+        Iterator<Element> it = elements.iterator();
+        while (it.hasNext())
+        {
+            it.next().text(text);
+        }
     }
 
     public String title()
