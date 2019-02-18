@@ -16,6 +16,18 @@ import java.lang.reflect.Method;
  */
 public abstract class CheckHandle
 {
+    public enum Op
+    {
+        /**
+         * 中断后续执行（内部会释放相关资源）、并关闭请求。
+         */
+        BreakClose,
+        /**
+         * 中断后续执行（内部会释放相关资源）、但不会关闭请求。
+         */
+        BreakNotClose
+    }
+
     /**
      * 返回值。
      */
@@ -106,6 +118,22 @@ public abstract class CheckHandle
         go(failedObject);
     }
 
+    /**
+     * 见{@linkplain Op#BreakClose}
+     */
+    public void breakClose()
+    {
+        failed(Op.BreakClose);
+    }
+
+    /**
+     * 见{@linkplain Op#BreakNotClose}
+     */
+    public void breakNotClose()
+    {
+        failed(Op.BreakNotClose);
+    }
+
     public void next()
     {
         go(null);
@@ -132,7 +160,7 @@ public abstract class CheckHandle
      * @param annotationClasses
      * @return
      */
-    public static boolean isAllPresentOnClassOrFun(Object obj,Method method,Class<?>... annotationClasses)
+    public static boolean isAllPresentOnClassOrFun(Object obj, Method method, Class<?>... annotationClasses)
     {
         if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(obj), annotationClasses) || AnnoUtil
                 .isAllOfAnnotationsPresent(method, annotationClasses))

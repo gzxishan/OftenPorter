@@ -293,9 +293,10 @@ public final class PortExecutor
                 }
             }
             close(response);
-        }finally
+        } finally
         {
-            if(oftenObject!=null){
+            if (oftenObject != null)
+            {
                 oftenObject.release();
             }
         }
@@ -1128,6 +1129,12 @@ public final class PortExecutor
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(String.valueOf(obj));
             if (doWriteAndWillClose(oftenObject, porterOfFun, jResponse))
+            {
+                close(oftenObject);
+            }
+        } else if (obj instanceof CheckHandle.Op)
+        {
+            if (obj == CheckHandle.Op.BreakClose)
             {
                 close(oftenObject);
             }
