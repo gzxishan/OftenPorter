@@ -41,6 +41,9 @@ import java.util.regex.Pattern;
  * <li>
  * $true与$false
  * </li>
+ * <li>
+ * $nvs:值为数组，见{@linkplain #toQueryArray(Object...)}
+ * </li>
  * </ul>
  * </li>
  * <li>
@@ -387,6 +390,14 @@ public class SimpleSqlUtil
                     continue;
                 }
                 name = name.substring(8);
+            } else if (name.equals("$nvs"))
+            {
+                JSONArray valueArray = (JSONArray) value;
+                JSONArray nvs = toQueryArray(valueArray.toArray(new Object[0]));
+                queryArray.remove(k);
+                queryArray.addAll(k, nvs);
+                k--;
+                continue;
             }
 
             boolean willAddName = true;
