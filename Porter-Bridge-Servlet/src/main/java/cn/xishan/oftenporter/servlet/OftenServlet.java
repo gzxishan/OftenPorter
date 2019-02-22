@@ -427,7 +427,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         return false;
     };
 
-    private void setCors(HttpServletResponse response, CorsAccess corsAccess)
+    private void setCors(HttpServletResponse response, CorsAccess corsAccess,String optionalAllowOrigin)
     {
         String[] methods = new String[corsAccess.allowMethods().length];
         PortMethod[] portMethods = corsAccess.allowMethods();
@@ -437,7 +437,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         }
         response.setHeader("Access-Control-Allow-Methods", OftenTool.join(",", methods));
         response.setHeader("Access-Control-Allow-Credentials", String.valueOf(corsAccess.allowCredentials()));
-        response.setHeader("Access-Control-Allow-Origin", corsAccess.allowOrigin());
+        response.setHeader("Access-Control-Allow-Origin", optionalAllowOrigin!=null?optionalAllowOrigin:corsAccess.allowOrigin());
 
         if (OftenTool.notEmpty(corsAccess.exposeHeaders()))
         {
@@ -506,7 +506,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
             if (method == PortMethod.GET && Arrays
                     .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) > 0)
             {
-                setCors(response, corsAccess);
+                setCors(response, corsAccess,"*");
                 return false;
             }
 
@@ -530,7 +530,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
             {
                 if (m == method)
                 {//允许跨域
-                    setCors(response, corsAccess);
+                    setCors(response, corsAccess,null);
                     return false;
                 }
             }

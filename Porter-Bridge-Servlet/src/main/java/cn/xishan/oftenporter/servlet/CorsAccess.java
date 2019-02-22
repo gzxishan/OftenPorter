@@ -14,7 +14,7 @@ import java.lang.annotation.*;
  * op.servlet.cors.http2https:默认为false,当为true且实际协议为http时，request.getScheme的返回值为https
  * </li>
  * <li>
- *     op.servlet.cors.skipRes:默认为"eot,ttf,otf,woff,woff2"
+ *     op.servlet.cors.skipRes:忽略的资源、直接允许GET跨域访问,默认为"eot,ttf,otf,woff,woff2"
  * </li>
  * </ol>
  *
