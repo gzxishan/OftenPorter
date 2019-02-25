@@ -333,6 +333,7 @@ public class AutoSetObjForAspectOfNormal
         }
 
         Class<?> clazz = objectMayNull == null ? objectClass : PortUtil.getRealClass(objectMayNull);
+        LOGGER.debug("seek normal aspect of class:{}",clazz);
 
         //*********List的Object类型：Annotation[]，AdvancedHandle
         Map<Method, List<Object>> methodTypeMap = new WeakHashMap<>();
