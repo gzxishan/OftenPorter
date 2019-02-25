@@ -342,7 +342,7 @@ class MyBatisDaoGen implements AutoSetGen
             @Override
             public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
             {
-                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source);
+                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source,false);
                 boolean isInvokeError = true;
                 try
                 {

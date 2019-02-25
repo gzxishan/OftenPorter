@@ -34,7 +34,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     {
         try
         {
-            __openConnection = MyBatisBridge.class.getDeclaredMethod("__openConnection", String.class);
+            __openConnection = MyBatisBridge.class.getDeclaredMethod("__openConnection", String.class,boolean.class);
             __openConnection.setAccessible(true);
         } catch (NoSuchMethodException e)
         {
@@ -100,7 +100,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
             if ("mybatis".equals(transactionDB.type()))
             {
                 LOGGER.debug("open source({}) for mybatis...", source);
-                Object rs = __openConnection.invoke(null, source);
+                Object rs = __openConnection.invoke(null, source,false);
                 LOGGER.debug("opened source({}) for mybatis:{}", source, rs);
             }
 

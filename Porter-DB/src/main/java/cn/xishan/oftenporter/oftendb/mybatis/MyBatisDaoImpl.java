@@ -63,7 +63,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         Connection connection;
         try
         {
-            connection = MyBatisBridge.__openConnection(myBatisDaoGen.source);
+            connection = MyBatisBridge.__openConnection(myBatisDaoGen.source,true);
         } catch (SQLException e)
         {
             throw new DBException(e);
@@ -74,7 +74,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public Connection newConnection()
     {
-        return MyBatisBridge.__openNewConnection__(myBatisDaoGen.source);
+        return MyBatisBridge.__openNewConnection__(myBatisDaoGen.source,true);
     }
 
     @Override
