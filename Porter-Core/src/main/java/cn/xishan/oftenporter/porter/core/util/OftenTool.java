@@ -26,6 +26,30 @@ public class OftenTool
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenTool.class);
 
     /**
+     * 判断source是否equals给定的targets中的一个
+     *
+     * @param source  如果为null，直接返回false。
+     * @param targets
+     * @return
+     */
+    public static boolean equalsOneOf(Object source, Object... targets)
+    {
+        boolean eq = false;
+        if (source != null)
+        {
+            for (Object target : targets)
+            {
+                if (source.equals(target))
+                {
+                    eq = true;
+                    break;
+                }
+            }
+        }
+        return eq;
+    }
+
+    /**
      * 判断是否为null(对于{@linkplain CharSequence}会判断是否为"").
      * 返回false的情况：
      * <ol>
