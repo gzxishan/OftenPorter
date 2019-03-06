@@ -21,6 +21,11 @@ public class LocalMain implements CommonMain
 {
     protected PorterMain porterMain;
 
+    public LocalMain(boolean responseWhenException, BridgeName bridgeName)
+    {
+        this(responseWhenException, bridgeName, "utf-8");
+    }
+
     public LocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding)
     {
         porterMain = new PorterMain(bridgeName, this);
@@ -34,6 +39,11 @@ public class LocalMain implements CommonMain
     protected LocalMain()
     {
 
+    }
+
+    protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, IBridge bridge)
+    {
+        newLocalMain(responseWhenException, bridgeName, bridge);
     }
 
     protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding,
