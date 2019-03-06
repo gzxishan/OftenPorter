@@ -33,7 +33,7 @@ import cn.xishan.oftenporter.porter.local.LocalMain;
  *         2016年9月6日 下午11:55:04
  */
 @WebServlet(name = "PorterServlet", urlPatterns = "/S/*", loadOnStartup = 5,
-        initParams = {@WebInitParam(name = "pname", value = "Servlet1")})
+        initParams = {@WebInitParam(name = "bridgeName", value = "Servlet1")})
 public class MyOftenServlet extends StartupServlet
 {
     private static final long serialVersionUID = 1L;

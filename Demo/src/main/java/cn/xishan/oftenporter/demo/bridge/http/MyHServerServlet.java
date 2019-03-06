@@ -8,7 +8,7 @@ import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.servlet.OftenServlet;
 
 @WebServlet(urlPatterns = "/RemoteBridge/*", loadOnStartup = 10,
-        initParams = {@WebInitParam(name = "pname", value = "HServer"),
+        initParams = {@WebInitParam(name = "bridgeName", value = "HServer"),
                 @WebInitParam(name = "responseWhenException", value = "true")})
 public class MyHServerServlet extends OftenServlet
 {

@@ -67,8 +67,8 @@ public class TestLocalMain
 
         Properties properties = new Properties();
         properties.setProperty("isTest", String.valueOf(true));
-        properties.setProperty("pname", "P1");
-        properties.setProperty("ref-pname","ref-#{pname}-#{isTest}");
+        properties.setProperty("bridgeName", "P1");
+        properties.setProperty("ref-bridgeName","ref-#{bridgeName}-#{isTest}");
         porterConf.getConfigData().putAll(properties);
 
         //porterConf.setEnableTiedNameDefault(false);

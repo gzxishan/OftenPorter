@@ -39,7 +39,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
 
     private static final long serialVersionUID = 1L;
     private PorterMain porterMain;
-    protected String pname, urlEncoding;
+    protected String bridgeName, urlEncoding;
     protected Boolean responseWhenException;
     protected MultiPartOption multiPartOption = null;
     //protected ResponseHandle responseHandle;
@@ -99,9 +99,9 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         this.multiPartOption = multiPartOption;
     }
 
-    public OftenServlet(String pname, boolean responseWhenException)
+    public OftenServlet(String bridgeName, boolean responseWhenException)
     {
-        this.pname = pname;
+        this.bridgeName = bridgeName;
         this.urlEncoding = "utf-8";
         this.responseWhenException = responseWhenException;
     }
@@ -289,12 +289,12 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     public void init() throws ServletException
     {
         super.init();
-        if (this.pname == null)
+        if (this.bridgeName == null)
         {
-            pname = getInitParameter("pname");
-            if (OftenTool.isEmpty(pname))
+            bridgeName = getInitParameter("bridgeName");
+            if (OftenTool.isEmpty(bridgeName))
             {
-                pname = PortUtil.getRealClass(this).getSimpleName();
+                bridgeName = PortUtil.getRealClass(this).getSimpleName();
             }
         }
 
@@ -309,7 +309,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
                 this.urlEncoding = "utf-8";
             }
         }
-        porterMain = new PorterMain(new BridgeName(pname), this);
+        porterMain = new PorterMain(new BridgeName(bridgeName), this);
         if (responseWhenException == null)
         {
             responseWhenException = !"false".equals(getInitParameter("responseWhenException"));

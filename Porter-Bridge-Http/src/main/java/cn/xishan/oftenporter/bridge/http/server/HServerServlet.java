@@ -23,9 +23,9 @@ public abstract class HServerServlet extends OftenServlet
         super();
     }
 
-    public HServerServlet(String pname, String contextName, boolean responseWhenException)
+    public HServerServlet(String bridgeName, String contextName, boolean responseWhenException)
     {
-        super(pname, responseWhenException);
+        super(bridgeName, responseWhenException);
         this.contextName = contextName;
     }
 

@@ -22,20 +22,20 @@ public class StartPorter
     private static final Logger LOGGER = LoggerFactory.getLogger(StartPorter.class);
     @AutoSet
     IdGen idGen;
-    String pname;
+    String bridgeName;
 
     @PortStart
     public void onStart()
     {
         LOGGER.debug("[{}] on start!", getClass());
         LOGGER.info("gen id:{}", idGen.nextId());
-        Assert.assertEquals("P1",pname);
+        Assert.assertEquals("P1",bridgeName);
     }
 
     @AutoSet.Invoke
-    public void testAutoSet(@Property("pname") String pname)
+    public void testAutoSet(@Property("bridgeName") String bridgeName)
     {
-        this.pname=pname;
+        this.bridgeName=bridgeName;
     }
 
     @PortIn

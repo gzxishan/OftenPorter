@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.Importer;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -24,9 +25,9 @@ public interface OftenInitializer
 {
     interface BuilderBefore
     {
-        void setPName(String pName);
+        void setBridgeName(String bridgeName);
 
-        String getPName();
+        String getBridgeName();
 
         void setDoPUT(boolean willDo);
 
@@ -60,6 +61,8 @@ public interface OftenInitializer
         void setCustomServletPaths(CustomServletPath... customServletPaths);
 
         BridgeLinker getBridgeLinker();
+
+        IAutoVarGetter getAutoVarGetter(String context);
 
     }
 

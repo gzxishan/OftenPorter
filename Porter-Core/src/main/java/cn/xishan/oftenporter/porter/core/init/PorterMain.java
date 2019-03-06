@@ -29,7 +29,7 @@ import java.util.*;
 /**
  * 接口入口对象。
  * <pre>
- *     请求格式为[=pname]/contextName/ClassTied/[funTied|restValue][?name1=value1&name2=value2...]
+ *     请求格式为[=bridgeName]/contextName/ClassTied/[funTied|restValue][?name1=value1&name2=value2...]
  * </pre>
  * Created by https://github.com/CLovinr on 2016/7/23.
  */

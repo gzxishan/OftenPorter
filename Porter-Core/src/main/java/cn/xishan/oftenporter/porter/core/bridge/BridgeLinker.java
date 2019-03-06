@@ -95,7 +95,7 @@ public interface BridgeLinker extends Delivery
     boolean isClosed();
 
     /**
-     * 当匹配不到pname时，将会使用此处设置的对象来访问。
+     * 当匹配不到bridgeName时，将会使用此处设置的对象来访问。
      */
     void setForAnyOtherPName(BridgeLinker anyOther);
 

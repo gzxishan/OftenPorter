@@ -139,14 +139,14 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      * 获得接口地址。<strong>注意：</strong>Servlet转接会出错。
      *
      * @param oftenObject
-     * @param pname       若为null，则不含pname部分。
+     * @param bridgeName       若为null，则不含bridgeName部分。
      * @param contextName 若为null，则使用当前的。
      * @param classTied   若为null，则使用当前的。
      * @param funTied     若为null，则使用当前的。
      * @param http2Https  是否http变成成https
      * @return
      */
-    public static String getPortUrl(OftenObject oftenObject, String urlPrefix, String pname, String contextName,
+    public static String getPortUrl(OftenObject oftenObject, String urlPrefix, String bridgeName, String contextName,
             String classTied, String funTied,
             boolean http2Https)
     {
@@ -162,9 +162,9 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         }
         stringBuilder.append(host);
         stringBuilder.append(urlPrefix != null ? urlPrefix : OftenServlet.getUriPrefix(request));
-        if (pname != null)
+        if (bridgeName != null)
         {
-            stringBuilder.append("/=").append(pname);
+            stringBuilder.append("/=").append(bridgeName);
         }
         UrlDecoder.Result result = oftenObject.url();
         stringBuilder.append('/').append(contextName == null ? result.contextName() : contextName);

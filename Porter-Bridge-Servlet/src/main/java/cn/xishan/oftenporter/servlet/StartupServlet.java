@@ -7,14 +7,14 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 
 /**
- * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=pname]/contextName/ClassTied/[funTied|restValue
+ * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=bridgeName]/contextName/ClassTied/[funTied|restValue
  * ][=*=][?name1
  * =value1
  * &name2=value2...]
  * <pre>
  *     <strong>注意：</strong>url-pattern必须是"xxx/*"(xxx不含统配符,x可含"/")的形式,如"/op-porter/*"
  *     初始参数有：
- *     pname:框架实例名称，默认为"当前类名".
+ *     bridgeName:框架实例名称，默认为"当前类名".
  *     responseWhenException:默认为true。
  * </pre>
  * <p>
@@ -47,9 +47,9 @@ public abstract class StartupServlet extends OftenServlet
         super(multiPartOption);
     }
 
-    public StartupServlet(String pname, boolean responseWhenException)
+    public StartupServlet(String bridgeName, boolean responseWhenException)
     {
-        super(pname, responseWhenException);
+        super(bridgeName, responseWhenException);
     }
 
 

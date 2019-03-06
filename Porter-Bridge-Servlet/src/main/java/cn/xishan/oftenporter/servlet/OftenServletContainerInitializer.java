@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
@@ -153,6 +154,12 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             {
                 return StartupServletImpl.this.getBridgeLinker();
             }
+
+            @Override
+            public IAutoVarGetter getAutoVarGetter(String context)
+            {
+                return StartupServletImpl.this.getAutoVarGetter(context);
+            }
         }
 
         @Override
@@ -200,19 +207,19 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         }
 
         @Override
-        public void setPName(String pName)
+        public void setBridgeName(String bridgeName)
         {
             if (isStarted)
             {
                 return;
             }
-            super.pname = pName;
+            super.bridgeName = bridgeName;
         }
 
         @Override
-        public String getPName()
+        public String getBridgeName()
         {
-            return pname;
+            return bridgeName;
         }
 
         @Override
