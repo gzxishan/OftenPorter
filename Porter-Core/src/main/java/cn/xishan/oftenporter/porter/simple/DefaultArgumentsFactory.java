@@ -24,6 +24,7 @@ import java.util.*;
 
 
 /**
+ * 支持参数：{@linkplain FunParam}
  * @author Created by https://github.com/CLovinr on 2018/5/12.
  */
 public class DefaultArgumentsFactory implements IArgumentsFactory
@@ -232,7 +233,14 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 {
                     if (arg != null)
                     {
-                        map.put(PortUtil.getRealClass(arg).getName(), arg);
+                        if (arg instanceof FunParam)
+                        {
+                            FunParam funParam = (FunParam) arg;
+                            map.put(funParam.getName(), funParam.getValue());
+                        } else
+                        {
+                            map.put(PortUtil.getRealClass(arg).getName(), arg);
+                        }
                     }
                 }
                 if (argData != null)

@@ -6,9 +6,11 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory.IArgsHandle;
+import cn.xishan.oftenporter.porter.core.base.FunParam;
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.PortFunType;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import org.slf4j.Logger;
@@ -180,6 +182,32 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 //        LOGGER.debug("{}:{}", this, argsHandle);
         Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
         return javaMethod.invoke(getObject(), finalArgs);
+    }
+
+    /**
+     * 请求当前接口函数，类型为{@linkplain PortFunType#DEFAULT}。
+     *
+     * @param oftenObject
+     * @param args        见{@linkplain FunParam#toJSON(Object...)}.
+     */
+    public final void requestByArgs(OftenObject oftenObject, Object... args)
+    {
+        BridgeRequest request = new BridgeRequest(oftenObject, getMethodPortIn().getMethods()[0], getPath());
+        request.addParamAll(FunParam.toJSON(args));
+        oftenObject.delivery().currentBridge().request(request, null);
+    }
+
+    /**
+     * 请求当前接口函数，类型为{@linkplain PortFunType#INNER}。
+     *
+     * @param oftenObject
+     * @param args        见{@linkplain FunParam#toJSON(Object...)}.
+     */
+    public final void requestInnerByArgs(OftenObject oftenObject, Object... args)
+    {
+        BridgeRequest request = new BridgeRequest(oftenObject, getMethodPortIn().getMethods()[0], getPath());
+        request.addParamAll(FunParam.toJSON(args));
+        oftenObject.delivery().innerBridge().request(request, null);
     }
 
     public ArgData getArgData(OftenObject oftenObject)
