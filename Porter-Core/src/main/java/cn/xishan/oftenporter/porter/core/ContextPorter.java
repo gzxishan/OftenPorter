@@ -328,7 +328,7 @@ public class ContextPorter implements IOtherStartDestroy
         while (enumeration.hasMoreElements())
         {
             OnPorterAddListener onPorterAddListener = enumeration.nextElement();
-            if (onPorterAddListener.onSeeking(porterConf.getContextName(), clazz))
+            if (onPorterAddListener.onSeeking(porterConf.getOftenContextName(), clazz))
             {
                 willSeek = false;
                 break;
@@ -402,7 +402,7 @@ public class ContextPorter implements IOtherStartDestroy
             while (enumeration.hasMoreElements())
             {
                 OnPorterAddListener onPorterAddListener = enumeration.nextElement();
-                if (onPorterAddListener.onAdding(porterConf.getContextName(), porter))
+                if (onPorterAddListener.onAdding(porterConf.getOftenContextName(), porter))
                 {
                     willAdd = false;
                     break;
@@ -431,7 +431,7 @@ public class ContextPorter implements IOtherStartDestroy
             Iterator<Porter> it = portMap.values().iterator();
             while (it.hasNext())
             {
-                it.next().seekPortInit(porterConf.getContextName(), portIniterList);
+                it.next().seekPortInit(porterConf.getOftenContextName(), portIniterList);
             }
         }
     }

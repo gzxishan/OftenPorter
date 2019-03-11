@@ -81,6 +81,6 @@ public class TestForMem
             throw new RuntimeException(e);
         }
         localMain.startOne(porterConf);
-        localMain.destroyOne(porterConf.getContextName());
+        localMain.destroyOne(porterConf.getOftenContextName());
     }
 }

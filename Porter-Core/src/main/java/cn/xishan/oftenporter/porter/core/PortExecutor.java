@@ -79,7 +79,7 @@ public final class PortExecutor
         Context context = new Context(deliveryBuilder, contextPorter, contextChecks,
                 bridge.paramSourceHandleManager(), stateListenerForAll, innerContextBridge,
                 porterCheckPassables, porterConf.getDefaultReturnFactory(), responseHandles, defaultResponseHandle);
-        context.name = bridge.contextName();
+        context.name = bridge.oftenContextName();
         context.contentEncoding = porterConf.getContentEncoding();
 
         return context;

@@ -124,11 +124,11 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             public void startOne(PorterConf porterConf)
             {
                 StartupServletImpl.this.startOne(porterConf);
-                String urlPattern = "/" + porterConf.getContextName() + "/*";
+                String urlPattern = "/" + porterConf.getOftenContextName() + "/*";
                 ServletContext servletContext = getServletContext();
                 HttpServlet httpServlet = new OPContextServlet(StartupServletImpl.this, initializer);
                 ServletRegistration.Dynamic dynamic = servletContext
-                        .addServlet(httpServlet.getClass().getName() + "-" + porterConf.getContextName(),
+                        .addServlet(httpServlet.getClass().getName() + "-" + porterConf.getOftenContextName(),
                                 httpServlet);
                 LOGGER.debug("mapping:{}", urlPattern);
                 dynamic.addMapping(urlPattern);

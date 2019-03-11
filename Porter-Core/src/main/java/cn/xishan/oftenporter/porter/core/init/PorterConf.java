@@ -32,7 +32,7 @@ public class PorterConf
     private boolean responseWhenException = true;
     private boolean enablePortInTiedNameDefault = true;
     private boolean isInited;
-    private String name;
+    private String oftenContextName;
     private String contentEncoding = "utf-8";
     private List<String> autoSetSeekPackages = new ArrayList<>();
     private List<Object> autoSetObjects = new ArrayList<>();
@@ -335,18 +335,39 @@ public class PorterConf
         this.contentEncoding = contentEncoding;
     }
 
+    /**
+     * 使用{@linkplain #setOftenContextName(String)}
+     *
+     * @param contextName
+     */
+    @Deprecated
     public void setContextName(String contextName)
     {
-        checkInited();
-        PortUtil.checkName(contextName);
-        this.name = contextName;
+        this.setOftenContextName(contextName);
     }
 
+    public void setOftenContextName(String oftenContextName)
+    {
+        checkInited();
+        PortUtil.checkName(oftenContextName);
+        this.oftenContextName = oftenContextName;
+    }
+
+    /**
+     * 使用{@linkplain #getOftenContextName()}
+     *
+     * @return
+     */
+    @Deprecated
     public String getContextName()
     {
-        return name;
+        return getOftenContextName();
     }
 
+    public String getOftenContextName()
+    {
+        return oftenContextName;
+    }
 
     private void checkInited()
     {

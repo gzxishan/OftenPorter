@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
  */
 public interface PorterBridge
 {
-    String contextName();
+    String oftenContextName();
 
     ParamDealt paramDealt();
 

@@ -28,6 +28,6 @@ public class Main
         porterConf.getSeekPackages().addPackages(PackageUtil.getPackageWithRelative(Main.class, "./porter", '.'));
 
         localMain.startOne(porterConf);
-        localMain.destroyOne(porterConf.getContextName());
+        localMain.destroyOne(porterConf.getOftenContextName());
     }
 }

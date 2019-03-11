@@ -309,16 +309,16 @@ public final class PorterMain
         LogUtil.LogKey logKey = new LogUtil.LogKey(OftenKeyUtil.random48Key());
         try
         {
-            if (OftenTool.isEmpty(bridge.contextName()))
+            if (OftenTool.isEmpty(bridge.oftenContextName()))
             {
                 throw new RuntimeException("Context name is empty!");
-            } else if (portExecutor.containsContext(bridge.contextName()))
+            } else if (portExecutor.containsContext(bridge.oftenContextName()))
             {
-                throw new RuntimeException("Context named '" + bridge.contextName() + "' already exist!");
+                throw new RuntimeException("Context named '" + bridge.oftenContextName() + "' already exist!");
             }
             LogUtil.setOrRemoveOnGetLoggerListener(logKey,
                     name -> LoggerFactory.getLogger(
-                            name + "." + getBridgeLinker().currentName().getName() + "." + bridge.contextName()));
+                            name + "." + getBridgeLinker().currentName().getName() + "." + bridge.oftenContextName()));
             checkInit();
             currentBridgeNameForLogger = getBridgeLinker().currentName().getName();
             commonMainHashMap.put(this.bridgeLinker.currentName().getName(), commonMain);
@@ -393,7 +393,7 @@ public final class PorterMain
 
         AutoSetHandle autoSetHandle = AutoSetHandle
                 .newInstance(iConfigData, argumentsFactory, innerContextBridge, getBridgeLinker(), porterData,
-                        autoSetObjForAspectOfNormal, porterConf.getContextName());
+                        autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
         autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
@@ -405,7 +405,7 @@ public final class PorterMain
         LOGGER.debug("add autoSet for addAutoSetsForNotPorter...");
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getAutoSetSeekObjectsForSetter());
 
-        LOGGER.debug(":{}/{} beforeSeek...", bridgeLinker.currentName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} beforeSeek...", bridgeLinker.currentName(), porterConf.getOftenContextName());
         StateListenerForAll stateListenerForAll = new StateListenerForAll(stateListenerList);
         ParamSourceHandleManager paramSourceHandleManager = bridge.paramSourceHandleManager();
 
@@ -429,7 +429,7 @@ public final class PorterMain
         LOGGER.debug("add autoSet CheckPassable of Class and Method...");
         autoSetHandle.addAutoSetsForNotPorter(classCheckPassableMap.values());
 
-        LOGGER.debug(":{}/{} afterSeek...", bridgeLinker.currentName(), porterConf.getContextName());
+        LOGGER.debug(":{}/{} afterSeek...", bridgeLinker.currentName(), porterConf.getOftenContextName());
         stateListenerForAll.afterSeek(porterConf.getUserInitParam(), paramSourceHandleManager);
 
         LOGGER.debug("add autoSetSeek...");
@@ -467,7 +467,7 @@ public final class PorterMain
             autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);
             LOGGER.debug("doAutoSetFinished,time={}ms", System.currentTimeMillis() - time);
 
-            String path = "/" + porterConf.getContextName() + "/:" + AutoSet.SetOk.class
+            String path = "/" + porterConf.getOftenContextName() + "/:" + AutoSet.SetOk.class
                     .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();
             UrlDecoder.Result result = getUrlDecoder().decode(path);
             BridgeRequest request = new BridgeRequest(PortMethod.GET, path);
@@ -482,9 +482,9 @@ public final class PorterMain
 
             portExecutor.onContextStarted(context);
 ////////////////////////////////////////////////////////////////////////////////
-            LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
 
-            path = "/" + porterConf.getContextName() + "/:" + PortStart.class
+            path = "/" + porterConf.getOftenContextName() + "/:" + PortStart.class
                     .getSimpleName() + "/:" + PortStart.class.getSimpleName();
             result = getUrlDecoder().decode(path);
             request = new BridgeRequest(PortMethod.GET, path);
@@ -498,20 +498,20 @@ public final class PorterMain
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(oftenObject);
             oftenObject.release();
 
-            LOGGER.debug(":{}/{} afterStart...", bridgeLinker.currentName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} afterStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
             stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
             porterConf.initOk();
-            LOGGER.debug(":{}/{} porterOne started!", bridgeLinker.currentName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} porterOne started!", bridgeLinker.currentName(), porterConf.getOftenContextName());
 
 
             LOGGER.debug("*********************************");
-            LOGGER.debug(":{}/{} before @PortInit...", bridgeLinker.currentName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} before @PortInit...", bridgeLinker.currentName(), porterConf.getOftenContextName());
             for (PortIniter portIniter : portIniterList)
             {
                 portIniter.init(this.getBridgeLinker());
             }
-            LOGGER.debug(":{}/{} done @PortInit.", bridgeLinker.currentName(), porterConf.getContextName());
+            LOGGER.debug(":{}/{} done @PortInit.", bridgeLinker.currentName(), porterConf.getOftenContextName());
             AnnoUtil.popAnnotationConfigable();
             if (autoSetObjForAspectOfNormal != null)
             {

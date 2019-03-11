@@ -16,9 +16,9 @@ public class DefaultPorterBridge
         {
 
             @Override
-            public String contextName()
+            public String oftenContextName()
             {
-                return porterConf.getContextName();
+                return porterConf.getOftenContextName();
             }
 
             @Override
