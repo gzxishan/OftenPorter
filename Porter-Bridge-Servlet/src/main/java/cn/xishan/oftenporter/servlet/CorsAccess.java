@@ -69,11 +69,11 @@ public @interface CorsAccess
     String exposeHeaders() default "";
 
     /**
-     * 对Access-Control-Allow-Headers的设置，默认为空。
+     * 对Access-Control-Allow-Headers的设置，默认为"X-Requested-With, Content-Type,Content-Length"。
      *
      * @return
      */
-    String allowHeaders() default "";
+    String allowHeaders() default "X-Requested-With, Content-Type,Content-Length";
 
     /**
      * 对Access-Control-Max-Age的设置，单位秒。默认15000
