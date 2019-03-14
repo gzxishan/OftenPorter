@@ -42,12 +42,12 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Inherited
 @Documented
-@AdvancedAnnotation(enableAdvancedAnnotation = true,enableCache = false)
+@AdvancedAnnotation(enableAdvancedAnnotation = true, enableCache = false)
 public @interface PortIn
 {
 
     /**
-     * 注解在接口类上，用于添加变量(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@{@linkplain AutoSet}获取.
+     * 注解在PortIn类上，用于为当前接口实例添加绑定名称(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@{@linkplain AutoSet}获取.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})
@@ -86,7 +86,7 @@ public @interface PortIn
     String[] tieds() default {};
 
     /**
-     * 在函数且大小不为0时有效。
+     * 注解在函数上有效，且当大小不为0时则使用其声明的请求方法。
      *
      * @return
      */
@@ -171,7 +171,7 @@ public @interface PortIn
     AspectPosition aspectOfClassPosition() default AspectPosition.BEFORE;
 
     /**
-     * 是否允许{@linkplain MixinTo}
+     * 是否允许{@linkplain MixinTo},对注解在类上的有效。
      *
      * @return
      */
