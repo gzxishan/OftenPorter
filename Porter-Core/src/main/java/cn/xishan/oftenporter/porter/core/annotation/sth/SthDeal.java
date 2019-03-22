@@ -312,7 +312,7 @@ public class SthDeal
                     Porter porter = (Porter) object;
                     if (handle.init(annotation, configData, porter))
                     {
-                        porter.portOut._setOutType(handle.getOutType());
+                        //porter.portOut._setOutType(handle.getOutType());
                         porter.portIn.setPortFunType(handle.getPortFunType());
                         annotationDealt.setTiedType(porter.portIn,
                                 TiedType.typeForFun(porter.portIn.getTiedType(), handle.getTiedType()));

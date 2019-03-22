@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *  另见{@linkplain MultiPartOption}。
  * @author Created by https://github.com/CLovinr on 2017/4/15.
  */
 class MultiPartParamSourceHandle extends PutParamSourceHandle

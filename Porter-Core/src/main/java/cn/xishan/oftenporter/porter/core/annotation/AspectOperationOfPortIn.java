@@ -209,7 +209,7 @@ public @interface AspectOperationOfPortIn
                 @MayNull Object failedObject)throws Exception;
 
         /**
-         * 修改类或函数的输出类型。
+         * 修改函数的输出类型。
          *
          * @return
          */
@@ -224,9 +224,19 @@ public @interface AspectOperationOfPortIn
         @MayNull
         PortFunType getPortFunType();
 
+        /**
+         * 修改类或函数的。
+         *
+         * @return
+         */
         @MayNull
         TiedType getTiedType();
 
+        /**
+         * 修改函数的。
+         *
+         * @return
+         */
         @MayNull
         PortMethod[] getMethods();
 

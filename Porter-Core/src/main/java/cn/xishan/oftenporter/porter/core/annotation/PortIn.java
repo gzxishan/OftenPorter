@@ -2,13 +2,10 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 
 import cn.xishan.oftenporter.porter.core.advanced.AspectPosition;
-import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IPorter;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
-import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
-import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -23,7 +20,10 @@ import java.lang.annotation.*;
  * 用于标记输入接口。若标记在函数上，函数(静态或非静态)且是public的;若标记在类上，访问类型可以是任意类型。
  * </li>
  * <li>
- * 返回值见{@linkplain PortOut}
+ * 支持的基本形参：{@linkplain OftenObject}
+ * </li>
+ * <li>
+ * 输出方式见{@linkplain PortOut}
  * </li>
  * <li>
  * <strong>声明参数的配置选项：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
@@ -47,7 +47,8 @@ public @interface PortIn
 {
 
     /**
-     * 注解在PortIn类上，用于为当前接口实例添加绑定名称(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@{@linkplain AutoSet}获取.
+     * 注解在PortIn类上，用于为当前接口实例添加绑定名称(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@
+     * {@linkplain AutoSet}获取.
      */
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.TYPE})

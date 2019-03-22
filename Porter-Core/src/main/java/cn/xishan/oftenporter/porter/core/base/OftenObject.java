@@ -35,7 +35,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         void beforeFinal(OftenObject oftenObject) throws Throwable;
 
         /**
-         * 不会调用{@linkplain #afterFinal(OftenObject)}
+         * 出现异常时，不会调用{@linkplain #afterFinal(OftenObject)}
          *
          * @param oftenObject
          * @param throwable

@@ -616,7 +616,7 @@ public final class AnnotationDealt
                 _portOut.outType = OutType.VoidReturn;
             } else
             {
-                _portOut.outType = OutType.AUTO;
+                _portOut.outType = classPorter.getPortOut().outType;
             }
         }
         return _portOut;
@@ -634,7 +634,7 @@ public final class AnnotationDealt
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(), null, portIn.ignoredFunTieds(), portIn.enableMixinTo());
-        _portIn.tiedNames = PortUtil.tieds(portIn, clazz,classTiedfix, isMixin || enableDefaultValue);
+        _portIn.tiedNames = PortUtil.tieds(portIn, clazz, classTiedfix, isMixin || enableDefaultValue);
         _portIn.inNames = InNames.fromStringArray(portIn.nece(), portIn.unece(), portIn.inner());
         _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();
@@ -649,7 +649,7 @@ public final class AnnotationDealt
         return _portIn;
     }
 
-    public _PortIn portIn(ContextPorter.SrcPorter srcPorter,Porter porter, Method method)
+    public _PortIn portIn(ContextPorter.SrcPorter srcPorter, Porter porter, Method method)
     {
         _PortIn class_PortIn = porter.getPortIn();
         _PortIn _portInOfMethod = null;
@@ -667,7 +667,7 @@ public final class AnnotationDealt
                 _portInOfMethod.tiedNames = new String[]{""};
             } else
             {
-                _portInOfMethod.tiedNames = PortUtil.tieds(srcPorter,portIn, method, enableDefaultValue);
+                _portInOfMethod.tiedNames = PortUtil.tieds(srcPorter, portIn, method, enableDefaultValue);
             }
 
 

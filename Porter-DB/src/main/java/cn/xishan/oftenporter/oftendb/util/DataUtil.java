@@ -393,7 +393,7 @@ public class DataUtil
      */
     public static DBNameValues toNameValues(OftenObject oftenObject, boolean containsNull)
     {
-        DBNameValues DBNameValues = new DBNameValues();
+        DBNameValues dbNameValues = new DBNameValues();
 
         try
         {
@@ -404,7 +404,7 @@ public class DataUtil
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject._fn[i]);
+                dbNameValues.append(names[i].varName, oftenObject._fn[i]);
             }
             names = oftenObject._fInNames.unece;
             for (int i = 0; i < names.length; i++)
@@ -413,7 +413,16 @@ public class DataUtil
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject._fu[i]);
+                dbNameValues.append(names[i].varName, oftenObject._fu[i]);
+            }
+            names = oftenObject._cInNames.inner;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && oftenObject._cinner[i] == null)
+                {
+                    continue;
+                }
+                dbNameValues.append(names[i].varName, oftenObject._cinner[i]);
             }
             names = oftenObject._fInNames.inner;
             for (int i = 0; i < names.length; i++)
@@ -422,14 +431,14 @@ public class DataUtil
                 {
                     continue;
                 }
-                DBNameValues.append(names[i].varName, oftenObject._finner[i]);
+                dbNameValues.append(names[i].varName, oftenObject._finner[i]);
             }
         } catch (JSONException e)
         {
             LOGGER.warn(e.getMessage(), e);
         }
 
-        return DBNameValues;
+        return dbNameValues;
     }
 
     /**
@@ -463,6 +472,15 @@ public class DataUtil
                     continue;
                 }
                 jsonObject.put(names[i].varName, oftenObject._fu[i]);
+            }
+            names = oftenObject._cInNames.inner;
+            for (int i = 0; i < names.length; i++)
+            {
+                if (!containsNull && oftenObject._cinner[i] == null)
+                {
+                    continue;
+                }
+                jsonObject.put(names[i].varName, oftenObject._cinner[i]);
             }
             names = oftenObject._fInNames.inner;
             for (int i = 0; i < names.length; i++)

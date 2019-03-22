@@ -29,10 +29,20 @@ public interface OftenInitializer
 
         String getBridgeName();
 
+        /**
+         * 设置是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+         */
         void setDoPUT(boolean willDo);
 
+        /**
+         * 是否添加put参数处理,默认为false,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+         */
         boolean isDoPUT();
 
+        /**
+         * 设置multipart form表单的处理选项,见{@linkplain MultiPartParamSourceHandle}
+         * @param multiPartOption
+         */
         void setMultiPartOption(MultiPartOption multiPartOption);
     }
 
