@@ -10,4 +10,10 @@ buildNumber.properties
 .idea/
 .jsp-handle/
 *.iml
+.project
 */src/main/webapp/WEB-INF/classes/
+.DS_Store
+node_modules
+npm-debug.log
+.gradle/
+build/
