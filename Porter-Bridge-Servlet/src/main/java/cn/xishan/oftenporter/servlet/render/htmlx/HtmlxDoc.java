@@ -16,10 +16,38 @@ public class HtmlxDoc
     private String encoding;
     private String contentType;
     private int cacheSeconds;
+    private boolean exists;
+    private boolean willBreak = false;
 
-    public HtmlxDoc(Object document)
+    public HtmlxDoc(Object document, boolean exists)
     {
         this.document = document;
+        this.exists = exists;
+    }
+
+    public boolean isBreak()
+    {
+        return willBreak;
+    }
+
+    /**
+     * 设置是否中断后面的响应操作，默认为false。
+     *
+     * @param willBreak
+     */
+    public void setBreak(boolean willBreak)
+    {
+        this.willBreak = willBreak;
+    }
+
+    /**
+     * 返回对应的html文件是否存在
+     *
+     * @return
+     */
+    public boolean isExists()
+    {
+        return exists;
     }
 
     public void title(String title)

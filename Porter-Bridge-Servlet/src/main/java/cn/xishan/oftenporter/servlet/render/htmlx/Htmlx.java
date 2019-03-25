@@ -61,4 +61,23 @@ public @interface Htmlx
     String description() default "";
 
     String keywords() default "";
+
+    /**
+     * 未找到对应html文件时、默认的html内容。
+     *
+     * @return
+     */
+    String defaultHtml() default "<!DOCTYPE html>\n" +
+            "<html>\n" +
+            "\t<head>\n" +
+            "\t\t<meta charset=\"UTF-8\">\n" +
+            "\t\t<title></title>\n" +
+            "\t\t<meta name=\"viewport\" content=\"width=device-width,minimum-scale=1.0,maximum-scale=1" +
+            ".0," +
+            "user-scalable=no\" />\n" +
+            "\t</head>\n" +
+            "\t<body>\n" +
+            "\t\t\n" +
+            "\t</body>\n" +
+            "</html>";
 }

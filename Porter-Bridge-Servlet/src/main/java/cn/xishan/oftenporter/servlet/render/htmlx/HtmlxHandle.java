@@ -19,7 +19,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -39,6 +41,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     private String title;
     private String description;
     private String keywords;
+    private byte[] defaultHtml;
 
 
     @Override
@@ -54,6 +57,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
             this.title = current.title();
             this.description = current.description();
             this.keywords = current.keywords();
+            this.defaultHtml = current.defaultHtml().getBytes(Charset.forName(this.encoding));
             this.oftenPath = porterOfFun.getPath();
             return true;
         } else
@@ -88,17 +92,28 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
         String filePath = servletContext.getRealPath(rpath);
 
         File file = new File(filePath);
+        long lastModified;
         if (!file.exists())
         {
-            response.sendError(404);
-            return null;
+            lastModified = -1;
+        } else
+        {
+            lastModified = file.lastModified();
         }
 
-        long lastModified=file.lastModified();
 
-        if(HttpCacheUtil.isCacheIneffectiveWithModified(lastModified,request,response)){
-            Document document = Jsoup.parse(file, encoding);
-            HtmlxDoc htmlxDoc = new HtmlxDoc(document);
+        if (HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
+        {
+            Document document;
+            if (file.exists())
+            {
+                document = Jsoup.parse(file, encoding);
+            } else
+            {
+                InputStream in = new ByteArrayInputStream(defaultHtml);
+                document = Jsoup.parse(in, encoding, "");
+            }
+            HtmlxDoc htmlxDoc = new HtmlxDoc(document, file.exists());
 
             htmlxDoc.setCacheSeconds(cacheSeconds);
             htmlxDoc.setContentType(contentType);
@@ -120,39 +135,44 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
             }
 
             Object rs = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
-            response.setContentType(htmlxDoc.getContentType());
-            response.setCharacterEncoding(htmlxDoc.getEncoding());
-            if (htmlxDoc.getCacheSeconds() > 0)
+            if (!htmlxDoc.isBreak())
             {
-                HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), lastModified, response);
-            }
-            String htmlStr = document.outerHtml();
-            if (rs instanceof RenderPage || rs instanceof Map)
-            {
-                Map<String, ?> map;
-                if (rs instanceof RenderPage)
+                response.setContentType(htmlxDoc.getContentType());
+                response.setCharacterEncoding(htmlxDoc.getEncoding());
+                if (htmlxDoc.getCacheSeconds() > 0)
                 {
-                    map = ((RenderPage) rs).getData();
-                } else
-                {
-                    map = (Map) rs;
+                    HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), lastModified, response);
                 }
-                htmlStr = DealSharpProperties.replaceSharpProperties(htmlStr, map);
+                String htmlStr = document.outerHtml();
+                if (rs instanceof RenderPage || rs instanceof Map)
+                {
+                    Map<String, ?> map;
+                    if (rs instanceof RenderPage)
+                    {
+                        map = ((RenderPage) rs).getData();
+                    } else
+                    {
+                        map = (Map) rs;
+                    }
+                    htmlStr = DealSharpProperties.replaceSharpProperties(htmlStr, map);
 
-            } else if (rs != null)
-            {
-                throw new RuntimeException("unknown return:" + rs);
+                } else if (rs != null)
+                {
+                    throw new RuntimeException("unknown return:" + rs);
+                }
+
+                byte[] bytes = htmlStr.getBytes(Charset.forName(htmlxDoc.getEncoding()));
+                response.setContentLength(bytes.length);
+                try (OutputStream os = response.getOutputStream())
+                {
+                    os.write(bytes);
+                    os.flush();
+                }
             }
 
-            byte[] bytes = htmlStr.getBytes(Charset.forName(htmlxDoc.getEncoding()));
-            response.setContentLength(bytes.length);
-            try (OutputStream os = response.getOutputStream())
-            {
-                os.write(bytes);
-                os.flush();
-            }
-        }else{
-            if (cacheSeconds> 0)
+        } else
+        {
+            if (cacheSeconds > 0)
             {
                 HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
             }
