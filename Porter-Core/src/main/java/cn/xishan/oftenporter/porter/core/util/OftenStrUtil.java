@@ -13,7 +13,8 @@ public class OftenStrUtil
 {
 
     /**
-     * 将“name1=value1&name2=value2”转换成map。
+     * 将“name1=value1&name2=value2”转换成map,且采用有序map。
+     *
      * @param encodingContent
      * @param encoding
      * @return
@@ -23,7 +24,7 @@ public class OftenStrUtil
             String encoding) throws UnsupportedEncodingException
     {
         String[] strs = OftenStrUtil.split(encodingContent, "&");
-        HashMap<String, String> paramsMap = new HashMap<>(strs.length);
+        Map<String, String> paramsMap = new LinkedHashMap<>(strs.length);
         int index;
         for (String string : strs)
         {
@@ -60,10 +61,10 @@ public class OftenStrUtil
     public static String[] split(String srcString, String splitStr, boolean containsEmptyString)
     {
         List<String> list = new ArrayList<>();
-        if (srcString!=null)
+        if (srcString != null)
         {
             int from = 0;
-            int slen=splitStr.length();
+            int slen = splitStr.length();
             while (from < srcString.length())
             {
                 int index = srcString.indexOf(splitStr, from);
@@ -80,7 +81,8 @@ public class OftenStrUtil
                     break;
                 }
             }
-            if (containsEmptyString && (srcString.length()==0||srcString.length() >= splitStr.length() && srcString.endsWith(splitStr)))
+            if (containsEmptyString && (srcString.length() == 0 || srcString.length() >= splitStr.length() && srcString
+                    .endsWith(splitStr)))
             {
                 list.add("");
             }
@@ -214,6 +216,17 @@ public class OftenStrUtil
     {
         int index = content.lastIndexOf(c);
         return index >= 0 ? content.substring(includeChar ? index : index + 1) : "";
+    }
+
+    public static String getNameFormPath(String path)
+    {
+        return getNameFormPath(path, '/');
+    }
+
+    public static String getNameFormPath(String path, char seperator)
+    {
+        int index = path.lastIndexOf(seperator);
+        return index >= 0 ? path.substring(index + 1) : path;
     }
 
     /**

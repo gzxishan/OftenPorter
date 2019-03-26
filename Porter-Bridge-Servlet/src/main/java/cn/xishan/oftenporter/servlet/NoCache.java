@@ -11,6 +11,7 @@ import java.lang.annotation.*;
 
 /**
  * 设置禁止http缓存。
+ *
  * @author Created by https://github.com/CLovinr on 2018/12/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -50,6 +51,12 @@ public @interface NoCache
                 response.setHeader("Pragma", "no-cache");
                 response.setDateHeader("expires", -1);
             }
+        }
+
+        @Override
+        public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
+        {
+            return false;
         }
     }
 }

@@ -8,6 +8,8 @@ import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.HttpCacheUtil;
 import cn.xishan.oftenporter.servlet.OftenServlet;
@@ -15,6 +17,7 @@ import cn.xishan.oftenporter.servlet.render.RenderPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +44,13 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     private String title;
     private String description;
     private String keywords;
-    private byte[] defaultHtml;
+    private byte[] otherwiseHtml;
+    private byte[] otherwisePage;
+    private String otherwisePagePath;
+    private String otherwisePageEncoding;
+    private String htmlSuffix;
+
+    private long otherwiseLastmodified = System.currentTimeMillis();
 
 
     @Override
@@ -57,8 +66,27 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
             this.title = current.title();
             this.description = current.description();
             this.keywords = current.keywords();
-            this.defaultHtml = current.defaultHtml().getBytes(Charset.forName(this.encoding));
+            this.otherwiseHtml = current.otherwiseHtml().getBytes(Charset.forName(this.encoding));
+            this.otherwisePagePath = current.otherwisePage();
+            this.otherwisePageEncoding = current.otherwisePageEncoding();
             this.oftenPath = porterOfFun.getPath();
+            this.htmlSuffix = current.htmlSuffix();
+
+            if (this.encoding.equals(""))
+            {
+                this.encoding = "utf-8";
+            }
+
+            if (this.otherwisePageEncoding.equals(""))
+            {
+                this.otherwisePageEncoding = this.encoding;
+            }
+
+            if (this.htmlSuffix.equals(""))
+            {
+                this.htmlSuffix = "html";
+            }
+
             return true;
         } else
         {
@@ -88,6 +116,8 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
         {
             rpath += this.index;
         }
+        String name = OftenStrUtil.getNameFormPath(rpath);
+
         ServletContext servletContext = request.getServletContext();
         String filePath = servletContext.getRealPath(rpath);
 
@@ -105,15 +135,65 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
         if (HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
         {
             Document document;
+            HtmlxDoc.PageType pageType;
             if (file.exists())
             {
+                if (!OftenStrUtil.getSuffix(name).equals(htmlSuffix))
+                {//非html文件
+                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
+                    response.setContentLength((int) file.length());
+                    response.setCharacterEncoding(encoding);
+                    String type = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(name);
+                    response.setContentType(type);
+                    try (OutputStream os = response.getOutputStream())
+                    {
+                        FileTool.file2out(file, os, 2048);
+                        os.flush();
+                    }
+                    return null;
+                }
                 document = Jsoup.parse(file, encoding);
+                pageType = HtmlxDoc.PageType.Normal;
             } else
             {
-                InputStream in = new ByteArrayInputStream(defaultHtml);
-                document = Jsoup.parse(in, encoding, "");
+                if (otherwisePage == null)
+                {
+                    if (OftenTool.notEmpty(otherwisePagePath))
+                    {
+                        synchronized (this)
+                        {
+                            if (OftenTool.notEmpty(otherwisePagePath))
+                            {
+                                String path = servletContext.getRealPath(otherwisePagePath);
+                                otherwisePagePath = null;
+                                if (path != null)
+                                {
+                                    File ofile = new File(path);
+                                    if (ofile.exists())
+                                    {
+                                        otherwiseLastmodified = ofile.lastModified();
+                                        otherwisePage = FileTool.getData(ofile, 1024);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (otherwisePage == null)
+                {
+                    InputStream in = new ByteArrayInputStream(otherwiseHtml);
+                    document = Jsoup.parse(in, encoding, "");
+                    pageType = HtmlxDoc.PageType.OthersizeHtml;
+                } else
+                {
+                    InputStream in = new ByteArrayInputStream(otherwisePage);
+                    document = Jsoup.parse(in, otherwisePageEncoding, "");
+                    pageType = HtmlxDoc.PageType.OtherwisePage;
+                }
+                lastModified = otherwiseLastmodified;
             }
-            HtmlxDoc htmlxDoc = new HtmlxDoc(document, file.exists());
+            HtmlxDoc htmlxDoc = new HtmlxDoc(document, pageType);
 
             htmlxDoc.setCacheSeconds(cacheSeconds);
             htmlxDoc.setContentType(contentType);
@@ -139,7 +219,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
             {
                 response.setContentType(htmlxDoc.getContentType());
                 response.setCharacterEncoding(htmlxDoc.getEncoding());
-                if (htmlxDoc.getCacheSeconds() > 0)
+                if (htmlxDoc.willCache() && htmlxDoc.getCacheSeconds() > 0)
                 {
                     HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), lastModified, response);
                 }

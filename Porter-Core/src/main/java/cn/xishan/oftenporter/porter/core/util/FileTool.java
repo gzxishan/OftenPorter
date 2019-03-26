@@ -204,6 +204,22 @@ public class FileTool
     }
 
     /**
+     * 把文件写道输出流。
+     *
+     * @param file
+     * @param os
+     * @param bufSize
+     * @throws IOException
+     */
+    public static void file2out(File file, OutputStream os, int bufSize) throws IOException
+    {
+        try (FileInputStream fis = new FileInputStream(file))
+        {
+            in2out(fis, os, bufSize);
+        }
+    }
+
+    /**
      * 把输入流写道输出流。
      *
      * @param in

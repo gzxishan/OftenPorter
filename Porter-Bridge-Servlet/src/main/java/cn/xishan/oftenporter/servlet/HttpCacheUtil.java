@@ -125,7 +125,9 @@ public class HttpCacheUtil
             HttpServletResponse response)
     {
         long since = request.getDateHeader("If-Modified-Since") / 1000;
-        lastModified /= 1000;
+        if(lastModified>0){
+            lastModified /= 1000;
+        }
         if (lastModified == since)
         {
             notModified(response);

@@ -11,18 +11,34 @@ import java.util.Iterator;
  */
 public class HtmlxDoc
 {
+    public enum PageType
+    {
+        Normal, OtherwisePage, OthersizeHtml
+    }
+
     private Object document;
 
     private String encoding;
     private String contentType;
     private int cacheSeconds;
-    private boolean exists;
+    private PageType pageType;
     private boolean willBreak = false;
+    private boolean willCache = true;
 
-    public HtmlxDoc(Object document, boolean exists)
+    public HtmlxDoc(Object document, PageType pageType)
     {
         this.document = document;
-        this.exists = exists;
+        this.pageType = pageType;
+    }
+
+    public boolean willCache()
+    {
+        return willCache;
+    }
+
+    public void setWillCache(boolean willCache)
+    {
+        this.willCache = willCache;
     }
 
     public boolean isBreak()
@@ -40,14 +56,9 @@ public class HtmlxDoc
         this.willBreak = willBreak;
     }
 
-    /**
-     * 返回对应的html文件是否存在
-     *
-     * @return
-     */
-    public boolean isExists()
+    public PageType getPageType()
     {
-        return exists;
+        return pageType;
     }
 
     public void title(String title)
@@ -129,6 +140,35 @@ public class HtmlxDoc
     public void setContentType(String contentType)
     {
         this.contentType = contentType;
+    }
+
+    /**
+     * 设置找到的第一个元素的text。
+     *
+     * @param selector
+     * @param text
+     */
+    public void text(String selector, String text)
+    {
+        Document document = (Document) this.document;
+        Element element = document.selectFirst(selector);
+        if (element != null)
+        {
+            element.text(text);
+        }
+    }
+
+    public String text(String selector)
+    {
+        Document document = (Document) this.document;
+        Element element = document.selectFirst(selector);
+        if (element != null)
+        {
+            return element.text();
+        } else
+        {
+            return null;
+        }
     }
 
     public int getCacheSeconds()

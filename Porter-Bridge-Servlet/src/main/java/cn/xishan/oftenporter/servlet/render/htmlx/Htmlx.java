@@ -36,6 +36,13 @@ public @interface Htmlx
      */
     String[] path();
 
+    /**
+     * html文件的后缀名。
+     *
+     * @return
+     */
+    String htmlSuffix() default "html";
+
     String index() default "index.html";
 
     boolean enable() default true;
@@ -63,11 +70,25 @@ public @interface Htmlx
     String keywords() default "";
 
     /**
-     * 未找到对应html文件时、默认的html内容。
+     * 未找到{@linkplain #path()}与当前请求对应的html文件时，尝试查找的html文件（可用于错误页面）。
      *
      * @return
      */
-    String defaultHtml() default "<!DOCTYPE html><html><head>" +
+    String otherwisePage() default "";
+
+    /**
+     * {@linkplain #otherwisePage()}文件的编码方式,为空则等于{@linkplain #encoding()}
+     *
+     * @return
+     */
+    String otherwisePageEncoding() default "";
+
+    /**
+     * 未找到{@linkplain #path()}与当前请求对应的html文件、且未找到{@linkplain #otherwisePage()}页面时、默认的html内容。
+     *
+     * @return
+     */
+    String otherwiseHtml() default "<!DOCTYPE html><html><head>" +
             "<meta charset=\"UTF-8\">" +
             "<title></title>" +
             "<meta name=\"viewport\" " +
