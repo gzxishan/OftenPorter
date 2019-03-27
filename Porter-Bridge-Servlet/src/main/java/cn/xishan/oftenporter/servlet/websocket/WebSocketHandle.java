@@ -149,6 +149,12 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         return OutType.NO_RESPONSE;
     }
 
+    @Override
+    public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
+    {
+        return true;
+    }
+
 
 //    public static void handleWS(ServletContext servletContext)
 //    {

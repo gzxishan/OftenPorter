@@ -271,4 +271,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     {
         return new PortMethod[]{PortMethod.GET};
     }
+
+    @Override
+    public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
+    {
+        return true;
+    }
 }

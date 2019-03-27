@@ -206,4 +206,10 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
     {
         return OutType.NO_RESPONSE;
     }
+
+    @Override
+    public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
+    {
+        return true;
+    }
 }

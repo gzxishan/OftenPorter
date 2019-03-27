@@ -361,6 +361,12 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
     }
 
     @Override
+    public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
+    {
+        return true;
+    }
+
+    @Override
     public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         Handle handle = new Handle();

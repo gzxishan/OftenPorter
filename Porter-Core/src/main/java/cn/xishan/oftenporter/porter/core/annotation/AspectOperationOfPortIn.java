@@ -30,7 +30,12 @@ import java.lang.annotation.*;
 public @interface AspectOperationOfPortIn
 {
 
-    class HandleAdapter<T extends Annotation> implements Handle<T>
+    /**
+     * 默认的{@linkplain #invoke(OftenObject, PorterOfFun, Object)}不会调用对应的函数。
+     *
+     * @param <T>
+     */
+    abstract class HandleAdapter<T extends Annotation> implements Handle<T>
     {
 
         private static final Logger LOGGER = LoggerFactory.getLogger(HandleAdapter.class);
@@ -73,12 +78,30 @@ public @interface AspectOperationOfPortIn
             LOGGER.debug("not Override.");
         }
 
+        /**
+         * 实际未调用对应的java函数、直接返回null。
+         * @param oftenObject
+         * @param porterOfFun
+         * @param lastReturn  上一个处理返回的对象。
+         * @return
+         * @throws Throwable
+         */
         @Override
         public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
             LOGGER.debug("default invoke.");
-            return porterOfFun.invokeByHandleArgs(oftenObject);
+            return null;
         }
+
+        /**
+         * 是否需要调用{@linkplain #invoke(OftenObject, PorterOfFun, Object)}。
+         * @param oftenObject
+         * @param porterOfFun
+         * @param lastReturn
+         * @return
+         */
+        @Override
+        public abstract boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn);
 
         @Override
         public void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
@@ -119,11 +142,6 @@ public @interface AspectOperationOfPortIn
             return null;
         }
 
-        @Override
-        public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)
-        {
-            return true;
-        }
     }
 
     /**
@@ -180,10 +198,10 @@ public @interface AspectOperationOfPortIn
         void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun);
 
         /**
-         * 调用函数时触发，且注解在类上的先调用。
+         * 调用函数时触发，且注解在类上的先调用。调用函数可用{@linkplain PorterOfFun#invokeByHandleArgs(OftenObject, Object...)}。
          *
          * @param oftenObject
-         * @param lastReturn 上一个处理返回的对象。
+         * @param lastReturn  上一个处理返回的对象。
          * @return
          * @throws Exception
          */
@@ -196,7 +214,7 @@ public @interface AspectOperationOfPortIn
          * @param oftenObject
          * @param porterOfFun
          */
-        void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn)throws Exception;
+        void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Exception;
 
 
         /**
@@ -206,7 +224,7 @@ public @interface AspectOperationOfPortIn
          * @param porterOfFun
          */
         void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn,
-                @MayNull Object failedObject)throws Exception;
+                @MayNull Object failedObject) throws Exception;
 
         /**
          * 修改函数的输出类型。
