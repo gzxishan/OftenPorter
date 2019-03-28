@@ -125,7 +125,7 @@ public class SqlCondition extends Condition
 
         if (operator == NOT)
         {
-            stringBuilder.append(" NOT ");
+            stringBuilder.append("NOT ");
         } else if (operator == OR)
         {
             condition.isAnd = false;
@@ -167,7 +167,7 @@ public class SqlCondition extends Condition
     {
         if (stringBuilder.length() > 0)
         {
-            stringBuilder.append(isAnd ? " AND " : " OR ");
+            stringBuilder.append(isAnd ? "AND " : "OR ");
         }
     }
 

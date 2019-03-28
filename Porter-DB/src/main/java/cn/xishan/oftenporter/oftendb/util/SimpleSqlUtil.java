@@ -88,8 +88,16 @@ public class SimpleSqlUtil
     }
 
     private String columnCoverString = "`";
+    private boolean withBracket = true;
 
-    private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil();
+    private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil()
+    {
+        @Override
+        public void setWithBracket(boolean withBracket)
+        {
+            throw new RuntimeException("not allowed");
+        }
+    };
 
     public static SimpleSqlUtil getInstance()
     {
@@ -103,6 +111,21 @@ public class SimpleSqlUtil
     public String getColumnCoverString()
     {
         return columnCoverString;
+    }
+
+    public boolean isWithBracket()
+    {
+        return withBracket;
+    }
+
+    /**
+     * 设置是否用括号报告整个查询条件，默认为true、为了应对查询条件短路的问题。
+     *
+     * @param withBracket
+     */
+    public void setWithBracket(boolean withBracket)
+    {
+        this.withBracket = withBracket;
     }
 
     /**
@@ -481,14 +504,6 @@ public class SimpleSqlUtil
                         operator = Condition.EQ;
                         value = "";
                         break;
-                    case "$false":
-                        operator = SqlCondition.FALSE;
-                        willAddName = false;
-                        break;
-                    case "$true":
-                        operator = SqlCondition.TRUE;
-                        willAddName = false;
-                        break;
                     case "$in:":
                     case "$nin:":
                     case "$iin:":
@@ -550,8 +565,22 @@ public class SimpleSqlUtil
                 index = type.length();
             } else if (name.startsWith("$"))
             {
-                forQuery.put(name, value);
-                continue;
+                switch (name)
+                {
+                    case "$false":
+                        operator = SqlCondition.FALSE;
+                        willAddName = false;
+                        break;
+                    case "$true":
+                        operator = SqlCondition.TRUE;
+                        willAddName = false;
+                        break;
+                    default:
+                    {
+                        forQuery.put(name, value);
+                        continue;
+                    }
+                }
             }
 
             name = name.substring(index);
@@ -599,13 +628,17 @@ public class SimpleSqlUtil
         {
             where = sql == null ? "" : sql;
         }
+        if (withBracket && OftenTool.notEmpty(sql) && !sql.startsWith("("))
+        {
+            where = "(" + where + ")";
+        }
         return where;
     }
 
     private static final Pattern LEGAL_SQL_FIELD_NAME_PATTERN = Pattern.compile("^[\\u4e00-\\u9fa5a-zA-Z0-9_$.]+$");
 
     /**
-     * 判断sql字段名是否合法(只支持字母数字和下划线)，防止sql注入。
+     * 判断sql字段名是否合法(只支持中文字母数字和下划线)，防止sql注入。
      *
      * @param fieldName
      * @return
