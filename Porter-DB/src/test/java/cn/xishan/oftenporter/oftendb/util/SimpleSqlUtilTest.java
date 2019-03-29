@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.oftendb.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,5 +16,6 @@ public class SimpleSqlUtilTest
         SimpleSqlUtil simpleSqlUtil = new SimpleSqlUtil();
         SimpleSqlUtil.SQLPart sqlPart = simpleSqlUtil.fromNameValues(null,null,"$or[","$true","$false","$or]");
         LOGGER.debug("where:{}",sqlPart.nowhere);
+        Assert.assertEquals("(TRUE OR FALSE )",sqlPart.nowhere);
     }
 }

@@ -88,16 +88,8 @@ public class SimpleSqlUtil
     }
 
     private String columnCoverString = "`";
-    private boolean withBracket = true;
 
-    private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil()
-    {
-        @Override
-        public void setWithBracket(boolean withBracket)
-        {
-            throw new RuntimeException("not allowed");
-        }
-    };
+    private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil();
 
     public static SimpleSqlUtil getInstance()
     {
@@ -111,21 +103,6 @@ public class SimpleSqlUtil
     public String getColumnCoverString()
     {
         return columnCoverString;
-    }
-
-    public boolean isWithBracket()
-    {
-        return withBracket;
-    }
-
-    /**
-     * 设置是否用括号报告整个查询条件，默认为true、为了应对查询条件短路的问题。
-     *
-     * @param withBracket
-     */
-    public void setWithBracket(boolean withBracket)
-    {
-        this.withBracket = withBracket;
     }
 
     /**
@@ -191,7 +168,7 @@ public class SimpleSqlUtil
 
     /**
      * <p>
-     * nameValues基本格式为(name,[value],name,[value]...),当name为($null:name,$notnull:name,$emptystr:name,$or[,$or],$not[,
+     * nameValues基本格式为(name,[value],name,[value]...),当nam+e为($null:name,$notnull:name,$emptystr:name,$or[,$or],$not[,
      * $not],$and[,$and])中的一个时，value可以为null或者省略。
      * </p>
      * <p>
@@ -627,10 +604,6 @@ public class SimpleSqlUtil
         } else
         {
             where = sql == null ? "" : sql;
-        }
-        if (withBracket && OftenTool.notEmpty(sql) && !sql.startsWith("("))
-        {
-            where = "(" + where + ")";
         }
         return where;
     }
