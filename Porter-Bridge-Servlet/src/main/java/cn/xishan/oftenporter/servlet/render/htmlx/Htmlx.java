@@ -10,7 +10,7 @@ import java.util.Map;
 
 /**
  * <p>
- * 用于修改html文件,注解在porter函数上。
+ * 用于修改html文件,注解在porter函数上,注解在函数上时提供默认的配置。
  * </p>
  * <ol>
  * <li>
@@ -24,13 +24,27 @@ import java.util.Map;
  * @author Created by https://github.com/CLovinr on 2019-01-11.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @AspectOperationOfPortIn(handle = HtmlxHandle.class)
 public @interface Htmlx
 {
+
     /**
-     * 实际的页面路径,会找到第一个存在的，如/mobile/index.html(或者/mobile/)。
+     * 是否为debug模式，当为(true,yes或1)时、每次都会加载模板。
+     * @return
+     */
+    String isDebug()default "false";
+
+    /**
+     * 默认目录，从当前servlet的上下文根目录开始,其中{@linkplain #path()}、{@linkplain #otherwisePage()} 支持相对路径，且相对于该目录。
+     *
+     * @return
+     */
+    String baseDir() default "/";
+
+    /**
+     * 实际访问的页面路径（只对porter函数有效）,会找到第一个存在的，如/mobile/index.html(或者/mobile/)。
      *
      * @return
      */
@@ -89,10 +103,9 @@ public @interface Htmlx
      * @return
      */
     String otherwiseHtml() default "<!DOCTYPE html><html><head>" +
-            "<meta charset=\"UTF-8\">" +
+            "<meta charset='UTF-8'>" +
             "<title></title>" +
-            "<meta name=\"viewport\" " +
-            "content=\"width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no\" />" +
+            "<meta name='viewport' content='width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' />" +
             "</head>" +
-            "<body></body></html>";
+            "<body><h1 style='text-align:center;margin:10% auto;'>OftenPorter Servlet Bridge</h1></body></html>";
 }

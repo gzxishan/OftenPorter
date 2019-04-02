@@ -1,9 +1,18 @@
 package cn.xishan.oftenporter.servlet.render.htmlx;
 
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -25,10 +34,83 @@ public class HtmlxDoc
     private boolean willBreak = false;
     private boolean willCache = true;
 
-    public HtmlxDoc(Object document, PageType pageType)
+    private HtmlxHandle htmlxHandle;
+    private String path;
+
+    public HtmlxDoc(HtmlxHandle htmlxHandle,String path, Object document, PageType pageType)
     {
+        this.htmlxHandle = htmlxHandle;
+        this.path=path;
         this.document = document;
         this.pageType = pageType;
+    }
+
+    /**
+     * 获取当前请求路径。
+     * @return
+     */
+    public String getPath()
+    {
+        return path;
+    }
+
+    /**
+     * 获得当前请求路径文件简单名。
+     * @return
+     */
+    public String getPathName(){
+        return OftenStrUtil.getNameFormPath(path);
+    }
+
+    /**
+     * 见{@linkplain #getRelativeHtml(String, String)},编码方式为{@linkplain Htmlx#otherwisePageEncoding()}。
+     *
+     * @return
+     */
+    public String getRelativeHtml(String path) throws IOException
+    {
+        return getRelativeHtml(path, htmlxHandle.getOtherwisePageEncoding());
+    }
+
+    /**
+     * 获取相对于{@linkplain Htmlx#baseDir()}的文件内容。
+     *
+     * @return
+     */
+    public String getRelativeHtml(String path, String encoding) throws IOException
+    {
+        ServletContext servletContext = htmlxHandle.getServletContext();
+        String filepath = servletContext.getRealPath(PackageUtil.getPathWithRelative(htmlxHandle.getBaseDir(),path));
+        if (OftenTool.isEmpty(filepath))
+        {
+            throw new FileNotFoundException("not found:" + path);
+        }
+        File file = new File(filepath);
+        String str = FileTool.getString(file, encoding);
+        return str;
+    }
+
+
+    /**
+     * 见{@linkplain #getRelativeHtmlDom(String, String)},编码方式为{@linkplain Htmlx#otherwisePageEncoding()}。
+     *
+     * @return
+     */
+    public Object getRelativeHtmlDom(String path) throws IOException
+    {
+        return getRelativeHtmlDom(path, htmlxHandle.getOtherwisePageEncoding());
+    }
+
+    /**
+     * 获取相对于{@linkplain Htmlx#baseDir()}的文件内容,返回类型同{@linkplain #getDocument()}。
+     *
+     * @return
+     */
+    public Object getRelativeHtmlDom(String path, String encoding) throws IOException
+    {
+        String html = getRelativeHtml(path, encoding);
+        Document document = Jsoup.parse(html);
+        return document;
     }
 
     public boolean willCache()
@@ -61,6 +143,10 @@ public class HtmlxDoc
         return pageType;
     }
 
+    /**
+     * 设置页面标题。
+     * @param title
+     */
     public void title(String title)
     {
         Document document = (Document) this.document;
@@ -100,6 +186,11 @@ public class HtmlxDoc
         return element == null ? null : element.text();
     }
 
+    /**
+     * 设置元素文本内容。
+     * @param selector
+     * @param text
+     */
     public void setText(String selector, String text)
     {
         Document document = (Document) this.document;
@@ -111,6 +202,10 @@ public class HtmlxDoc
         }
     }
 
+    /**
+     * 得到页面的标题
+     * @return
+     */
     public String title()
     {
         Document document = (Document) this.document;
