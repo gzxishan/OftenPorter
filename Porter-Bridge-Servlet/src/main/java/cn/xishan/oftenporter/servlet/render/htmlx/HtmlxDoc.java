@@ -22,7 +22,7 @@ public class HtmlxDoc
 {
     public enum PageType
     {
-        Normal, OtherwisePage, OthersizeHtml
+        Normal, OtherwisePage, OtherwiseHtml
     }
 
     private Object document;

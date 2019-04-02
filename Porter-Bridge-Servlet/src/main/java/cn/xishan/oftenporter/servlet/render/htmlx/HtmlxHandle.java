@@ -303,7 +303,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
                 {
                     InputStream in = new ByteArrayInputStream(otherwiseHtml);
                     document = Jsoup.parse(in, encoding, "");
-                    pageType = HtmlxDoc.PageType.OthersizeHtml;
+                    pageType = HtmlxDoc.PageType.OtherwiseHtml;
                 } else
                 {
                     InputStream in = new ByteArrayInputStream(otherwisePage);
