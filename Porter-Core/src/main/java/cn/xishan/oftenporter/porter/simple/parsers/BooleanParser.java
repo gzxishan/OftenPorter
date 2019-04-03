@@ -10,8 +10,10 @@ import cn.xishan.oftenporter.porter.core.base.OftenObject;
  */
 public class BooleanParser extends TypeParser
 {
+
     @Override
-    public ParseResult parse(OftenObject oftenObject, @NotNull String name, @NotNull Object value, @MayNull Object dealt)
+    public ParseResult parse(OftenObject oftenObject, @NotNull String name, @NotNull Object value,
+            @MayNull Object dealt)
     {
         ParseResult result;
         try
@@ -32,9 +34,4 @@ public class BooleanParser extends TypeParser
         return result;
     }
 
-    @Override
-    public ParseResult parseEmpty(OftenObject oftenObject, String name, Object dealt)
-    {
-        return new ParseResult(false);
-    }
 }
