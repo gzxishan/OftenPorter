@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 /**
  * <pre>
  *     支持以下形式的变量参数:
- *     1.in{'str1'[:'value1'],'str2[:value2]',...},表示其中一个值为有效值,其中单引号“'”和[:value]可选，表示最终结果会被转换成该值.
+ *     1.in{'str1':'value1','str2:'value2',...},表示其中一个值为有效值,其中单引号“'”和“:value”可选，表示最终结果会被转换成该值.
  *     2.-in表示in反面,其中[:value]将无效.
  *     3.[]表示数组，会转换成string数组;array表示json数组
  *     4.json表示json对象
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  *     7.date-time表示"yyyy-MM-dd HH:mm:ss""格式的日期
  *     8.date-month表示"yyyy-MM"格式的日期
  *     9.$reg:xxxx表示正则表达式
- *     10.bool[:defaultValue]表示boolean值，且当为false、0时、结果为false,当为空时为defaultValue（默认为false），其余为true
+ *     10.bool表示boolean值，且当为true、1、yes时、结果为true,其余为false
  *     11.int与long分别表示为int与long型
  *     12.float与double分别表示为float与double型
  *     13.括号支持转义字符：如"varName(\\(\\))[\\[\\]]"
@@ -40,15 +40,11 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     private static final Pattern PATTERN_OUTER = Pattern.compile("^(in|-in)\\{([\\s\\S]*)\\}$");
     private static final Pattern PATTERN_INNER = Pattern.compile("(('[^']*')|([^',]*))(:(('[^']*')|([^',]*)))?,?");
 
-    static interface StringDealt
+    interface StringDealt
     {
         ParseResult getValue(ITypeParser iTypeParser, Object value);
     }
 
-    static interface StringEmptyableDealt extends StringDealt
-    {
-        ParseResult getValueForEmpty(ITypeParser iTypeParser);
-    }
 
     public static class VarConfigDealt implements StringDealt
     {
@@ -128,7 +124,8 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
     }
 
     @Override
-    public ParseResult parse(OftenObject oftenObject,@NotNull String name, @NotNull Object value, StringDealt stringDealt)
+    public ParseResult parse(OftenObject oftenObject, @NotNull String name, @NotNull Object value,
+            StringDealt stringDealt)
     {
         ParseResult parseResult;
         if (stringDealt != null)
@@ -141,16 +138,6 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
         return parseResult;
     }
 
-    @Override
-    public ParseResult parseEmpty(OftenObject oftenObject, String name, StringDealt dealt)
-    {
-        if (dealt != null && dealt instanceof StringEmptyableDealt)
-        {
-            StringEmptyableDealt stringEmptyableDealt = (StringEmptyableDealt) dealt;
-            return stringEmptyableDealt.getValueForEmpty(this);
-        }
-        return null;
-    }
 
     @Override
     public StringDealt initFor(ITypeParserOption parserOption)
@@ -248,33 +235,20 @@ public class StringParser extends TypeParser<StringParser.StringDealt>
             };
         } else if (config.startsWith("bool"))
         {
-            int index = config.indexOf(":");
-            final boolean defaultValue = index != -1 && Boolean.parseBoolean(config.substring(index + 1));
-            stringDealt = new StringEmptyableDealt()
-            {
-                @Override
-                public ParseResult getValueForEmpty(ITypeParser iTypeParser)
+            stringDealt = (iTypeParser, value) -> {
+                ParseResult result;
+                try
                 {
-                    return new ParseResult(defaultValue);
-                }
-
-                @Override
-                public ParseResult getValue(ITypeParser iTypeParser, Object value)
-                {
-                    ParseResult result;
-                    try
+                    if (!(value instanceof Boolean))
                     {
-                        if (!(value instanceof Boolean))
-                        {
-                            value = !(value.equals("false") || value.equals("0"));
-                        }
-                        result = new ParseResult(value);
-                    } catch (Exception e)
-                    {
-                        result = ParserUtil.failed(iTypeParser, e.getMessage());
+                        value = value.equals("true") || value.equals("1")|| value.equals("yes");
                     }
-                    return result;
+                    result = new ParseResult(value);
+                } catch (Exception e)
+                {
+                    result = ParserUtil.failed(iTypeParser, e.getMessage());
                 }
+                return result;
             };
         } else if (config.startsWith("$reg:"))
         {
