@@ -197,8 +197,16 @@ public class JResponse
             Object result = getResult(jsonObject);
             Object extra = getExtra(jsonObject);
 
+            ResultCode resultCode = ResultCode.toResponseCode(code);
+
             JResponse jsonResponse = new JResponse();
-            jsonResponse.setCode(ResultCode.toResponseCode(code));
+            if (resultCode == null)
+            {
+                jsonResponse.setCode(code);
+            } else
+            {
+                jsonResponse.setCode(resultCode);
+            }
             jsonResponse.setDescription(desc);
             jsonResponse.setResult(result);
             jsonResponse.setExtra(extra);

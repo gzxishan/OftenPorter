@@ -119,6 +119,9 @@ public enum ResultCode
             case 4004:
                 responseCode = USER_FRIENDLY_ERROR;
                 break;
+            case -1:
+                responseCode = Other;
+                break;
             case -3:
                 responseCode = SERVER_EXCEPTION;
                 break;
@@ -156,8 +159,8 @@ public enum ResultCode
                 responseCode = REDIRECT;
                 break;
             default:
-                responseCode = Other;
-                break;
+                //throw new RuntimeException("unknown code:" + code);
+                responseCode = null;
         }
         return responseCode;
     }

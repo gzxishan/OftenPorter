@@ -399,7 +399,7 @@ public class HttpUtil
                 jResponse = new JResponse(ResultCode.SUCCESS);
             } else
             {
-                jResponse = new JResponse(ResultCode.toResponseCode(code));
+                jResponse = new JResponse(code);
                 jResponse.setDescription(response.message());
             }
         } catch (IOException e)

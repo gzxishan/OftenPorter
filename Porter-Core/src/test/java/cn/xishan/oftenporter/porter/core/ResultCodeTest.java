@@ -11,10 +11,10 @@ public class ResultCodeTest
     @Test
     public void testCode(){
         ResultCode code10=ResultCode.toResponseCode(10);
-        Assert.assertEquals(-1,code10.toCode());
+        Assert.assertEquals(null,code10);
 
         ResultCode code20=ResultCode.toResponseCode(20);
-        Assert.assertEquals(-1,code20.toCode());
-        Assert.assertEquals(-1,code10.toCode());
+        Assert.assertEquals(null,code20);
+        Assert.assertEquals(null,code10);
     }
 }

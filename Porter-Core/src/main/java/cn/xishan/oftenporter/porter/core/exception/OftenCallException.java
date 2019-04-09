@@ -33,7 +33,9 @@ public class OftenCallException extends RuntimeException
      */
     public OftenCallException(int code, String msg)
     {
-        this(ResultCode.toResponseCode(code), msg);
+        JResponse jResponse = new JResponse(code);
+        jResponse.setDescription(msg);
+        this.jResponse = jResponse;
     }
 
     /**
