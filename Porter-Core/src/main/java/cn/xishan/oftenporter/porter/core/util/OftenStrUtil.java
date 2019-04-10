@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import com.alibaba.fastjson.JSONArray;
 
 import java.io.UnsupportedEncodingException;
@@ -345,5 +346,40 @@ public class OftenStrUtil
         return builder.toString();
     }
 
+    /**
+     * 替换#{properName}变量。
+     *
+     * @param srcMap        待替换属性值的map
+     * @param propertiesMap 提供属性的map
+     */
+    public static void dealSharpProperties(Map srcMap, Map propertiesMap)
+    {
+        DealSharpProperties.dealSharpProperties(srcMap, propertiesMap);
+    }
+
+    /**
+     * 替换所有的#{propertyName},对于不存在的会被替换成空字符串。
+     *
+     * @param string
+     * @param properties
+     * @return
+     */
+    public static String replaceSharpProperties(String string, Map<String, ?> properties)
+    {
+        return DealSharpProperties.replaceSharpProperties(string, properties, "");
+    }
+
+    /**
+     * 替换所有的#{propertyName}.
+     *
+     * @param string
+     * @param properties
+     * @param forEmpty   如果不为null，则用于替换所有不存在的属性。
+     * @return
+     */
+    public static String replaceSharpProperties(String string, Map<String, ?> properties, String forEmpty)
+    {
+        return DealSharpProperties.replaceSharpProperties(string, properties, forEmpty);
+    }
 
 }

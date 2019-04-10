@@ -44,30 +44,41 @@ public class DealSharpProperties
     }
 
     /**
-     * 替换所有的#{propertyName}
+     * 替换所有的#{propertyName}.
      *
      * @param string
      * @param properties
+     * @param forEmpty   如果不为null，则用于替换所有不存在的属性。
      * @return
      */
-    public static String replaceSharpProperties(String string, Map<String, ?> properties)
+    public static String replaceSharpProperties(String string, Map<String, ?> properties, String forEmpty)
     {
         for (Map.Entry<String, ?> entry : properties.entrySet())
         {
             if (string.contains("#{" + entry.getKey() + "}"))
             {
                 String rs;
-                if (entry.getValue() instanceof Map || entry.getValue() instanceof Collection)
-                {
-                    rs = JSON.toJSONString(entry.getValue());
-                } else
+//                if (entry.getValue() instanceof Map || entry.getValue() instanceof Collection)
+//                {
+//                    rs = JSON.toJSONString(entry.getValue());
+//                } else
+//                {
+//                    rs = String.valueOf(entry.getValue());
+//                }
+                if (entry.getValue() instanceof CharSequence)
                 {
                     rs = String.valueOf(entry.getValue());
+                } else
+                {
+                    rs = JSON.toJSONString(entry.getValue());
                 }
                 string = string.replace("#{" + entry.getKey() + "}", rs);
             }
         }
-        string = string.replaceAll("#\\{[^{}]+\\}", "");//去掉未设置的
+        if (forEmpty != null)
+        {
+            string = string.replaceAll("#\\{[^{}]+\\}", forEmpty);//去掉未设置的
+        }
         return string;
     }
 

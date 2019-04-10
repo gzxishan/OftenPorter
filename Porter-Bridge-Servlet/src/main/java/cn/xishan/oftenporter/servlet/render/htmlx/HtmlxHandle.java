@@ -312,7 +312,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
                 }
                 lastModified = otherwiseLastmodified;
             }
-            HtmlxDoc htmlxDoc = new HtmlxDoc(this,rpath, document, pageType);
+            HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType);
 
             htmlxDoc.setCacheSeconds(cacheSeconds);
             htmlxDoc.setContentType(contentType);
@@ -353,8 +353,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
                     {
                         map = (Map) rs;
                     }
-                    htmlStr = DealSharpProperties.replaceSharpProperties(htmlStr, map);
-
+                    htmlStr = OftenStrUtil.replaceSharpProperties(htmlStr, map, "");
                 } else if (rs != null)
                 {
                     throw new RuntimeException("unknown return:" + rs);
