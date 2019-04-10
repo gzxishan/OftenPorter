@@ -15,13 +15,14 @@ public class PackageUtilTest
         Assert.assertEquals("java.util.Set", PackageUtil.getPackageWithRelative(clazz, "../util/Set", '.'));
         Assert.assertEquals("java", PackageUtil.getPackageWithRelative(clazz, "..", '.'));
 
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('.', clazz.getName(), false, "../util/Set", '.'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis/", null, "test.xml", '/'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "mybatis/", null, "test.xml", '/'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", null, "test.xml", '/'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "test.xml", '/'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '.'));
-        LogUtil.printErrPos(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('.', clazz.getName(), false, "../util/Set", '.'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "/mybatis/", null, "test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "mybatis/", null, "test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "/mybatis", null, "test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "/mybatis", true, "test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '.'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative('/', "/mybatis", true, "/test.xml", '/'));
+        LogUtil.printPosLn(PackageUtil.getPathWithRelative("/","./"));
     }
 
 }

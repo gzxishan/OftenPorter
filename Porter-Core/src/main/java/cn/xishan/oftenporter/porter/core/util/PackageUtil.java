@@ -190,7 +190,7 @@ public class PackageUtil
     /**
      * @param pathSep   path的路径分隔符号，如“.”，“/”
      * @param path      路径
-     * @param isPathDir path是否是目录，默认根据是否以pathSep结尾判断。
+     * @param isPathDir path是否是目录，默认根据是否有后缀名进行判断。
      * @param relative  相对路径，通过“/”分开，如“../util”。“../”表示上一级目录，“./”表示当前目录;如果以"/"开头，则结果为该路径。
      * @param separator 最终分隔字符
      * @return
@@ -208,7 +208,8 @@ public class PackageUtil
 
         if (isPathDir == null)
         {
-            if (path.endsWith(separatorStr))
+            int index = path.lastIndexOf(separatorStr);
+            if (path.indexOf('.', index + 1) == -1)
             {
                 isPathDir = true;
             } else
@@ -217,7 +218,7 @@ public class PackageUtil
             }
         }
 
-        if (path.endsWith(separatorStr))
+        if (path.endsWith(separatorStr)&&!path.equals(separatorStr))
         {
             path = path.substring(0, path.length() - 1);
         }
