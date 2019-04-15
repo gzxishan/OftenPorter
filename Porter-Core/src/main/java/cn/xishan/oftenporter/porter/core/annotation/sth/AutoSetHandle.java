@@ -67,7 +67,7 @@ public class AutoSetHandle
         {
             logger.debug("invoke @SetOk:{}", method);
             method.setAccessible(true);
-            DefaultArgumentsFactory.invokeWithArgs(obj, method, oftenObject, configData);
+            DefaultArgumentsFactory.invokeWithArgs(configData,obj, method, oftenObject, configData);
         }
     }
 
@@ -881,8 +881,8 @@ public class AutoSetHandle
             Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
             for (Method method : methods)
             {
-                dealMethodAutoSet(currentObject, currentObjectClass, method, configData);
-                dealMethodSetOk(currentObject, method);
+//                dealMethodAutoSetInvoke(currentObject, currentObjectClass, method, configData);
+                addSetOkMethod(currentObject, method);
             }
 
             if (porter == null && !PortUtil.isPorter(currentObjectClass))
@@ -990,45 +990,46 @@ public class AutoSetHandle
         }
     }
 
-    private void dealMethodAutoSet(Object currentObject, Class currentClass, Method method, IConfigData iConfigData)
-    {
-        AutoSet.Invoke invokeFun = AnnoUtil.getAnnotation(method, AutoSet.Invoke.class);
-        if (invokeFun == null)
-        {
-            return;
-        }
-        Parameter[] parameters = method.getParameters();
-        Object[] args = new Object[parameters.length];
-        try
-        {
-            for (int i = 0; i < parameters.length; i++)
-            {
-                Parameter parameter = parameters[i];
-                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
-                if (property != null)
-                {
-                    Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
-                    Object value = iConfigData.getValue(currentObject, method, realType, property);
-                    args[i] = value;
-                } else
-                {
-                    throw new InitException(
-                            "expected '@Property' for arg of index " + i + " for method '" + method + "'");
-                }
-            }
-            method.setAccessible(true);
-            method.invoke(currentObject, args);
-        } catch (InitException e)
-        {
-            throw e;
-        } catch (Exception e)
-        {
-            throw new InitException(e);
-        }
-    }
+//    private void dealMethodAutoSetInvoke(Object currentObject, Class currentClass, Method method,
+//            IConfigData iConfigData)
+//    {
+//        AutoSet.Invoke invokeFun = AnnoUtil.getAnnotation(method, AutoSet.Invoke.class);
+//        if (invokeFun == null)
+//        {
+//            return;
+//        }
+//        Parameter[] parameters = method.getParameters();
+//        Object[] args = new Object[parameters.length];
+//        try
+//        {
+//            for (int i = 0; i < parameters.length; i++)
+//            {
+//                Parameter parameter = parameters[i];
+//                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
+//                if (property != null)
+//                {
+//                    Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
+//                    Object value = iConfigData.getValue(currentObject, method, realType, property);
+//                    args[i] = value;
+//                } else
+//                {
+//                    throw new InitException(
+//                            "expected '@Property' for arg of index " + i + " for method '" + method + "'");
+//                }
+//            }
+//            method.setAccessible(true);
+//            method.invoke(currentObject, args);
+//        } catch (InitException e)
+//        {
+//            throw e;
+//        } catch (Exception e)
+//        {
+//            throw new InitException(e);
+//        }
+//    }
 
 
-    private void dealMethodSetOk(Object currentObject, Method method)
+    private void addSetOkMethod(Object currentObject, Method method)
     {
         SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
         if (setOk != null)
@@ -1141,7 +1142,7 @@ public class AutoSetHandle
         String typeName = f.getType().getName();
         if (typeName.equals(IAutoVarGetter.class.getName()))
         {
-            sysset=autoVarGetter;
+            sysset = autoVarGetter;
         } else if (typeName.equals(IConfigData.class.getName()))
         {
             sysset = iConfigData;

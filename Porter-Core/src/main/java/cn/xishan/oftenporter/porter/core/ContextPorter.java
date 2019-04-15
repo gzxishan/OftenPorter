@@ -142,12 +142,13 @@ public class ContextPorter implements IOtherStartDestroy
     private Map<Class<?>, CheckPassable> checkPassableForCF;
     private List<OtherStartDestroy> otherStartList = new ArrayList<>();
     private List<OtherStartDestroy> otherDestroyList = new ArrayList<>();
-
+    private IConfigData configData;
 
     //private SthDeal sthDeal;
 
-    public ContextPorter()
+    public ContextPorter(IConfigData configData)
     {
+        this.configData = configData;
         init();
     }
 
@@ -468,7 +469,7 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    public void start(OftenObject oftenObject, IConfigData iConfigData)
+    public void start(OftenObject oftenObject)
     {
         OtherStartDestroy[] otherStartDestroys = otherStartList.toArray(new OtherStartDestroy[0]);
         Arrays.sort(otherStartDestroys);
@@ -477,8 +478,8 @@ public class ContextPorter implements IOtherStartDestroy
         {
             try
             {
-                DefaultArgumentsFactory
-                        .invokeWithArgs(otherStartDestroy.object, otherStartDestroy.method, oftenObject, iConfigData);
+                DefaultArgumentsFactory.invokeWithArgs(configData, otherStartDestroy.object,
+                        otherStartDestroy.method, oftenObject, configData);
             } catch (Exception e)
             {
                 if (LOGGER.isErrorEnabled())
@@ -492,7 +493,7 @@ public class ContextPorter implements IOtherStartDestroy
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().start(oftenObject, iConfigData);
+            iterator.next().start(oftenObject, configData);
         }
     }
 
@@ -510,8 +511,7 @@ public class ContextPorter implements IOtherStartDestroy
             try
             {
                 Method method = otherStartDestroy.method;
-                method.setAccessible(true);
-                method.invoke(otherStartDestroy.object);
+                DefaultArgumentsFactory.invokeWithArgs(configData, otherStartDestroy.object, method, configData);
             } catch (Exception e)
             {
                 if (LOGGER.isErrorEnabled())

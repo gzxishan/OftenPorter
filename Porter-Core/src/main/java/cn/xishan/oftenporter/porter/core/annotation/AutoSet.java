@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -30,7 +31,6 @@ import java.lang.annotation.*;
  *     2.对于不为null的成员，会忽略变量的设置，但会进行递归扫描。
  *     3.若被设置的变量不为null，则会忽略变量获取、递归设置，但会执行{@linkplain AutoSetDealt}、{@linkplain SetOk}、{@linkplain #notNullPut()}。
  *     4.含有@{@linkplain Property}的变量也会被设置。
- *     5.注解在函数(public)上用{@linkplain Invoke，形参变量需要用@{@linkplain Property}来获取配置,且含有该注解的类变量先被设置。
  * </pre>
  * <hr>
  * <p>
@@ -147,23 +147,23 @@ import java.lang.annotation.*;
 public @interface AutoSet
 {
 
-    /**
-     * 自动调用函数，具有继承性。
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
-    @Documented
-    @Inherited
-    @interface Invoke
-    {
-
-    }
+//    /**
+//     * 自动调用函数，具有继承性,在{@linkplain SetOk}之前调用。
+//     */
+//    @Retention(RetentionPolicy.RUNTIME)
+//    @Target({ElementType.METHOD})
+//    @Documented
+//    @Inherited
+//    @interface Invoke
+//    {
+//
+//    }
 
     /**
      * <pre>
-     * 注解在函数上(public,可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
+     * 注解在函数上、无继承性(public,可以是静态函数，没有参数列表)，当对象的所有内部待设置的变量设置完成后调用被注解了的函数。
      * <strong>注意：</strong>1.只有对象里含有{@linkplain AutoSet}注解的才会触发注解了。
-     *        2.函数可选的形参:WObject,{@linkplain IConfigData}。
+     *        2.函数可选的形参:{@linkplain OftenObject},{@linkplain IConfigData}。
      *        3.在{@linkplain PortStart PortStart}之前调用。
      * </pre>
      */

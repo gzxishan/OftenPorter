@@ -32,12 +32,6 @@ public class StartPorter
         Assert.assertEquals("P1",bridgeName);
     }
 
-    @AutoSet.Invoke
-    public void testAutoSet(@Property("bridgeName") String bridgeName)
-    {
-        this.bridgeName=bridgeName;
-    }
-
     @PortIn
     public Object startInvoke()
     {
@@ -45,8 +39,9 @@ public class StartPorter
     }
 
     @PortStart
-    public void onStart(OftenObject oftenObject)
+    public void onStart(OftenObject oftenObject,@Property("bridgeName") String bridgeName)
     {
+        this.bridgeName=bridgeName;
         PorterSync porterSync = oftenObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
         LOGGER.debug("[{},{},{}] on start!", getClass(), oftenObject, porterSync.invokeWithNameValues(null));
     }

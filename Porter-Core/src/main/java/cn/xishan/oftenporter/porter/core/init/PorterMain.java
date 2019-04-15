@@ -353,15 +353,12 @@ public final class PorterMain
         PorterConf porterConf = bridge.porterConf();
 
         LOGGER.debug("deal #{propName}...");
-        IConfigData configData = porterConf.getConfigData();
-        DealSharpProperties.dealProperties(configData);
+        DealSharpProperties.dealProperties(porterConf.getConfigData());
         LOGGER.debug("deal #{propName} finished");
 
-        ContextPorter contextPorter = new ContextPorter();
+        ContextPorter contextPorter = new ContextPorter(porterConf.getConfigData());
         contextPorter.setClassLoader(porterConf.getClassLoader());
-
-        IConfigData iConfigData = porterConf.getConfigData();
-        porterConf.addContextAutoSet(IConfigData.class, iConfigData);
+        porterConf.addContextAutoSet(IConfigData.class, porterConf.getConfigData());
 
         if (porterConf.isEnableAnnotationConfigable())
         {
@@ -391,9 +388,9 @@ public final class PorterMain
             LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
         }
 
-        AutoSetHandle autoSetHandle = AutoSetHandle
-                .newInstance(iConfigData, argumentsFactory, innerContextBridge, getBridgeLinker(), porterData,
-                        autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
+        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
+                innerContextBridge, getBridgeLinker(), porterData,
+                autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
         autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
@@ -493,7 +490,7 @@ public final class PorterMain
 
             oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
-            contextPorter.start(oftenObject, iConfigData);
+            contextPorter.start(oftenObject);
             AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(oftenObject);
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(oftenObject);
             oftenObject.release();

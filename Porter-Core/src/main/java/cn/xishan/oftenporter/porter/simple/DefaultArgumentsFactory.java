@@ -2,10 +2,8 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
-import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
-import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
-import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
-import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
+import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
@@ -25,6 +23,7 @@ import java.util.*;
 
 /**
  * 支持参数：{@linkplain FunParam}
+ *
  * @author Created by https://github.com/CLovinr on 2018/5/12.
  */
 public class DefaultArgumentsFactory implements IArgumentsFactory
@@ -343,24 +342,45 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     }
 
 
-    public static Object invokeWithArgs(Object object, Method method, Object... optionArgs) throws Exception
+    /**
+     * 形参支持{@linkplain Property}注解。
+     * @param configData
+     * @param object
+     * @param method
+     * @param optionArgs
+     * @return
+     * @throws Exception
+     */
+    public static Object invokeWithArgs(IConfigData configData, Object object, Method method,
+            Object... optionArgs) throws Exception
     {
-        int count = method.getParameterCount();
-        Object[] args = new Object[count];
-        for (int i = 0; i < args.length; i++)
+        Class currentClass = object == null ? method.getDeclaringClass() : ProxyUtil.unwrapProxyForGeneric(object);
+
+        Parameter[] parameters = method.getParameters();
+        Object[] args = new Object[parameters.length];
+
+        for (int i = 0; i < parameters.length; i++)
         {
-            Class type = AnnoUtil.Advance.getRealTypeOfMethodParameter(
-                    object == null ? method.getDeclaringClass() : ProxyUtil.unwrapProxyForGeneric(object), method, i);
-            Object obj = null;
-            for (Object o : optionArgs)
+            Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
+            Parameter parameter = parameters[i];
+            Property property = AnnoUtil.getAnnotation(parameter, Property.class);
+            if (property != null)
             {
-                if (OftenTool.isAssignable(o, type))
+                Object value = configData.getValue(object, method, realType, property);
+                args[i] = value;
+            } else
+            {
+                Object obj = null;
+                for (Object o : optionArgs)
                 {
-                    obj = o;
-                    break;
+                    if (OftenTool.isAssignable(o, realType))
+                    {
+                        obj = o;
+                        break;
+                    }
                 }
+                args[i] = obj;
             }
-            args[i] = obj;
         }
         method.setAccessible(true);
         return method.invoke(object, args);

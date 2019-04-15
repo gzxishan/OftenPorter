@@ -177,7 +177,7 @@ public final class Porter
         this.typeParserStore = autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
-        this.contextInfo=autoSetHandle.getOftenContextInfo();
+        this.contextInfo = autoSetHandle.getOftenContextInfo();
         this.wholeClassCheckPassableGetter = wholeClassCheckPassableGetter;
     }
 
@@ -458,7 +458,8 @@ public final class Porter
             {
                 PorterOfFun porterOfFun = starts[i].getPorterOfFun();
                 DefaultArgumentsFactory
-                        .invokeWithArgs(porterOfFun.getObject(), porterOfFun.getMethod(), oftenObject, iConfigData);
+                        .invokeWithArgs(iConfigData, porterOfFun.getObject(), porterOfFun.getMethod(), oftenObject,
+                                iConfigData);
             } catch (Exception e)
             {
                 if (LOGGER.isWarnEnabled())
