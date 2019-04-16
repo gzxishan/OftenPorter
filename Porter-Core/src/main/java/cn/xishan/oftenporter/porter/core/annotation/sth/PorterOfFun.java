@@ -56,7 +56,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     OftenEntities oftenEntities;
     Porter porter;
     private IArgsHandle argsHandle;
-    private boolean hasDirectHandleSupport=false;
+    private boolean hasDirectHandleSupport = false;
 
 
     private AspectOperationOfPortIn.Handle[] handles;
@@ -179,9 +179,11 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      */
     public final Object invokeByHandleArgs(OftenObject oftenObject, Object... args) throws Throwable
     {
-        if(hasDirectHandleSupport){
-            return invokeByHandleArgsMayTriggerAspectHandle(oftenObject,args);
-        }else{
+        if (hasDirectHandleSupport)
+        {
+            return invokeByHandleArgsMayTriggerAspectHandle(oftenObject, args);
+        } else
+        {
             Method javaMethod = getMethod();
             IArgsHandle argsHandle = this.argsHandle;
             Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
@@ -202,7 +204,6 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             Object... args) throws Throwable
     {
         Object rs = null;
-        Throwable err = null;
         try
         {
             AspectHandleOfPortInUtil
@@ -216,11 +217,11 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             return rs;
         } catch (Throwable e)
         {
-            err = e;
             throw e;
         } finally
         {
-            AspectHandleOfPortInUtil.doHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, this, rs, err, true);
+            AspectHandleOfPortInUtil
+                    .doHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, this, rs, null, true);
         }
 
     }
@@ -337,8 +338,9 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         {
             for (AspectOperationOfPortIn.Handle handle : handles)
             {
-                if(handle.supportInvokeByHandleArgs()){
-                    hasDirectHandleSupport=true;
+                if (handle.supportInvokeByHandleArgs())
+                {
+                    hasDirectHandleSupport = true;
                 }
                 handle.onStart(oftenObject);
             }
