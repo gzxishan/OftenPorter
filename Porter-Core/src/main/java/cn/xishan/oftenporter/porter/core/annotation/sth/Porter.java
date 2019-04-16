@@ -457,9 +457,8 @@ public final class Porter
             try
             {
                 PorterOfFun porterOfFun = starts[i].getPorterOfFun();
-                DefaultArgumentsFactory
-                        .invokeWithArgs(iConfigData, porterOfFun.getObject(), porterOfFun.getMethod(), oftenObject,
-                                iConfigData);
+                DefaultArgumentsFactory.invokeWithArgs(iConfigData, porterOfFun.getObject(),
+                        porterOfFun.getMethod(), oftenObject, iConfigData);
             } catch (Exception e)
             {
                 if (LOGGER.isWarnEnabled())

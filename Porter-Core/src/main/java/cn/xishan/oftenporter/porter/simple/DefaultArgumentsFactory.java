@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.annotation.deal.*;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
@@ -344,6 +345,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
     /**
      * 形参支持{@linkplain Property}注解。
+     *
      * @param configData
      * @param object
      * @param method
@@ -351,7 +353,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
      * @return
      * @throws Exception
      */
-    public static Object invokeWithArgs(IConfigData configData, Object object, Method method,
+    public static Object invokeWithArgs(@MayNull IConfigData configData, Object object, Method method,
             Object... optionArgs) throws Exception
     {
         Class currentClass = object == null ? method.getDeclaringClass() : ProxyUtil.unwrapProxyForGeneric(object);
@@ -362,25 +364,28 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         for (int i = 0; i < parameters.length; i++)
         {
             Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
-            Parameter parameter = parameters[i];
-            Property property = AnnoUtil.getAnnotation(parameter, Property.class);
-            if (property != null)
+            if (configData != null)
             {
-                Object value = configData.getValue(object, method, realType, property);
-                args[i] = value;
-            } else
-            {
-                Object obj = null;
-                for (Object o : optionArgs)
+                Parameter parameter = parameters[i];
+                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
+                if (property != null)
                 {
-                    if (OftenTool.isAssignable(o, realType))
-                    {
-                        obj = o;
-                        break;
-                    }
+                    Object value = configData.getValue(object, method, realType, property);
+                    args[i] = value;
+                    continue;//为property参数，继续处理下一个
                 }
-                args[i] = obj;
             }
+
+            Object obj = null;
+            for (Object o : optionArgs)
+            {
+                if (OftenTool.isAssignable(o, realType))
+                {
+                    obj = o;
+                    break;
+                }
+            }
+            args[i] = obj;
         }
         method.setAccessible(true);
         return method.invoke(object, args);
