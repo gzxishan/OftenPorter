@@ -17,13 +17,24 @@ public class ProgrammaticServer extends Endpoint
 
     public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value)
     {
+        doInvoke(session, type, isLast, value, false);
+    }
+
+    public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value, boolean isFastInvoke)
+    {
         try
         {
             BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
 
             OftenObject oftenObject = bridgeData.oftenObject;
-            PorterOfFun porterOfFun = bridgeData.porterOfFun;
-            porterOfFun.invokeByHandleArgs(oftenObject,WS.newWS(type, session, isLast, value));
+            if (isFastInvoke)
+            {
+                PorterOfFun porterOfFun = bridgeData.porterOfFun;
+                porterOfFun.invokeByHandleArgs(oftenObject, WS.newWS(type, session, isLast, value));
+            } else
+            {
+                oftenObject.invokePorter(null, null, WS.newWS(type, session, isLast, value));
+            }
         } catch (Throwable e)
         {
             throw new OftenCallException(OftenTool.getCause(e));
@@ -37,7 +48,7 @@ public class ProgrammaticServer extends Endpoint
         WebSocket webSocket = bridgeData.webSocket;
 
         WSConfig wsConfig = bridgeData.wsConfig;
-        doInvoke(session, WebSocket.Type.ON_OPEN, true, null);
+        doInvoke(session, WebSocket.Type.ON_OPEN, true, null, false);
 
         int maxBinaryBuffer = wsConfig.getMaxBinaryBuffer();
         if (maxBinaryBuffer > 0)
@@ -110,13 +121,13 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onClose(Session session, CloseReason closeReason)
     {
-        doInvoke(session, WebSocket.Type.ON_CLOSE, true, closeReason);
+        doInvoke(session, WebSocket.Type.ON_CLOSE, true, closeReason, false);
     }
 
     @Override
     public void onError(Session session, Throwable thr)
     {
-        doInvoke(session, WebSocket.Type.ON_ERROR, true, thr);
+        doInvoke(session, WebSocket.Type.ON_ERROR, true, thr, false);
     }
 
 }

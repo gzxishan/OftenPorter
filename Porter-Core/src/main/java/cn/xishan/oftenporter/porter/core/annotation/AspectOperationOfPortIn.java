@@ -69,13 +69,17 @@ public @interface AspectOperationOfPortIn
         @Override
         public void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
         }
 
         @Override
         public void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
         }
 
         /**
@@ -89,7 +93,9 @@ public @interface AspectOperationOfPortIn
         @Override
         public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
-            LOGGER.debug("default invoke.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
             return null;
         }
 
@@ -106,13 +112,17 @@ public @interface AspectOperationOfPortIn
         @Override
         public void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
         }
 
         @Override
         public void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
         }
 
         @Override

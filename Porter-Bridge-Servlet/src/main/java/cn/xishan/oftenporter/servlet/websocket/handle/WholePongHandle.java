@@ -21,6 +21,6 @@ public class WholePongHandle extends BaseHandle implements MessageHandler.Whole<
     @Override
     public void onMessage(PongMessage message)
     {
-        programmaticServer.doInvoke(session, WebSocket.Type.ON_PONG,true,message);
+        programmaticServer.doInvoke(session, WebSocket.Type.ON_PONG,true,message,true);
     }
 }

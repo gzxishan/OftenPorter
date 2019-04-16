@@ -262,7 +262,8 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
 
     /**
-     * 另见{@linkplain FunParam#toJSON(Object...)} .
+     * 另见{@linkplain FunParam#toJSON(Object...)} ,
+     * {@linkplain #innerRequest(PortMethod, String, String, Map, BridgeCallback, boolean)}.
      */
     public <T> T invokePorter(PortMethod method, String funTied, Object... objects)
     {
@@ -270,13 +271,18 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     }
 
     /**
-     * 另见{@linkplain FunParam#toJSON(Object...)}.
+     * 另见{@linkplain FunParam#toJSON(Object...)},
+     * {@linkplain #innerRequest(PortMethod, String, String, Map, BridgeCallback, boolean)}.
      */
     public <T> T invokePorter(PortMethod method, String classTied, String funTied, Object... objects)
     {
         return invokePorter(method, classTied, funTied, FunParam.toJSON(objects));
     }
 
+    /**
+     * 另见{@linkplain FunParam#toJSON(Object...)},
+     * {@linkplain #innerRequest(PortMethod, String, String, Map, BridgeCallback, boolean)}.
+     */
     public <T> T invokePorter(PortMethod method, String classTied, String funTied, Map<String, Object> params)
     {
         Object[] temp = new Object[1];
@@ -299,8 +305,8 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     }
 
     /**
-     * @param method
-     * @param funTied
+     * @param method              为null、等于当前的
+     * @param funTied             为null、等于当前的
      * @param params
      * @param callback
      * @param throwWCallException 是否在返回码不为成功时抛出异常。
@@ -310,6 +316,10 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
             boolean throwWCallException)
     {
         UrlDecoder.Result result = url();
+        if (method == null)
+        {
+            method = getRequest().getMethod();
+        }
 
         StringBuilder builder = new StringBuilder();
         builder.append('/').append(result.contextName()).append('/');
@@ -321,7 +331,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
             builder.append(result.classTied());
         }
         builder.append('/');
-        builder.append(funTied == null ? "" : funTied);
+        builder.append(funTied == null ? result.funTied() : funTied);
 
         BridgeRequest request = BridgeRequest.withNewPath(this, builder.toString(), method, getRequest(), true);
         request.addParamAll(params);

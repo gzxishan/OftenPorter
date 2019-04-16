@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSocket>
 {
+    private static final String TAG = WSClientHandle.class.getName();
     private static final Logger LOGGER = LoggerFactory.getLogger(WSClientHandle.class);
     private static AtomicInteger count = new AtomicInteger();
 
@@ -43,20 +44,31 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
         private ScheduledFuture firstStartCheckFuture;
 
+        private Object invoke(OftenObject oftenObject, boolean isFastInvoke) throws Exception
+        {
+            if (isFastInvoke)
+            {
+                return porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+            } else
+            {
+                return oftenObject.invokePorter(null, null, wsClient);
+            }
+        }
+
         void start(OftenObject oftenObject)
         {
-
             try
             {
                 this.oftenObject = oftenObject;
                 this.wsClient.set(ClientWebSocket.Type.ON_CONFIG, null);
-                WSClientConfig wsClientConfig = (WSClientConfig) porterOfFun
-                        .invokeByHandleArgs(oftenObject, wsClient);
+                oftenObject.putRequestData(TAG, true);
+
+                WSClientConfig wsClientConfig = (WSClientConfig) invoke(oftenObject, true);
                 this.wsClientConfig = wsClientConfig;
 
                 scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r -> {
                     Thread thread = new Thread(r);
-                    thread.setName("porter-bridge-http-thread-"+count.getAndIncrement());
+                    thread.setName("porter-bridge-http-thread-" + count.getAndIncrement());
                     thread.setDaemon(true);
                     return thread;
                 });
@@ -161,7 +173,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                 _connect();
             } catch (Throwable e)
             {
-                e= OftenTool.getCause(e);
+                e = OftenTool.getCause(e);
                 LOGGER.error(e.getMessage(), e);
             }
         }
@@ -210,7 +222,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_OPEN, null);
-                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+                        Object obj = invoke(oftenObject, false);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -224,7 +236,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_MESSAGE, message);
-                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+                        Object obj = invoke(oftenObject, false);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -238,7 +250,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_BINARY_BYTE_BUFFER, bytes);
-                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+                        Object obj = invoke(oftenObject, false);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -254,7 +266,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     {
                         ByteBuffer byteBuffer = f.getPayloadData();
                         wsClient.set(ClientWebSocket.Type.ON_PONG, byteBuffer);
-                        Object obj = porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+                        Object obj = invoke(oftenObject, true);
                         maySend(obj);
                     } catch (Exception e)
                     {
@@ -269,7 +281,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     try
                     {
                         wsClient.set(ClientWebSocket.Type.ON_CLOSE, new ClientCloseReason(code, reason));
-                        porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+                        invoke(oftenObject, false);
                     } catch (Exception e)
                     {
                         LOGGER.debug(e.getMessage(), e);
@@ -305,9 +317,10 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             webSocketClient.setEnablePing(wsClientConfig.enablePing);
             LOGGER.debug("connect to WebSocket server...:{}", wsUrl);
             webSocketClient.connectBlocking();
-            if(firstStartCheckFuture!=null){
+            if (firstStartCheckFuture != null)
+            {
                 firstStartCheckFuture.cancel(false);
-                firstStartCheckFuture=null;
+                firstStartCheckFuture = null;
             }
         }
 
@@ -369,6 +382,10 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
     @Override
     public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
+        if (oftenObject.getRequestData(TAG) != null)
+        {
+            return porterOfFun.invokeByHandleArgs(oftenObject);
+        }
         Handle handle = new Handle();
         handle.start(oftenObject);
         handleSet.add(handle);

@@ -102,7 +102,9 @@ public @interface AspectOperationOfNormal
                 Invoker invoker,
                 Object[] args, boolean hasInvoked, Object lastReturn) throws Exception
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
             return false;
         }
 
@@ -111,7 +113,9 @@ public @interface AspectOperationOfNormal
                 Invoker invoker,
                 Object[] args, Object lastReturn) throws Throwable
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
             return invoker.invoke(args);
         }
 
@@ -119,7 +123,9 @@ public @interface AspectOperationOfNormal
         public Object afterInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Object lastReturn) throws Exception
         {
-            LOGGER.debug("not Override.");
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
             return lastReturn;
         }
 
@@ -127,7 +133,9 @@ public @interface AspectOperationOfNormal
         public void onException(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
                 Invoker invoker, Object[] args, Throwable throwable) throws Throwable
         {
-
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("not Override:url={}",oftenObject.url());
+            }
         }
 
     }

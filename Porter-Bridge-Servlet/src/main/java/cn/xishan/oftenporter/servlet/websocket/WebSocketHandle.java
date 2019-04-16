@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSocket>
 {
+    private static final String TAG = WebSocketHandle.class.getName();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WSConfig wsConfig = new WSConfig();
     private WebSocket webSocket;
@@ -106,30 +107,37 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     @Override
     public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
-        if (webSocket.needConnectingState())
+        if (oftenObject.getRequestData(TAG) != null)
         {
-            WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
-                try
-                {
-                    if (will)
-                    {
-                        doConnect(oftenObject, porterOfFun);
-                    } else
-                    {
-                        oftenObject.getResponse().close();
-                    }
-                } catch (Exception e)
-                {
-                    LOGGER.debug(e.getMessage(), e);
-                }
-
-            });
-            porterOfFun.invokeByHandleArgs(oftenObject, ws);
+            return porterOfFun.invokeByHandleArgs(oftenObject);
         } else
         {
-            doConnect(oftenObject, porterOfFun);
+            oftenObject.putRequestData(TAG, true);
+            if (webSocket.needConnectingState())
+            {
+                WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
+                    try
+                    {
+                        if (will)
+                        {
+                            doConnect(oftenObject, porterOfFun);
+                        } else
+                        {
+                            oftenObject.getResponse().close();
+                        }
+                    } catch (Exception e)
+                    {
+                        LOGGER.debug(e.getMessage(), e);
+                    }
+
+                });
+                porterOfFun.invokeByHandleArgs(oftenObject, ws);
+            } else
+            {
+                doConnect(oftenObject, porterOfFun);
+            }
+            return null;
         }
-        return null;
     }
 
     private void doConnect(OftenObject oftenObject, PorterOfFun porterOfFun) throws ServletException, IOException
