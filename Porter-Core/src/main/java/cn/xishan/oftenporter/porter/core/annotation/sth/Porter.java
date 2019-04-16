@@ -443,12 +443,31 @@ public final class Porter
         {
             started = true;
         }
+
+        MixinListener mixinListener = null;
+        if(getObj() instanceof MixinListener){
+            mixinListener= (MixinListener) getObj();
+        }
+        List<Porter> mixinList = null;
+        if(mixinListener!=null){
+            mixinList=new ArrayList<>();
+            if(mixins!=null){
+                OftenTool.addAll(mixinList,mixins);
+            }
+        }
+
+        if(mixinListener!=null){
+            mixinListener.beforeStartOfMixin(mixinList);
+        }
         if (mixins != null)
         {
             for (Porter porter : mixins)
             {
                 porter.start(oftenObject, iConfigData, true);
             }
+        }
+        if(mixinListener!=null){
+            mixinListener.afterStartOfMixin(mixinList);
         }
         _PortStart[] starts = getStarts();
         oftenObject.pushClassTied(getPortIn().getTiedNames()[0]);
@@ -647,5 +666,11 @@ public final class Porter
             }
             porter.getMixinToThatCouldSet(map);
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return super.toString()+"->"+getObj();
     }
 }

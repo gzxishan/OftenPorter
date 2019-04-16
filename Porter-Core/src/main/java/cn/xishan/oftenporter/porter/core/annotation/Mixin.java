@@ -1,10 +1,12 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.advanced.MixinListener;
+
 import java.lang.annotation.*;
 
 /**
  * <pre>
- * 只对接口类有效，用于混入其他接口。另见{@linkplain MixinTo}
+ * 只对接口类有效，用于混入其他接口。另见{@linkplain MixinTo},{@linkplain MixinListener}
  * 1.当注解在类上时，表示把对应接口类的所有接口方法混入，且当前被注解的类的接口方法优先、被混入的接口的类绑定名为当前类绑定名。
  * 2.混入的接口类本身可以混入其他接口类。（递归扫描）
  * 3.被混入的接口如果没有{@linkplain MixinOnly#override()}=true,则override为false。

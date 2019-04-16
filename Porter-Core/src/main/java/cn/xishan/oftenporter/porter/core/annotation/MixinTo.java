@@ -1,10 +1,12 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.advanced.MixinListener;
+
 import java.lang.annotation.*;
 
 /**
  * <pre>
- *  只对接口类有效，用于混入某接口到其他接口类中。另见{@linkplain Mixin}
+ *  只对接口类有效，用于混入某接口到其他接口类中。另见{@linkplain Mixin},{@linkplain MixinListener}
  * </pre>
  *
  * @author Created by https://github.com/CLovinr on 2018/4/6.

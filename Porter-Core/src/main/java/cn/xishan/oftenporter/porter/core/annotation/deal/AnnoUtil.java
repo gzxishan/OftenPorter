@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.core.annotation.deal;
 
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -575,6 +576,18 @@ public class AnnoUtil
         A a = NoCache.getAnnotation(annotations, annotationClass);
         a = advancedAnnotation.onGotAnnotation(a);
         return cacheKey == null ? a : cacheKey.setCache(a);
+    }
+
+    /**
+     * 获取类上的注解。
+     * @param object 用于获取类。
+     * @param annotationClass
+     * @param <A>
+     * @return
+     */
+    public static <A extends Annotation> A getAnnotation(Object object, Class<A> annotationClass)
+    {
+        return getAnnotation(PortUtil.getRealClass(object), annotationClass);
     }
 
     public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
