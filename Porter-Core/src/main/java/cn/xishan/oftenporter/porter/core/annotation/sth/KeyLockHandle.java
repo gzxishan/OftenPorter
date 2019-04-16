@@ -267,4 +267,9 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
         }
     }
 
+    @Override
+    public boolean supportInvokeByHandleArgs()
+    {
+        return true;
+    }
 }

@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSocket>
 {
-    private static final String TAG = WebSocketHandle.class.getName();
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandle.class);
     private WSConfig wsConfig = new WSConfig();
     private WebSocket webSocket;
@@ -40,7 +39,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
 
     @AutoSet.SetOk
-    public void setOk(OftenObject oftenObject) throws Exception
+    public void setOk(OftenObject oftenObject) throws Throwable
     {
         initWithServerContainer(oftenObject, thePorterOfFun);
     }
@@ -64,7 +63,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         return true;
     }
 
-    private void initWithServerContainer(OftenObject oftenObject, PorterOfFun fun) throws Exception
+    private void initWithServerContainer(OftenObject oftenObject, PorterOfFun fun) throws Throwable
     {
         _PortIn funIn = fun.getMethodPortIn();
         if (funIn.getMethods().length != 1 || funIn.getMethods()[0] != PortMethod.GET)
@@ -105,39 +104,32 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
 
     @Override
-    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
     {
-        if (oftenObject.getRequestData(TAG) != null)
+        if (webSocket.needConnectingState())
         {
-            return porterOfFun.invokeByHandleArgs(oftenObject);
+            WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
+                try
+                {
+                    if (will)
+                    {
+                        doConnect(oftenObject, porterOfFun);
+                    } else
+                    {
+                        oftenObject.getResponse().close();
+                    }
+                } catch (Exception e)
+                {
+                    LOGGER.debug(e.getMessage(), e);
+                }
+
+            });
+            porterOfFun.invokeByHandleArgs(oftenObject, ws);
         } else
         {
-            oftenObject.putRequestData(TAG, true);
-            if (webSocket.needConnectingState())
-            {
-                WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
-                    try
-                    {
-                        if (will)
-                        {
-                            doConnect(oftenObject, porterOfFun);
-                        } else
-                        {
-                            oftenObject.getResponse().close();
-                        }
-                    } catch (Exception e)
-                    {
-                        LOGGER.debug(e.getMessage(), e);
-                    }
-
-                });
-                porterOfFun.invokeByHandleArgs(oftenObject, ws);
-            } else
-            {
-                doConnect(oftenObject, porterOfFun);
-            }
-            return null;
+            doConnect(oftenObject, porterOfFun);
         }
+        return null;
     }
 
     private void doConnect(OftenObject oftenObject, PorterOfFun porterOfFun) throws ServletException, IOException

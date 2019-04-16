@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation;
 
+import cn.xishan.oftenporter.porter.core.AspectHandleOfPortInUtil;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -69,21 +70,24 @@ public @interface AspectOperationOfPortIn
         @Override
         public void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
-            if(LOGGER.isDebugEnabled()){
-                LOGGER.debug("not Override:url={}",oftenObject.url());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("not Override:url={}", oftenObject.url());
             }
         }
 
         @Override
         public void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun)
         {
-            if(LOGGER.isDebugEnabled()){
-                LOGGER.debug("not Override:url={}",oftenObject.url());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("not Override:url={}", oftenObject.url());
             }
         }
 
         /**
          * 实际未调用对应的java函数、直接返回null。
+         *
          * @param oftenObject
          * @param porterOfFun
          * @param lastReturn  上一个处理返回的对象。
@@ -93,14 +97,16 @@ public @interface AspectOperationOfPortIn
         @Override
         public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
         {
-            if(LOGGER.isDebugEnabled()){
-                LOGGER.debug("not Override:url={}",oftenObject.url());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("not Override:url={}", oftenObject.url());
             }
             return null;
         }
 
         /**
          * 是否需要调用{@linkplain #invoke(OftenObject, PorterOfFun, Object)}。
+         *
          * @param oftenObject
          * @param porterOfFun
          * @param lastReturn
@@ -112,16 +118,18 @@ public @interface AspectOperationOfPortIn
         @Override
         public void afterInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
         {
-            if(LOGGER.isDebugEnabled()){
-                LOGGER.debug("not Override:url={}",oftenObject.url());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("not Override:url={}", oftenObject.url());
             }
         }
 
         @Override
         public void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
         {
-            if(LOGGER.isDebugEnabled()){
-                LOGGER.debug("not Override:url={}",oftenObject.url());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("not Override:url={}", oftenObject.url());
             }
         }
 
@@ -152,6 +160,11 @@ public @interface AspectOperationOfPortIn
             return null;
         }
 
+        @Override
+        public boolean supportInvokeByHandleArgs()
+        {
+            return false;
+        }
     }
 
     /**
@@ -275,6 +288,18 @@ public @interface AspectOperationOfPortIn
          * @return
          */
         boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn);
+
+        /**
+         * 用于某些特殊情况，直接调用函数时能够被执行，如WebSocket导致的多次调用,{@linkplain KeyLock}都应该起作用、因此{@linkplain KeyLock}返回true。
+         * <p>
+         * 若为true，调用{@linkplain PorterOfFun#invokeByHandleArgs(OftenObject, Object...)}时，支持
+         * {@linkplain AspectHandleOfPortInUtil.State#BeforeInvoke}、
+         * {@linkplain AspectHandleOfPortInUtil.State#AfterInvoke}与{@linkplain AspectHandleOfPortInUtil.State#OnFinal}。
+         * </p>
+         *
+         * @return
+         */
+        boolean supportInvokeByHandleArgs();
     }
 
     Class<? extends Handle> handle();

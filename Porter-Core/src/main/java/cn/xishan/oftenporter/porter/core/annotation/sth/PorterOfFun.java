@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.AspectHandleOfPortInUtil;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
@@ -55,6 +56,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     OftenEntities oftenEntities;
     Porter porter;
     private IArgsHandle argsHandle;
+    private boolean hasDirectHandleSupport=false;
 
 
     private AspectOperationOfPortIn.Handle[] handles;
@@ -152,7 +154,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
 
 
     /**
-     * 调用函数
+     * 直接调用Java函数
      *
      * @param args 参数列表
      * @return
@@ -175,14 +177,54 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public final Object invokeByHandleArgs(OftenObject oftenObject, Object... args) throws Exception
+    public final Object invokeByHandleArgs(OftenObject oftenObject, Object... args) throws Throwable
     {
-        Method javaMethod = getMethod();
-        IArgsHandle argsHandle = this.argsHandle;
-//        LOGGER.debug("{}:{}", this, argsHandle);
-        Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
-        return javaMethod.invoke(getObject(), finalArgs);
+        if(hasDirectHandleSupport){
+            return invokeByHandleArgsMayTriggerAspectHandle(oftenObject,args);
+        }else{
+            Method javaMethod = getMethod();
+            IArgsHandle argsHandle = this.argsHandle;
+            Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
+            return invoke(finalArgs);
+        }
     }
+
+    /**
+     * 另见{@linkplain AspectOperationOfPortIn.Handle#supportInvokeByHandleArgs()},
+     * {@linkplain #invokeByHandleArgs(OftenObject, Object...)}。
+     *
+     * @param oftenObject
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    private final Object invokeByHandleArgsMayTriggerAspectHandle(OftenObject oftenObject,
+            Object... args) throws Throwable
+    {
+        Object rs = null;
+        Throwable err = null;
+        try
+        {
+            AspectHandleOfPortInUtil
+                    .doHandle(AspectHandleOfPortInUtil.State.BeforeInvoke, oftenObject, this, null, null, true);
+            Method javaMethod = getMethod();
+            IArgsHandle argsHandle = this.argsHandle;
+            Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
+            rs = invoke(finalArgs);
+            AspectHandleOfPortInUtil
+                    .doHandle(AspectHandleOfPortInUtil.State.AfterInvoke, oftenObject, this, rs, null, true);
+            return rs;
+        } catch (Throwable e)
+        {
+            err = e;
+            throw e;
+        } finally
+        {
+            AspectHandleOfPortInUtil.doHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, this, rs, err, true);
+        }
+
+    }
+
 
     /**
      * 请求当前接口函数，类型为{@linkplain PortFunType#DEFAULT}。
@@ -295,6 +337,9 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         {
             for (AspectOperationOfPortIn.Handle handle : handles)
             {
+                if(handle.supportInvokeByHandleArgs()){
+                    hasDirectHandleSupport=true;
+                }
                 handle.onStart(oftenObject);
             }
         }

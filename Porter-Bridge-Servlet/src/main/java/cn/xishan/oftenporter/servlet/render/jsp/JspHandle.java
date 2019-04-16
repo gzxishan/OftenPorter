@@ -115,7 +115,7 @@ class JspHandle extends AspectOperationOfPortIn.HandleAdapter<Jsp>
 
 
     @Override
-    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
     {
         Object obj = porterOfFun.invokeByHandleArgs(oftenObject, lastReturn);
 

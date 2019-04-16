@@ -17,7 +17,7 @@ public class AspectHandleOfPortInUtil
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AspectHandleOfPortInUtil.class);
 
-    enum State
+    public enum State
     {
         BeforeInvokeOfMethodCheck,
         BeforeInvoke,
@@ -75,7 +75,8 @@ public class AspectHandleOfPortInUtil
     }
 
 
-    public static final Object tryDoHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
+    public static final Object tryDoHandle(State state, OftenObject oftenObject, PorterOfFun funPort,
+            Object returnObject,
             Object failedObject)
 
     {
@@ -119,11 +120,20 @@ public class AspectHandleOfPortInUtil
     public static final Object doHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
             Object failedObject) throws Throwable
     {
+        return doHandle(state, oftenObject, funPort, returnObject, failedObject, false);
+    }
+
+    public static final Object doHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
+            Object failedObject, boolean checkSupport) throws Throwable
+    {
         //处理AspectFunOperation
         AspectOperationOfPortIn.Handle[] handles = funPort.getHandles();
         if (handles != null)
         {
-
+            if (checkSupport && !(state == State.BeforeInvoke || state == State.AfterInvoke || state == State.OnFinal))
+            {
+                return null;
+            }
             switch (state)
             {
                 case BeforeInvokeOfMethodCheck:
@@ -135,7 +145,10 @@ public class AspectHandleOfPortInUtil
                 case BeforeInvoke:
                     for (AspectOperationOfPortIn.Handle handle : handles)
                     {
-                        handle.beforeInvoke(oftenObject, funPort);
+                        if (!checkSupport || checkSupport && handle.supportInvokeByHandleArgs())
+                        {
+                            handle.beforeInvoke(oftenObject, funPort);
+                        }
                     }
                     break;
                 case Invoke:
@@ -159,14 +172,20 @@ public class AspectHandleOfPortInUtil
                 case AfterInvoke:
                     for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handles[i].afterInvoke(oftenObject, funPort, returnObject);
+                        if (!checkSupport || checkSupport && handles[i].supportInvokeByHandleArgs())
+                        {
+                            handles[i].afterInvoke(oftenObject, funPort, returnObject);
+                        }
                     }
                     break;
 
                 case OnFinal:
                     for (int i = handles.length - 1; i >= 0; i--)
                     {
-                        handles[i].onFinal(oftenObject, funPort, returnObject, failedObject);
+                        if (!checkSupport || checkSupport && handles[i].supportInvokeByHandleArgs())
+                        {
+                            handles[i].onFinal(oftenObject, funPort, returnObject, failedObject);
+                        }
                     }
                     break;
             }
