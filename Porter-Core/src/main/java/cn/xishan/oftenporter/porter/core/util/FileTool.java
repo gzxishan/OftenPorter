@@ -203,8 +203,24 @@ public class FileTool
 
     }
 
+
     /**
-     * 把文件写道输出流。
+     * 把文件写到输出流。
+     *
+     * @param file
+     * @param toFile
+     * @param bufSize
+     * @throws IOException
+     */
+    public static void file2file(File file, File toFile, int bufSize) throws IOException
+    {
+        try(FileOutputStream fos =  new FileOutputStream(toFile))
+        {
+            file2out(file,fos,bufSize);
+        }
+    }
+    /**
+     * 把文件写到输出流。
      *
      * @param file
      * @param os
@@ -220,7 +236,7 @@ public class FileTool
     }
 
     /**
-     * 把输入流写道输出流。
+     * 把输入流写到输出流。
      *
      * @param in
      * @param os
