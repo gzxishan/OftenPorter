@@ -210,13 +210,16 @@ public class FileTool
      * @param file
      * @param toFile
      * @param bufSize
+     * @param createIfNotExists toFile不存在时是否创建
      * @throws IOException
      */
-    public static void file2file(File file, File toFile, int bufSize) throws IOException
+    public static void file2file(File file, File toFile, int bufSize,boolean createIfNotExists) throws IOException
     {
-        try(FileOutputStream fos =  new FileOutputStream(toFile))
-        {
-            file2out(file,fos,bufSize);
+        if(toFile.exists()||createIfNotExists&&toFile.createNewFile()){
+            try(FileOutputStream fos =  new FileOutputStream(toFile))
+            {
+                file2out(file,fos,bufSize);
+            }
         }
     }
     /**
