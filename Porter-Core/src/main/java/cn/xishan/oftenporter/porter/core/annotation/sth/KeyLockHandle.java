@@ -190,7 +190,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
 
 
     @Override
-    public void beforeInvokeOfMethodCheck(OftenObject oftenObject, PorterOfFun porterOfFun)
+    public void beforeInvoke(OftenObject oftenObject, PorterOfFun porterOfFun)
     {
         List<String> keys = new ArrayList<>();
 
@@ -243,7 +243,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
         LOGGER.debug("locking[{}]:{}", oftenObject.url(), locks);
         concurrentKeyLock.locks(locks);
         LOGGER.debug("locked[{}]:{}", oftenObject.url(), locks);
-        oftenObject.putRequestData(ATTR_KEY, locks);
+        oftenObject.putRequestData(ATTR_KEY, locks);//需要先加锁，再put
     }
 
     @Override
@@ -255,7 +255,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
     @Override
     public void onFinal(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn, Object failedObject)
     {
-        String[] locks = oftenObject.removeRequestData(ATTR_KEY);
+        String[] locks = oftenObject.getRequestData(ATTR_KEY);//不能移除，在websocket环境下，最终OftenObject始终为同一个
         if (locks == null)
         {
             LOGGER.warn("locks key is null from requestData:attr key={}", ATTR_KEY);

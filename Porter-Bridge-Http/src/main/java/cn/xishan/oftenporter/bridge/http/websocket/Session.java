@@ -28,4 +28,6 @@ public interface Session
     public void send(ByteBuffer byteBuffer);
 
     public void send(byte[] bs);
+
+    public String getId();
 }

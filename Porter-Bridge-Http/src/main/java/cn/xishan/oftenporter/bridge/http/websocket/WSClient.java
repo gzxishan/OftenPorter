@@ -58,6 +58,7 @@ public class WSClient
     {
     }
 
+
     public void setSession(SessionImpl session)
     {
         this.session = session;
@@ -77,7 +78,8 @@ public class WSClient
 
     public void close(ClientCloseReason closeReason) throws IOException
     {
-        if(session==null){
+        if (session == null)
+        {
             return;
         }
         if (closeReason != null)
@@ -87,6 +89,35 @@ public class WSClient
         {
             session.close();
         }
+    }
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null || !(obj instanceof WSClient))
+        {
+            return false;
+        } else
+        {
+            WSClient ws = (WSClient) obj;
+            return ws.session.getId().equals(session.getId());
+        }
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return session.getId().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        String builder = getClass().getName() + "@" + super.hashCode() + "-->" +
+                session.getClass().getSimpleName() + "@" + session.hashCode() +
+                ",id=" + session.getId();
+        return builder;
     }
 
 }

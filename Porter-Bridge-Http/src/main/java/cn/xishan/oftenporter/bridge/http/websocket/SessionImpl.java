@@ -13,16 +13,24 @@ class SessionImpl implements Session
 {
     WebSocketClient webSocketClient;
     private OnClose onClose;
+    private String id;
 
     interface OnClose
     {
         void onClosed();
     }
 
-    public SessionImpl(WebSocketClient webSocketClient, OnClose onClose)
+    public SessionImpl(WebSocketClient webSocketClient, OnClose onClose,String id)
     {
         this.webSocketClient = webSocketClient;
         this.onClose = onClose;
+        this.id=id;
+    }
+
+    @Override
+    public String getId()
+    {
+        return id;
     }
 
     @Override

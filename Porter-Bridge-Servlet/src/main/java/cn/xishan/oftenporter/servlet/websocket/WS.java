@@ -157,4 +157,13 @@ public final class WS
     {
         return session.getId().hashCode();
     }
+
+    @Override
+    public String toString()
+    {
+        String builder = getClass().getName() + "@" + super.hashCode() + "-->" +
+                session.getClass().getSimpleName() + "@" + session.hashCode() +
+                ",id=" + session.getId();
+        return builder;
+    }
 }

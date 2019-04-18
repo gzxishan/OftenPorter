@@ -43,6 +43,10 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
         private ScheduledFuture firstStartCheckFuture;
 
+        public Handle()
+        {
+        }
+
         private Object invoke(OftenObject oftenObject) throws Throwable
         {
             return porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
@@ -297,7 +301,7 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
                     }
                 }
             };
-            wsClient.setSession(new SessionImpl(webSocketClient, this));
+            wsClient.setSession(new SessionImpl(webSocketClient, this, String.valueOf(count.getAndIncrement())));
             if (wsClientConfig.pingTimeSecond != null)
             {
                 webSocketClient.setPingTime(wsClientConfig.pingTimeSecond);
