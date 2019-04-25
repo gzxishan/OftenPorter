@@ -14,7 +14,7 @@ import java.util.Map;
  * </p>
  * <ol>
  * <li>
- * 支持#参数,需要返回{@linkplain RenderPage}或Map，见{@linkplain DealSharpProperties#replaceSharpProperties(String, Map)}。
+ * 支持#参数,需要返回{@linkplain RenderPage}或Map，见{@linkplain DealSharpProperties#replaceSharpProperties(String, Map, String)}。
  * </li>
  * <li>
  * 函数支持的形参：{@linkplain OftenObject},{@linkplain HtmlxDoc}

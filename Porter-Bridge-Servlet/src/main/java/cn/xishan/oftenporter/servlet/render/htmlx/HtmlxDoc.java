@@ -4,7 +4,6 @@ import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -58,18 +57,18 @@ public class HtmlxDoc
      * 获得当前请求路径文件简单名。
      * @return
      */
-    public String getPathName(){
+    public String getPageName(){
         return OftenStrUtil.getNameFormPath(path);
     }
 
     /**
-     * 见{@linkplain #getRelativeHtml(String, String)},编码方式为{@linkplain Htmlx#otherwisePageEncoding()}。
+     * 见{@linkplain #getRelativeResource(String, String)},编码方式为{@linkplain Htmlx#otherwisePageEncoding()}。
      *
      * @return
      */
-    public String getRelativeHtml(String path) throws IOException
+    public String getRelativeResource(String path) throws IOException
     {
-        return getRelativeHtml(path, htmlxHandle.getOtherwisePageEncoding());
+        return getRelativeResource(path, htmlxHandle.getOtherwisePageEncoding());
     }
 
     /**
@@ -77,7 +76,7 @@ public class HtmlxDoc
      *
      * @return
      */
-    public String getRelativeHtml(String path, String encoding) throws IOException
+    public String getRelativeResource(String path, String encoding) throws IOException
     {
         ServletContext servletContext = htmlxHandle.getServletContext();
         String filepath = servletContext.getRealPath(PackageUtil.getPathWithRelative(htmlxHandle.getBaseDir(),path));
@@ -90,28 +89,6 @@ public class HtmlxDoc
         return str;
     }
 
-
-    /**
-     * 见{@linkplain #getRelativeHtmlDom(String, String)},编码方式为{@linkplain Htmlx#otherwisePageEncoding()}。
-     *
-     * @return
-     */
-    public Object getRelativeHtmlDom(String path) throws IOException
-    {
-        return getRelativeHtmlDom(path, htmlxHandle.getOtherwisePageEncoding());
-    }
-
-    /**
-     * 获取相对于{@linkplain Htmlx#baseDir()}的文件内容,返回类型同{@linkplain #getDocument()}。
-     *
-     * @return
-     */
-    public Object getRelativeHtmlDom(String path, String encoding) throws IOException
-    {
-        String html = getRelativeHtml(path, encoding);
-        Document document = Jsoup.parse(html);
-        return document;
-    }
 
     public boolean willCache()
     {
