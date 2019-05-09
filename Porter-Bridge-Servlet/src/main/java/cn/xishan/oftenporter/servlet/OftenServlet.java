@@ -409,6 +409,15 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
 
         porterConf.addAutoSetObjectsForSetter(this);
 
+        List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
+        if (filterers != null)
+        {
+            for (Filterer filterer : filterers)
+            {
+                porterConf.addContextAutoSet(filterer);
+            }
+        }
+
         try
         {
             porterMain.seekImporter(porterConf, importers);

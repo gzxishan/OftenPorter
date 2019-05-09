@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
+ * 用于在服务端WebSocket解析之前进行过滤操作。
  * @author Created by https://github.com/CLovinr on 2018-11-28.
  */
 public interface WrapperFilterManager
