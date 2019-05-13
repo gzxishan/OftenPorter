@@ -45,7 +45,7 @@ public @interface Htmlx
     String baseDir() default "/";
 
     /**
-     * 实际访问的页面路径（只对porter函数有效）,会找到第一个存在的，如/mobile/index.html(或者/mobile/)。
+     * 实际访问的页面路径（规则同servlet）,会找到第一个存在的，如/mobile/index.html(或者/mobile/)、/mobile/*。
      *
      * @return
      */
@@ -66,6 +66,8 @@ public @interface Htmlx
      * @return
      */
     int order() default 0;
+
+    HtmlxDoc.ResponseType defaultResponseType() default HtmlxDoc.ResponseType.Normal;
 
     boolean enable() default true;
 

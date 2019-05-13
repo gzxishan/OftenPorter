@@ -27,7 +27,7 @@ public class HtmlxDoc
     public enum ResponseType
     {
         /**
-         * 进行正常处理
+         * 进行正常处理，如果还有后续的@{@linkplain Htmlx}匹配、则会继续进行匹配。
          */
         Normal,
         /**
@@ -35,11 +35,11 @@ public class HtmlxDoc
          */
         ServletDefault,
         /**
-         * 中断后续操作，这种情况一般是开发者自己进行的输出响应。
+         * 中断后续操作，这种情况一般是开发者自己进行了输出响应。
          */
         Break,
         /**
-         * 执行下一个@{@linkplain Htmlx},同时会保留当前的操作。
+         * 执行下一个@{@linkplain Htmlx}，不会设置当前的缓存信息等，如果还有后续的@{@linkplain Htmlx}匹配、则会继续进行匹配。
          */
         Next
     }
@@ -57,12 +57,14 @@ public class HtmlxDoc
     private String path;
     private long lastModified;
 
-    public HtmlxDoc(HtmlxHandle htmlxHandle, String path, Object document, PageType pageType, long lastModified)
+    public HtmlxDoc(HtmlxHandle htmlxHandle, String path, Object document, PageType pageType, ResponseType responseType,
+            long lastModified)
     {
         this.htmlxHandle = htmlxHandle;
         this.path = path;
         this.document = document;
         this.pageType = pageType;
+        this.responseType = responseType;
         this.lastModified = lastModified;
     }
 

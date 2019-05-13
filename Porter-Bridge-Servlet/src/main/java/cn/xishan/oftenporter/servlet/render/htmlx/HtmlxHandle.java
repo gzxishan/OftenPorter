@@ -39,6 +39,8 @@ import java.util.*;
 public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> implements Comparable<HtmlxHandle>
 {
     private static final String HANDLE_KEY = HtmlxHandle.class.getName() + "@-handle-key-";
+//    private static final String HANDLE_ATTR = HtmlxHandle.class.getName() + "@-last-handle-";
+
     @AutoSet
     private ServletContext servletContext;
 
@@ -61,6 +63,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     private String baseDir;
     private boolean isDebug;
     private int order;
+    private HtmlxDoc.ResponseType defaultResponseType;
 
     private long otherwiseLastmodified = -1;
 
@@ -143,7 +146,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                 classHtmlx = this.defaultHtmlx;
             }
 
-            this.path = current.path();
+            Set<String> stringSet = new HashSet<>();
+            OftenTool.addAll(stringSet, current.path());
+            this.path = stringSet.toArray(new String[0]);
+
             this.baseDir = getValue(current.baseDir(), classHtmlx.baseDir(), defaultHtmlx.baseDir());
             if (!this.baseDir.endsWith("/"))
             {
@@ -178,6 +184,9 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             this.oftenPath = porterOfFun.getPath();
             this.htmlSuffix = getValue(current.htmlSuffix(), classHtmlx.htmlSuffix(), defaultHtmlx.htmlSuffix());
             this.order = current.order();
+            this.defaultResponseType = HtmlxDoc.ResponseType.valueOf(
+                    getValue(current.defaultResponseType().name(), classHtmlx.defaultResponseType().name(),
+                            defaultHtmlx.defaultResponseType().name()));
 
             List<HtmlxHandle> handleList = configData.get(HANDLE_KEY);
             if (handleList == null)
@@ -231,18 +240,22 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             HtmlxHandle[] handles = handleList.toArray(new HtmlxHandle[0]);
             Arrays.sort(handles);
 
+            Set<String> endPaths = new HashSet<>();
             for (HtmlxHandle htmlxHandle : handles)
             {
                 String oftenPath = htmlxHandle.oftenPath;
                 String[] path = htmlxHandle.path;
+                OftenTool.addAll(endPaths, path);
                 FilterRegistration.Dynamic dynamic = servletContext
                         .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(oftenServlet, oftenPath));
                 dynamic.addMappingForUrlPatterns(
                         EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, path);
-//        dynamic.setAsyncSupported(true);
+                //        dynamic.setAsyncSupported(true);
             }
-
-
+            FilterRegistration.Dynamic dynamic = servletContext
+                    .addFilter("@htmlx-end:" + oftenPath, new HtmlxEndFilter());
+            dynamic.addMappingForUrlPatterns(
+                    EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), true, endPaths.toArray(new String[0]));
         }
     }
 
@@ -252,25 +265,20 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         HttpServletResponse response = oftenObject.getRequest().getOriginalResponse();
 
-        HtmlxDoc lastDoc;
+        RenderData lastRenderData = (RenderData) request.getAttribute(RenderData.class.getName());
 
-        if (request.getAttribute(HtmlxDoc.ResponseType.class.getName()) == HtmlxDoc.ResponseType.Next)
+        if (lastRenderData != null)
         {
-            lastDoc = (HtmlxDoc) request.getAttribute(HtmlxDoc.class.getName() + "@lastDoc");
-            if (lastDoc == null)
-            {
-                throw new RuntimeException("expected last htmlxDoc");
-            }
-
-            if (!HttpCacheUtil.isCacheIneffectiveWithModified(lastDoc.getLastModified(), request, response))
+            HtmlxDoc htmlxDoc = lastRenderData.getHtmlxDoc();
+            if (!HttpCacheUtil.isCacheIneffectiveWithModified(htmlxDoc.getLastModified(), request, response))
             {
                 if (cacheSeconds > 0)
                 {
-                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastDoc.getLastModified(), response);
+                    HttpCacheUtil.setCacheWithModified(cacheSeconds, htmlxDoc.getLastModified(), response);
                 }
             } else
             {
-                invokeDoc(oftenObject, request, response, lastDoc, porterOfFun);
+                invokeDoc(oftenObject, request, response, lastRenderData, porterOfFun);
             }
         } else
         {
@@ -372,8 +380,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                     }
                     lastModified = otherwiseLastmodified;
                 }
-                HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType, lastModified);
-                invokeDoc(oftenObject, request, response, htmlxDoc, porterOfFun);
+                HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType, defaultResponseType, lastModified);
+                RenderData renderData = new RenderData(htmlxDoc);
+                request.setAttribute(RenderData.class.getName(), renderData);
+                invokeDoc(oftenObject, request, response, renderData, porterOfFun);
             }
 
         }
@@ -383,8 +393,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     }
 
     private void invokeDoc(OftenObject oftenObject, HttpServletRequest request, HttpServletResponse response,
-            HtmlxDoc htmlxDoc, PorterOfFun porterOfFun) throws Throwable
+            RenderData renderData, PorterOfFun porterOfFun) throws Throwable
     {
+
+        HtmlxDoc htmlxDoc = renderData.getHtmlxDoc();
         htmlxDoc.setCacheSeconds(cacheSeconds);
         htmlxDoc.setContentType(contentType);
         htmlxDoc.setEncoding(encoding);
@@ -404,7 +416,9 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             htmlxDoc.setMetaKeywords(keywords);
         }
 
-        Object rs = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+        Object rt = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+        renderData.addReturnObject(rt);
+
         HtmlxDoc.ResponseType responseType = htmlxDoc.getResponseType();
         request.setAttribute(HtmlxDoc.ResponseType.class.getName(), responseType);
         if (responseType == HtmlxDoc.ResponseType.Break)
@@ -413,6 +427,9 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         } else if (responseType == HtmlxDoc.ResponseType.ServletDefault)
         {
             //执行默认的。
+        } else if (responseType == HtmlxDoc.ResponseType.Next)
+        {
+
         } else if (responseType == HtmlxDoc.ResponseType.Normal)
         {
             response.setContentType(htmlxDoc.getContentType());
@@ -420,31 +437,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             if (htmlxDoc.willCache() && htmlxDoc.getCacheSeconds() > 0)
             {
                 HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), htmlxDoc.getLastModified(), response);
-            }
-            Document document = (Document) htmlxDoc.getDocument();
-            String htmlStr = document.outerHtml();
-            if (rs instanceof RenderPage || rs instanceof Map)
-            {
-                Map<String, ?> map;
-                if (rs instanceof RenderPage)
-                {
-                    map = ((RenderPage) rs).getData();
-                } else
-                {
-                    map = (Map) rs;
-                }
-                htmlStr = OftenStrUtil.replaceSharpProperties(htmlStr, map, "");
-            } else if (rs != null)
-            {
-                throw new RuntimeException("unknown return:" + rs);
-            }
-
-            byte[] bytes = htmlStr.getBytes(Charset.forName(htmlxDoc.getEncoding()));
-            response.setContentLength(bytes.length);
-            try (OutputStream os = response.getOutputStream())
-            {
-                os.write(bytes);
-                os.flush();
             }
         }
     }
