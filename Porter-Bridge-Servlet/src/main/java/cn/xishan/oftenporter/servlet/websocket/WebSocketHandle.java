@@ -31,17 +31,21 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     private WebSocket webSocket;
     private PorterOfFun thePorterOfFun;
     private String path;
+    private OftenObject forInit;
 
     private static Set<String> webSocketPaths = ConcurrentHashMap.newKeySet();
-
-    @AutoSet
-    private ServerContainer serverContainer;
-
 
     @AutoSet.SetOk
     public void setOk(OftenObject oftenObject) throws Throwable
     {
-        initWithServerContainer(oftenObject, thePorterOfFun);
+        this.forInit = oftenObject;
+        List<WebSocketHandle> webSocketHandleList = oftenObject.getConfigData().get(WebSocketHandle.class.getName());
+        if (webSocketHandleList == null)
+        {
+            webSocketHandleList = new ArrayList<>();
+            oftenObject.getConfigData().set(WebSocketHandle.class.getName(), webSocketHandleList);
+        }
+        webSocketHandleList.add(this);
     }
 
     public static boolean isWebSocket(HttpServletRequest request)
@@ -63,8 +67,23 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         return true;
     }
 
-    private void initWithServerContainer(OftenObject oftenObject, PorterOfFun fun) throws Throwable
+    public static void initWithServerContainer(IConfigData configData, ServerContainer serverContainer) throws Throwable
     {
+        List<WebSocketHandle> webSocketHandleList = configData.get(WebSocketHandle.class.getName());
+        if (webSocketHandleList != null)
+        {
+            configData.remove(WebSocketHandle.class.getName());
+            for (WebSocketHandle handle : webSocketHandleList)
+            {
+                handle.initWithServerContainer(handle.thePorterOfFun, serverContainer);
+            }
+        }
+    }
+
+    private void initWithServerContainer(PorterOfFun fun, ServerContainer serverContainer) throws Throwable
+    {
+        OftenObject oftenObject = forInit;
+        forInit = null;
         _PortIn funIn = fun.getMethodPortIn();
         if (funIn.getMethods().length != 1 || funIn.getMethods()[0] != PortMethod.GET)
         {
@@ -154,39 +173,6 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     {
         return true;
     }
-
-
-//    public static void handleWS(ServletContext servletContext)
-//    {
-//        try
-//        {
-//            //对jetty的修复。
-//            String clazz = "org.eclipse.jetty.websocket.server.WebSocketUpgradeFilter";
-//            String key = clazz;
-//            servletContext.removeAttribute(key);
-//            Class<?> filterClazz = PackageUtil.newClass(clazz, null);
-//            if (filterClazz == null)
-//            {
-//                LOGGER.debug("{} is null.", clazz);
-//                return;
-//            }
-//            Filter filter = (Filter) OftenTool.newObject(filterClazz);
-//            String pathSpc = XSServletWSConfig.WS_PATH;
-//            FilterRegistration.Dynamic dynamic = servletContext.addFilter(WebSocketHandle.class.getName(), filter);
-//            dynamic.setAsyncSupported(true);
-//            //支持DispatcherType.FORWARD方式，跳转到对应的websocket上。
-//            dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false,
-//                    pathSpc);
-//        } catch (Exception e)
-//        {
-//            if (e instanceof ClassNotFoundException)
-//            {
-//                return;
-//            }
-//            LOGGER.debug("handle jetty error:{}", e);
-//        }
-//    }
-
 
     public static void initFilter(ServletContext servletContext)
     {

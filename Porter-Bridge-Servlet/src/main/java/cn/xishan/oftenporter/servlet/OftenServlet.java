@@ -38,7 +38,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     public static final String SERVLET_NAME_NAME = "cn.xishan.oftenporter.servlet.OftenServlet.name";
 
     private static final long serialVersionUID = 1L;
-    private PorterMain porterMain;
+    protected PorterMain porterMain;
     protected String bridgeName, urlEncoding;
     protected Boolean responseWhenException;
     protected MultiPartOption multiPartOption = null;
@@ -275,17 +275,25 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     @Override
     public void init(ServletConfig config) throws ServletException
     {
+        if (isInit())
+        {
+            return;//已经初始化
+        }
 //        WsMain.init(config.getServletContext());
         try
         {
             //检查mapping是否正确
-            for (String mapping : config.getServletContext().getServletRegistration(config.getServletName())
-                    .getMappings())
+            ServletRegistration servletRegistration = config.getServletContext()
+                    .getServletRegistration(config.getServletName());
+            if (servletRegistration != null)
             {
-                LOGGER.debug("mapping:{}", mapping);
-                if (!MAPPING_PATTERN.matcher(mapping).find())
+                for (String mapping : servletRegistration.getMappings())
                 {
-                    throw new ServletException("illegal mapping:" + mapping);
+                    LOGGER.debug("mapping:{}", mapping);
+                    if (!MAPPING_PATTERN.matcher(mapping).find())
+                    {
+                        throw new ServletException("illegal mapping:" + mapping);
+                    }
                 }
             }
         } catch (Exception e)
@@ -388,10 +396,15 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         porterMain.addGlobalCheck(checkPassable);
     }
 
+    public boolean isInit()
+    {
+        return porterMain != null;
+    }
+
     @Override
     public PorterConf newPorterConf(Class... importers)
     {
-        if (porterMain == null)
+        if (!isInit())
         {
             throw new RuntimeException("Not init!");
         }
@@ -404,19 +417,8 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
         porterConf.addContextAutoSet(OftenServlet.class, this);
-        porterConf.addContextAutoSet("javax.websocket.server.ServerContainer",
-                servletContext.getAttribute("javax.websocket.server.ServerContainer"));
 
         porterConf.addAutoSetObjectsForSetter(this);
-
-        List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
-        if (filterers != null)
-        {
-            for (Filterer filterer : filterers)
-            {
-                porterConf.addContextAutoSet(filterer);
-            }
-        }
 
         try
         {

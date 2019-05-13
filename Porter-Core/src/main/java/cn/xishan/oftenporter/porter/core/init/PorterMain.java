@@ -159,12 +159,12 @@ public final class PorterMain
     /**
      * 根据名称获取。
      *
-     * @param pName
+     * @param bridgeName
      * @return
      */
-    public synchronized static CommonMain getMain(String pName)
+    public synchronized static CommonMain getMain(String bridgeName)
     {
-        return commonMainHashMap.get(pName);
+        return commonMainHashMap.get(bridgeName);
     }
 
     public PorterConf newPorterConf()
@@ -299,6 +299,11 @@ public final class PorterMain
 
     }
 
+    public PortExecutor getPortExecutor()
+    {
+        return portExecutor;
+    }
+
     /**
      * 注意：
      *
@@ -356,8 +361,7 @@ public final class PorterMain
         DealSharpProperties.dealProperties(porterConf.getConfigData());
         LOGGER.debug("deal #{propName} finished");
 
-        ContextPorter contextPorter = new ContextPorter(porterConf.getConfigData());
-        contextPorter.setClassLoader(porterConf.getClassLoader());
+
         porterConf.addContextAutoSet(IConfigData.class, porterConf.getConfigData());
 
         if (porterConf.isEnableAnnotationConfigable())
@@ -391,6 +395,9 @@ public final class PorterMain
         AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
                 innerContextBridge, getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
+
+        ContextPorter contextPorter = new ContextPorter(autoSetHandle, porterConf.getConfigData());
+        contextPorter.setClassLoader(porterConf.getClassLoader());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
         autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
@@ -460,8 +467,8 @@ public final class PorterMain
 
             LOGGER.debug("start doAutoSet...");
             time = System.currentTimeMillis();
-            autoSetHandle.doAutoSetNormal(autoSetObjForAspectOfNormal);//变量设置处理
-            autoSetHandle.doAutoSetThat(autoSetObjForAspectOfNormal);
+            autoSetHandle.doAutoSetNormal();//变量设置处理
+            autoSetHandle.doAutoSetThat();
             LOGGER.debug("doAutoSetFinished,time={}ms", System.currentTimeMillis() - time);
 
             String path = "/" + porterConf.getOftenContextName() + "/:" + AutoSet.SetOk.class

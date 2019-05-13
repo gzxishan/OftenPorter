@@ -67,7 +67,7 @@ public class AutoSetHandle
         {
             logger.debug("invoke @SetOk:{}", method);
             method.setAccessible(true);
-            DefaultArgumentsFactory.invokeWithArgs(configData,obj, method, oftenObject, configData);
+            DefaultArgumentsFactory.invokeWithArgs(configData, obj, method, oftenObject, configData);
         }
     }
 
@@ -345,15 +345,15 @@ public class AutoSetHandle
             {
                 setOkObject.invoke(oftenObject, iConfigData);
             }
-            this.setOkObjects = null;
-            this.porterMap = null;
-            this.proxyObjectMap = null;
-            this.iHandles_notporter = null;
-            this.iHandles_porter = null;
+            this.setOkObjects.clear();
+//            this.porterMap = null;
+//            this.proxyObjectMap = null;
+            this.iHandles_notporter.clear();
+            this.iHandles_porter.clear();
             this.iHandlesForAutoSetThat = null;
             this.innerContextBridge.annotationDealt.clearCache();
             autoSetDealtSet.clear();
-            autoSetDealtSet = null;
+//            autoSetDealtSet = null;
         } catch (Exception e)
         {
             throw new RuntimeException(e);
@@ -485,12 +485,11 @@ public class AutoSetHandle
     }
 
 
-    public synchronized void doAutoSetNormal(
-            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
+    public synchronized void doAutoSetNormal() throws FatalInitException
     {
         try
         {
-            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
+//            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
             for (int i = 0; i < iHandles_notporter.size(); i++)
             {
                 iHandles_notporter.get(i).handle();
@@ -500,7 +499,7 @@ public class AutoSetHandle
                 iHandles_porter.get(i).handle();
             }
             workedInstance.clear();
-            workedInstance = null;
+//            workedInstance = null;
         } catch (FatalInitException e)
         {
             throw e;
@@ -514,18 +513,17 @@ public class AutoSetHandle
         }
     }
 
-    public synchronized void doAutoSetThat(
-            AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal) throws FatalInitException
+    public synchronized void doAutoSetThat() throws FatalInitException
     {
         try
         {
-            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
+//            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
             for (int i = 0; i < iHandlesForAutoSetThat.size(); i++)
             {
                 iHandlesForAutoSetThat.get(i).handle();
             }
             workedInstance.clear();
-            workedInstance = null;
+//            workedInstance = null;
         } catch (FatalInitException e)
         {
             throw e;

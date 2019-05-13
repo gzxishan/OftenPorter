@@ -143,11 +143,13 @@ public class ContextPorter implements IOtherStartDestroy
     private List<OtherStartDestroy> otherStartList = new ArrayList<>();
     private List<OtherStartDestroy> otherDestroyList = new ArrayList<>();
     private IConfigData configData;
+    private AutoSetHandle autoSetHandle;
 
     //private SthDeal sthDeal;
 
-    public ContextPorter(IConfigData configData)
+    public ContextPorter(AutoSetHandle autoSetHandle, IConfigData configData)
     {
+        this.autoSetHandle = autoSetHandle;
         this.configData = configData;
         init();
     }
@@ -532,5 +534,19 @@ public class ContextPorter implements IOtherStartDestroy
     public IConfigData getConfigData()
     {
         return configData;
+    }
+
+    public void doAutoSetForInstance(Object[] objects) throws FatalInitException
+    {
+        autoSetHandle.addAutoSetsForNotPorter(objects);
+        autoSetHandle.doAutoSetNormal();
+        autoSetHandle.invokeSetOk(null);
+    }
+
+    public void doAutoSetForClass(Class[] classes) throws FatalInitException
+    {
+        autoSetHandle.addStaticAutoSet(null, null, Arrays.asList(classes), getClassLoader());
+        autoSetHandle.doAutoSetNormal();
+        autoSetHandle.invokeSetOk(null);
     }
 }

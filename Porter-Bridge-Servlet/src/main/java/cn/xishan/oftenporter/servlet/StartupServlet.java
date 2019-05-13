@@ -1,10 +1,19 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.Context;
+import cn.xishan.oftenporter.porter.core.PortExecutor;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.websocket.server.ServerContainer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 用于servlet,请求地址格式为:http://host[:port]/ServletContextPath[/=bridgeName]/contextName/ClassTied/[funTied|restValue
@@ -37,6 +46,7 @@ public abstract class StartupServlet extends OftenServlet
     private static final Logger LOGGER = LoggerFactory.getLogger(StartupServlet.class);
 
     boolean isStarted = false;
+    protected boolean doSysInit = false;
 
     public StartupServlet()
     {
@@ -79,7 +89,51 @@ public abstract class StartupServlet extends OftenServlet
         {
             throw new ServletException(OftenTool.getCause(e));
         }
+        if(doSysInit){
+            doSysInit();
+        }
         isStarted = true;
+    }
+
+    protected void doSysInit(){
+        try
+        {
+            ServletContext servletContext = getServletContext();
+            //初始化websocket
+            PortExecutor portExecutor = porterMain.getPortExecutor();
+            Iterator<Context> it = portExecutor.contextIterator();
+            while (it.hasNext())
+            {
+                Context context = it.next();
+                ServerContainer serverContainer = (ServerContainer) servletContext
+                        .getAttribute("javax.websocket.server.ServerContainer");
+                WebSocketHandle.initWithServerContainer(context.getConfigData(), serverContainer);
+
+                //Filterer注入处理
+                List<Filterer> filterers = (List<Filterer>) servletContext
+                        .getAttribute(Filterer.class.getName());
+                if (filterers != null)
+                {
+                    List<Filterer> current = new ArrayList<>();
+                    for (Filterer filterer : filterers)
+                    {
+                        String oc = filterer.oftenContext();
+                        if (oc.equals(context.getName()) || oc.equals("*"))
+                        {
+                            current.add(filterer);
+                        }
+                    }
+                    if (current.size() > 0)
+                    {
+                        context.contextPorter.doAutoSetForInstance(current.toArray(new Filterer[0]));
+                    }
+                }
+
+            }
+        } catch (Throwable e)
+        {
+            throw new InitException(e);
+        }
     }
 
     public abstract void onStart() throws Exception;

@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.Context;
+import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -10,20 +12,15 @@ import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+import javax.servlet.*;
 import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.ServerContainer;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/4/18.
@@ -31,18 +28,20 @@ import java.util.Set;
 @HandlesTypes(OftenInitializer.class)
 public final class OftenServletContainerInitializer implements ServletContainerInitializer
 {
+    public static final int BRIDGE_SERVLET_LOAD_VALUE = 10;
     public static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenServletContainerInitializer.class);
 
-    static class OPContextServlet extends HttpServlet
+    //用于实际的绑定
+    static class RealServlet extends HttpServlet
     {
-        private StartupServlet startupServlet;
+        private BridgeServlet bridgeServlet;
         private OftenInitializer oftenInitializer;
 
-        public OPContextServlet(StartupServlet startupServlet, OftenInitializer oftenInitializer)
+        public RealServlet(BridgeServlet bridgeServlet, OftenInitializer oftenInitializer)
         {
-            this.startupServlet = startupServlet;
+            this.bridgeServlet = bridgeServlet;
             this.oftenInitializer = oftenInitializer;
         }
 
@@ -53,25 +52,25 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             String method = request.getMethod();
             if (method.equals("GET"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.GET);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.GET);
             } else if (method.equals("HEAD"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.HEAD);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.HEAD);
             } else if (method.equals("POST"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.POST);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.POST);
             } else if (method.equals("PUT"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.PUT);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.PUT);
             } else if (method.equals("DELETE"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.DELETE);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.DELETE);
             } else if (method.equals("OPTIONS"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.OPTIONS);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.OPTIONS);
             } else if (method.equals("TRACE"))
             {
-                oftenInitializer.onDoRequest(startupServlet, request, response, PortMethod.TARCE);
+                oftenInitializer.onDoRequest(bridgeServlet, request, response, PortMethod.TARCE);
             } else
             {
                 super.service(request, response);
@@ -80,14 +79,20 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         }
     }
 
-    static class StartupServletImpl extends StartupServlet implements OftenInitializer.BuilderBefore
+    //只用于启动
+    static class BridgeServlet extends StartupServlet implements OftenInitializer.BuilderBefore
     {
         private List<OftenInitializer> servletInitializerList;
+        private ServletContext servletContext;
+        private String servletName;
 
-        public StartupServletImpl(ServletContext servletContext,
+        public BridgeServlet(ServletContext servletContext,
                 Set<Class<?>> servletInitializerClasses) throws Exception
         {
             super("", true);
+            super.doSysInit = false;
+            this.servletName = this.toString();
+            this.servletContext = servletContext;
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());
             for (Class<?> clazz : servletInitializerClasses)
             {
@@ -117,16 +122,16 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             @Override
             public PorterConf newPorterConfWithImporterClasses(Class... importers)
             {
-                return StartupServletImpl.this.newPorterConf(importers);
+                return BridgeServlet.this.newPorterConf(importers);
             }
 
             @Override
             public void startOne(PorterConf porterConf)
             {
-                StartupServletImpl.this.startOne(porterConf);
+                BridgeServlet.this.startOne(porterConf);
                 String urlPattern = "/" + porterConf.getOftenContextName() + "/*";
                 ServletContext servletContext = getServletContext();
-                HttpServlet httpServlet = new OPContextServlet(StartupServletImpl.this, initializer);
+                HttpServlet httpServlet = new RealServlet(BridgeServlet.this, initializer);
                 ServletRegistration.Dynamic dynamic = servletContext
                         .addServlet(httpServlet.getClass().getName() + "-" + porterConf.getOftenContextName(),
                                 httpServlet);
@@ -138,7 +143,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                 {
                     for (CustomServletPath servletPath : customServletPaths)
                     {
-                        servletPath.regServlet(StartupServletImpl.this);
+                        servletPath.regServlet(BridgeServlet.this);
                     }
                 }
             }
@@ -152,13 +157,25 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             @Override
             public BridgeLinker getBridgeLinker()
             {
-                return StartupServletImpl.this.getBridgeLinker();
+                return BridgeServlet.this.getBridgeLinker();
             }
 
             @Override
             public IAutoVarGetter getAutoVarGetter(String context)
             {
-                return StartupServletImpl.this.getAutoVarGetter(context);
+                return BridgeServlet.this.getAutoVarGetter(context);
+            }
+        }
+
+        @Override
+        public void init(ServletConfig config) throws ServletException
+        {
+            if (isInit())
+            {//由servlet初始化时进行调用,此时filter已经初始化完毕
+                doSysInit();
+            } else
+            {//直接进行调用
+                super.init(config);
             }
         }
 
@@ -175,6 +192,49 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             {
                 throw new InitException(e);
             }
+        }
+
+        @Override
+        public ServletContext getServletContext()
+        {
+            return servletContext;
+        }
+
+        @Override
+        public String getServletName()
+        {
+            return servletName;
+        }
+
+        void doStart() throws ServletException
+        {
+            ServletConfig servletConfig = new ServletConfig()
+            {
+                @Override
+                public String getServletName()
+                {
+                    return BridgeServlet.this.getServletName();
+                }
+
+                @Override
+                public ServletContext getServletContext()
+                {
+                    return servletContext;
+                }
+
+                @Override
+                public String getInitParameter(String name)
+                {
+                    return null;
+                }
+
+                @Override
+                public Enumeration<String> getInitParameterNames()
+                {
+                    return null;
+                }
+            };
+            init(servletConfig);
         }
 
         @Override
@@ -243,31 +303,28 @@ public final class OftenServletContainerInitializer implements ServletContainerI
     public void onStartup(Set<Class<?>> servletInitializerClasses,
             ServletContext servletContext) throws ServletException
     {
-        if (servletInitializerClasses != null && servletInitializerClasses.size() > 0)
+
+        Set<Class<?>> initialClasses = new HashSet<>();
+        for (Class<?> c : servletInitializerClasses)
         {
-            Set<Class<?>> initialClasses = new HashSet<>();
-            for (Class<?> c : servletInitializerClasses)
+            if (!Modifier.isAbstract(c.getModifiers()))
             {
-                if (!Modifier.isAbstract(c.getModifiers()))
-                {
-                    initialClasses.add(c);
-                }
+                initialClasses.add(c);
             }
-            if (initialClasses.size() > 0)
-            {
-                servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
-                try
-                {
-                    StartupServletImpl startupServlet = new StartupServletImpl(servletContext, initialClasses);
-                    ServletRegistration.Dynamic dynamic = servletContext
-                            .addServlet(startupServlet.toString(), startupServlet);
-                    dynamic.setAsyncSupported(true);
-                    dynamic.setLoadOnStartup(1);
-                } catch (Throwable e)
-                {
-                    throw new ServletException(e);
-                }
-            }
+        }
+        servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
+        try
+        {
+            BridgeServlet bridgeServlet = new BridgeServlet(servletContext, initialClasses);
+            bridgeServlet.doStart();//直接调用
+
+            ServletRegistration.Dynamic dynamic = servletContext
+                    .addServlet(bridgeServlet.getServletName(), bridgeServlet);
+            dynamic.setAsyncSupported(true);
+            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE);
+        } catch (Throwable e)
+        {
+            throw new ServletException(e);
         }
         WebSocketHandle.initFilter(servletContext);
     }

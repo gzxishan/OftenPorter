@@ -246,14 +246,15 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                 OftenTool.addAll(endPaths, path);
                 FilterRegistration.Dynamic dynamic = servletContext
                         .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(oftenServlet, oftenPath));
-                dynamic.addMappingForUrlPatterns(
-                        EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, path);
-                //        dynamic.setAsyncSupported(true);
+                dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
+                        false, path);
+                //dynamic.setAsyncSupported(true);
             }
             FilterRegistration.Dynamic dynamic = servletContext
                     .addFilter("@htmlx-end:" + oftenPath, new HtmlxEndFilter());
-            dynamic.addMappingForUrlPatterns(
-                    EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), true, endPaths.toArray(new String[0]));
+            dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
+                    true, endPaths.toArray(new String[0]));
+            //dynamic.setAsyncSupported(true);
         }
     }
 
