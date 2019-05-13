@@ -41,14 +41,21 @@ public class HtmlxFilter implements Filter
             if (request.getAttribute(id) == null)
             {
                 request.setAttribute(id, true);
-                HttpServletResponse response = (HttpServletResponse) servletResponse;
-                oftenServlet.doRequest(request, oftenPath, response, PortMethod.GET);
-
                 HtmlxDoc.ResponseType responseType = (HtmlxDoc.ResponseType) request
                         .getAttribute(HtmlxDoc.ResponseType.class.getName());
-                if (responseType != HtmlxDoc.ResponseType.Break)
+
+                if (responseType == HtmlxDoc.ResponseType.ServletDefault)
                 {
                     chain.doFilter(servletRequest, servletResponse);
+                } else
+                {
+                    HttpServletResponse response = (HttpServletResponse) servletResponse;
+                    oftenServlet.doRequest(request, oftenPath, response, PortMethod.GET);
+
+                    if (responseType != HtmlxDoc.ResponseType.Break)
+                    {
+                        chain.doFilter(servletRequest, servletResponse);
+                    }
                 }
             } else
             {

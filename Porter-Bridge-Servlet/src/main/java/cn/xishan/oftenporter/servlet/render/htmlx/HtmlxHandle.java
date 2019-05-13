@@ -16,7 +16,6 @@ import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.servlet.HttpCacheUtil;
 import cn.xishan.oftenporter.servlet.OftenServlet;
-import cn.xishan.oftenporter.servlet.render.RenderPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 
