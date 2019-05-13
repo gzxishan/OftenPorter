@@ -10,7 +10,6 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -21,9 +20,9 @@ import cn.xishan.oftenporter.servlet.render.RenderPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
@@ -31,14 +30,15 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2019-01-11.
  */
 @Htmlx(path = "")
-public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
+public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> implements Comparable<HtmlxHandle>
 {
+    private static final String HANDLE_KEY = HtmlxHandle.class.getName() + "@-handle-key-";
     @AutoSet
     private ServletContext servletContext;
 
@@ -57,9 +57,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     private byte[] otherwisePage;
     private String otherwisePagePath;
     private String otherwisePageEncoding;
-    private String htmlSuffix;
+    private String[] htmlSuffix;
     private String baseDir;
     private boolean isDebug;
+    private int order;
 
     private long otherwiseLastmodified = -1;
 
@@ -88,6 +89,18 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     private String getValue(String currentValue, String classValue, String defaultValue)
     {
         if (!currentValue.equals(classValue) && !currentValue.equals(defaultValue))
+        {//如果当前值不等于类上的、且不是默认值，则使用当前值
+            return currentValue;
+        } else
+        {
+            return classValue;
+        }
+    }
+
+
+    private String[] getValue(String[] currentValue, String[] classValue, String[] defaultValue)
+    {
+        if (!OftenStrUtil.equals(currentValue, classValue) && !OftenStrUtil.equals(currentValue, defaultValue))
         {//如果当前值不等于类上的、且不是默认值，则使用当前值
             return currentValue;
         } else
@@ -164,6 +177,15 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
             this.keywords = getValue(current.keywords(), classHtmlx.keywords(), defaultHtmlx.keywords());
             this.oftenPath = porterOfFun.getPath();
             this.htmlSuffix = getValue(current.htmlSuffix(), classHtmlx.htmlSuffix(), defaultHtmlx.htmlSuffix());
+            this.order = current.order();
+
+            List<HtmlxHandle> handleList = configData.get(HANDLE_KEY);
+            if (handleList == null)
+            {
+                handleList = new ArrayList<>();
+                configData.set(HANDLE_KEY, handleList);
+            }
+            handleList.add(this);
 
             if (this.encoding.equals(""))
             {
@@ -184,10 +206,11 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
                 this.otherwisePagePath = PackageUtil.getPathWithRelative(this.baseDir, this.otherwisePagePath);
             }
 
-            if (this.htmlSuffix.equals(""))
+            if (this.htmlSuffix.length == 0)
             {
-                this.htmlSuffix = "html";
+                this.htmlSuffix = new String[]{"html"};
             }
+            Arrays.sort(this.htmlSuffix);//排序,后面会进行搜索
 
             return true;
         } else
@@ -199,11 +222,28 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     @Override
     public void onStart(OftenObject oftenObject)
     {
-        OftenServlet oftenServlet = oftenObject.getContextSet(OftenServlet.class);
-        ServletRegistration.Dynamic dynamic = servletContext.addServlet(oftenPath,
-                new HtmlxServlet(oftenServlet, oftenPath));
-        dynamic.addMapping(path);
-        dynamic.setAsyncSupported(true);
+        IConfigData configData = oftenObject.getConfigData();
+        List<HtmlxHandle> handleList = configData.get(HANDLE_KEY);
+        if (handleList != null)
+        {
+            configData.remove(HANDLE_KEY);
+            OftenServlet oftenServlet = oftenObject.getContextSet(OftenServlet.class);
+            HtmlxHandle[] handles = handleList.toArray(new HtmlxHandle[0]);
+            Arrays.sort(handles);
+
+            for (HtmlxHandle htmlxHandle : handles)
+            {
+                String oftenPath = htmlxHandle.oftenPath;
+                String[] path = htmlxHandle.path;
+                FilterRegistration.Dynamic dynamic = servletContext
+                        .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(oftenServlet, oftenPath));
+                dynamic.addMappingForUrlPatterns(
+                        EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, path);
+//        dynamic.setAsyncSupported(true);
+            }
+
+
+        }
     }
 
     @Override
@@ -212,170 +252,201 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         HttpServletResponse response = oftenObject.getRequest().getOriginalResponse();
 
-        String rpath = request.getRequestURI().substring(request.getContextPath().length());
-        if (rpath.endsWith("/"))
-        {
-            rpath += this.index;
-        }
+        HtmlxDoc lastDoc;
 
-        ServletContext servletContext = request.getServletContext();
-        String filePath = servletContext.getRealPath(rpath);
-
-        File file = new File(filePath);
-        long lastModified;
-        if (!file.exists())
+        if (request.getAttribute(HtmlxDoc.ResponseType.class.getName()) == HtmlxDoc.ResponseType.Next)
         {
-            if (isDebug)
+            lastDoc = (HtmlxDoc) request.getAttribute(HtmlxDoc.class.getName() + "@lastDoc");
+            if (lastDoc == null)
             {
-                if (OftenTool.notEmpty(otherwisePagePath))
-                {
-                    String path = servletContext.getRealPath(otherwisePagePath);
-                    if (path != null)
-                    {
-                        File ofile = new File(path);
-                        if (ofile.exists())
-                        {
-                            otherwiseLastmodified = ofile.lastModified();
-                        }
-                    }
-                }
+                throw new RuntimeException("expected last htmlxDoc");
             }
-            lastModified = otherwiseLastmodified;
-        } else
-        {
-            lastModified = file.lastModified();
-        }
 
-
-        if (HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
-        {
-            Document document;
-            HtmlxDoc.PageType pageType;
-            if (file.exists())
+            if (!HttpCacheUtil.isCacheIneffectiveWithModified(lastDoc.getLastModified(), request, response))
             {
-                String name = OftenStrUtil.getNameFormPath(rpath);
-                if (!OftenStrUtil.getSuffix(name).equals(htmlSuffix))
-                {//非html文件
-                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
-                    response.setContentLength((int) file.length());
-                    response.setCharacterEncoding(encoding);
-                    String type = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(name);
-                    response.setContentType(type);
-                    try (OutputStream os = response.getOutputStream())
-                    {
-                        FileTool.file2out(file, os, 2048);
-                        os.flush();
-                    }
-                    return null;
+                if (cacheSeconds > 0)
+                {
+                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastDoc.getLastModified(), response);
                 }
-                document = Jsoup.parse(file, encoding);
-                pageType = HtmlxDoc.PageType.Normal;
             } else
             {
-                if (otherwisePage == null || isDebug)
+                invokeDoc(oftenObject, request, response, lastDoc, porterOfFun);
+            }
+        } else
+        {
+            String rpath = request.getRequestURI().substring(request.getContextPath().length());
+            if (rpath.endsWith("/"))
+            {
+                rpath += this.index;
+            }
+            String name = OftenStrUtil.getNameFormPath(rpath);
+            if (Arrays.binarySearch(this.htmlSuffix, OftenStrUtil.getSuffix(name)) < 0)
+            {
+                //非html文件
+                request.setAttribute(HtmlxDoc.ResponseType.class.getName(), HtmlxDoc.ResponseType.ServletDefault);
+                return null;
+            }
+
+            ServletContext servletContext = request.getServletContext();
+            String filePath = servletContext.getRealPath(rpath);
+
+            File file = new File(filePath);
+            long lastModified;
+            if (!file.exists())
+            {
+                if (isDebug)
                 {
                     if (OftenTool.notEmpty(otherwisePagePath))
                     {
-                        synchronized (this)
+                        String path = servletContext.getRealPath(otherwisePagePath);
+                        if (path != null)
                         {
-                            if (OftenTool.notEmpty(otherwisePagePath))
+                            File ofile = new File(path);
+                            if (ofile.exists())
                             {
-                                String path = servletContext.getRealPath(otherwisePagePath);
-                                if (!this.isDebug)
+                                otherwiseLastmodified = ofile.lastModified();
+                            }
+                        }
+                    }
+                }
+                lastModified = otherwiseLastmodified;
+            } else
+            {
+                lastModified = file.lastModified();
+            }
+
+
+            if (!HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
+            {
+                if (cacheSeconds > 0)
+                {
+                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
+                }
+            } else
+            {
+                Document document;
+                HtmlxDoc.PageType pageType;
+                if (file.exists())
+                {
+                    document = Jsoup.parse(file, encoding);
+                    pageType = HtmlxDoc.PageType.Normal;
+                } else
+                {
+                    if (otherwisePage == null || isDebug)
+                    {
+                        if (OftenTool.notEmpty(otherwisePagePath))
+                        {
+                            synchronized (this)
+                            {
+                                if (OftenTool.notEmpty(otherwisePagePath))
                                 {
-                                    otherwisePagePath = null;
-                                }
-                                if (path != null)
-                                {
-                                    File ofile = new File(path);
-                                    if (ofile.exists())
+                                    String path = servletContext.getRealPath(otherwisePagePath);
+                                    if (!this.isDebug)
                                     {
-                                        otherwiseLastmodified = ofile.lastModified();
-                                        otherwisePage = FileTool.getData(ofile, 1024);
+                                        otherwisePagePath = null;
+                                    }
+                                    if (path != null)
+                                    {
+                                        File ofile = new File(path);
+                                        if (ofile.exists())
+                                        {
+                                            otherwiseLastmodified = ofile.lastModified();
+                                            otherwisePage = FileTool.getData(ofile, 1024);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                if (otherwisePage == null)
-                {
-                    InputStream in = new ByteArrayInputStream(otherwiseHtml);
-                    document = Jsoup.parse(in, encoding, "");
-                    pageType = HtmlxDoc.PageType.OtherwiseHtml;
-                } else
-                {
-                    InputStream in = new ByteArrayInputStream(otherwisePage);
-                    document = Jsoup.parse(in, otherwisePageEncoding, "");
-                    pageType = HtmlxDoc.PageType.OtherwisePage;
-                }
-                lastModified = otherwiseLastmodified;
-            }
-            HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType);
-
-            htmlxDoc.setCacheSeconds(cacheSeconds);
-            htmlxDoc.setContentType(contentType);
-            htmlxDoc.setEncoding(encoding);
-
-            if (OftenTool.notEmpty(title))
-            {
-                htmlxDoc.title(title);
-            }
-
-            if (OftenTool.notEmpty(description))
-            {
-                htmlxDoc.setMetaDescription(description);
-            }
-
-            if (OftenTool.notEmpty(keywords))
-            {
-                htmlxDoc.setMetaKeywords(keywords);
-            }
-
-            Object rs = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
-            if (!htmlxDoc.isBreak())
-            {
-                response.setContentType(htmlxDoc.getContentType());
-                response.setCharacterEncoding(htmlxDoc.getEncoding());
-                if (htmlxDoc.willCache() && htmlxDoc.getCacheSeconds() > 0)
-                {
-                    HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), lastModified, response);
-                }
-                String htmlStr = document.outerHtml();
-                if (rs instanceof RenderPage || rs instanceof Map)
-                {
-                    Map<String, ?> map;
-                    if (rs instanceof RenderPage)
+                    if (otherwisePage == null)
                     {
-                        map = ((RenderPage) rs).getData();
+                        InputStream in = new ByteArrayInputStream(otherwiseHtml);
+                        document = Jsoup.parse(in, encoding, "");
+                        pageType = HtmlxDoc.PageType.OtherwiseHtml;
                     } else
                     {
-                        map = (Map) rs;
+                        InputStream in = new ByteArrayInputStream(otherwisePage);
+                        document = Jsoup.parse(in, otherwisePageEncoding, "");
+                        pageType = HtmlxDoc.PageType.OtherwisePage;
                     }
-                    htmlStr = OftenStrUtil.replaceSharpProperties(htmlStr, map, "");
-                } else if (rs != null)
-                {
-                    throw new RuntimeException("unknown return:" + rs);
+                    lastModified = otherwiseLastmodified;
                 }
-
-                byte[] bytes = htmlStr.getBytes(Charset.forName(htmlxDoc.getEncoding()));
-                response.setContentLength(bytes.length);
-                try (OutputStream os = response.getOutputStream())
-                {
-                    os.write(bytes);
-                    os.flush();
-                }
+                HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType, lastModified);
+                invokeDoc(oftenObject, request, response, htmlxDoc, porterOfFun);
             }
 
-        } else
+        }
+
+
+        return null;
+    }
+
+    private void invokeDoc(OftenObject oftenObject, HttpServletRequest request, HttpServletResponse response,
+            HtmlxDoc htmlxDoc, PorterOfFun porterOfFun) throws Throwable
+    {
+        htmlxDoc.setCacheSeconds(cacheSeconds);
+        htmlxDoc.setContentType(contentType);
+        htmlxDoc.setEncoding(encoding);
+
+        if (OftenTool.notEmpty(title))
         {
-            if (cacheSeconds > 0)
+            htmlxDoc.title(title);
+        }
+
+        if (OftenTool.notEmpty(description))
+        {
+            htmlxDoc.setMetaDescription(description);
+        }
+
+        if (OftenTool.notEmpty(keywords))
+        {
+            htmlxDoc.setMetaKeywords(keywords);
+        }
+
+        Object rs = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+        HtmlxDoc.ResponseType responseType = htmlxDoc.getResponseType();
+        request.setAttribute(HtmlxDoc.ResponseType.class.getName(), responseType);
+        if (responseType == HtmlxDoc.ResponseType.Break)
+        {
+            //由开发者进行输出处理。
+        } else if (responseType == HtmlxDoc.ResponseType.ServletDefault)
+        {
+            //执行默认的。
+        } else if (responseType == HtmlxDoc.ResponseType.Normal)
+        {
+            response.setContentType(htmlxDoc.getContentType());
+            response.setCharacterEncoding(htmlxDoc.getEncoding());
+            if (htmlxDoc.willCache() && htmlxDoc.getCacheSeconds() > 0)
             {
-                HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
+                HttpCacheUtil.setCacheWithModified(htmlxDoc.getCacheSeconds(), htmlxDoc.getLastModified(), response);
+            }
+            Document document = (Document) htmlxDoc.getDocument();
+            String htmlStr = document.outerHtml();
+            if (rs instanceof RenderPage || rs instanceof Map)
+            {
+                Map<String, ?> map;
+                if (rs instanceof RenderPage)
+                {
+                    map = ((RenderPage) rs).getData();
+                } else
+                {
+                    map = (Map) rs;
+                }
+                htmlStr = OftenStrUtil.replaceSharpProperties(htmlStr, map, "");
+            } else if (rs != null)
+            {
+                throw new RuntimeException("unknown return:" + rs);
+            }
+
+            byte[] bytes = htmlStr.getBytes(Charset.forName(htmlxDoc.getEncoding()));
+            response.setContentLength(bytes.length);
+            try (OutputStream os = response.getOutputStream())
+            {
+                os.write(bytes);
+                os.flush();
             }
         }
-        return null;
     }
 
     @Override
@@ -394,5 +465,20 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx>
     public boolean needInvoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn)
     {
         return true;
+    }
+
+    @Override
+    public int compareTo(HtmlxHandle htmlxHandle)
+    {
+        if (this.order > htmlxHandle.order)
+        {
+            return 1;
+        } else if (this.order < htmlxHandle.order)
+        {
+            return -1;
+        } else
+        {
+            return 0;
+        }
     }
 }

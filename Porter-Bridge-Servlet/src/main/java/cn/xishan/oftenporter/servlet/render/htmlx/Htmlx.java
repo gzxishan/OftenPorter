@@ -32,9 +32,10 @@ public @interface Htmlx
 
     /**
      * 是否为debug模式，当为(true,yes或1)时、每次都会加载模板。
+     *
      * @return
      */
-    String isDebug()default "false";
+    String isDebug() default "false";
 
     /**
      * 默认目录，从当前servlet的上下文根目录开始,其中{@linkplain #path()}、{@linkplain #otherwisePage()} 支持相对路径，且相对于该目录。
@@ -51,13 +52,20 @@ public @interface Htmlx
     String[] path();
 
     /**
-     * html文件的后缀名。
+     * html文件的后缀名,当为通配符等情况、且匹配到不为该后缀名的请求时会忽略。
      *
      * @return
      */
-    String htmlSuffix() default "html";
+    String[] htmlSuffix() default {"html", "htm"};
 
     String index() default "index.html";
+
+    /**
+     * 对于同一个请求被多次匹配的情况，数值更小的会被执行。
+     *
+     * @return
+     */
+    int order() default 0;
 
     boolean enable() default true;
 
@@ -105,7 +113,8 @@ public @interface Htmlx
     String otherwiseHtml() default "<!DOCTYPE html><html><head>" +
             "<meta charset='UTF-8'>" +
             "<title></title>" +
-            "<meta name='viewport' content='width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' />" +
+            "<meta name='viewport' content='width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' " +
+            "/>" +
             "</head>" +
             "<body><h1 style='text-align:center;margin:10% auto;'>OftenPorter Servlet Bridge</h1></body></html>";
 }

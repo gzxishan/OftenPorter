@@ -266,8 +266,14 @@ public class DefaultConfigData implements IConfigData
     @Override
     public <T> T set(String key, Object object)
     {
-        Object rs = object == null ? properties.remove(key) : properties.put(key, object);
+        Object rs = properties.put(key, object);
         return (T) rs;
+    }
+
+    @Override
+    public <T> T remove(String key)
+    {
+        return (T) properties.remove(key);
     }
 
     @Override
@@ -293,11 +299,12 @@ public class DefaultConfigData implements IConfigData
         String[] keys = OftenStrUtil.split(property.value().replace('，', ','), ",");
         for (int i = 0; i < keys.length; i++)
         {
-            String key=keys[i].trim();
-            if(key.startsWith("${")&&key.endsWith("}")){
-                key=key.substring(2,key.length()-1);
+            String key = keys[i].trim();
+            if (key.startsWith("${") && key.endsWith("}"))
+            {
+                key = key.substring(2, key.length() - 1);
             }
-            keys[i]=key;
+            keys[i] = key;
         }
 
         String defaultVal = property.defaultVal().trim();

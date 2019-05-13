@@ -90,6 +90,14 @@ public interface IConfigData
      */
     <T> T set(String key, Object object);
 
+    /**
+     * 移除配置。
+     *
+     * @param key
+     * @return 上一个对象
+     */
+    <T> T remove(String key);
+
     void putAll(Map<?, ?> map);
 
     /**

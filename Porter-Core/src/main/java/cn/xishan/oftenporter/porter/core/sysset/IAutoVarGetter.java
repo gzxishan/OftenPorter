@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.porter.core.sysset;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+
 /**
  * @author Created by https://github.com/CLovinr on 2019/1/2.
  */
@@ -12,4 +14,6 @@ public interface IAutoVarGetter
     <T> T getContextSet(Class<T> objectClass);
 
     <T> T getGlobalSet(Class<T> objectClass);
+
+    IConfigData getConfigData();
 }

@@ -14,6 +14,33 @@ public class OftenStrUtil
 {
 
     /**
+     * 判断两个数组是否相等。
+     *
+     * @param arr1
+     * @param arr2
+     * @return
+     */
+    public static boolean equals(Object[] arr1, Object[] arr2)
+    {
+        boolean isEq = true;
+        if (arr1.length == arr2.length)
+        {
+            for (int i = 0; i < arr1.length; i++)
+            {
+                if (arr1[i].equals(arr2[i]))
+                {
+                    isEq = false;
+                    break;
+                }
+            }
+        } else
+        {
+            isEq = false;
+        }
+        return isEq;
+    }
+
+    /**
      * 将“name1=value1&name2=value2”转换成map,且采用有序map。
      *
      * @param encodingContent

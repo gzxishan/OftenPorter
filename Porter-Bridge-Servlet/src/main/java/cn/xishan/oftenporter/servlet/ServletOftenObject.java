@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 
@@ -144,6 +145,12 @@ public class ServletOftenObject extends OftenObject
 
     @Override
     public <T> T getGlobalSet(Class<T> objectClass)
+    {
+        return null;
+    }
+
+    @Override
+    public IConfigData getConfigData()
     {
         return null;
     }

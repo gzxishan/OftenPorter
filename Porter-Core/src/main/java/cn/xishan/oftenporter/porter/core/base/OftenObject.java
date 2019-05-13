@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.base;
 
 import cn.xishan.oftenporter.porter.core.JResponse;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
@@ -530,5 +531,11 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     {
         IListenerAdder<IFinalListener> listenerIListenerAdder = getListenerAdder(false);
         return listenerIListenerAdder == null ? EnumerationImpl.getEMPTY() : listenerIListenerAdder.listeners(order);
+    }
+
+    @Override
+    public IConfigData getConfigData()
+    {
+        return null;
     }
 }

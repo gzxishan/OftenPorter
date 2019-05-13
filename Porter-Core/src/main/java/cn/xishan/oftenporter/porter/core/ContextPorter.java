@@ -529,4 +529,8 @@ public class ContextPorter implements IOtherStartDestroy
         return checkPassableForCF.get(clazz);
     }
 
+    public IConfigData getConfigData()
+    {
+        return configData;
+    }
 }

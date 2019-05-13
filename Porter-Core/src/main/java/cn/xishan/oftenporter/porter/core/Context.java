@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.ResponseHandle;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
@@ -97,5 +98,11 @@ public class Context implements IAutoVarGetter
     public <T> T getGlobalSet(Class<T> objectClass)
     {
         return getGlobalSet(objectClass.getName());
+    }
+
+    @Override
+    public IConfigData getConfigData()
+    {
+        return contextPorter.getConfigData();
     }
 }

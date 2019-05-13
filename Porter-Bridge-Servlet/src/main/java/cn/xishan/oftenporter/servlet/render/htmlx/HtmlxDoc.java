@@ -24,28 +24,61 @@ public class HtmlxDoc
         Normal, OtherwisePage, OtherwiseHtml
     }
 
+    public enum ResponseType
+    {
+        /**
+         * 进行正常处理
+         */
+        Normal,
+        /**
+         * 执行后续servlet的过滤器
+         */
+        ServletDefault,
+        /**
+         * 中断后续操作，这种情况一般是开发者自己进行的输出响应。
+         */
+        Break,
+        /**
+         * 执行下一个@{@linkplain Htmlx},同时会保留当前的操作。
+         */
+        Next
+    }
+
     private Object document;
 
     private String encoding;
     private String contentType;
     private int cacheSeconds;
     private PageType pageType;
-    private boolean willBreak = false;
+    private ResponseType responseType = ResponseType.Normal;
     private boolean willCache = true;
 
     private HtmlxHandle htmlxHandle;
     private String path;
+    private long lastModified;
 
-    public HtmlxDoc(HtmlxHandle htmlxHandle,String path, Object document, PageType pageType)
+    public HtmlxDoc(HtmlxHandle htmlxHandle, String path, Object document, PageType pageType, long lastModified)
     {
         this.htmlxHandle = htmlxHandle;
-        this.path=path;
+        this.path = path;
         this.document = document;
         this.pageType = pageType;
+        this.lastModified = lastModified;
+    }
+
+    public long getLastModified()
+    {
+        return lastModified;
+    }
+
+    public void setLastModified(long lastModified)
+    {
+        this.lastModified = lastModified;
     }
 
     /**
      * 获取当前请求路径。
+     *
      * @return
      */
     public String getPath()
@@ -55,9 +88,11 @@ public class HtmlxDoc
 
     /**
      * 获得当前请求路径文件简单名。
+     *
      * @return
      */
-    public String getPageName(){
+    public String getPageName()
+    {
         return OftenStrUtil.getNameFormPath(path);
     }
 
@@ -79,7 +114,7 @@ public class HtmlxDoc
     public String getRelativeResource(String path, String encoding) throws IOException
     {
         ServletContext servletContext = htmlxHandle.getServletContext();
-        String filepath = servletContext.getRealPath(PackageUtil.getPathWithRelative(htmlxHandle.getBaseDir(),path));
+        String filepath = servletContext.getRealPath(PackageUtil.getPathWithRelative(htmlxHandle.getBaseDir(), path));
         if (OftenTool.isEmpty(filepath))
         {
             throw new FileNotFoundException("not found:" + path);
@@ -89,6 +124,15 @@ public class HtmlxDoc
         return str;
     }
 
+    public ResponseType getResponseType()
+    {
+        return responseType;
+    }
+
+    public void setResponseType(ResponseType responseType)
+    {
+        this.responseType = responseType;
+    }
 
     public boolean willCache()
     {
@@ -100,20 +144,6 @@ public class HtmlxDoc
         this.willCache = willCache;
     }
 
-    public boolean isBreak()
-    {
-        return willBreak;
-    }
-
-    /**
-     * 设置是否中断后面的响应操作，默认为false。
-     *
-     * @param willBreak
-     */
-    public void setBreak(boolean willBreak)
-    {
-        this.willBreak = willBreak;
-    }
 
     public PageType getPageType()
     {
@@ -122,6 +152,7 @@ public class HtmlxDoc
 
     /**
      * 设置页面标题。
+     *
      * @param title
      */
     public void title(String title)
@@ -165,6 +196,7 @@ public class HtmlxDoc
 
     /**
      * 设置元素文本内容。
+     *
      * @param selector
      * @param text
      */
@@ -181,6 +213,7 @@ public class HtmlxDoc
 
     /**
      * 得到页面的标题
+     *
      * @return
      */
     public String title()

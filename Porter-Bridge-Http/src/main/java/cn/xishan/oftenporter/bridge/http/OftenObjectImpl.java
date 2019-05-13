@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.bridge.http;
 
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
@@ -110,6 +111,12 @@ class OftenObjectImpl extends OftenObject
 
     @Override
     public <T> T getGlobalSet(Class<T> objectClass)
+    {
+        return null;
+    }
+
+    @Override
+    public IConfigData getConfigData()
     {
         return null;
     }
