@@ -17,6 +17,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -56,11 +57,11 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-    static class OtherStartDestroy implements Comparable<OtherStartDestroy>
+    public static class OtherStartDestroy implements Comparable<OtherStartDestroy>
     {
-        Object object;
-        Method method;
-        int order;
+        public Object object;
+        public Method method;
+        public int order;
 
         public OtherStartDestroy(Object object, Method method, int order)
         {
@@ -143,13 +144,13 @@ public class ContextPorter implements IOtherStartDestroy
     private List<OtherStartDestroy> otherStartList = new ArrayList<>();
     private List<OtherStartDestroy> otherDestroyList = new ArrayList<>();
     private IConfigData configData;
-    private AutoSetHandle autoSetHandle;
+    private IAutoSetter autoSetter;
 
     //private SthDeal sthDeal;
 
-    public ContextPorter(AutoSetHandle autoSetHandle, IConfigData configData)
+    public ContextPorter(IAutoSetter autoSetter, IConfigData configData)
     {
-        this.autoSetHandle = autoSetHandle;
+        this.autoSetter = autoSetter;
         this.configData = configData;
         init();
     }
@@ -506,9 +507,25 @@ public class ContextPorter implements IOtherStartDestroy
         {
             iterator.next().destroy();
         }
-        OtherStartDestroy[] otherStartDestroys = otherDestroyList.toArray(new OtherStartDestroy[0]);
-        Arrays.sort(otherStartDestroys);
-        for (OtherStartDestroy otherStartDestroy : otherStartDestroys)
+        onOtherDestroy();
+    }
+
+    @Override
+    public boolean hasOtherStart()
+    {
+        return true;
+    }
+
+    @Override
+    public void onOtherDestroy()
+    {
+        onOtherDestroy(configData, otherDestroyList.toArray(new OtherStartDestroy[0]));
+    }
+
+    public static void onOtherDestroy(IConfigData configData, OtherStartDestroy[] otherDestroys)
+    {
+        Arrays.sort(otherDestroys);
+        for (OtherStartDestroy otherStartDestroy : otherDestroys)
         {
             try
             {
@@ -525,7 +542,6 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
-
     CheckPassable getCheckPassable(Class<? extends CheckPassable> clazz)
     {
         return checkPassableForCF.get(clazz);
@@ -536,17 +552,8 @@ public class ContextPorter implements IOtherStartDestroy
         return configData;
     }
 
-    public void doAutoSetForInstance(Object[] objects) throws FatalInitException
+    public IAutoSetter getAutoSetter()
     {
-        autoSetHandle.addAutoSetsForNotPorter(objects);
-        autoSetHandle.doAutoSetNormal();
-        autoSetHandle.invokeSetOk(null);
-    }
-
-    public void doAutoSetForClass(Class[] classes) throws FatalInitException
-    {
-        autoSetHandle.addStaticAutoSet(null, null, Arrays.asList(classes), getClassLoader());
-        autoSetHandle.doAutoSetNormal();
-        autoSetHandle.invokeSetOk(null);
+        return autoSetter;
     }
 }

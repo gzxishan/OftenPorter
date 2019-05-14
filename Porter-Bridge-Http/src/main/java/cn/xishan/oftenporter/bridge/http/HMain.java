@@ -7,8 +7,10 @@ import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.bridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.local.LocalMain;
@@ -200,7 +202,13 @@ public class HMain extends LocalMain
     }
 
     @Override
-    public void startOne(PorterConf porterConf)
+    public IAutoSetter startOne(PorterConf porterConf)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public IAutoVarGetter getAutoVarGetter(String context)
     {
         throw new UnsupportedOperationException();
     }

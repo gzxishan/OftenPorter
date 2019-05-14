@@ -1,7 +1,5 @@
 package cn.xishan.oftenporter.servlet;
 
-import cn.xishan.oftenporter.porter.core.Context;
-import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
@@ -17,7 +15,6 @@ import javax.servlet.annotation.HandlesTypes;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.ServerContainer;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -251,13 +248,6 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                     LOGGER.error(e.getMessage(), e);
                 }
             }
-        }
-
-        @Override
-        public void startOne(PorterConf porterConf)
-        {
-            super.startOne(porterConf);
-
         }
 
         @Override

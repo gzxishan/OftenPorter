@@ -14,6 +14,8 @@ import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
@@ -100,6 +102,12 @@ import java.lang.annotation.*;
  * </li>
  * <li>
  * {@linkplain IConfigData}
+ * </li>
+ * <li>
+ * {@linkplain IAutoVarGetter}
+ * </li>
+ * <li>
+ * {@linkplain IAutoSetter}
  * </li>
  * </ol>
  * </p>

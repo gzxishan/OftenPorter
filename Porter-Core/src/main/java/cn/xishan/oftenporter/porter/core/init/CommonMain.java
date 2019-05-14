@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 
@@ -56,7 +57,7 @@ public interface CommonMain
      *
      * @param porterConf
      */
-    void startOne(PorterConf porterConf);
+    IAutoSetter startOne(PorterConf porterConf);
 
     BridgeLinker getBridgeLinker();
 
@@ -90,5 +91,7 @@ public interface CommonMain
     String getDefaultTypeParserId();
 
     IAutoVarGetter getAutoVarGetter(String context);
+
+    IAutoSetter getAutoSetter(String context);
 
 }

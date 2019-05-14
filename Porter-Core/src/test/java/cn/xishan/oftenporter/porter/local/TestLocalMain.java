@@ -2,13 +2,17 @@ package cn.xishan.oftenporter.porter.local;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import cn.xishan.oftenporter.porter.local.porter.Article;
 import cn.xishan.oftenporter.porter.local.porter.User;
 import cn.xishan.oftenporter.porter.local.porter2.My2Porter;
@@ -23,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -54,7 +60,7 @@ public class TestLocalMain
         PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j.properties"));
         final LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
-        porterConf.setContextName("Local-1");
+        porterConf.setOftenContextName("Local-1");
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter");
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter3");
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".mixin");
@@ -68,7 +74,7 @@ public class TestLocalMain
         Properties properties = new Properties();
         properties.setProperty("isTest", String.valueOf(true));
         properties.setProperty("bridgeName", "P1");
-        properties.setProperty("ref-bridgeName","ref-#{bridgeName}-#{isTest}");
+        properties.setProperty("ref-bridgeName", "ref-#{bridgeName}-#{isTest}");
         porterConf.getConfigData().putAll(properties);
 
         //porterConf.setEnableTiedNameDefault(false);
@@ -141,7 +147,7 @@ public class TestLocalMain
             handle.next();
         });
 
-        localMain.startOne(porterConf);
+        IAutoSetter autoSetter = localMain.startOne(porterConf);
 
 
         int n = 10 * 10000;
@@ -178,12 +184,59 @@ public class TestLocalMain
                 logger.error(e.getMessage(), e);
             }
 
+            List<Object> autoSetterList = new ArrayList<>();
+            String[] destroyResult = new String[]{
+                    "init"
+            };
+            try
+            {
+                //手动注入测试
+                autoSetter.forInstance(new Object[]{
+                        new Object()
+                        {
+                            @AutoSet
+                            My2Porter my2Porter;
+                            @AutoSet
+                            ProxyUnit proxyUnit;
 
-            localMain.destroyAll();
-            executorService.shutdown();
+                            @AutoSet.SetOk
+                            public void setOk()
+                            {
+                                autoSetterList.add(my2Porter);
+                                autoSetterList.add(proxyUnit);
+                            }
+
+                            @PortDestroy
+                            public void onDestroy()
+                            {
+                                destroyResult[0] = "destroy-ok";
+                            }
+                        }
+                });
+                localMain.destroyAll();
+                executorService.shutdown();
+            } finally
+            {
+                assertEquals(My2Porter.class, getClass(autoSetterList, 0));
+                assertEquals(ProxyUnit.class, getClass(autoSetterList, 1));
+                assertEquals("destroy-ok", destroyResult[0]);
+
+            }
+
+
         });
 
 
+    }
+
+    private Class getClass(List<Object> list, int index)
+    {
+        Object obj = null;
+        if (index < list.size())
+        {
+            obj = list.get(index);
+        }
+        return obj == null ? null : ProxyUtil.unwrapProxyForGeneric(obj);
     }
 
     private void hotTest(final Logger logger, CommonMain commonMain) throws Exception
@@ -206,11 +259,11 @@ public class TestLocalMain
         PorterConf conf = commonMain.newPorterConf();
         conf.setClassLoader(new URLClassLoader(new URL[]{clazzFile.toURI().toURL()}));
         conf.getSeekPackages().addPackages("cn.xishan.oftenporter.porter.local.hot");
-        conf.setContextName("hot-test");
+        conf.setOftenContextName("hot-test");
         commonMain.startOne(conf);
-        commonMain.getBridgeLinker().currentBridge()
-                .request(new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
-                        lResponse -> logger.debug(lResponse.toString()));
+        commonMain.getBridgeLinker().currentBridge().request(
+                new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
+                lResponse -> logger.debug(lResponse.toString()));
         commonMain.destroyOne("hot-test");
         //////////////////////////////////////
         FileTool.write2File(getClass().getResourceAsStream("/hot/hot2.jar"), clazzFile, true);

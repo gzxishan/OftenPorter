@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.init.CommonMain;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.init.PorterMain;
@@ -83,9 +84,15 @@ public class LocalMain implements CommonMain
     }
 
     @Override
-    public void startOne(PorterConf porterConf)
+    public IAutoSetter startOne(PorterConf porterConf)
     {
-        porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
+        return porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
+    }
+
+    @Override
+    public IAutoSetter getAutoSetter(String context)
+    {
+        return porterMain.getAutoSetter(context);
     }
 
     @Override

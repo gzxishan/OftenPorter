@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SthDeal;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
@@ -299,7 +300,7 @@ public final class PorterMain
 
     }
 
-    public PortExecutor getPortExecutor()
+    public PortExecutor _getPortExecutor()
     {
         return portExecutor;
     }
@@ -309,7 +310,7 @@ public final class PorterMain
      *
      * @param bridge
      */
-    public synchronized void startOne(PorterBridge bridge)
+    public synchronized IAutoSetter startOne(PorterBridge bridge)
     {
         LogUtil.LogKey logKey = new LogUtil.LogKey(OftenKeyUtil.random48Key());
         try
@@ -327,8 +328,9 @@ public final class PorterMain
             checkInit();
             currentBridgeNameForLogger = getBridgeLinker().currentName().getName();
             commonMainHashMap.put(this.bridgeLinker.currentName().getName(), commonMain);
-            _startOne(bridge);
+            IAutoSetter autoSetter = _startOne(bridge);
             currentBridgeNameForLogger = null;
+            return autoSetter;
         } catch (Throwable e)
         {
             throw new Error(OftenTool.getCause(e));
@@ -343,7 +345,13 @@ public final class PorterMain
         return porterData;
     }
 
-    private void _startOne(PorterBridge bridge) throws Throwable
+    public IAutoSetter getAutoSetter(String context)
+    {
+        Context c = portExecutor.getContext(context);
+        return c.contextPorter.getAutoSetter();
+    }
+
+    private IAutoSetter _startOne(PorterBridge bridge) throws Throwable
     {
         long time;
         CheckPassable[] alls = null;
@@ -395,12 +403,13 @@ public final class PorterMain
         AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
                 innerContextBridge, getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
+        IAutoSetterImpl autoSetter = new IAutoSetterImpl(autoSetHandle);
 
-        ContextPorter contextPorter = new ContextPorter(autoSetHandle, porterConf.getConfigData());
+        ContextPorter contextPorter = new ContextPorter(autoSetter, porterConf.getConfigData());
         contextPorter.setClassLoader(porterConf.getClassLoader());
 
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
-        autoSetHandle.addAutoSetsForNotPorter(argumentsFactory);
+        autoSetHandle.addAutoSetsForNotPorter(new Object[]{argumentsFactory});
 
         LOGGER.debug("add autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();
@@ -452,7 +461,7 @@ public final class PorterMain
         LOGGER.debug("add autoSet ForContextCheckPassable...");
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getContextChecks());
         autoSetHandle.addAutoSetsForNotPorter(porterConf.getResponseHandles().values());
-        autoSetHandle.addAutoSetsForNotPorter(porterConf.getDefaultResponseHandle());
+        autoSetHandle.addAutoSetsForNotPorter(new Object[]{porterConf.getDefaultResponseHandle()});
 
         CheckPassable[] contextChecks = porterConf.getContextChecks().toArray(new CheckPassable[0]);
         Context context = portExecutor.newContext(bridge, contextPorter, stateListenerForAll,
@@ -485,7 +494,7 @@ public final class PorterMain
             oftenObject.release();
 
             portExecutor.onContextStarted(context);
-////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////
             LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
 
             path = "/" + porterConf.getOftenContextName() + "/:" + PortStart.class
@@ -524,6 +533,8 @@ public final class PorterMain
             OftenTool.clearCache();
             AnnoUtil.clearCache();
         }
+        autoSetter.onOk();
+        return autoSetter;
     }
 
     /**
@@ -557,6 +568,8 @@ public final class PorterMain
             StateListener stateListenerForAll = context.stateListenerForAll;
             LOGGER.debug("Context [{}] beforeDestroy...", contextName);
             stateListenerForAll.beforeDestroy();
+            IAutoSetterImpl autoSetter = (IAutoSetterImpl) context.contextPorter.getAutoSetter();
+            autoSetter.onOtherDestroy();
             context.contextPorter.destroy();
             LOGGER.debug("Context [{}] destroyed!", contextName);
             stateListenerForAll.afterDestroy();

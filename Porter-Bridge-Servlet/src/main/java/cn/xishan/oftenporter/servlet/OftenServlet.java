@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.init.*;
+import cn.xishan.oftenporter.porter.core.sysset.IAutoSetter;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -585,7 +586,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     }
 
     @Override
-    public void startOne(PorterConf porterConf)
+    public IAutoSetter startOne(PorterConf porterConf)
     {
         if (multiPartOption != null)
         {
@@ -596,7 +597,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
-        porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
+        IAutoSetter autoSetter = porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
         if (defaultCorsAccess == null)
         {
             defaultCorsAccess = AnnoUtil.getAnnotation(OftenServlet.class, CorsAccess.class);
@@ -605,6 +606,13 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
                 porterMain.setForRequestListener(forRequestListener);
             }
         }
+        return autoSetter;
+    }
+
+    @Override
+    public IAutoSetter getAutoSetter(String context)
+    {
+        return porterMain.getAutoSetter(context);
     }
 
     @Override

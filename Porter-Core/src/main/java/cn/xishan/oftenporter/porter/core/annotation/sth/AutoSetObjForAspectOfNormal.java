@@ -465,7 +465,7 @@ public class AutoSetObjForAspectOfNormal
 
                     if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
                     {
-                        autoSetHandle.addAutoSetsForNotPorter(handle);
+                        autoSetHandle.addAutoSetsForNotPorter(new Object[]{handle});
                         handles.add(handle);
                     }
                 }

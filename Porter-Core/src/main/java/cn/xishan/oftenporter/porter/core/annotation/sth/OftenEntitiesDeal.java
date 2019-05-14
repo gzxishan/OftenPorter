@@ -88,7 +88,7 @@ public class OftenEntitiesDeal
                 cacheTool.put(clzz.clazz, new CacheOne(ones[i]));
                 if (clzz.bindEntityDealtHandle != null)
                 {
-                    autoSetHandle.addAutoSetsForNotPorter(clzz.bindEntityDealtHandle);
+                    autoSetHandle.addAutoSetsForNotPorter(new Object[]{clzz.bindEntityDealtHandle});
                 }
             }
             OftenEntities = new OftenEntities(ones);

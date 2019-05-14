@@ -89,18 +89,20 @@ public abstract class StartupServlet extends OftenServlet
         {
             throw new ServletException(OftenTool.getCause(e));
         }
-        if(doSysInit){
+        if (doSysInit)
+        {
             doSysInit();
         }
         isStarted = true;
     }
 
-    protected void doSysInit(){
+    protected void doSysInit()
+    {
         try
         {
             ServletContext servletContext = getServletContext();
             //初始化websocket
-            PortExecutor portExecutor = porterMain.getPortExecutor();
+            PortExecutor portExecutor = porterMain._getPortExecutor();
             Iterator<Context> it = portExecutor.contextIterator();
             while (it.hasNext())
             {
@@ -110,8 +112,7 @@ public abstract class StartupServlet extends OftenServlet
                 WebSocketHandle.initWithServerContainer(context.getConfigData(), serverContainer);
 
                 //Filterer注入处理
-                List<Filterer> filterers = (List<Filterer>) servletContext
-                        .getAttribute(Filterer.class.getName());
+                List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
                 if (filterers != null)
                 {
                     List<Filterer> current = new ArrayList<>();
@@ -125,7 +126,7 @@ public abstract class StartupServlet extends OftenServlet
                     }
                     if (current.size() > 0)
                     {
-                        context.contextPorter.doAutoSetForInstance(current.toArray(new Filterer[0]));
+                        context.contextPorter.getAutoSetter().forInstance(current.toArray(new Filterer[0]));
                     }
                 }
 

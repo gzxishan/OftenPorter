@@ -12,7 +12,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
-import cn.xishan.oftenporter.porter.core.exception.FatalInitException;
+import cn.xishan.oftenporter.porter.core.exception.AutoSetException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
@@ -104,7 +104,7 @@ public class AutoSetHandle
             this.args = args;
         }
 
-        private void doAutoSetThatOfMixin(Object obj1, Object obj2) throws FatalInitException
+        private void doAutoSetThatOfMixin(Object obj1, Object obj2) throws AutoSetException
         {
             try
             {
@@ -112,12 +112,12 @@ public class AutoSetHandle
                 _doAutoSetThatOfMixin(obj2, obj1);
             } catch (Exception e)
             {
-                throw new FatalInitException(e);
+                throw new AutoSetException(e);
             }
         }
 
         @Override
-        public void handle() throws FatalInitException
+        public void handle() throws AutoSetException
         {
             this.doAutoSetThatOfMixin(args[0], args[1]);
         }
@@ -306,6 +306,7 @@ public class AutoSetHandle
     private OftenContextInfo oftenContextInfo;
     private IOtherStartDestroy iOtherStartDestroy;
     private IAutoVarGetter autoVarGetter;
+    private IAutoSetter autoSetter;
 
     private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge,
@@ -327,9 +328,19 @@ public class AutoSetHandle
         return autoVarGetter;
     }
 
+    public IConfigData getConfigData()
+    {
+        return iConfigData;
+    }
+
     public void setAutoVarGetter(IAutoVarGetter autoVarGetter)
     {
         this.autoVarGetter = autoVarGetter;
+    }
+
+    public void setAutoSetter(IAutoSetter autoSetter)
+    {
+        this.autoSetter = autoSetter;
     }
 
     /**
@@ -405,7 +416,7 @@ public class AutoSetHandle
         iHandles_notporter.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
-    public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class<?>> classes,
+    public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class> classes,
             ClassLoader classLoader)
     {
         if (OftenTool.isEmptyOfAll(packages, classStrs, classes))
@@ -438,7 +449,7 @@ public class AutoSetHandle
         addAutoSetsForNotPorter(objects.toArray(OftenTool.EMPTY_OBJECT_ARRAY));
     }
 
-    public synchronized void addAutoSetsForNotPorter(Object... objects)
+    public synchronized void addAutoSetsForNotPorter(Object[] objects)
     {
         iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
     }
@@ -485,7 +496,7 @@ public class AutoSetHandle
     }
 
 
-    public synchronized void doAutoSetNormal() throws FatalInitException
+    public synchronized void doAutoSetNormal() throws AutoSetException
     {
         try
         {
@@ -500,12 +511,12 @@ public class AutoSetHandle
             }
             workedInstance.clear();
 //            workedInstance = null;
-        } catch (FatalInitException e)
+        } catch (AutoSetException e)
         {
             throw e;
         } catch (Exception e)
         {
-            throw new FatalInitException(e);
+            throw new AutoSetException(e);
         } finally
         {
             iHandles_notporter.clear();
@@ -513,7 +524,7 @@ public class AutoSetHandle
         }
     }
 
-    public synchronized void doAutoSetThat() throws FatalInitException
+    public synchronized void doAutoSetThat() throws AutoSetException
     {
         try
         {
@@ -524,12 +535,12 @@ public class AutoSetHandle
             }
             workedInstance.clear();
 //            workedInstance = null;
-        } catch (FatalInitException e)
+        } catch (AutoSetException e)
         {
             throw e;
         } catch (Exception e)
         {
-            throw new FatalInitException(e);
+            throw new AutoSetException(e);
         } finally
         {
             iHandlesForAutoSetThat.clear();
@@ -861,7 +872,7 @@ public class AutoSetHandle
                     }
                 }
 
-            } catch (FatalInitException | InitException e)
+            } catch (AutoSetException | InitException e)
             {
                 throw e;
             } catch (Exception e)
@@ -1090,8 +1101,11 @@ public class AutoSetHandle
     {
         if (iOtherStartDestroy != null)
         {
-            iOtherStartDestroy
-                    .addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object, objectClass));
+            if (iOtherStartDestroy.hasOtherStart())
+            {
+                iOtherStartDestroy
+                        .addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object, objectClass));
+            }
             iOtherStartDestroy
                     .addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object, objectClass));
         }
@@ -1141,6 +1155,9 @@ public class AutoSetHandle
         if (typeName.equals(IAutoVarGetter.class.getName()))
         {
             sysset = autoVarGetter;
+        } else if (typeName.equals(IAutoSetter.class.getName()))
+        {
+            sysset = autoSetter;
         } else if (typeName.equals(IConfigData.class.getName()))
         {
             sysset = iConfigData;

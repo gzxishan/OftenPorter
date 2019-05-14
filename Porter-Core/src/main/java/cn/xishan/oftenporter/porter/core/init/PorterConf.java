@@ -38,7 +38,7 @@ public class PorterConf
     private List<Object> autoSetObjects = new ArrayList<>();
     private List<String> staticAutoSetPackages = new ArrayList<>();
     private List<String> staticAutoSetClassStrs = new ArrayList<>();
-    private List<Class<?>> staticAutoSetClasses = new ArrayList<>();
+    private List<Class> staticAutoSetClasses = new ArrayList<>();
     private ParamSourceHandleManager paramSourceHandleManager;
 
     private DefaultReturnFactory defaultReturnFactory;
@@ -266,12 +266,12 @@ public class PorterConf
      *
      * @param staticAutoSetClasses
      */
-    public void addStaticAutoSetClasses(Class<?>... staticAutoSetClasses)
+    public void addStaticAutoSetClasses(Class... staticAutoSetClasses)
     {
         OftenTool.addAll(this.staticAutoSetClasses, staticAutoSetClasses);
     }
 
-    public List<Class<?>> getStaticAutoSetClasses()
+    public List<Class> getStaticAutoSetClasses()
     {
         return staticAutoSetClasses;
     }

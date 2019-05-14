@@ -10,4 +10,8 @@ public interface IOtherStartDestroy
     void addOtherStarts(Object object, Method[] starts);
 
     void addOtherDestroys(Object object, Method[] destroys);
+
+    void onOtherDestroy();
+
+    boolean hasOtherStart();
 }
