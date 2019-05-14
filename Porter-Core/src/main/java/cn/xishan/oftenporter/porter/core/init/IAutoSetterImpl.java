@@ -46,6 +46,16 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     }
 
     @Override
+    public void forPackage(String[] packages) throws AutoSetException
+    {
+        checkOk();
+        autoSetHandle.addStaticAutoSet(Arrays.asList(packages), null, null,
+                Thread.currentThread().getContextClassLoader());
+        autoSetHandle.doAutoSetNormal();
+        autoSetHandle.invokeSetOk(null);
+    }
+
+    @Override
     public void addOtherStarts(Object object, Method[] starts)
     {
 

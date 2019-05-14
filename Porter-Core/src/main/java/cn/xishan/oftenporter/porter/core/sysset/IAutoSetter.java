@@ -27,4 +27,12 @@ public interface IAutoSetter
      * @throws AutoSetException
      */
     void forClass(Class[] classes) throws AutoSetException;
+
+    /**
+     * 对包中（包括子包）所有类的静态变量进行注入处理。
+     *
+     * @param packages
+     * @throws AutoSetException
+     */
+    void forPackage(String[] packages) throws AutoSetException;
 }
