@@ -225,21 +225,7 @@ public final class PorterMain
 
     public synchronized void addGlobalAutoSet(String name, Object object)
     {
-        Object last = innerBridge.globalAutoSet.put(name, object);
-        if (last != null)
-        {
-            LOGGER.warn("the global object named '{}' added before [{}]", name, last);
-        }
-
-        String autoSetName = PorterConf.getAutoSetName(object);
-        if (OftenTool.notEmpty(autoSetName))
-        {
-            last = innerBridge.globalAutoSet.put(autoSetName, object);
-            if (last != null)
-            {
-                LOGGER.warn("the global object named '{}' added before [{}]", name, last);
-            }
-        }
+        innerBridge.putGlobalSet(name, object);
     }
 
     private void doGlobalCheckAutoSet(AutoSetHandle autoSetHandle, CheckPassable[] alls)
@@ -408,7 +394,7 @@ public final class PorterMain
         ContextPorter contextPorter = new ContextPorter(autoSetter, porterConf.getConfigData());
         contextPorter.setClassLoader(porterConf.getClassLoader());
 
-        autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.contextAutoSet.values());
+        autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.getContextAutoSetMap().values());
         autoSetHandle.addAutoSetsForNotPorter(new Object[]{argumentsFactory});
 
         LOGGER.debug("add autoSet StateListener...");

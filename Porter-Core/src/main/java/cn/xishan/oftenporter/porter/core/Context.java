@@ -77,14 +77,14 @@ public class Context implements IAutoVarGetter
     @Override
     public <T> T getContextSet(String objectName)
     {
-        T t = (T) innerContextBridge.contextAutoSet.get(objectName);
+        T t = (T) innerContextBridge.getContextSet(objectName);
         return t;
     }
 
     @Override
     public <T> T getGlobalSet(String objectName)
     {
-        T t = (T) innerContextBridge.innerBridge.globalAutoSet.get(objectName);
+        T t = (T) innerContextBridge.innerBridge.getGlobalSet(objectName);
         return t;
     }
 

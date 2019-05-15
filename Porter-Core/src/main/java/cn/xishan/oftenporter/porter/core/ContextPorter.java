@@ -426,7 +426,7 @@ public class ContextPorter implements IOtherStartDestroy
                     }
                     portMap.put(tiedName, porter);
                 }
-                autoSetHandle.getInnerContextBridge().contextAutoSet.put(porter.getClazz().getName(), porter.getObj());
+                autoSetHandle.getInnerContextBridge().putContextSet(porter.getClazz().getName(), porter.getObj());
             } else
             {
                 LOGGER.warn("porter add canceled!!(class tied={},{})", port.getTiedNames(), clazz);

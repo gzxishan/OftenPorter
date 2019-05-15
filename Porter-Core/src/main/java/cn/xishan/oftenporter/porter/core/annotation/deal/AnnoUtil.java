@@ -580,7 +580,8 @@ public class AnnoUtil
 
     /**
      * 获取类上的注解。
-     * @param object 用于获取类。
+     *
+     * @param object          用于获取类。
      * @param annotationClass
      * @param <A>
      * @return
@@ -2419,6 +2420,20 @@ public class AnnoUtil
 //            }
             annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
             return obj;
+        }
+    }
+
+
+    public static String getAutoSetName(Object object)
+    {
+        Class clazz = PortUtil.getRealClass(object);
+        AutoSetName autoSetName = AnnoUtil.getAnnotation(clazz, AutoSetName.class);
+        if (autoSetName != null)
+        {
+            return autoSetName.value();
+        } else
+        {
+            return null;
         }
     }
 }

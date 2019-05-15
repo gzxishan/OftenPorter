@@ -1,10 +1,12 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.advanced.IAutoSetListener;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +17,7 @@ import java.util.Map;
 public class InnerContextBridge
 {
     public final ClassLoader classLoader;
-    public final Map<String, Object> contextAutoSet;
+    private final Map<String, Object> contextAutoSet;
 
     public final boolean responseWhenException;
     /**
@@ -31,7 +33,8 @@ public class InnerContextBridge
     public final IAutoSetListener[] autoSetListeners;
 
     public InnerContextBridge(ClassLoader classLoader, InnerBridge innerBridge, Map<String, Object> contextAutoSet,
-            boolean enableDefaultValue, PorterBridge porterBridge, OutType defaultOutType,IAutoSetListener[] autoSetListeners,
+            boolean enableDefaultValue, PorterBridge porterBridge, OutType defaultOutType,
+            IAutoSetListener[] autoSetListeners,
             boolean responseWhenException)
     {
         this.classLoader = classLoader;
@@ -41,7 +44,32 @@ public class InnerContextBridge
         this.checkPassableForCFTemps = new HashMap<>();
         this.paramDealt = porterBridge.paramDealt();
         this.defaultOutType = defaultOutType;
-        this.autoSetListeners=autoSetListeners;
+        this.autoSetListeners = autoSetListeners;
         this.responseWhenException = responseWhenException;
+    }
+
+    public Map<String, Object> getContextAutoSetMap()
+    {
+        return contextAutoSet;
+    }
+
+    public Object getContextSet(String objectName)
+    {
+        return contextAutoSet.get(objectName);
+    }
+
+    public Object putContextSet(String objectName, Object object)
+    {
+        Object last=null;
+        if (object != null)
+        {
+           last= contextAutoSet.put(objectName, object);
+            String autoSetName = AnnoUtil.getAutoSetName(object);
+            if (OftenTool.notEmpty(autoSetName))
+            {
+                contextAutoSet.put(autoSetName, object);
+            }
+        }
+        return last;
     }
 }

@@ -388,7 +388,7 @@ public class AutoSetHandle
 
     public <T> T getContextObject(String key)
     {
-        return (T) innerContextBridge.contextAutoSet.get(key);
+        return (T) innerContextBridge.getContextSet(key);
     }
 
     public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy)
@@ -478,7 +478,7 @@ public class AutoSetHandle
                 }
                 continue;
             }
-            Object last = innerContextBridge.contextAutoSet.put(contextSet.value(), porterObject);
+            Object last = innerContextBridge.putContextSet(contextSet.value(), porterObject);
             if (last != null && LOGGER.isWarnEnabled())
             {
                 LOGGER.warn("override by @{}:key={},newValue={},oldValue={}", PortIn.ContextSet.class.getSimpleName(),
@@ -681,15 +681,14 @@ public class AutoSetHandle
             AutoSet.Put put = AnnoUtil.getAnnotation(field, AutoSet.Put.class);
             if (put != null)
             {
-                Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-                Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+                //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
                 String name = put.name().equals("") ? realType.getName() : put.name();
                 if (put.range() == AutoSet.Range.Global)
                 {
-                    globalAutoSet.put(name, obj);
+                    innerContextBridge.innerBridge.putGlobalSet(name, obj);
                 } else
                 {
-                    contextAutoSet.put(name, obj);
+                    innerContextBridge.putContextSet(name, obj);
                 }
             }
         }
@@ -908,13 +907,13 @@ public class AutoSetHandle
         Object value = null;
 
         {//先获取
-            Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-            Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+            //Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+            //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
             switch (autoSet.range())
             {
                 case Global:
                 {
-                    value = globalAutoSet.get(keyName);
+                    value = innerContextBridge.innerBridge.getGlobalSet(keyName);
                     if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
                     {
 
@@ -929,7 +928,7 @@ public class AutoSetHandle
                 break;
                 case Context:
                 {
-                    value = contextAutoSet.get(keyName);
+                    value = innerContextBridge.getContextSet(keyName);
                     if (value == null)
                     {
                         Porter thePorter = porterMap.get(mayNew);
@@ -983,15 +982,15 @@ public class AutoSetHandle
     {
         if (autoSet.isWillSave() && value != null && autoSet.notNullPut())
         {
-            Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-            Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
+            //Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
+            //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
             switch (autoSet.range())
             {
                 case Global:
-                    globalAutoSet.put(keyName, value);
+                    innerContextBridge.innerBridge.putGlobalSet(keyName, value);
                     break;
                 case Context:
-                    contextAutoSet.put(keyName, value);
+                    innerContextBridge.putContextSet(keyName, value);
                     break;
                 case New:
                     break;
