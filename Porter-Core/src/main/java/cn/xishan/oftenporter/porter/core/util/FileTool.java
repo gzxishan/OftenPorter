@@ -213,15 +213,17 @@ public class FileTool
      * @param createIfNotExists toFile不存在时是否创建
      * @throws IOException
      */
-    public static void file2file(File file, File toFile, int bufSize,boolean createIfNotExists) throws IOException
+    public static void file2file(File file, File toFile, int bufSize, boolean createIfNotExists) throws IOException
     {
-        if(toFile.exists()||createIfNotExists&&toFile.createNewFile()){
-            try(FileOutputStream fos =  new FileOutputStream(toFile))
+        if (toFile.exists() || createIfNotExists && toFile.createNewFile())
+        {
+            try (FileOutputStream fos = new FileOutputStream(toFile))
             {
-                file2out(file,fos,bufSize);
+                file2out(file, fos, bufSize);
             }
         }
     }
+
     /**
      * 把文件写到输出流。
      *
@@ -300,10 +302,14 @@ public class FileTool
                     }
                 }
             }
-        }
-        if (includeCurrentDir)
+            if (includeCurrentDir)
+            {
+                return file.delete();
+            }
+        } else
+        {
             return file.delete();
-
+        }
         return true;
     }
 

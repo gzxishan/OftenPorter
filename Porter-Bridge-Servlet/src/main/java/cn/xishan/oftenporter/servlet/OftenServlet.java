@@ -461,16 +461,19 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     {
         String[] methods = new String[corsAccess.allowMethods().length];
         PortMethod[] portMethods = corsAccess.allowMethods();
-        for (int i = 0; i < methods.length; i++)
-        {
-            methods[i] = portMethods[i].name();
-        }
+
         if (portMethods.length == 0 && optionalMethod != null)
         {
             portMethods = new PortMethod[]{
                     optionalMethod
             };
         }
+        
+        for (int i = 0; i < methods.length; i++)
+        {
+            methods[i] = portMethods[i].name();
+        }
+
         response.setHeader("Access-Control-Allow-Methods", OftenTool.join(",", methods));
         response.setHeader("Access-Control-Allow-Credentials", String.valueOf(corsAccess.allowCredentials()));
         response.setHeader("Access-Control-Allow-Origin",

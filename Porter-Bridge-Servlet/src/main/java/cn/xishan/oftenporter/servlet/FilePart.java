@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+
 import java.io.File;
 
 /**
@@ -37,7 +39,7 @@ public class FilePart implements AutoCloseable
     {
         for (File file : files)
         {
-            file.delete();
+            FileTool.delete(file);
         }
     }
 }

@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class InNames
 {
-    public static InNames EMPTY = InNames
+    public static final InNames EMPTY = InNames
             .fromStringArray(OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY);
 
     private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = () -> null;
@@ -78,11 +78,11 @@ public class InNames
             if (str.startsWith("("))
             {
                 str = findConf(str);
-                str = findDefault(str);
+                findDefault(str);
             } else
             {
                 str = findDefault(str);
-                str = findConf(str);
+                findConf(str);
             }
         }
 
@@ -92,8 +92,8 @@ public class InNames
             if (matcher.find())
             {
                 String varConfig = matcher.group(1).trim()
-                        .replaceAll("\\\\\\(","(")
-                        .replaceAll("\\\\\\)",")");
+                        .replaceAll("\\\\\\(", "(")
+                        .replaceAll("\\\\\\)", ")");
                 if (varConfig.equals(""))
                 {
                     this.parserOption = EMPTY_TYPE_PARSER_OPTION;
@@ -115,8 +115,8 @@ public class InNames
             if (matcher.find())
             {
                 this.defaultValue = matcher.group(1).trim()
-                        .replaceAll("\\\\\\[","[")
-                        .replaceAll("\\\\\\]","]");
+                        .replaceAll("\\\\\\[", "[")
+                        .replaceAll("\\\\\\]", "]");
                 str = str.substring(matcher.end()).trim();
             }
             return str;

@@ -44,7 +44,7 @@ public class LocalMain implements CommonMain
 
     protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, IBridge bridge)
     {
-        newLocalMain(responseWhenException, bridgeName, bridge);
+        newLocalMain(responseWhenException, bridgeName, "utf-8", bridge);
     }
 
     protected void newLocalMain(boolean responseWhenException, BridgeName bridgeName, String urlEncoding,
