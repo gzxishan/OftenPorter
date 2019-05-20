@@ -19,7 +19,7 @@ public @interface MyBatisMapper
 {
     enum Type
     {
-        RESOURCES,URL
+        RESOURCES, URL
     }
 
     /**
@@ -53,14 +53,14 @@ public @interface MyBatisMapper
 //    String entityAlias() default "";
 
     /**
-     * 从被注解的当前interface上获取实际的实体类,见{@linkplain AnnoUtil.Advanced#getDirectGenericRealTypeAt(Class, int)}
+     * 从被注解的当前interface上获取实际的实体类,见{@linkplain AnnoUtil.Advance#getDirectGenericRealTypeAt(Class, int)}
      *
      * @return
      */
     int entityClassFromGenericTypeAt() default -1;
 
     /**
-     * 获取泛型上的子类型作为实体,见{@linkplain AnnoUtil.Advanced#getDirectGenericRealTypeBySuperType(Class, Class)}
+     * 获取泛型上的子类型作为实体,见{@linkplain AnnoUtil.Advance#getDirectGenericRealTypeBySuperType(Class, Class)}
      *
      * @return
      */
