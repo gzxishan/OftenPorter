@@ -63,7 +63,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     private int order;
     private HtmlxDoc.ResponseType defaultResponseType;
 
-    private long otherwiseLastmodified = -1;
+    private long otherwiseLastmodified = System.currentTimeMillis();
 
 
     public String getBaseDir()
@@ -269,12 +269,11 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         if (lastRenderData != null)
         {
             HtmlxDoc htmlxDoc = lastRenderData.getHtmlxDoc();
-            if (!HttpCacheUtil.isCacheIneffectiveWithModified(htmlxDoc.getLastModified(), request, response))
+            if (cacheSeconds > 0 && !HttpCacheUtil
+                    .isCacheIneffectiveWithModified(htmlxDoc.getLastModified(), request, response))
             {
-                if (cacheSeconds > 0)
-                {
-                    HttpCacheUtil.setCacheWithModified(cacheSeconds, htmlxDoc.getLastModified(), response);
-                }
+                request.setAttribute(HtmlxDoc.ResponseType.class.getName(), HtmlxDoc.ResponseType.Break);
+                HttpCacheUtil.setCacheWithModified(cacheSeconds, htmlxDoc.getLastModified(), response);
             } else
             {
                 invokeDoc(oftenObject, request, response, lastRenderData, porterOfFun);
@@ -323,12 +322,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             }
 
 
-            if (!HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
+            if (cacheSeconds > 0 && !HttpCacheUtil.isCacheIneffectiveWithModified(lastModified, request, response))
             {
-                if (cacheSeconds > 0)
-                {
-                    HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
-                }
+                request.setAttribute(HtmlxDoc.ResponseType.class.getName(), HtmlxDoc.ResponseType.Break);
+                HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
             } else
             {
                 Document document;

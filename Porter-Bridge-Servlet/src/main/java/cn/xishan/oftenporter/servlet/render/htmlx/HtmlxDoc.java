@@ -35,7 +35,7 @@ public class HtmlxDoc
          */
         ServletDefault,
         /**
-         * 中断后续操作，这种情况一般是开发者自己进行了输出响应。
+         * 中断后续操作，这种情况一般是开发者自己进行了输出或状态响应。
          */
         Break,
         /**
