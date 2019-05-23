@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -73,7 +74,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         @Override
         public List<WrapperFilter> wrapperFilters()
         {
-            return wrapperFilterList;
+            return Collections.unmodifiableList(wrapperFilterList);
         }
     };
 
