@@ -156,14 +156,13 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
 
     static String getPath(HttpServletRequest request)
     {
-        String uri = request.getRequestURI();
-        int length = request.getContextPath().length() + request.getServletPath().length();
-        if (length > uri.length())
+        String uri = request.getRequestURI().substring(request.getContextPath().length());
+        if (uri.equals(request.getServletPath()))
         {
-            return request.getServletPath();
+            return uri;
         } else
         {
-            return uri.substring(length);
+            return uri.substring(request.getServletPath().length());
         }
     }
 
@@ -469,7 +468,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
                     optionalMethod
             };
         }
-        
+
         for (int i = 0; i < methods.length; i++)
         {
             methods[i] = portMethods[i].name();
