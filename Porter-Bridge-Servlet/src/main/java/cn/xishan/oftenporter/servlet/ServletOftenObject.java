@@ -120,7 +120,7 @@ public class ServletOftenObject extends OftenObject
      * @return
      */
     @Override
-    public BridgeName getPName()
+    public BridgeName getBridgeName()
     {
         return null;
     }

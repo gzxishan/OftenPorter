@@ -37,7 +37,7 @@ class BridgeRequestWithSource extends BridgeRequest
         super(oftenObject, request.getMethod(), request.getPath(), false);
         initOrigin(request);
         this.request = request;
-        this.invokeSource = new InvokeSource(oftenObject.getPName(), oftenObject.url().contextName(),
+        this.invokeSource = new InvokeSource(oftenObject.getBridgeName(), oftenObject.url().contextName(),
                 oftenObject.url().classTied());
     }
 

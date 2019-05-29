@@ -662,7 +662,7 @@ public final class AnnotationDealt
                     portIn.enableMixinTo());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
 
-            if (_portInOfMethod.getTiedType().isRest())
+            if (_portInOfMethod.getTiedType().isMethodTied())
             {
                 _portInOfMethod.tiedNames = new String[]{""};
             } else
@@ -678,7 +678,7 @@ public final class AnnotationDealt
             if (porter.getObj() instanceof IFun)
             {
                 IFun iFun = (IFun) porter.getObj();
-                if (!_portInOfMethod.getTiedType().isRest())
+                if (!_portInOfMethod.getTiedType().isMethodTied())
                 {
                     String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
                     for (String tied : tieds)

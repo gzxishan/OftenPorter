@@ -7,7 +7,7 @@ package cn.xishan.oftenporter.porter.core.base;
 public enum TiedType
 {
     /**
-     * 通过请求方法绑定进行绑定。
+     * 通过请求方法进行绑定。
      */
     METHOD,
     /**
@@ -24,7 +24,7 @@ public enum TiedType
     DEFAULT;
 
 
-    public boolean isRest(){
+    public boolean isMethodTied(){
         return this==FORCE_METHOD||this==METHOD;
     }
     /**

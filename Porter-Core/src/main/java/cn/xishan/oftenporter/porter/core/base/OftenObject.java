@@ -172,7 +172,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
      *
      * @return
      */
-    public abstract BridgeName getPName();
+    public abstract BridgeName getBridgeName();
 
     public <T> T cnOf(int index)
     {

@@ -79,7 +79,7 @@ class OftenObjectImpl extends OftenObject
     }
 
     @Override
-    public BridgeName getPName()
+    public BridgeName getBridgeName()
     {
         return bridgeName;
     }

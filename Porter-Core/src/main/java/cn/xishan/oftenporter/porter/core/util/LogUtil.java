@@ -137,7 +137,7 @@ public class LogUtil
         }
         StringBuilder builder = new StringBuilder();
         builder.append(clazz.getName());
-        BridgeName bridgeName = oftenObject.getPName();
+        BridgeName bridgeName = oftenObject.getBridgeName();
         if (bridgeName != null)
         {
             builder.append(".").append(bridgeName.getName());
