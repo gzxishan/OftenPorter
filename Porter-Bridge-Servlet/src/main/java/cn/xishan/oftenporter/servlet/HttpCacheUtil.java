@@ -17,24 +17,14 @@ public class HttpCacheUtil
     }
 
     /**
-     * 最终缓存是否有效的判断：
+     * 最终缓存是否有效的判断:
      * <pre>
-     *          boolean isChanged = false;
-     *             if (isChangeByDtime != null)
-     *             {
-     *                 isChanged = isChangeByDtime;
-     *             }
      *
-     *             if (!isChanged)
+     *             if (isChangeByDtime != null&&!isChangeByDtime)
      *             {
-     *                 if (setChange != null)
-     *                 {
-     *                     isChanged = setChange || checkChange;
-     *                 } else
-     *                 {
-     *                     isChanged = checkChange;
-     *                 }
+     *                 return true;
      *             }
+     *             return isChangeByDtime == null && !checkChange;
      * </pre>
      */
     public interface ICtrl
@@ -80,20 +70,12 @@ public class HttpCacheUtil
         ICtrl unchanged(Callback callback);
 
         /**
-         * 手动设置资源是否改变。
-         *
-         * @param isChange
-         * @return
-         */
-        ICtrl setIsChange(boolean isChange);
-
-        /**
-         * 如果上次访问的时间到此时大于dseconds、则判断缓存失效，另见{@linkplain #setIsChange(boolean)}。
+         * 如果上次访问的时间到此时小于dseconds、则判断缓存有效，另见{@linkplain #setUseCache(boolean)}。
          *
          * @param dseconds
          * @return
          */
-        ICtrl setIsChangeByDtime(int dseconds);
+        ICtrl setUseCacheByDtime(int dseconds);
 
         /**
          * 完成设置
@@ -111,15 +93,14 @@ public class HttpCacheUtil
         private String etag;
         private Long lastModified;
         private Boolean response304;
-        private Boolean isChangeByDtime;
-        private Boolean setChange;
-        private boolean checkChange;
+        private Boolean useCacheByDtime;
+        private boolean checkUseCache;
 
         public ICtrlImpl(HttpServletRequest request, HttpServletResponse response, boolean isChanged)
         {
             this.request = request;
             this.response = response;
-            this.checkChange = isChanged;
+            this.checkUseCache = !isChanged;
         }
 
         @Override
@@ -160,61 +141,43 @@ public class HttpCacheUtil
         }
 
         @Override
-        public ICtrl setIsChange(boolean isChange)
+        public ICtrl setUseCacheByDtime(int dseconds)
         {
-            this.setChange = isChange;
+            long since = request.getDateHeader("If-Modified-Since") / 1000;
+            this.useCacheByDtime = (System.currentTimeMillis() / 1000 - since) < dseconds;
             return this;
         }
 
-        @Override
-        public ICtrl setIsChangeByDtime(int dseconds)
+
+        private boolean isCacheOk()
         {
-            long since = request.getDateHeader("If-Modified-Since") / 1000;
-            this.isChangeByDtime = (System.currentTimeMillis() / 1000 - since) > dseconds;
-            return this;
+            if (useCacheByDtime != null && useCacheByDtime)
+            {
+                return true;
+            }
+
+            return useCacheByDtime == null && checkUseCache;
         }
 
         @Override
         public void done()
         {
-            boolean isChanged = false;
-            if (isChangeByDtime != null)
+            boolean useCache = isCacheOk();
+            if (forceSeconds != null)
             {
-                isChanged = isChangeByDtime;
-            }
+                if (OftenTool.notEmpty(etag))
+                {
+                    setCacheWithEtag(forceSeconds, etag, response);
+                }
 
-            if (!isChanged)
-            {
-                if (setChange != null)
+                if (OftenTool.notEmpty(lastModified))
                 {
-                    isChanged = setChange || checkChange;
-                } else
-                {
-                    isChanged = checkChange;
+                    setCacheWithModified(forceSeconds, lastModified, response);
                 }
             }
 
-            if (isChanged)
+            if (useCache)
             {
-                if (changedCallback != null)
-                {
-                    changedCallback.call(request, response);
-                }
-            } else
-            {
-                if (forceSeconds != null)
-                {
-                    if (OftenTool.notEmpty(etag))
-                    {
-                        setCacheWithEtag(forceSeconds, etag, response);
-                    }
-
-                    if (OftenTool.notEmpty(lastModified))
-                    {
-                        setCacheWithModified(forceSeconds, lastModified, response);
-                    }
-                }
-
                 if (unchangedCallback != null)
                 {
                     unchangedCallback.call(request, response);
@@ -222,6 +185,12 @@ public class HttpCacheUtil
                 if (response304 != null)
                 {
                     notModified(response);
+                }
+            } else
+            {
+                if (changedCallback != null)
+                {
+                    changedCallback.call(request, response);
                 }
             }
         }
@@ -231,14 +200,14 @@ public class HttpCacheUtil
     public static ICtrl checkWithEtag(String etag, HttpServletRequest request,
             HttpServletResponse response)
     {
-        ICtrl ctrl = new ICtrlImpl(request, response, isCacheIneffectiveWithEtag(etag, request, response));
+        ICtrl ctrl = new ICtrlImpl(request, response, isCacheIneffectiveWithEtag(etag, request, null));
         return ctrl;
     }
 
     public static ICtrl checkWithModified(long lastModified, HttpServletRequest request,
             HttpServletResponse response)
     {
-        ICtrl ctrl = new ICtrlImpl(request, response, isCacheIneffectiveWithModified(lastModified, request, response));
+        ICtrl ctrl = new ICtrlImpl(request, response, isCacheIneffectiveWithModified(lastModified, request, null));
         return ctrl;
     }
 
@@ -352,6 +321,7 @@ public class HttpCacheUtil
      *
      * @param lastModified 资源上次修改时间(单位毫秒)。
      * @param request
+     * @param response     如果缓存没有失效、且response不为null、则响应304
      * @return
      */
     public static boolean isCacheIneffectiveWithModified(long lastModified, HttpServletRequest request,
@@ -364,7 +334,10 @@ public class HttpCacheUtil
         }
         if (lastModified == since)
         {
-            notModified(response);
+            if (response != null)
+            {
+                notModified(response);
+            }
             return false;
         } else
         {
@@ -375,8 +348,9 @@ public class HttpCacheUtil
     /**
      * 判断客户端缓存是否失效,如果没有失效会设置状态码为304。
      *
-     * @param etag    资源唯一标识（优先级高于If-Modified-Since）
+     * @param etag     资源唯一标识（优先级高于If-Modified-Since）
      * @param request
+     * @param response 如果缓存没有失效、且response不为null、则响应304
      * @return
      */
     public static boolean isCacheIneffectiveWithEtag(String etag, HttpServletRequest request,
@@ -386,7 +360,10 @@ public class HttpCacheUtil
         boolean b = !etag.equals(previousTag);
         if (!b)
         {
-            notModified(response);
+            if (response != null)
+            {
+                notModified(response);
+            }
         }
         return b;
     }
