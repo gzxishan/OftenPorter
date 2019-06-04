@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 //@WebFilter(urlPatterns = "/*", dispatcherTypes = {DispatcherType.REQUEST, DispatcherType.FORWARD}, asyncSupported =
 //        true)
-public class OftenWebSocketFilter implements Filter
+public final class OftenWebSocketFilter implements Filter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenWebSocketFilter.class);
 

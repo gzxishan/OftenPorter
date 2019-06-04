@@ -126,6 +126,8 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             public void startOne(PorterConf porterConf)
             {
                 BridgeServlet.this.startOne(porterConf);
+//                bindOftenServlet(porterConf.getOftenContextName(), new RealServlet(BridgeServlet.this, initializer));
+
                 String urlPattern = "/" + porterConf.getOftenContextName() + "/*";
                 ServletContext servletContext = getServletContext();
                 HttpServlet httpServlet = new RealServlet(BridgeServlet.this, initializer);
@@ -135,7 +137,8 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                 LOGGER.debug("mapping:{}", urlPattern);
                 dynamic.addMapping(urlPattern);
                 dynamic.setAsyncSupported(true);
-                dynamic.setLoadOnStartup(1);
+                dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE);
+
                 if (customServletPaths != null)
                 {
                     for (CustomServletPath servletPath : customServletPaths)
@@ -311,11 +314,19 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             ServletRegistration.Dynamic dynamic = servletContext
                     .addServlet(bridgeServlet.getServletName(), bridgeServlet);
             dynamic.setAsyncSupported(true);
-            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE);
+            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE-1);
         } catch (Throwable e)
         {
             throw new ServletException(e);
         }
         WebSocketHandle.initFilter(servletContext);
+//        BridgeFilter.init(servletContext);
     }
+
+//    public static void bindOftenServlet(String oftenContext, HttpServlet servlet)
+//    {
+//        PortUtil.checkName(oftenContext);
+//        BridgeFilter.bind(oftenContext, servlet);
+//    }
+
 }
