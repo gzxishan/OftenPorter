@@ -11,7 +11,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 简单的地址解析器:/contextName/classTied/[funTied|restValue][=*=参数][?name1=value1&name2=value2]
+ * 简单的地址解析器:/contextName/classTied/[funTied][=*=参数][?name1=value1&name2=value2]
+ * <p>
+ *     其中funTied可以包括“/”的字符,如:/often/Hello/util/base.js解析的funTied为util/base.js。
+ * </p>
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
 public class DefaultUrlDecoder implements UrlDecoder

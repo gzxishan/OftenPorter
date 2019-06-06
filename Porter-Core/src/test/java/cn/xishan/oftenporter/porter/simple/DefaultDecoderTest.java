@@ -27,4 +27,18 @@ public class DefaultDecoderTest
         assertEquals("1", result.getParam("age"));
         assertEquals("火星", result.getParam("name"));
     }
+
+    @Test
+    public void testDecode2() throws UnsupportedEncodingException
+    {
+        DefaultUrlDecoder defaultDecoder = new DefaultUrlDecoder("utf-8");
+
+        UrlDecoder.Result result = defaultDecoder
+                .decode("/C1/Hello/aspect/util.js?age=1&name=" + URLEncoder.encode("火星", "utf-8"));
+        assertEquals("C1", result.contextName());
+        assertEquals("Hello", result.classTied());
+        assertEquals("aspect/util.js", result.funTied());
+        assertEquals("1", result.getParam("age"));
+        assertEquals("火星", result.getParam("name"));
+    }
 }
