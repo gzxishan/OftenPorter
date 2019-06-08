@@ -156,7 +156,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     /**
      * 直接调用Java函数
      *
-     * @param args 参数列表
+     * @param args 参数列表,见{@linkplain Method#invoke(Object, Object...)}
      * @return
      * @throws InvocationTargetException
      * @throws IllegalAccessException
@@ -172,7 +172,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * {@linkplain #putInvokeArg(OftenObject, String, Object)}.
      *
      * @param oftenObject
-     * @param args
+     * @param args 支持{@linkplain FunParam}
      * @return
      * @throws InvocationTargetException
      * @throws IllegalAccessException
