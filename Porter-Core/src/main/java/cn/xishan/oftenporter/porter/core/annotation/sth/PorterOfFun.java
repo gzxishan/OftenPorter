@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.core.annotation.sth;
 import cn.xishan.oftenporter.porter.core.AspectHandleOfPortInUtil;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortOut;
 import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
@@ -172,13 +173,17 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * {@linkplain #putInvokeArg(OftenObject, String, Object)}.
      *
      * @param oftenObject
-     * @param args 支持{@linkplain FunParam}
+     * @param args        支持{@linkplain FunParam}
      * @return
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public final Object invokeByHandleArgs(OftenObject oftenObject, Object... args) throws Throwable
+    public final Object invokeByHandleArgs(@MayNull OftenObject oftenObject, Object... args) throws Throwable
     {
+        if (oftenObject == null)
+        {
+            oftenObject = OftenObject.EMPTY;
+        }
         if (hasDirectHandleSupport)
         {
             return invokeByHandleArgsMayTriggerAspectHandle(oftenObject, args);

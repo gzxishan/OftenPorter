@@ -29,6 +29,7 @@ import java.util.Stack;
  */
 public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalListener>, IAutoVarGetter
 {
+    public static final OftenObject EMPTY = new OftenObjectEmpty();
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenObject.class);
 
     public interface IFinalListener

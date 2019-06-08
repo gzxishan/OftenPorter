@@ -3,17 +3,20 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * 简单的地址解析器:/contextName/classTied/[funTied][=*=参数][?name1=value1&name2=value2]
+ * 简单的地址解析器:/contextName/classTied[/**=name1=value1&name2=value2][/funTied][=*=参数][?name1=value1&name2=value2]
  * <p>
- *     其中funTied可以包括“/”的字符,如:/often/Hello/util/base.js解析的funTied为util/base.js。
+ * 其中funTied可以包括“/”的字符,如:/often/Hello/util/base.js解析的funTied为util/base.js。
  * </p>
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
@@ -24,6 +27,9 @@ public class DefaultUrlDecoder implements UrlDecoder
 
     public static final String STAR_PARAM_KEY = "=*=";
 
+    private static final Pattern STAR_PARAM2_PATTERN = Pattern.compile("/\\*\\*=([^/\\?]*)");
+
+
     public DefaultUrlDecoder(String encoding)
     {
         this.encoding = encoding;
@@ -32,13 +38,29 @@ public class DefaultUrlDecoder implements UrlDecoder
     @Override
     public Result decode(String path)
     {
-        int index = path.indexOf('?');
-
-        String tiedPath = index == -1 ? path : path.substring(0, index);
-
-        if (!tiedPath.startsWith("/"))
+        if (!path.startsWith("/"))
         {
             return null;
+        }
+        String queryStr = "";
+        String queryStr2 = "";
+
+        Matcher matcher = STAR_PARAM2_PATTERN.matcher(path);
+        if (matcher.find())
+        {
+            queryStr2 = matcher.group(1);
+            path = path.substring(0, matcher.start()) + path.substring(matcher.end());
+        }
+
+        int queryIndex = path.indexOf('?');
+        String tiedPath;
+        if (queryIndex == -1)
+        {
+            tiedPath = path;
+        } else
+        {
+            tiedPath = path.substring(0, queryIndex);
+            queryStr = path.substring(queryIndex + 1);
         }
 
         int starParamIndex = tiedPath.indexOf(STAR_PARAM_KEY);
@@ -69,29 +91,38 @@ public class DefaultUrlDecoder implements UrlDecoder
         } else
         {
             classTied = tiedPath.substring(1, forwardSlash);
-            try
-            {
-                funTied = URLDecoder.decode(tiedPath.substring(forwardSlash + 1), encoding);
-            } catch (UnsupportedEncodingException e)
-            {
-                LOGGER.warn(e.getMessage(), e);
-                return null;
-            }
+//            try
+//            {
+//                funTied = URLDecoder.decode(tiedPath.substring(forwardSlash + 1), encoding);
+//            } catch (UnsupportedEncodingException e)
+//            {
+//                LOGGER.warn(e.getMessage(), e);
+//                return null;
+//            }
+            funTied=tiedPath.substring(forwardSlash + 1);
         }
 
 
         Map<String, Object> params;
-        if (index != -1)
+
+        //先处理queryStr2，低优先级
+        if (OftenTool.notEmpty(queryStr2))
         {
-            int sharpIndex = path.indexOf("#", index);
-            if (sharpIndex == -1)
-            {
-                sharpIndex = path.length();
-            }
-            params = decodeParam(path.substring(index + 1, sharpIndex), encoding);
+            params = decodeParam(queryStr2, encoding);
         } else
         {
             params = new HashMap<>(0);
+        }
+
+        if (OftenTool.notEmpty(queryStr))
+        {
+            int sharpIndex = queryStr.indexOf("#");
+            if (sharpIndex == -1)
+            {
+                sharpIndex = queryStr.length();
+            }
+            Map<String, Object> map = decodeParam(queryStr.substring(0, sharpIndex), encoding);
+            params.putAll(map);
         }
         if (starParam != null)
         {
