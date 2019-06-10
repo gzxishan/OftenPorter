@@ -166,6 +166,10 @@ public class ResourceUtil
     public static InputStream getAbsoluteResourceStream(String path) throws IOException
     {
         URL url = getAbsoluteResource(path);
+        if (url == null)
+        {
+            throw new IOException("not found resource:" + path);
+        }
         return url.openStream();
     }
 

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 /**
  * Created by https://github.com/CLovinr on 2016/7/23.
@@ -186,6 +187,7 @@ public class PackageUtil
 //        return builder.toString();
     }
 
+    private static final Pattern ABSOLUTE_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\.\\*\\+\\$%#!@=-]+:");
 
     /**
      * @param pathSep   path的路径分隔符号，如“.”，“/”
@@ -201,7 +203,7 @@ public class PackageUtil
         String separatorStr = String.valueOf(separator);
 
         path = path.replace(pathSep, separator);
-        if (relative.startsWith("/"))
+        if (relative.startsWith("/") || ABSOLUTE_PATTERN.matcher(relative).find())
         {
             return '/' == separator ? relative : relative.replace('/', separator);
         }
@@ -218,7 +220,7 @@ public class PackageUtil
             }
         }
 
-        if (path.endsWith(separatorStr)&&!path.equals(separatorStr))
+        if (path.endsWith(separatorStr) && !path.equals(separatorStr))
         {
             path = path.substring(0, path.length() - 1);
         }
