@@ -49,12 +49,13 @@ class AnnoUtilDynamicAttrHandler extends InvocationHandlerWithCommon
             return iAnnotationConfigable.getAnnotationStringValue((String) rs);
         } else if (rs instanceof String[])
         {
-            String[] strs = (String[]) rs;
-            for (int i = 0; i < strs.length; i++)
+            String[] oldStrs = (String[]) rs;
+            String[] newStrs = new String[oldStrs.length];
+            for (int i = 0; i < oldStrs.length; i++)
             {
-                strs[i] = iAnnotationConfigable.getAnnotationStringValue(strs[i]);
+                newStrs[i] = iAnnotationConfigable.getAnnotationStringValue(oldStrs[i]);
             }
-            return strs;
+            return newStrs;
         } else
         {
             return rs;
