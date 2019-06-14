@@ -395,7 +395,28 @@ public class SimpleSqlUtil
                 JSONArray valueArray = (JSONArray) value;
                 JSONArray nvs = toQueryArray(valueArray.toArray(new Object[0]));
                 queryArray.remove(k);
-                queryArray.addAll(k, nvs);
+                if (nvs.size() > 0)
+                {
+                    queryArray.addAll(k, nvs);
+                }
+                k--;
+                continue;
+            } else if (value instanceof JSONObject && (!name.startsWith("$") || name.contains(":")))
+            {//为json、且不为自定义变量，处理嵌套对象,如{t:{state:'1'}}变成{'t.state':'1'}
+                JSONArray nvs = new JSONArray();
+                for (String key : ((JSONObject) value).keySet())
+                {
+                    Object v = ((JSONObject) value).get(key);
+                    JSONObject item = new JSONObject(2);
+                    item.put("key", name + "." + key);
+                    item.put("value", v);
+                    nvs.add(item);
+                }
+                queryArray.remove(k);
+                if (nvs.size() > 0)
+                {
+                    queryArray.addAll(k, nvs);
+                }
                 k--;
                 continue;
             }
@@ -553,7 +574,7 @@ public class SimpleSqlUtil
                         willAddName = false;
                         break;
                     default:
-                    {
+                    {//自定义变量
                         forQuery.put(name, value);
                         continue;
                     }
