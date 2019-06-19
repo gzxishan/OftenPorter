@@ -5,6 +5,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * 响应结果的封装.
  * <pre>
@@ -66,6 +70,7 @@ public class JResponse
     private String description;
     private Object result, extra;
     private Throwable exCause;
+    private boolean dealIObject = true;
 
     public JResponse(ResultCode code)
     {
@@ -92,6 +97,16 @@ public class JResponse
     public JResponse()
     {
 
+    }
+
+    public boolean isDealIObject()
+    {
+        return dealIObject;
+    }
+
+    public void setDealIObject(boolean dealIObject)
+    {
+        this.dealIObject = dealIObject;
     }
 
     private static String getString(JSONObject jsonObject, String name)
@@ -379,13 +394,10 @@ public class JResponse
 
         Object result = this.result;
         Object extra = this.extra;
-        if (result instanceof IObject)
+        if (isDealIObject())
         {
-            result = ((IObject) result).toCustomObject();
-        }
-        if (extra instanceof IObject)
-        {
-            extra = ((IObject) extra).toCustomObject();
+            result = dealIObject(result);
+            extra = dealIObject(extra);
         }
 
         if (result != null)
@@ -395,7 +407,7 @@ public class JResponse
 
         if (extra != null)
         {
-            if (extra instanceof JSONObject || extra instanceof JSONArray)
+            if (extra instanceof Map || extra instanceof Collection)
             {
                 json.put(EXTRA_FIELD, extra);
             } else
@@ -406,6 +418,39 @@ public class JResponse
 
 
         return json;
+    }
+
+    private Object dealIObject(Object obj)
+    {
+        if (obj == null)
+        {
+            return null;
+        }
+
+        if (obj instanceof IObject)
+        {
+            obj = ((IObject) obj).toCustomObject();
+        } else if (obj instanceof Collection && !(obj instanceof JSONArray))
+        {
+            Collection collection = (Collection) obj;
+            JSONArray array = new JSONArray(collection.size());
+            obj = array;
+            for (Object item : collection)
+            {
+                array.add(dealIObject(item));
+            }
+        } else if (obj instanceof Map && !(obj instanceof JSONObject))
+        {
+            Map map = (Map) obj;
+            JSONObject jsonObject = new JSONObject(map.size());
+            obj = jsonObject;
+            Set<Map.Entry> set = map.entrySet();
+            for (Map.Entry entry : set)
+            {
+                jsonObject.put(String.valueOf(entry.getKey()), dealIObject(entry.getValue()));
+            }
+        }
+        return obj;
     }
 
     public static JResponse success(Object result)
