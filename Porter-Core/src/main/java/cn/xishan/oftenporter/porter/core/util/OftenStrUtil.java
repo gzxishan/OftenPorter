@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.util;
 
 import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 
 import java.io.UnsupportedEncodingException;
@@ -128,6 +129,17 @@ public class OftenStrUtil
     public static String[] array(String... args)
     {
         return args;
+    }
+
+    public static String[] arrayFromJSONArray(String jsonArrayString)
+    {
+        JSONArray jsonArray = JSON.parseArray(jsonArrayString);
+        String[] strings = new String[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++)
+        {
+            strings[i] = jsonArray.getString(i);
+        }
+        return strings;
     }
 
     /**
