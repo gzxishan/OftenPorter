@@ -331,9 +331,18 @@ public final class Porter
                 dealInNames(porter.getPortIn().getInNames(), typeParserStore);
             }
         }
+
+        Set<PorterOfFun> handled = new HashSet<>();
         for (Map.Entry<String, PorterOfFun> entry : childrenWithMethod.entrySet())
         {
             PorterOfFun porterOfFun = entry.getValue();
+            if (handled.contains(porterOfFun))
+            {
+                continue;
+            } else
+            {
+                handled.add(porterOfFun);
+            }
             if (porterOfFun.oftenEntities != null)
             {
                 for (One one : porterOfFun.oftenEntities.ones)
@@ -445,18 +454,22 @@ public final class Porter
         }
 
         MixinListener mixinListener = null;
-        if(getObj() instanceof MixinListener){
-            mixinListener= (MixinListener) getObj();
+        if (getObj() instanceof MixinListener)
+        {
+            mixinListener = (MixinListener) getObj();
         }
         List<Porter> mixinList = null;
-        if(mixinListener!=null){
-            mixinList=new ArrayList<>();
-            if(mixins!=null){
-                OftenTool.addAll(mixinList,mixins);
+        if (mixinListener != null)
+        {
+            mixinList = new ArrayList<>();
+            if (mixins != null)
+            {
+                OftenTool.addAll(mixinList, mixins);
             }
         }
 
-        if(mixinListener!=null){
+        if (mixinListener != null)
+        {
             mixinListener.beforeStartOfMixin(mixinList);
         }
         if (mixins != null)
@@ -466,7 +479,8 @@ public final class Porter
                 porter.start(oftenObject, iConfigData, true);
             }
         }
-        if(mixinListener!=null){
+        if (mixinListener != null)
+        {
             mixinListener.afterStartOfMixin(mixinList);
         }
         _PortStart[] starts = getStarts();
@@ -671,6 +685,6 @@ public final class Porter
     @Override
     public String toString()
     {
-        return super.toString()+"->"+getObj();
+        return super.toString() + "->" + getObj();
     }
 }
