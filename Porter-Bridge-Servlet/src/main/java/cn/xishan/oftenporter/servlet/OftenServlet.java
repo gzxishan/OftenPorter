@@ -163,7 +163,7 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     static String getPath(HttpServletRequest request)
     {
         String uri = request.getRequestURI().substring(request.getContextPath().length());
-        if (uri.equals(request.getServletPath()))
+        if (!uri.startsWith(request.getServletPath()))
         {
             return uri;
         } else
