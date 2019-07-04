@@ -72,6 +72,12 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         }
 
         @Override
+        public void addFirstWrapperFilter(WrapperFilter wrapperFilter)
+        {
+            wrapperFilterList.add(0, wrapperFilter);
+        }
+
+        @Override
         public List<WrapperFilter> wrapperFilters()
         {
             return Collections.unmodifiableList(wrapperFilterList);

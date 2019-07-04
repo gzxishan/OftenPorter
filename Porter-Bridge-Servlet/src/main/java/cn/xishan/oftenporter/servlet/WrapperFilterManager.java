@@ -84,5 +84,11 @@ public interface WrapperFilterManager
 
     void addWrapperFilter(WrapperFilter wrapperFilter);
 
+    /**
+     * 添加到第一个。
+     * @param wrapperFilter
+     */
+    void addFirstWrapperFilter(WrapperFilter wrapperFilter);
+
     List<WrapperFilter> wrapperFilters();
 }

@@ -352,10 +352,7 @@ public class AutoSetHandle
         Arrays.sort(setOkObjects);
         try
         {
-            for (_SetOkObject setOkObject : setOkObjects)
-            {
-                setOkObject.invoke(oftenObject, iConfigData);
-            }
+            //先清理、再调用setOk函数
             this.setOkObjects.clear();
 //            this.porterMap = null;
 //            this.proxyObjectMap = null;
@@ -365,6 +362,11 @@ public class AutoSetHandle
             this.innerContextBridge.annotationDealt.clearCache();
             autoSetDealtSet.clear();
 //            autoSetDealtSet = null;
+
+            for (_SetOkObject setOkObject : setOkObjects)
+            {
+                setOkObject.invoke(oftenObject, iConfigData);
+            }
         } catch (Exception e)
         {
             throw new RuntimeException(e);
