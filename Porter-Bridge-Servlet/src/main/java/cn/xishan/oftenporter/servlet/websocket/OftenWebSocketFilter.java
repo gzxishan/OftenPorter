@@ -60,10 +60,10 @@ public final class OftenWebSocketFilter implements Filter
         {
             //接入框架进行处理
             oftenServlet.service(request, response);
-            if (request.getAttribute(BridgeData.class.getName()) == null)
-            {//已经成功接入websocket
-                return;
-            }
+//            if (request.getAttribute(BridgeData.class.getName()) == null)
+//            {//已经成功接入websocket
+//                return;
+//            }
         }
         chain.doFilter(request, response);
     }

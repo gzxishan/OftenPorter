@@ -27,7 +27,10 @@ class HttpSessionConfigurator extends ServerEndpointConfig.Configurator
     {
         HttpSession httpSession = (HttpSession) request.getHttpSession();
         BridgeData bridgeData = (BridgeData) httpSession.getAttribute(BridgeData.class.getName());
+        httpSession.removeAttribute(BridgeData.class.getName());
+
         sec.getUserProperties().put(BridgeData.class.getName(), bridgeData.gotData());
+        sec.getUserProperties().put(HttpSession.class.getName(),httpSession);
         if (customer != null)
         {
             customer.modifyHandshake(sec, request, response);
