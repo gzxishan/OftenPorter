@@ -240,7 +240,7 @@ public final class PorterMain
 
     public synchronized void seekImporter(PorterConf porterConf, Class[] importers) throws Throwable
     {
-        if (OftenTool.isEmpty(importers))
+        if (OftenTool.isEmpty(importers)||importers.length==0)
         {
             return;
         }

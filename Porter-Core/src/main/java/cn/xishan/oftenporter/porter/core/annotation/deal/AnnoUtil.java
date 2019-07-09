@@ -907,7 +907,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(clazz, annotationClass);
-        if (OftenTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if ((OftenTool.isEmpty(as)||as.length==0) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(clazz, annotationClass);
         }
@@ -943,7 +943,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(field, annotationClass);
-        if (OftenTool.isEmpty(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if ((OftenTool.isEmpty(as)||as.length==0) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(field, annotationClass);
         }
