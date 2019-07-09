@@ -59,15 +59,6 @@ public class OftenTool
      * <li>
      * object为{@linkplain CharSequence},且为""(空字符串)。
      * </li>
-     * <li>
-     * object为{@linkplain Collection},且为空。
-     * </li>
-     * <li>
-     * object为{@linkplain Map},且为空。
-     * </li>
-     * <li>
-     * object为数组，且最高维长度为0。
-     * </li>
      * </ol>
      *
      * @param object
