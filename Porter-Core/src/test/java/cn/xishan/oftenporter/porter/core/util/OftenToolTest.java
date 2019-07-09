@@ -21,13 +21,13 @@ public class OftenToolTest
         Assert.assertTrue(OftenTool.isEmpty(new StringBuilder()));
         Assert.assertFalse(OftenTool.isEmpty(new Object()));
 
-        Assert.assertTrue(OftenTool.isEmpty(new ArrayList<>()));
-        Assert.assertTrue(OftenTool.isEmpty(new HashSet<>()));
-        Assert.assertTrue(OftenTool.isEmpty(new HashMap<>()));
+        Assert.assertFalse(OftenTool.isEmpty(new ArrayList<>()));
+        Assert.assertFalse(OftenTool.isEmpty(new HashSet<>()));
+        Assert.assertFalse(OftenTool.isEmpty(new HashMap<>()));
 
-        Assert.assertTrue(OftenTool.isEmpty(new Object[0]));
-        Assert.assertTrue(OftenTool.isEmpty(new int[0]));
-        Assert.assertTrue(OftenTool.isEmpty(new Object[0][0]));
+        Assert.assertFalse(OftenTool.isEmpty(new Object[0]));
+        Assert.assertFalse(OftenTool.isEmpty(new int[0]));
+        Assert.assertFalse(OftenTool.isEmpty(new Object[0][0]));
     }
 
 

@@ -24,13 +24,7 @@ public class StartPorter
     IdGen idGen;
     String bridgeName;
 
-    @PortStart
-    public void onStart()
-    {
-        LOGGER.debug("[{}] on start!", getClass());
-        LOGGER.info("gen id:{}", idGen.nextId());
-        Assert.assertEquals("P1",bridgeName);
-    }
+
 
     @PortIn
     public Object startInvoke()
@@ -38,11 +32,19 @@ public class StartPorter
         return "From startInvoke!";
     }
 
-    @PortStart
+    @PortStart(order = 1)
     public void onStart(OftenObject oftenObject,@Property("bridgeName") String bridgeName)
     {
         this.bridgeName=bridgeName;
         PorterSync porterSync = oftenObject.newSyncNotInnerPorter(new SyncOption(PortMethod.GET, "startInvoke"));
         LOGGER.debug("[{},{},{}] on start!", getClass(), oftenObject, porterSync.invokeWithNameValues(null));
+    }
+
+    @PortStart(order = 2)
+    public void onStart()
+    {
+        LOGGER.debug("[{}] on start!", getClass());
+        LOGGER.info("gen id:{}", idGen.nextId());
+        Assert.assertEquals("P1",bridgeName);
     }
 }
