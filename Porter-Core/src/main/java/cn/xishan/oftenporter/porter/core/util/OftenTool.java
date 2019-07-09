@@ -82,16 +82,17 @@ public class OftenTool
         } else if (object instanceof CharSequence)
         {
             is = "".equals(String.valueOf(object));
-        } else if (object instanceof Collection)
-        {
-            is = ((Collection<?>) object).isEmpty();
-        } else if (object instanceof Map)
-        {
-            is = ((Map<?, ?>) object).isEmpty();
-        } else if (object.getClass().isArray())
-        {
-            is = Array.getLength(object) == 0;
         }
+//        else if (object instanceof Collection)
+//        {
+//            is = ((Collection<?>) object).isEmpty();
+//        } else if (object instanceof Map)
+//        {
+//            is = ((Map<?, ?>) object).isEmpty();
+//        } else if (object.getClass().isArray())
+//        {
+//            is = Array.getLength(object) == 0;
+//        }
         return is;
     }
 
