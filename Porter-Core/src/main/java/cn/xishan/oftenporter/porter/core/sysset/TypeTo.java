@@ -132,7 +132,7 @@ public class TypeTo
             public Object getParam(String name)
             {
                 Object obj = jsonObject.get(name);
-                if (obj instanceof CharSequence && OftenTool.isEmpty(obj))
+                if (OftenTool.isNullOrEmptyCharSequence(obj))
                 {
                     obj = null;
                 }

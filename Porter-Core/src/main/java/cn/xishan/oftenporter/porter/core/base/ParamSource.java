@@ -74,8 +74,9 @@ public interface ParamSource
             public <T> T getParam(String name)
             {
                 T t = (T) finalParams.get(name);
-                if(t instanceof CharSequence&& OftenTool.isEmpty(t)){
-                    t=null;
+                if (OftenTool.isNullOrEmptyCharSequence(t))
+                {
+                    t = null;
                 }
                 return t;
             }
@@ -83,13 +84,13 @@ public interface ParamSource
             @Override
             public <T> T getNeceParam(String name, String errmsgOfEmpty)
             {
-                return DefaultParamSource.getNeceParamUtil(this,name,errmsgOfEmpty);
+                return DefaultParamSource.getNeceParamUtil(this, name, errmsgOfEmpty);
             }
 
             @Override
             public <T> T getNeceParam(String name)
             {
-                return DefaultParamSource.getNeceParamUtil(this,name);
+                return DefaultParamSource.getNeceParamUtil(this, name);
             }
 
             @Override

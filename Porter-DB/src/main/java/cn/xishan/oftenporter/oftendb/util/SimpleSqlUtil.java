@@ -186,7 +186,7 @@ public class SimpleSqlUtil
         JSONArray queryArray = new JSONArray();
         for (int i = 0; i < nameValues.length; )
         {
-            if (OftenTool.isEmpty(nameValues[i]) || !(nameValues[i] instanceof String))
+            if (OftenTool.isNullOrEmptyCharSequence(nameValues[i]) || !(nameValues[i] instanceof String))
             {
                 throw new IllegalArgumentException("illegal:index=" + i + ",element=" + nameValues[i]);
             }
@@ -209,7 +209,7 @@ public class SimpleSqlUtil
             Object value = null;
             if (noValue)
             {
-                if (i + 1 < nameValues.length && OftenTool.isEmpty(nameValues[i + 1]))
+                if (i + 1 < nameValues.length && OftenTool.isNullOrEmptyCharSequence(nameValues[i + 1]))
                 {
                     i += 2;
                 } else
@@ -384,7 +384,7 @@ public class SimpleSqlUtil
                 continue;
             } else if (name.startsWith("$ignull:"))
             {
-                if (OftenTool.isEmpty(value))
+                if (OftenTool.isNullOrEmptyCharSequence(value))
                 {
                     //忽略空值
                     continue;
@@ -424,7 +424,7 @@ public class SimpleSqlUtil
             boolean willAddName = true;
             Operator operator = Condition.EQ;
             int index = 0;
-            if (OftenTool.isEmpty(value))
+            if (OftenTool.isNullOrEmptyCharSequence(value))
             {
                 String oldName = name;
                 if (name.startsWith("$ne:"))
@@ -436,7 +436,7 @@ public class SimpleSqlUtil
 
             Matcher matcher = TYPE_PATTERN.matcher(name);
             boolean matched = matcher.find();
-            if (!matched && OftenTool.isEmpty(value) && !name.startsWith("$"))
+            if (!matched && OftenTool.isNullOrEmptyCharSequence(value) && !name.startsWith("$"))
             {
                 operator = SqlCondition.IS_NULL;
                 LOGGER.warn("change sql op:{} -> IS NULL", name);
@@ -444,7 +444,7 @@ public class SimpleSqlUtil
             } else if (matched)
             {
                 String type = matcher.group(1);
-                if (OftenTool.isEmpty(value) && Arrays.binarySearch(EMPTY_IGNORE_TAGS, type) >= 0)
+                if (OftenTool.isNullOrEmptyCharSequence(value) && Arrays.binarySearch(EMPTY_IGNORE_TAGS, type) >= 0)
                 {
                     continue;//忽略
                 }

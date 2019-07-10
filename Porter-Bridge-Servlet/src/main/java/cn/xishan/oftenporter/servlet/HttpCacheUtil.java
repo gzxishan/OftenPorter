@@ -70,7 +70,7 @@ public class HttpCacheUtil
         ICtrl unchanged(Callback callback);
 
         /**
-         * 如果上次访问的时间到此时小于dseconds、则判断缓存有效，另见{@linkplain #setUseCache(boolean)}。
+         * 如果上次访问的时间到此时小于dseconds、则判断缓存有效。
          *
          * @param dseconds
          * @return
@@ -170,7 +170,7 @@ public class HttpCacheUtil
                     setCacheWithEtag(forceSeconds, etag, response);
                 }
 
-                if (OftenTool.notEmpty(lastModified))
+                if (lastModified!=null)
                 {
                     setCacheWithModified(forceSeconds, lastModified, response);
                 }

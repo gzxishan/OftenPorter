@@ -85,7 +85,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
             {
                 String name = e.nextElement();
                 Object value = getParameter(name);
-                if (OftenTool.notEmpty(value))
+                if (OftenTool.isNullOrEmptyCharSequence(value))
                 {
                     params.put(name, value);
                 }

@@ -907,7 +907,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(clazz, annotationClass);
-        if (OftenTool.isEmptyArray(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(clazz, annotationClass);
         }
@@ -943,7 +943,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(field, annotationClass);
-        if ((OftenTool.isEmpty(as) || as.length == 0) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(field, annotationClass);
         }
@@ -980,7 +980,7 @@ public class AnnoUtil
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(method, annotationClass);
-        if (OftenTool.isEmptyArray(as) && advancedAnnotation.enableAdvancedAnnotation())
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
         {
             as = Advance.getRepeatableAnnotations(method, annotationClass);
         }

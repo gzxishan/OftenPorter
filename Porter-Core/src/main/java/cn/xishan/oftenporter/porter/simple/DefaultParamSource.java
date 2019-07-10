@@ -57,11 +57,11 @@ public class DefaultParamSource implements ParamSource
     public <T> T getParam(String name)
     {
         Object rs = result.getParam(name);
-        if (OftenTool.isEmpty(rs))
+        if (OftenTool.isNullOrEmptyCharSequence(rs))
         {
             rs = request.getParameter(name);
         }
-        if (rs instanceof CharSequence && OftenTool.isEmpty(rs))
+        if (OftenTool.isNullOrEmptyCharSequence(rs))
         {
             rs = null;
         }
@@ -71,7 +71,7 @@ public class DefaultParamSource implements ParamSource
     public static <T> T getNeceParamUtil(ParamSource paramSource, String name, String errmsgOfEmpty)
     {
         Object value = paramSource.getParam(name);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             ParamDealt.FailedReason failedReason = DefaultFailedReason.lackNecessaryParams(errmsgOfEmpty, name);
             JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
@@ -133,7 +133,7 @@ public class DefaultParamSource implements ParamSource
                 }
                 String name = names.nextElement();
                 Object value = result.getParam(name);
-                if (OftenTool.isEmpty(value))
+                if (OftenTool.isNullOrEmptyCharSequence(value))
                 {
                     value = request.getParameter(name);
                 }

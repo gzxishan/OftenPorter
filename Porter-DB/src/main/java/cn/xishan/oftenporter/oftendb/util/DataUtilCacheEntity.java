@@ -39,7 +39,7 @@ class DataUtilCacheEntity
         public void put(int deep, boolean filterEmpty, JSONObject json, Object obj) throws Throwable
         {
             Object value = field.get(obj);
-            if (filterEmpty && OftenTool.isEmpty(value))
+            if (filterEmpty && OftenTool.isNullOrEmptyCharSequence(value))
             {
                 return;
             }
@@ -79,7 +79,7 @@ class DataUtilCacheEntity
             {
                 _json = recursive._toJSON(deep + 1, fieldObj, filterEmpty, true);
             }
-            if (filterEmpty && OftenTool.isEmpty(_json))
+            if (filterEmpty && _json == null)
             {
                 return;
             }
@@ -116,7 +116,7 @@ class DataUtilCacheEntity
             {
                 _json = JSON.toJSON(fieldObj);
             }
-            if (filterEmpty && OftenTool.isEmpty(_json))
+            if (filterEmpty && _json == null)
             {
                 return;
             }
@@ -161,7 +161,7 @@ class DataUtilCacheEntity
     {
         if (deep > 64)
         {
-            throw new RuntimeException("too deep invoke,may loop ref:"+object);
+            throw new RuntimeException("too deep invoke,may loop ref:" + object);
         }
         boolean isFilterEmpty = !(filterEmpty == FilterEmpty.NO || !parentToEmpty);
         JSONObject jsonObject = new JSONObject(5);

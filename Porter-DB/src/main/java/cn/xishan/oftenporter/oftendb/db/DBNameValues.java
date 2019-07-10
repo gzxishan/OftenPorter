@@ -17,7 +17,8 @@ import java.util.Set;
 public class DBNameValues implements INameValues
 {
 
-    public interface Foreach {
+    public interface Foreach
+    {
         /**
          * @param name
          * @param value
@@ -32,17 +33,20 @@ public class DBNameValues implements INameValues
     private boolean filterEmpty = false;
     private Set<String> filterNullKeys;
 
-    public DBNameValues() {
+    public DBNameValues()
+    {
         names = new ArrayList<>();
         values = new ArrayList<>();
     }
 
-    public DBNameValues(String name, Object value) {
+    public DBNameValues(String name, Object value)
+    {
         this();
         append(name, value);
     }
 
-    public DBNameValues(int capacity) {
+    public DBNameValues(int capacity)
+    {
         names = new ArrayList<>(capacity);
         values = new ArrayList<>(capacity);
     }
@@ -52,15 +56,19 @@ public class DBNameValues implements INameValues
      *
      * @param filterNullKeys
      */
-    public DBNameValues setFilterNullKeys(String... filterNullKeys) {
-        if (filterNullKeys.length == 0) {
+    public DBNameValues setFilterNullKeys(String... filterNullKeys)
+    {
+        if (filterNullKeys.length == 0)
+        {
             this.filterNullKeys = null;
-        } else {
+        } else
+        {
             Set<String> set = new HashSet<>();
-            for (String s : filterNullKeys) {
+            for (String s : filterNullKeys)
+            {
                 set.add(s);
             }
-            this.filterNullKeys=set;
+            this.filterNullKeys = set;
         }
         return this;
     }
@@ -71,7 +79,8 @@ public class DBNameValues implements INameValues
      * @param filterNullAndEmpty
      * @return
      */
-    public DBNameValues filterNullAndEmpty(boolean filterNullAndEmpty) {
+    public DBNameValues filterNullAndEmpty(boolean filterNullAndEmpty)
+    {
         this.filterEmpty = filterNullAndEmpty;
         return this;
     }
@@ -88,8 +97,11 @@ public class DBNameValues implements INameValues
      * @param value
      * @return
      */
-    public DBNameValues append(String name, Object value) {
-        if (!(filterEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || OftenTool.notEmpty(value)) {
+    public DBNameValues append(String name, Object value)
+    {
+        if (!(filterEmpty && (filterNullKeys == null || filterNullKeys.contains(name))) || OftenTool
+                .notNullAndEmptyCharSequence(value))
+        {
             names.add(name);
             values.add(value);
         }
@@ -97,56 +109,69 @@ public class DBNameValues implements INameValues
     }
 
 
-    public String[] names() {
+    public String[] names()
+    {
         return names.toArray(OftenTool.EMPTY_STRING_ARRAY);
     }
 
-    public Object[] values() {
+    public Object[] values()
+    {
         return values.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
     }
 
-    public void forEach(Foreach foreach) {
-        for (int i = 0; i < names.size(); i++) {
-            if (!foreach.forEach(names.get(i), values.get(i))) {
+    public void forEach(Foreach foreach)
+    {
+        for (int i = 0; i < names.size(); i++)
+        {
+            if (!foreach.forEach(names.get(i), values.get(i)))
+            {
                 break;
             }
         }
 
     }
 
-    public void clear() {
+    public void clear()
+    {
         names.clear();
         values.clear();
     }
 
     @Override
-    public JSONObject toJSON() {
+    public JSONObject toJSON()
+    {
         JSONObject jsonObject = new JSONObject();
-        for (int i = 0; i < names.size(); i++) {
+        for (int i = 0; i < names.size(); i++)
+        {
             jsonObject.put(names.get(i), values.get(i));
         }
         return jsonObject;
     }
 
-    public Object value(int index) {
+    public Object value(int index)
+    {
         return values.get(index);
     }
 
-    public String name(int index) {
+    public String name(int index)
+    {
         return names.get(index);
     }
 
-    public int size() {
+    public int size()
+    {
         return names.size();
     }
 
     @Override
-    public String[] getNames() {
+    public String[] getNames()
+    {
         return names();
     }
 
     @Override
-    public Object[] getValues() {
+    public Object[] getValues()
+    {
         return values();
     }
 

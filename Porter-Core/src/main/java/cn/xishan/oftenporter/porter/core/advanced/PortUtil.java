@@ -406,7 +406,7 @@ public class PortUtil
                     for (int i = 0; i < neces.length; i++)
                     {
                         Field f = one.neceObjFields[i];
-                        if (neces[i].getNece().isNece(oftenObject) && OftenTool.isEmpty(f.get(value)))
+                        if (neces[i].getNece().isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(f.get(value)))
                         {
                             value = DefaultFailedReason
                                     .lackNecessaryParams("Lack necessary params!", neces[i].varName);

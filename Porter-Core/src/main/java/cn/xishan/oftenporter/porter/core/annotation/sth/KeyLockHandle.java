@@ -106,7 +106,7 @@ public class KeyLockHandle extends AspectOperationOfPortIn.HandleAdapter<KeyLock
                         break;
                 }
             }
-            if (OftenTool.existsNotEmpty(this.locks, this.neceLocks, this.uneceLocks))
+            if (OftenTool.existsNotEmptyOf(this.locks, this.neceLocks, this.uneceLocks))
             {
                 Locker locker = null;
                 for (CustomerLockerListener lockerListener : customerLockerListenerSet)

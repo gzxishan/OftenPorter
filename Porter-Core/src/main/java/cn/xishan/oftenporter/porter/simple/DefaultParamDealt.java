@@ -76,13 +76,13 @@ public class DefaultParamDealt implements ParamDealt
             }
         }
 
-        if (OftenTool.isEmpty(v))
+        if (OftenTool.isNullOrEmptyCharSequence(v))
         {
             v = theName.getDefaultValue();
         }
         if (typeParser != null)
         {
-            if (OftenTool.isEmpty(v))
+            if (OftenTool.isNullOrEmptyCharSequence(v))
             {
                 ITypeParser.ParseResult parseResult = typeParser.parseEmpty(oftenObject, name, dealt);
                 if (parseResult != null)

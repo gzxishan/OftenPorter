@@ -103,7 +103,7 @@ class _MyBatis
         map.put("mapperDaoClass", daoClass.getName());
 
         MyBatisParams myBatisParams = AnnoUtil.getAnnotation(daoClass, MyBatisParams.class);
-        if (!OftenTool.isEmptyArray(params) || myBatisParams != null)
+        if (!OftenTool.isEmptyOf(params) || myBatisParams != null)
         {
             if (params != null)
             {
@@ -165,7 +165,7 @@ class _MyBatis
         } else
         {
             Object object = _localParams.get(varName);
-            if (OftenTool.isEmpty(object))
+            if (OftenTool.isNullOrEmptyCharSequence(object))
             {
                 is = false;
             } else if (object instanceof Boolean)

@@ -255,7 +255,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     public <T> T unece(String name, T defaultValue)
     {
         T t = getParamSource().getParam(name);
-        if (OftenTool.isEmpty(t))
+        if (OftenTool.isNullOrEmptyCharSequence(t))
         {
             t = defaultValue;
         }

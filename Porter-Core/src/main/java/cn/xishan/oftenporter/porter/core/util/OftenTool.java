@@ -64,7 +64,7 @@ public class OftenTool
      * @param object
      * @return
      */
-    public static boolean isEmpty(Object object)
+    public static boolean isNullOrEmptyCharSequence(Object object)
     {
         boolean is = false;
         if (object == null)
@@ -73,21 +73,40 @@ public class OftenTool
         } else if (object instanceof CharSequence)
         {
             is = "".equals(String.valueOf(object));
-        } else
-        {
-            if (LOGGER.isWarnEnabled() && (object instanceof Collection || object instanceof Map
-                    || object.getClass().isArray()))
-            {
-                LOGGER.warn("you may have used the wrong way of isEmpty:object={}", object.getClass());
-                StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
-                StringBuilder builder = new StringBuilder();
-                for (int i = 1; i <= 4 && i < stacks.length; i++)
-                {
-                    builder.append("\n\t\t").append(LogUtil.toString(stacks[i]));
-                }
-                LOGGER.warn("{}", builder);
-            }
         }
+        return is;
+    }
+
+    public static boolean notNullAndEmptyCharSequence(Object object)
+    {
+        return !isNullOrEmptyCharSequence(object);
+    }
+
+    public static boolean isEmpty(CharSequence object)
+    {
+        boolean is = false;
+        if (object == null)
+        {
+            is = true;
+        } else //if (object instanceof CharSequence)
+        {
+            is = "".equals(String.valueOf(object));
+        }
+//        else
+//        {
+//            if (LOGGER.isWarnEnabled() && (object instanceof Collection || object instanceof Map
+//                    || object.getClass().isArray()))
+//            {
+//                LOGGER.warn("you may have used the wrong way of isEmpty:object={}", object.getClass());
+//                StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+//                StringBuilder builder = new StringBuilder();
+//                for (int i = 2; i <= 5 && i < stacks.length; i++)
+//                {
+//                    builder.append("\n\t\t").append(LogUtil.toString(stacks[i]));
+//                }
+//                LOGGER.warn("{}", builder);
+//            }
+//        }
 
         return is;
     }
@@ -98,9 +117,49 @@ public class OftenTool
      * @param array
      * @return
      */
-    public static boolean isEmptyArray(Object[] array)
+    public static boolean isEmptyOf(Object[] array)
     {
         return array == null || array.length == 0;
+    }
+
+    public static boolean notEmptyOf(Object[] array)
+    {
+        return !isEmptyOf(array);
+    }
+
+    public static boolean notEmptyForAllOf(Object[]... arrays)
+    {
+        for (Object[] arr : arrays)
+        {
+            if (isEmptyOf(arr))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 判断所有是否为空或null。
+     *
+     * @param arrays
+     * @return
+     */
+    public static boolean isAllEmptyOf(Object[]... arrays)
+    {
+        for (Object[] arr : arrays)
+        {
+            if (!isEmptyOf(arr))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean existsNotEmptyOf(Object[]... arrays)
+    {
+        return !isAllEmptyOf(arrays);
     }
 
     /**
@@ -109,9 +168,49 @@ public class OftenTool
      * @param collection
      * @return
      */
-    public static boolean isEmptyCollection(Collection collection)
+    public static boolean isEmptyOf(Collection collection)
     {
         return collection == null || collection.isEmpty();
+    }
+
+    public static boolean notEmptyOf(Collection collection)
+    {
+        return !isEmptyOf(collection);
+    }
+
+    /**
+     * 判断所有是否为空或null。
+     *
+     * @param collections
+     * @return
+     */
+    public static boolean isAllEmptyOf(Collection... collections)
+    {
+        for (Collection collection : collections)
+        {
+            if (!isEmptyOf(collection))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean notEmptyForAllOf(Collection... collections)
+    {
+        for (Collection collection : collections)
+        {
+            if (isEmptyOf(collection))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean existsNotEmptyOf(Collection... collections)
+    {
+        return !isAllEmptyOf(collections);
     }
 
     /**
@@ -120,36 +219,76 @@ public class OftenTool
      * @param map
      * @return
      */
-    public static boolean isEmptyMap(Map map)
+    public static boolean isEmptyOf(Map map)
     {
         return map == null || map.isEmpty();
     }
 
+    public static boolean notEmptyOf(Map map)
+    {
+        return !isEmptyOf(map);
+    }
+
     /**
-     * 存在空的对象，见{@linkplain #isEmpty(Object)}
+     * 判断所有是否为空或null。
+     *
+     * @param maps
+     * @return
+     */
+    public static boolean isAllEmptyOf(Map... maps)
+    {
+        for (Map map : maps)
+        {
+            if (!isEmptyOf(map))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean notEmptyForAllOf(Map... maps)
+    {
+        for (Map map : maps)
+        {
+            if (isEmptyOf(map))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean existsNotEmptyOf(Map... maps)
+    {
+        return !isAllEmptyOf(maps);
+    }
+
+    /**
+     * 存在空的对象，见{@linkplain #isEmpty(CharSequence)}
      *
      * @param objects
      * @return
      */
-    public static boolean existsEmpty(Object... objects)
+    public static boolean existsEmpty(CharSequence... objects)
     {
         return !notEmptyForAll(objects);
     }
 
     /**
-     * 存在非空的对象，见{@linkplain #isEmpty(Object)}
+     * 存在非空的对象，见{@linkplain #isEmpty(CharSequence)}
      *
      * @param objects
      * @return
      */
-    public static boolean existsNotEmpty(Object... objects)
+    public static boolean existsNotEmpty(CharSequence... objects)
     {
         return !isEmptyOfAll(objects);
     }
 
-    public static boolean isEmptyOfAll(Object... objects)
+    public static boolean isEmptyOfAll(CharSequence... objects)
     {
-        for (Object obj : objects)
+        for (CharSequence obj : objects)
         {
             if (notEmpty(obj))
             {
@@ -160,51 +299,51 @@ public class OftenTool
     }
 
     /**
-     * 用{@linkplain #notEmpty(Object)}
+     * 用{@linkplain #notEmpty(CharSequence)}
      *
      * @param object
      * @return
      */
     @Deprecated
-    public static boolean notNullAndEmpty(Object object)
+    public static boolean notNullAndEmpty(CharSequence object)
     {
         return notEmpty(object);
     }
 
     /**
-     * 是否不为空，见{@linkplain #isEmpty(Object)}.
+     * 是否不为空，见{@linkplain #isEmpty(CharSequence)}.
      *
      * @param object
      * @return
      */
-    public static boolean notEmpty(Object object)
+    public static boolean notEmpty(CharSequence object)
     {
         return !isEmpty(object);
     }
 
 
     /**
-     * 用{@linkplain #notEmptyForAll(Object...)}
+     * 用{@linkplain #notEmptyForAll(CharSequence...)}
      *
      * @param objects
      * @return
      */
     @Deprecated
-    public static boolean notNullAndEmptyForAll(Object... objects)
+    public static boolean notNullAndEmptyForAll(CharSequence... objects)
     {
         return notEmptyForAll(objects);
     }
 
 
     /**
-     * 判断是否全部都不为空，见{@linkplain #isEmpty(Object)}.
+     * 判断是否全部都不为空，见{@linkplain #isEmpty(CharSequence)}.
      *
      * @param objects
      * @return
      */
-    public static boolean notEmptyForAll(Object... objects)
+    public static boolean notEmptyForAll(CharSequence... objects)
     {
-        for (Object object : objects)
+        for (CharSequence object : objects)
         {
             if (isEmpty(object))
             {

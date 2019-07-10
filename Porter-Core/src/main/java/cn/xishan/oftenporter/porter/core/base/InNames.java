@@ -145,11 +145,11 @@ public class InNames
             if (type != null && !PortUtil.willIgnoreAdvanced(type) && !OftenTool.isAssignable(type, CharSequence.class))
             {
                 v = paramSource.getParam(type.getName());//
-                if (v != null && OftenTool.notEmpty(typeNeces))
+                if (v != null && OftenTool.notEmptyOf(typeNeces))
                 {
                     for (int i = 0; i < this.typeNeces.length; i++)
                     {
-                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool.isEmpty(this.typeNeceFields[i].get(v)))
+                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(this.typeNeceFields[i].get(v)))
                         {
                             String typeVarName = this.typeNeces[i].getVarName();
                             v = DefaultFailedReason

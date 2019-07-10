@@ -93,7 +93,7 @@ class DefaultUrlResult implements UrlDecoder.Result
     public Object getParam(String name)
     {
         Object v = params.get(name);
-        if (v instanceof CharSequence && OftenTool.isEmpty(v))
+        if (OftenTool.isNullOrEmptyCharSequence(v))
         {
             v = null;
         }

@@ -15,33 +15,38 @@ import java.util.HashSet;
 public class OftenToolTest
 {
     @Test
-    public void testIsEmpty(){
+    public void testIsEmpty()
+    {
         Assert.assertTrue(OftenTool.isEmpty(null));
         Assert.assertTrue(OftenTool.isEmpty(""));
         Assert.assertTrue(OftenTool.isEmpty(new StringBuilder()));
-        Assert.assertFalse(OftenTool.isEmpty(new Object()));
+        Assert.assertFalse(OftenTool.isNullOrEmptyCharSequence(new Object()));
 
-        Assert.assertFalse(OftenTool.isEmpty(new ArrayList<>()));
-        Assert.assertFalse(OftenTool.isEmpty(new HashSet<>()));
-        Assert.assertFalse(OftenTool.isEmpty(new HashMap<>()));
+        Assert.assertTrue(OftenTool.isEmptyOf(new ArrayList<>()));
+        Assert.assertTrue(OftenTool.isEmptyOf(new HashSet<>()));
+        Assert.assertTrue(OftenTool.isEmptyOf(new HashMap<>()));
 
-        Assert.assertFalse(OftenTool.isEmpty(new Object[0]));
-        Assert.assertFalse(OftenTool.isEmpty(new int[0]));
-        Assert.assertFalse(OftenTool.isEmpty(new Object[0][0]));
+        Assert.assertTrue(OftenTool.isEmptyOf(new Object[0]));
+//        Assert.assertTrue(OftenTool.isEmptyOf(new int[0]));
+        Assert.assertTrue(OftenTool.isEmptyOf(new Object[0][0]));
     }
 
 
-    interface A{
+    interface A
+    {
         void a1();
+
         void a2();
     }
 
-    interface A_1 extends A{
+    interface A_1 extends A
+    {
         @Override
         void a1();
     }
 
-    class C implements A{
+    class C implements A
+    {
 
         @Override
         public void a1()
@@ -56,7 +61,8 @@ public class OftenToolTest
         }
     }
 
-    class C2 implements A_1,A{
+    class C2 implements A_1, A
+    {
 
         @Override
         public void a2()
@@ -72,24 +78,29 @@ public class OftenToolTest
     }
 
 
-    abstract class C3 implements A_1,A{
+    abstract class C3 implements A_1, A
+    {
 
     }
 
-    interface B1{
+    interface B1
+    {
         void b1();
     }
 
-    interface B2{
+    interface B2
+    {
         void b2();
     }
 
-    interface B3 extends B1,B2{
+    interface B3 extends B1, B2
+    {
 
     }
 
     @Test
-    public void testGetAllMethods(){
+    public void testGetAllMethods()
+    {
         Method[] methods1 = OftenTool.getAllMethods(A.class);
         print(methods1);
 
@@ -109,22 +120,24 @@ public class OftenToolTest
         print(methods6);
     }
 
-    static void print(Method[] methods){
-        for (Method method:methods)
+    static void print(Method[] methods)
+    {
+        for (Method method : methods)
         {
-            if(method.getDeclaringClass().equals(Object.class))
+            if (method.getDeclaringClass().equals(Object.class))
             {
                 continue;
             }
-            System.out.print(method.getDeclaringClass().getSimpleName()+"."+method.getName()+" ");
+            System.out.print(method.getDeclaringClass().getSimpleName() + "." + method.getName() + " ");
         }
         System.out.println();
     }
 
     @Test
-    public void testIsAssignable(){
-        Assert.assertTrue(OftenTool.isAssignable(Object.class,Object.class));
+    public void testIsAssignable()
+    {
+        Assert.assertTrue(OftenTool.isAssignable(Object.class, Object.class));
         Assert.assertTrue(OftenTool.isAssignable(ArrayList.class, Collection.class));
-        Assert.assertTrue(OftenTool.isAssignableForOneOf(String[].class,Object[].class));
+        Assert.assertTrue(OftenTool.isAssignableForOneOf(String[].class, Object[].class));
     }
 }

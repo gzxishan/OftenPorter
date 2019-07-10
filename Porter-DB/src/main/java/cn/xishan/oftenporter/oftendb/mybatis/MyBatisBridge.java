@@ -136,8 +136,8 @@ public class MyBatisBridge
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
         }
-        if (OftenTool.isEmptyOfAll(myBatisOption.dataSource, myBatisOption.dataSourceObject,
-                myBatisOption.dataSourceProperPrefix))
+        if (myBatisOption.dataSourceObject == null && OftenTool
+                .isEmpty(myBatisOption.dataSourceProperPrefix) && OftenTool.isEmptyOf(myBatisOption.dataSource))
         {
             throw new IllegalArgumentException("dataSource is empty!");
         }
@@ -166,16 +166,15 @@ public class MyBatisBridge
 
 
     /**
-     *
      * @param source
      * @param isDirect 是否是直接获取connection
      * @return
      * @throws SQLException
      */
     @KeepFromProguard
-    static ConnectionWrap __openConnection(String source,boolean isDirect) throws SQLException
+    static ConnectionWrap __openConnection(String source, boolean isDirect) throws SQLException
     {
-        return __openConnection(source, true,isDirect);
+        return __openConnection(source, true, isDirect);
     }
 
     /**
@@ -184,7 +183,7 @@ public class MyBatisBridge
      * @return
      */
     @KeepFromProguard
-    static ConnectionWrap __openConnection(String source, boolean openNew,boolean isDirect) throws SQLException
+    static ConnectionWrap __openConnection(String source, boolean openNew, boolean isDirect) throws SQLException
     {
         ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
         if (connection != null && connection.isClosed())
@@ -195,7 +194,7 @@ public class MyBatisBridge
         {
             return connection;
         }
-        return __openNewConnection__(source,isDirect);
+        return __openNewConnection__(source, isDirect);
     }
 
     static SqlSession __getSqlSession__(String source)
@@ -206,7 +205,7 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-    static ConnectionWrap __openNewConnection__(String source,boolean isDirect)
+    static ConnectionWrap __openNewConnection__(String source, boolean isDirect)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder builder = mOption.mSqlSessionFactoryBuilder;
@@ -225,7 +224,8 @@ public class MyBatisBridge
                 @Override
                 public boolean getAutoCommit() throws SQLException
                 {
-                    if(isClosed()){
+                    if (isClosed())
+                    {
                         return true;
                     }
                     return super.getAutoCommit();
@@ -260,14 +260,16 @@ public class MyBatisBridge
             @Override
             public void close() throws SQLException
             {
-                if(!isDirect){
+                if (!isDirect)
+                {
                     TransactionDBHandle.__removeConnection__(source);
                 }
                 super.close();
             }
         };
 
-        if(!isDirect){
+        if (!isDirect)
+        {
             TransactionDBHandle.__setConnection__(source, connection);
         }
         return connection;

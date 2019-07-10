@@ -282,7 +282,7 @@ public class HttpUtil
             {
                 OftenObjectImpl impl = (OftenObjectImpl) oftenObject;
                 Map<String, String> headers = impl.getHeaders();
-                if (OftenTool.notEmpty(headers))
+                if (OftenTool.notEmptyOf(headers))
                 {
                     for (Map.Entry<String, String> entry : headers.entrySet())
                     {

@@ -67,7 +67,7 @@ public class DefaultConfigData implements IConfigData
     public long getLong(String key, long defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -85,7 +85,7 @@ public class DefaultConfigData implements IConfigData
     public int getInt(String key, int defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -103,7 +103,7 @@ public class DefaultConfigData implements IConfigData
     public float getFloat(String key, float defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -121,7 +121,7 @@ public class DefaultConfigData implements IConfigData
     public double getDouble(String key, double defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -139,7 +139,7 @@ public class DefaultConfigData implements IConfigData
     public boolean getBoolean(String key, boolean defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -157,7 +157,7 @@ public class DefaultConfigData implements IConfigData
     public String getString(String key, String defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -196,7 +196,7 @@ public class DefaultConfigData implements IConfigData
     public Date getDate(String key)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
         }
         Date dateVal = TypeUtils.castToDate(value);
@@ -207,7 +207,7 @@ public class DefaultConfigData implements IConfigData
     public Date getDate(String key, Date defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -227,7 +227,7 @@ public class DefaultConfigData implements IConfigData
     public Date getDate(String key, String format, Date defaultValue)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return defaultValue;
         }
@@ -239,7 +239,7 @@ public class DefaultConfigData implements IConfigData
     public JSONObject getJSON(String key)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return null;
         } else if (value instanceof JSONObject)
@@ -253,7 +253,7 @@ public class DefaultConfigData implements IConfigData
     public JSONArray getJSONArray(String key)
     {
         Object value = get(key);
-        if (OftenTool.isEmpty(value))
+        if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             return null;
         } else if (value instanceof JSONArray)
@@ -321,12 +321,12 @@ public class DefaultConfigData implements IConfigData
             for (String key : keys)
             {
                 rs = getProperty(fieldRealType, key, null);
-                if (OftenTool.notEmpty(rs))
+                if (OftenTool.isNullOrEmptyCharSequence(rs))
                 {
                     break;
                 }
             }
-            if (OftenTool.notEmptyForAll(keys, defaultVal))
+            if (OftenTool.notEmptyOf(keys) && OftenTool.notEmpty(defaultVal))
             {
                 rs = getProperty(fieldRealType, keys[0], defaultVal);
             }
