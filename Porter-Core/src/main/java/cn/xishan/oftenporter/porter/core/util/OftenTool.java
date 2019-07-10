@@ -73,18 +73,56 @@ public class OftenTool
         } else if (object instanceof CharSequence)
         {
             is = "".equals(String.valueOf(object));
+        } else
+        {
+            if (LOGGER.isWarnEnabled() && (object instanceof Collection || object instanceof Map
+                    || object.getClass().isArray()))
+            {
+                LOGGER.warn("you may have used the wrong way of isEmpty:object={}", object.getClass());
+                StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+                StringBuilder builder = new StringBuilder();
+                for (int i = 1; i <= 4 && i < stacks.length; i++)
+                {
+                    builder.append("\n\t\t").append(LogUtil.toString(stacks[i]));
+                }
+                LOGGER.warn("{}", builder);
+            }
         }
-//        else if (object instanceof Collection)
-//        {
-//            is = ((Collection<?>) object).isEmpty();
-//        } else if (object instanceof Map)
-//        {
-//            is = ((Map<?, ?>) object).isEmpty();
-//        } else if (object.getClass().isArray())
-//        {
-//            is = Array.getLength(object) == 0;
-//        }
+
         return is;
+    }
+
+    /**
+     * 判断数组是否为null或者空
+     *
+     * @param array
+     * @return
+     */
+    public static boolean isEmptyArray(Object[] array)
+    {
+        return array == null || array.length == 0;
+    }
+
+    /**
+     * 判断集合是否为null或者空
+     *
+     * @param collection
+     * @return
+     */
+    public static boolean isEmptyCollection(Collection collection)
+    {
+        return collection == null || collection.isEmpty();
+    }
+
+    /**
+     * 判断map是否为null或者空
+     *
+     * @param map
+     * @return
+     */
+    public static boolean isEmptyMap(Map map)
+    {
+        return map == null || map.isEmpty();
     }
 
     /**
@@ -95,7 +133,7 @@ public class OftenTool
      */
     public static boolean existsEmpty(Object... objects)
     {
-        return !notNullAndEmptyForAll(objects);
+        return !notEmptyForAll(objects);
     }
 
     /**

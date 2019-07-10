@@ -421,7 +421,8 @@ public class AutoSetHandle
     public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class> classes,
             ClassLoader classLoader)
     {
-        if (OftenTool.isEmptyOfAll(packages, classStrs, classes))
+        if (OftenTool.isEmptyCollection(packages) && OftenTool.isEmptyCollection(classStrs) && OftenTool
+                .isEmptyCollection(classes))
         {
             return;
         }
