@@ -481,6 +481,17 @@ public class OftenTool
         return set;
     }
 
+    public static boolean includes(Object[] array, Object find)
+    {
+        for (Object obj : array)
+        {
+            if (Objects.equals(find, obj))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static String join(String separator, String... strs)
     {
