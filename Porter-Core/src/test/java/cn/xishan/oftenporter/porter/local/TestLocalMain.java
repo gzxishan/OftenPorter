@@ -107,7 +107,7 @@ public class TestLocalMain
 
         final Logger logger = LoggerFactory.getLogger(getClass());
 
-        porterConf.addStateListener(new StateListener()
+        porterConf.addStateListener(new StateListener.Adapter()
         {
             @Override
             public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
@@ -121,12 +121,6 @@ public class TestLocalMain
             public void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager)
             {
                 logger.debug("");
-            }
-
-            @Override
-            public void afterStart(InitParamSource initParamSource)
-            {
-                logger.debug("{}", initParamSource.getInitParameter("debug"));
             }
 
             @Override

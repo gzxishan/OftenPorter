@@ -7,7 +7,9 @@ import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
 
@@ -56,13 +58,20 @@ public class PorterConf
     private List<AutoSetObjForAspectOfNormal.AdvancedHandle> advancedHandleList;
 
 
-    PorterConf()
+    PorterConf(PorterData porterData)
     {
         seekPackages = new SeekPackages();
         stateListenerList = new ArrayList<>();
         contextChecks = new ArrayList<>();
         porterCheckPassableList = new ArrayList<>();
-        userInitParam = new InitParamSourceImpl();
+        userInitParam = new InitParamSourceImpl()
+        {
+            @Override
+            public Enumeration<Porter> currentPorters()
+            {
+                return porterData.ofContextPorters(getOftenContextName());
+            }
+        };
         contextAutoSetMap = new HashMap<>();
         paramSourceHandleManager = new ParamSourceHandleManager();
         iAnnotationConfigable = new DefaultAnnotationConfigable();

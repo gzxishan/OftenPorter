@@ -1,14 +1,19 @@
 package cn.xishan.oftenporter.porter.core.init;
 
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by 宇宙之灵 on 2016/8/31.
  */
-class InitParamSourceImpl implements InitParamSource
+abstract class InitParamSourceImpl implements InitParamSource
 {
     private Map<String, Object> map = new HashMap<>();
+
+    public InitParamSourceImpl()
+    {
+    }
 
     @Override
     public Object getInitParameter(String name)

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.init;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
 
 import java.util.List;
@@ -37,11 +38,38 @@ class StateListenerForAll implements StateListener
     }
 
     @Override
-    public void afterStart(InitParamSource initParamSource)
+    public void beforeSetOk(OftenObject oftenObject, InitParamSource initParamSource)
     {
         for (int i = stateListenerList.size() - 1; i >= 0; i--)
         {
-            stateListenerList.get(i).afterStart(initParamSource);
+            stateListenerList.get(i).beforeSetOk(oftenObject, initParamSource);
+        }
+    }
+
+    @Override
+    public void afterSetOk(OftenObject oftenObject, InitParamSource initParamSource)
+    {
+        for (int i = stateListenerList.size() - 1; i >= 0; i--)
+        {
+            stateListenerList.get(i).afterSetOk(oftenObject, initParamSource);
+        }
+    }
+
+    @Override
+    public void beforeStart(OftenObject oftenObject, InitParamSource initParamSource)
+    {
+        for (int i = stateListenerList.size() - 1; i >= 0; i--)
+        {
+            stateListenerList.get(i).beforeStart(oftenObject, initParamSource);
+        }
+    }
+
+    @Override
+    public void afterStart(OftenObject oftenObject, InitParamSource initParamSource)
+    {
+        for (int i = stateListenerList.size() - 1; i >= 0; i--)
+        {
+            stateListenerList.get(i).afterStart(oftenObject, initParamSource);
         }
     }
 

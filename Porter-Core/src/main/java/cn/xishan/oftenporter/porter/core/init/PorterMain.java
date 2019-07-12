@@ -170,7 +170,7 @@ public final class PorterMain
 
     public PorterConf newPorterConf()
     {
-        return new PorterConf();
+        return new PorterConf(porterData);
     }
 
     /**
@@ -475,11 +475,15 @@ public final class PorterMain
             OftenObject oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
 
+            portExecutor.onPutContext(context);
+
+            stateListenerForAll.beforeSetOk(oftenObject, porterConf.getUserInitParam());
             LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(oftenObject);
+            stateListenerForAll.afterSetOk(oftenObject, porterConf.getUserInitParam());
+
             oftenObject.release();
 
-            portExecutor.onContextStarted(context);
             ////////////////////////////////////////////////////////////////////////////////
             LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
 
@@ -492,13 +496,16 @@ public final class PorterMain
 
             oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
+
+            stateListenerForAll.beforeStart(oftenObject, porterConf.getUserInitParam());
             contextPorter.start(oftenObject);
+            stateListenerForAll.afterStart(oftenObject, porterConf.getUserInitParam());
+
             AspectHandleOfPortInUtil.invokeFinalListener_beforeFinal(oftenObject);
             AspectHandleOfPortInUtil.invokeFinalListener_afterFinal(oftenObject);
             oftenObject.release();
 
             LOGGER.debug(":{}/{} afterStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
-            stateListenerForAll.afterStart(porterConf.getUserInitParam());
 
             porterConf.initOk();
             LOGGER.debug(":{}/{} porterOne started!", bridgeLinker.currentName(), porterConf.getOftenContextName());

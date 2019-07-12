@@ -19,7 +19,7 @@ public class Main2 {
 
         // 进行配置
         PorterConf conf = localMain.newPorterConf();
-        conf.setContextName("Test3-2Main");
+        conf.setOftenContextName("Test3-2Main");
 
         conf.addStateListener(new StateListener.Adapter() {
             @Override
@@ -28,11 +28,6 @@ public class Main2 {
                                    ParamSourceHandleManager paramSourceHandleManager) {
                 super.beforeSeek(initParamSource, porterConf,
                                  paramSourceHandleManager);
-            }
-
-            @Override
-            public void afterStart(InitParamSource initParamSource) {
-                super.afterStart(initParamSource);
             }
         });
 

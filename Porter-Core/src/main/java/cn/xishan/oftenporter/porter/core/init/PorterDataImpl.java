@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.Enumeration;
 
@@ -23,13 +24,17 @@ class PorterDataImpl implements PorterData
     @Override
     public Enumeration<String> ofContexts()
     {
-        return new EnumerationImpl<String>(executor.contextNameIterator());
+        return new EnumerationImpl<>(executor.contextNameIterator());
     }
 
     @Override
     public Enumeration<Porter> ofContextPorters(String contextName)
     {
+        if (OftenTool.isEmpty(contextName))
+        {
+            throw new NullPointerException("context name is null");
+        }
         Context context = executor.getContext(contextName);
-        return new EnumerationImpl<Porter>(context.contextPorter.getPortMap().values().iterator());
+        return new EnumerationImpl<>(context.contextPorter.getPortMap().values().iterator());
     }
 }

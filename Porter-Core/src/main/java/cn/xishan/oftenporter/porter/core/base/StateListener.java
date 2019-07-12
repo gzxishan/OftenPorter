@@ -16,7 +16,7 @@ import org.slf4j.Logger;
  * {@linkplain #afterSeek(InitParamSource, ParamSourceHandleManager) afterSeek}
  * </li>
  * <li>逆序调用[Sx,...,S2,S1]:
- * {@linkplain #afterStart(InitParamSource) afterStart}
+ * {@linkplain #afterStart(OftenObject,InitParamSource) afterStart}
  * </li>
  * <li>顺序调用[S1,S2,...,Sx]:
  * {@linkplain #beforeDestroy() beforeDestroy}
@@ -35,7 +35,13 @@ public interface StateListener
 
     void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager);
 
-    void afterStart(InitParamSource initParamSource);
+    void beforeSetOk(OftenObject oftenObject, InitParamSource initParamSource);
+
+    void afterSetOk(OftenObject oftenObject, InitParamSource initParamSource);
+
+    void beforeStart(OftenObject oftenObject, InitParamSource initParamSource);
+
+    void afterStart(OftenObject oftenObject, InitParamSource initParamSource);
 
     void beforeDestroy();
 
@@ -64,7 +70,25 @@ public interface StateListener
         }
 
         @Override
-        public void afterStart(InitParamSource initParamSource)
+        public void beforeSetOk(OftenObject oftenObject, InitParamSource initParamSource)
+        {
+            LOGGER.debug("beforeSetOk");
+        }
+
+        @Override
+        public void afterSetOk(OftenObject oftenObject,InitParamSource initParamSource)
+        {
+            LOGGER.debug("afterSetOk");
+        }
+
+        @Override
+        public void beforeStart(OftenObject oftenObject,InitParamSource initParamSource)
+        {
+            LOGGER.debug("beforeStart");
+        }
+
+        @Override
+        public void afterStart(OftenObject oftenObject,InitParamSource initParamSource)
         {
             LOGGER.debug("afterStart");
         }
