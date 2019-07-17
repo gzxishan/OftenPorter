@@ -289,7 +289,8 @@ public class SqlCondition extends Condition
         if (operator == IN || operator == NIN)
         {
             StringBuilder sBuilder = new StringBuilder("(");
-            if (cUnit.getParam2() instanceof Object[] || cUnit.getParam2() instanceof List)
+            if (cUnit.getParam2() != null && cUnit.getParam2().getClass().isArray() || cUnit
+                    .getParam2() instanceof List)
             {
                 Object[] objects;
                 if (cUnit.getParam2() instanceof List)

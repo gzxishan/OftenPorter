@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import com.alibaba.fastjson.JSON;
@@ -9,10 +10,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.io.File;
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
@@ -296,7 +296,18 @@ public class DefaultConfigData implements IConfigData
     @Override
     public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
     {
-        String[] keys = OftenStrUtil.split(property.value().replace('，', ','), ",");
+        String name = property.name();
+        if (OftenTool.isEmpty(name))
+        {
+            name = property.value();
+        }
+
+        if (OftenTool.isEmpty(name))
+        {
+            throw new InitException(String.format("property name is empty:target=%s,type=%s", target, fieldRealType));
+        }
+
+        String[] keys = OftenStrUtil.split(name.replace('，', ','), ",");
         for (int i = 0; i < keys.length; i++)
         {
             String key = keys[i].trim();
@@ -308,6 +319,7 @@ public class DefaultConfigData implements IConfigData
         }
 
         String defaultVal = property.defaultVal().trim();
+        Property.Choice choice = property.choice();
         if (defaultVal.equals(""))
         {
             defaultVal = null;
@@ -315,12 +327,12 @@ public class DefaultConfigData implements IConfigData
         Object rs = null;
         if (keys.length == 1)
         {
-            rs = getProperty(fieldRealType, keys[0], defaultVal);
+            rs = getProperty(fieldRealType, keys[0], defaultVal, choice);
         } else
         {
             for (String key : keys)
             {
-                rs = getProperty(fieldRealType, key, null);
+                rs = getProperty(fieldRealType, key, null, choice);
                 if (OftenTool.isNullOrEmptyCharSequence(rs))
                 {
                     break;
@@ -328,38 +340,39 @@ public class DefaultConfigData implements IConfigData
             }
             if (OftenTool.notEmptyOf(keys) && OftenTool.notEmpty(defaultVal))
             {
-                rs = getProperty(fieldRealType, keys[0], defaultVal);
+                rs = getProperty(fieldRealType, keys[0], defaultVal, choice);
             }
         }
         return rs;
     }
 
-    private Object getProperty(Class<?> fieldRealType, String key, String defaultVal)
+    private Object getProperty(Class<?> fieldRealType, String key, String defaultVal, Property.Choice choice)
     {
+        Object rs;
         if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))
         {
-            return getInt(key, defaultVal == null ? 0 : TypeUtils.castToInt(defaultVal));
+            rs = getInt(key, defaultVal == null ? 0 : TypeUtils.castToInt(defaultVal));
         } else if (fieldRealType.equals(long.class) || fieldRealType.equals(Long.class))
         {
-            return getLong(key, defaultVal == null ? 0 : TypeUtils.castToLong(defaultVal));
+            rs = getLong(key, defaultVal == null ? 0 : TypeUtils.castToLong(defaultVal));
         } else if (fieldRealType.equals(boolean.class) || fieldRealType.equals(Boolean.class))
         {
-            return getBoolean(key, defaultVal == null ? false : TypeUtils.castToBoolean(defaultVal));
+            rs = getBoolean(key, defaultVal == null ? false : TypeUtils.castToBoolean(defaultVal));
         } else if (fieldRealType.equals(float.class) || fieldRealType.equals(Float.class))
         {
-            return getFloat(key, defaultVal == null ? 0 : TypeUtils.castToFloat(defaultVal));
+            rs = getFloat(key, defaultVal == null ? 0 : TypeUtils.castToFloat(defaultVal));
         } else if (fieldRealType.equals(double.class) || fieldRealType.equals(Double.class))
         {
-            return getDouble(key, defaultVal == null ? 0 : TypeUtils.castToDouble(defaultVal));
+            rs = getDouble(key, defaultVal == null ? 0 : TypeUtils.castToDouble(defaultVal));
         } else if (fieldRealType.equals(String.class))
         {
-            return getString(key, defaultVal);
+            rs = getString(key, defaultVal);
         } else if (fieldRealType.equals(String[].class))
         {
-            return getStrings(key, defaultVal);
+            rs = getStrings(key, defaultVal);
         } else if (fieldRealType.equals(Date.class))
         {
-            return getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));
+            rs = getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));
         } else if (fieldRealType.equals(JSONObject.class))
         {
             JSONObject json = getJSON(key);
@@ -367,7 +380,7 @@ public class DefaultConfigData implements IConfigData
             {
                 json = JSON.parseObject(defaultVal);
             }
-            return json;
+            rs = json;
         } else if (fieldRealType.equals(JSONArray.class))
         {
             JSONArray jsonArray = getJSONArray(key);
@@ -375,10 +388,104 @@ public class DefaultConfigData implements IConfigData
             {
                 jsonArray = JSON.parseArray(defaultVal);
             }
-            return jsonArray;
+            rs = jsonArray;
         } else
         {
-            return get(key);
+            rs = get(key);
         }
+
+        if (rs != null)
+        {
+            switch (choice)
+            {
+                case FirstFile:
+                case FirstDir:
+                case FirstFileDir:
+                    rs = choiceFile(choice, rs, fieldRealType);
+                    break;
+                case Default:
+                    break;
+            }
+        }
+
+        return rs;
+    }
+
+    private Object choiceFile(Property.Choice choice, Object rs, Class realType)
+    {
+        if (rs instanceof CharSequence)
+        {
+            String str = String.valueOf(rs).replaceAll("[；,\\|]", ";");
+            rs = OftenStrUtil.split(str, ";");
+        }
+
+
+        if (rs instanceof File)
+        {
+            rs = new File[]{(File) rs};
+        }
+
+        if (rs instanceof List || rs.getClass().isArray() && !(rs instanceof File[]))
+        {
+            if (rs.getClass().isArray())
+            {
+                int len = Array.getLength(rs);
+                List list = new ArrayList(len);
+                for (int i = 0; i < len; i++)
+                {
+                    list.add(Array.get(rs, i));
+                }
+                rs = list;
+            }
+
+            List list = (List) rs;
+            List<File> fileList = new ArrayList<>(list.size());
+            for (int i = 0; i < list.size(); i++)
+            {
+                Object item = list.get(i);
+                if (item instanceof File)
+                {
+                    fileList.add((File) item);
+                } else if (item instanceof CharSequence && OftenTool.notEmpty((CharSequence) item))
+                {
+                    fileList.add(new File(String.valueOf(item)));
+                }
+            }
+            rs = fileList.toArray(new File[0]);
+        }
+
+        if (rs instanceof File[])
+        {
+            File[] files = (File[]) rs;
+            File file = null;
+            for (File f : files)
+            {
+                if (f.exists())
+                {
+                    if (choice == Property.Choice.FirstFileDir || choice == Property.Choice.FirstFile && f
+                            .isFile() || choice == Property.Choice.FirstDir && f.isDirectory())
+                    {
+                        file = f;
+                        break;
+                    }
+                }
+            }
+            if (file == null && files.length > 0)
+            {
+                file = files[0];//都不存在时，返回第一个文件
+            }
+            if (OftenTool.isAssignable(realType, String.class))
+            {
+                rs = file.getAbsolutePath();
+            } else
+            {
+                rs = file;
+            }
+        } else
+        {
+            throw new InitException(String.format("unknown property for choice '%s':%s", choice, rs));
+        }
+
+        return rs;
     }
 }

@@ -22,12 +22,37 @@ import java.lang.annotation.*;
 @Documented
 public @interface Property
 {
+
+    enum Choice
+    {
+        /**
+         * 选择第一个存在的文件、如果都不存在则返回第一个，对应的值：1）为String多个用分号隔开，2）为String[]，3）为File[],4)为List(String)
+         */
+        FirstFile,
+        /**
+         * 选择第一个存在的目录、如果都不存在则返回第一个，对应的值：1）为String多个用分号隔开，2）为String[]，3）为File[],4)为List(String)
+         */
+        FirstDir,
+        /**
+         * 选择第一个存在的目录或文件、如果都不存在则返回第一个，对应的值：1）为String多个用分号隔开，2）为String[]，3）为File[],4)为List(String)
+         */
+        FirstFileDir,
+        Default
+    }
+
     /**
      * 属性名。支持多个属性，用","隔开，会获取第一个非空的属性。
      *
      * @return
      */
-    String value();
+    String value() default "";
+
+    /**
+     * 同{@linkplain #value()}。
+     *
+     * @return
+     */
+    String name() default "";
 
     /**
      * 默认值。
@@ -35,4 +60,6 @@ public @interface Property
      * @return
      */
     String defaultVal() default "";
+
+    Choice choice() default Choice.Default;
 }

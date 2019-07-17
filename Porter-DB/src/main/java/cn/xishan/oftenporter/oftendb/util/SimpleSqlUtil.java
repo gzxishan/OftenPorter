@@ -513,7 +513,7 @@ public class SimpleSqlUtil
                             if (value instanceof List)
                             {
                                 array = ((List) value).toArray(OftenTool.EMPTY_OBJECT_ARRAY);
-                            } else if (value instanceof Object[])
+                            } else if (value.getClass().isArray())
                             {
                                 array = (Object[]) value;
                             } else
