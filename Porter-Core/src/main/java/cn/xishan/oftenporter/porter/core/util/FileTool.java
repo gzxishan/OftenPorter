@@ -112,6 +112,21 @@ public class FileTool
         }
     }
 
+    public static void writeString(File file, String content)
+    {
+        try
+        {
+            if (!file.exists())
+            {
+                file.createNewFile();
+            }
+            write2Stream(content, "utf-8", new FileOutputStream(file));
+        } catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * 读取文件内容到字节数组
      *
