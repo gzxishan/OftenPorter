@@ -689,7 +689,7 @@ public class OftenTool
         {
             try
             {
-                return file.delete();
+                return FileTool.delete(file);
             } catch (Exception e)
             {
                 LOGGER.warn(e.getMessage(), e);

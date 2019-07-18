@@ -33,8 +33,8 @@ public final class AnnotationDealt
 {
     private boolean enableDefaultValue;
     private final Logger LOGGER;
-    private Map<Class, Method[]> destroyMethodsMap;
-    private Map<Class, Method[]> startMethodsMap;
+    private Map<String, Method[]> destroyMethodsMap;
+    private Map<String, Method[]> startMethodsMap;
     private Map<String, _PortDestroy> destroyMap;
     private Map<String, _PortStart> startMap;
 
@@ -448,14 +448,15 @@ public final class AnnotationDealt
 
     public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter)
     {
-        String mkey = method.toString();
+        boolean isNullInstance=isNullInstanceOfStartDestroy(method, objectGetter);
+        String mkey = method.toString()+"::"+isNullInstance;
         _PortDestroy _portDestroy = destroyMap.get(mkey);
         if (_portDestroy == PORT_DESTROY_EMPTY)
         {
             return null;
         } else if (_portDestroy == null)
         {
-            if (isNullInstanceOfStartDestroy(method, objectGetter))
+            if (isNullInstance)
             {
 //            if (LOGGER.isWarnEnabled())
 //            {
@@ -483,14 +484,15 @@ public final class AnnotationDealt
 
     public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
     {
-        String mkey = method.toString();
+        boolean isNullInstance=isNullInstanceOfStartDestroy(method, objectGetter);
+        String mkey = method.toString()+"::"+isNullInstance;
         _PortStart _portStart = startMap.get(mkey);
         if (_portStart == PORT_START_EMPTY)
         {
             return null;
         } else if (_portStart == null)
         {
-            if (isNullInstanceOfStartDestroy(method, objectGetter))
+            if (isNullInstance)
             {
 //            if (LOGGER.isWarnEnabled())
 //            {
@@ -518,11 +520,12 @@ public final class AnnotationDealt
     public Method[] getPortStart(Object object, Class objectClass)
     {
         objectClass = PortUtil.getRealClass(objectClass);
-        Method[] methods = startMethodsMap.get(objectClass);
+        String key = objectClass.getName() + "::" + (object == null);
+        Method[] methods = startMethodsMap.get(key);
         if (methods == null)
         {
+            boolean existsStartStop = false;
             ObjectGetter objectGetter = () -> object;
-
             methods = OftenTool.getAllPublicMethods(objectClass);
             List<_PortStart> list = new ArrayList<>();
             for (Method method : methods)
@@ -533,6 +536,9 @@ public final class AnnotationDealt
                     if (portStart != null)
                     {
                         list.add(portStart);
+                    } else if (AnnoUtil.isOneOfAnnotationsPresent(method, PortStart.class))
+                    {
+                        existsStartStop = true;
                     }
                 }
             }
@@ -543,7 +549,10 @@ public final class AnnotationDealt
             {
                 methods[i] = portStarts[i].porterOfFun.getMethod();
             }
-            startMethodsMap.put(objectClass, methods);
+            if (!(existsStartStop && methods.length == 0))
+            {
+                startMethodsMap.put(key, methods);
+            }
         }
 
         return methods;
@@ -552,12 +561,15 @@ public final class AnnotationDealt
     public Method[] getPortDestroy(Object object, Class objectClass)
     {
         objectClass = PortUtil.getRealClass(objectClass);
-        Method[] methods = destroyMethodsMap.get(objectClass);
+        String key = objectClass.getName() + "::" + (object == null);
+
+        Method[] methods = destroyMethodsMap.get(key);
 
         if (methods == null)
         {
-            ObjectGetter objectGetter = () -> object;
+            boolean existsStartStop = false;
 
+            ObjectGetter objectGetter = () -> object;
             methods = OftenTool.getAllMethods(objectClass);
             List<_PortDestroy> list = new ArrayList<>();
             for (Method method : methods)
@@ -568,6 +580,9 @@ public final class AnnotationDealt
                     if (portDestroy != null)
                     {
                         list.add(portDestroy);
+                    } else if (AnnoUtil.isOneOfAnnotationsPresent(method, PortDestroy.class))
+                    {
+                        existsStartStop = true;
                     }
                 }
             }
@@ -578,7 +593,10 @@ public final class AnnotationDealt
             {
                 methods[i] = portDestroys[i].porterOfFun.getMethod();
             }
-            destroyMethodsMap.put(objectClass, methods);
+            if (!(existsStartStop && methods.length == 0))
+            {
+                destroyMethodsMap.put(key, methods);
+            }
         }
 
         return methods;

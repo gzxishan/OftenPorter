@@ -304,6 +304,10 @@ public class FileTool
      */
     public static boolean delete(File file, boolean includeCurrentDir)
     {
+        if (file == null)
+        {
+            return false;
+        }
         if (file.isDirectory())
         {
             File[] files = file.listFiles();
