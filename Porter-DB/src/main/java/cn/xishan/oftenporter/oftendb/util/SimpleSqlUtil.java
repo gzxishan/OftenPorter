@@ -85,6 +85,56 @@ public class SimpleSqlUtil
          * 完整的ORDER BY子句
          */
         public String order;
+
+        public Map<String, Object> getQuery()
+        {
+            return query;
+        }
+
+        public void setQuery(Map<String, Object> query)
+        {
+            this.query = query;
+        }
+
+        public String getNowhere()
+        {
+            return nowhere;
+        }
+
+        public void setNowhere(String nowhere)
+        {
+            this.nowhere = nowhere;
+        }
+
+        public String getWhere()
+        {
+            return where;
+        }
+
+        public void setWhere(String where)
+        {
+            this.where = where;
+        }
+
+        public String getNoorder()
+        {
+            return noorder;
+        }
+
+        public void setNoorder(String noorder)
+        {
+            this.noorder = noorder;
+        }
+
+        public String getOrder()
+        {
+            return order;
+        }
+
+        public void setOrder(String order)
+        {
+            this.order = order;
+        }
     }
 
     private String columnCoverString = "`";
