@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.bridge.http.websocket;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 
+import cn.xishan.oftenporter.porter.core.annotation.PortInit;
+import cn.xishan.oftenporter.porter.core.annotation.PortInited;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.SyncOption;
@@ -336,8 +338,8 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
         return true;
     }
 
-    @Override
-    public void onStart(OftenObject oftenObject)
+    @PortInited
+    public void onInited(OftenObject oftenObject)
     {
         if (clientWebSocket.autoStart())
         {

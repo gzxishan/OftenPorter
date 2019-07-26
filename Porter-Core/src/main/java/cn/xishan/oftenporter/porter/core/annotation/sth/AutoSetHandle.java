@@ -71,6 +71,45 @@ public class AutoSetHandle
         }
     }
 
+    public static class _PortInited implements Comparable<_PortInited>
+    {
+        public final Object obj;
+        public final Method method;
+        public final int order;
+        Logger logger;
+
+        public _PortInited(Object obj, Method method, int order, Logger logger)
+        {
+            this.obj = obj;
+            this.method = method;
+            this.order = order;
+            this.logger = logger;
+        }
+
+        @Override
+        public int compareTo(_PortInited o)
+        {
+            int n = this.order - o.order;
+            if (n == 0)
+            {
+                return 0;
+            } else if (n > 0)
+            {
+                return 1;
+            } else
+            {
+                return -1;
+            }
+        }
+
+        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception
+        {
+            logger.debug("invoke @PortInited:{}", method);
+            method.setAccessible(true);
+            DefaultArgumentsFactory.invokeWithArgs(configData, obj, method, oftenObject, configData);
+        }
+    }
+
     enum RangeType
     {
         /**
@@ -300,6 +339,7 @@ public class AutoSetHandle
     private Map<Class, Porter> porterMap = new HashMap<>();
     private Map<Object, Object> proxyObjectMap = new HashMap<>();
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
+    private List<_PortInited> portIniteds = new ArrayList<>();
     private Set<Object> autoSetDealtSet = new HashSet<>();
     private AutoSetHandleWorkedInstance workedInstance;
     private IConfigData iConfigData;
@@ -343,15 +383,34 @@ public class AutoSetHandle
         this.autoSetter = autoSetter;
     }
 
+    public void invokePortInited(OftenObject oftenObject)
+    {
+        try
+        {
+            _PortInited[] portIniteds = this.portIniteds.toArray(new _PortInited[0]);
+            Arrays.sort(portIniteds);
+            for (_PortInited portInited : portIniteds)
+            {
+                portInited.invoke(oftenObject, iConfigData);
+            }
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        } finally
+        {
+            this.portIniteds = null;
+        }
+    }
+
     /**
      * 调用所有的{@linkplain SetOk SetOk}函数。
      */
     public synchronized void invokeSetOk(OftenObject oftenObject)
     {
-        _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
-        Arrays.sort(setOkObjects);
         try
         {
+            _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
+            Arrays.sort(setOkObjects);
             //先清理、再调用setOk函数
             this.setOkObjects.clear();
 //            this.porterMap = null;
@@ -697,6 +756,7 @@ public class AutoSetHandle
         }
     }
 
+    //每个对象或被autoset的都会调用此函数
     private Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Porter porter, @MayNull Object finalObject,
             Class<?> currentObjectClass,
             @MayNull Object currentObject, RangeType rangeType) throws Exception
@@ -893,7 +953,7 @@ public class AutoSetHandle
             for (Method method : methods)
             {
 //                dealMethodAutoSetInvoke(currentObject, currentObjectClass, method, configData);
-                addSetOkMethod(currentObject, method);
+                addSetOkAndPorterInitedMethod(currentObject, method);
             }
 
             if (porter == null && !PortUtil.isPorter(currentObjectClass))
@@ -1001,48 +1061,11 @@ public class AutoSetHandle
         }
     }
 
-//    private void dealMethodAutoSetInvoke(Object currentObject, Class currentClass, Method method,
-//            IConfigData iConfigData)
-//    {
-//        AutoSet.Invoke invokeFun = AnnoUtil.getAnnotation(method, AutoSet.Invoke.class);
-//        if (invokeFun == null)
-//        {
-//            return;
-//        }
-//        Parameter[] parameters = method.getParameters();
-//        Object[] args = new Object[parameters.length];
-//        try
-//        {
-//            for (int i = 0; i < parameters.length; i++)
-//            {
-//                Parameter parameter = parameters[i];
-//                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
-//                if (property != null)
-//                {
-//                    Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
-//                    Object value = iConfigData.getValue(currentObject, method, realType, property);
-//                    args[i] = value;
-//                } else
-//                {
-//                    throw new InitException(
-//                            "expected '@Property' for arg of index " + i + " for method '" + method + "'");
-//                }
-//            }
-//            method.setAccessible(true);
-//            method.invoke(currentObject, args);
-//        } catch (InitException e)
-//        {
-//            throw e;
-//        } catch (Exception e)
-//        {
-//            throw new InitException(e);
-//        }
-//    }
 
-
-    private void addSetOkMethod(Object currentObject, Method method)
+    private void addSetOkAndPorterInitedMethod(Object currentObject, Method method)
     {
         SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
+        PortInited portInited;
         if (setOk != null)
         {
             method.setAccessible(true);
@@ -1052,6 +1075,16 @@ public class AutoSetHandle
             } else
             {
                 setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(), LOGGER));
+            }
+        } else if ((portInited = AnnoUtil.getAnnotation(method, PortInited.class)) != null)
+        {
+            method.setAccessible(true);
+            if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
+            {
+                LOGGER.warn("ignore PortInited method for no instance:method={}", method);
+            } else
+            {
+                portIniteds.add(new _PortInited(currentObject, method, portInited.order(), LOGGER));
             }
         }
     }

@@ -518,6 +518,11 @@ public final class PorterMain
                 portIniter.init(this.getBridgeLinker());
             }
             LOGGER.debug(":{}/{} done @PortInit.", bridgeLinker.currentName(), porterConf.getOftenContextName());
+
+            LOGGER.debug("start invokePortInited...");
+            autoSetHandle.invokePortInited(oftenObject);
+
+
             AnnoUtil.popAnnotationConfigable();
             if (autoSetObjForAspectOfNormal != null)
             {

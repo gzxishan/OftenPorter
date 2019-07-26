@@ -24,7 +24,7 @@ import java.lang.annotation.*;
 public @interface PortStart
 {
     /**
-     * 在接口类或全局中被调用的顺序,数值越小越先执行,或者在飞porter接口中的顺序.
+     * 在接口类或全局中被调用的顺序,数值越小越先执行,或者在非porter接口中的顺序.
      *
      * @return
      */
