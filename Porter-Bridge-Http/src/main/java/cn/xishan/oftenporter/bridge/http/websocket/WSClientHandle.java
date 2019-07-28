@@ -106,7 +106,6 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
             if (wsClient.session != null)
             {
                 wsClient.session.close();
-                wsClient.session = null;
             }
             if (scheduledExecutorService != null)
             {
