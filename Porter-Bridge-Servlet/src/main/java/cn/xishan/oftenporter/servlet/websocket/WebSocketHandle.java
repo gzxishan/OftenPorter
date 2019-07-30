@@ -157,6 +157,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
         BridgeData bridgeData = new BridgeData(oftenObject, porterOfFun, webSocket, wsConfig);
         HttpSession session = request.getSession();
+        oftenObject.putRequestData(HttpSession.class,session);
         session.setAttribute(BridgeData.class.getName(), bridgeData);
         request.setAttribute(BridgeData.class.getName(), true);
 

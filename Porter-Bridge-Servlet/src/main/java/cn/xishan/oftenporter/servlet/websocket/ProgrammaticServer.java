@@ -6,14 +6,18 @@ import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.websocket.*;
+import java.io.IOException;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */
 public class ProgrammaticServer extends Endpoint
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProgrammaticServer.class);
 
     public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value)
     {
@@ -25,7 +29,14 @@ public class ProgrammaticServer extends Endpoint
             porterOfFun.invokeByHandleArgs(oftenObject, WS.newWS(type, session, isLast, value));
         } catch (Throwable e)
         {
-            throw new OftenCallException(OftenTool.getCause(e));
+            LOGGER.error(e.getMessage(), e);
+            try
+            {
+                session.close(new CloseReason(CloseReason.CloseCodes.UNEXPECTED_CONDITION, e.getMessage()));
+            } catch (IOException ex)
+            {
+                throw new OftenCallException(ex);
+            }
         }
     }
 
