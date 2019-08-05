@@ -3,11 +3,16 @@
 
 ##
 # 版本
-当前最新版本为  [**1.1.1.96**](http://mvnrepository.com/artifact/com.xishankeji)
+当前最新版本为  [**1.2.31**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.1.1.96-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.31-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
+
+# 码云
+[https://gitee.com/xishankeji/OftenPorter](https://gitee.com/xishankeji/OftenPorter)
+# github
+[https://github.com/gzxishan/OftenPorter](https://github.com/gzxishan/OftenPorter)
 
 ##
 # 文档(Documentation)
