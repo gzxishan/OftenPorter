@@ -6,7 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.exception.AutoSetException;
 
 /**
- * 不含@{@linkplain PortStart}事件。会执行{@linkplain SetOk}、{@linkplain PortDestroy}事件。
+ * 会执行@{@linkplain SetOk SetOk}、@{@linkplain PortStart}(此事件在SetOk后立即执行)、{@linkplain PortDestroy}事件。
  *
  * @author Created by https://github.com/CLovinr on 2019-05-14.
  */

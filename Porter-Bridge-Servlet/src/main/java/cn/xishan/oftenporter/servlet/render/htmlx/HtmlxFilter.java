@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.servlet.render.htmlx;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.servlet.OftenServlet;
+import cn.xishan.oftenporter.servlet._AllFilter;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +13,7 @@ import java.io.IOException;
 /**
  * @author Created by https://github.com/CLovinr on 2019-01-11.
  */
-public class HtmlxFilter implements Filter
+public class HtmlxFilter extends _AllFilter.FilterX
 {
     private OftenServlet oftenServlet;
     private String oftenPath;
@@ -31,11 +32,17 @@ public class HtmlxFilter implements Filter
 
     }
 
+
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
+    public void destroy()
+    {
+
+    }
+
+    @Override
+    public void doSelf(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws IOException, ServletException
     {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
         if ("GET".equals(request.getMethod()))
         {
             if (request.getAttribute(id) == null)
@@ -46,32 +53,25 @@ public class HtmlxFilter implements Filter
 
                 if (responseType == HtmlxDoc.ResponseType.ServletDefault)
                 {
-                    chain.doFilter(servletRequest, servletResponse);
+                    chain.doFilter(request, response);
                 } else
                 {
-                    HttpServletResponse response = (HttpServletResponse) servletResponse;
                     oftenServlet.doRequest(request, oftenPath, response, PortMethod.GET);
 
                     if (responseType != HtmlxDoc.ResponseType.Break)
                     {
-                        chain.doFilter(servletRequest, servletResponse);
+                        chain.doFilter(request, response);
                     }
                 }
             } else
             {
                 //已经执行过
-                chain.doFilter(servletRequest, servletResponse);
+                chain.doFilter(request, response);
             }
 
         } else
         {
-            chain.doFilter(servletRequest, servletResponse);
+            chain.doFilter(request, response);
         }
-    }
-
-    @Override
-    public void destroy()
-    {
-
     }
 }

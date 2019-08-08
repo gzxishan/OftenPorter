@@ -1,7 +1,7 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
 import cn.xishan.oftenporter.servlet.OftenServlet;
-import cn.xishan.oftenporter.servlet.WrapperFilterManager;
+import cn.xishan.oftenporter.servlet._AllFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +15,13 @@ import java.io.IOException;
  */
 //@WebFilter(urlPatterns = "/*", dispatcherTypes = {DispatcherType.REQUEST, DispatcherType.FORWARD}, asyncSupported =
 //        true)
-public final class OftenWebSocketFilter implements Filter
+public final class OftenWebSocketFilter extends _AllFilter.FilterX
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenWebSocketFilter.class);
+
+    OftenWebSocketFilter()
+    {
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException
@@ -26,34 +30,15 @@ public final class OftenWebSocketFilter implements Filter
     }
 
     @Override
-    public void doFilter(ServletRequest _servletRequest, ServletResponse _servletResponse,
+    public void destroy()
+    {
+
+    }
+
+    @Override
+    public void doSelf(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws IOException, ServletException
     {
-        HttpServletRequest request = (HttpServletRequest) _servletRequest;
-        HttpServletResponse response = (HttpServletResponse) _servletResponse;
-
-        WrapperFilterManager wrapperFilterManager = WrapperFilterManager
-                .getWrapperFilterManager(request.getServletContext());
-        for_outer:
-        for (WrapperFilterManager.WrapperFilter wrapperFilter : wrapperFilterManager.wrapperFilters())
-        {
-            WrapperFilterManager.Wrapper wrapper = wrapperFilter.doFilter(request, response);
-            if (wrapper != null)
-            {
-                request = wrapper.getRequest();
-                response = wrapper.getResponse();
-                switch (wrapper.getFilterResult())
-                {
-                    case RETURN:
-                        return;
-                    case BREAK:
-                        break for_outer;
-                    case CONTINUE:
-                        break;
-                }
-            }
-        }
-
         OftenServlet oftenServlet = (OftenServlet) request.getServletContext()
                 .getAttribute(OftenServlet.class.getName());
         if (oftenServlet != null && WebSocketHandle.isWebSocket(request))
@@ -66,11 +51,5 @@ public final class OftenWebSocketFilter implements Filter
 //            }
         }
         chain.doFilter(request, response);
-    }
-
-    @Override
-    public void destroy()
-    {
-
     }
 }

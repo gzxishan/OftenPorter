@@ -457,6 +457,11 @@ public class AutoSetHandle
         this.iOtherStartDestroy = iOtherStartDestroy;
     }
 
+    public IOtherStartDestroy getOtherStartDestroy()
+    {
+        return iOtherStartDestroy;
+    }
+
     public InnerContextBridge getInnerContextBridge()
     {
         return innerContextBridge;

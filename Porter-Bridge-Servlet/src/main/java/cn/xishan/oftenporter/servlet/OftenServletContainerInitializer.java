@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * @author Created by https://github.com/CLovinr on 2018/4/18.
  */
-@HandlesTypes(OftenInitializer.class)
+@HandlesTypes({OftenInitializer.class, OftenServerStateListener.class})
 public final class OftenServletContainerInitializer implements ServletContainerInitializer
 {
     public static final int BRIDGE_SERVLET_LOAD_VALUE = 10;
@@ -82,20 +82,23 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         private List<OftenInitializer> servletInitializerList;
         private ServletContext servletContext;
         private String servletName;
+        private Set<OftenServerStateListener> stateListenerSet;
 
         public BridgeServlet(ServletContext servletContext,
-                Set<Class<?>> servletInitializerClasses) throws Exception
+                Set<OftenServerStateListener> stateListenerSet,
+                Set<Class<OftenInitializer>> servletInitializerClasses) throws Exception
         {
             super("", true);
             super.doSysInit = false;
             this.servletName = this.toString();
             this.servletContext = servletContext;
+            this.stateListenerSet=stateListenerSet;
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());
-            for (Class<?> clazz : servletInitializerClasses)
+            for (Class<OftenInitializer> clazz : servletInitializerClasses)
             {
                 try
                 {
-                    OftenInitializer initializer = (OftenInitializer) OftenTool.newObject(clazz);
+                    OftenInitializer initializer = OftenTool.newObject(clazz);
                     initializer.beforeStart(servletContext, this);
                     servletInitializerList.add(initializer);
                 } catch (Exception e)
@@ -251,6 +254,15 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            for(OftenServerStateListener stateListener:stateListenerSet){
+                try
+                {
+                    stateListener.onDestroyed();
+                } catch (Exception e)
+                {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
         }
 
         @Override
@@ -297,30 +309,57 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             ServletContext servletContext) throws ServletException
     {
 
-        Set<Class<?>> initialClasses = new HashSet<>();
+        Set<OftenServerStateListener> stateListenerSet = new HashSet<>();
+
+        Set<Class<OftenInitializer>> initialClasses = new HashSet<>();
         for (Class<?> c : servletInitializerClasses)
         {
             if (!Modifier.isAbstract(c.getModifiers()))
             {
-                initialClasses.add(c);
+                if (OftenTool.isAssignable(c, OftenInitializer.class))
+                {
+                    initialClasses.add((Class<OftenInitializer>) c);
+                } else
+                {
+                    Class<OftenServerStateListener> clazz = (Class<OftenServerStateListener>) c;
+                    try
+                    {
+                        stateListenerSet.add(OftenTool.newObject(clazz));
+                    } catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
+
+
+        for (OftenServerStateListener listener : stateListenerSet)
+        {
+            listener.beforeInit(servletContext);
+        }
+
         try
         {
-            BridgeServlet bridgeServlet = new BridgeServlet(servletContext, initialClasses);
+            BridgeServlet bridgeServlet = new BridgeServlet(servletContext,stateListenerSet, initialClasses);
             bridgeServlet.doStart();//直接调用
 
             ServletRegistration.Dynamic dynamic = servletContext
                     .addServlet(bridgeServlet.getServletName(), bridgeServlet);
             dynamic.setAsyncSupported(true);
-            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE-1);
+            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE - 1);
         } catch (Throwable e)
         {
             throw new ServletException(e);
         }
         WebSocketHandle.initFilter(servletContext);
 //        BridgeFilter.init(servletContext);
+
+        for (OftenServerStateListener listener : stateListenerSet)
+        {
+            listener.afterInit(servletContext);
+        }
     }
 
 //    public static void bindOftenServlet(String oftenContext, HttpServlet servlet)

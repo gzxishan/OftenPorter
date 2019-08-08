@@ -531,7 +531,17 @@ public final class PorterMain
             OftenTool.clearCache();
             AnnoUtil.clearCache();
         }
-        autoSetter.onOk();
+
+        {
+            String path = "/" + porterConf.getOftenContextName() + "/:" + AutoSet.class
+                    .getSimpleName() + "/:Customer";
+            UrlDecoder.Result result = getUrlDecoder().decode(path);
+
+            OftenObject oftenObject = portExecutor
+                    .forPortInit(getBridgeLinker().currentName(), result, null, null, context, true);
+            oftenObject.release();
+            autoSetter.onOk(oftenObject);
+        }
         return autoSetter;
     }
 
