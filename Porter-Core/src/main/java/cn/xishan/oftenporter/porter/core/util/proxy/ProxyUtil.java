@@ -8,9 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,20 +64,24 @@ public class ProxyUtil
         String fieldName = "CGLIB$CALLBACK_1";
         try
         {
-            Field field=object.getClass().getDeclaredField(fieldName);
+            Field field = object.getClass().getDeclaredField(fieldName);
             field.setAccessible(true);
             if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
             {
-                WeakReference reference= (WeakReference) field.get(object);
-                object=reference.get();
+                Object methodInterceptor = field.get(object);
+                field = methodInterceptor.getClass().getDeclaredField("originRef");
+                field.setAccessible(true);
+                WeakReference reference = (WeakReference) field.get(object);
+                object = reference.get();
             } else if (object instanceof IOftenProxy)
             {
-                object=field.get(object);
+                RealCallback realCallback = (RealCallback) field.get(object);
+                object = realCallback.getTarget();
             }
-        }catch (NoSuchFieldException e){
+        } catch (NoSuchFieldException e)
+        {
 
-        }
-        catch (Throwable e)
+        } catch (Throwable e)
         {
             LOGGER.warn(e.getMessage(), e);
         }
@@ -102,16 +105,10 @@ public class ProxyUtil
     }
 
     private static Enhancer proxySetting(Object object, boolean useCache, Class[] interfaces,
-            IMethodFilter methodFilter,
-            IInvocationable invocationable) throws Exception
+            IMethodFilter methodFilter, IInvocationable invocationable) throws Exception
     {
         Callback[] callbacks =
-                new Callback[]{NoOp.INSTANCE, (MethodInterceptor) (obj, method, args, methodProxy) -> {
-
-                    IInvocationable.IInvoker iInvoker = args1 -> methodProxy.invokeSuper(obj, args1);
-
-                    return invocationable.invoke(iInvoker, obj, object, method, args);
-                }};
+                new Callback[]{NoOp.INSTANCE, new RealCallback(object, invocationable)};
 
         Enhancer enhancer = new Enhancer();
         enhancer.setCallbacks(callbacks);
