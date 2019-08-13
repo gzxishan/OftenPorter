@@ -131,7 +131,8 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                 } else
                 {
                     info.lockCount++;
-                    LOGGER.debug("acquired resource in the same thread:key={},thread={}", key, info.thread);
+                    LOGGER.debug("acquired resource in the same thread:count={},key={},thread={}", info.lockCount, key,
+                            info.thread);
                 }
             }
 
@@ -141,17 +142,26 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                 if (key == null)
                     return;
                 LockInfo info = local.get().get(key);
-                if (info != null && --info.lockCount <= 0)
+                if (info != null)
                 {
-                    LOGGER.debug("unlocking:key={},thread={}", key, info.thread);
-                    local.get().remove(key);
-                    map.remove(key, info);
-                    info.semaphore.release();
-                    LOGGER.debug("unlocked:key={},thread={}", key, info.thread);
-                    if (LOGGER.isDebugEnabled())
+                    if (--info.lockCount <= 0)
                     {
-                        LOGGER.debug("unlock count={}", releaseCount.incrementAndGet());
+                        LOGGER.debug("unlocking:key={},thread={}", key, info.thread);
+                        local.get().remove(key);
+                        map.remove(key, info);
+                        info.semaphore.release();
+                        LOGGER.debug("unlocked:key={},thread={}", key, info.thread);
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("release count={}", releaseCount.incrementAndGet());
+                        }
+                    } else
+                    {
+                        LOGGER.debug("unlocked 1,remain lock count is:{}", info.lockCount);
                     }
+                } else
+                {
+                    LOGGER.warn("lock info is null:key={}", key);
                 }
             }
         };
