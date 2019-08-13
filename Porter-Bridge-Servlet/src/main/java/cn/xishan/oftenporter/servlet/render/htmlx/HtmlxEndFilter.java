@@ -49,6 +49,8 @@ public class HtmlxEndFilter implements Filter
                 {
                     RenderData renderData = (RenderData) request.getAttribute(RenderData.class.getName());
                     HtmlxDoc htmlxDoc = renderData.getHtmlxDoc();
+                    htmlxDoc.doSettings();
+
                     Document document = (Document) htmlxDoc.getDocument();
                     String htmlStr = document.outerHtml();
                     for (Object rs : renderData.getReturnObjects())

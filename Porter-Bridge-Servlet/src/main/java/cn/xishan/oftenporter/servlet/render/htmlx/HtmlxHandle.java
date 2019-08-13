@@ -17,7 +17,6 @@ import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.servlet.HttpCacheUtil;
 import cn.xishan.oftenporter.servlet.OftenServlet;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -328,11 +327,13 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                 HttpCacheUtil.setCacheWithModified(cacheSeconds, lastModified, response);
             } else
             {
-                Document document;
                 HtmlxDoc.PageType pageType;
+
+                IDocGetter docGetter;
+
                 if (file.exists())
                 {
-                    document = Jsoup.parse(file, encoding);
+                    docGetter = () -> Jsoup.parse(file, encoding);
                     pageType = HtmlxDoc.PageType.Normal;
                 } else
                 {
@@ -365,18 +366,23 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
 
                     if (otherwisePage == null)
                     {
-                        InputStream in = new ByteArrayInputStream(otherwiseHtml);
-                        document = Jsoup.parse(in, encoding, "");
+                        docGetter = () -> {
+                            InputStream in = new ByteArrayInputStream(otherwiseHtml);
+                            return Jsoup.parse(in, encoding, "");
+                        };
                         pageType = HtmlxDoc.PageType.OtherwiseHtml;
                     } else
                     {
-                        InputStream in = new ByteArrayInputStream(otherwisePage);
-                        document = Jsoup.parse(in, otherwisePageEncoding, "");
+                        docGetter = () -> {
+                            InputStream in = new ByteArrayInputStream(otherwisePage);
+                            return Jsoup.parse(in, otherwisePageEncoding, "");
+                        };
+
                         pageType = HtmlxDoc.PageType.OtherwisePage;
                     }
                     lastModified = otherwiseLastmodified;
                 }
-                HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, document, pageType, defaultResponseType, lastModified);
+                HtmlxDoc htmlxDoc = new HtmlxDoc(this, rpath, pageType, defaultResponseType, lastModified, docGetter);
                 RenderData renderData = new RenderData(htmlxDoc);
                 request.setAttribute(RenderData.class.getName(), renderData);
                 invokeDoc(oftenObject, request, response, renderData, porterOfFun);

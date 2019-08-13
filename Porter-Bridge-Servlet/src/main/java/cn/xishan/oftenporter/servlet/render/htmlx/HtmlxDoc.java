@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet.render.htmlx;
 
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -44,7 +45,8 @@ public class HtmlxDoc
         Next
     }
 
-    private Object document;
+    private Object _document;
+    private IDocGetter docGetter;
 
     private String encoding;
     private String contentType;
@@ -57,15 +59,37 @@ public class HtmlxDoc
     private String path;
     private long lastModified;
 
-    public HtmlxDoc(HtmlxHandle htmlxHandle, String path, Object document, PageType pageType, ResponseType responseType,
-            long lastModified)
+    private String toSetTitle;
+    private String toSetDescription;
+    private String toSetKeywords;
+
+
+    public HtmlxDoc(HtmlxHandle htmlxHandle, String path, PageType pageType, ResponseType responseType,
+            long lastModified, IDocGetter docGetter)
     {
         this.htmlxHandle = htmlxHandle;
         this.path = path;
-        this.document = document;
+        this.docGetter = docGetter;
         this.pageType = pageType;
         this.responseType = responseType;
         this.lastModified = lastModified;
+    }
+
+    //只有在需要document时，才进行解析；例如在开发者进行自定义响应的情况下、无需进行解析。
+    private synchronized Document getDoc()
+    {
+        if (this._document == null)
+        {
+            try
+            {
+                this._document = docGetter.getDoc();
+            } catch (Exception e)
+            {
+                throw new OftenCallException(e);
+            }
+        }
+        Document document = (Document) _document;
+        return document;
     }
 
     public long getLastModified()
@@ -159,26 +183,42 @@ public class HtmlxDoc
      */
     public void title(String title)
     {
-        Document document = (Document) this.document;
-        if (title != null)
-        {
-            document.title(title);
-        }
+        this.toSetTitle = title;
+    }
+
+    /**
+     * 得到页面的标题
+     *
+     * @return
+     */
+    public String title()
+    {
+        return toSetTitle;
     }
 
     public void setMetaDescription(String description)
     {
-        this.setMeta("description", description);
+        this.toSetDescription = description;
+    }
+
+    public String getMetaDescription()
+    {
+        return toSetDescription;
     }
 
     public void setMetaKeywords(String keywords)
     {
-        this.setMeta("keywords", keywords);
+        this.toSetKeywords = toSetDescription;
+    }
+
+    public String getMetaKeywords()
+    {
+        return toSetKeywords;
     }
 
     public void setMeta(String name, String content)
     {
-        Document document = (Document) this.document;
+        Document document = getDoc();
         Element element = document.head().selectFirst("meta[name='" + name + "']");
         if (element == null)
         {
@@ -189,9 +229,71 @@ public class HtmlxDoc
         element.attr("content", content);
     }
 
+    /**
+     * 添加style到head中。
+     *
+     * @param styleContent style内容
+     */
+    public void addStyleContent(String styleContent)
+    {
+        Document document = getDoc();
+        Element head = document.head();
+        Element cssEle = new Element("style");
+        cssEle.html(styleContent);
+        cssEle.attr("type", "text/css");
+        head.appendChild(cssEle);
+    }
+
+    public void addStyleWithPath(String relativePath) throws IOException
+    {
+        addStyleWithPath(relativePath, htmlxHandle.getOtherwisePageEncoding());
+    }
+
+    /**
+     * 从文件中加载style内容，添加到head中。
+     *
+     * @param relativePath
+     * @param encoding
+     * @throws IOException
+     */
+    public void addStyleWithPath(String relativePath, String encoding) throws IOException
+    {
+        addStyleContent(getRelativeResource(relativePath, encoding));
+    }
+
+
+    public void addScriptWithPath(String relativePath) throws IOException
+    {
+        addScriptContent(getRelativeResource(relativePath, htmlxHandle.getOtherwisePageEncoding()));
+    }
+
+    /**
+     * 从文件中加载js脚本内容，添加到head中。
+     *
+     * @param relativePath
+     * @param encoding
+     * @throws IOException
+     */
+    public void addScriptWithPath(String relativePath, String encoding) throws IOException
+    {
+        addScriptContent(getRelativeResource(relativePath, encoding));
+    }
+
+    /**
+     * 添加script到head中。
+     *
+     * @param scriptContent JavaScript脚本内容
+     */
+    public void addScriptContent(String scriptContent)
+    {
+        Document document = getDoc();
+        Element head = document.head();
+        head.append("\n<script type='text/javascript'>\n" + scriptContent + "\n</script>\n");
+    }
+
     public String getText(String selector)
     {
-        Document document = (Document) this.document;
+        Document document = getDoc();
         Element element = document.selectFirst(selector);
         return element == null ? null : element.text();
     }
@@ -204,7 +306,7 @@ public class HtmlxDoc
      */
     public void setText(String selector, String text)
     {
-        Document document = (Document) this.document;
+        Document document = getDoc();
         Elements elements = document.select(selector);
         Iterator<Element> it = elements.iterator();
         while (it.hasNext())
@@ -213,20 +315,10 @@ public class HtmlxDoc
         }
     }
 
-    /**
-     * 得到页面的标题
-     *
-     * @return
-     */
-    public String title()
-    {
-        Document document = (Document) this.document;
-        return document.title();
-    }
 
     public Object getDocument()
     {
-        return document;
+        return getDoc();
     }
 
     public String getEncoding()
@@ -257,7 +349,7 @@ public class HtmlxDoc
      */
     public void text(String selector, String text)
     {
-        Document document = (Document) this.document;
+        Document document = getDoc();
         Element element = document.selectFirst(selector);
         if (element != null)
         {
@@ -267,7 +359,7 @@ public class HtmlxDoc
 
     public String text(String selector)
     {
-        Document document = (Document) this.document;
+        Document document = getDoc();
         Element element = document.selectFirst(selector);
         if (element != null)
         {
@@ -286,5 +378,24 @@ public class HtmlxDoc
     public void setCacheSeconds(int cacheSeconds)
     {
         this.cacheSeconds = cacheSeconds;
+    }
+
+    public void doSettings()
+    {
+        Document document = getDoc();
+        if (OftenTool.notEmpty(toSetTitle))
+        {
+            document.title(toSetTitle);
+        }
+
+        if (OftenTool.notEmpty(toSetDescription))
+        {
+            setMeta("description", toSetDescription);
+        }
+
+        if (OftenTool.notEmpty(toSetKeywords))
+        {
+            setMeta("keywords", toSetKeywords);
+        }
     }
 }
