@@ -3,7 +3,7 @@
     <parent>
         <artifactId>OftenPorter</artifactId>
         <groupId>com.xishankeji</groupId>
-        <version>1.2.34</version>
+        <version>1.2.35</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -22,12 +22,12 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Servlet</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-DB</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
         <dependency>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>Porter-Bridge-Http</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
     <build>

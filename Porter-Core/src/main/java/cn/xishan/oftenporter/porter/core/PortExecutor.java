@@ -745,7 +745,7 @@ public final class PortExecutor
                     .doHandle(AspectHandleOfPortInUtil.State.Invoke, oftenObject, funPort, null, null);
         } else
         {
-            returnObject = funPort.invokeByHandleArgs(oftenObject);
+            returnObject = funPort.invokeByHandleArgsWithoutAspect(oftenObject);
         }
         return returnObject;
     }

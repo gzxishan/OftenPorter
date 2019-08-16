@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -11,30 +12,42 @@ public class ConcurrentKeyLockTest
      * 锁的可重入测试
      */
     @Test
-    public void test1()
+    public void test1() throws InterruptedException
     {
         ConcurrentKeyLock keyLock = new ConcurrentKeyLock();
         String lockKey = "test1";
-
-        try
-        {
-            keyLock.lock(lockKey);
-
+        int[] rs = {0};
+        Thread thread = new Thread(() -> {
             try
             {
-                keyLock.lock(lockKey);
-
-
-            } finally
+                try
+                {
+                    keyLock.lock(lockKey);
+                    rs[0] = 1;
+                    try
+                    {
+                        keyLock.lock(lockKey);
+                        rs[0] = 2;
+                    } finally
+                    {
+                        keyLock.unlock(lockKey);
+                    }
+                    rs[0] = 3;
+                } finally
+                {
+                    keyLock.unlock(lockKey);
+                }
+                rs[0] = 4;
+            } catch (Exception e)
             {
-                keyLock.unlock(lockKey);
+                Assert.fail(e.getMessage());
             }
-
-
-        } finally
-        {
-            keyLock.unlock(lockKey);
-        }
+        });
+        thread.setDaemon(true);
+        thread.setPriority(Thread.NORM_PRIORITY);
+        thread.start();
+        Thread.sleep(2000);
+        Assert.assertEquals(4,rs[0]);
 
     }
 }

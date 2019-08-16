@@ -164,7 +164,7 @@ public class AspectHandleOfPortInUtil
                     }
                     if (!hasInvoked)
                     {
-                        returnObject = funPort.invokeByHandleArgs(oftenObject);
+                        returnObject = funPort.invokeByHandleArgsWithoutAspect(oftenObject);
                     }
                     return returnObject;
                 }

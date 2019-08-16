@@ -81,6 +81,8 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     protected static final ThreadLocal<Stack<WeakReference<OftenObject>>> threadLocal = ThreadLocal
             .withInitial(Stack::new);
+    private static final ThreadLocal<Map<String, Object>> threadLocalOfRequestData = ThreadLocal
+            .withInitial(HashMap::new);
 
     public OftenObject()
     {
@@ -100,7 +102,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     public void release()
     {
-
+        threadLocalOfRequestData.remove();
     }
 
     public abstract OftenRequest getRequest();
@@ -448,6 +450,25 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         return (T) this.requestDataMap.put(name, value);
     }
 
+    public <T> T putLocalRequestData(Class<?> clazz, Object value)
+    {
+        return putLocalRequestData(clazz.getName(), value);
+    }
+
+    /**
+     * 设置数据，只对当前线程有效。
+     *
+     * @param name  属性名
+     * @param value 属性值
+     * @return 返回上一次的值
+     */
+    public <T> T putLocalRequestData(String name, Object value)
+    {
+        LOGGER.debug("name={},value={}", name, value);
+        Map<String, Object> map = threadLocalOfRequestData.get();
+        return (T) map.put(name, value);
+    }
+
     public <T> T getRequestData(Class<T> clazz)
     {
         return getRequestData(clazz.getName());
@@ -475,6 +496,27 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
             return null;
         }
         return (T) this.requestDataMap.get(name);
+    }
+
+    public <T> T getLocalRequestData(Class<T> clazz)
+    {
+        return getLocalRequestData(clazz.getName());
+    }
+
+
+    public <T> T getLocalRequestData(String name)
+    {
+        return (T) threadLocalOfRequestData.get().get(name);
+    }
+
+    public <T> T removeLocalRequestData(Class<T> clazz)
+    {
+        return removeLocalRequestData(clazz.getName());
+    }
+
+    public <T> T removeLocalRequestData(String name)
+    {
+        return (T) threadLocalOfRequestData.get().remove(name);
     }
 
     public <T> T removeRequestData(String name)

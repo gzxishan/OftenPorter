@@ -131,7 +131,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                 } else
                 {
                     info.lockCount++;
-                    LOGGER.debug("acquired resource in the same thread:count={},key={},thread={}", info.lockCount, key,
+                    LOGGER.debug("acquired resource in the same thread:lockCount={},key={},thread={}", info.lockCount, key,
                             info.thread);
                 }
             }
@@ -157,7 +157,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                         }
                     } else
                     {
-                        LOGGER.debug("unlocked 1,remain lock count is:{}", info.lockCount);
+                        LOGGER.debug("unlocked 1,remain lockCount is:{}", info.lockCount);
                     }
                 } else
                 {

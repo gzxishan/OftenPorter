@@ -45,6 +45,7 @@ class OftenObjectImpl extends OftenObject
     @Override
     public void release()
     {
+        super.release();
         threadLocal.get().pop();
     }
 

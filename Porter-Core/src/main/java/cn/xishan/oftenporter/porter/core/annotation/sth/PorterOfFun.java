@@ -189,11 +189,17 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             return invokeByHandleArgsMayTriggerAspectHandle(oftenObject, args);
         } else
         {
-            Method javaMethod = getMethod();
-            IArgsHandle argsHandle = this.argsHandle;
-            Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
-            return invoke(finalArgs);
+            return invokeByHandleArgsWithoutAspect(oftenObject, args);
         }
+    }
+
+    public final Object invokeByHandleArgsWithoutAspect(@MayNull OftenObject oftenObject,
+            Object... args) throws Throwable
+    {
+        Method javaMethod = getMethod();
+        IArgsHandle argsHandle = this.argsHandle;
+        Object[] finalArgs = argsHandle.getInvokeArgs(oftenObject, this, javaMethod, args);
+        return invoke(finalArgs);
     }
 
     /**
