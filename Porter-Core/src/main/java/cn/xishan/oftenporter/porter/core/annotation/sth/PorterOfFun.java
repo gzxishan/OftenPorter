@@ -171,6 +171,9 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     /**
      * 最终的args由{@linkplain IArgsHandle}确定,另见{@linkplain PorterConf#setArgumentsFactory(IArgumentsFactory)},
      * {@linkplain #putInvokeArg(OftenObject, String, Object)}.
+     * <p>
+     * 注意：如果缓存了{@linkplain OftenObject},你可能需要在没轮次结束时调用{@linkplain OftenObject#release()}
+     * </p>
      *
      * @param oftenObject
      * @param args        支持{@linkplain FunParam}
@@ -184,7 +187,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
         {
             oftenObject = OftenObject.EMPTY;
         }
-        if (hasDirectHandleSupport)
+        if (hasDirectHandleSupport && !AspectHandleOfPortInUtil.hasInvokeBeforeInvoke(oftenObject))
         {
             return invokeByHandleArgsMayTriggerAspectHandle(oftenObject, args);
         } else

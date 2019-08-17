@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 
 import java.lang.ref.WeakReference;
+import java.util.Stack;
 
 
 /**
@@ -46,7 +47,6 @@ class OftenObjectImpl extends OftenObject
     public void release()
     {
         super.release();
-        threadLocal.get().pop();
     }
 
     @Override

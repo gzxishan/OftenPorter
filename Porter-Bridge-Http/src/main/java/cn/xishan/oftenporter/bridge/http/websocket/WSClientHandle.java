@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.bridge.http.websocket;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 
-import cn.xishan.oftenporter.porter.core.annotation.PortInit;
 import cn.xishan.oftenporter.porter.core.annotation.PortInited;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
@@ -51,7 +50,16 @@ class WSClientHandle extends AspectOperationOfPortIn.HandleAdapter<ClientWebSock
 
         private Object invoke(OftenObject oftenObject) throws Throwable
         {
-            return porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+            try
+            {
+                return porterOfFun.invokeByHandleArgs(oftenObject, wsClient);
+            } finally
+            {
+                if (oftenObject != null)
+                {
+                    oftenObject.release();
+                }
+            }
         }
 
         void start(OftenObject oftenObject)

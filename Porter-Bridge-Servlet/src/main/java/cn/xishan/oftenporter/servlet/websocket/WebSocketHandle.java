@@ -160,7 +160,6 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         oftenObject.putRequestData(HttpSession.class,session);
         session.setAttribute(BridgeData.class.getName(), bridgeData);
         request.setAttribute(BridgeData.class.getName(), true);
-
     }
 
     @Override

@@ -4,7 +4,6 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.websocket.handle.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,12 +20,16 @@ public class ProgrammaticServer extends Endpoint
 
     public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value)
     {
+        OftenObject oftenObject = null;
         try
         {
             BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
-            OftenObject oftenObject = bridgeData.oftenObject;
+            oftenObject = bridgeData.oftenObject;
             PorterOfFun porterOfFun = bridgeData.porterOfFun;
             porterOfFun.invokeByHandleArgs(oftenObject, WS.newWS(type, session, isLast, value));
+        } catch (SessionException e)
+        {
+            throw new OftenCallException(e);
         } catch (Throwable e)
         {
             LOGGER.error(e.getMessage(), e);
@@ -36,6 +39,12 @@ public class ProgrammaticServer extends Endpoint
             } catch (IOException ex)
             {
                 throw new OftenCallException(ex);
+            }
+        } finally
+        {
+            if (oftenObject != null)
+            {
+                oftenObject.release();
             }
         }
     }

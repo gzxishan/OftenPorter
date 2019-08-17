@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.advanced.IExtraEntitySupport;
 import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SyncPorterThrowsImpl;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
@@ -100,9 +101,17 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         return reference == null ? null : reference.get();
     }
 
+    /**
+     * 注意，如果缓存的当前实例，记得每次执行接口（如{@linkplain PorterOfFun#invokeByHandleArgs(OftenObject, Object...)}）后调用此函数释放相关资源（如本地线程变量）
+     */
     public void release()
     {
         threadLocalOfRequestData.remove();
+        Stack stack = threadLocal.get();
+        if (!stack.empty())
+        {
+            stack.pop();
+        }
     }
 
     public abstract OftenRequest getRequest();

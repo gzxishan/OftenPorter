@@ -4,6 +4,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
+import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,6 +124,19 @@ public class AspectHandleOfPortInUtil
         return doHandle(state, oftenObject, funPort, returnObject, failedObject, false);
     }
 
+    private static final String ATTR_OF_BEFORE_INVOKE = OftenKeyUtil.randomUUID();
+
+    public static boolean hasInvokeBeforeInvoke(OftenObject oftenObject)
+    {
+        if (oftenObject != null && oftenObject.getLocalRequestData(ATTR_OF_BEFORE_INVOKE) != null)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
     public static final Object doHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
             Object failedObject, boolean checkSupport) throws Throwable
     {
@@ -143,6 +157,10 @@ public class AspectHandleOfPortInUtil
                     }
                     break;
                 case BeforeInvoke:
+                    if (oftenObject != null)
+                    {
+                        oftenObject.putLocalRequestData(ATTR_OF_BEFORE_INVOKE, true);
+                    }
                     for (AspectOperationOfPortIn.Handle handle : handles)
                     {
                         if (!checkSupport || checkSupport && handle.supportInvokeByHandleArgs())
