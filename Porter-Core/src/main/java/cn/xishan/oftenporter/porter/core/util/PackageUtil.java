@@ -134,6 +134,44 @@ public class PackageUtil
     }
 
     /**
+     * 获取相对文件
+     *
+     * @param file
+     * @param relative 相对地址，分隔符为"/"
+     * @return
+     */
+    public static File getFileWithRelative(File file, String relative)
+    {
+        String filepath = file.getAbsolutePath();
+        String prefix = "";
+        if (isWindows())
+        {
+            int index = filepath.indexOf(':');
+            if (index > 0)
+            {
+                prefix = filepath.substring(0, index + 1);
+                filepath = filepath.substring(index + 1);
+            }
+        }
+        String resultPath = getPathWithRelative(File.separatorChar, filepath, file.isDirectory(), relative,
+                File.separatorChar);
+        File f = new File(prefix + resultPath);
+        return f.getAbsoluteFile();
+    }
+
+    public static boolean isWindows()
+    {
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().startsWith("win"))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
      * 根据类和相对包名获取最终的包名。
      *
      * @param pathSep   如“/”
@@ -201,6 +239,7 @@ public class PackageUtil
             char separator)
     {
         String separatorStr = String.valueOf(separator);
+        relative=relative.replace(File.separatorChar,'/');
 
         path = path.replace(pathSep, separator);
         if (relative.startsWith("/") || ABSOLUTE_PATTERN.matcher(relative).find())
