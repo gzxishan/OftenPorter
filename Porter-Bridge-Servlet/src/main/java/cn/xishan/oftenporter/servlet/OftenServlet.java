@@ -41,8 +41,8 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
 
     private static final long serialVersionUID = 1L;
     protected PorterMain porterMain;
-    protected String bridgeName, urlEncoding;
-    protected Boolean responseWhenException;
+    protected String bridgeName, urlEncoding = "utf-8";
+    protected Boolean responseWhenException = true;
     protected MultiPartOption multiPartOption = null;
     //protected ResponseHandle responseHandle;
 
@@ -121,7 +121,6 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         {
             this.bridgeName = bridgeName;
         }
-        this.urlEncoding = "utf-8";
         this.responseWhenException = responseWhenException;
     }
 

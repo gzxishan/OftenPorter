@@ -77,22 +77,19 @@ public final class OftenServletContainerInitializer implements ServletContainerI
     }
 
     //只用于启动
-    static class BridgeServlet extends StartupServlet implements OftenInitializer.BuilderBefore
+    static class BridgeServlet extends CustomerFrameworkServlet implements OftenInitializer.BuilderBefore
     {
         private List<OftenInitializer> servletInitializerList;
         private ServletContext servletContext;
-        private String servletName;
         private Set<OftenServerStateListener> stateListenerSet;
 
         public BridgeServlet(ServletContext servletContext,
                 Set<OftenServerStateListener> stateListenerSet,
-                Set<Class<OftenInitializer>> servletInitializerClasses) throws Exception
+                Set<Class<OftenInitializer>> servletInitializerClasses)
         {
-            super("", true);
-            super.doSysInit = false;
-            this.servletName = this.toString();
+            super(servletContext);
             this.servletContext = servletContext;
-            this.stateListenerSet=stateListenerSet;
+            this.stateListenerSet = stateListenerSet;
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());
             for (Class<OftenInitializer> clazz : servletInitializerClasses)
             {
@@ -170,17 +167,6 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             }
         }
 
-        @Override
-        public void init(ServletConfig config) throws ServletException
-        {
-            if (isInit())
-            {//由servlet初始化时进行调用,此时filter已经初始化完毕
-                doSysInit();
-            } else
-            {//直接进行调用
-                super.init(config);
-            }
-        }
 
         @Override
         public void onStart()
@@ -198,49 +184,6 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         }
 
         @Override
-        public ServletContext getServletContext()
-        {
-            return servletContext;
-        }
-
-        @Override
-        public String getServletName()
-        {
-            return servletName;
-        }
-
-        void doStart() throws ServletException
-        {
-            ServletConfig servletConfig = new ServletConfig()
-            {
-                @Override
-                public String getServletName()
-                {
-                    return BridgeServlet.this.getServletName();
-                }
-
-                @Override
-                public ServletContext getServletContext()
-                {
-                    return servletContext;
-                }
-
-                @Override
-                public String getInitParameter(String name)
-                {
-                    return null;
-                }
-
-                @Override
-                public Enumeration<String> getInitParameterNames()
-                {
-                    return null;
-                }
-            };
-            init(servletConfig);
-        }
-
-        @Override
         public void destroy()
         {
             super.destroy();
@@ -254,7 +197,8 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                     LOGGER.error(e.getMessage(), e);
                 }
             }
-            for(OftenServerStateListener stateListener:stateListenerSet){
+            for (OftenServerStateListener stateListener : stateListenerSet)
+            {
                 try
                 {
                     stateListener.onDestroyed();
@@ -342,13 +286,10 @@ public final class OftenServletContainerInitializer implements ServletContainerI
 
         try
         {
-            BridgeServlet bridgeServlet = new BridgeServlet(servletContext,stateListenerSet, initialClasses);
-            bridgeServlet.doStart();//直接调用
+            BridgeServlet bridgeServlet = new BridgeServlet(servletContext, stateListenerSet, initialClasses);
+            bridgeServlet.doStart(false);//直接调用
 
-            ServletRegistration.Dynamic dynamic = servletContext
-                    .addServlet(bridgeServlet.getServletName(), bridgeServlet);
-            dynamic.setAsyncSupported(true);
-            dynamic.setLoadOnStartup(BRIDGE_SERVLET_LOAD_VALUE - 1);
+            bridgeServlet.registerServlet(BRIDGE_SERVLET_LOAD_VALUE - 1);
         } catch (Throwable e)
         {
             throw new ServletException(e);
