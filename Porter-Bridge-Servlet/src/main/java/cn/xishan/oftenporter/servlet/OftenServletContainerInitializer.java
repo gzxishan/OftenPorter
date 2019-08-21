@@ -27,6 +27,8 @@ public final class OftenServletContainerInitializer implements ServletContainerI
 {
     public static final int BRIDGE_SERVLET_LOAD_VALUE = 10;
     public static final String FROM_INITIALIZER_ATTR = "__FROM_INITIALIZER_ATTR__";
+    private static List<CustomerFrameworkServlet> customerFrameworkServlets = new ArrayList<>();
+    private static boolean isLoad = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenServletContainerInitializer.class);
 
@@ -287,7 +289,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         try
         {
             BridgeServlet bridgeServlet = new BridgeServlet(servletContext, stateListenerSet, initialClasses);
-            bridgeServlet.doStart(false);//直接调用
+            bridgeServlet.doStart(true);//直接调用
 
             bridgeServlet.registerServlet(BRIDGE_SERVLET_LOAD_VALUE - 1);
         } catch (Throwable e)
@@ -300,6 +302,36 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         for (OftenServerStateListener listener : stateListenerSet)
         {
             listener.afterInit(servletContext);
+        }
+        isLoad = true;
+        List<CustomerFrameworkServlet> list = customerFrameworkServlets;
+        customerFrameworkServlets = new ArrayList<>(0);
+        for (CustomerFrameworkServlet customerFrameworkServlet : list)
+        {
+            try
+            {
+                customerFrameworkServlet.doStart(true);
+            } catch (ServletException e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    static void onReady(CustomerFrameworkServlet customerFrameworkServlet)
+    {
+        if (isLoad)
+        {
+            try
+            {
+                customerFrameworkServlet.doStart(true);
+            } catch (ServletException e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        } else
+        {
+            customerFrameworkServlets.add(customerFrameworkServlet);
         }
     }
 

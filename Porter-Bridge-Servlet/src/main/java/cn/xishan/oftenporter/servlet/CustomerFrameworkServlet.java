@@ -16,7 +16,10 @@ public abstract class CustomerFrameworkServlet extends StartupServlet
     private static int count = 0;
     protected ServletContext servletContext;
     private String servletName;
-    private boolean startOnServletLoad;
+    /**
+     * 是否立即启动
+     */
+    private boolean startImmediately = true;
 
     public CustomerFrameworkServlet(ServletContext servletContext)
     {
@@ -47,9 +50,8 @@ public abstract class CustomerFrameworkServlet extends StartupServlet
     @Override
     public final void init(ServletConfig config) throws ServletException
     {
-        if (startOnServletLoad)
+        if (!startImmediately)
         {
-            startOnServletLoad = false;
             //1.启动框架
             super.init(config);
             //2.初始化WebSocket、Filterer等
@@ -73,13 +75,13 @@ public abstract class CustomerFrameworkServlet extends StartupServlet
      * 请调用{@linkplain #registerServlet()}注册servlet。
      * </p>
      *
-     * @param startOnServletLoad 是否在servlet启动时启动框架
+     * @param startImmediately 是否立即启动,为false则表示在OftenPorter框架启动后再启动、这样可以保证OftenPorter正常。
      * @throws ServletException
      */
-    public void doStart(boolean startOnServletLoad) throws ServletException
+    public void doStart(boolean startImmediately) throws ServletException
     {
-        this.startOnServletLoad = startOnServletLoad;
-        if (!startOnServletLoad)
+        this.startImmediately = startImmediately;
+        if (startImmediately)
         {
             ServletConfig servletConfig = new ServletConfig()
             {
@@ -108,6 +110,9 @@ public abstract class CustomerFrameworkServlet extends StartupServlet
                 }
             };
             init(servletConfig);
+        } else
+        {
+            OftenServletContainerInitializer.onReady(this);
         }
     }
 
