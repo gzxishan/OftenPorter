@@ -312,7 +312,6 @@
                                     <encoding>UTF-8</encoding>
                                     <!--<additionalparam>-Xdoclint:none</additionalparam>-->
                                     <doclint>none</doclint>
-                                    <skip>true</skip>
                                     <failOnError>false</failOnError>
                                 </configuration>
                             </execution>
