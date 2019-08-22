@@ -402,7 +402,7 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     public OftenObject original()
     {
         OftenRequest request = getRequest();
-        OftenObject originalObject = request == null ? null : request.getOriginalWObject();
+        OftenObject originalObject = request == null ? null : request.getOriginalObject();
         return originalObject == null ? this : originalObject;
     }
 

@@ -41,6 +41,6 @@ public interface OftenRequest
      */
     <T> T getOriginalRequest();
 
-    OftenObject getOriginalWObject();
+    OftenObject getOriginalObject();
 
 }

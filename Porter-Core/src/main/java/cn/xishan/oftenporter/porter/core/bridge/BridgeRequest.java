@@ -44,7 +44,7 @@ public class BridgeRequest implements OftenRequest
     {
         if (originalObject != null)
         {
-            OftenObject oftenObject = originalObject.getRequest().getOriginalWObject();
+            OftenObject oftenObject = originalObject.getRequest().getOriginalObject();
             if (oftenObject != null)
             {
                 originalObject = oftenObject;
@@ -83,7 +83,7 @@ public class BridgeRequest implements OftenRequest
 
 
     @Override
-    public OftenObject getOriginalWObject()
+    public OftenObject getOriginalObject()
     {
         return originalObject;
     }
