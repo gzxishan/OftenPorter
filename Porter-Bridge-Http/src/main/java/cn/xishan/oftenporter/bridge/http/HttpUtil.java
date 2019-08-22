@@ -20,7 +20,10 @@ import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,12 +32,13 @@ import java.util.concurrent.TimeUnit;
 public class HttpUtil
 {
 
-    private static final int SET_CONNECTION_TIMEOUT = 20 * 1000;
+    private static final int SET_CONNECTION_TIMEOUT = 30 * 1000;
     private static final int SET_SOCKET_TIMEOUT = 60 * 1000;
     private static OkHttpClient defaultClient;
 
 
-    private static OkHttpClient _getClient(SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager)
+    private static OkHttpClient _getClient(SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager,
+            boolean hasCookie)
     {
 
         try
@@ -76,6 +80,31 @@ public class HttpUtil
             builder.connectTimeout(SET_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
             builder.readTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
             builder.writeTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
+
+            if (hasCookie)
+            {
+                builder.cookieJar(new CookieJar()
+                {
+                    private final Map<HttpUrl, List<Cookie>> cookieStore = new ConcurrentHashMap<>();
+
+                    @Override
+                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies)
+                    {
+                        cookieStore.put(url, cookies);
+                    }
+
+                    @Override
+                    public List<Cookie> loadForRequest(HttpUrl url)
+                    {
+                        List<Cookie> cookies = cookieStore.get(url);
+                        return cookies != null ? cookies : Collections.emptyList();
+                    }
+                });
+            } else
+            {
+                builder.cookieJar(CookieJar.NO_COOKIES);
+            }
+
             OkHttpClient okHttpClient = builder.build();
 
             return okHttpClient;
@@ -93,7 +122,7 @@ public class HttpUtil
      */
     public static synchronized OkHttpClient getClient()
     {
-        return getClient(null, null);
+        return getClient(null, null, false);
     }
 
     /**
@@ -102,18 +131,18 @@ public class HttpUtil
      * @return
      */
     public static synchronized OkHttpClient getClient(SSLSocketFactory sslSocketFactory,
-            X509TrustManager x509TrustManager)
+            X509TrustManager x509TrustManager, boolean hasCookie)
     {
 
         if (sslSocketFactory == null)
         {
             if (defaultClient == null)
             {
-                defaultClient = _getClient(null, x509TrustManager);
+                defaultClient = _getClient(null, x509TrustManager, hasCookie);
             }
             return defaultClient;
         }
-        return _getClient(sslSocketFactory, x509TrustManager);
+        return _getClient(sslSocketFactory, x509TrustManager, hasCookie);
     }
 
 
@@ -272,7 +301,7 @@ public class HttpUtil
     {
         if (okHttpClient == null)
         {
-            okHttpClient = getClient(null, null);
+            okHttpClient = getClient(null, null, false);
         }
         Response response = null;
         try
@@ -356,7 +385,7 @@ public class HttpUtil
         Response response = null;
         try
         {
-             response = request(requestData, method, okHttpClient, url, null);
+            response = request(requestData, method, okHttpClient, url, null);
             int code = response.code();
             if (code == 200 || code == 201)
             {
