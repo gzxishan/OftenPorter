@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 
 
 /**
+ * 另见：{@linkplain #newNece(String, Object)},{@linkplain #newNece(String, CharSequence)}
  * @author Created by https://github.com/CLovinr on 2018-11-06.
  */
 public class FunParam
@@ -18,8 +19,38 @@ public class FunParam
         this.value = value;
     }
 
-    public FunParam()
+    /**
+     * 若value为空则会抛出异常。
+     * @param name
+     * @param value
+     * @return
+     */
+    public static FunParam newNece(String name, CharSequence value)
     {
+        if (OftenTool.isEmpty(value))
+        {
+            throw new NullPointerException(String.format("%s is empty", name));
+        } else
+        {
+            return new FunParam(name, value);
+        }
+    }
+
+    /**
+     * 若value为null则会抛出异常。
+     * @param name
+     * @param value
+     * @return
+     */
+    public static FunParam newNece(String name, Object value)
+    {
+        if (value == null)
+        {
+            throw new NullPointerException(String.format("%s is null", name));
+        } else
+        {
+            return new FunParam(name, value);
+        }
     }
 
     public String getName()

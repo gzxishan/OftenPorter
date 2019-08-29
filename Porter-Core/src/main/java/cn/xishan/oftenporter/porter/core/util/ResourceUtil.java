@@ -150,9 +150,8 @@ public class ResourceUtil
     {
         try (InputStream inputStream = getAbsoluteResourceStream(path))
         {
-            URL url = getAbsoluteResource(path);
             String str = null;
-            if (url != null)
+            if (inputStream != null)
             {
                 str = FileTool.getString(inputStream, 1024, encoding);
             }
