@@ -5,6 +5,8 @@ import org.java_websocket.framing.PingFrame;
 import org.java_websocket.framing.PongFrame;
 
 import java.nio.ByteBuffer;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
@@ -14,23 +16,31 @@ class SessionImpl implements Session
     WebSocketClient webSocketClient;
     private OnClose onClose;
     private String id;
+    private Map<String, Object> attrMap;
 
     interface OnClose
     {
         void onClosed();
     }
 
-    public SessionImpl(WebSocketClient webSocketClient, OnClose onClose,String id)
+    public SessionImpl(WebSocketClient webSocketClient, OnClose onClose, String id)
     {
         this.webSocketClient = webSocketClient;
         this.onClose = onClose;
-        this.id=id;
+        this.id = id;
+        this.attrMap = new Hashtable<>();
     }
 
     @Override
     public String getId()
     {
         return id;
+    }
+
+    @Override
+    public Map<String, Object> getUserProperties()
+    {
+        return attrMap;
     }
 
     @Override

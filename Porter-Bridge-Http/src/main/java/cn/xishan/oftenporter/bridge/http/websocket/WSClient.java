@@ -54,12 +54,12 @@ public class WSClient
     }
 
 
-    public WSClient()
+    WSClient()
     {
     }
 
 
-    public void setSession(SessionImpl session)
+    void setSession(SessionImpl session)
     {
         this.session = session;
     }
@@ -95,7 +95,7 @@ public class WSClient
     @Override
     public boolean equals(Object obj)
     {
-        if (obj == null || !(obj instanceof WSClient))
+        if (!(obj instanceof WSClient))
         {
             return false;
         } else
@@ -118,6 +118,41 @@ public class WSClient
                 session.getClass().getSimpleName() + "@" + session.hashCode() +
                 ",id=" + session.getId();
         return builder;
+    }
+
+    public final <T> T removeAttribute(Class<?> clazzKey)
+    {
+        return removeAttribute(clazzKey.getName());
+    }
+
+    public final <T> T removeAttribute(String key)
+    {
+        return (T) session.getUserProperties().remove(key);
+    }
+
+    public final <T> T putAttribute(Class<?> clazzKey, Object vlaue)
+    {
+        return putAttribute(clazzKey.getName(), vlaue);
+    }
+
+    /**
+     * @return 返回上一次的属性。
+     */
+    public final <T> T putAttribute(String key, Object vlaue)
+    {
+        return (T) session.getUserProperties().put(key, vlaue);
+    }
+
+    public final <T> T getAttribute(Class<?> clazzKey)
+    {
+        return getAttribute(clazzKey.getName());
+    }
+
+
+    public final <T> T getAttribute(String key)
+    {
+        Object v = session.getUserProperties().get(key);
+        return (T) v;
     }
 
 }

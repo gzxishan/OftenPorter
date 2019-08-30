@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.OutType;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.OftenServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,18 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
     @Override
     public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
     {
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        parameterMap.forEach((key, values) -> {//保留请求的参数。
+            if (values != null && values.length > 0)
+            {
+                if (OftenTool.isNullOrEmptyCharSequence(oftenObject.url().getParam(key)))
+                {
+                    oftenObject.url().setParam(key, values[0]);
+                }
+            }
+        });
+
         if (webSocket.needConnectingState())
         {
             WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
@@ -132,7 +145,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
                 {
                     if (will)
                     {
-                        doConnect(oftenObject, porterOfFun);
+                        initAttr(oftenObject, porterOfFun);
                     } else
                     {
                         oftenObject.getResponse().close();
@@ -146,18 +159,18 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
             porterOfFun.invokeByHandleArgs(oftenObject, ws);
         } else
         {
-            doConnect(oftenObject, porterOfFun);
+            initAttr(oftenObject, porterOfFun);
         }
         return null;
     }
 
-    private void doConnect(OftenObject oftenObject, PorterOfFun porterOfFun) throws ServletException, IOException
+    private void initAttr(OftenObject oftenObject, PorterOfFun porterOfFun) throws ServletException, IOException
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
 
         BridgeData bridgeData = new BridgeData(oftenObject, porterOfFun, webSocket, wsConfig);
         HttpSession session = request.getSession();
-        oftenObject.putRequestData(HttpSession.class,session);
+        oftenObject.putRequestData(HttpSession.class, session);
         session.setAttribute(BridgeData.class.getName(), bridgeData);
         request.setAttribute(BridgeData.class.getName(), true);
     }

@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.bridge.http.websocket;
 
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/20.
@@ -10,24 +11,26 @@ public interface Session
     /**
      * 调用后将不会连接。
      */
-    public void close(int code, String reason);
+    void close(int code, String reason);
 
     /**
      * 调用后将不会连接。
      */
-    public void close();
+    void close();
 
-    public boolean isClosed();
+    boolean isClosed();
 
-    public void sendPing(ByteBuffer applicationData);
+    void sendPing(ByteBuffer applicationData);
 
-    public void sendPong(ByteBuffer applicationData);
+    void sendPong(ByteBuffer applicationData);
 
-    public void send(String text);
+    void send(String text);
 
-    public void send(ByteBuffer byteBuffer);
+    void send(ByteBuffer byteBuffer);
 
-    public void send(byte[] bs);
+    void send(byte[] bs);
 
-    public String getId();
+    String getId();
+
+    Map<String, Object> getUserProperties();
 }
