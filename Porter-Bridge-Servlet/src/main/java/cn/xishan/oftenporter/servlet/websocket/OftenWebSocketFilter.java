@@ -1,6 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
-import cn.xishan.oftenporter.servlet.OftenServlet;
+import cn.xishan.oftenporter.servlet.StartupServlet;
 import cn.xishan.oftenporter.servlet._AllFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ public final class OftenWebSocketFilter extends _AllFilter.FilterX
     public void doSelf(HttpServletRequest request, HttpServletResponse response,
             FilterChain chain) throws IOException, ServletException
     {
-        OftenServlet oftenServlet = (OftenServlet) request.getServletContext()
-                .getAttribute(OftenServlet.class.getName());
+        StartupServlet oftenServlet = (StartupServlet) request.getServletContext()
+                .getAttribute(StartupServlet.class.getName());
         if (oftenServlet != null && WebSocketHandle.isWebSocket(request))
         {
             //接入框架进行处理

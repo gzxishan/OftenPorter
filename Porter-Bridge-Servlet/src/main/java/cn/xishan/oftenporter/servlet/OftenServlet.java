@@ -27,14 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @CorsAccess
-public abstract class OftenServlet extends HttpServlet implements CommonMain
+abstract class OftenServlet extends HttpServlet implements CommonMain
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenServlet.class);
     public static final String SERVLET_NAME_NAME = "cn.xishan.oftenporter.servlet.OftenServlet.name";
@@ -408,6 +405,19 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         return porterMain != null;
     }
 
+    private Set<OftenServerStateListener> getOftenServerStateListener(ServletContext servletContext)
+    {
+        Set<OftenServerStateListener> serverStateListenerSet = (Set<OftenServerStateListener>) servletContext
+                .getAttribute(OftenServerStateListener.class.getName());
+        if (serverStateListenerSet != null)
+        {
+            return serverStateListenerSet;
+        } else
+        {
+            return Collections.emptySet();
+        }
+    }
+
     @Override
     public PorterConf newPorterConf(Class... importers)
     {
@@ -415,15 +425,20 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         {
             throw new RuntimeException("Not init!");
         }
-        PorterConf porterConf = porterMain.newPorterConf();
-        porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
         ServletContext servletContext = getServletConfig().getServletContext();
-        servletContext.setAttribute(OftenServlet.class.getName(), this);
+        PorterConf porterConf = porterMain.newPorterConf();
+        for (OftenServerStateListener serverStateListener : getOftenServerStateListener(servletContext))
+        {
+            serverStateListener.onNewOne(porterConf);
+        }
+
+        porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
+        servletContext.setAttribute(StartupServlet.class.getName(), this);
         servletContext.setAttribute(WrapperFilterManager.class.getName(), wrapperFilterManager);
 
         porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
-        porterConf.addContextAutoSet(OftenServlet.class, this);
+        porterConf.addContextAutoSet(StartupServlet.class, this);
 
         porterConf.addAutoSetObjectsForSetter(this);
 
@@ -606,6 +621,11 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
         {
             PutParamSourceHandle.addPutDealt(porterConf);
         }
+        for (OftenServerStateListener serverStateListener : getOftenServerStateListener(
+                getServletConfig().getServletContext()))
+        {
+            serverStateListener.onNewOne(porterConf);
+        }
         IAutoSetter autoSetter = porterMain.startOne(DefaultPorterBridge.defaultBridge(porterConf));
         if (defaultCorsAccess == null)
         {
@@ -633,6 +653,11 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     @Override
     public void destroyOne(String contextName)
     {
+        for (OftenServerStateListener serverStateListener : getOftenServerStateListener(
+                getServletConfig().getServletContext()))
+        {
+            serverStateListener.onDestroyOne(contextName);
+        }
         porterMain.destroyOne(contextName);
     }
 
@@ -645,6 +670,11 @@ public abstract class OftenServlet extends HttpServlet implements CommonMain
     @Override
     public void destroyAll()
     {
+        for (OftenServerStateListener serverStateListener : getOftenServerStateListener(
+                getServletConfig().getServletContext()))
+        {
+            serverStateListener.onDestroyAll();
+        }
         porterMain.destroyAll();
     }
 

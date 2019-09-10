@@ -2,7 +2,7 @@ package cn.xishan.oftenporter.servlet.render.htmlx;
 
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
-import cn.xishan.oftenporter.servlet.OftenServlet;
+import cn.xishan.oftenporter.servlet.StartupServlet;
 import cn.xishan.oftenporter.servlet._AllFilter;
 
 import javax.servlet.*;
@@ -15,13 +15,13 @@ import java.io.IOException;
  */
 public class HtmlxFilter extends _AllFilter.FilterX
 {
-    private OftenServlet oftenServlet;
+    private StartupServlet startupServlet;
     private String oftenPath;
     private String id;
 
-    HtmlxFilter(OftenServlet oftenServlet, String oftenPath)
+    HtmlxFilter(StartupServlet startupServlet, String oftenPath)
     {
-        this.oftenServlet = oftenServlet;
+        this.startupServlet = startupServlet;
         this.oftenPath = oftenPath;
         this.id = getClass().getSimpleName() + "@" + this.hashCode() + "@" + OftenKeyUtil.randomUUID();
     }
@@ -56,8 +56,7 @@ public class HtmlxFilter extends _AllFilter.FilterX
                     chain.doFilter(request, response);
                 } else
                 {
-                    oftenServlet.doRequest(request, oftenPath, response, PortMethod.GET);
-
+                    startupServlet.doRequest(request, oftenPath, response, PortMethod.GET);
                     if (responseType != HtmlxDoc.ResponseType.Break)
                     {
                         chain.doFilter(request, response);

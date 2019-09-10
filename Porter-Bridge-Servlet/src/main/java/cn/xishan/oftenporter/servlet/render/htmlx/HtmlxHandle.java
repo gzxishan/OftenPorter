@@ -15,7 +15,7 @@ import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.servlet.HttpCacheUtil;
-import cn.xishan.oftenporter.servlet.OftenServlet;
+import cn.xishan.oftenporter.servlet.StartupServlet;
 import org.jsoup.Jsoup;
 
 import javax.servlet.DispatcherType;
@@ -233,7 +233,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         if (handleList != null)
         {
             configData.remove(HANDLE_KEY);
-            OftenServlet oftenServlet = oftenObject.getContextSet(OftenServlet.class);
+            StartupServlet startupServlet = oftenObject.getContextSet(StartupServlet.class);
             HtmlxHandle[] handles = handleList.toArray(new HtmlxHandle[0]);
             Arrays.sort(handles);
 
@@ -244,7 +244,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                 String[] path = htmlxHandle.path;
                 OftenTool.addAll(endPaths, path);
                 FilterRegistration.Dynamic dynamic = servletContext
-                        .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(oftenServlet, oftenPath));
+                        .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(startupServlet, oftenPath));
                 dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
                         false, path);
                 //dynamic.setAsyncSupported(true);

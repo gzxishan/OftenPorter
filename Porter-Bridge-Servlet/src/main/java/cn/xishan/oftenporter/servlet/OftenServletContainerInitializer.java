@@ -279,6 +279,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             }
         }
         servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
+        servletContext.setAttribute(OftenServerStateListener.class.getName(), stateListenerSet);
 
 
         for (OftenServerStateListener listener : stateListenerSet)
