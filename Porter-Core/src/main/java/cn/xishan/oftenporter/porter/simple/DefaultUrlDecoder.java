@@ -27,7 +27,7 @@ public class DefaultUrlDecoder implements UrlDecoder
 
     public static final String STAR_PARAM_KEY = "=*=";
 
-    private static final Pattern STAR_PARAM2_PATTERN = Pattern.compile("/\\*\\*=([^/\\?]*)");
+    private static final Pattern STAR_PARAM2_PATTERN = Pattern.compile("/\\*\\*=([^/\\?#]*)");
 
 
     public DefaultUrlDecoder(String encoding)

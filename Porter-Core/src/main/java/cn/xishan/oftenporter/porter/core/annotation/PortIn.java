@@ -185,4 +185,10 @@ public @interface PortIn
      */
     Class<?> toPorterKey() default PortIn.class;
 
+    /**
+     * 使用指定的日志级别打印结果，取值：trace,debug,info,warn,error
+     *
+     * @return
+     */
+    String responseLoggerLevel() default "";
 }

@@ -448,8 +448,8 @@ public final class AnnotationDealt
 
     public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter)
     {
-        boolean isNullInstance=isNullInstanceOfStartDestroy(method, objectGetter);
-        String mkey = method.toString()+"::"+isNullInstance;
+        boolean isNullInstance = isNullInstanceOfStartDestroy(method, objectGetter);
+        String mkey = method.toString() + "::" + isNullInstance;
         _PortDestroy _portDestroy = destroyMap.get(mkey);
         if (_portDestroy == PORT_DESTROY_EMPTY)
         {
@@ -484,8 +484,8 @@ public final class AnnotationDealt
 
     public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
     {
-        boolean isNullInstance=isNullInstanceOfStartDestroy(method, objectGetter);
-        String mkey = method.toString()+"::"+isNullInstance;
+        boolean isNullInstance = isNullInstanceOfStartDestroy(method, objectGetter);
+        String mkey = method.toString() + "::" + isNullInstance;
         _PortStart _portStart = startMap.get(mkey);
         if (_portStart == PORT_START_EMPTY)
         {
@@ -657,6 +657,7 @@ public final class AnnotationDealt
         _portIn.methods = new PortMethod[]{portIn.method()};
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
+        _portIn.setResponseLoggerLevel(portIn.responseLoggerLevel());
         _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
         _portIn.toPorterKey = portIn.toPorterKey();
@@ -674,11 +675,17 @@ public final class AnnotationDealt
         PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
         if (portIn != null)
         {
-
             PortFunType portFunType = PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType());
             _portInOfMethod = new _PortIn(portFunType, portIn.aspectOfClassPosition(), portIn.ignoredFunTieds(),
                     portIn.enableMixinTo());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
+            if (OftenTool.isEmpty(portIn.responseLoggerLevel()))
+            {
+                _portInOfMethod.setResponseLoggerLevel(class_PortIn.responseLoggerLevel());
+            } else
+            {
+                _portInOfMethod.setResponseLoggerLevel(portIn.responseLoggerLevel());
+            }
 
             if (_portInOfMethod.getTiedType().isMethodTied())
             {

@@ -20,6 +20,8 @@ public final class _PortIn
     boolean ignoreTypeParser;
     boolean enableMixinTo;
 
+    private String responseLoggerLevel;
+
     PortFunType portFunType;
     AspectPosition aspectPosition;
 
@@ -66,6 +68,16 @@ public final class _PortIn
     public TiedType getTiedType()
     {
         return tiedType;
+    }
+
+    public String responseLoggerLevel()
+    {
+        return responseLoggerLevel;
+    }
+
+    void setResponseLoggerLevel(String responseLoggerLevel)
+    {
+        this.responseLoggerLevel = responseLoggerLevel.toLowerCase();
     }
 
     public Class<? extends CheckPassable>[] getChecks()

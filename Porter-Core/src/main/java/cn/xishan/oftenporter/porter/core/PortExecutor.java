@@ -1202,6 +1202,46 @@ public final class PortExecutor
             {
                 responseHandle = oftenObject.context.defaultResponseHandle;
             }
+
+            String loggerLever = porterOfFun.getMethodPortIn().responseLoggerLevel();
+            if (OftenTool.notEmpty(loggerLever))
+            {
+                Logger LOGGER = logger(oftenObject);
+                switch (loggerLever)
+                {
+                    case "trace":
+                        if (LOGGER.isTraceEnabled())
+                        {
+                            LOGGER.trace("response:{}", object);
+                        }
+                        break;
+                    case "debug":
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("response:{}", object);
+                        }
+                        break;
+                    case "info":
+                        if (LOGGER.isInfoEnabled())
+                        {
+                            LOGGER.info("response:{}", object);
+                        }
+                        break;
+                    case "warn":
+                        if (LOGGER.isWarnEnabled())
+                        {
+                            LOGGER.warn("response:{}", object);
+                        }
+                        break;
+                    case "error":
+                        if (LOGGER.isErrorEnabled())
+                        {
+                            LOGGER.error("response:{}", object);
+                        }
+                        break;
+                }
+            }
+
             if (!oftenObject.isInnerRequest() && responseHandle != null && responseHandle
                     .hasDoneWrite(oftenObject, porterOfFun, object))
             {
