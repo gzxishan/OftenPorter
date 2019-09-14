@@ -82,7 +82,7 @@ public class SthDeal
 
         InnerContextBridge innerContextBridge = autoSetHandle.getInnerContextBridge();
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(clazz, srcPorter.getClassTiedfix(), isMixin);
+        _PortIn portIn = annotationDealt.portIn(forFinalPorter, clazz, srcPorter.getClassTiedfix(), isMixin);
         if (portIn == null)
         {
             return null;
@@ -171,7 +171,8 @@ public class SthDeal
                 continue;
             }
             backableSeek.push();
-            PorterOfFun porterOfFun = porterOfFun(srcPorter,porter, method, innerContextBridge, backableSeek, autoSetHandle);
+            PorterOfFun porterOfFun = porterOfFun(srcPorter, porter, method, innerContextBridge, backableSeek,
+                    autoSetHandle);
             backableSeek.pop();
             if (porterOfFun != null)
             {
@@ -431,11 +432,12 @@ public class SthDeal
 
     }
 
-    private PorterOfFun porterOfFun(ContextPorter.SrcPorter srcPorter,Porter porter, Method method, InnerContextBridge innerContextBridge,
+    private PorterOfFun porterOfFun(ContextPorter.SrcPorter srcPorter, Porter porter, Method method,
+            InnerContextBridge innerContextBridge,
             BackableSeek backableSeek, AutoSetHandle autoSetHandle)
     {
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;
-        _PortIn portIn = annotationDealt.portIn(srcPorter,porter, method);
+        _PortIn portIn = annotationDealt.portIn(srcPorter, porter, method);
         PorterOfFun porterOfFun = null;
         if (portIn != null)
         {

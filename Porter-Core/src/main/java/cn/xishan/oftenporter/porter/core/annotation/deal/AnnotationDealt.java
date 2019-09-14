@@ -640,7 +640,7 @@ public final class AnnotationDealt
         return _portOut;
     }
 
-    public _PortIn portIn(Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean isMixin)
+    public _PortIn portIn(Porter forFinalPorter, Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean isMixin)
     {
         PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         if (portIn == null && isMixin)
@@ -658,6 +658,10 @@ public final class AnnotationDealt
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
         _portIn.setResponseLoggerLevel(portIn.responseLoggerLevel());
+        if (OftenTool.isEmpty(_portIn.responseLoggerLevel()) && forFinalPorter != null)
+        {
+            _portIn.setResponseLoggerLevel(forFinalPorter.getPortIn().responseLoggerLevel());
+        }
         _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
         _portIn.toPorterKey = portIn.toPorterKey();

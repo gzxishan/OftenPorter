@@ -309,7 +309,7 @@ public final class PortExecutor
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
-            jResponse.setDescription("fun:" + result.toString());
+            jResponse.setDescription("method=" + request.getMethod().name() + ",path=" + result);
             doFinalWriteOf404(request, response, jResponse);
         }
         close(response);
@@ -334,7 +334,8 @@ public final class PortExecutor
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
-            jResponse.setDescription(msg);
+            jResponse.setDescription(
+                    "method=" + request.getMethod().name() + ",path=" + request.getPath() + ",msg=" + msg);
             doFinalWriteOf404(request, response, jResponse);
         }
         close(response);
@@ -1207,36 +1208,37 @@ public final class PortExecutor
             if (OftenTool.notEmpty(loggerLever))
             {
                 Logger LOGGER = logger(oftenObject);
+                UrlDecoder.Result result = oftenObject == null ? null : oftenObject.url();
                 switch (loggerLever)
                 {
                     case "trace":
                         if (LOGGER.isTraceEnabled())
                         {
-                            LOGGER.trace("response:{}", object);
+                            LOGGER.trace("porter response[url={}]:{}", result, object);
                         }
                         break;
                     case "debug":
                         if (LOGGER.isDebugEnabled())
                         {
-                            LOGGER.debug("response:{}", object);
+                            LOGGER.debug("porter response[url={}]:{}", result, object);
                         }
                         break;
                     case "info":
                         if (LOGGER.isInfoEnabled())
                         {
-                            LOGGER.info("response:{}", object);
+                            LOGGER.info("porter response[url={}]:{}", result, object);
                         }
                         break;
                     case "warn":
                         if (LOGGER.isWarnEnabled())
                         {
-                            LOGGER.warn("response:{}", object);
+                            LOGGER.warn("porter response[url={}]:{}", result, object);
                         }
                         break;
                     case "error":
                         if (LOGGER.isErrorEnabled())
                         {
-                            LOGGER.error("response:{}", object);
+                            LOGGER.error("porter response[url={}]:{}", result, object);
                         }
                         break;
                 }
@@ -1277,6 +1279,11 @@ public final class PortExecutor
         try
         {
             Object rs = jResponse;
+            Logger LOGGER = logger(null);
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("porter 404:{}", rs);
+            }
             response.write(rs);
         } catch (IOException e)
         {
