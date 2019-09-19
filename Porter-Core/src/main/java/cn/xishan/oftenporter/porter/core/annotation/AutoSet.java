@@ -17,6 +17,7 @@ import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
+import cn.xishan.oftenporter.porter.core.sysset.PorterThrowsSync;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import org.slf4j.Logger;
 
@@ -94,6 +95,9 @@ import java.lang.annotation.*;
  * </li>
  * <li>
  * {@linkplain PorterSync PorterSync}
+ * </li>
+ * <li>
+ * {@linkplain PorterThrowsSync}
  * </li>
  * <li>
  * {@linkplain PorterNotInnerSync PorterNotInnerSync}
