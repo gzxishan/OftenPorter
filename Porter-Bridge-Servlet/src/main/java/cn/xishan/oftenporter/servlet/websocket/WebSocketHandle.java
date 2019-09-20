@@ -100,7 +100,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         wsConfig.setPartial(webSocket.isPartial());
 
         //进行配置
-        fun.invokeByHandleArgs(oftenObject, WS.newWS(WebSocket.Type.ON_CONFIG, null, true, wsConfig));
+        fun.invokeByHandleArgs(oftenObject, WS.newWS(State.DEFAULT, WebSocket.Type.ON_CONFIG, null, true, wsConfig));
 
         WebSocketOption webSocketOption = wsConfig.getWebSocketOption();
 
@@ -140,7 +140,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
         if (webSocket.needConnectingState())
         {
-            WS ws = WS.newWS(WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
+            WS ws = WS.newWS(State.DEFAULT, WebSocket.Type.ON_CONNECTING, null, true, (Connecting) will -> {
                 try
                 {
                     if (will)

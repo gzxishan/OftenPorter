@@ -17,6 +17,11 @@ import java.io.IOException;
 public class ProgrammaticServer extends Endpoint
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProgrammaticServer.class);
+    private State state = new State();
+
+    public ProgrammaticServer()
+    {
+    }
 
     public void doInvoke(Session session, WebSocket.Type type, boolean isLast, Object value)
     {
@@ -26,7 +31,7 @@ public class ProgrammaticServer extends Endpoint
             BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
             oftenObject = bridgeData.oftenObject;
             PorterOfFun porterOfFun = bridgeData.porterOfFun;
-            porterOfFun.invokeByHandleArgs(oftenObject, WS.newWS(type, session, isLast, value));
+            porterOfFun.invokeByHandleArgs(oftenObject, WS.newWS(state, type, session, isLast, value));
         } catch (SessionException e)
         {
             throw new OftenCallException(e);
@@ -52,6 +57,7 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig)
     {
+        state.setConnected(true);
         BridgeData bridgeData = (BridgeData) session.getUserProperties().get(BridgeData.class.getName());
         WebSocket webSocket = bridgeData.webSocket;
 
@@ -129,6 +135,7 @@ public class ProgrammaticServer extends Endpoint
     @Override
     public void onClose(Session session, CloseReason closeReason)
     {
+        state.setConnected(false);
         doInvoke(session, WebSocket.Type.ON_CLOSE, true, closeReason);
     }
 

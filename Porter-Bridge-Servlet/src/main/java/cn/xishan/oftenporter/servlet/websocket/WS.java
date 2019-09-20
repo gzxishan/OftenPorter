@@ -16,6 +16,7 @@ public final class WS
 {
     private final Type type;
     private Object object;
+    private State state;
 
     public Type type()
     {
@@ -27,6 +28,11 @@ public final class WS
     public Session session()
     {
         return session;
+    }
+
+    public boolean isConnected()
+    {
+        return state.isConnected();
     }
 
     /**
@@ -69,8 +75,9 @@ public final class WS
         return (T) object;
     }
 
-    public WS(Session session, Type type, Object object, boolean isLast)
+    public WS(State state, Session session, Type type, Object object, boolean isLast)
     {
+        this.state = state;
         this.session = session;
         this.type = type;
         this.object = object;
@@ -93,9 +100,9 @@ public final class WS
         }
     }
 
-    static WS newWS(Type type, Session session, boolean isLast, Object value)
+    static WS newWS(State state, Type type, Session session, boolean isLast, Object value)
     {
-        return new WS(session, type, value, isLast);
+        return new WS(state, session, type, value, isLast);
     }
 
     public final <T> T removeAttribute(Class<?> clazzKey)
