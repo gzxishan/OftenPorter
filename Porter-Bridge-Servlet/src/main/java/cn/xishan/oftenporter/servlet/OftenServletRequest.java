@@ -48,10 +48,10 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public HttpServletRequest getOriginalRequest()
     {
         HttpServletRequest request = this.request.get();
-        if (request == null)
-        {
-            throw new OftenCallException("request weak reference is released!");
-        }
+//        if (request == null)
+//        {
+//            throw new OftenCallException("request weak reference is released!");
+//        }
         return request;
     }
 
@@ -59,10 +59,10 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public HttpServletResponse getOriginalResponse()
     {
         HttpServletResponse response = this.response.get();
-        if (response == null)
-        {
-            throw new OftenCallException("response weak reference is released!");
-        }
+//        if (response == null)
+//        {
+//            throw new OftenCallException("response weak reference is released!");
+//        }
         return response;
     }
 
