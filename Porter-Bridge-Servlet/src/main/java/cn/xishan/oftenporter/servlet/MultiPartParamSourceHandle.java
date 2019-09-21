@@ -57,10 +57,8 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
 
     ParamSource _get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
-
-
         Object originalRequest = oftenObject.getRequest().getOriginalRequest();
-        if (originalRequest == null || !(originalRequest instanceof HttpServletRequest))
+        if (!(originalRequest instanceof HttpServletRequest))
         {
             return null;
         }

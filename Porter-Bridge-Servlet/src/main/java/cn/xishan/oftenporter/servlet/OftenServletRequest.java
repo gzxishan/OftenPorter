@@ -69,25 +69,34 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 
     public AsyncContext startAsync()
     {
-        return getOriginalRequest().startAsync(request.get(), response.get());
+        HttpServletRequest request = getOriginalRequest();
+        if (request == null)
+        {
+            throw new NullPointerException("request is null.");
+        }
+        return request.startAsync(request, response.get());
     }
 
 
     @Override
     public Map<String, Object> getParameterMap()
     {
+
         if (super.params == null)
         {
-            params = new HashMap<>();
-            Enumeration<String> e = getOriginalRequest().getParameterNames();
-
-            while (e.hasMoreElements())
+            super.params = new HashMap<>();
+            HttpServletRequest request = getOriginalRequest();
+            if (request != null)
             {
-                String name = e.nextElement();
-                Object value = getParameter(name);
-                if (OftenTool.isNullOrEmptyCharSequence(value))
+                Enumeration<String> e = request.getParameterNames();
+                while (e.hasMoreElements())
                 {
-                    params.put(name, value);
+                    String name = e.nextElement();
+                    Object value = getParameter(name);
+                    if (OftenTool.isNullOrEmptyCharSequence(value))
+                    {
+                        params.put(name, value);
+                    }
                 }
             }
         }
@@ -97,7 +106,8 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     @Override
     public Object getParameter(String name)
     {
-        String[] values = getOriginalRequest().getParameterValues(name);
+        HttpServletRequest request = getOriginalRequest();
+        String[] values = request == null ? null : request.getParameterValues(name);
         Object v = values == null || values.length == 0 ? null : values[0];
         return v;
     }
@@ -139,7 +149,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      * 获得接口地址。<strong>注意：</strong>Servlet转接会出错。
      *
      * @param oftenObject
-     * @param bridgeName       若为null，则不含bridgeName部分。
+     * @param bridgeName  若为null，则不含bridgeName部分。
      * @param contextName 若为null，则使用当前的。
      * @param classTied   若为null，则使用当前的。
      * @param funTied     若为null，则使用当前的。

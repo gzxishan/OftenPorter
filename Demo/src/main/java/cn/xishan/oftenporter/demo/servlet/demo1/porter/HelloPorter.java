@@ -30,39 +30,39 @@ public class HelloPorter
     @AutoSet
     private ArrayList<String> list;
 
-    @PortIn(value = "say", nece = { "name", "age", "sex" })
+    @PortIn(value = "say", nece = {"name", "age", "sex"})
     public Object say(OftenObject oftenObject)
     {
-	int age = (int) oftenObject._fn[1];
-	return "Hello World!" + oftenObject._fn[0]
-		+ ",age="
-		+ age
-		+ ",sex="
-		+ oftenObject._fn[2];
+        int age = (int) oftenObject._fn[1];
+        return "Hello World!" + oftenObject._fn[0]
+                + ",age="
+                + age
+                + ",sex="
+                + oftenObject._fn[2];
     }
 
     @PortIn(tiedType = TiedType.METHOD)
     public Object sayHello(OftenObject oftenObject)
     {
-	HttpServletRequest request = (HttpServletRequest) oftenObject.getRequest().getOriginalRequest();
-	return "Hello World-REST!" + oftenObject.funTied()
-		+ ":dt="
-		+ ((System.nanoTime() - (long) request.getAttribute("time"))
-			/ 1000000.0)+"ms";
+        HttpServletRequest request = (HttpServletRequest) oftenObject.getRequest().getOriginalRequest();
+        return "Hello World-REST!" + oftenObject.funTied()
+                + ":dt="
+                + ((System.nanoTime() - (long) request.getAttribute("time"))
+                / 1000000.0) + "ms";
     }
 
 
     @PortStart
     public void onStart()
     {
-	list.add("tom");
+        list.add("tom");
 
     }
 
     @PortDestroy
     public void onDestroy()
     {
-	LogUtil.printPosLn();
+        LogUtil.printPosLn();
     }
 
 }
