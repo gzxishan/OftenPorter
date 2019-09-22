@@ -50,9 +50,9 @@ public class DateParserTest
         if(result.isLegal()){
             Date date = (Date) result.getValue();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            LogUtil.printErrPos(simpleDateFormat.format(date));
+            LogUtil.printPos(simpleDateFormat.format(date));
         }else{
-            LogUtil.printErrPos(result);
+            LogUtil.printPos(result);
         }
     }
 }

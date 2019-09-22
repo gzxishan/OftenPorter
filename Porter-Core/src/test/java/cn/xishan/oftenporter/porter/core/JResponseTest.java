@@ -16,6 +16,6 @@ public class JResponseTest
         JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
         ParamDealt.FailedReason failedReason = DefaultFailedReason.illegalParams("age");
         jResponse.setResult(failedReason.toJSON());
-        LogUtil.printErrPosLn(jResponse);
+        LogUtil.printPosLn(jResponse);
     }
 }

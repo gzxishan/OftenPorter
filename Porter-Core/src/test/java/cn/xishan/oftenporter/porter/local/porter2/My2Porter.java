@@ -22,7 +22,7 @@ public class My2Porter
     @PortInit(order = 99)
     public void init99()
     {
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 
     @PortIn
@@ -30,13 +30,13 @@ public class My2Porter
     public void init1(OftenObject oftenObject) throws Exception
     {
         oftenObject.putRequestData("name", "tome");
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 
     @PortIn
     @PortInit(order = 2)
     public void init2(OftenObject oftenObject)
     {
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 }

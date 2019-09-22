@@ -21,7 +21,7 @@ public class HelloMixinToPorter
     @PortStart
     public void start()
     {
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 
     @PortIn("helloMixinTo")

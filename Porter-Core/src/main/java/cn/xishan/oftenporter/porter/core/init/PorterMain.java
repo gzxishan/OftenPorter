@@ -389,6 +389,8 @@ public final class PorterMain
         AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
                 innerContextBridge, getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
+        autoSetHandle.setUseCache(true);
+
         IAutoSetterImpl autoSetter = new IAutoSetterImpl(autoSetHandle);
 
         ContextPorter contextPorter = new ContextPorter(autoSetter, porterConf.getConfigData());
@@ -530,6 +532,8 @@ public final class PorterMain
             }
             OftenTool.clearCache();
             AnnoUtil.clearCache();
+            autoSetHandle.setUseCache(false);
+            autoSetHandle.clearCache();
         }
 
         {

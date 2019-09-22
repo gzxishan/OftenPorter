@@ -31,12 +31,12 @@ public class AutoSetObj
 
     @AutoSet.SetOk
     public void setOk(OftenObject oftenObject){
-        LogUtil.printErrPos(oftenObject);
+        LogUtil.printPos(oftenObject);
     }
 
     @AutoSet.SetOk
     public static void setOkStatic(){
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 
     @Override

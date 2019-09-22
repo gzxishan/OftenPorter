@@ -25,7 +25,7 @@ public class HelloMixinPorter
     @PortStart
     public void start()
     {
-        LogUtil.printErrPos();
+        LogUtil.printPos();
     }
 
     AtomicInteger atomicInteger = new AtomicInteger();
@@ -37,10 +37,10 @@ public class HelloMixinPorter
         {
             if (atomicInteger.incrementAndGet() % 50000 == 1)
             {
-                LogUtil.printErrPosLn(lResponse, ":", atomicInteger.get());
+                LogUtil.printPosLn(lResponse, ":", atomicInteger.get());
                 delivery.currentBridge().request(new BridgeRequest(PortMethod.GET,
                                 "/" + oftenObject.url().contextName() + "/" + oftenObject.url().classTied() + "/testDelivery"),
-                        lResponse1 -> LogUtil.printErrPosLn(lResponse1));
+                        lResponse1 -> LogUtil.printPosLn(lResponse1));
             }
         });
         return "Mixin!";

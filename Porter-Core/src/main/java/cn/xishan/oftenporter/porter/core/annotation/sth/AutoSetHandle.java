@@ -34,13 +34,25 @@ public class AutoSetHandle
 
     public static class _SetOkObject implements Comparable<_SetOkObject>
     {
-        public final Object obj;
+        private final Object obj;
         public final Method method;
         public final int priority;
         Logger logger;
 
+        public _SetOkObject(Object obj, _SetOkObject ref)
+        {
+            this.obj = obj;
+            this.method = ref.method;
+            this.priority = ref.priority;
+            this.logger = ref.logger;
+        }
+
         public _SetOkObject(Object obj, Method method, int priority, Logger logger)
         {
+            if (method != null)
+            {
+                method.setAccessible(true);
+            }
             this.obj = obj;
             this.method = method;
             this.priority = priority;
@@ -73,13 +85,25 @@ public class AutoSetHandle
 
     public static class _PortInited implements Comparable<_PortInited>
     {
-        public final Object obj;
+        private final Object obj;
         public final Method method;
         public final int order;
         Logger logger;
 
+        public _PortInited(Object obj, _PortInited ref)
+        {
+            this.obj = obj;
+            this.method = ref.method;
+            this.order = ref.order;
+            this.logger = ref.logger;
+        }
+
         public _PortInited(Object obj, Method method, int order, Logger logger)
         {
+            if (method != null)
+            {
+                method.setAccessible(true);
+            }
             this.obj = obj;
             this.method = method;
             this.order = order;
@@ -338,8 +362,10 @@ public class AutoSetHandle
     private List<IHandle> iHandlesForAutoSetThat = new ArrayList<>();
     private Map<Class, Porter> porterMap = new HashMap<>();
     private Map<Object, Object> proxyObjectMap = new HashMap<>();
+
     private List<_SetOkObject> setOkObjects = new ArrayList<>();
     private List<_PortInited> portIniteds = new ArrayList<>();
+
     private Set<Object> autoSetDealtSet = new HashSet<>();
     private AutoSetHandleWorkedInstance workedInstance;
     private IConfigData iConfigData;
@@ -347,6 +373,13 @@ public class AutoSetHandle
     private IOtherStartDestroy iOtherStartDestroy;
     private IAutoVarGetter autoVarGetter;
     private IAutoSetter autoSetter;
+
+    /////////////////////////////////
+    private boolean useCache;
+    private Map<Class, List<Object>> setOkOrPortInitCacheMap;
+    private Map<Class, Method[]> startsCacheMap, destroysCacheMap;
+
+    /////////////////////////////////
 
     private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge,
@@ -361,6 +394,50 @@ public class AutoSetHandle
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
         this.oftenContextInfo = new OftenContextInfo(thisDelivery.currentName(), contextName);
         LOGGER = LogUtil.logger(AutoSetHandle.class);
+    }
+
+    public boolean isUseCache()
+    {
+        return useCache;
+    }
+
+    public void setUseCache(boolean useCache)
+    {
+        this.useCache = useCache;
+        if (useCache)
+        {
+            if (setOkOrPortInitCacheMap == null)
+            {
+                setOkOrPortInitCacheMap = new HashMap<>();
+            }
+            if (startsCacheMap == null)
+            {
+                startsCacheMap = new HashMap<>();
+            }
+            if (destroysCacheMap == null)
+            {
+                destroysCacheMap = new HashMap<>();
+            }
+        }
+    }
+
+    public void clearCache()
+    {
+        if (setOkOrPortInitCacheMap != null)
+        {
+            setOkOrPortInitCacheMap.clear();
+            setOkOrPortInitCacheMap = null;
+        }
+        if (startsCacheMap != null)
+        {
+            startsCacheMap.clear();
+            startsCacheMap = null;
+        }
+        if (destroysCacheMap != null)
+        {
+            destroysCacheMap.clear();
+            destroysCacheMap = null;
+        }
     }
 
     public IAutoVarGetter getAutoVarGetter()
@@ -954,12 +1031,46 @@ public class AutoSetHandle
             throw thr;
         } else
         {
-            Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
-            for (Method method : methods)
+            if (useCache)
             {
-//                dealMethodAutoSetInvoke(currentObject, currentObjectClass, method, configData);
-                addSetOkAndPorterInitedMethod(currentObject, method);
+                List<Object> list = setOkOrPortInitCacheMap.get(currentObjectClass);
+                if (list != null)
+                {
+                    for (Object setOkOrInit : list)
+                    {
+                        if (setOkOrInit instanceof _SetOkObject)
+                        {
+                            _SetOkObject setOkObject = (_SetOkObject) setOkOrInit;
+                            this.setOkObjects.add(new _SetOkObject(currentObject, setOkObject));
+                        } else
+                        {
+                            _PortInited portInited = (_PortInited) setOkOrInit;
+                            this.portIniteds.add(new _PortInited(currentObject, portInited));
+                        }
+                    }
+                } else
+                {
+                    list = new ArrayList<>(2);
+                    Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
+                    for (Method method : methods)
+                    {
+                        Object setOkOrInit = addSetOkAndPorterInitedMethod(currentObject, method);
+                        if (setOkOrInit != null)
+                        {
+                            list.add(setOkOrInit);
+                        }
+                    }
+                    setOkOrPortInitCacheMap.put(currentObjectClass, list);
+                }
+            } else
+            {
+                Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
+                for (Method method : methods)
+                {
+                    addSetOkAndPorterInitedMethod(currentObject, method);
+                }
             }
+
 
             if (porter == null && !PortUtil.isPorter(currentObjectClass))
             {
@@ -975,8 +1086,6 @@ public class AutoSetHandle
         Object value = null;
 
         {//先获取
-            //Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
-            //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
             switch (autoSet.range())
             {
                 case Global:
@@ -984,8 +1093,6 @@ public class AutoSetHandle
                     value = innerContextBridge.innerBridge.getGlobalSet(keyName);
                     if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
                     {
-
-//                    value = OftenTool.newObjectMayNull(mayNew);
                         value = workedInstance.newAndProxy(mayNew, this);
                         if (value == null)
                         {
@@ -1007,7 +1114,6 @@ public class AutoSetHandle
                     }
                     if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
                     {
-//                    value = OftenTool.newObjectMayNull(mayNew);
                         value = workedInstance.newAndProxy(mayNew, this);
                         if (value == null)
                         {
@@ -1018,7 +1124,6 @@ public class AutoSetHandle
                 break;
                 case New:
                 {
-//                value = OftenTool.newObjectMayNull(mayNew);
                     value = workedInstance.newAndProxy(mayNew, this);
                     if (value == null)
                     {
@@ -1067,31 +1172,33 @@ public class AutoSetHandle
     }
 
 
-    private void addSetOkAndPorterInitedMethod(Object currentObject, Method method)
+    private Object addSetOkAndPorterInitedMethod(Object currentObject, Method method)
     {
         SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
         PortInited portInited;
+        Object setOkOrInit = null;
         if (setOk != null)
         {
-            method.setAccessible(true);
             if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
             {
                 LOGGER.warn("ignore SetOk method for no instance:method={}", method);
             } else
             {
-                setOkObjects.add(new _SetOkObject(currentObject, method, setOk.priority(), LOGGER));
+                setOkOrInit = new _SetOkObject(currentObject, method, setOk.priority(), LOGGER);
+                setOkObjects.add((_SetOkObject) setOkOrInit);
             }
         } else if ((portInited = AnnoUtil.getAnnotation(method, PortInited.class)) != null)
         {
-            method.setAccessible(true);
             if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
             {
                 LOGGER.warn("ignore PortInited method for no instance:method={}", method);
             } else
             {
-                portIniteds.add(new _PortInited(currentObject, method, portInited.order(), LOGGER));
+                setOkOrInit = new _PortInited(currentObject, method, portInited.order(), LOGGER);
+                portIniteds.add((_PortInited) setOkOrInit);
             }
         }
+        return setOkOrInit;
     }
 
     /**
@@ -1143,11 +1250,40 @@ public class AutoSetHandle
         {
             if (iOtherStartDestroy.hasOtherStart())
             {
-                iOtherStartDestroy
-                        .addOtherStarts(object, innerContextBridge.annotationDealt.getPortStart(object, objectClass));
+                Method[] starts = null;
+                if (useCache)
+                {
+                    starts = startsCacheMap.get(objectClass);
+                }
+
+                if (starts == null)
+                {
+                    starts = innerContextBridge.annotationDealt.getPortStart(object, objectClass);
+                    if (useCache)
+                    {
+                        startsCacheMap.put(objectClass, starts);
+                    }
+                }
+                iOtherStartDestroy.addOtherStarts(object, starts);
             }
-            iOtherStartDestroy
-                    .addOtherDestroys(object, innerContextBridge.annotationDealt.getPortDestroy(object, objectClass));
+            Method[] destroys = null;
+
+
+            if (useCache)
+            {
+                destroys = destroysCacheMap.get(objectClass);
+            }
+
+            if (destroys == null)
+            {
+                destroys = innerContextBridge.annotationDealt.getPortDestroy(object, objectClass);
+                if (useCache)
+                {
+                    destroysCacheMap.put(objectClass, destroys);
+                }
+            }
+
+            iOtherStartDestroy.addOtherDestroys(object, destroys);
         }
     }
 

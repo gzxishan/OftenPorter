@@ -104,7 +104,7 @@ public class LogUtilTest
     @Test
     public void testPrintErrPosLn() throws Exception
     {
-        LogUtil.printErrPosLn("errHaha");
+        LogUtil.printPosLn("errHaha");
     }
 
     /**
