@@ -44,6 +44,8 @@ public final class PorterMain
         boolean beforeDoRequest(PreRequest req, OftenRequest request, OftenResponse response, boolean isInnerRequest);
     }
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PorterMain.class);
+
     private PortExecutor portExecutor;
 
     private boolean isInit;
@@ -54,7 +56,6 @@ public final class PorterMain
     private PorterData porterData;
     private static HashMap<String, CommonMain> commonMainHashMap = new HashMap<>();
 
-    private Logger LOGGER;
     private static String currentBridgeNameForLogger;
     private IArgumentsFactory defaultArgumentsFactory = new DefaultArgumentsFactory();
     private ForRequestListener forRequestListener;
@@ -148,7 +149,6 @@ public final class PorterMain
             return classLoader;
         });
         currentBridgeNameForLogger = bridgeName.getName();
-        LOGGER = LogUtil.logger(PorterMain.class);
         currentBridgeNameForLogger = null;
     }
 
@@ -339,7 +339,7 @@ public final class PorterMain
 
     private IAutoSetter _startOne(PorterBridge bridge) throws Throwable
     {
-        long time;
+        long startTime = System.currentTimeMillis(), time;
         CheckPassable[] alls = null;
         if (innerBridge.allGlobalChecksTemp != null)
         {//全局检测，在没有启动任何context时有效。
@@ -347,14 +347,12 @@ public final class PorterMain
             innerBridge.allGlobalChecksTemp = null;
             portExecutor.setAllGlobalChecks(alls);
         }
-        Logger LOGGER = LogUtil.logger(PorterMain.class);
 
         PorterConf porterConf = bridge.porterConf();
 
         LOGGER.debug("deal #{propName}...");
         DealSharpProperties.dealProperties(porterConf.getConfigData());
         LOGGER.debug("deal #{propName} finished");
-
 
         porterConf.addContextAutoSet(IConfigData.class, porterConf.getConfigData());
 
@@ -424,7 +422,7 @@ public final class PorterMain
         time = System.currentTimeMillis();
         classCheckPassableMap = contextPorter
                 .initSeek(sthDeal, listenerAdder, porterConf, autoSetHandle, portIniterList);
-        LOGGER.debug("seek finished,time={}ms", System.currentTimeMillis() - time);
+        LOGGER.info("seek finished,time={}ms", System.currentTimeMillis() - time);
 
 
         LOGGER.debug("add autoSet CheckPassable of Class and Method...");
@@ -466,7 +464,8 @@ public final class PorterMain
             time = System.currentTimeMillis();
             autoSetHandle.doAutoSetNormal();//变量设置处理
             autoSetHandle.doAutoSetThat();
-            LOGGER.debug("doAutoSetFinished,time={}ms", System.currentTimeMillis() - time);
+            LOGGER.info("doAutoSetFinished,time={}ms", System.currentTimeMillis() - time);
+            LOGGER.info("base init time:{}ms", System.currentTimeMillis() - startTime);
 
             String path = "/" + porterConf.getOftenContextName() + "/:" + AutoSet.SetOk.class
                     .getSimpleName() + "/:" + AutoSet.SetOk.class.getSimpleName();

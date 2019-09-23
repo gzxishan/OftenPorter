@@ -194,6 +194,21 @@ public class LogUtil
         return toString(stackTraceElement);
     }
 
+
+    public static String[] listCodePos(int from, int maxCount)
+    {
+        if(from<0){
+            throw new IllegalArgumentException("'from' have to be a positive value:"+from);
+        }
+        StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
+        List<String> list = new ArrayList<>();
+        for (int i = from + 2, j = 0; i < stacks.length && j < maxCount; i++, j++)
+        {
+            list.add(toString(stacks[i]));
+        }
+        return list.toArray(new String[0]);
+    }
+
     public static String getCodePosExceptNames(Set<String> exceptClassNames)
     {
         StackTraceElement[] stacks = Thread.currentThread().getStackTrace();

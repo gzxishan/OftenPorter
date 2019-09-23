@@ -1,6 +1,5 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
-import cn.xishan.oftenporter.oftendb.util.SimpleSqlUtil;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -11,7 +10,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +111,7 @@ class MSqlSessionFactoryBuilder
         {
             executorService = Executors.newSingleThreadExecutor(r -> {
                 Thread thread = new Thread(r);
+                thread.setName("mapper-file-change-listen-thread");
                 thread.setDaemon(true);
                 return thread;
             });
@@ -165,7 +164,7 @@ class MSqlSessionFactoryBuilder
                     for (WatchEvent<?> event : key.pollEvents())
                     {
                         Path path = (Path) event.context();
-                        if (LOGGER.isDebugEnabled())
+                        if (LOGGER.isInfoEnabled())
                         {
                             LOGGER.info("change event:{}-->{}", path.toAbsolutePath(), event.kind());
                         }
