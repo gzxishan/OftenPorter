@@ -354,7 +354,7 @@ public class OftenTool
     }
 
     /**
-     * 判断child是否是theSuper的子类、子接口或接口实现者。
+     * 判断child是否等于theSuper或者是theSuper的子类、子接口或接口实现者。
      *
      * @param child
      * @param theSuper
@@ -366,7 +366,7 @@ public class OftenTool
     }
 
     /**
-     * 判断child是否是theSupers中某个类的子类、子接口或接口实现者。
+     * 判断child是否等于theSupers中的一个或者是theSupers中某个类的子类、子接口或接口实现者。
      *
      * @param child
      * @param theSupers
