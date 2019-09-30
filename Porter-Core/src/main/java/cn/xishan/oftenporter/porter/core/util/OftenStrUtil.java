@@ -396,6 +396,11 @@ public class OftenStrUtil
         DealSharpProperties.dealSharpProperties(srcMap, propertiesMap);
     }
 
+    public static void dealSharpProperties(Map srcMap, Map propertiesMap, boolean keepNotFound)
+    {
+        DealSharpProperties.dealSharpProperties(srcMap, propertiesMap, keepNotFound);
+    }
+
     /**
      * 替换所有的#{propertyName},对于不存在的会被替换成空字符串。
      *

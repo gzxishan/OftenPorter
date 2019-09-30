@@ -82,6 +82,7 @@ public class DealSharpProperties
         return string;
     }
 
+
     /**
      * 替换#{properName}变量。
      *
@@ -89,6 +90,18 @@ public class DealSharpProperties
      * @param propertiesMap 提供属性的map
      */
     public static void dealSharpProperties(Map srcMap, Map propertiesMap)
+    {
+        dealSharpProperties(srcMap, propertiesMap, false);
+    }
+
+    /**
+     * 替换#{properName}变量。
+     *
+     * @param srcMap        待替换属性值的map
+     * @param propertiesMap 提供属性的map
+     * @param keepNotFound  是否保留未找到的变量。
+     */
+    public static void dealSharpProperties(Map srcMap, Map propertiesMap, boolean keepNotFound)
     {
         Set<String> containsVar = null;
         boolean isFirst = true;
@@ -129,20 +142,30 @@ public class DealSharpProperties
                                 propOne.getPropKey(), valueString);
                     }
 
-                    String replaceStr;
+                    String replaceStr = null;
                     if (propertiesMap.containsKey(propOne.getPropKey()))
                     {
                         replaceStr = String.valueOf(propertiesMap.get(propOne.getPropKey()));
                     } else
                     {
-                        replaceStr = "";
-                        LOGGER.warn("proper value with key '{}' is empty", propOne.getPropKey());
+                        if (keepNotFound)
+                        {
+                            containsVar.remove(properName);
+                        } else
+                        {
+                            replaceStr = "";
+                            LOGGER.warn("proper value with key '{}' is empty", propOne.getPropKey());
+
+                        }
                     }
-                    String newValue = propOne.replace(replaceStr);
-                    srcMap.put(properName, newValue);
-                    if (LOGGER.isDebugEnabled())
+                    if (replaceStr != null)
                     {
-                        LOGGER.debug("replace sharp property:key={},new-value={}", properName, newValue);
+                        String newValue = propOne.replace(replaceStr);
+                        srcMap.put(properName, newValue);
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("replace sharp property:key={},new-value={}", properName, newValue);
+                        }
                     }
                     hasSet = true;
                 }
