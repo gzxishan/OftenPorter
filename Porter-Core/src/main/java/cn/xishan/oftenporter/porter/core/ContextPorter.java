@@ -369,12 +369,7 @@ public class ContextPorter implements IOtherStartDestroy
         {
             _MixinPorter mixinPorter = new _MixinPorter(clazz, objectPorter, mixinTo.override(),
                     mixinTo.funTiedPrefix(), mixinTo.funTiedSuffix());
-            Set<_MixinPorter> set = mixinToMap.get(mixinTo.toPorter());
-            if (set == null)
-            {
-                set = new HashSet<>();
-                mixinToMap.put(mixinTo.toPorter(), set);
-            }
+            Set<_MixinPorter> set = mixinToMap.computeIfAbsent(mixinTo.toPorter(), k -> new HashSet<>());
             LOGGER.debug("add to mixinToMap:{}", clazz);
             set.add(mixinPorter);
         }

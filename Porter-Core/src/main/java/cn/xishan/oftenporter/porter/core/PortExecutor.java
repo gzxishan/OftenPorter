@@ -1160,10 +1160,10 @@ public final class PortExecutor
     {
         Logger LOGGER = logger(oftenObject);
         JResponse jResponse = null;
-        if (LOGGER.isDebugEnabled() || responseWhenException)
+        if (LOGGER.isWarnEnabled() || responseWhenException)
         {
             jResponse = toJResponse(reason, oftenObject);
-            LOGGER.debug("{}:{}", oftenObject.url(), jResponse);
+            LOGGER.warn("{}:{}", oftenObject.url(), jResponse);
         }
         if (responseWhenException)
         {

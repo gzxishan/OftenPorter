@@ -49,15 +49,7 @@ class BridgeData implements Serializable
             if (System.currentTimeMillis() - lastCheck > 20 * 1000)
             {
                 lastCheck = System.currentTimeMillis();
-                Iterator<Map.Entry<String, WeakReference<BridgeData>>> it = BRIDGE_DATA_MAP.entrySet().iterator();
-                while (it.hasNext())
-                {
-                    Map.Entry<String, WeakReference<BridgeData>> entry = it.next();
-                    if (entry.getValue().get() == null)
-                    {
-                        it.remove();
-                    }
-                }
+                BRIDGE_DATA_MAP.entrySet().removeIf(entry -> entry.getValue().get() == null);
             }
         }
     }
@@ -67,7 +59,7 @@ class BridgeData implements Serializable
         synchronized (BRIDGE_DATA_MAP)
         {
             WeakReference<BridgeData> reference = BRIDGE_DATA_MAP.remove(id);
-            if (reference == null || reference.get() == null)
+            if ((reference == null) || (null==reference.get()))
             {
                 throw new RuntimeException("WebSocket BridgeData is null:id=" + id);
             }

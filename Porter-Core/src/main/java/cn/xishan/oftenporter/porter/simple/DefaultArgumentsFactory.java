@@ -89,7 +89,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             if (className != null)
             {
                 v = optionArgMap.get(className);
-                if (v == null)
+                if (OftenTool.isNullOrEmptyCharSequence(v))
                 {
                     v = optionArgMap.get(name.varName);
                 }
@@ -104,16 +104,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
-            if (v == null)
+            if (OftenTool.isNullOrEmptyCharSequence(v))
             {
                 v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
-                if (v == null && nece.isNece(oftenObject))
+                if (OftenTool.isNullOrEmptyCharSequence(v) && nece.isNece(oftenObject))
                 {
                     v = DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
                 }
             }
-            if (v != null && (v instanceof ParamDealt.FailedReason))
+            if (v instanceof ParamDealt.FailedReason)
             {
                 ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) v;
                 JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
@@ -144,7 +144,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             if (className != null)
             {
                 v = optionArgMap.get(className);
-                if (v == null)
+                if (OftenTool.isNullOrEmptyCharSequence(v))
                 {
                     v = optionArgMap.get(name.varName);
                 }
@@ -159,7 +159,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
-            if (v == null)
+            if (OftenTool.isNullOrEmptyCharSequence(v))
             {
                 v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
