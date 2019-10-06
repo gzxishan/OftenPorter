@@ -247,10 +247,11 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                         .addFilter("@htmlx:" + oftenPath, new HtmlxFilter(startupServlet, oftenPath));
                 dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
                         false, path);
-                //dynamic.setAsyncSupported(true);
+                dynamic.setAsyncSupported(true);
             }
             FilterRegistration.Dynamic dynamic = servletContext
                     .addFilter("@htmlx-end:" + oftenPath, new HtmlxEndFilter());
+            dynamic.setAsyncSupported(true);
             dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
                     true, endPaths.toArray(new String[0]));
             //dynamic.setAsyncSupported(true);
