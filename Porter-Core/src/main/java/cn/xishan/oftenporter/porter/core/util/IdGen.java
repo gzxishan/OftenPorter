@@ -37,15 +37,15 @@ import java.util.*;
 public class IdGen implements Serializable
 {
     private static final long serialVersionUID = -8251636420192526844L;
-    private static final char[] BASE;
+    private static final char[] DEFAULT_BASE;
 
     static
     {
-        BASE = ("0123456789" +
+        DEFAULT_BASE = ("0123456789" +
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                 "_" +
                 "abcdefghijklmnopqrstuvwxyz").toCharArray();
-        Arrays.sort(BASE);
+        Arrays.sort(DEFAULT_BASE);
     }
 
     public interface IRand extends Serializable
@@ -59,7 +59,7 @@ public class IdGen implements Serializable
     }
 
     private static final Object KEY = new Object();
-    private char[] base = BASE;
+    private char[] base = DEFAULT_BASE;
     private int[] nums;
     private char[] idchars;
     private int dateindex, idindex;
@@ -167,8 +167,7 @@ public class IdGen implements Serializable
      * @param iRandBuilder   用于生成随机数
      */
     public IdGen(long fromTimeMillis, int datelen, int len, int randlen, @MayNull char[] mchidLeft,
-            @MayNull char[] mchidRight,
-            IRandBuilder iRandBuilder)
+            @MayNull char[] mchidRight,IRandBuilder iRandBuilder)
     {
         if (datelen < 5 || datelen > 9)
         {
@@ -310,17 +309,22 @@ public class IdGen implements Serializable
 
     static
     {
+        NET_MAC = buildNetMac(DEFAULT_BASE);
+    }
+
+    private static String buildNetMac(char[] base)
+    {
         long mac = getMac();
         if (mac == -1)
         {
             mac = 0;
         }
-        String mchid = IdGen.num10ToNum6X(mac, 8);
+        String mchid = IdGen.num10ToNumXX(base, mac, 8);
         if (mchid.length() > 8)
         {
             mchid = mchid.substring(mchid.length() - 8);
         }
-        NET_MAC = mchid;
+        return mchid;
     }
 
     /**
@@ -443,12 +447,12 @@ public class IdGen implements Serializable
     public static String num6XAddNum10(String num6X, long value)
     {
         char[] cs = num6X.toCharArray();
-        int blen = BASE.length;
+        int blen = DEFAULT_BASE.length;
         int[] nums = new int[cs.length];
         for (int i = 0; i < nums.length; i++)
         {
             char c = cs[i];
-            int index = Arrays.binarySearch(BASE, c);
+            int index = Arrays.binarySearch(DEFAULT_BASE, c);
             if (index < 0)
             {
                 throw new RuntimeException("illegal char:" + c);
@@ -509,7 +513,7 @@ public class IdGen implements Serializable
         }
         for (int i = 0; i < nums.length; i++)
         {
-            cs[i] = BASE[nums[i]];
+            cs[i] = DEFAULT_BASE[nums[i]];
         }
         return new String(cs);
     }
@@ -519,11 +523,11 @@ public class IdGen implements Serializable
         char[] cs = num6X.toCharArray();
         long v = 0;
         long b = 1;
-        int blen = BASE.length;
+        int blen = DEFAULT_BASE.length;
         for (int i = cs.length - 1; i >= 0; i--)
         {
             char c = cs[i];
-            int index = Arrays.binarySearch(BASE, c);
+            int index = Arrays.binarySearch(DEFAULT_BASE, c);
             if (index < 0)
             {
                 throw new RuntimeException("illegal char:" + c);
@@ -543,6 +547,7 @@ public class IdGen implements Serializable
         return num10ToNum6X(value, 0);
     }
 
+
     /**
      * @param value    必须大于等于0
      * @param minCount 最低位数,0表示忽略，不足的左边补0
@@ -550,11 +555,21 @@ public class IdGen implements Serializable
      */
     public static String num10ToNum6X(long value, int minCount)
     {
+        return num10ToNumXX(DEFAULT_BASE, value, minCount);
+    }
+
+    /**
+     * @param value    必须大于等于0
+     * @param minCount 最低位数,0表示忽略，不足的左边补0
+     * @return
+     */
+    private static String num10ToNumXX(char[] base, long value, int minCount)
+    {
         if (value < 0)
         {
             throw new IllegalArgumentException("the value have to be positive!");
         }
-        int blen = BASE.length;
+        int blen = base.length;
         List<Integer> list = new ArrayList<>(11);
         while (true)
         {
@@ -577,14 +592,14 @@ public class IdGen implements Serializable
         char[] cs = new char[len];
         for (int i = 0, k = cs.length - 1; i < list.size(); i++, k--)
         {
-            cs[k] = BASE[list.get(i)];
+            cs[k] = base[list.get(i)];
         }
         if (len > list.size())
         {
             len -= list.size();
             for (int i = 0; i < len; i++)
             {
-                cs[i] = BASE[0];
+                cs[i] = base[0];
             }
         }
         return new String(cs);
@@ -596,6 +611,23 @@ public class IdGen implements Serializable
         {
             list.add(nextId());
         }
+    }
+
+    public synchronized void setBase(char[] chars)
+    {
+        Set<Character> set = new HashSet<>();
+        for (char c : chars)
+        {
+            set.add(c);
+        }
+        chars = new char[set.size()];
+        int i = 0;
+        for (char c : set)
+        {
+            chars[i++] = c;
+        }
+        Arrays.sort(chars);
+        this.base = chars;
     }
 
     public synchronized String nextId()

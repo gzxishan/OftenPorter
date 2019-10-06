@@ -6,7 +6,7 @@
 
     <groupId>com.xishankeji</groupId>
     <artifactId>OftenPorter</artifactId>
-    <version>1.2.52</version>
+    <version>1.2.53</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

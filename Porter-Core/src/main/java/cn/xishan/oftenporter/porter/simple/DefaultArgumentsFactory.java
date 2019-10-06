@@ -110,16 +110,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                         typeParserStore.byId(name.typeParserId), name.getDealt());
                 if (OftenTool.isNullOrEmptyCharSequence(v) && nece.isNece(oftenObject))
                 {
-                    v = DefaultFailedReason.lackNecessaryParams("Lack necessary params!", name.varName);
+                    v = DefaultFailedReason.lackNecessaryParams("Lack necessary param:" + name.varName, name.varName);
                 }
-            }
-            if (v instanceof ParamDealt.FailedReason)
-            {
-                ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) v;
-                JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
-                jResponse.setExtra(failedReason.toJSON());
-                jResponse.setDescription(failedReason.desc());
-                throw new OftenCallException(jResponse);
             }
             return v;
         }
@@ -163,14 +155,6 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             {
                 v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
-            }
-            if (v instanceof ParamDealt.FailedReason)
-            {
-                ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) v;
-                JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
-                jResponse.setExtra(failedReason.toJSON());
-                jResponse.setDescription(failedReason.desc());
-                throw new OftenCallException(jResponse);
             }
             return v;
         }
@@ -252,7 +236,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
-                newArgs[i] = argHandles[i].getArg(oftenObject, method, map);
+                Object value = argHandles[i].getArg(oftenObject, method, map);
+                if(value instanceof ParamDealt.FailedReason){
+                    ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) value;
+                    JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
+                    jResponse.setDescription(failedReason.desc());
+                    jResponse.setExtra(failedReason.toJSON());
+                    throw new OftenCallException(jResponse);
+                }else{
+                    newArgs[i]=value;
+                }
             }
             return newArgs;
         }

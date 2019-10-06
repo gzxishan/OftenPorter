@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import com.alibaba.fastjson.JSON;
@@ -279,6 +280,9 @@ public class DefaultConfigData implements IConfigData
     @Override
     public void putAll(Map<?, ?> map)
     {
+        if(properties.size()>0){
+            DealSharpProperties.dealSharpProperties(map,properties,true);
+        }
         properties.putAll(map);
     }
 

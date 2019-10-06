@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import cn.xishan.oftenporter.porter.core.base.ICloseable;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +23,12 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
     private ThreadLocal<K[]> threadLocal = new ThreadLocal<>();
 
     /**
-     * 将keys与ThreadLocal绑定,通过{@linkplain #close()}进行锁的释放
+     * 将keys与ThreadLocal绑定,通过{@linkplain #close()}进行锁的释放。
+     * <strong>注意：</strong>该操作容易导致死锁，请使用{@linkplain #locksInTry(Object[])}.
      *
      * @param keys
      */
+    @Deprecated
     public ConcurrentKeyLock<K> lockLocalThread(K... keys)
     {
         threadLocal.set(keys);
@@ -33,10 +36,29 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
         return this;
     }
 
+
+    public ICloseable locksInTry(K... keys)
+    {
+        return locksInTry(-1, keys);
+    }
+
+    /**
+     * @param timeout 在此时间内未完成加锁、会抛出异常，单位毫秒。
+     * @param keys
+     * @return
+     */
+    public ICloseable locksInTry(long timeout, K... keys)
+    {
+        ICloseable closeable = () -> unlocks(keys);
+        locks(timeout, keys);
+        return closeable;
+    }
+
     /**
      * 见{@linkplain #lockLocalThread(K...)}
      */
     @Override
+    @Deprecated
     public void close()
     {
         K[] keys = threadLocal.get();
@@ -131,7 +153,8 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
                 } else
                 {
                     info.lockCount++;
-                    LOGGER.debug("acquired resource in the same thread:lockCount={},key={},thread={}", info.lockCount, key,
+                    LOGGER.debug("acquired resource in the same thread:lockCount={},key={},thread={}", info.lockCount,
+                            key,
                             info.thread);
                 }
             }
@@ -178,9 +201,9 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
     }
 
     /**
-     * 设置默认锁的超时时间，默认为1分钟
+     * 设置默认等待加锁的超时时间，默认为1分钟
      *
-     * @param timeout 毫秒
+     * @param timeout 单位毫秒
      */
     public void setTimeout(long timeout)
     {
@@ -192,6 +215,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      * 使用hashcode和equals来判断key是否相同，因此key必须实现{@link #hashCode()}和
      * {@link #equals(Object)}方法
      *
+     * @param timeout 在此时间内未完成加锁、会抛出异常，单位毫秒。
      * @param key
      */
     public void lock(long timeout, K key)
@@ -223,6 +247,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
      * 锁定多个key
      * 建议在调用此方法前先对keys进行排序，使用相同的锁定顺序，防止死锁发生
      *
+     * @param timeout 在此时间内未完成加锁、会抛出异常，单位毫秒。
      * @param keys
      */
     public void locks(long timeout, K... keys)

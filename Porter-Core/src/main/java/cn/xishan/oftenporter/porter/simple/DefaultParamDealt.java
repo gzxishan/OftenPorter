@@ -127,7 +127,7 @@ public class DefaultParamDealt implements ParamDealt
                 }
             }
         }
-        if (v != null && (v instanceof CharSequence) && v.equals(""))
+        if ((v instanceof CharSequence) && v.equals(""))
         {
             v = null;
         }
