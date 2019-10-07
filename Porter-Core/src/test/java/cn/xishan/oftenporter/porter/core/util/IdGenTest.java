@@ -35,7 +35,7 @@ public class IdGenTest
 //			String id = ids.get(i);
 //			System.out.println(i+":"+id);
 //		}
-        System.out.println("total=" + total + "ms,dt=" + total / N);
+        System.out.println("total=" + total + "ms,speed=" + (N*1000/total)+"/s");
     }
 
     @Test
@@ -96,7 +96,7 @@ public class IdGenTest
             Assert.assertTrue(idGen.nextId().length() == 21);
         }
         float total = (System.nanoTime() - t) * 1.0f / 1000000000 * 1000;
-        System.out.println("testDefault:" + total + "ms");
+        System.out.printf("testDefault:%fms,min-date-len=%d\n",total,idGen.getMinDateLen());
 
     }
 }

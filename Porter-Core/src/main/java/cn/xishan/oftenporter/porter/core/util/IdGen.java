@@ -58,8 +58,9 @@ public class IdGen implements Serializable
         IRand build();
     }
 
-    private static final Object KEY = new Object();
-    private char[] base = DEFAULT_BASE;
+    private final long MIN_SECONDS = 30 * 365 * 24 * 3600;//大约30年
+    private final Object KEY = new Object();
+    private char[] base;
     private int[] nums;
     private char[] idchars;
     private int dateindex, idindex;
@@ -159,7 +160,7 @@ public class IdGen implements Serializable
 
     /**
      * @param fromTimeMillis 开始时间，单位毫秒。
-     * @param datelen        日期所占位数，5~9
+     * @param datelen        日期所占位数，最小要能表示30年的秒数.
      * @param len            设定长度,表示每秒不休眠能够生成的id数、当超过这个数量时可能会休眠最多1秒的时间（以更新日期位）
      * @param randlen        随机位数
      * @param mchidLeft      左侧填充的字符
@@ -167,19 +168,19 @@ public class IdGen implements Serializable
      * @param iRandBuilder   用于生成随机数
      */
     public IdGen(long fromTimeMillis, int datelen, int len, int randlen, @MayNull char[] mchidLeft,
-            @MayNull char[] mchidRight,IRandBuilder iRandBuilder)
+            @MayNull char[] mchidRight, IRandBuilder iRandBuilder)
     {
-        if (datelen < 5 || datelen > 9)
-        {
-            throw new IllegalArgumentException("datelen range:5~9");
-        }
         if (System.currentTimeMillis() - fromTimeMillis < 0)
         {
             throw new IllegalArgumentException("fromTimeMillis should not great than current time millis!");
+        } else if (datelen < 0)
+        {
+            throw new IllegalArgumentException("datelen should be positive");
         }
+        this.datelen = datelen;
+        this.setBase(DEFAULT_BASE);
         len += randlen;
         this.fromTimeMillis = fromTimeMillis;
-        this.datelen = datelen;
         this.randlen = randlen;
         this.iRandBuilder = iRandBuilder;
         if (mchidLeft != null || mchidRight != null)
@@ -221,7 +222,7 @@ public class IdGen implements Serializable
     }
 
     /**
-     * @param datelen     日期所占位数，5~9
+     * @param datelen     日期所占位数
      * @param specLen     指定长度
      * @param randBits    随机数位数
      * @param mchid       机器id
@@ -382,18 +383,18 @@ public class IdGen implements Serializable
 
     private void initTime()
     {
-        String times = getTimeId(true);
-        System.arraycopy(times.toCharArray(), 0, idchars, dateindex, datelen);
+        if (datelen > 0)
+        {
+            String times = getTimeId();
+            System.arraycopy(times.toCharArray(), 0, idchars, dateindex, datelen);
+        }
     }
 
-    public String getTimeId(boolean isSecond)
+    public String getTimeId()
     {
+        boolean isSecond = true;
         synchronized (KEY)
         {
-            if (System.currentTimeMillis() - fromTimeMillis < 0)
-            {
-                throw new IllegalArgumentException("fromTimeMillis should not great than current time millis!");
-            }
             int sleep = 0;
             long t = System.currentTimeMillis();
             if (isSecond)
@@ -613,12 +614,51 @@ public class IdGen implements Serializable
         }
     }
 
+    public synchronized int getMinDateLen()
+    {
+        if (datelen == 0)
+        {
+            return 0;
+        } else
+        {
+            long dtime = (System.currentTimeMillis() - fromTimeMillis) / 1000;
+            if (dtime < MIN_SECONDS)
+            {
+                dtime = MIN_SECONDS;
+            }
+            int n = (int) Math.ceil(Math.log(dtime) / Math.log(base.length));
+            return n;
+        }
+    }
+
+    public void setDatelen(int datelen)
+    {
+        if (datelen < 0)
+        {
+            throw new IllegalArgumentException("datelen should be positive");
+        }
+        if (datelen > 0)
+        {
+            int minLen = getMinDateLen();
+            if (minLen > datelen)
+            {
+                throw new IllegalArgumentException("datelen should >= " + minLen);
+            }
+        }
+        this.datelen = datelen;
+    }
+
     public synchronized void setBase(char[] chars)
     {
         Set<Character> set = new HashSet<>();
         for (char c : chars)
         {
             set.add(c);
+        }
+
+        if (set.size() < 2)
+        {
+            throw new IllegalArgumentException("chars size is not enough");
         }
         chars = new char[set.size()];
         int i = 0;
@@ -628,6 +668,7 @@ public class IdGen implements Serializable
         }
         Arrays.sort(chars);
         this.base = chars;
+        setDatelen(this.datelen);
     }
 
     public synchronized String nextId()
