@@ -106,9 +106,12 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public Object getParameter(String name)
     {
         HttpServletRequest request = getOriginalRequest();
-        String[] values = request == null ? null : request.getParameterValues(name);
-        Object v = values == null || values.length == 0 ? null : values[0];
-        return v;
+        Object value = null;
+        if (request != null)
+        {
+            value = request.getParameter(name);
+        }
+        return value;
     }
 
 

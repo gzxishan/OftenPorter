@@ -47,6 +47,13 @@ public @interface PortComment
     String rw() default "";
 
     /**
+     * 标签
+     *
+     * @return
+     */
+    String tag() default "";
+
+    /**
      * 必须参数列表
      *
      * @return
