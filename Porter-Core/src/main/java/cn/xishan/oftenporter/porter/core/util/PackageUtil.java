@@ -124,6 +124,18 @@ public class PackageUtil
     /**
      * 分隔符为“/”.
      *
+     * @param file
+     * @param relative
+     * @return
+     */
+    public static String getPathWithRelative(File file, String relative)
+    {
+        return getPathWithRelative('/', file.getAbsolutePath(), file.isDirectory(), relative, '/');
+    }
+
+    /**
+     * 分隔符为“/”.
+     *
      * @param path
      * @param relative
      * @return
@@ -239,7 +251,7 @@ public class PackageUtil
             char separator)
     {
         String separatorStr = String.valueOf(separator);
-        relative=relative.replace(File.separatorChar,'/');
+        relative = relative.replace(File.separatorChar, '/');
 
         path = path.replace(pathSep, separator);
         if (relative.startsWith("/") || ABSOLUTE_PATTERN.matcher(relative).find())
