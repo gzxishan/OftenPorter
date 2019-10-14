@@ -352,7 +352,7 @@ public class SqlCondition extends Condition
             {
                 stringBuilder.append("NOT ");
             }
-            stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
+            stringBuilder.append("LIKE ").append("{").append(args.size()).append("} ");
             args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == STARTSWITH || operator == NOTSTARTSWITH)
@@ -361,7 +361,7 @@ public class SqlCondition extends Condition
             {
                 stringBuilder.append("NOT ");
             }
-            stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
+            stringBuilder.append("LIKE ").append("{").append(args.size()).append("} ");
             args.add(SqlUtil.filterLike(cUnit.getParam2() + "") + "%");
             return;
         } else if (operator == ENDSSWITH || operator == NOTENDSSWITH)
@@ -370,7 +370,7 @@ public class SqlCondition extends Condition
             {
                 stringBuilder.append("NOT ");
             }
-            stringBuilder.append("LIKE ").append("{").append(args.size()).append("}");
+            stringBuilder.append("LIKE ").append("{").append(args.size()).append("} ");
             args.add("%" + SqlUtil.filterLike(cUnit.getParam2() + ""));
             return;
         } else
@@ -380,7 +380,7 @@ public class SqlCondition extends Condition
         stringBuilder.append(" ");
         if (cUnit.isParam2Value())
         {
-            stringBuilder.append("{").append(args.size()).append("}");
+            stringBuilder.append("{").append(args.size()).append("} ");
             args.add(cUnit.getParam2());
         } else
         {
@@ -395,7 +395,7 @@ public class SqlCondition extends Condition
         int dotIndex = nameStr.lastIndexOf('.');
         if (dotIndex >= 0)
         {
-            builder.append(nameStr.substring(0, dotIndex + 1));
+            builder.append(nameStr, 0, dotIndex + 1);
             nameStr = nameStr.substring(dotIndex + 1);
         }
         builder.append(coverString).append(nameStr).append(coverString);
