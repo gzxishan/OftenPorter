@@ -525,7 +525,7 @@ class _MyBatis
                         }
                         valuesPart = "<foreach collection ='" + multi + "' item='" + multiVar + "' index= " +
                                 "'index' separator =','>(" +
-                                OftenStrUtil.join(",", _refColumns2) +")</foreach>";
+                                OftenStrUtil.join(",", _refColumns2) + ")</foreach>";
                     } else
                     {
                         valuesPart = "(" + OftenStrUtil.join(",", _refColumns) + ")";
@@ -602,7 +602,7 @@ class _MyBatis
     {
         Set<String> realColumnsSet = builder.getTableColumns(tableName);
         List<String> refColumns = new ArrayList<>();
-        Field[] _fields = OftenTool.getAllFields(entityClass);
+        Field[] _fields = getFieldsOfUnique(entityClass);
         for (Field field : _fields)
         {
             String columnName = DataUtil.getTiedName(field);
@@ -614,11 +614,55 @@ class _MyBatis
         return refColumns;
     }
 
+    /**
+     * 获取所有字段、并且去除同名的父类字段
+     *
+     * @param entityClass
+     * @return
+     */
+    private Field[] getFieldsOfUnique(Class entityClass)
+    {
+        Field[] fields = OftenTool.getAllFields(entityClass);
+        Map<String, List<Field>> fieldsMap = new HashMap<>();
+        for (Field f : fields)
+        {
+            String columnName = DataUtil.getTiedName(f);
+            if (columnName != null)
+            {
+                if (!fieldsMap.containsKey(columnName))
+                {
+                    fieldsMap.put(columnName, new ArrayList<>());
+                }
+                fieldsMap.get(columnName).add(f);
+            }
+        }
+        List<Field> list = new ArrayList<>(fieldsMap.size());
+        for (List<Field> fieldList : fieldsMap.values())
+        {
+            int n = Integer.MAX_VALUE;
+            Field field = null;
+            for (Field f : fieldList)
+            {
+                int m = OftenTool.subclassOf(f.getDeclaringClass(), entityClass);
+                if (m <= n)
+                {
+                    n = m;
+                    field = f;
+                }
+            }
+            if (field != null)
+            {
+                list.add(field);
+            }
+        }
+        return list.toArray(new Field[0]);
+    }
+
     private List<String> getDBColumns(Class entityClass)
     {
         Set<String> realColumnsSet = builder.getTableColumns(tableName);
         List<String> dbColumns = new ArrayList<>();
-        Field[] _fields = OftenTool.getAllFields(entityClass);
+        Field[] _fields = getFieldsOfUnique(entityClass);
         for (Field field : _fields)
         {
             String columnName = DataUtil.getTiedName(field);
