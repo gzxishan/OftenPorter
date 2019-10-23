@@ -66,6 +66,7 @@ public class OftenServletResponse extends LocalResponse
         {
             try (PrintWriter printWriter = response.getWriter())
             {
+                response.hasGotStreamType = 2;
                 setContentType(writeObject);
                 printWriter.print(writeObject);
                 printWriter.flush();

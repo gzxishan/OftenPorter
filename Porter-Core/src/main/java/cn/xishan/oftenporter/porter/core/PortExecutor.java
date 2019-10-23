@@ -865,17 +865,17 @@ public final class PortExecutor
                 }
             } else
             {
-                Logger logger = logger(oftenObject);
-                if (ex instanceof OftenCallException)
-                {
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug(ex.getMessage(), ex);
-                    }
-                } else if (logger.isWarnEnabled())
-                {
-                    logger.warn(ex.getMessage(), ex);
-                }
+//                Logger logger = logger(oftenObject);
+//                if (ex instanceof OftenCallException)
+//                {
+//                    if (logger.isDebugEnabled())
+//                    {
+//                        logger.debug(ex.getMessage(), ex);
+//                    }
+//                } else if (logger.isWarnEnabled())
+//                {
+//                    logger.warn(ex.getMessage(), ex);
+//                }
 
                 Object finalExReturnObject = exReturnObject;
                 CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
@@ -1262,7 +1262,13 @@ public final class PortExecutor
                 }
             } else if (logger.isWarnEnabled())
             {
-                logger.warn(ex.getMessage(), ex);
+                if (ex instanceof IOException && ex.getMessage().trim().equalsIgnoreCase("Broken pipe"))
+                {
+                    logger.warn("Broken pipe:url={}", oftenObject.url());
+                } else
+                {
+                    logger.warn(ex.getMessage(), ex);
+                }
             }
         }
         return true;
@@ -1280,9 +1286,9 @@ public final class PortExecutor
         {
             Object rs = jResponse;
             Logger LOGGER = logger(null);
-            if (LOGGER.isDebugEnabled())
+            if (LOGGER.isInfoEnabled())
             {
-                LOGGER.debug("porter 404:{}", rs);
+                LOGGER.info("porter 404:{}", rs);
             }
             response.write(rs);
         } catch (IOException e)
