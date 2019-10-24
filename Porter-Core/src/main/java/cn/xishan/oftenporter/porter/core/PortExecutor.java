@@ -1265,6 +1265,9 @@ public final class PortExecutor
                 if (ex instanceof IOException && ex.getMessage().trim().equalsIgnoreCase("Broken pipe"))
                 {
                     logger.warn("Broken pipe:url={}", oftenObject.url());
+                } else if (ex instanceof IOException && ex.getMessage().trim().equalsIgnoreCase("Closed"))
+                {
+                    logger.warn("Closed:url={}", oftenObject.url());
                 } else
                 {
                     logger.warn(ex.getMessage(), ex);

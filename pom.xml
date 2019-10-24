@@ -6,12 +6,12 @@
 
     <groupId>com.xishankeji</groupId>
     <artifactId>OftenPorter</artifactId>
-    <version>1.2.60</version>
+    <version>1.2.61</version>
     <packaging>pom</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.slf4j.version>1.7.28</project.slf4j.version>
-        <project.fastjson.version>1.2.60</project.fastjson.version>
+        <project.fastjson.version>1.2.61</project.fastjson.version>
         <project.cglib.version>3.2.10</project.cglib.version>
         <project.mybatis.version>3.4.6</project.mybatis.version>
         <project.h2.version>1.4.197</project.h2.version>
