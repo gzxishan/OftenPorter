@@ -130,7 +130,7 @@ public class PackageUtil
      */
     public static String getPathWithRelative(File file, String relative)
     {
-        return getPathWithRelative('/', file.getAbsolutePath(), file.isDirectory(), relative, '/');
+        return getPathWithRelative(File.separatorChar, file.getAbsolutePath(), file.isDirectory(), relative, '/');
     }
 
     /**
@@ -142,7 +142,7 @@ public class PackageUtil
      */
     public static String getPathWithRelative(String path, String relative)
     {
-        return getPathWithRelative('/', path, null, relative, '/');
+        return getPathWithRelative(File.separatorChar, path, null, relative, '/');
     }
 
     /**
@@ -240,7 +240,7 @@ public class PackageUtil
     private static final Pattern ABSOLUTE_PATTERN = Pattern.compile("^[a-zA-Z0-9_\\.\\*\\+\\$%#!@=-]+:");
 
     /**
-     * @param pathSep   path的路径分隔符号，如“.”，“/”
+     * @param pathSep   path的路径分隔符号，如“.”，“/”，“\”,会被替换成separator
      * @param path      路径
      * @param isPathDir path是否是目录，默认根据是否有后缀名进行判断。
      * @param relative  相对路径，通过“/”分开，如“../util”。“../”表示上一级目录，“./”表示当前目录;如果以"/"开头，则结果为该路径。
