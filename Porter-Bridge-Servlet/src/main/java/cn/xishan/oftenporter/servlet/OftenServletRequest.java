@@ -122,6 +122,22 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     }
 
 
+    public static String getRequestUrl(OftenObject oftenObject, boolean http2Https)
+    {
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
+        return getRequestUrl(request, http2Https);
+    }
+
+    public static String getRequestUrl(HttpServletRequest request, boolean http2Https)
+    {
+        String url = request.getRequestURL().toString();
+        if (http2Https && url.startsWith("http:"))
+        {
+            url = "https:" + url.substring(5);
+        }
+        return url;
+    }
+
     /**
      * 获得接口地址。见{@linkplain #getPortUrl(OftenObject, String, String, String, String, String, boolean)}。
      *
@@ -148,7 +164,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 
 
     /**
-     * 获得接口地址。<strong>注意：</strong>Servlet转接会出错。
+     * 获得接口地址,不含"**="与"*=*"参数。<strong>注意：</strong>Servlet转接会出错。
      *
      * @param oftenObject
      * @param bridgeName  若为null，则不含bridgeName部分。
