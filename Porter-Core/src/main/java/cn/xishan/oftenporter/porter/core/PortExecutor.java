@@ -1009,6 +1009,10 @@ public final class PortExecutor
                 if (throwable != null)
                 {
                     throwable = OftenTool.getCause(throwable);
+                    if (LOGGER.isWarnEnabled())
+                    {
+                        LOGGER.warn(throwable.getMessage(), throwable);
+                    }
                 }
                 if (throwable instanceof OftenCallException)
                 {
