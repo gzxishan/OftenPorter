@@ -43,10 +43,36 @@ public class OftenCallException extends RuntimeException
      *
      * @param msg
      */
+    public OftenCallException(int code, String msg, Object extra)
+    {
+        JResponse jResponse = new JResponse(code);
+        jResponse.setDescription(msg);
+        jResponse.setExtra(extra);
+        this.jResponse = jResponse;
+    }
+
+    /**
+     * 内部构建一个JResponse
+     *
+     * @param msg
+     */
     public OftenCallException(ResultCode code, String msg)
     {
         JResponse jResponse = new JResponse(code);
         jResponse.setDescription(msg);
+        this.jResponse = jResponse;
+    }
+
+    /**
+     * 内部构建一个JResponse
+     *
+     * @param msg
+     */
+    public OftenCallException(ResultCode code, String msg, Object extra)
+    {
+        JResponse jResponse = new JResponse(code);
+        jResponse.setDescription(msg);
+        jResponse.setExtra(extra);
         this.jResponse = jResponse;
     }
 
