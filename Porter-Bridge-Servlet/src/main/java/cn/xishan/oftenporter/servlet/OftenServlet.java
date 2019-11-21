@@ -514,9 +514,16 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         }
     }
 
+
     public boolean isCorsForbidden(@MayNull PortMethod method, Class porterClass, Method porterMethod,
-            HttpServletRequest request,
-            HttpServletResponse response)
+            HttpServletRequest request, HttpServletResponse response)
+    {
+        return isCorsForbidden(null, method, porterClass, porterMethod, request, response);
+    }
+
+    public boolean isCorsForbidden(@MayNull CorsAccess customerCorsAccess, @MayNull PortMethod method,
+            Class porterClass, Method porterMethod,
+            HttpServletRequest request, HttpServletResponse response)
     {
         if (hasCors)
         {
@@ -554,7 +561,8 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                 LOGGER.warn("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
             }
 
-            CorsAccess corsAccess = AnnoUtil.getAnnotation(porterMethod, CorsAccess.class);
+            CorsAccess corsAccess = customerCorsAccess != null ? customerCorsAccess : AnnoUtil
+                    .getAnnotation(porterMethod, CorsAccess.class);
             if (corsAccess == null)
             {
                 corsAccess = AnnoUtil.getAnnotation(porterClass, CorsAccess.class);
@@ -575,6 +583,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             {
                 try
                 {
+                    LOGGER.info("send code {} for cors not enable", HttpServletResponse.SC_FORBIDDEN);
                     response.sendError(HttpServletResponse.SC_FORBIDDEN);
                 } catch (IOException e)
                 {
@@ -597,6 +606,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             }
             try
             {
+                LOGGER.info("send code {} for cors", HttpServletResponse.SC_FORBIDDEN);
                 response.sendError(HttpServletResponse.SC_FORBIDDEN);
             } catch (IOException e)
             {

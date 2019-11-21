@@ -80,6 +80,6 @@ public @interface CorsAccess
      *
      * @return
      */
-    String maxAge() default "15000";
+    String maxAge() default "1800";
 
 }
