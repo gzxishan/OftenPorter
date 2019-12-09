@@ -8,15 +8,22 @@ import cn.xishan.oftenporter.porter.core.annotation.NotNull;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
+import cn.xishan.oftenporter.servlet.ContentType;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
+import okio.BufferedSink;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -35,6 +42,42 @@ public class HttpUtil
     private static final int SET_CONNECTION_TIMEOUT = 30 * 1000;
     private static final int SET_SOCKET_TIMEOUT = 60 * 1000;
     private static OkHttpClient defaultClient;
+
+    static class StreamBody extends RequestBody
+    {
+
+        private MediaType mediaType;
+        private InputStream inputStream;
+
+        public StreamBody(MediaType mediaType, InputStream inputStream)
+        {
+            this.mediaType = mediaType;
+            this.inputStream = inputStream;
+        }
+
+        @Override
+        public MediaType contentType()
+        {
+            return mediaType;
+        }
+
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException
+        {
+            try (InputStream in = this.inputStream)
+            {
+                byte[] buf = new byte[2048];
+                int n;
+                while ((n = in.read(buf)) != -1)
+                {
+                    sink.write(buf, 0, n);
+                }
+            } finally
+            {
+                this.inputStream = null;
+            }
+        }
+    }
 
 
     private static OkHttpClient _getClient(SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager,
@@ -246,23 +289,130 @@ public class HttpUtil
         }
     }
 
-    private static RequestBody dealBodyParams(OftenObject oftenObject)
+    private static RequestBody dealBodyParams(OftenObject oftenObject, RequestData requestData)
     {
-        FormBody.Builder builder = new FormBody.Builder();
-        if (oftenObject != null)
+
+        RequestBody body;
+
+        if (requestData != null)
         {
-            if (oftenObject._fInNames != null)
+            MediaType mediaType = null;
+            if (requestData.getContentType() != null)
             {
-                addFormParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
-                addFormParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
+                if (requestData.getEncoding() != null)
+                {
+                    mediaType = MediaType.parse(requestData.getContentType().getType() + ";charset=" + requestData
+                            .getEncoding());
+                } else
+                {
+                    mediaType = MediaType.parse(requestData.getContentType().getType());
+                }
             }
-            if (oftenObject._cInNames != null)
+
+            if (requestData.getBodyContent() != null)
             {
-                addFormParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
-                addFormParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
+                Object content = requestData.getBodyContent();
+
+
+                if (content instanceof byte[])
+                {
+                    byte[] bs = (byte[]) content;
+                    body = RequestBody.create(mediaType, bs);
+                } else if (content instanceof InputStream)
+                {
+                    body = new StreamBody(mediaType, (InputStream) content);
+                } else if (content instanceof File)
+                {
+                    File file = (File) content;
+                    body = RequestBody.create(mediaType, file);
+                } else
+                {
+                    String strContent = String.valueOf(content);
+                    body = RequestBody.create(mediaType, strContent);
+                }
+
+            } else if (requestData.getContentType() == ContentType.MULTIPART_FORM)
+            {
+                MultipartBody.Builder builder = new MultipartBody.Builder();
+                builder.setType(mediaType);
+                Map<String, Object> params = requestData.getParams();
+                if (params != null)
+                {
+                    for (Map.Entry<String, Object> entry : params.entrySet())
+                    {
+                        String name = entry.getKey();
+                        Object value = entry.getValue();
+                        if (value == null)
+                        {
+                            continue;
+                        }
+                        if (value instanceof File)
+                        {
+                            File file = (File) value;
+                            RequestBody fileBody = RequestBody
+                                    .create(MediaType.parse(ResourceUtil.getMimeType(file.getName())), file);
+                            builder.addFormDataPart(name, file.getName(), fileBody);
+                        } else
+                        {
+                            builder.addFormDataPart(name, String.valueOf(value));
+                        }
+                    }
+                }
+                body = builder.build();
+            } else if (requestData.getContentType() == ContentType.APP_FORM_URLENCODED)
+            {
+                FormBody.Builder builder = new FormBody.Builder(mediaType.charset());
+                Map<String, Object> params = requestData.getParams();
+                if (params != null)
+                {
+                    for (Map.Entry<String, Object> entry : params.entrySet())
+                    {
+                        String name = entry.getKey();
+                        Object value = entry.getValue();
+                        if (value == null)
+                        {
+                            continue;
+                        } else
+                        {
+                            builder.add(name, String.valueOf(value));
+                        }
+
+                    }
+                }
+                body = builder.build();
+            } else
+            {
+                JSONObject jsonObject = new JSONObject();
+
+                Map<String, Object> params = requestData.getParams();
+                if (params != null)
+                {
+                    jsonObject.putAll(params);
+                }
+
+                body = RequestBody.create(mediaType, jsonObject.toString());
             }
+        } else
+        {
+            FormBody.Builder builder = new FormBody.Builder(Charset.forName("utf-8"));
+            if (oftenObject != null)
+            {
+                if (oftenObject._fInNames != null)
+                {
+                    addFormParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
+                    addFormParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
+                }
+                if (oftenObject._cInNames != null)
+                {
+                    addFormParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
+                    addFormParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
+                }
+            }
+
+            body = builder.build();
         }
-        return builder.build();
+
+        return body;
     }
 
 
@@ -281,7 +431,7 @@ public class HttpUtil
             @MayNull OkHttpClient okHttpClient,
             String url, Callback callback) throws IOException
     {
-        return request(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient, url,
+        return request(requestData == null ? null : new OftenObjectImpl(method, requestData), method, okHttpClient, url,
                 callback);
     }
 
@@ -306,11 +456,12 @@ public class HttpUtil
         Response response = null;
         try
         {
+            RequestData requestData = null;
             Request.Builder builder = new Request.Builder();
             if (oftenObject instanceof OftenObjectImpl)
             {
-                OftenObjectImpl impl = (OftenObjectImpl) oftenObject;
-                Map<String, String> headers = impl.getHeaders();
+                requestData = ((OftenObjectImpl) oftenObject).getRequestData();
+                Map<String, String> headers = requestData.getHeaders();
                 if (OftenTool.notEmptyOf(headers))
                 {
                     for (Map.Entry<String, String> entry : headers.entrySet())
@@ -326,16 +477,15 @@ public class HttpUtil
             }
             switch (method)
             {
-
                 case PUT:
                 {
-                    RequestBody requestBody = dealBodyParams(oftenObject);
+                    RequestBody requestBody = dealBodyParams(oftenObject, requestData);
                     request = builder.url(url).put(requestBody).build();
                 }
                 break;
                 case POST:
                 {
-                    RequestBody requestBody = dealBodyParams(oftenObject);
+                    RequestBody requestBody = dealBodyParams(oftenObject, requestData);
                     request = builder.url(url).post(requestBody).build();
                 }
                 break;
@@ -373,7 +523,8 @@ public class HttpUtil
     public static JResponse requestJResponse(@MayNull RequestData requestData, PortMethod method,
             @MayNull OkHttpClient okHttpClient, String url, JRCallback jrCallback)
     {
-        return requestJResponse(requestData == null ? null : new OftenObjectImpl(requestData), method, okHttpClient,
+        return requestJResponse(requestData == null ? null : new OftenObjectImpl(method, requestData), method,
+                okHttpClient,
                 url,
                 jrCallback);
     }
@@ -391,6 +542,39 @@ public class HttpUtil
             {
                 responseBody = response.body();
                 return responseBody.string();
+            } else if (code == 204)
+            {
+                return null;
+            } else
+            {
+                throw new OftenCallException("errcode=" + code + ",msg=" + response.message());
+            }
+        } catch (OftenCallException e)
+        {
+            throw e;
+        } catch (Throwable e)
+        {
+            throw new OftenCallException(e);
+        } finally
+        {
+            OftenTool.close(responseBody);
+            OftenTool.close(response);
+        }
+    }
+
+    public static byte[] requestBytes(@MayNull RequestData requestData, PortMethod method,
+            @MayNull OkHttpClient okHttpClient, String url)
+    {
+        ResponseBody responseBody = null;
+        Response response = null;
+        try
+        {
+            response = request(requestData, method, okHttpClient, url, null);
+            int code = response.code();
+            if (code == 200 || code == 201)
+            {
+                responseBody = response.body();
+                return responseBody.bytes();
             } else if (code == 204)
             {
                 return null;

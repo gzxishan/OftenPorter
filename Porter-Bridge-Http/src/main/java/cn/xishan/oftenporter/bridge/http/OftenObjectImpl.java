@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.bridge.Delivery;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.Map;
 
@@ -13,27 +14,32 @@ import java.util.Map;
  */
 class OftenObjectImpl extends OftenObject
 {
-    private Map<String, String> headers;
+    private RequestData requestData;
 
-    public OftenObjectImpl(RequestData requestData)
+    public OftenObjectImpl(PortMethod method, RequestData requestData)
     {
-        String[] names = new String[requestData.params.size()];
-        Object[] values = new Object[names.length];
-
-        int k = 0;
-        for (Map.Entry<String, Object> entry : requestData.params.entrySet())
+        Map<String, Object> params = requestData.getParams();
+        if (OftenTool.notEmptyOf(params) && !method.isOneOf(PortMethod.POST, PortMethod.PUT))
         {
-            names[k] = entry.getKey();
-            values[k++] = entry.getValue();
+            String[] names = new String[params.size()];
+            Object[] values = new Object[names.length];
+
+            int k = 0;
+            for (Map.Entry<String, Object> entry : params.entrySet())
+            {
+                names[k] = entry.getKey();
+                values[k++] = entry.getValue();
+            }
+            _fInNames = InNames.fromStringArray(null, names, null);
+            _fu = values;
         }
-        _fInNames = InNames.fromStringArray(null, names, null);
-        _fu = values;
-        this.headers = requestData.headers;
+
+        this.requestData = requestData;
     }
 
-    public Map<String, String> getHeaders()
+    public RequestData getRequestData()
     {
-        return headers;
+        return requestData;
     }
 
     @Override

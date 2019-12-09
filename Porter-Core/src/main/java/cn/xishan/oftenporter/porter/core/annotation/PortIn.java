@@ -9,6 +9,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
 import cn.xishan.oftenporter.porter.simple.parsers.ObjectParser;
 import cn.xishan.oftenporter.porter.simple.parsers.StringParser;
 
@@ -33,6 +34,9 @@ import java.lang.annotation.*;
  * </li>
  * <li>
  * <strong> 配置参数</strong>见:{@linkplain IAnnotationConfigable},如@PortIn("${tiedName}")
+ * </li>
+ * <li>
+ * 参数解析：{@linkplain DefaultUrlDecoder}
  * </li>
  * </ol>
  * <p>

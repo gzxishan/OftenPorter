@@ -111,6 +111,7 @@ public class ResourceUtil
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceUtil.class);
     private static ClassLoader[] theClassLoaders;
+    private static Map<String, String> suffixMimeTypeMap, mimeTypeSuffixMap;
 
     static
     {
@@ -484,6 +485,64 @@ public class ResourceUtil
             }
         }
         return list;
+    }
+
+    private static void initMimeTypeMap()
+    {
+        Map<String, String> suffixMimeTypeMap = ResourceUtil.suffixMimeTypeMap;
+        Map<String, String> mimeTypeSuffixMap;
+        if (suffixMimeTypeMap == null)
+        {
+            synchronized (ResourceUtil.class)
+            {
+                String content = FileTool.getString(ResourceUtil.class.getResourceAsStream("/often/minetypes.txt"));
+                suffixMimeTypeMap = new HashMap<>();
+                mimeTypeSuffixMap = new HashMap<>();
+                if (content != null)
+                {
+                    String[] types = OftenStrUtil.split(content, "\n");
+                    for (String type : types)
+                    {
+                        int index = type.indexOf("=");
+                        String suffix = type.substring(0, index).trim();
+                        String mime = type.substring(index + 1).trim();
+                        suffixMimeTypeMap.put(suffix, mime);
+                        mimeTypeSuffixMap.put(mime, suffix);
+                    }
+                }
+                ResourceUtil.suffixMimeTypeMap = suffixMimeTypeMap;
+                ResourceUtil.mimeTypeSuffixMap = mimeTypeSuffixMap;
+            }
+        }
+    }
+
+    public static String getSuffixByMimeType(String type)
+    {
+        initMimeTypeMap();
+        if (OftenTool.isEmpty(type))
+        {
+            return null;
+        }
+        String suffix = mimeTypeSuffixMap.get(type);
+        return suffix;
+    }
+
+    public static String getMimeType(String filename)
+    {
+        if (OftenTool.isEmpty(filename))
+        {
+            return null;
+        }
+        String suffix = OftenStrUtil.getSuffix(filename, '.');
+        initMimeTypeMap();
+        String mineType = suffixMimeTypeMap.get(suffix);
+        if (mineType != null)
+        {
+            return mineType;
+        } else
+        {
+            return "application/octet-stream";
+        }
     }
 
 }

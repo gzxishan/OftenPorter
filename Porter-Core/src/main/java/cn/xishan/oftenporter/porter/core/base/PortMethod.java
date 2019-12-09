@@ -10,5 +10,23 @@ public enum PortMethod
     /**
      * 表示默认类型。
      */
-    DEFAULT
+    DEFAULT;
+
+    /**
+     * 判断是否为给定中的一个
+     *
+     * @param methods
+     * @return
+     */
+    public boolean isOneOf(PortMethod... methods)
+    {
+        for (PortMethod method : methods)
+        {
+            if (method == this)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
