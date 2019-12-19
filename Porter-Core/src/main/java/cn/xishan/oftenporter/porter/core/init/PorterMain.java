@@ -385,7 +385,7 @@ public final class PorterMain
         }
 
         AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
-                innerContextBridge, getBridgeLinker(), porterData,
+                innerContextBridge, portExecutor.getCheckerBuilder(), getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
         autoSetHandle.setUseCache(true);
 

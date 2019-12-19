@@ -13,7 +13,6 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.bridge.*;
-import cn.xishan.oftenporter.porter.core.sysset.CheckerBuilder;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
@@ -37,9 +36,7 @@ public final class PortExecutor
     private final Logger _LOGGER;
     private Map<String, Context> contextMap = new ConcurrentHashMap<>();
 
-    CheckPassable[] allGlobalChecks;
-    private CheckerBuilder checkerBuilder;
-
+    private CheckPassable[] allGlobalChecks;
     private UrlDecoder urlDecoder;
     private boolean responseWhenException;
     private BridgeName bridgeName;
@@ -52,7 +49,6 @@ public final class PortExecutor
     {
         _LOGGER = LogUtil.logger(PortExecutor.class);
         portUtil = new PortUtil();
-        this.checkerBuilder = new CheckerBuilderImpl(this);
         this.bridgeName = bridgeName;
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
@@ -97,11 +93,6 @@ public final class PortExecutor
     public UrlDecoder getUrlDecoder()
     {
         return urlDecoder;
-    }
-
-    public CheckerBuilder getCheckerBuilder()
-    {
-        return checkerBuilder;
     }
 
     /**
@@ -459,24 +450,28 @@ public final class PortExecutor
             dealtOfContextCheck(context, oftenObject, funPort, result);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.ON_GLOBAL)
-                    .setContext(null)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, oftenObject,
+                    DuringType.ON_GLOBAL,
+                    allGlobal,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfContextCheck(context, oftenObject, funPort, result);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfContextCheck(context, oftenObject, funPort, result);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    });
+            portExecutorCheckers.check();
         }
 
     }
@@ -490,24 +485,26 @@ public final class PortExecutor
             dealtOfBeforeClassParam(funPort, oftenObject, context, result);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.ON_CONTEXT)
-                    .setContext(context)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(null, funPort, oftenObject,
+                    DuringType.ON_CONTEXT, contextChecks,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfBeforeClassParam(funPort, oftenObject, context, result);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfBeforeClassParam(funPort, oftenObject, context, result);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    });
+            portExecutorCheckers.check();
         }
 
     }
@@ -525,24 +522,26 @@ public final class PortExecutor
             dealtOfClassParam(funPort, oftenObject, context, result);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.BEFORE_CLASS)
-                    .setContext(context)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                    DuringType.BEFORE_CLASS,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfClassParam(funPort, oftenObject, context, result);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfClassParam(funPort, oftenObject, context, result);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
+            portExecutorCheckers.check();
         }
     }
 
@@ -598,24 +597,26 @@ public final class PortExecutor
             dealtOfBeforeFunParam(funPort, oftenObject, context, result);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.ON_CLASS)
-                    .setContext(context)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                    DuringType.ON_CLASS,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfBeforeFunParam(funPort, oftenObject, context, result);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfBeforeFunParam(funPort, oftenObject, context, result);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    }, classPort.getWholeClassCheckPassableGetter().getChecksForWholeClass(), clazzPIn.getChecks());
+            portExecutorCheckers.check();
         }
 
     }
@@ -633,24 +634,27 @@ public final class PortExecutor
             dealtOfFunParam(context, oftenObject, funPort, result, false);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.BEFORE_METHOD)
-                    .setContext(context)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                    DuringType.BEFORE_METHOD,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfFunParam(context, oftenObject, funPort, result, false);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfFunParam(context, oftenObject, funPort, result, false);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                    funPIn.getChecks());
+            portExecutorCheckers.check();
         }
 
     }
@@ -707,24 +711,27 @@ public final class PortExecutor
             dealtOfInvokeMethod(context, oftenObject, funPort, result, isFastInner);
         } else
         {
-            checkerBuilder
-                    .newBuilder(DuringType.ON_METHOD)
-                    .setContext(context)
-                    .setPorterOfFun(funPort)
-                    .setObject(oftenObject)
-                    .withUrl(result)
-                    .setHandle(failedObject -> {
-                        if (failedObject != null)
+            PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                    DuringType.ON_METHOD,
+                    new PortExecutorCheckers.CheckHandleAdapter(result, funPort.getFinalPorterObject(),
+                            funPort.getObject(), funPort.getMethod(),
+                            funPort.getPortOut().getOutType())
+                    {
+                        @Override
+                        public void go(Object failedObject)
                         {
-                            exCheckPassable(oftenObject, funPort, failedObject,
-                                    context.innerContextBridge.responseWhenException);
-                        } else
-                        {
-                            dealtOfInvokeMethod(context, oftenObject, funPort, result, false);
+                            if (failedObject != null)
+                            {
+                                exCheckPassable(oftenObject, funPort, failedObject,
+                                        context.innerContextBridge.responseWhenException);
+                            } else
+                            {
+                                dealtOfInvokeMethod(context, oftenObject, funPort, result, false);
+                            }
                         }
-                    })
-                    .build()
-                    .check();
+                    }, funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                    funPIn.getChecks());
+            portExecutorCheckers.check();
         }
 
     }
@@ -811,29 +818,34 @@ public final class PortExecutor
             } else
             {
                 Object finalReturnObject = returnObject;
-                checkerBuilder
-                        .newBuilder(DuringType.AFTER_METHOD)
-                        .setContext(context)
-                        .setPorterOfFun(funPort)
-                        .setObject(oftenObject)
-                        .withReturn(result, returnObject)
-                        .setHandle(failedObject -> {
-                            AspectHandleOfPortInUtil
-                                    .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
-                                            finalReturnObject,
-                                            failedObject);
-                            if (failedObject != null)
-                            {
-                                exCheckPassable(oftenObject, funPort, failedObject,
-                                        context.innerContextBridge.responseWhenException);
-                            } else
-                            {
-                                dealtOfResponse(oftenObject, funPort, funPort.getPortOut().getOutType(),
-                                        finalReturnObject);
-                            }
-                        })
-                        .build()
-                        .check();
+                CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(finalReturnObject, result,
+                        funPort.getFinalPorterObject(),
+                        funPort.getObject(),
+                        funPort.getMethod(),
+                        funPort.getPortOut().getOutType())
+                {
+                    @Override
+                    public void go(Object failedObject)
+                    {
+                        AspectHandleOfPortInUtil
+                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
+                                        finalReturnObject,
+                                        failedObject);
+                        if (failedObject != null)
+                        {
+                            exCheckPassable(oftenObject, funPort, failedObject,
+                                    context.innerContextBridge.responseWhenException);
+                        } else
+                        {
+                            dealtOfResponse(oftenObject, funPort, funPort.getPortOut().getOutType(), finalReturnObject);
+                        }
+                    }
+                };
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                        DuringType.AFTER_METHOD, checkHandle,
+                        funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass(),
+                        funPIn.getChecks());
+                portExecutorCheckers.check();
             }
 
         } catch (Throwable e)
@@ -866,45 +878,49 @@ public final class PortExecutor
 //                }
 
                 Object finalExReturnObject = exReturnObject;
-                checkerBuilder
-                        .newBuilder(DuringType.ON_METHOD_EXCEPTION)
-                        .setContext(context)
-                        .setPorterOfFun(funPort)
-                        .setObject(oftenObject)
-                        .withThrowable(result, ex)
-                        .setHandle(failedObject -> {
-                            AspectHandleOfPortInUtil
-                                    .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
-                                            finalExReturnObject,
-                                            failedObject);
-                            if (failedObject != null)
-                            {
-                                if (!(failedObject instanceof JResponse))
-                                {
-                                    JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                                    if (failedObject instanceof Throwable)
-                                    {
-                                        jResponse.setDescription(OftenTool.getMessage((Throwable) failedObject));
-                                        jResponse.setExCause((Throwable) failedObject);
-                                    }
-                                    jResponse.setExtra(failedObject);
-                                    failedObject = jResponse;
-                                }
-                            } else if (finalExReturnObject != null)
-                            {
-                                failedObject = finalExReturnObject;
-                            } else
+                CheckHandle checkHandle = new PortExecutorCheckers.CheckHandleAdapter(ex, result,
+                        funPort.getFinalPorterObject(),
+                        funPort.getObject(),
+                        funPort.getMethod(), funPort.getPortOut().getOutType())
+                {
+                    @Override
+                    public void go(Object failedObject)
+                    {
+                        AspectHandleOfPortInUtil
+                                .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
+                                        finalExReturnObject,
+                                        failedObject);
+                        if (failedObject != null)
+                        {
+                            if (!(failedObject instanceof JResponse))
                             {
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                                jResponse.setDescription(OftenTool.getMessage(ex));
-                                jResponse.setExCause(ex);
-                                jResponse.setExtra(ex);
+                                if (failedObject instanceof Throwable)
+                                {
+                                    jResponse.setDescription(OftenTool.getMessage((Throwable) failedObject));
+                                    jResponse.setExCause((Throwable) failedObject);
+                                }
+                                jResponse.setExtra(failedObject);
                                 failedObject = jResponse;
                             }
-                            dealtOfResponse(oftenObject, funPort, OutType.OBJECT, failedObject);
-                        })
-                        .build()
-                        .check();
+                        } else if (finalExReturnObject != null)
+                        {
+                            failedObject = finalExReturnObject;
+                        } else
+                        {
+                            JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
+                            jResponse.setDescription(OftenTool.getMessage(ex));
+                            jResponse.setExCause(ex);
+                            jResponse.setExtra(ex);
+                            failedObject = jResponse;
+                        }
+                        dealtOfResponse(oftenObject, funPort, OutType.OBJECT, failedObject);
+                    }
+                };
+                PortExecutorCheckers portExecutorCheckers = new PortExecutorCheckers(context, funPort, oftenObject,
+                        DuringType.ON_METHOD_EXCEPTION, checkHandle, funPIn.getChecks(),
+                        funPort.getPorter().getWholeClassCheckPassableGetter().getChecksForWholeClass());
+                portExecutorCheckers.check();
             }
 
         }
