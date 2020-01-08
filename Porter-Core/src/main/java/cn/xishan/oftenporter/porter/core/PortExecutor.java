@@ -1011,6 +1011,7 @@ public final class PortExecutor
                     throwable = OftenTool.getCause(throwable);
                     if (LOGGER.isWarnEnabled())
                     {
+                        LOGGER.debug("{}:{}", oftenObject.url(), object);
                         LOGGER.warn(throwable.getMessage(), throwable);
                     }
                 }
