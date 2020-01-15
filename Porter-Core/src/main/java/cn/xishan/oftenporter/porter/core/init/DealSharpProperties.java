@@ -65,9 +65,13 @@ public class DealSharpProperties
 //                {
 //                    rs = String.valueOf(entry.getValue());
 //                }
+
                 if (entry.getValue() instanceof CharSequence)
                 {
                     rs = String.valueOf(entry.getValue());
+                } else if (entry.getValue() == null)
+                {
+                    rs = "";
                 } else
                 {
                     rs = JSON.toJSONString(entry.getValue());
