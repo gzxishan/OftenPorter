@@ -58,8 +58,6 @@ public @interface Htmlx
      */
     String[] htmlSuffix() default {"html", "htm"};
 
-    String index() default "index.html";
-
     /**
      * 对于同一个请求被多次匹配的情况，数值更小的会被执行。
      *
@@ -112,11 +110,5 @@ public @interface Htmlx
      *
      * @return
      */
-    String otherwiseHtml() default "<!DOCTYPE html><html><head>" +
-            "<meta charset='UTF-8'>" +
-            "<title></title>" +
-            "<meta name='viewport' content='width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no' " +
-            "/>" +
-            "</head>" +
-            "<body><h1 style='text-align:center;margin:10% auto;'>OftenPorter Servlet Bridge</h1></body></html>";
+    String otherwiseHtml() default "";
 }

@@ -47,7 +47,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     private String encoding;
     private String contentType;
     private int cacheSeconds;
-    private String index;
 
     private String title;
     private String description;
@@ -174,7 +173,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             this.contentType = getValue(current.contentType(), classHtmlx.contentType(), defaultHtmlx.contentType());
             this.cacheSeconds = getValue(current.cacheSeconds(), classHtmlx.cacheSeconds(),
                     defaultHtmlx.cacheSeconds());
-            this.index = getValue(current.index(), classHtmlx.index(), defaultHtmlx.index());
             this.title = getValue(current.title(), classHtmlx.title(), defaultHtmlx.title());
             this.description = getValue(current.description(), classHtmlx.description(), defaultHtmlx.description());
             this.keywords = getValue(current.keywords(), classHtmlx.keywords(), defaultHtmlx.keywords());
@@ -281,10 +279,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         } else
         {
             String rpath = request.getRequestURI().substring(request.getContextPath().length());
-            if (rpath.endsWith("/"))
-            {
-                rpath += this.index;
-            }
             String name = OftenStrUtil.getNameFormPath(rpath);
             if (Arrays.binarySearch(this.htmlSuffix, OftenStrUtil.getSuffix(name)) < 0)
             {
@@ -358,14 +352,25 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                                         {
                                             otherwiseLastmodified = ofile.lastModified();
                                             otherwisePage = FileTool.getData(ofile, 1024);
+                                        } else
+                                        {
+                                            otherwisePage = null;
                                         }
+                                    } else
+                                    {
+                                        otherwisePage = null;
                                     }
                                 }
                             }
                         }
                     }
-
-                    if (otherwisePage == null)
+                    if (otherwisePage == null && otherwiseHtml.length == 0)
+                    {
+                        request.setAttribute(HtmlxDoc.ResponseType.class.getName(),
+                                HtmlxDoc.ResponseType.ServletDefault);
+                        //执行容器默认的。
+                        return null;
+                    } else if (otherwisePage == null)
                     {
                         docGetter = () -> {
                             InputStream in = new ByteArrayInputStream(otherwiseHtml);
