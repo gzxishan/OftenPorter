@@ -453,6 +453,12 @@ public class JResponse
         return obj;
     }
 
+
+    public static JResponse success()
+    {
+        return JResponse.success(null);
+    }
+
     public static JResponse success(Object result)
     {
         JResponse jResponse = new JResponse(ResultCode.SUCCESS);
