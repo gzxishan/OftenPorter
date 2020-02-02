@@ -298,7 +298,6 @@ public final class PorterMain
      */
     public synchronized IAutoSetter startOne(PorterBridge bridge)
     {
-        LogUtil.LogKey logKey = new LogUtil.LogKey(OftenKeyUtil.random48Key());
         try
         {
             if (OftenTool.isEmpty(bridge.oftenContextName()))
@@ -308,7 +307,7 @@ public final class PorterMain
             {
                 throw new RuntimeException("Context named '" + bridge.oftenContextName() + "' already exist!");
             }
-            LogUtil.setOrRemoveOnGetLoggerListener(logKey,
+            LogUtil.setOrRemoveOnGetLoggerListener(
                     name -> LoggerFactory.getLogger(
                             name + "." + getBridgeLinker().currentName().getName() + "." + bridge.oftenContextName()));
             checkInit();
@@ -322,7 +321,7 @@ public final class PorterMain
             throw new Error(OftenTool.getCause(e));
         } finally
         {
-            LogUtil.setOrRemoveOnGetLoggerListener(logKey, null);
+            LogUtil.setOrRemoveOnGetLoggerListener(null);
         }
     }
 
@@ -385,7 +384,7 @@ public final class PorterMain
         }
 
         AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
-                innerContextBridge, getBridgeLinker(), porterData,
+                innerContextBridge, portExecutor.getCheckerBuilder(), getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
         autoSetHandle.setUseCache(true);
 

@@ -372,6 +372,7 @@ public class AutoSetHandle
     private OftenContextInfo oftenContextInfo;
     private IOtherStartDestroy iOtherStartDestroy;
     private IAutoVarGetter autoVarGetter;
+    private CheckerBuilder checkerBuilder;
     private IAutoSetter autoSetter;
 
     /////////////////////////////////
@@ -382,13 +383,14 @@ public class AutoSetHandle
     /////////////////////////////////
 
     private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
-            InnerContextBridge innerContextBridge,
+            InnerContextBridge innerContextBridge,CheckerBuilder checkerBuilder,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
             String contextName)
     {
         this.iConfigData = iConfigData;
         this.argumentsFactory = argumentsFactory;
         this.innerContextBridge = innerContextBridge;
+        this.checkerBuilder=checkerBuilder;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
@@ -510,11 +512,11 @@ public class AutoSetHandle
     }
 
     public static AutoSetHandle newInstance(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
-            InnerContextBridge innerContextBridge,
+            InnerContextBridge innerContextBridge,CheckerBuilder checkerBuilder,
             Delivery thisDelivery,
             PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
     {
-        return new AutoSetHandle(iConfigData, argumentsFactory, innerContextBridge, thisDelivery, porterData,
+        return new AutoSetHandle(iConfigData, argumentsFactory, innerContextBridge,checkerBuilder, thisDelivery, porterData,
                 autoSetObjForAspectOfNormal, currentContextName);
     }
 
@@ -1334,6 +1336,9 @@ public class AutoSetHandle
         } else if (typeName.equals(IAutoSetter.class.getName()))
         {
             sysset = autoSetter;
+        } else if (typeName.equals(CheckerBuilder.class.getName()))
+        {
+            sysset = checkerBuilder;
         } else if (typeName.equals(IConfigData.class.getName()))
         {
             sysset = iConfigData;

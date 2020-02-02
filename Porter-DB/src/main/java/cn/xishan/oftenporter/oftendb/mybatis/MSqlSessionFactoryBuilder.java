@@ -348,12 +348,20 @@ class MSqlSessionFactoryBuilder
         {
             if (mybatisStateListener != null)
             {
-                mybatisStateListener.beforeReload();
+                if(isStarted){
+                    mybatisStateListener.beforeReload();
+                }else{
+                    mybatisStateListener.beforeFirstLoad();
+                }
             }
             regFileCheck();
             if (mybatisStateListener != null)
             {
-                mybatisStateListener.afterReload();
+                if(isStarted){
+                    mybatisStateListener.afterReload();
+                }else{
+                    mybatisStateListener.afterFirstLoad();
+                }
             }
         } catch (Exception e)
         {

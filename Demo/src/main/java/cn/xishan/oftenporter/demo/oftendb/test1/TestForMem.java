@@ -11,6 +11,7 @@ import org.h2.jdbcx.JdbcDataSource;
 import java.io.IOException;
 
 /**
+ * 配合Jdk/bin/jvisualvm.exe进行内存泄漏检测
  * @author Created by https://github.com/CLovinr on 2018/9/21.
  */
 public class TestForMem

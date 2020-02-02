@@ -15,50 +15,13 @@ import java.util.*;
 public class LogUtil
 {
 
-    public final static class LogKey
-    {
-        private Thread thread;
-        private String key;
-
-        private LogKey()
-        {
-            this.thread = Thread.currentThread();
-        }
-
-        /**
-         * 当前线程。
-         */
-        public LogKey(String key)
-        {
-            this.key = key;
-            this.thread = Thread.currentThread();
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return thread.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj)
-        {
-            if (obj == null || !(obj instanceof LogKey))
-            {
-                return false;
-            }
-            LogKey logKey = (LogKey) obj;
-
-            return this.thread == logKey.thread;
-        }
-    }
-
     public interface OnGetLoggerListener
     {
         Logger getLogger(String name);
     }
 
-    private static Map<LogKey, OnGetLoggerListener> onGetLoggerMap = new HashMap<>();
+    private static final ThreadLocal<OnGetLoggerListener> LISTENER_THREAD_LOCAL = new ThreadLocal<>();
+
     private static boolean isDefaultLogger = true;
     private static OnGetLoggerListener defaultOnGetLoggerListener = name -> LoggerFactory.getLogger(name);
 
@@ -85,9 +48,7 @@ public class LogUtil
 
     public synchronized static Logger logger(String name)
     {
-        LogKey logKey = new LogKey();
-
-        OnGetLoggerListener onGetLogger = isDefaultLogger ? defaultOnGetLoggerListener : onGetLoggerMap.get(logKey);
+        OnGetLoggerListener onGetLogger = isDefaultLogger ? defaultOnGetLoggerListener : LISTENER_THREAD_LOCAL.get();
         if (onGetLogger == null)
         {
             onGetLogger = defaultOnGetLoggerListener;
@@ -101,29 +62,14 @@ public class LogUtil
         return logger;
     }
 
-    public synchronized static void setOrRemoveOnGetLoggerListener(LogKey logKey,
-            OnGetLoggerListener onGetLoggerListener)
+    public synchronized static void setOrRemoveOnGetLoggerListener(OnGetLoggerListener onGetLoggerListener)
     {
-        if (onGetLoggerMap.containsKey(logKey))
-        {
-            for (LogKey key : onGetLoggerMap.keySet())
-            {
-                if (key.equals(logKey))
-                {
-                    if (!logKey.key.equals(key.key))
-                    {
-                        throw new RuntimeException("can not set " + OnGetLoggerListener.class + "!");
-                    }
-                    break;
-                }
-            }
-        }
         if (onGetLoggerListener == null)
         {
-            onGetLoggerMap.remove(logKey);
+            LISTENER_THREAD_LOCAL.remove();
         } else
         {
-            onGetLoggerMap.put(logKey, onGetLoggerListener);
+            LISTENER_THREAD_LOCAL.set(onGetLoggerListener);
         }
     }
 
@@ -197,8 +143,9 @@ public class LogUtil
 
     public static String[] listCodePos(int from, int maxCount)
     {
-        if(from<0){
-            throw new IllegalArgumentException("'from' have to be a positive value:"+from);
+        if (from < 0)
+        {
+            throw new IllegalArgumentException("'from' have to be a positive value:" + from);
         }
         StackTraceElement[] stacks = Thread.currentThread().getStackTrace();
         List<String> list = new ArrayList<>();

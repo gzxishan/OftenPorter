@@ -32,6 +32,16 @@ public class MyBatisOption implements Cloneable
 
         void afterReload();
 
+        default void beforeFirstLoad()
+        {
+
+        }
+
+        default void afterFirstLoad()
+        {
+
+        }
+
         void onReloadFailed(Throwable throwable);
     }
 
