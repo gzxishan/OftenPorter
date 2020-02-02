@@ -143,7 +143,7 @@ public class LocalMain implements CommonMain
         PorterConf porterConf = porterMain.newPorterConf();
         try
         {
-            porterMain.seekImporter(porterConf, importers);
+            porterConf.seekImporter(importers);
         } catch (Throwable throwable)
         {
             try

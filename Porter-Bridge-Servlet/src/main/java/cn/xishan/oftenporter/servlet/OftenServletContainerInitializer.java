@@ -93,17 +93,29 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             this.servletContext = servletContext;
             this.stateListenerSet = stateListenerSet;
             servletInitializerList = new ArrayList<>(servletInitializerClasses.size());
+
+            Set<Class<OftenInitializer>> readOnlySet = Collections.unmodifiableSet(servletInitializerClasses);
+            Set<OftenInitializer> allInitializers = new HashSet<>();
+
             for (Class<OftenInitializer> clazz : servletInitializerClasses)
             {
                 try
                 {
                     OftenInitializer initializer = OftenTool.newObject(clazz);
-                    initializer.beforeStart(servletContext, this);
-                    servletInitializerList.add(initializer);
+                    allInitializers.add(initializer);
+                    if (initializer.beforeStart(servletContext, this, readOnlySet))
+                    {
+                        servletInitializerList.add(initializer);
+                    }
                 } catch (Exception e)
                 {
                     throw new InitException(e);
                 }
+            }
+
+            for (OftenInitializer initializer : allInitializers)
+            {
+                initializer.beforeStart(servletContext, Collections.unmodifiableList(servletInitializerList));
             }
         }
 
@@ -258,26 +270,30 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         Set<OftenServerStateListener> stateListenerSet = new HashSet<>();
 
         Set<Class<OftenInitializer>> initialClasses = new HashSet<>();
-        for (Class<?> c : servletInitializerClasses)
+        if (servletInitializerClasses != null)
         {
-            if (!Modifier.isAbstract(c.getModifiers()))
+            for (Class<?> c : servletInitializerClasses)
             {
-                if (OftenTool.isAssignable(c, OftenInitializer.class))
+                if (!Modifier.isAbstract(c.getModifiers()))
                 {
-                    initialClasses.add((Class<OftenInitializer>) c);
-                } else
-                {
-                    Class<OftenServerStateListener> clazz = (Class<OftenServerStateListener>) c;
-                    try
+                    if (OftenTool.isAssignable(c, OftenInitializer.class))
                     {
-                        stateListenerSet.add(OftenTool.newObject(clazz));
-                    } catch (Exception e)
+                        initialClasses.add((Class<OftenInitializer>) c);
+                    } else
                     {
-                        e.printStackTrace();
+                        Class<OftenServerStateListener> clazz = (Class<OftenServerStateListener>) c;
+                        try
+                        {
+                            stateListenerSet.add(OftenTool.newObject(clazz));
+                        } catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
         }
+
         servletContext.setAttribute(FROM_INITIALIZER_ATTR, true);
         servletContext.setAttribute(OftenServerStateListener.class.getName(), stateListenerSet);
 

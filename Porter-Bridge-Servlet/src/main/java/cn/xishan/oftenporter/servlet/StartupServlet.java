@@ -113,6 +113,7 @@ public abstract class StartupServlet extends OftenServlet
 
                 //Filterer注入处理
                 List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
+                servletContext.removeAttribute(Filterer.class.getName());
                 if (filterers != null)
                 {
                     List<Filterer> current = new ArrayList<>();

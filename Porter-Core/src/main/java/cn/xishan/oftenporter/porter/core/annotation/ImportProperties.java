@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.*;
+import java.net.URL;
 import java.util.Properties;
 
 /**
@@ -60,10 +61,19 @@ public @interface ImportProperties
             for (String path : paths)
             {
                 LOGGER.debug("load properties:{}", path);
-                InputStream in = ResourceUtil.getAbsoluteResourceStream(path);
-                Properties properties = new Properties();
-                properties.load(in);
-                configData.putAll(properties);
+                URL url = ResourceUtil.getAbsoluteResource(path);
+                if (url != null)
+                {
+                    try (InputStream in = url.openStream())
+                    {
+                        Properties properties = new Properties();
+                        properties.load(in);
+                        configData.putAll(properties);
+                    }
+                } else
+                {
+                    LOGGER.debug("properties '{}' not found", path);
+                }
             }
         }
     }

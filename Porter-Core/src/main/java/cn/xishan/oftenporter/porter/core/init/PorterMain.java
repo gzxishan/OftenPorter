@@ -238,53 +238,6 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(alls);
     }
 
-    public synchronized void seekImporter(PorterConf porterConf, Class[] importers) throws Throwable
-    {
-        if (OftenTool.isEmptyOf(importers))
-        {
-            return;
-        }
-        LOGGER.debug("seek importers...");
-        for (Class clazz : importers)
-        {
-            Annotation[] annotations = AnnoUtil.getAnnotations(clazz);
-            for (Annotation annotation : annotations)
-            {
-                Importer importer = AnnoUtil.getAnnotation(annotation.annotationType(), Importer.class);
-                if (importer != null)
-                {
-                    Class[] confClasses = importer.value();
-                    for (Class confClass : confClasses)
-                    {
-                        try
-                        {
-                            LOGGER.debug("init importer:class={}", confClass);
-                            Object object = OftenTool.newObject(confClass);
-                            if (OftenTool.isAssignable(confClass, Importer.Configable.class))
-                            {
-                                LOGGER.debug("init for:{}", Importer.Configable.class);
-                                Importer.Configable configable = (Importer.Configable) object;
-                                configable.beforeCustomerConfig(porterConf, annotation);
-                            }
-                            LOGGER.debug("init importer finished:class={}", confClass);
-                        } catch (Throwable e)
-                        {
-                            if (importer.exceptionThrow())
-                            {
-                                throw e;
-                            } else
-                            {
-                                LOGGER.debug(e.getMessage(), e);
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-        LOGGER.debug("seek importers finished.");
-
-    }
 
     public PortExecutor _getPortExecutor()
     {
@@ -383,7 +336,7 @@ public final class PorterMain
             LOGGER.debug("{} is enabled!", AspectOperationOfNormal.class.getSimpleName());
         }
 
-        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf.getConfigData(), argumentsFactory,
+        AutoSetHandle autoSetHandle = AutoSetHandle.newInstance(porterConf, argumentsFactory,
                 innerContextBridge, portExecutor.getCheckerBuilder(), getBridgeLinker(), porterData,
                 autoSetObjForAspectOfNormal, porterConf.getOftenContextName());
         autoSetHandle.setUseCache(true);

@@ -12,6 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 通过实现该接口，可以启动框架。
@@ -41,6 +43,7 @@ public interface OftenInitializer
 
         /**
          * 设置multipart form表单的处理选项,见{@linkplain MultiPartParamSourceHandle}
+         *
          * @param multiPartOption
          */
         void setMultiPartOption(MultiPartOption multiPartOption);
@@ -76,7 +79,36 @@ public interface OftenInitializer
 
     }
 
-    void beforeStart(ServletContext servletContext, BuilderBefore builderBefore) throws Exception;
+    default void beforeStart(ServletContext servletContext, BuilderBefore builderBefore) throws Exception
+    {
+
+    }
+
+
+    /**
+     * @param servletContext
+     * @param builderBefore
+     * @param initializers
+     * @return 返回false将会忽略当前初始化对象。
+     * @throws Exception
+     */
+    default boolean beforeStart(ServletContext servletContext, BuilderBefore builderBefore,
+            Set<Class<OftenInitializer>> initializers) throws Exception
+    {
+        beforeStart(servletContext, builderBefore);
+        return true;
+    }
+
+    /**
+     * 在{@linkplain #beforeStart(ServletContext, BuilderBefore, Set)}之后调用。
+     *
+     * @param servletContext
+     * @param initializers   所有被添加的对象。
+     */
+    default void beforeStart(ServletContext servletContext, List<OftenInitializer> initializers)
+    {
+
+    }
 
     void onStart(ServletContext servletContext, Builder builder) throws Exception;
 

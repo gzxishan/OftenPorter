@@ -12,7 +12,10 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterData;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultAnnotationConfigable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -20,6 +23,8 @@ import java.util.*;
  */
 public class PorterConf
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PorterConf.class);
+
     private SeekPackages seekPackages;
     private InitParamSource userInitParam;
     private List<StateListener> stateListenerList;
@@ -544,6 +549,55 @@ public class PorterConf
     public List<AutoSetObjForAspectOfNormal.AdvancedHandle> getAdvancedHandleList()
     {
         return advancedHandleList;
+    }
+
+
+    public synchronized void seekImporter(Class[] importers) throws Throwable
+    {
+        if (OftenTool.isEmptyOf(importers))
+        {
+            return;
+        }
+        LOGGER.debug("seek importers...");
+        for (Class clazz : importers)
+        {
+            Annotation[] annotations = AnnoUtil.getAnnotations(clazz);
+            for (Annotation annotation : annotations)
+            {
+                Importer importer = AnnoUtil.getAnnotation(annotation.annotationType(), Importer.class);
+                if (importer != null)
+                {
+                    Class[] confClasses = importer.value();
+                    for (Class confClass : confClasses)
+                    {
+                        try
+                        {
+                            LOGGER.debug("init importer:class={}", confClass);
+                            if (OftenTool.isAssignable(confClass, Importer.Configable.class))
+                            {
+                                Object object = OftenTool.newObject(confClass);
+                                LOGGER.debug("init for:{}", Importer.Configable.class);
+                                Importer.Configable configable = (Importer.Configable) object;
+                                configable.beforeCustomerConfig(this, annotation);
+                            }
+                            LOGGER.debug("init importer finished:class={}", confClass);
+                        } catch (Throwable e)
+                        {
+                            if (importer.exceptionThrow())
+                            {
+                                throw e;
+                            } else
+                            {
+                                LOGGER.debug(e.getMessage(), e);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        LOGGER.debug("seek importers finished.");
+
     }
 
     void initOk()

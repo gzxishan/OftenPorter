@@ -368,6 +368,7 @@ public class AutoSetHandle
 
     private Set<Object> autoSetDealtSet = new HashSet<>();
     private AutoSetHandleWorkedInstance workedInstance;
+    private PorterConf porterConf;
     private IConfigData iConfigData;
     private OftenContextInfo oftenContextInfo;
     private IOtherStartDestroy iOtherStartDestroy;
@@ -382,15 +383,16 @@ public class AutoSetHandle
 
     /////////////////////////////////
 
-    private AutoSetHandle(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
-            InnerContextBridge innerContextBridge,CheckerBuilder checkerBuilder,
+    private AutoSetHandle(PorterConf porterConf, IArgumentsFactory argumentsFactory,
+            InnerContextBridge innerContextBridge, CheckerBuilder checkerBuilder,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
             String contextName)
     {
-        this.iConfigData = iConfigData;
+        this.porterConf = porterConf;
+        this.iConfigData = porterConf.getConfigData();
         this.argumentsFactory = argumentsFactory;
         this.innerContextBridge = innerContextBridge;
-        this.checkerBuilder=checkerBuilder;
+        this.checkerBuilder = checkerBuilder;
         this.thisDelivery = thisDelivery;
         this.porterData = porterData;
         this.workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
@@ -511,12 +513,13 @@ public class AutoSetHandle
         }
     }
 
-    public static AutoSetHandle newInstance(IConfigData iConfigData, IArgumentsFactory argumentsFactory,
-            InnerContextBridge innerContextBridge,CheckerBuilder checkerBuilder,
+    public static AutoSetHandle newInstance(PorterConf porterConf, IArgumentsFactory argumentsFactory,
+            InnerContextBridge innerContextBridge, CheckerBuilder checkerBuilder,
             Delivery thisDelivery,
             PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
     {
-        return new AutoSetHandle(iConfigData, argumentsFactory, innerContextBridge,checkerBuilder, thisDelivery, porterData,
+        return new AutoSetHandle(porterConf, argumentsFactory, innerContextBridge, checkerBuilder, thisDelivery,
+                porterData,
                 autoSetObjForAspectOfNormal, currentContextName);
     }
 
@@ -864,6 +867,18 @@ public class AutoSetHandle
         if (result.isWorked)
         {
             return currentObject;//已经递归扫描过该实例
+        }
+
+        try
+        {
+            porterConf.seekImporter(new Class[]{currentObjectClass});
+        } catch (AutoSetException | InitException e)
+        {
+            throw e;
+        } catch (Throwable e)
+        {
+            LOGGER.warn("seek importer failed:class={},ex={}", currentObjectClass, e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
 
         AnnotationDealt annotationDealt = innerContextBridge.annotationDealt;

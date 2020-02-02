@@ -222,6 +222,12 @@ public class ResourceUtil
                 break;
             }
         }
+
+        if (url == null)
+        {
+            url = Thread.currentThread().getClass().getResource(path);
+        }
+
         if (url == null && recursive)
         {
             if (path.startsWith("/"))
@@ -260,6 +266,16 @@ public class ResourceUtil
                 break;
             }
         }
+
+        if (!enumeration.hasMoreElements())
+        {
+            URL url = Thread.currentThread().getClass().getResource(path);
+            if (url != null)
+            {
+                enumeration = new EnumerationImpl<>(Collections.singletonList(url));
+            }
+        }
+
         if (recursive && !enumeration.hasMoreElements())
         {
             if (path.startsWith("/"))
