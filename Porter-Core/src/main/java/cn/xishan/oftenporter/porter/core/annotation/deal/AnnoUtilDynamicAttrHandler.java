@@ -11,11 +11,6 @@ import java.lang.reflect.Method;
  */
 class AnnoUtilDynamicAttrHandler extends InvocationHandlerWithCommon
 {
-    interface _Dynamic_Annotation_Str_Attrs_
-    {
-
-    }
-
     private Annotation origin;
     private IAnnotationConfigable iAnnotationConfigable;
 

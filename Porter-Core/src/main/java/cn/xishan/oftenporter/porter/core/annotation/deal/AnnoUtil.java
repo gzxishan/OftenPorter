@@ -268,7 +268,7 @@ public class AnnoUtil
 
     private static <A extends Annotation> A proxyAnnotationForAttr(A t)
     {
-        if (t instanceof AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_)
+        if (t instanceof _Dynamic_Annotation_Str_Attrs_)
         {
             LOGGER.debug("already proxyed:{}->{}", t.annotationType(), t);
             return t;
@@ -320,7 +320,7 @@ public class AnnoUtil
             //只代理含有String或String[]的注解。
             AnnoUtilDynamicAttrHandler handler = new AnnoUtilDynamicAttrHandler(t, configable.iAnnotationConfigable);
             Object obj = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
-                    t.annotationType(), AnnoUtilDynamicAttrHandler._Dynamic_Annotation_Str_Attrs_.class
+                    t.annotationType(), _Dynamic_Annotation_Str_Attrs_.class
             }, handler);
             t = (A) obj;
         }
