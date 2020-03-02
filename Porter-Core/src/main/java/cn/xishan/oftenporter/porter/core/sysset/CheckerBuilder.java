@@ -22,6 +22,11 @@ public interface CheckerBuilder
         void handle(Object failedObject);
     }
 
+    /**
+     * 当只有一个context时，会自动设置该context。
+     * @param duringType
+     * @return
+     */
     Builder newBuilder(DuringType duringType);
 
     Builder newBuilder(DuringType duringType, String contextName);
@@ -35,6 +40,7 @@ public interface CheckerBuilder
 
 
         Builder setPorterOfFun(PorterOfFun porterOfFun);
+
 
         Builder setContext(Context context);
 

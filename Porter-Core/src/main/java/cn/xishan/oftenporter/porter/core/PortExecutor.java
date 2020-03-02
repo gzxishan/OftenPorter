@@ -14,6 +14,7 @@ import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.*;
 import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.CheckerBuilder;
+import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
@@ -23,9 +24,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -102,6 +101,31 @@ public final class PortExecutor
     public CheckerBuilder getCheckerBuilder()
     {
         return checkerBuilder;
+    }
+
+    public Enumeration<CheckPassable> ofAllCheckPassables(String contextName)
+    {
+        List<CheckPassable> list = new ArrayList<>();
+        if (OftenTool.notEmptyOf(allGlobalChecks))
+        {
+            OftenTool.addAll(list, allGlobalChecks);
+        }
+
+        Context context = contextMap.get(contextName);
+        if (context != null)
+        {
+            if (OftenTool.notEmptyOf(context.contextChecks))
+            {
+                OftenTool.addAll(list, context.contextChecks);
+            }
+
+            if (OftenTool.notEmptyOf(context.porterCheckPassables))
+            {
+                OftenTool.addAll(list, context.porterCheckPassables);
+            }
+        }
+
+        return new EnumerationImpl<>(list);
     }
 
     /**
@@ -1114,17 +1138,17 @@ public final class PortExecutor
             {
                 close(oftenObject);
             }
+        } else if (obj instanceof CheckHandle.Op)
+        {
+            if (obj == CheckHandle.Op.BreakClose)
+            {
+                close(oftenObject);
+            }
         } else if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(String.valueOf(obj));
             if (doWriteAndWillClose(oftenObject, porterOfFun, jResponse))
-            {
-                close(oftenObject);
-            }
-        } else if (obj instanceof CheckHandle.Op)
-        {
-            if (obj == CheckHandle.Op.BreakClose)
             {
                 close(oftenObject);
             }
@@ -1197,7 +1221,7 @@ public final class PortExecutor
             if (OftenTool.notEmpty(loggerLever))
             {
                 Logger LOGGER = logger(oftenObject);
-                UrlDecoder.Result result = oftenObject == null ? null : oftenObject.url();
+                UrlDecoder.Result result = oftenObject.url();
                 switch (loggerLever)
                 {
                     case "trace":

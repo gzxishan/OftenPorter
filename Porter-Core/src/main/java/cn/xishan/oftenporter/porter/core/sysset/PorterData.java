@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.sysset;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
+import cn.xishan.oftenporter.porter.core.base.CheckPassable;
 
 import java.util.Enumeration;
 
@@ -12,4 +13,6 @@ public interface PorterData
     Enumeration<String> ofContexts();
 
     Enumeration<Porter> ofContextPorters(String contextName);
+
+    Enumeration<CheckPassable> ofAllCheckPassables(String contextName);
 }

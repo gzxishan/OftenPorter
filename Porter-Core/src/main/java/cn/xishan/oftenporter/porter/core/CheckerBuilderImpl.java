@@ -408,7 +408,12 @@ class CheckerBuilderImpl implements CheckerBuilder
     @Override
     public Builder newBuilder(DuringType duringType)
     {
-        return new BuilderImpl(duringType);
+        Builder builder = new BuilderImpl(duringType);
+        if (portExecutor.contextSize() == 1)
+        {//只有一个时，设置默认context
+            builder.setContext(portExecutor.contextIterator().next());
+        }
+        return builder;
     }
 
     @Override

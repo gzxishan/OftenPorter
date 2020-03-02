@@ -180,7 +180,7 @@ public abstract class CheckHandle
      */
     public boolean isAllPresentOnClassOrFun(Class<?>... annotationClasses)
     {
-        if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
+        if (AnnoUtil.isAllOfAnnotationsPresent(getFinalObjectClass(), annotationClasses) || AnnoUtil
                 .isAllOfAnnotationsPresent((Method) handleMethod, annotationClasses))
         {
             return true;
@@ -217,7 +217,7 @@ public abstract class CheckHandle
      */
     public boolean isOneOfPresentOnClassOrFun(Class<?>... annotationClasses)
     {
-        if (AnnoUtil.isOneOfAnnotationsPresent(PortUtil.getRealClass(finalPorterObject), annotationClasses) || AnnoUtil
+        if (AnnoUtil.isOneOfAnnotationsPresent(getFinalObjectClass(), annotationClasses) || AnnoUtil
                 .isOneOfAnnotationsPresent((Method) handleMethod, annotationClasses))
         {
             return true;
@@ -225,5 +225,10 @@ public abstract class CheckHandle
         {
             return false;
         }
+    }
+
+    public Class getFinalObjectClass()
+    {
+        return PortUtil.getRealClass(finalPorterObject);
     }
 }
