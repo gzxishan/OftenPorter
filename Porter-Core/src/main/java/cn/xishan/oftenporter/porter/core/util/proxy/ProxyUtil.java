@@ -30,6 +30,13 @@ public class ProxyUtil
 
     private static final Pattern CGLIB_NAME_PATTERN = Pattern.compile("\\$\\$[^\\s]*CGLIB[^\\s]*\\$\\$");
 
+    /**
+     * @param loader
+     * @param interfaces
+     * @param h          注意不要使用lambda表达式或局部匿名实例，防止内存泄漏。
+     * @param <T>
+     * @return
+     */
     public static <T> T newProxyInstance(ClassLoader loader, Class<?>[] interfaces, InvocationHandler h)
     {
         List<Class<?>> list = new ArrayList<>(interfaces.length + 1);
@@ -88,24 +95,42 @@ public class ProxyUtil
         return object;
     }
 
+    /**
+     * @param object
+     * @param useCache
+     * @param interfaces
+     * @param methodFilter   注意不要使用lambda表达式或局部匿名实例，防止内存泄漏。
+     * @param invocationable 注意不要使用lambda表达式或局部匿名实例，防止内存泄漏。
+     * @return
+     * @throws Exception
+     */
     public static Object proxyObject(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
-            IInvocationable invocationable) throws Exception
+            IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
-        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable);
+        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable, settable);
         Object proxyObject = enhancer.create();
         initFieldsValue(object, proxyObject, true);
         return proxyObject;
     }
 
+    /**
+     * @param object
+     * @param useCache
+     * @param interfaces
+     * @param methodFilter   注意不要使用lambda表达式或局部匿名实例，防止内存泄漏。
+     * @param invocationable 注意不要使用lambda表达式或局部匿名实例，防止内存泄漏。
+     * @return
+     * @throws Exception
+     */
     public static Class proxyClass(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
-            IInvocationable invocationable) throws Exception
+            IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
-        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable);
+        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable, settable);
         return enhancer.createClass();
     }
 
     private static Enhancer proxySetting(Object object, boolean useCache, Class[] interfaces,
-            IMethodFilter methodFilter, IInvocationable invocationable) throws Exception
+            IMethodFilter methodFilter, IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
         Callback[] callbacks =
                 new Callback[]{NoOp.INSTANCE, new RealCallback(object, invocationable)};
@@ -113,15 +138,7 @@ public class ProxyUtil
         Enhancer enhancer = new Enhancer();
         enhancer.setCallbacks(callbacks);
         enhancer.setUseCache(useCache);
-        enhancer.setCallbackFilter(method -> {
-            if (methodFilter.contains(object, method))
-            {
-                return 1;
-            } else
-            {
-                return 0;
-            }
-        });
+        enhancer.setCallbackFilter(new CallbackFilterImpl(object.getClass(), methodFilter));
         enhancer.setSuperclass(object.getClass());
         List<Class> list = new ArrayList<>();
         list.add(IOftenProxy.class);
@@ -130,6 +147,10 @@ public class ProxyUtil
             OftenTool.addAll(list, interfaces);
         }
         enhancer.setInterfaces(list.toArray(new Class[0]));
+        if (settable != null)
+        {
+            settable.doSet(enhancer);
+        }
         return enhancer;
     }
 

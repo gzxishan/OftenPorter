@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
-import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
@@ -11,7 +10,6 @@ import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
-import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.*;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
@@ -25,7 +23,6 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -294,77 +291,7 @@ class MyBatisDaoGen implements AutoSetGen
     static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source, boolean wrapDaoThrowable)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
-        InvocationHandlerWithCommon invocationHandler = new InvocationHandlerWithCommon(myBatisDao)
-        {
-            @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-            {
-                if (method.equals(TO_STRING_METHOD))
-                {
-                    return type.getName() + "@@" + myBatisDao.getClass().getSimpleName() + myBatisDao.hashCode();
-                }
-                if (wrapDaoThrowable)
-                {
-                    try
-                    {
-                        return super.invoke(proxy, method, args);
-                    } catch (Throwable e)
-                    {
-                        if (e instanceof OftenCallException)
-                        {
-                            throw e;
-                        } else
-                        {
-                            throw new OftenCallException(e);
-                        }
-                    }
-                } else
-                {
-                    return super.invoke(proxy, method, args);
-                }
-            }
-
-            private void mayClose(ConnectionWrap connectionWrap) throws SQLException
-            {
-                if (connectionWrap == null)
-                {
-                    return;
-                }
-                if (connectionWrap.getAutoCommit())
-                {
-                    connectionWrap.close();
-                } else if (connectionWrap.isBridgeConnection())
-                {
-                    TransactionDBHandle.__removeConnection__(source);
-                }
-            }
-
-            @Override
-            public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
-            {
-                ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source,false);
-                boolean isInvokeError = true;
-                try
-                {
-                    Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
-                    Object rs = method.invoke(dao, args);
-                    isInvokeError = false;
-                    mayClose(connectionWrap);
-                    return rs;
-
-                } catch (Throwable throwable)
-                {
-                    if (isInvokeError)
-                    {
-                        mayClose(connectionWrap);
-                    }
-                    throw throwable;
-                }
-
-
-            }
-        };
-
+        InvocationHandlerWithCommon invocationHandler = new Invocation4Dao(myBatisDao, type, source, wrapDaoThrowable);
         Object proxyT = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                 type, __MyBatisDaoProxy__.class}, invocationHandler);
         return proxyT;

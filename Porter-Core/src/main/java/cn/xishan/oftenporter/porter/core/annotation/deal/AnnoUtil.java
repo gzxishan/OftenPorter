@@ -135,7 +135,7 @@ public class AnnoUtil
         List<DynamicAnnotationImprovableWrap> allDynamicList = new ArrayList<>();
         try
         {
-            String path = "/OP-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
+            String path = "META-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
             List<String> dynamicNames = ResourceUtil.getAbsoluteResourcesString(path, "utf-8");
 
             for (String _classNames : dynamicNames)
@@ -2349,14 +2349,12 @@ public class AnnoUtil
 
     private static class CacheKey
     {
-        WeakReference<Object> targetRef;
+        String target;
         Object annotationType;
-        int hashCode;
 
         public CacheKey(Object target, String tag, Object... array)
         {
-            hashCode = target.hashCode();
-            this.targetRef = new WeakReference<>(target);
+            this.target = target.toString();
             StringBuilder builder = new StringBuilder();
             for (Object obj : array)
             {
@@ -2378,9 +2376,7 @@ public class AnnoUtil
             if (obj instanceof CacheKey)
             {
                 CacheKey cacheKey = (CacheKey) obj;
-                Object target = targetRef.get();
-                return target != null && target.equals(cacheKey.targetRef.get()) && annotationType
-                        .equals(cacheKey.annotationType);
+                return this.target.equals(cacheKey.target) && annotationType.equals(cacheKey.annotationType);
             }
             return false;
         }
@@ -2388,13 +2384,13 @@ public class AnnoUtil
         @Override
         public int hashCode()
         {
-            return hashCode;
+            return target.hashCode();
         }
 
         @Override
         public String toString()
         {
-            return targetRef.get() + ":" + annotationType;
+            return target + ":" + annotationType;
         }
 
         Object getCache()

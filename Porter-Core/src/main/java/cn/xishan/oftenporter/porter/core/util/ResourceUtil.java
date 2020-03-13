@@ -120,7 +120,9 @@ public class ResourceUtil
 
     public static void setClassLoaders(ClassLoader... classLoaders)
     {
-        theClassLoaders = classLoaders;
+        Set<ClassLoader> set = new HashSet<>();
+        OftenTool.addAll(set, classLoaders);
+        theClassLoaders = set.toArray(new ClassLoader[0]);
     }
 
     public static List<String> getAbsoluteResourcesString(String path, String encoding)
@@ -269,11 +271,7 @@ public class ResourceUtil
 
         if (!enumeration.hasMoreElements())
         {
-            URL url = Thread.currentThread().getClass().getResource(path);
-            if (url != null)
-            {
-                enumeration = new EnumerationImpl<>(Collections.singletonList(url));
-            }
+            enumeration = ClassLoader.getSystemResources(path);
         }
 
         if (recursive && !enumeration.hasMoreElements())
@@ -286,6 +284,27 @@ public class ResourceUtil
                 path = "/" + path;
             }
             enumeration = _getAbsoluteResources(path, false);
+            if (!enumeration.hasMoreElements())
+            {
+                URL url = Thread.currentThread().getClass().getResource(path);
+
+                if (url == null)
+                {
+                    if (path.startsWith("/"))
+                    {
+                        path = path.substring(1);
+                    } else
+                    {
+                        path = "/" + path;
+                    }
+                    url = Thread.currentThread().getClass().getResource(path);
+                }
+
+                if (url != null)
+                {
+                    enumeration = new EnumerationImpl<>(Collections.singletonList(url));
+                }
+            }
         }
         return enumeration;
     }

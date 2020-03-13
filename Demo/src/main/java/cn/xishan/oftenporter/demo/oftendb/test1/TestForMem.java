@@ -29,7 +29,7 @@ public class TestForMem
     {
         LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
-        porterConf.setContextName("T1");
+        porterConf.setOftenContextName("T1");
         porterConf.getSeekPackages()
                 .addPackages(Main1.class.getPackage().getName() + ".porter");
 

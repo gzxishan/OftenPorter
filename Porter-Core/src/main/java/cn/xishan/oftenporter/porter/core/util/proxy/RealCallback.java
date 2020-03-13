@@ -25,11 +25,18 @@ class RealCallback implements MethodInterceptor
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable
     {
         IInvocationable.IInvoker iInvoker = args1 -> methodProxy.invokeSuper(obj, args1);
-        return invocationable.invoke(iInvoker, obj, targetRef.get(), method, args);
+        return invocationable.invoke(iInvoker, obj, getTarget(), method, args);
     }
 
     public Object getTarget()
     {
-        return targetRef.get();
+        Object object = targetRef.get();
+        if (object == null)
+        {
+            throw new RuntimeException("object is null in WeakReference");
+        } else
+        {
+            return object;
+        }
     }
 }
