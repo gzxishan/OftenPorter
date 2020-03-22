@@ -181,7 +181,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public final Object invokeByHandleArgs(@MayNull OftenObject oftenObject, Object... args) throws Throwable
+    public final Object invokeByHandleArgs(@MayNull OftenObject oftenObject, Object... args) throws Exception
     {
         if (oftenObject == null)
         {
@@ -197,7 +197,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
     }
 
     public final Object invokeByHandleArgsWithoutAspect(@MayNull OftenObject oftenObject,
-            Object... args) throws Throwable
+            Object... args) throws Exception
     {
         Method javaMethod = getMethod();
         IArgsHandle argsHandle = this.argsHandle;
@@ -215,7 +215,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
      * @throws Exception
      */
     private final Object invokeByHandleArgsMayTriggerAspectHandle(OftenObject oftenObject,
-            Object... args) throws Throwable
+            Object... args) throws Exception
     {
         Object rs = null;
         try
@@ -229,7 +229,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             AspectHandleOfPortInUtil
                     .doHandle(AspectHandleOfPortInUtil.State.AfterInvoke, oftenObject, this, rs, null, true);
             return rs;
-        } catch (Throwable e)
+        } catch (Exception e)
         {
             throw e;
         } finally

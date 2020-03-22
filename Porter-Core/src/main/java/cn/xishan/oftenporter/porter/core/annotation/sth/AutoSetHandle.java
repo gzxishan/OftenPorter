@@ -488,28 +488,29 @@ public class AutoSetHandle
      */
     public synchronized void invokeSetOk(OftenObject oftenObject)
     {
-        try
-        {
-            _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
-            Arrays.sort(setOkObjects);
-            //先清理、再调用setOk函数
-            this.setOkObjects.clear();
+
+        _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
+        Arrays.sort(setOkObjects);
+        //先清理、再调用setOk函数
+        this.setOkObjects.clear();
 //            this.porterMap = null;
 //            this.proxyObjectMap = null;
-            this.iHandles_notporter.clear();
-            this.iHandles_porter.clear();
-            this.iHandlesForAutoSetThat = null;
-            this.innerContextBridge.annotationDealt.clearCache();
-            autoSetDealtSet.clear();
+        this.iHandles_notporter.clear();
+        this.iHandles_porter.clear();
+        this.iHandlesForAutoSetThat = null;
+        this.innerContextBridge.annotationDealt.clearCache();
+        autoSetDealtSet.clear();
 //            autoSetDealtSet = null;
 
-            for (_SetOkObject setOkObject : setOkObjects)
+        for (_SetOkObject setOkObject : setOkObjects)
+        {
+            try
             {
                 setOkObject.invoke(oftenObject, iConfigData);
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
             }
-        } catch (Exception e)
-        {
-            throw new RuntimeException(e);
         }
     }
 

@@ -257,7 +257,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     }
 
     @Override
-    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         HttpServletResponse response = oftenObject.getRequest().getOriginalResponse();
@@ -401,7 +401,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     }
 
     private void invokeDoc(OftenObject oftenObject, HttpServletRequest request, HttpServletResponse response,
-            RenderData renderData, PorterOfFun porterOfFun) throws Throwable
+            RenderData renderData, PorterOfFun porterOfFun) throws Exception
     {
 
         HtmlxDoc htmlxDoc = renderData.getHtmlxDoc();

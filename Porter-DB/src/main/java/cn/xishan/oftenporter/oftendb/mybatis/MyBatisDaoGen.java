@@ -47,7 +47,19 @@ class MyBatisDaoGen implements AutoSetGen
     @PortStart(order = 100)
     public void onStart(IConfigData configData)
     {
-        MyBatisBridge.start(configData);
+        if (moption().myBatisOption.throwOnInitError)
+        {
+            MyBatisBridge.start(configData);
+        } else
+        {
+            try
+            {
+                MyBatisBridge.start(configData);
+            } catch (Throwable e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
+        }
     }
 
     MybatisConfig.MOption moption()

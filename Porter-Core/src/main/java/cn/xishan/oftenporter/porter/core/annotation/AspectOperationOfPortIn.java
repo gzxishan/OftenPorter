@@ -95,7 +95,7 @@ public @interface AspectOperationOfPortIn
          * @throws Throwable
          */
         @Override
-        public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
+        public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
         {
             if (LOGGER.isDebugEnabled())
             {
@@ -228,7 +228,7 @@ public @interface AspectOperationOfPortIn
          * @return
          * @throws Exception
          */
-        Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Throwable;
+        Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, @MayNull Object lastReturn) throws Exception;
 
 
         /**

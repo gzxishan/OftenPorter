@@ -3,7 +3,6 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.Context;
 import cn.xishan.oftenporter.porter.core.PortExecutor;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.servlet.websocket.WebSocketHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +86,7 @@ public abstract class StartupServlet extends OftenServlet
             onStart();
         } catch (Throwable e)
         {
-            throw new ServletException(OftenTool.getCause(e));
+            LOGGER.error(e.getMessage(), e);
         }
         if (doSysInit)
         {
@@ -98,44 +97,55 @@ public abstract class StartupServlet extends OftenServlet
 
     protected void doSysInit()
     {
-        try
-        {
+//        try
+//        {
             ServletContext servletContext = getServletContext();
             //初始化websocket
             PortExecutor portExecutor = porterMain._getPortExecutor();
             Iterator<Context> it = portExecutor.contextIterator();
             while (it.hasNext())
             {
-                Context context = it.next();
-                ServerContainer serverContainer = (ServerContainer) servletContext
-                        .getAttribute("javax.websocket.server.ServerContainer");
-                WebSocketHandle.initWithServerContainer(context.getConfigData(), serverContainer);
-
-                //Filterer注入处理
-                List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
-                servletContext.removeAttribute(Filterer.class.getName());
-                if (filterers != null)
+                try
                 {
-                    List<Filterer> current = new ArrayList<>();
-                    for (Filterer filterer : filterers)
+                    Context context = it.next();
+                    ServerContainer serverContainer = (ServerContainer) servletContext
+                            .getAttribute("javax.websocket.server.ServerContainer");
+                    WebSocketHandle.initWithServerContainer(context.getConfigData(), serverContainer);
+
+                    //Filterer注入处理
+                    List<Filterer> filterers = (List<Filterer>) servletContext.getAttribute(Filterer.class.getName());
+                    servletContext.removeAttribute(Filterer.class.getName());
+                    if (filterers != null)
                     {
-                        String oc = filterer.oftenContext();
-                        if (oc.equals(context.getName()) || oc.equals("*"))
+                        List<Filterer> current = new ArrayList<>();
+                        for (Filterer filterer : filterers)
                         {
-                            current.add(filterer);
+                            String oc = filterer.oftenContext();
+                            if (oc.equals(context.getName()) || oc.equals("*"))
+                            {
+                                current.add(filterer);
+                            }
+                        }
+                        if (current.size() > 0)
+                        {
+                            try
+                            {
+                                context.contextPorter.getAutoSetter().forInstance(current.toArray(new Filterer[0]));
+                            }catch (Exception e){
+                                LOGGER.error(e.getMessage(),e);
+                            }
                         }
                     }
-                    if (current.size() > 0)
-                    {
-                        context.contextPorter.getAutoSetter().forInstance(current.toArray(new Filterer[0]));
-                    }
+                }catch (Exception e){
+                    LOGGER.error(e.getMessage(),e);
                 }
 
+
             }
-        } catch (Throwable e)
-        {
-            throw new InitException(e);
-        }
+//        } catch (Throwable e)
+//        {
+//            throw new InitException(e);
+//        }
     }
 
     public abstract void onStart() throws Exception;

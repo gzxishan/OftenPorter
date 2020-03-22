@@ -491,7 +491,13 @@ public class ContextPorter implements IOtherStartDestroy
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().start(oftenObject, configData);
+            try
+            {
+                iterator.next().start(oftenObject, configData);
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -500,7 +506,13 @@ public class ContextPorter implements IOtherStartDestroy
         Iterator<Porter> iterator = portMap.values().iterator();
         while (iterator.hasNext())
         {
-            iterator.next().destroy();
+            try
+            {
+                iterator.next().destroy();
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
         onOtherDestroy();
     }

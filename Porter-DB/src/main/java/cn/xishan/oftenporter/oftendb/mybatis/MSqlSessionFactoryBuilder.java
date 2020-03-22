@@ -411,7 +411,7 @@ class MSqlSessionFactoryBuilder
                 }
             } catch (Exception e)
             {
-                LOGGER.warn(e.getMessage(), e);
+                throw new RuntimeException(e);
             }
         }
 

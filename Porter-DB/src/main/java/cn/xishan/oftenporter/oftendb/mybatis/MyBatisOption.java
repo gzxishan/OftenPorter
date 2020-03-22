@@ -151,6 +151,11 @@ public class MyBatisOption implements Cloneable
     public String[] initSqls;
 
     /**
+     * 初始化失败时，是否抛出有异常。
+     */
+    public boolean throwOnInitError = false;
+
+    /**
      * @param rootDir               资源目录,另见{@linkplain #addMoreRootDirs(String...)}
      * @param checkMapperFileChange 是否监听mapper文件变化，另见{@linkplain #mybatisStateListener}
      */

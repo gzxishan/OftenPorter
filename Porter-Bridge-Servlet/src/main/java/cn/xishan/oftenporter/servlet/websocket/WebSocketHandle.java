@@ -68,7 +68,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         return true;
     }
 
-    public static void initWithServerContainer(IConfigData configData, ServerContainer serverContainer) throws Throwable
+    public static void initWithServerContainer(IConfigData configData, ServerContainer serverContainer) throws Exception
     {
         List<WebSocketHandle> webSocketHandleList = configData.get(WebSocketHandle.class.getName());
         if (webSocketHandleList != null)
@@ -81,7 +81,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         }
     }
 
-    private void initWithServerContainer(PorterOfFun fun, ServerContainer serverContainer) throws Throwable
+    private void initWithServerContainer(PorterOfFun fun, ServerContainer serverContainer) throws Exception
     {
         OftenObject oftenObject = forInit;
         forInit = null;
@@ -124,7 +124,7 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
 
 
     @Override
-    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Throwable
+    public Object invoke(OftenObject oftenObject, PorterOfFun porterOfFun, Object lastReturn) throws Exception
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         Map<String, String[]> parameterMap = request.getParameterMap();

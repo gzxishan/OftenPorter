@@ -138,7 +138,7 @@ public class AspectHandleOfPortInUtil
     }
 
     public static final Object doHandle(State state, OftenObject oftenObject, PorterOfFun funPort, Object returnObject,
-            Object failedObject, boolean checkSupport) throws Throwable
+            Object failedObject, boolean checkSupport) throws Exception
     {
         //处理AspectFunOperation
         AspectOperationOfPortIn.Handle[] handles = funPort.getHandles();
