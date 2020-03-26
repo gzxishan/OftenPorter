@@ -139,7 +139,7 @@ public @interface Htmlx
      *
      * @return
      */
-    String xFrameOptions() default "SAMEHOST";
+    String xFrameOptions() default "";
 
     /**
      * 当调用方法捕获到异常时，响应的错误码。
