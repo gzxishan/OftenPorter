@@ -4,6 +4,7 @@ package cn.xishan.oftenporter.servlet.render.htmlx;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfPortIn;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
+import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -15,8 +16,11 @@ import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.servlet.HttpCacheUtil;
+import cn.xishan.oftenporter.servlet.OftenServletRequest;
 import cn.xishan.oftenporter.servlet.StartupServlet;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
@@ -35,11 +39,15 @@ import java.util.*;
 @Htmlx(path = "")
 public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> implements Comparable<HtmlxHandle>
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HtmlxHandle.class);
+
     private static final String HANDLE_KEY = HtmlxHandle.class.getName() + "@-handle-key-";
 //    private static final String HANDLE_ATTR = HtmlxHandle.class.getName() + "@-last-handle-";
 
     @AutoSet
     private ServletContext servletContext;
+    @Property(value = "op.servlet.cors.http2https", defaultVal = "false")
+    private Boolean isHttp2Https;
 
     private Htmlx defaultHtmlx;
     private String[] path;
@@ -61,6 +69,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     private int order;
     private HtmlxDoc.ResponseType defaultResponseType;
     private String xFrameOptions;
+    private int statusCodeForEx;
 
     private long otherwiseLastmodified = System.currentTimeMillis();
 
@@ -185,6 +194,8 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                             defaultHtmlx.defaultResponseType().name()));
             this.xFrameOptions = getValue(current.xFrameOptions(), classHtmlx.xFrameOptions(),
                     defaultHtmlx.xFrameOptions());
+            this.statusCodeForEx = getValue(current.statusCodeForEx(), classHtmlx.statusCodeForEx(),
+                    defaultHtmlx.statusCodeForEx());
 
             List<HtmlxHandle> handleList = configData.get(HANDLE_KEY);
             if (handleList == null)
@@ -266,7 +277,29 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         HttpServletResponse response = oftenObject.getRequest().getOriginalResponse();
         if (OftenTool.notEmpty(xFrameOptions))
         {
-            response.setHeader("X-Frame-Options", xFrameOptions);
+            if (xFrameOptions.equalsIgnoreCase("SAMEHOST"))
+            {
+                String host = OftenServletRequest.removePort(OftenServletRequest.getHost(request, isHttp2Https));
+                String referer = request.getHeader("Referer");
+                if (OftenTool.isEmpty(referer))
+                {
+                    response.setHeader("X-Frame-Options", "SAMEORIGIN");
+                } else
+                {
+                    String rhost = OftenServletRequest.getHostFromURL(referer);
+                    String rhost2 = OftenServletRequest.removePort(rhost);
+                    if (host.equalsIgnoreCase(rhost2))
+                    {
+                        response.setHeader("", "ALLOW-FROM " + rhost);
+                    } else
+                    {
+                        response.setHeader("X-Frame-Options", "SAMEORIGIN");
+                    }
+                }
+            } else
+            {
+                response.setHeader("X-Frame-Options", xFrameOptions);
+            }
         }
 
         RenderData lastRenderData = (RenderData) request.getAttribute(RenderData.class.getName());
@@ -431,7 +464,23 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             htmlxDoc.setMetaKeywords(keywords);
         }
 
-        Object rt = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+        Object rt;
+        if (statusCodeForEx != -1)
+        {
+            try
+            {
+                rt = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+            } catch (Throwable e)
+            {
+                LOGGER.warn(e.getMessage(), e);
+                response.sendError(statusCodeForEx);
+                return;
+            }
+        } else
+        {
+            rt = porterOfFun.invokeByHandleArgs(oftenObject, htmlxDoc);
+        }
+
         renderData.addReturnObject(rt);
 
         HtmlxDoc.ResponseType responseType = htmlxDoc.getResponseType();

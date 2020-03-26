@@ -113,7 +113,10 @@ public @interface Htmlx
     String otherwiseHtml() default "";
 
     /**
-     * 设置x-frame-options头
+     * 设置x-frame-options头：
+     * <p>
+     * 标准类型：
+     * </p>
      * <ol>
      *     <li>
      *         DENY:表示该页面不允许在frame中展示，即便是在相同域名的页面中嵌套也不允许。
@@ -125,8 +128,23 @@ public @interface Htmlx
      *         ALLOW-FROM uri:表示该页面可以在指定来源的frame中展示。
      *     </li>
      * </ol>
+     * <p>
+     *     新增类型：
+     * </p>
+     * <ol>
+     *     <li>
+     *         SAMEHOST:表示协议、host一样（端口无需一样）时允许。(用到了op.servlet.cors.http2https配置;当没有Referer或者不匹配时时设置为SAMEORIGIN)
+     *     </li>
+     * </ol>
      *
      * @return
      */
-    String xFrameOptions() default "";
+    String xFrameOptions() default "SAMEHOST";
+
+    /**
+     * 当调用方法捕获到异常时，响应的错误码。
+     *
+     * @return 为-1表示忽略。
+     */
+    int statusCodeForEx() default 500;
 }

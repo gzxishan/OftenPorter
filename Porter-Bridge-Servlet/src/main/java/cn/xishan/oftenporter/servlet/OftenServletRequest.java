@@ -214,6 +214,18 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         return getHostFromURL(url, false);
     }
 
+    public static String removePort(String host)
+    {
+        int index = host.indexOf(":", host.indexOf(":") + 1);
+        if (index == -1)
+        {
+            return host;
+        } else
+        {
+            return host.substring(0, index);
+        }
+    }
+
     public static String getPathFromURL(CharSequence url)
     {
         if (url == null)
