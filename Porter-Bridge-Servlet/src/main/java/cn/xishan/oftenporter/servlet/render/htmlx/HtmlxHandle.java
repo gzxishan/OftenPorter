@@ -60,6 +60,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     private boolean isDebug;
     private int order;
     private HtmlxDoc.ResponseType defaultResponseType;
+    private String xFrameOptions;
 
     private long otherwiseLastmodified = System.currentTimeMillis();
 
@@ -182,6 +183,8 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             this.defaultResponseType = HtmlxDoc.ResponseType.valueOf(
                     getValue(current.defaultResponseType().name(), classHtmlx.defaultResponseType().name(),
                             defaultHtmlx.defaultResponseType().name()));
+            this.xFrameOptions = getValue(current.xFrameOptions(), classHtmlx.xFrameOptions(),
+                    defaultHtmlx.xFrameOptions());
 
             List<HtmlxHandle> handleList = configData.get(HANDLE_KEY);
             if (handleList == null)
@@ -261,6 +264,10 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         HttpServletResponse response = oftenObject.getRequest().getOriginalResponse();
+        if (OftenTool.notEmpty(xFrameOptions))
+        {
+            response.setHeader("X-Frame-Options", xFrameOptions);
+        }
 
         RenderData lastRenderData = (RenderData) request.getAttribute(RenderData.class.getName());
 

@@ -111,4 +111,22 @@ public @interface Htmlx
      * @return
      */
     String otherwiseHtml() default "";
+
+    /**
+     * 设置x-frame-options头
+     * <ol>
+     *     <li>
+     *         DENY:表示该页面不允许在frame中展示，即便是在相同域名的页面中嵌套也不允许。
+     *     </li>
+     *     <li>
+     *         SAMEORIGIN:表示该页面可以在相同域名页面的frame中展示。
+     *     </li>
+     *     <li>
+     *         ALLOW-FROM uri:表示该页面可以在指定来源的frame中展示。
+     *     </li>
+     * </ol>
+     *
+     * @return
+     */
+    String xFrameOptions() default "";
 }
