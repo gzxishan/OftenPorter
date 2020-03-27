@@ -318,7 +318,14 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             }
         } else
         {
-            String rpath = request.getRequestURI().substring(request.getContextPath().length());
+            //request.getRequestURI().substring(request.getContextPath().length());
+            String rpath = OftenServletRequest.getPath(request);
+            String servletPath = request.getServletPath();
+            if (rpath.endsWith("/") && servletPath.startsWith(rpath) && !servletPath.endsWith("/"))
+            {
+                rpath = servletPath;
+            }
+
             String name = OftenStrUtil.getNameFormPath(rpath);
             if (Arrays.binarySearch(this.htmlSuffix, OftenStrUtil.getSuffix(name)) < 0)
             {
