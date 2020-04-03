@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -42,7 +43,7 @@ public class OftenStrUtil
     }
 
     /**
-     * 将“name1=value1&name2=value2”转换成map,且采用有序map。
+     * 将“name1=value1&name2=value2”转换成map,且采用有序map。另见{@linkplain #toEncoding(String, Object...)}
      *
      * @param encodingContent
      * @param encoding
@@ -65,6 +66,58 @@ public class OftenStrUtil
             }
         }
         return paramsMap;
+    }
+
+    /**
+     * 另见{@linkplain #fromEncoding(String, String)}
+     *
+     * @param encoding
+     * @param nameValues
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String toEncoding(String encoding, Object... nameValues) throws UnsupportedEncodingException
+    {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < nameValues.length - 1; i += 2)
+        {
+            builder.append(URLEncoder.encode(String.valueOf(nameValues[i]), encoding))
+                    .append("=").append(URLEncoder.encode(String.valueOf(nameValues[i + 1]), encoding))
+                    .append("&");
+        }
+        if (builder.length() > 0)
+        {
+            return builder.substring(0, builder.length() - 1);//不含最后的&
+        } else
+        {
+            return "";
+        }
+    }
+
+    /**
+     * 另见{@linkplain #fromEncoding(String, String)}
+     *
+     * @param encoding
+     * @param params
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static String toEncoding(String encoding, Map<String, Object> params) throws UnsupportedEncodingException
+    {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, Object> entry : params.entrySet())
+        {
+            builder.append(URLEncoder.encode(entry.getKey(), encoding))
+                    .append("=").append(URLEncoder.encode(String.valueOf(entry.getValue()), encoding))
+                    .append("&");
+        }
+        if (builder.length() > 0)
+        {
+            return builder.substring(0, builder.length() - 1);//不含最后的&
+        } else
+        {
+            return "";
+        }
     }
 
     /**
