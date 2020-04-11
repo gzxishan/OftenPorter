@@ -162,7 +162,18 @@ public abstract class CheckHandle
      */
     public static boolean isAllPresentOnClassOrFun(Object obj, Method method, Class<?>... annotationClasses)
     {
-        if (AnnoUtil.isAllOfAnnotationsPresent(PortUtil.getRealClass(obj), annotationClasses) || AnnoUtil
+        return isAllPresentOnClassOrFun(PortUtil.getRealClass(obj), method, annotationClasses);
+    }
+
+    /**
+     * 判断当前所有的注解是否全部在最终对象上或全部在函数上注解了。
+     *
+     * @param annotationClasses
+     * @return
+     */
+    public static boolean isAllPresentOnClassOrFun(Class clazz, Method method, Class<?>... annotationClasses)
+    {
+        if (AnnoUtil.isAllOfAnnotationsPresent(clazz, annotationClasses) || AnnoUtil
                 .isAllOfAnnotationsPresent(method, annotationClasses))
         {
             return true;
@@ -199,7 +210,18 @@ public abstract class CheckHandle
      */
     public static boolean isOneOfPresentOnClassOrFun(Object obj, Method method, Class<?>... annotationClasses)
     {
-        if (AnnoUtil.isOneOfAnnotationsPresent(PortUtil.getRealClass(obj), annotationClasses) || AnnoUtil
+        return isOneOfPresentOnClassOrFun(PortUtil.getRealClass(obj), method, annotationClasses);
+    }
+
+    /**
+     * 判断是否存在一个注解在类或函数上
+     *
+     * @param annotationClasses
+     * @return
+     */
+    public static boolean isOneOfPresentOnClassOrFun(Class clazz, Method method, Class<?>... annotationClasses)
+    {
+        if (AnnoUtil.isOneOfAnnotationsPresent(clazz, annotationClasses) || AnnoUtil
                 .isOneOfAnnotationsPresent(method, annotationClasses))
         {
             return true;
