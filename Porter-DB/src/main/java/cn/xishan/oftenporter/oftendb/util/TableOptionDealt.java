@@ -104,6 +104,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
 
     private final Object deal(OftenObject oftenObject, TableOption tableOption) throws Exception
     {
+        tableOption.dealQueryInnerValues();
         if (handle != null)
         {
             handle.handle(oftenObject, tableOption);

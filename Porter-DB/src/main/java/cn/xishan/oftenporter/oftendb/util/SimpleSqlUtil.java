@@ -451,12 +451,14 @@ public class SimpleSqlUtil
                 }
                 k--;
                 continue;
-            } else if (value instanceof JSONObject && (!name.startsWith("$") || name.contains(":")))
+            }
+            //嵌套对象，TableOption.dealQueryInnerValues也会处理
+            else if (value instanceof Map && (!name.startsWith("$") || name.contains(":")))
             {//为json、且不为自定义变量，处理嵌套对象,如{t:{state:'1'}}变成{'t.state':'1'}
                 JSONArray nvs = new JSONArray();
-                for (String key : ((JSONObject) value).keySet())
+                for (String key : ((Map<String, Object>) value).keySet())
                 {
-                    Object v = ((JSONObject) value).get(key);
+                    Object v = ((Map) value).get(key);
                     JSONObject item = new JSONObject(2);
                     item.put("key", name + "." + key);
                     item.put("value", v);

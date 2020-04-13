@@ -4,7 +4,6 @@ import cn.xishan.oftenporter.oftendb.annotation.TableOptionFilter;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
-import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -12,7 +11,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Map;
 
 /**
  * 支持@{@linkplain TableOptionFilter}
@@ -70,6 +69,79 @@ public class TableOption
         this.settings = settings;
     }
 
+    /**
+     * 处理查询条件的嵌套情况（只支持一层嵌套）,如{t:{state:'1'}}变成{'t.state':'1'}
+     */
+    public void dealQueryInnerValues()
+    {
+        if (OftenTool.notEmptyOf(query))
+        {
+            JSONObject newQuery = null;
+            for (Map.Entry<String, Object> entry : query.entrySet())
+            {
+                if (entry.getValue() instanceof Map &&
+                        (!entry.getKey().startsWith("$") || entry.getKey().contains(":")))
+                {
+                    if (newQuery == null)
+                    {
+                        newQuery = new JSONObject(query.size());
+                    }
+
+                    Map<String, Object> value = (Map) entry.getValue();
+                    for (Map.Entry<String, Object> valueEntry : value.entrySet())
+                    {
+                        String newKey = entry.getKey() + "." + valueEntry.getKey();
+                        newQuery.put(newKey, valueEntry.getValue());
+                    }
+                } else if (newQuery != null)
+                {
+                    newQuery.put(entry.getKey(), entry.getValue());
+                }
+            }
+
+            if (newQuery != null)
+            {
+                query = newQuery;
+            }
+        }
+
+        if (OftenTool.notEmptyOf(queryArray))
+        {
+            JSONArray newArray = null;
+            for (int i = 0; i < queryArray.size(); i++)
+            {
+                JSONObject item = newArray.getJSONObject(i);
+                String key = item.getString("key");
+                if (item.get("value") instanceof Map && key != null &&
+                        (!key.startsWith("$") || key.contains(":")))
+                {
+                    if (newArray == null)
+                    {
+                        newArray = new JSONArray(queryArray.size());
+                    }
+
+                    Map<String, Object> value = item.getJSONObject("value");
+                    for (Map.Entry<String, Object> valueEntry : value.entrySet())
+                    {
+                        String newKey = key + "." + valueEntry.getKey();
+                        JSONObject newItem = new JSONObject(2);
+                        newItem.put("key", newKey);
+                        newItem.put("value", valueEntry.getValue());
+                        newArray.add(newItem);
+                    }
+                } else if (newArray != null)
+                {
+                    newArray.add(item);
+                }
+            }
+
+            if (newArray != null)
+            {
+                queryArray = newArray;
+            }
+        }
+        
+    }
 
     public TableOption setSkip(int skip)
     {
@@ -191,7 +263,7 @@ public class TableOption
     }
 
     /**
-     * 替换所有指定key的查询条件，如果不存在、最好会添加
+     * 替换所有指定key的查询条件，如果不存在、则会添加
      *
      * @param key
      * @param value
