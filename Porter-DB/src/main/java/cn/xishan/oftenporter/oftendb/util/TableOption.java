@@ -110,7 +110,7 @@ public class TableOption
             JSONArray newArray = null;
             for (int i = 0; i < queryArray.size(); i++)
             {
-                JSONObject item = newArray.getJSONObject(i);
+                JSONObject item = queryArray.getJSONObject(i);
                 String key = item.getString("key");
                 if (item.get("value") instanceof Map && key != null &&
                         (!key.startsWith("$") || key.contains(":")))
