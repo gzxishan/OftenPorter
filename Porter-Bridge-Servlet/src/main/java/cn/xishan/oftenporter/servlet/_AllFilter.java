@@ -99,9 +99,15 @@ public final class _AllFilter
                     }
                 }
             }
-            callback.doSelf(request, response, chain);
         }
 
+        if (requestWrapper.isHasDispatcher())
+        {//已经转发了请求，则终止后面的操作
+            return;
+        } else
+        {
+            callback.doSelf(request, response, chain);
+        }
     }
 
 }
