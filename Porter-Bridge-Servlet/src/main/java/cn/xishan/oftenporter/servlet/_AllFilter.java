@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.servlet;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
@@ -12,6 +13,36 @@ import java.io.IOException;
  */
 public final class _AllFilter
 {
+    private static final String KEY = "---Wrapper--Filter--Manager--";
+
+    static class RequestWrapper extends HttpServletRequestWrapper
+    {
+        private boolean hasDispatcher = false;
+
+        /**
+         * Constructs a request object wrapping the given request.
+         *
+         * @param request
+         * @throws IllegalArgumentException if the request is null
+         */
+        public RequestWrapper(HttpServletRequest request)
+        {
+            super(request);
+        }
+
+        @Override
+        public RequestDispatcher getRequestDispatcher(String path)
+        {
+            hasDispatcher = true;
+            removeAttribute(KEY);
+            return super.getRequestDispatcher(path);
+        }
+
+        public boolean isHasDispatcher()
+        {
+            return hasDispatcher;
+        }
+    }
 
     public static abstract class FilterX implements Filter, Callback
     {
@@ -34,19 +65,25 @@ public final class _AllFilter
             Callback callback)
             throws IOException, ServletException
     {
-        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        RequestWrapper requestWrapper = new RequestWrapper((HttpServletRequest) servletRequest);
+        HttpServletRequest request = requestWrapper;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String key = "---Wrapper--Filter--Manager--";
-        if (request.getAttribute(key) == null)
+        if (request.getAttribute(KEY) == null)
         {
-            request.setAttribute(key, true);
+            request.setAttribute(KEY, true);
             WrapperFilterManager wrapperFilterManager = WrapperFilterManager.getWrapperFilterManager(
                     request.getServletContext());
             for_outer:
             for (WrapperFilterManager.WrapperFilter wrapperFilter : wrapperFilterManager.wrapperFilters())
             {
                 WrapperFilterManager.Wrapper wrapper = wrapperFilter.doFilter(request, response);
+
+                if (requestWrapper.isHasDispatcher())
+                {//已经转发了请求，则终止后面的操作
+                    return;
+                }
+
                 if (wrapper != null)
                 {
                     request = wrapper.getRequest();
@@ -62,10 +99,9 @@ public final class _AllFilter
                     }
                 }
             }
+            callback.doSelf(request, response, chain);
         }
 
-
-        callback.doSelf(request, response, chain);
     }
 
 }
