@@ -17,8 +17,12 @@ public class DateParserTest
     {
         DateParser dateParser = new DateParser();
 
-        String t = "2018-5-3";
+        String t = "2020-04-28T13:27:50.365Z";
         ITypeParser.ParseResult result = dateParser.parse(null, null, t, null);
+        printResult(result);
+
+        t = "2018-5-3";
+        result = dateParser.parse(null, null, t, null);
         printResult(result);
 
         t = "2018-5";
@@ -46,12 +50,15 @@ public class DateParserTest
         printResult(result);
     }
 
-    private void printResult(ITypeParser.ParseResult result){
-        if(result.isLegal()){
+    private void printResult(ITypeParser.ParseResult result)
+    {
+        if (result.isLegal())
+        {
             Date date = (Date) result.getValue();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             LogUtil.printPos(simpleDateFormat.format(date));
-        }else{
+        } else
+        {
             LogUtil.printPos(result);
         }
     }
