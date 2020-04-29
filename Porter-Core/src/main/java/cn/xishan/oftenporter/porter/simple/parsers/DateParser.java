@@ -39,15 +39,15 @@ public class DateParser extends TypeParser
     static
     {
         PATTERNS = new Pattern[]{
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}Z$"),
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}z$"),
-                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}X$"),
-
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}$"),
 
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}:[0-9]{1,2}$"),
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}:[0-9]{1,2}$"),
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2} [0-9]{2}$"),
+
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}Z$"),
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}z$"),
+                Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}[-/][0-9]{1,2}T[0-9]{2}:[0-9]{1,2}:[0-9]{1,2}\\.[0-9]{1,3}X$"),
 
                 Pattern.compile("^[0-9]{4}[-/][0-9]{1,2}$"),
                 Pattern.compile("^[0-9]{4}$"),
@@ -59,15 +59,15 @@ public class DateParser extends TypeParser
                 Pattern.compile("^[0-9]{1,2}[-/][0-9]{1,2} [0-9]{1,2}$")
         };
         FORMATS = new String[]{
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'z'",
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'X'",
-
                 "yyyy-MM-dd",
 
                 "yyyy-MM-dd HH:mm:ss",
                 "yyyy-MM-dd HH:mm",
                 "yyyy-MM-dd HH",
+
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'z'",
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'X'",
 
                 "yyyy-MM",
                 "yyyy",
@@ -78,8 +78,8 @@ public class DateParser extends TypeParser
                 "MM-dd HH",
         };
         SET_YEARS = new boolean[]{
-                false,false,false,
                 false,
+                false, false, false,
                 false, false, false,
                 false, false, true,
                 true, true, true
@@ -107,6 +107,7 @@ public class DateParser extends TypeParser
             } else
             {
                 String theStr = String.valueOf(value).trim()
+                        .replace("\"", "")
                         .replaceAll("[\\s]{3,}", "")
                         .replaceAll("[\\s]{2}", " ");
 
