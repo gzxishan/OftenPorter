@@ -52,6 +52,21 @@ public @interface Htmlx
     String[] path();
 
     /**
+     * 若不为空、且{@linkplain #filePattern()}匹配、且其表示的文件({@linkplain HtmlxDoc#getRelativeResource(String, String)})存在，则无轮
+     * {@linkplain #path()}是什么路径都会读取该文件。，
+     *
+     * @return
+     */
+    String file() default "";
+
+    /**
+     * 使用{@linkplain #file()}的正则判断。
+     *
+     * @return
+     */
+    String filePattern() default "";
+
+    /**
      * html文件的后缀名,当为通配符等情况、且匹配到不为该后缀名的请求时会忽略。
      *
      * @return

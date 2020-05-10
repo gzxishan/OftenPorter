@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * @author Created by https://github.com/CLovinr on 2019-01-11.
@@ -51,6 +52,8 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
 
     private Htmlx defaultHtmlx;
     private String[] path;
+    private String filePath;
+    private Pattern filePattern;
     private String oftenPath;
     private String encoding;
     private String contentType;
@@ -155,6 +158,17 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             Set<String> stringSet = new HashSet<>();
             OftenTool.addAll(stringSet, current.path());
             this.path = stringSet.toArray(new String[0]);
+            String filePatternStr = getValue(current.filePattern(), classHtmlx.filePattern(),
+                    defaultHtmlx.filePattern());
+            if (OftenTool.notEmpty(filePatternStr))
+            {
+                String filePath = getValue(current.file(), classHtmlx.file(), defaultHtmlx.file());
+                if (OftenTool.notEmpty(filePath))
+                {
+                    this.filePattern = Pattern.compile(filePatternStr);
+                    this.filePath = filePath;
+                }
+            }
 
             this.baseDir = getValue(current.baseDir(), classHtmlx.baseDir(), defaultHtmlx.baseDir());
             if (!this.baseDir.endsWith("/"))
@@ -319,6 +333,8 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
         } else
         {
             //request.getRequestURI().substring(request.getContextPath().length());
+            ServletContext servletContext = request.getServletContext();
+
             String rpath = OftenServletRequest.getPath(request);
             String servletPath = request.getServletPath();
             if (rpath.endsWith("/") && servletPath.startsWith(rpath) && !servletPath.endsWith("/"))
@@ -326,20 +342,31 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
                 rpath = servletPath;
             }
 
-            String name = OftenStrUtil.getNameFormPath(rpath);
-            if (Arrays.binarySearch(this.htmlSuffix, OftenStrUtil.getSuffix(name)) < 0)
+            File file = null;
+            if (filePattern!=null&&filePattern.matcher(rpath).find())
             {
-                //非html文件
-                request.setAttribute(HtmlxDoc.ResponseType.class.getName(), HtmlxDoc.ResponseType.ServletDefault);
-                return null;
+                String filepath = servletContext.getRealPath(PackageUtil.getPathWithRelative(getBaseDir(), filePath));
+                if (filepath == null || !(file = new File(filepath)).exists())
+                {
+                    file = null;
+                }
             }
 
-            ServletContext servletContext = request.getServletContext();
-            String filePath = servletContext.getRealPath(rpath);
+            if (file == null)
+            {
+                String name = OftenStrUtil.getNameFormPath(rpath);
+                if (Arrays.binarySearch(this.htmlSuffix, OftenStrUtil.getSuffix(name)) < 0)
+                {
+                    //非html文件
+                    request.setAttribute(HtmlxDoc.ResponseType.class.getName(), HtmlxDoc.ResponseType.ServletDefault);
+                    return null;
+                }
+                file = new File(servletContext.getRealPath(rpath));
+            }
 
-            File file = new File(filePath);
+            File finalFile = file;
             long lastModified;
-            if (!file.exists())
+            if (!finalFile.exists())
             {
                 if (isDebug)
                 {
@@ -375,7 +402,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
 
                 if (file.exists())
                 {
-                    docGetter = () -> Jsoup.parse(file, encoding);
+                    docGetter = () -> Jsoup.parse(finalFile, encoding);
                     pageType = HtmlxDoc.PageType.Normal;
                 } else
                 {
@@ -442,8 +469,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             }
 
         }
-
-
         return null;
     }
 
