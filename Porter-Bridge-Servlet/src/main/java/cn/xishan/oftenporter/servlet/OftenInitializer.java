@@ -110,7 +110,18 @@ public interface OftenInitializer
 
     }
 
+    /**
+     * 会调用所有的{@linkplain OftenInitializer}，无论
+     * {@linkplain OftenInitializer#beforeStart(ServletContext, BuilderBefore, Set)}是否返回true。
+     * @param porterConf
+     */
+    default void beforeStartOneForAll(PorterConf porterConf)
+    {
+
+    }
+
     void onStart(ServletContext servletContext, Builder builder) throws Exception;
+
 
     default void onDestroyed()
     {

@@ -84,6 +84,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         private List<OftenInitializer> servletInitializerList;
         private ServletContext servletContext;
         private Set<OftenServerStateListener> stateListenerSet;
+        private Set<OftenInitializer> allInitializers;
 
         public BridgeServlet(ServletContext servletContext,
                 Set<OftenServerStateListener> stateListenerSet,
@@ -96,6 +97,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
 
             Set<Class<OftenInitializer>> readOnlySet = Collections.unmodifiableSet(servletInitializerClasses);
             Set<OftenInitializer> allInitializers = new HashSet<>();
+            this.allInitializers = allInitializers;
 
             for (Class<OftenInitializer> clazz : servletInitializerClasses)
             {
@@ -109,7 +111,7 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                     }
                 } catch (Exception e)
                 {
-                    throw new InitException(e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
 
@@ -139,6 +141,17 @@ public final class OftenServletContainerInitializer implements ServletContainerI
             @Override
             public void startOne(PorterConf porterConf)
             {
+                for (OftenInitializer initializer : allInitializers)
+                {
+                    try
+                    {
+                        initializer.beforeStartOneForAll(porterConf);
+                    } catch (Exception e)
+                    {
+                        LOGGER.error(e.getMessage(), e);
+                    }
+                }
+
                 BridgeServlet.this.startOne(porterConf);
 //                bindOftenServlet(porterConf.getOftenContextName(), new RealServlet(BridgeServlet.this, initializer));
 

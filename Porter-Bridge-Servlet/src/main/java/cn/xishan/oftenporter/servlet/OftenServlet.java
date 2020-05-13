@@ -445,15 +445,9 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         try
         {
             porterConf.seekImporter(importers);
-        } catch (Throwable throwable)
+        } catch (Throwable e)
         {
-            try
-            {
-                throw throwable;
-            } catch (Throwable throwable1)
-            {
-                throwable1.printStackTrace();
-            }
+            LOGGER.error(e.getMessage(),e);
         }
 
         return porterConf;
