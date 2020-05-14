@@ -14,12 +14,60 @@ import com.alibaba.fastjson.util.TypeUtils;
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
 public class DefaultConfigData implements IConfigData
 {
+    private static class ArrayKey implements Comparable<ArrayKey>
+    {
+        private int index;
+        private String key;
+        private static final Pattern KEY_PATTERN = Pattern.compile("^\\[([0-9]+)\\]$");
+
+        public ArrayKey(String keyStr)
+        {
+            keyStr = keyStr.trim();
+            this.key = keyStr;
+            Matcher matcher = KEY_PATTERN.matcher(keyStr);
+            if (!matcher.find())
+            {
+                throw new InitException("illegal key for ArrayPrefix:key=" + keyStr);
+            } else
+            {
+                this.index = Integer.parseInt(matcher.group(1));
+            }
+        }
+
+        public int getIndex()
+        {
+            return index;
+        }
+
+        public String getKey()
+        {
+            return key;
+        }
+
+        @Override
+        public int compareTo(ArrayKey o)
+        {
+            if (this.index > o.index)
+            {
+                return 1;
+            } else if (this.index == o.index)
+            {
+                return 0;
+            } else
+            {
+                return -1;
+            }
+        }
+    }
+
     private Properties properties;
     //private Map<String, Object> data = new ConcurrentHashMap<>();
 
@@ -280,8 +328,9 @@ public class DefaultConfigData implements IConfigData
     @Override
     public void putAll(Map<?, ?> map)
     {
-        if(properties.size()>0){
-            DealSharpProperties.dealSharpProperties(map,properties,true);
+        if (properties.size() > 0)
+        {
+            DealSharpProperties.dealSharpProperties(map, properties, true);
         }
         properties.putAll(map);
     }
@@ -379,18 +428,54 @@ public class DefaultConfigData implements IConfigData
             rs = getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));
         } else if (fieldRealType.equals(JSONObject.class))
         {
-            JSONObject json = getJSON(key);
-            if (json == null && defaultVal != null)
+            JSONObject json;
+            if (choice == Property.Choice.JsonPrefix)
             {
-                json = JSON.parseObject(defaultVal);
+                json = getJSONByKeyPrefix(key);
+                if (json.isEmpty() && defaultVal != null)
+                {
+                    json = JSON.parseObject(defaultVal);
+                }
+            } else
+            {
+                json = getJSON(key);
+                if (json == null && defaultVal != null)
+                {
+                    json = JSON.parseObject(defaultVal);
+                }
             }
             rs = json;
         } else if (fieldRealType.equals(JSONArray.class))
         {
-            JSONArray jsonArray = getJSONArray(key);
-            if (jsonArray == null && defaultVal != null)
+            JSONArray jsonArray;
+            if (choice != Property.Choice.ArrayPrefix)
             {
-                jsonArray = JSON.parseArray(defaultVal);
+                JSONObject json = getJSONByKeyPrefix(key);
+                if (!json.isEmpty())
+                {
+                    List<ArrayKey> arrayKeyList = new ArrayList<>(json.size());
+                    for (Map.Entry<String, Object> entry : json.entrySet())
+                    {
+                        arrayKeyList.add(new ArrayKey(entry.getKey()));
+                    }
+                    ArrayKey[] arrayKeys = arrayKeyList.toArray(new ArrayKey[0]);
+                    Arrays.sort(arrayKeys);
+                    jsonArray = new JSONArray(arrayKeys.length);
+                    for (int i = 0; i < arrayKeys.length; i++)
+                    {
+                        jsonArray.add(json.get(arrayKeys[i].getKey()));
+                    }
+                } else
+                {
+                    jsonArray = JSON.parseArray(defaultVal);
+                }
+            } else
+            {
+                jsonArray = getJSONArray(key);
+                if (jsonArray == null && defaultVal != null)
+                {
+                    jsonArray = JSON.parseArray(defaultVal);
+                }
             }
             rs = jsonArray;
         } else

@@ -37,6 +37,24 @@ public @interface Property
          * 选择第一个存在的目录或文件、如果都不存在则返回第一个，对应的值：1）为String多个用分号隔开，2）为String[]，3）为File[],4)为List(String)
          */
         FirstFileDir,
+        /**
+         * 将指定前缀(test.)的生成一个Json对象，例如：
+         * <pre>
+         *     test.name1=xxx
+         *     test.name2=xxx
+         *     test.name3=xxx
+         * </pre>
+         */
+        JsonPrefix,
+        /**
+         * 将指定前缀(test.array)的生成一个Json数组对象，会按照中括号里的数字进行排序，例如：
+         * <pre>
+         *     test.array[0]=xxx
+         *     test.array[1]=xxx
+         *     test.array[2]=xxx
+         * </pre>
+         */
+        ArrayPrefix,
         Default
     }
 

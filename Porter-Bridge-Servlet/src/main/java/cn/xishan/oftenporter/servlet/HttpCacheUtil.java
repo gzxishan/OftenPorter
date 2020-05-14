@@ -170,7 +170,7 @@ public class HttpCacheUtil
                     setCacheWithEtag(forceSeconds, etag, response);
                 }
 
-                if (lastModified!=null)
+                if (lastModified != null)
                 {
                     setCacheWithModified(forceSeconds, lastModified, response);
                 }
@@ -332,7 +332,7 @@ public class HttpCacheUtil
         {
             lastModified /= 1000;
         }
-        if (lastModified == since)
+        if (lastModified == since && since != 0)
         {
             if (response != null)
             {

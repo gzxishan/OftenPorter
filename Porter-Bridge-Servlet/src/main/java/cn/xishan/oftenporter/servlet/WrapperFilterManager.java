@@ -15,15 +15,15 @@ public interface WrapperFilterManager
     enum FilterResult
     {
         /**
-         * 终止后面的
-         */
-        BREAK,
-        /**
          * 继续
          */
         CONTINUE,
         /**
-         * 返回并终止servlet过滤器的执行
+         * 终止后面的{@linkplain WrapperFilter}，但不会终止servlet的过滤器。
+         */
+        BREAK,
+        /**
+         * 终止后面的{@linkplain WrapperFilter}且终止servlet过滤器的执行
          */
         RETURN
     }
