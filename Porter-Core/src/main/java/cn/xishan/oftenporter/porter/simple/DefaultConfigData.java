@@ -448,7 +448,7 @@ public class DefaultConfigData implements IConfigData
         } else if (fieldRealType.equals(JSONArray.class))
         {
             JSONArray jsonArray;
-            if (choice != Property.Choice.ArrayPrefix)
+            if (choice == Property.Choice.ArrayPrefix)
             {
                 JSONObject json = getJSONByKeyPrefix(key);
                 if (!json.isEmpty())
