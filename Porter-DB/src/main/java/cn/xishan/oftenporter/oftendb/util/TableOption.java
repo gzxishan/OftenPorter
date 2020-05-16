@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 支持@{@linkplain TableOptionFilter}
+ * 支持@{@linkplain TableOptionFilter}，另见:{@linkplain SimpleSqlUtil}
  * Created by chenyg on 2017-06-01.
  */
 @BindEntityDealt(handle = TableOptionDealt.class)
@@ -140,7 +140,7 @@ public class TableOption
                 queryArray = newArray;
             }
         }
-        
+
     }
 
     public TableOption setSkip(int skip)
@@ -202,7 +202,7 @@ public class TableOption
     }
 
     /**
-     * 另见{@linkplain SimpleSqlUtil#toQueryArray(Object...)}.
+     * 另见:{@linkplain SimpleSqlUtil},{@linkplain SimpleSqlUtil#toQueryArray(Object...)}.
      *
      * @param nameValues
      * @return
@@ -218,6 +218,13 @@ public class TableOption
         return this;
     }
 
+    /**
+     * 另见:{@linkplain SimpleSqlUtil}
+     *
+     * @param key
+     * @param value
+     * @return
+     */
     public TableOption add2QueryArray(String key, Object value)
     {
         JSONObject json = new JSONObject(2);
