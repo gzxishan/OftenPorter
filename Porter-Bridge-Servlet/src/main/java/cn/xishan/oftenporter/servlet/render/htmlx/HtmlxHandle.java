@@ -42,7 +42,7 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(HtmlxHandle.class);
 
-    private static final String HANDLE_KEY = HtmlxHandle.class.getName() + "@-handle-key-";
+    private static final String HANDLE_KEY = HtmlxHandle.class.getName() + "@-htmx-handle-key-";
 //    private static final String HANDLE_ATTR = HtmlxHandle.class.getName() + "@-last-handle-";
 
     @AutoSet
@@ -280,7 +280,6 @@ public class HtmlxHandle extends AspectOperationOfPortIn.HandleAdapter<Htmlx> im
             dynamic.setAsyncSupported(true);
             dynamic.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD),
                     true, endPaths.toArray(new String[0]));
-            //dynamic.setAsyncSupported(true);
         }
     }
 
