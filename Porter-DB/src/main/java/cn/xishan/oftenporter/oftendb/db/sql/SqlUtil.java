@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.BaseEasier;
 import cn.xishan.oftenporter.oftendb.db.Condition;
 import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
+import cn.xishan.oftenporter.oftendb.db.QuerySettings.Order;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.io.UnsupportedEncodingException;
@@ -343,21 +344,31 @@ public class SqlUtil
     }
 
 
+    /**
+     * {@linkplain Order#name}只允许【字母、数字、下划线、点号、中文】
+     *
+     * @param settings
+     * @param coverString
+     * @return
+     */
     public static Object toFinalObject(QuerySettings settings, String coverString)
     {
         if (settings == null || settings.getOrders().size() == 0)
         {
             return null;
         }
-        List<QuerySettings.Order> orders = settings.getOrders();
+        List<Order> orders = settings.getOrders();
 
         StringBuilder sbuilder = new StringBuilder();
 
         for (int i = 0; i < orders.size(); i++)
         {
-            QuerySettings.Order order = orders.get(i);
+            Order order = orders.get(i);
 
-            SqlCondition.appendName(coverString, order.name, sbuilder);
+            //只允许字母、数字、下划线、点号、中文
+            String name = order.name.replaceAll("[^a-zA-Z0-9\\u4e00-\\u9fa5_.]", "");
+
+            SqlCondition.appendName(coverString, name, sbuilder);
             if (order.n == 1)
             {
                 sbuilder.append(" ASC");
@@ -374,6 +385,14 @@ public class SqlUtil
         return sbuilder;
     }
 
+    /**
+     * {@linkplain Order#name}只允许【字母、数字、下划线、点号、中文】
+     *
+     * @param querySettings
+     * @param coverString 包裹变量的字符，如【`】
+     * @param withSemicolon
+     * @return
+     */
     public static String toOrder(QuerySettings querySettings, String coverString, boolean withSemicolon)
     {
         StringBuilder stringBuilder = new StringBuilder();
