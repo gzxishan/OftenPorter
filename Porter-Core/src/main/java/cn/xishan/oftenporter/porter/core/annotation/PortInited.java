@@ -24,5 +24,5 @@ public @interface PortInited
      *
      * @return
      */
-    int order() default Integer.MAX_VALUE;
+    int order() default 1_000_000;
 }
