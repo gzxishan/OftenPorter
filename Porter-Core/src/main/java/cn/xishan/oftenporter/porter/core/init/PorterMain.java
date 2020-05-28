@@ -93,7 +93,7 @@ public final class PorterMain
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
-            if (req != null)
+            if (req.isOk())
             {
                 doRequest(req, request, resp, true);
             }
@@ -102,7 +102,7 @@ public final class PorterMain
         {
             LocalResponse resp = new LocalResponse(callback);
             PreRequest req = forRequest(request, resp);
-            if (req != null)
+            if (req.isOk())
             {
                 doRequest(req, request, resp, false);
             }

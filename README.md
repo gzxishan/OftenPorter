@@ -23,6 +23,9 @@
 [贵州溪山科技有限公司](http://www.xishankeji.com)
 
 ## 发布记录
+### v进行中
+1. 完善Porter-Bridge-Servlet跨域处理；
+
 ### v1.2.98 2020/05/18
 1. 完善`Htmlx`：增加file与filePattern属性；
 2. 完善`OftenInitializer`，加入beforeStartOneForAll(PorterConf porterConf)；

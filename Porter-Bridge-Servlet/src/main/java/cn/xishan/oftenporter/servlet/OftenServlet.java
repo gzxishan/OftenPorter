@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeLinker;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
@@ -17,6 +18,7 @@ import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultPorterBridge;
 import cn.xishan.oftenporter.porter.simple.DefaultUrlDecoder;
+import cn.xishan.oftenporter.servlet.CorsAccess.CorsType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +47,11 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
 
     private CorsAccess defaultCorsAccess;
 
+    /**
+     * 为false，表示一律禁止跨域访问、但可通过注解{@linkplain CorsAccess}进行单独设置；为true时、并不会对跨域进行处理。
+     */
     @Property(value = "op.servlet.cors.disable", defaultVal = "false")
-    private Boolean hasCors;
+    private Boolean ignoreCors;
 
     @Property(value = "op.servlet.cors.skipRes", defaultVal = "eot,ttf,otf,woff,woff2")
     private String[] skipResources;
@@ -89,7 +94,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     @AutoSet.SetOk
     public void setOk()
     {
-        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={},skipRes={}", hasCors, isHttp2Https,
+        LOGGER.debug("op.servlet.cors.disable={},op.servlet.cors.http2https={},skipRes={}", ignoreCors, isHttp2Https,
                 skipResources);
         Arrays.sort(skipResources);
     }
@@ -256,7 +261,38 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         } else
         {
             PreRequest req = porterMain.forRequest(wreq, wResponse);
-            if (req != null)
+            if (req.classPort != null && req.funPort == null && method == PortMethod.OPTIONS)
+            {
+                try
+                {
+                    PortMethod tryMethod = PortMethod.valueOf(request.getHeader("Access-Control-Request-Method"));
+                    PorterOfFun funPort = req.classPort.getChild(req.result, tryMethod);
+                    if (funPort != null)
+                    {
+                        CorsType corsType = isCorsForbidden(tryMethod, funPort.getFinalPorter().getClazz(),
+                                funPort.getMethod(), request, response);
+                        if (corsType != CorsType.Customer)
+                        {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            return;
+                        }
+                    }
+
+                } catch (Exception e)
+                {
+                    LOGGER.warn(e.getMessage(), e);
+                    try
+                    {
+                        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    } catch (IOException e1)
+                    {
+                        LOGGER.warn(e1.getMessage(), e1);
+                    }
+                    return;
+                }
+            }
+
+            if (req.isOk())
             {
                 String encoding = req.context.getContentEncoding();
                 request.setCharacterEncoding(encoding);
@@ -447,7 +483,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             porterConf.seekImporter(importers);
         } catch (Throwable e)
         {
-            LOGGER.error(e.getMessage(),e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return porterConf;
@@ -458,9 +494,9 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         if (originRequest instanceof HttpServletRequest)
         {
             HttpServletRequest servletRequest = (HttpServletRequest) originRequest;
-            return isCorsForbidden(request.getMethod(), req.classPort.getClass(), req.funPort.getMethod(),
-                    servletRequest,
-                    request.getOriginalResponse());
+            CorsType corsType = isCorsForbidden(request.getMethod(), req.classPort.getClass(), req.funPort.getMethod(),
+                    servletRequest, request.getOriginalResponse());
+            return corsType == CorsType.NotPass;
         }
         return false;
     };
@@ -509,20 +545,21 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     }
 
 
-    public boolean isCorsForbidden(@MayNull PortMethod method, Class porterClass, Method porterMethod,
+    public CorsType isCorsForbidden(@MayNull PortMethod method, Class porterClass, Method porterMethod,
             HttpServletRequest request, HttpServletResponse response)
     {
         return isCorsForbidden(null, method, porterClass, porterMethod, request, response);
     }
 
-    public boolean isCorsForbidden(@MayNull CorsAccess customerCorsAccess, @MayNull PortMethod method,
+    public CorsType isCorsForbidden(@MayNull CorsAccess customerCorsAccess, @MayNull PortMethod method,
             Class porterClass, Method porterMethod,
             HttpServletRequest request, HttpServletResponse response)
     {
-        if (hasCors)
+        if (ignoreCors)
         {
-            return false;
+            return CorsType.Ignore;
         }
+
         if (method == null)
         {
             method = PortMethod.valueOf(request.getMethod());
@@ -542,7 +579,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                 {
                     LOGGER.warn(e1.getMessage(), e1);
                 }
-                return true;
+                return CorsType.NotPass;
             }
         }
         String origin = request.getHeader("Origin");
@@ -570,7 +607,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                     .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) > 0)
             {
                 setCors(response, corsAccess, method, "*");
-                return false;
+                return CorsType.Pass;
             }
 
             if (!corsAccess.enabled())
@@ -584,18 +621,18 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                     LOGGER.warn(e.getMessage(), e);
                 } finally
                 {
-                    return true;//禁止跨域
+                    return CorsType.NotPass;//禁止跨域
                 }
             } else if (corsAccess.isCustomer())
             {
-                return false;//自定义跨域设置。
+                return CorsType.Customer;//自定义跨域设置。
             }
             for (PortMethod m : corsAccess.allowMethods())
             {
                 if (m == method)
                 {//允许跨域
                     setCors(response, corsAccess, null, null);
-                    return false;
+                    return CorsType.Pass;
                 }
             }
             try
@@ -607,10 +644,10 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                 LOGGER.warn(e.getMessage(), e);
             } finally
             {
-                return true;//禁止跨域
+                return CorsType.NotPass;//禁止跨域
             }
         }
-        return false;
+        return CorsType.Pass;
     }
 
     @Override
@@ -634,7 +671,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         if (defaultCorsAccess == null)
         {
             defaultCorsAccess = AnnoUtil.getAnnotation(OftenServlet.class, CorsAccess.class);
-            if (!hasCors)
+            if (!ignoreCors)
             {
                 porterMain.setForRequestListener(forRequestListener);
             }

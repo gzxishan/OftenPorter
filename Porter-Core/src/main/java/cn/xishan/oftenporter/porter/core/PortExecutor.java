@@ -237,19 +237,29 @@ public final class PortExecutor
         } else
         {
             Porter classPort = context.contextPorter.getClassPort(result.classTied());
-            PorterOfFun funPort;
+            PorterOfFun funPort = null;
             InnerContextBridge innerContextBridge = context.innerContextBridge;
 
-            if (classPort == null)
+            if (classPort != null)
             {
-                exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
-                return null;
-            } else if ((funPort = classPort.getChild(result, request.getMethod())) == null)
-            {
-                exNotFoundFun(request, response, result, innerContextBridge.responseWhenException);
-                return null;
+                funPort = classPort.getChild(result, request.getMethod());
             }
-            return new PreRequest(context, result, classPort, funPort);
+
+            PreRequest preRequest = new PreRequest(context, result, classPort, funPort, (preReq) -> {
+                if (preReq.classPort == null)
+                {
+                    exNotFoundClassPort(request, response, innerContextBridge.responseWhenException);
+                    return false;
+                } else if (preReq.funPort == null)
+                {
+                    exNotFoundFun(request, response, preReq.result, innerContextBridge.responseWhenException);
+                    return false;
+                } else
+                {
+                    return true;
+                }
+            });
+            return preRequest;
         }
     }
 

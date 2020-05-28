@@ -26,6 +26,15 @@ import java.lang.annotation.*;
 @Inherited
 public @interface CorsAccess
 {
+
+    enum CorsType
+    {
+        Pass,
+        NotPass,
+        Customer,
+        Ignore
+    }
+
     /**
      * 允许跨域访问的方法,同时设置Access-Control-Allow-Methods。
      *
@@ -42,9 +51,10 @@ public @interface CorsAccess
 
     /**
      * 是否是自己进行跨域的处理，默认false。
+     *
      * @return
      */
-    boolean isCustomer()default false;
+    boolean isCustomer() default false;
 
     /**
      * 对Access-Control-Allow-Credentials的设置,默认false。
