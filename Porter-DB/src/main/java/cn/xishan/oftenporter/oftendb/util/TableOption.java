@@ -174,6 +174,12 @@ public class TableOption
         }
     }
 
+    /**
+     *
+     * @param key
+     * @param order 1表示升序，-1表示降序，其他表示忽略
+     * @return
+     */
     public TableOption addOrder(String key, int order)
     {
         if (settings == null)
