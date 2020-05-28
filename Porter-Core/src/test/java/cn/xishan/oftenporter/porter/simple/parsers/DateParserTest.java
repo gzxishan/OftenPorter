@@ -17,7 +17,7 @@ public class DateParserTest
     {
         DateParser dateParser = new DateParser();
 
-        String t = "2020-04-28T13:27:50.365Z";
+        String t = "2020-05-28T18:30:38.000Z";
         ITypeParser.ParseResult result = dateParser.parse(null, null, t, null);
         printResult(result);
 

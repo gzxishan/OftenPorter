@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -129,6 +130,10 @@ public class DateParser extends TypeParser
                 } else
                 {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+                    if (format.endsWith("'Z'"))
+                    {
+                        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    }
                     Date date = simpleDateFormat.parse(theStr);
                     if (setYear)
                     {
