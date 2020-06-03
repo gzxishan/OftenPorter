@@ -76,38 +76,30 @@ public class TableOption
     {
         if (OftenTool.notEmptyOf(query))
         {
-            JSONObject newQuery = null;
+            JSONObject newQuery = new JSONObject(query.size());
             for (Map.Entry<String, Object> entry : query.entrySet())
             {
                 if (entry.getValue() instanceof Map &&
                         (!entry.getKey().startsWith("$") || entry.getKey().contains(":")))
                 {
-                    if (newQuery == null)
-                    {
-                        newQuery = new JSONObject(query.size());
-                    }
-
                     Map<String, Object> value = (Map) entry.getValue();
                     for (Map.Entry<String, Object> valueEntry : value.entrySet())
                     {
                         String newKey = entry.getKey() + "." + valueEntry.getKey();
                         newQuery.put(newKey, valueEntry.getValue());
                     }
-                } else if (newQuery != null)
+                } else
                 {
                     newQuery.put(entry.getKey(), entry.getValue());
                 }
             }
 
-            if (newQuery != null)
-            {
-                query = newQuery;
-            }
+            query = newQuery;
         }
 
         if (OftenTool.notEmptyOf(queryArray))
         {
-            JSONArray newArray = null;
+            JSONArray  newArray = new JSONArray(queryArray.size());
             for (int i = 0; i < queryArray.size(); i++)
             {
                 JSONObject item = queryArray.getJSONObject(i);
@@ -115,11 +107,6 @@ public class TableOption
                 if (item.get("value") instanceof Map && key != null &&
                         (!key.startsWith("$") || key.contains(":")))
                 {
-                    if (newArray == null)
-                    {
-                        newArray = new JSONArray(queryArray.size());
-                    }
-
                     Map<String, Object> value = item.getJSONObject("value");
                     for (Map.Entry<String, Object> valueEntry : value.entrySet())
                     {
@@ -129,16 +116,13 @@ public class TableOption
                         newItem.put("value", valueEntry.getValue());
                         newArray.add(newItem);
                     }
-                } else if (newArray != null)
+                } else
                 {
                     newArray.add(item);
                 }
             }
 
-            if (newArray != null)
-            {
-                queryArray = newArray;
-            }
+            queryArray = newArray;
         }
 
     }
