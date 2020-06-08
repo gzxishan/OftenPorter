@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.oftendb.util;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlCondition;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlUtil;
+import cn.xishan.oftenporter.porter.core.ResultCode;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import com.alibaba.fastjson.JSONArray;
@@ -139,6 +141,7 @@ public class SimpleSqlUtil
     }
 
     private String columnCoverString = "`";
+    private int maxLoopCount = 200;
 
     private static final SimpleSqlUtil INSTANCE = new SimpleSqlUtil();
 
@@ -375,6 +378,16 @@ public class SimpleSqlUtil
         return queryArray;
     }
 
+    public int getMaxLoopCount()
+    {
+        return maxLoopCount;
+    }
+
+    public void setMaxLoopCount(int maxLoopCount)
+    {
+        this.maxLoopCount = maxLoopCount;
+    }
+
     /**
      * 返回值不含WHERE关键字
      *
@@ -401,8 +414,12 @@ public class SimpleSqlUtil
         List<String> namesList = new ArrayList<>();
         String[] names = null;
 
-        for (int k = 0; k < queryArray.size(); k++)
+        for (int k = 0, n = 0; k < queryArray.size(); k++, n++)
         {
+            if (n > maxLoopCount)
+            {
+                throw new OftenCallException("循环次数超过：" + maxLoopCount);
+            }
             JSONObject json = queryArray.getJSONObject(k);
             Object value = json.get("value");
             String name = json.getString("key");
@@ -441,7 +458,7 @@ public class SimpleSqlUtil
                     continue;
                 }
                 name = name.substring(8);
-                json.put("name", name);
+                json.put("key", name);
                 k--;
                 continue;
             } else if (name.startsWith("$d:"))
