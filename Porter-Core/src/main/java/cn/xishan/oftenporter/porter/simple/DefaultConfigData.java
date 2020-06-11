@@ -20,8 +20,9 @@ import java.util.regex.Pattern;
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/1.
  */
-public class DefaultConfigData implements IConfigData
+public class DefaultConfigData implements IConfigData, IAttrGetter
 {
+
     private static class ArrayKey implements Comparable<ArrayKey>
     {
         private int index;
@@ -95,6 +96,32 @@ public class DefaultConfigData implements IConfigData
             if (propName.startsWith(keyPrefix))
             {
                 jsonObject.put(propName.substring(keyPrefix.length()), get(propName));
+            }
+        }
+        return jsonObject;
+    }
+
+    public static JSONObject getJSONByKeyPrefix(Properties properties, String keyPrefix)
+    {
+        IAttrGetter getter = new IAttrGetter()
+        {
+            @Override
+            public <T> T get(String name)
+            {
+                return (T) properties.get(name);
+            }
+        };
+        return getJSONByKeyPrefix(getter, properties.stringPropertyNames(), keyPrefix);
+    }
+
+    private static JSONObject getJSONByKeyPrefix(IAttrGetter getter, Set<String> names, String keyPrefix)
+    {
+        JSONObject jsonObject = new JSONObject();
+        for (String propName : names)
+        {
+            if (propName.startsWith(keyPrefix))
+            {
+                jsonObject.put(propName.substring(keyPrefix.length()), getter.get(propName));
             }
         }
         return jsonObject;
