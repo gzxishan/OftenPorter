@@ -179,7 +179,7 @@ class MSqlSessionFactoryBuilder
                             {
                                 try
                                 {
-                                    reload();
+                                    reload(dataSourceObject);
                                 } catch (Throwable e)
                                 {
                                     LOGGER.error(e.getMessage(), e);
@@ -225,10 +225,9 @@ class MSqlSessionFactoryBuilder
             dataSourceConf = jsonObject;
             dataSourceProperPrefix = null;
         }
-
-        reload();
         isStarted = true;
         isDestroyed = false;
+        reload(null);
         if (mybatisStateListener != null)
         {
             mybatisStateListener.onStart();
@@ -278,7 +277,7 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    public synchronized void reload() throws Throwable
+    public synchronized void reload(DataSource last) throws Throwable
     {
         id = OftenKeyUtil.randomUUID();
         LOGGER.info("start reload mybatis...");
@@ -289,7 +288,7 @@ class MSqlSessionFactoryBuilder
             watchService.close();
         }
         tableColumnsMap.clear();
-        build();
+        build(last);
         regListener();
         LOGGER.info("reload mybatis complete!");
     }
@@ -308,11 +307,7 @@ class MSqlSessionFactoryBuilder
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = null;
         this.dataSourceConf = dataSourceConf;
-        reload();
-        if (connectionBridge != null)
-        {
-            connectionBridge.onDataSourceChanged(this.dataSourceObject);
-        }
+        reload(last);
         return last;
     }
 
@@ -322,17 +317,15 @@ class MSqlSessionFactoryBuilder
         {
             throw new NullPointerException();
         }
+
         if (dataSource == this.dataSourceObject)
         {
             return dataSource;
         }
+
         DataSource last = this.dataSourceObject;
         this.dataSourceObject = dataSource;
-        this.reload();//重新加载
-        if (connectionBridge != null)
-        {
-            connectionBridge.onDataSourceChanged(dataSource);
-        }
+        this.reload(last);//重新加载
         return last;
     }
 
@@ -348,18 +341,22 @@ class MSqlSessionFactoryBuilder
         {
             if (mybatisStateListener != null)
             {
-                if(isStarted){
+                if (isStarted)
+                {
                     mybatisStateListener.beforeReload();
-                }else{
+                } else
+                {
                     mybatisStateListener.beforeFirstLoad();
                 }
             }
             regFileCheck();
             if (mybatisStateListener != null)
             {
-                if(isStarted){
+                if (isStarted)
+                {
                     mybatisStateListener.afterReload();
-                }else{
+                } else
+                {
                     mybatisStateListener.afterFirstLoad();
                 }
             }
@@ -373,7 +370,7 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    public synchronized void build() throws Throwable
+    public synchronized void build(DataSource last) throws Throwable
     {
         SqlSessionFactory _sqlSessionFactory = new SqlSessionFactoryBuilder()
                 .build(new ByteArrayInputStream(configData));
@@ -391,7 +388,15 @@ class MSqlSessionFactoryBuilder
             JSONObject dataSourceConf = this.dataSourceConf;
             dataSource = MyBatisBridge.buildDataSource(dataSourceConf);
         }
+
+        if (connectionBridge != null && last != dataSource)
+        {
+            dataSource = connectionBridge.onDataSourceChanged(last, dataSource);
+        }
+
         this.dataSourceObject = dataSource;
+
+
         builder.dataSource(dataSource);
         Environment environment = builder.build();
 

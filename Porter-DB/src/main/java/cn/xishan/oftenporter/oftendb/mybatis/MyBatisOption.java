@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
 import javax.sql.DataSource;
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.*;
 
@@ -60,7 +61,7 @@ public class MyBatisOption implements Cloneable
 
         void closeConnection(DataSource dataSource, Connection connection);
 
-        void onDataSourceChanged(DataSource dataSource);
+        DataSource onDataSourceChanged(@MayNull DataSource last, DataSource dataSource);
     }
 
     public static final String DEFAULT_SOURCE = "default";
