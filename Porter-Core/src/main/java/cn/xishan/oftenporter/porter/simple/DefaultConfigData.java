@@ -10,6 +10,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.util.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -22,6 +24,7 @@ import java.util.regex.Pattern;
  */
 public class DefaultConfigData implements IConfigData, IAttrGetter
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultConfigData.class);
 
     private static class ArrayKey implements Comparable<ArrayKey>
     {
@@ -357,7 +360,10 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     {
         if (properties.size() > 0)
         {
-            DealSharpProperties.dealSharpProperties(map, properties, true);
+            HashMap map2 = new HashMap();
+            map2.putAll(map);
+            DealSharpProperties.dealSharpProperties(map2, properties, true);
+            map = map2;
         }
         properties.putAll(map);
     }
@@ -423,6 +429,9 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 rs = getProperty(fieldRealType, keys[0], defaultVal, choice);
             }
         }
+
+        LOGGER.debug("get prop:name={},property={},value={}", name, property,rs);
+
         return rs;
     }
 
