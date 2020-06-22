@@ -17,6 +17,8 @@ import org.apache.ibatis.datasource.unpooled.UnpooledDataSourceFactory;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -31,6 +33,9 @@ import java.util.Properties;
  */
 public class MyBatisBridge
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyBatisBridge.class);
+
 
     private static MybatisConfig mybatisConfig;
 
@@ -186,14 +191,28 @@ public class MyBatisBridge
     static ConnectionWrap __openConnection(String source, boolean openNew, boolean isDirect) throws SQLException
     {
         ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
-        if (connection != null && connection.isClosed())
+        if (connection != null && (connection.isNotSameThread() || connection.isClosed()))
         {
+            if (connection.isNotSameThread())
+            {
+                if (LOGGER.isWarnEnabled())
+                {
+                    LOGGER.warn("close connection of last thread:conn={},lastThread={},currentThread={}",
+                            connection.getOriginConnection(), connection.getThread(), Thread.currentThread());
+                }
+                connection.close();
+            }
             connection = null;
         }
-        if (connection != null || !openNew)
+
+        if (connection != null)
         {
-            return connection;
+            return connection.incRefCount();
+        } else if (!openNew)
+        {
+            return null;
         }
+
         return __openNewConnection__(source, isDirect);
     }
 

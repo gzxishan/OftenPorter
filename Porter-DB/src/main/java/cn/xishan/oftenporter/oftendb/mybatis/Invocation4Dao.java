@@ -61,10 +61,11 @@ class Invocation4Dao extends InvocationHandlerWithCommon
             return;
         }
         if (connectionWrap.getAutoCommit())
-        {
+        {//未开启事务，则关闭
             connectionWrap.close();
-        } else if (connectionWrap.isBridgeConnection())
-        {
+            TransactionDBHandle.__removeConnection__(source);
+        } else if (connectionWrap.isBridgeConnection() && connectionWrap.decRefCount())
+        {//没有引用了，则移除
             TransactionDBHandle.__removeConnection__(source);
         }
     }

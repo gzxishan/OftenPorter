@@ -11,7 +11,7 @@ import java.sql.*;
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/6.
  */
-class ConnectionWrap extends ConnectionWrapper implements  IConnection
+class ConnectionWrap extends ConnectionWrapper implements IConnection
 {
     protected SqlSession sqlSession;
     private int queryTimeoutSeconds = -1;
@@ -21,15 +21,54 @@ class ConnectionWrap extends ConnectionWrapper implements  IConnection
     private MyBatisOption.IConnectionBridge iConnectionBridge;
     private String builderId;
     private MSqlSessionFactoryBuilder builder;
+    private int refCount = 1;
+    private Thread thread;
 
-    public ConnectionWrap(MSqlSessionFactoryBuilder builder,SqlSession sqlSession, MyBatisOption.IConnectionBridge iConnectionBridge,
+    public ConnectionWrap(MSqlSessionFactoryBuilder builder, SqlSession sqlSession,
+            MyBatisOption.IConnectionBridge iConnectionBridge,
             Connection bridgeConnection)
     {
-        super(iConnectionBridge!=null?bridgeConnection:sqlSession.getConnection());
-        this.builderId=builder.getId();
-        this.builder=builder;
+        super(iConnectionBridge != null ? bridgeConnection : sqlSession.getConnection());
+        this.builderId = builder.getId();
+        this.builder = builder;
         this.sqlSession = sqlSession;
         this.iConnectionBridge = iConnectionBridge;
+        this.thread = Thread.currentThread();
+    }
+
+    public Thread getThread()
+    {
+        return thread;
+    }
+
+    public boolean isNotSameThread()
+    {
+        if (thread != Thread.currentThread())
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * 降低引用次数
+     *
+     * @return true：无引用
+     */
+    public boolean decRefCount()
+    {
+        return --this.refCount <= 0;
+    }
+
+    /**
+     * 增加引用次数
+     */
+    public ConnectionWrap incRefCount()
+    {
+        this.refCount++;
+        return this;
     }
 
     public boolean isBridgeConnection()
@@ -129,9 +168,10 @@ class ConnectionWrap extends ConnectionWrapper implements  IConnection
 
     public SqlSession getSqlSession()
     {
-        if(!this.builderId.equals(builder.getId())){
-            sqlSession=builder.getFactory().openSession(connection);
-            this.builderId=builder.getId();
+        if (!this.builderId.equals(builder.getId()))
+        {
+            sqlSession = builder.getFactory().openSession(connection);
+            this.builderId = builder.getId();
         }
         return sqlSession;
     }
@@ -179,6 +219,7 @@ class ConnectionWrap extends ConnectionWrapper implements  IConnection
     @Override
     public void close() throws SQLException
     {
+        this.thread = null;
         if (isBridgeConnection())
         {
             Connection connection = getOriginConnection();
