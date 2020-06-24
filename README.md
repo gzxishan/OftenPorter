@@ -24,8 +24,11 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.109 2020/06/24
 1. 完善Porter-Bridge-Servlet跨域处理；
 2. 修复TableOption.dealQueryInnerValues的问题；
+3. 完善数据源的切换；
 
 ### v1.2.98 2020/05/18
 1. 完善`Htmlx`：增加file与filePattern属性；
