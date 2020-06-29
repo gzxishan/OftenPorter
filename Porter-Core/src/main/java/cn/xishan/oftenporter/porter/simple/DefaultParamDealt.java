@@ -128,6 +128,9 @@ public class DefaultParamDealt implements ParamDealt
                 }
             }
         }
+
+        v=theName.dealString(v);
+
         if ((v instanceof CharSequence) && v.equals(""))
         {
             v = null;
