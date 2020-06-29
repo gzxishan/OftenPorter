@@ -73,11 +73,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
-        private _Nece nece;
 
-        public NeceArgDealt(_Nece nece, InNames.Name name, String className, TypeParserStore typeParserStore)
+        public NeceArgDealt(InNames.Name name, String className, TypeParserStore typeParserStore)
         {
-            this.nece = nece;
             this.name = name;
             this.className = className;
             this.typeParserStore = typeParserStore;
@@ -108,9 +106,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             {
                 v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
-                if (OftenTool.isNullOrEmptyCharSequence(v) && nece.isNece(oftenObject))
+                if (OftenTool.isNullOrEmptyCharSequence(v) && name.isNece(oftenObject))
                 {
                     v = DefaultFailedReason.lackNecessaryParams("Lack necessary param:" + name.varName, name.varName);
+                } else
+                {
+                    v = name.dealString(v);
                 }
             }
             return v;
@@ -156,6 +157,9 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
                         typeParserStore.byId(name.typeParserId), name.getDealt());
             }
+
+            v = name.dealString(v);
+
             return v;
         }
     }
@@ -237,14 +241,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             for (int i = 0; i < newArgs.length; i++)
             {
                 Object value = argHandles[i].getArg(oftenObject, method, map);
-                if(value instanceof ParamDealt.FailedReason){
+                if (value instanceof ParamDealt.FailedReason)
+                {
                     ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) value;
                     JResponse jResponse = new JResponse(ResultCode.PARAM_DEAL_EXCEPTION);
                     jResponse.setDescription(failedReason.desc());
                     jResponse.setExtra(failedReason.toJSON());
                     throw new OftenCallException(jResponse);
-                }else{
-                    newArgs[i]=value;
+                } else
+                {
+                    newArgs[i] = value;
                 }
             }
             return newArgs;
@@ -268,12 +274,16 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             {
                 return new WObjectArgDealt();
             }
-
+            _NeceUnece neceUnece;
             _Nece nece = annotationDealt.nece(AnnoUtil.getAnnotation(paramAnnotations, Nece.class), paramName);
             _Unece unece = null;
             if (nece == null)
             {
                 unece = annotationDealt.unNece(AnnoUtil.getAnnotation(paramAnnotations, Unece.class), paramName);
+                neceUnece = unece;
+            } else
+            {
+                neceUnece = nece;
             }
 
             ArgDealt argHandle;
@@ -302,10 +312,10 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 }
 
                 InNames.Name theName = porterOfFun.getPorter()
-                        .getName(annotationDealt, name, paramRealType, _parse, nece);
+                        .getName(annotationDealt, name, paramRealType, _parse, neceUnece);
                 if (nece != null)
                 {
-                    argHandle = new NeceArgDealt(nece, theName, paramRealType.getName(), typeParserStore);
+                    argHandle = new NeceArgDealt(theName, paramRealType.getName(), typeParserStore);
                 } else
                 {
                     argHandle = new UneceArgDealt(theName, paramRealType.getName(), typeParserStore);

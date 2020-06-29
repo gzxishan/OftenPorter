@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
+import cn.xishan.oftenporter.porter.core.annotation.deal._NeceUnece;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.simple.DefaultFailedReason;
 
@@ -40,8 +41,9 @@ public class InNames
         public String typeParserId;
 
         private String defaultValue;
+        private _NeceUnece neceUnece;
+
         private Class type;
-        private _Nece nece;
         private _Nece[] typeNeces;
         private Field[] typeNeceFields;
 
@@ -149,7 +151,8 @@ public class InNames
                 {
                     for (int i = 0; i < this.typeNeces.length; i++)
                     {
-                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(this.typeNeceFields[i].get(v)))
+                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool
+                                .isNullOrEmptyCharSequence(this.typeNeceFields[i].get(v)))
                         {
                             String typeVarName = this.typeNeces[i].getVarName();
                             v = DefaultFailedReason
@@ -163,11 +166,11 @@ public class InNames
             return v;
         }
 
-        public void setType(AnnotationDealt annotationDealt, Class type, _Nece nece)
+        public void setType(AnnotationDealt annotationDealt, Class type, _NeceUnece neceUnece)
         {
             this.type = type;
-            this.nece = nece;
-            if (nece == null && type != null && !PortUtil.willIgnoreAdvanced(type))
+            this.neceUnece = neceUnece;
+            if (!(neceUnece instanceof _Nece) && type != null && !PortUtil.willIgnoreAdvanced(type))
             {
                 Field[] fieds = OftenTool.getAllFields(type);
                 List<_Nece> neceList = new ArrayList<>();
@@ -191,11 +194,26 @@ public class InNames
             }
         }
 
-        public _Nece getNece()
+        public boolean isNece(OftenObject oftenObject)
         {
-            return nece;
+            if (neceUnece instanceof _Nece && ((_Nece) neceUnece).isNece(oftenObject))
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
 
+        public Object dealString(Object v)
+        {
+            return neceUnece == null ? v : neceUnece.dealString(v);
+        }
+
+        public _NeceUnece getNeceUnece()
+        {
+            return neceUnece;
+        }
 
         public ITypeParserOption getParserOption()
         {

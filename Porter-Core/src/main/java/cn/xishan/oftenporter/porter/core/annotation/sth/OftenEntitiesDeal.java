@@ -152,20 +152,22 @@ public class OftenEntitiesDeal
             String nameStr = null;
             _Nece nece = annotationDealt.nece(field);
             _Unece unNece;
+            _NeceUnece neceUnece = null;
             if (nece != null)
             {
                 nameStr = nece.getVarName();
                 nameList = neceNames;
-                //neceDeals.add(nece);
                 fieldList = neces;
+                neceUnece = nece;
             } else if ((unNece = annotationDealt.unNece(field)) != null)
             {
                 nameStr = unNece.getVarName();
                 nameList = unneceNames;
                 fieldList = unneces;
+                neceUnece = unNece;
             }
 
-            if (nameList != null)
+            if (neceUnece != null)
             {
                 name = new Name(nameStr, backableSeek);
                 _Parse[] parses = annotationDealt.parses(field);
@@ -193,7 +195,7 @@ public class OftenEntitiesDeal
                     }
 
                 }
-                name.setType(annotationDealt, AnnoUtil.Advance.getRealTypeOfField(clazz, field), nece);
+                name.setType(annotationDealt, AnnoUtil.Advance.getRealTypeOfField(clazz, field), neceUnece);
                 nameList.add(name);
                 fieldList.add(field);
             }
@@ -206,7 +208,7 @@ public class OftenEntitiesDeal
         return one;
     }
 
-    public static Name getName(AnnotationDealt annotationDealt, _Nece nece, String nameStr, Class<?> type,
+    public static Name getName(AnnotationDealt annotationDealt, _NeceUnece neceUnece, String nameStr, Class<?> type,
             TypeParserStore typeParserStore,
             boolean notFoundThrows) throws ClassNotFoundException
     {
@@ -217,7 +219,7 @@ public class OftenEntitiesDeal
             typeId = SthUtil.putTypeParser(typeParser, typeParserStore);
         }
         Name name = new Name(nameStr, typeId);
-        name.setType(annotationDealt, type, nece);
+        name.setType(annotationDealt, type, neceUnece);
         return name;
     }
 

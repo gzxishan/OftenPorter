@@ -399,6 +399,7 @@ public class PortUtil
                 {
                     value = paramSource.getParam(one.clazz.getName());
                 }
+
                 if (value != null && OftenTool.isAssignable(value.getClass(), one.clazz))
                 {
                     Name[] neces = one.inNames.nece;
@@ -406,13 +407,14 @@ public class PortUtil
                     for (int i = 0; i < neces.length; i++)
                     {
                         Field f = one.neceObjFields[i];
-                        if (neces[i].getNece().isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(f.get(value)))
+                        if (neces[i].isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(f.get(value)))
                         {
                             value = DefaultFailedReason
                                     .lackNecessaryParams("Lack necessary params!", neces[i].varName);
                             break;
                         }
                     }
+
                     if (!(value instanceof ParamDealt.FailedReason))
                     {
                         //转换内嵌对象
@@ -427,11 +429,11 @@ public class PortUtil
                     return value;//如果获取的变量是相应类型，直接返回。
                 }
             }
+
             Object[] neces = PortUtil.newArray(one.inNames.nece);
-            Object[] unneces = PortUtil.newArray(one.inNames.unece);
-            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, unneces,
-                    paramSource,
-                    currentTypeParserStore, namePrefix);
+            Object[] uneces = PortUtil.newArray(one.inNames.unece);
+            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, uneces,
+                    paramSource, currentTypeParserStore, namePrefix);
             if (reason == null)
             {
                 Object object = OftenTool.newObject(one.clazz);
@@ -441,11 +443,11 @@ public class PortUtil
                     one.neceObjFields[k].set(object, neces[k]);
                 }
 
-                for (int k = 0; k < unneces.length; k++)
+                for (int k = 0; k < uneces.length; k++)
                 {
-                    if (unneces[k] != null)
+                    if (uneces[k] != null)
                     {
-                        one.unneceObjFields[k].set(object, unneces[k]);
+                        one.unneceObjFields[k].set(object, uneces[k]);
                     }
                 }
                 obj = object;
@@ -529,19 +531,20 @@ public class PortUtil
                 Name[] names = inNames.nece;
                 for (int i = 0; i < nece.length; i++)
                 {
-                    _Nece neceDeal = names[i].getNece();
-                    if (neceDeal == null || neceDeal.isNece(oftenObject))
+                    if (names[i].isNece(oftenObject))
                     {
                         nece[i] = paramSource.getNeceParam(namePrefix + names[i].varName);
                     } else
                     {
                         nece[i] = paramSource.getParam(namePrefix + names[i].varName);
                     }
+                    nece[i] = names[i].dealString(nece[i]);
                 }
+
                 names = inNames.unece;
                 for (int i = 0; i < unece.length; i++)
                 {
-                    unece[i] = paramSource.getParam(namePrefix + names[i].varName);
+                    unece[i] = names[i].dealString(paramSource.getParam(namePrefix + names[i].varName));
                 }
             } else
             {

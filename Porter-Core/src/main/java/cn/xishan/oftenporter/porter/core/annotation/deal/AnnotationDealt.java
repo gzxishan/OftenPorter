@@ -217,6 +217,10 @@ public final class AnnotationDealt
         _nece.forClassTieds = nece.forClassTieds();
         _nece.forFunTieds = nece.forFunTieds();
 
+        _nece.isTrim=nece.trim();
+        _nece.clearBlank=nece.clearBlank();
+        _nece.setDeleteRegex(nece.deleteRegex());
+
         _nece.init();
         return _nece;
     }
@@ -238,6 +242,9 @@ public final class AnnotationDealt
             return null;
         }
         _Unece _unece = new _Unece();
+        _unece.isTrim=unece.trim();
+        _unece.clearBlank=unece.clearBlank();
+        _unece.setDeleteRegex(unece.deleteRegex());
 
         if (OftenTool.isEmptyOfAll(unece.value(), unece.varName()))
         {

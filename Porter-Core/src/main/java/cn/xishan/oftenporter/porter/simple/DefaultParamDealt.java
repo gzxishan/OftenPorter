@@ -3,15 +3,15 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
-import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
-import cn.xishan.oftenporter.porter.core.base.*;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
-
-import java.util.Map;
-
+import cn.xishan.oftenporter.porter.core.annotation.deal._NeceUnece;
 import cn.xishan.oftenporter.porter.core.base.InNames.Name;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.base.ParamSource;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * 默认的参数处理实现。
@@ -29,7 +29,7 @@ public class DefaultParamDealt implements ParamDealt
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
-            _Nece nece = isNecessary ? name.getNece() : null;
+            _NeceUnece neceUnece = isNecessary ? name.getNeceUnece() : null;
             Object value = getParam(oftenObject, namePrefix, name, paramSource, typeParserStore.byId(name.typeParserId),
                     name.getDealt());
             if (value != null)
@@ -41,7 +41,7 @@ public class DefaultParamDealt implements ParamDealt
                 {
                     values[i] = value;
                 }
-            } else if (isNecessary && (nece == null || nece.isNece(oftenObject)))
+            } else if (isNecessary && (neceUnece == null || name.isNece(oftenObject)))
             {
                 return DefaultFailedReason.lackNecessaryParams("Lack necessary params!", namePrefix + name.varName);
             }
@@ -80,6 +80,7 @@ public class DefaultParamDealt implements ParamDealt
         {
             v = theName.getDefaultValue();
         }
+
         if (typeParser != null)
         {
             if (OftenTool.isNullOrEmptyCharSequence(v))
