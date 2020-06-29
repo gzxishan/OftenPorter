@@ -29,4 +29,24 @@ public @interface Unece
      * @return
      */
     String varName() default "";
+
+
+    /**
+     * 是否执行trim()操作
+     * @return
+     */
+    boolean trim() default true;
+
+    /**
+     * 是否删除所有空白符
+     * @return
+     */
+    boolean clearBlank()default false;
+
+    /**
+     * 删除字符的正则表达式
+     *
+     * @return
+     */
+    String deleteRegex() default "";
 }
