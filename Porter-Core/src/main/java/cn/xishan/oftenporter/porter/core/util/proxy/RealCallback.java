@@ -39,4 +39,9 @@ class RealCallback implements MethodInterceptor
             return object;
         }
     }
+
+    public IInvocationable getInvocationable()
+    {
+        return invocationable;
+    }
 }

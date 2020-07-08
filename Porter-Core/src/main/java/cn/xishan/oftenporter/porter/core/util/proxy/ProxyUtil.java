@@ -96,6 +96,35 @@ public class ProxyUtil
     }
 
     /**
+     * 另见{@linkplain #proxyObject(Object, boolean, Class[], IMethodFilter, IInvocationable, ICGLIBSettable)}
+     * @param proxyObject
+     * @return
+     */
+    public static IInvocationable getIInvocationable(Object proxyObject)
+    {
+        IInvocationable iInvocationable = null;
+        try
+        {
+            if (proxyObject instanceof IOftenProxy)
+            {
+                String fieldName = "CGLIB$CALLBACK_1";
+                Field field = proxyObject.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
+
+                RealCallback realCallback = (RealCallback) field.get(proxyObject);
+                iInvocationable = realCallback.getInvocationable();
+            }
+        } catch (NoSuchFieldException e)
+        {
+
+        } catch (Throwable e)
+        {
+            LOGGER.warn(e.getMessage(), e);
+        }
+        return iInvocationable;
+    }
+
+    /**
      * @param object
      * @param useCache
      * @param interfaces
