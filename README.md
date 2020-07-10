@@ -3,9 +3,9 @@
 
 ##
 # 版本
-当前最新版本为  [**1.2.109**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
+当前最新版本为  [**1.2.113**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.2.109-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.113brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
@@ -24,6 +24,11 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.113 2020/07/10
+1. 完善参数处理(`@Nece`与`@Unece`)，加入去除空白符选项；
+2. 完善proxy工具类；
+3. 升级fastjson版本；
 
 ### v1.2.109 2020/06/24
 1. 完善Porter-Bridge-Servlet跨域处理；
