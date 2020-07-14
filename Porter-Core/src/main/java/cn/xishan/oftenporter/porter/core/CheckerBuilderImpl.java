@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.sysset.CheckerBuilder;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -429,5 +430,11 @@ class CheckerBuilderImpl implements CheckerBuilder
     public CheckerBuilderImpl(PortExecutor portExecutor)
     {
         this.portExecutor = portExecutor;
+    }
+
+    @Override
+    public BridgeName getBridgeName()
+    {
+        return portExecutor.getBridgeName();
     }
 }

@@ -58,6 +58,11 @@ public final class PortExecutor
         deliveryBuilder = DeliveryBuilder.getBuilder(true, bridgeLinker);
     }
 
+    public BridgeName getBridgeName()
+    {
+        return bridgeName;
+    }
+
     public void putAllExtraEntity(Map<String, One> entityOneMap)
     {
         this.extraEntityOneMap.putAll(entityOneMap);

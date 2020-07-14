@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.DuringType;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.OutType;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
 
 /**
  * @author Created by https://github.com/CLovinr on 2019-12-19.
@@ -30,6 +31,8 @@ public interface CheckerBuilder
     Builder newBuilder(DuringType duringType);
 
     Builder newBuilder(DuringType duringType, String contextName);
+
+    BridgeName getBridgeName();
 
 
     interface Builder
