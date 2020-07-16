@@ -8,6 +8,11 @@ import java.lang.annotation.*;
 
 /**
  * 注解在{@linkplain PortIn}接口函数上，用于直接绑定servlet-path,需要自行处理响应。
+ * <ol>
+ *     <li>
+ *         注解的函数返回false，表示放弃自行处理，接着会进行后续处理。
+ *     </li>
+ * </ol>
  *
  * @author Created by https://github.com/CLovinr on 2020/5/16.
  */

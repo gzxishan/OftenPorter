@@ -13,8 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.FilterChain;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
@@ -123,7 +125,16 @@ public class PathMappingHandle extends AspectOperationOfPortIn.HandleAdapter<Pat
         try
         {
             Object rt = porterOfFun.invokeByHandleArgs(oftenObject);
-            if (rt != null)
+
+            if (rt instanceof Boolean)
+            {
+                if (!(Boolean) rt)
+                {//返回false，则执行后续过滤器
+                    HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
+                    FilterChain chain = (FilterChain) request.getAttribute(PathMappingFilter.FILTER_NAME);
+                    chain.doFilter(request, response);
+                }
+            } else if (rt != null)
             {
                 LOGGER.warn("return object is ignored:often path={},srvlet path={},object={}", oftenPath, path, rt);
             }

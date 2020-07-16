@@ -18,6 +18,8 @@ import java.util.Set;
  */
 public class PathMappingFilter extends _AllFilter.FilterX
 {
+    static final String FILTER_NAME = "__servlet.render.mapping.PathMappingFilter__";
+
     private StartupServlet startupServlet;
     private String oftenPath;
     private String id;
@@ -54,7 +56,9 @@ public class PathMappingFilter extends _AllFilter.FilterX
             if (request.getAttribute(id) == null)
             {
                 request.setAttribute(id, true);
+                request.setAttribute(FILTER_NAME, chain);
                 startupServlet.doRequest(request, oftenPath, response, method);
+                request.removeAttribute(FILTER_NAME);
             } else
             {
                 //已经执行过
