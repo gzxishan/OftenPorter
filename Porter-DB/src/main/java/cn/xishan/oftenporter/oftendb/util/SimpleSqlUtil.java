@@ -361,10 +361,21 @@ public class SimpleSqlUtil
 
     private static JSONArray getQueryArray(Map<String, Object> query, JSONArray queryArray)
     {
-
+        Map<String, Object> fromArray = null;
         if (queryArray == null)
         {
             queryArray = new JSONArray();
+        } else if (queryArray.size() > 0)
+        {
+            fromArray = new HashMap<>(queryArray.size());
+            for (int i = 0; i < queryArray.size(); i++)
+            {
+                JSONObject json = queryArray.getJSONObject(i);
+                if (json.containsKey("key"))
+                {
+                    fromArray.put(json.getString("key"), json.get("value"));
+                }
+            }
         }
 
         for (Map.Entry entry : query.entrySet())
@@ -373,6 +384,11 @@ public class SimpleSqlUtil
             json.put("key", entry.getKey());
             json.put("value", entry.getValue());
             queryArray.add(json);
+        }
+
+        if (fromArray != null)
+        {
+            query.putAll(fromArray);
         }
 
         return queryArray;
@@ -660,7 +676,7 @@ public class SimpleSqlUtil
 
             name = name.substring(index);
             checkSqlFieldName(name);
-            String queryName = name + "_" + k;
+            String queryName = "__" + name + "__" + k;
             if (willAddName)
             {
                 if (names == null)

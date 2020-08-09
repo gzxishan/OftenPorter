@@ -4,13 +4,15 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisAlias;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisField;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetGen;
-import cn.xishan.oftenporter.porter.core.util.*;
+import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.PackageUtil;
+import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -18,9 +20,12 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.TypeAliasRegistry;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.lang.reflect.*;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
@@ -32,20 +37,19 @@ import java.util.regex.Pattern;
  */
 class MyBatisDaoGen implements AutoSetGen
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MyBatisDaoGen.class);
 
     String source;
 
-    @AutoSet
-    Logger LOGGER;
-
+    private WeakReference<MyBatisDaoImpl> weakReference;
 
     public MyBatisDaoGen()
     {
-        //LogUtil.printErrPos("....");
+
     }
 
     @PortStart(order = 100)
-    public void onStart(IConfigData configData)
+    public void startFactory(IConfigData configData) throws Exception
     {
         if (moption().myBatisOption.throwOnInitError)
         {
@@ -59,6 +63,13 @@ class MyBatisDaoGen implements AutoSetGen
             {
                 LOGGER.error(e.getMessage(), e);
             }
+        }
+
+        MyBatisDaoImpl myBatisDao = weakReference == null ? null : weakReference.get();
+        if (myBatisDao != null && myBatisDao.isNew())
+        {
+            myBatisDao.onBindAlias();
+            myBatisDao.onParse();
         }
     }
 
@@ -258,8 +269,9 @@ class MyBatisDaoGen implements AutoSetGen
     public Object genObject(IConfigData iConfigData, Class<?> currentObjectClass, Object currentObject, Field field,
             Class<?> realFieldType,
             _AutoSet autoSet,
-            String option)
+            String option) throws Exception
     {
+        LOGGER.debug("genObject:this={},type={}", this, realFieldType);
         MyBatisField myBatisField = AnnoUtil.getAnnotation(field, MyBatisField.class);
         if (myBatisField == null)
         {
@@ -289,6 +301,7 @@ class MyBatisDaoGen implements AutoSetGen
             boolean wrapDaoThrowable = moption().myBatisOption.wrapDaoThrowable;
             //代理
             result = doProxy(myBatisDao, realFieldType, source, wrapDaoThrowable);
+            weakReference = new WeakReference<>(myBatisDao);
         }
 
         return result;
@@ -297,13 +310,20 @@ class MyBatisDaoGen implements AutoSetGen
     interface __MyBatisDaoProxy__
     {
 
+        @PortStart
+        default void onStart() throws Exception
+        {
+            MyBatisDaoImpl myBatisDao = (MyBatisDaoImpl) MyBatisDao.getMyBatisDao(this);
+            myBatisDao.onBindAlias();
+            myBatisDao.onParse();
+        }
     }
 
 
     static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source, boolean wrapDaoThrowable)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。
-        InvocationHandlerWithCommon invocationHandler = new Invocation4Dao(myBatisDao, type, source, wrapDaoThrowable);
+        Invocation4Dao invocationHandler = new Invocation4Dao(myBatisDao, type, source, wrapDaoThrowable);
         Object proxyT = ProxyUtil.newProxyInstance(InvocationHandlerWithCommon.getClassLoader(), new Class[]{
                 type, __MyBatisDaoProxy__.class}, invocationHandler);
         return proxyT;

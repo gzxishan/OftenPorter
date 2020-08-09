@@ -59,6 +59,8 @@ class _MyBatis
     private List<String> paths;
     private String columnCoverString;
     private String tableName;
+    private JSONObject jsonParams;
+
 
     public _MyBatis(Alias[] aliases, MyBatisMapper.Type type, String columnCoverString, String resourceDir, String name)
     {
@@ -73,6 +75,17 @@ class _MyBatis
         this.name = name;
     }
 
+
+    public String getTableName()
+    {
+        return tableName;
+    }
+
+
+    public JSONObject getJsonParams()
+    {
+        return jsonParams;
+    }
 
     public void setPath(String path)
     {
@@ -188,7 +201,8 @@ class _MyBatis
     {
         StringBuilder sqlBuilder = new StringBuilder(_sql);
         int loopCount = 0;
-        Map<String, Object> _localParams = new HashMap<>(xmlParamsMap);
+        JSONObject _localParams = new JSONObject();
+        _localParams.putAll(xmlParamsMap);
         if (paths == null)
         {
             paths = new ArrayList<>();
@@ -392,6 +406,11 @@ class _MyBatis
             }
         }
 
+        if (_localParams.containsKey("tableName"))
+        {
+            this.tableName = _localParams.getString("tableName");
+        }
+
         {//处理<!--$set-table:name=tableName-->
             Pattern TABLE_NAME_PATTERN = Pattern.compile("<!--\\$set-table:\\s*name\\s*=\\s*([a-zA-Z0-9_]+)\\s*-->");
             Matcher matcher = TABLE_NAME_PATTERN.matcher(sqlBuilder);
@@ -443,14 +462,14 @@ class _MyBatis
 
                     List<String> dbColumns = getDBColumns(dbColumnsOfCurrent, sqlBuilder, tag, index, index2);
 
-                    List<String> _dbColumns = dbColumns;
-                    if (excepts.length > 0)
+                    List<String> _dbColumns;
+
                     {
                         _dbColumns = new ArrayList<>();
 
                         for (int i = 0; i < dbColumns.size(); i++)
                         {
-                            if (Arrays.binarySearch(excepts, dbColumns.get(i)) >= 0)
+                            if (excepts.length > 0 && Arrays.binarySearch(excepts, dbColumns.get(i)) >= 0)
                             {
                                 continue;
                             }
@@ -463,6 +482,7 @@ class _MyBatis
                             }
                         }
                     }
+
                     String selectPart = OftenStrUtil.join(",", _dbColumns);
                     sqlBuilder.replace(index, index2 + 1, selectPart);
                 }
@@ -589,6 +609,7 @@ class _MyBatis
         {
             setFileListener(fileListener);
         }
+        this.jsonParams = _localParams;
         return sqlBuilder.toString();
     }
 

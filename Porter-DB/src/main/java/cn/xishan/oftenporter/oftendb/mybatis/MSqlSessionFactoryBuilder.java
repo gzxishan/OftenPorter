@@ -219,6 +219,7 @@ class MSqlSessionFactoryBuilder
         {
             return;
         }
+
         if (dataSourceConf == null && OftenTool.notEmpty(dataSourceProperPrefix))
         {
             JSONObject jsonObject = configData.getJSONByKeyPrefix(dataSourceProperPrefix);
@@ -277,6 +278,10 @@ class MSqlSessionFactoryBuilder
         }
     }
 
+    private void buildDataSource(){
+
+    }
+
     public synchronized void reload(DataSource last) throws Throwable
     {
         id = OftenKeyUtil.randomUUID();
@@ -288,7 +293,18 @@ class MSqlSessionFactoryBuilder
             watchService.close();
         }
         tableColumnsMap.clear();
+
         build(last);
+
+        for (BuilderListener listener : builderListenerSet)
+        {
+            listener.onBindAlias();
+        }
+        for (BuilderListener listener : builderListenerSet)
+        {
+            listener.onParse();
+        }
+
         regListener();
         LOGGER.info("reload mybatis complete!");
     }
@@ -334,6 +350,9 @@ class MSqlSessionFactoryBuilder
         return dataSourceObject;
     }
 
+    /**
+     * 注册监听文件变化
+     */
     private void regListener()
     {
         LOGGER.info("will rereg...");
@@ -431,14 +450,6 @@ class MSqlSessionFactoryBuilder
         }
 
         this.sqlSessionFactory = _sqlSessionFactory;
-        for (BuilderListener listener : builderListenerSet)
-        {
-            listener.onBindAlias();
-        }
-        for (BuilderListener listener : builderListenerSet)
-        {
-            listener.onParse();
-        }
     }
 
 

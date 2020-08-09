@@ -54,7 +54,7 @@ public class TestPorter
     public void testOkPoint(@Nece("entity1") TestEntity entity1,@Nece("entity2")  TestEntity entity2)
     {
         testUnit.clearAll();
-        testUnit.teskOkPoint(entity1, entity2);
+        testUnit.testOkPoint(entity1, entity2);
     }
 
     @PortIn

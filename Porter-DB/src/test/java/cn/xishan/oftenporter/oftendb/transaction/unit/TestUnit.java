@@ -67,7 +67,7 @@ public class TestUnit
 
 
     @TransactionDB
-    public void teskOkPoint(TestEntity entity1, TestEntity entity2)
+    public void testOkPoint(TestEntity entity1, TestEntity entity2)
     {
         testDao.insert(entity1);
         try

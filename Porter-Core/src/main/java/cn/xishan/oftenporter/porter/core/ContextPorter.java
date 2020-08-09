@@ -141,8 +141,8 @@ public class ContextPorter implements IOtherStartDestroy
     //接口
     private Map<String, Porter> portMap;
     private Map<Class<?>, CheckPassable> checkPassableForCF;
-    private List<OtherStartDestroy> otherStartList = new ArrayList<>();
-    private List<OtherStartDestroy> otherDestroyList = new ArrayList<>();
+    private Set<OtherStartDestroy> otherStartList = new HashSet<>();
+    private Set<OtherStartDestroy> otherDestroyList = new HashSet<>();
     private IConfigData configData;
     private IAutoSetter autoSetter;
 

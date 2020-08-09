@@ -3,7 +3,9 @@ package cn.xishan.oftenporter.porter.core.util.proxy;
 
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
-import net.sf.cglib.proxy.*;
+import net.sf.cglib.proxy.Callback;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.NoOp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +48,11 @@ public class ProxyUtil
 
         Object obj = Proxy.newProxyInstance(loader, interfaces, h);
         return (T) obj;
+    }
+
+    public static InvocationHandler getInvocationHandler(Object proxyObject)
+    {
+        return Proxy.getInvocationHandler(proxyObject);
     }
 
 
@@ -97,6 +104,7 @@ public class ProxyUtil
 
     /**
      * 另见{@linkplain #proxyObject(Object, boolean, Class[], IMethodFilter, IInvocationable, ICGLIBSettable)}
+     *
      * @param proxyObject
      * @return
      */

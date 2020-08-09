@@ -28,7 +28,6 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     private Set<ContextPorter.OtherStartDestroy> otherDestroyList = new HashSet<>();
     private Set<ContextPorter.OtherStartDestroy> otherStartList = new HashSet<>();
 
-    private boolean isOk = false;
     private IOtherStartDestroy defaultIOtherStartDestroy;
     private OftenObject oftenObject;
 
@@ -42,7 +41,6 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     @Override
     public void forInstance(Object[] objects) throws AutoSetException
     {
-        checkOk();
         autoSetHandle.addAutoSetsForNotPorter(objects);
         autoSetHandle.doAutoSetNormal();
         autoSetHandle.invokeSetOk(oftenObject);
@@ -52,7 +50,6 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     @Override
     public void forClass(Class[] classes) throws AutoSetException
     {
-        checkOk();
         autoSetHandle.addStaticAutoSet(null, null, Arrays.asList(classes),
                 Thread.currentThread().getContextClassLoader());
         autoSetHandle.doAutoSetNormal();
@@ -63,7 +60,6 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     @Override
     public void forPackage(String[] packages) throws AutoSetException
     {
-        checkOk();
         autoSetHandle.addStaticAutoSet(Arrays.asList(packages), null, null,
                 Thread.currentThread().getContextClassLoader());
         autoSetHandle.doAutoSetNormal();
@@ -95,6 +91,7 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     {
         IConfigData configData = autoSetHandle.getConfigData();
         ContextPorter.OtherStartDestroy[] starts = otherStartList.toArray(new ContextPorter.OtherStartDestroy[0]);
+        Arrays.sort(starts);
         otherStartList.clear();
         for (ContextPorter.OtherStartDestroy otherStartDestroy : starts)
         {
@@ -124,15 +121,13 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     @Override
     public boolean hasOtherStart()
     {
-        return false;
+        return true;
     }
 
-    private void checkOk()
+
+    void setCurrentOftenObject(OftenObject oftenObject)
     {
-        if (!isOk)
-        {
-            throw new AutoSetException("not ok");
-        }
+        this.oftenObject = oftenObject;
     }
 
     void onOk(OftenObject oftenObject)
@@ -140,6 +135,5 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
         this.oftenObject = oftenObject;
         defaultIOtherStartDestroy = autoSetHandle.getOtherStartDestroy();
         autoSetHandle.setIOtherStartDestroy(this);
-        this.isOk = true;
     }
 }

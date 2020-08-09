@@ -26,6 +26,11 @@ class Invocation4Dao extends InvocationHandlerWithCommon
         this.wrapDaoThrowable = wrapDaoThrowable;
     }
 
+    public MyBatisDaoImpl getMyBatisDao()
+    {
+        return myBatisDao;
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {

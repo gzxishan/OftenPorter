@@ -389,7 +389,7 @@ public class SqlUtil
      * {@linkplain Order#name}只允许【字母、数字、下划线、点号、中文】
      *
      * @param querySettings
-     * @param coverString 包裹变量的字符，如【`】
+     * @param coverString   包裹变量的字符，如【`】
      * @param withSemicolon
      * @return
      */
@@ -503,12 +503,31 @@ public class SqlUtil
     public static List<CreateTable> exportCreateTable(String tableNamePattern, String connectionUrl, String driverClass,
             String coverString)
     {
-        Connection conn = null;
         try
         {
             Class.forName(driverClass);
-            conn = DriverManager.getConnection(connectionUrl);
+            Connection conn = DriverManager.getConnection(connectionUrl);
+            return exportCreateTable(tableNamePattern, conn, coverString);
+        } catch (RuntimeException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new DBException(e);
+        }
+    }
 
+    /**
+     * @param tableNamePattern 为null表示导出所有的。
+     * @param conn
+     * @param coverString 如“`”
+     * @return
+     */
+    public static List<CreateTable> exportCreateTable(String tableNamePattern, Connection conn,
+            String coverString)
+    {
+        try
+        {
             DatabaseMetaData metaData = conn.getMetaData();
             ResultSet tables = metaData
                     .getTables(null, "%", tableNamePattern == null ? "%" : tableNamePattern, new String[]{"TABLE"});

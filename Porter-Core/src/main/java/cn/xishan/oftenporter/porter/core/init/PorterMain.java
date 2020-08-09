@@ -427,15 +427,15 @@ public final class PorterMain
             });
             OftenObject oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
-
+            autoSetter.setCurrentOftenObject(oftenObject);
             portExecutor.onPutContext(context);
 
             stateListenerForAll.beforeSetOk(oftenObject, porterConf.getUserInitParam());
             LOGGER.debug("start invokeSetOk...");
             autoSetHandle.invokeSetOk(oftenObject);
             stateListenerForAll.afterSetOk(oftenObject, porterConf.getUserInitParam());
-
             oftenObject.release();
+            autoSetter.onOk(oftenObject);
 
             ////////////////////////////////////////////////////////////////////////////////
             LOGGER.debug(":{}/{} beforeStart...", bridgeLinker.currentName(), porterConf.getOftenContextName());
@@ -449,6 +449,7 @@ public final class PorterMain
 
             oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, request, response, context, true);
+            autoSetter.setCurrentOftenObject(oftenObject);
 
             stateListenerForAll.beforeStart(oftenObject, porterConf.getUserInitParam());
             contextPorter.start(oftenObject);
@@ -495,7 +496,7 @@ public final class PorterMain
             OftenObject oftenObject = portExecutor
                     .forPortInit(getBridgeLinker().currentName(), result, null, null, context, true);
             oftenObject.release();
-            autoSetter.onOk(oftenObject);
+            autoSetter.setCurrentOftenObject(oftenObject);
         }
         return autoSetter;
     }

@@ -1,6 +1,9 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
+import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 
@@ -38,6 +41,7 @@ public interface MyBatisDao
 
     /**
      * 开启新的连接。
+     *
      * @return
      */
     Connection newConnection();
@@ -73,4 +77,19 @@ public interface MyBatisDao
      */
     DataSource setDataSourceConf(JSONObject dataSourceConf) throws Throwable;
 
+    String getTableName();
+
+    /**
+     * 参数来源为：{@linkplain MyBatisMapper#params()}，{@linkplain MyBatisParams}，xml里的&lt;!--$json:{}--&gt;
+     *
+     * @return
+     */
+    JSONObject getJsonParams();
+
+    static MyBatisDao getMyBatisDao(Object proxyDao)
+    {
+        Invocation4Dao invocationHandler = (Invocation4Dao) ProxyUtil
+                .getInvocationHandler(proxyDao);
+        return invocationHandler.getMyBatisDao();
+    }
 }

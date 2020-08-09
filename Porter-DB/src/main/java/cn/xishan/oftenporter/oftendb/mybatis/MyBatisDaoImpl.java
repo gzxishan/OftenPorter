@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.db.DBException;
+import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     private File mapperFile;
     private String path;
     private _MyBatis myBatis;
+    private boolean isNew = true;
 
     public MyBatisDaoImpl(MyBatisDaoGen myBatisDaoGen, _MyBatis myBatis, String path)
     {
@@ -36,6 +38,11 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         this.myBatisDaoGen = myBatisDaoGen;
     }
 
+
+    public boolean isNew()
+    {
+        return isNew;
+    }
 
     void setMapperFile(File mapperFile)
     {
@@ -108,6 +115,17 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
         return myBatisDaoGen.moption().mSqlSessionFactoryBuilder.setDataSourceConf(dataSourceConf);
     }
 
+    @Override
+    public String getTableName()
+    {
+        return myBatis == null ? null : myBatis.getTableName();
+    }
+
+    @Override
+    public JSONObject getJsonParams()
+    {
+        return myBatis == null ? null : myBatis.getJsonParams();
+    }
 
     Object getMapperDao(SqlSession sqlSession, Class<?> otherClass) throws Exception
     {
@@ -125,12 +143,14 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     @Override
     public void onParse() throws IOException
     {
+        this.isNew = false;
         myBatisDaoGen.loadXml(myBatis, path, mapperFile);
     }
 
     @Override
     public void onBindAlias()
     {
+        this.isNew = false;
         myBatisDaoGen.bindAlias(myBatis);
     }
 
