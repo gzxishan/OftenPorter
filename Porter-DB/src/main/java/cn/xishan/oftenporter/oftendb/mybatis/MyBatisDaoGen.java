@@ -181,11 +181,8 @@ class MyBatisDaoGen implements AutoSetGen
     {
         try
         {
-
             SqlSessionFactory sqlSessionFactory = moption().mSqlSessionFactoryBuilder.getFactory();
-
             Configuration configuration = sqlSessionFactory.getConfiguration();
-
             byte[] xmlData = null;
 
             if (optionMapperFile != null)

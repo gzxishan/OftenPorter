@@ -82,7 +82,7 @@ public class BaseEasier
     }
 
     /**
-     * 得到当前时空的uuid
+     * 得到当前的uuid
      *
      * @return
      */
