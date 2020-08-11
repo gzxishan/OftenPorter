@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 import cn.xishan.oftenporter.oftendb.db.sql.TransactionDBHandle;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
+import org.apache.ibatis.cursor.Cursor;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -59,7 +60,7 @@ class Invocation4Dao extends InvocationHandlerWithCommon
         }
     }
 
-    private void mayClose(ConnectionWrap connectionWrap) throws SQLException
+    private void mayClose(ConnectionWrap connectionWrap, boolean notClose) throws SQLException
     {
         if (connectionWrap == null)
         {
@@ -67,7 +68,10 @@ class Invocation4Dao extends InvocationHandlerWithCommon
         }
         if (connectionWrap.getAutoCommit())
         {//未开启事务，则关闭
-            connectionWrap.close();
+            if (!notClose)
+            {
+                connectionWrap.close();
+            }
             TransactionDBHandle.__removeConnection__(source);
         } else if (connectionWrap.isBridgeConnection() && connectionWrap.decRefCount())
         {//没有引用了，则移除
@@ -85,14 +89,19 @@ class Invocation4Dao extends InvocationHandlerWithCommon
             Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
             Object rs = method.invoke(dao, args);
             isInvokeError = false;
-            mayClose(connectionWrap);
+            mayClose(connectionWrap, rs instanceof Cursor);
+            if (rs instanceof Cursor && connectionWrap.getAutoCommit())
+            {
+                rs = new CursorWrap(connectionWrap, (Cursor) rs);
+            }
+
             return rs;
 
         } catch (Throwable throwable)
         {
             if (isInvokeError)
             {
-                mayClose(connectionWrap);
+                mayClose(connectionWrap, false);
             }
             throw throwable;
         }

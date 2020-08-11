@@ -180,14 +180,8 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         StringBuilder stringBuilder = new StringBuilder();
-        String host;
-        if (http2Https && request.getScheme().equals("http"))
-        {
-            host = "https://" + request.getServerName() + getPort(request);
-        } else
-        {
-            host = request.getScheme() + "://" + request.getServerName() + getPort(request);
-        }
+        String host=getHost(request,http2Https);
+
         stringBuilder.append(host);
         stringBuilder.append(urlPrefix != null ? urlPrefix : OftenServlet.getUriPrefix(request));
         if (bridgeName != null)
@@ -266,25 +260,36 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     }
 
 
-    private static String getPort(HttpServletRequest request)
-    {
-        if (request.getServerPort() == 80 || request.getServerPort() == 443)
-        {
-            return "";
-        } else
-        {
-            return ":" + request.getServerPort();
-        }
-    }
+//    private static String getPort(HttpServletRequest request)
+//    {
+//        if (request.getServerPort() == 80 || request.getServerPort() == 443)
+//        {
+//            return "";
+//        } else
+//        {
+//            return ":" + request.getServerPort();
+//        }
+//    }
 
     /**
      * @return
      */
     public static String getHost(HttpServletRequest request, boolean isHttp2Https)
     {
-        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
-                request);
+        String url = getRequestUrl(request, isHttp2Https);
+        String host = getHostFromURL(url);
+        if (isHttp2Https && host.endsWith(":443"))
+        {
+            host = host.substring(0, host.length() - 4);
+        } else if (!isHttp2Https && host.endsWith(":80"))
+        {
+            host = host.substring(0, host.length() - 3);
+        }
         return host;
+//
+//        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
+//                request);
+//        return host;
     }
 
     /**
@@ -301,15 +306,17 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public String getHost(boolean http2Https)
     {
         HttpServletRequest request = getOriginalRequest();
-        String host;
-        if (http2Https && request.getScheme().equals("http"))
-        {
-            host = "https://" + request.getServerName() + getPort(request);
-        } else
-        {
-            host = getHost(request, false);
-        }
-        return host;
+        return getHost(request,http2Https);
+
+//        String host;
+//        if (http2Https && request.getScheme().equals("http"))
+//        {
+//            host = "https://" + request.getServerName() + getPort(request);
+//        } else
+//        {
+//            host = getHost(request, false);
+//        }
+//        return host;
     }
 
     /**
