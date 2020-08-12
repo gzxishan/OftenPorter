@@ -39,9 +39,142 @@ import java.util.concurrent.TimeUnit;
 public class HttpUtil
 {
 
-    private static final int SET_CONNECTION_TIMEOUT = 30 * 1000;
-    private static final int SET_SOCKET_TIMEOUT = 60 * 1000;
-    private static OkHttpClient defaultClient;
+    public static class TimeoutKey implements Cloneable
+    {
+        private long connTimeout = -1;
+        private long writeTimeout = -1;
+        private long readTimeout = -1;
+        private long callTimeout = -1;
+
+        public TimeoutKey()
+        {
+        }
+
+        public TimeoutKey(long connTimeout, long writeTimeout, long readTimeout)
+        {
+            this.connTimeout = connTimeout;
+            this.writeTimeout = writeTimeout;
+            this.readTimeout = readTimeout;
+        }
+
+        @Override
+        public TimeoutKey clone()
+        {
+            try
+            {
+                TimeoutKey timeoutKey = (TimeoutKey) super.clone();
+                return timeoutKey;
+            } catch (CloneNotSupportedException e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return (int) (connTimeout + writeTimeout + readTimeout + callTimeout);
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj instanceof TimeoutKey)
+            {
+                TimeoutKey timeoutKey = (TimeoutKey) obj;
+                return this.connTimeout == timeoutKey.connTimeout && this.writeTimeout == timeoutKey.writeTimeout &&
+                        this.readTimeout == timeoutKey.readTimeout && this.callTimeout == timeoutKey.callTimeout;
+            } else
+            {
+                return false;
+            }
+        }
+
+        public long getConnTimeout()
+        {
+            return connTimeout;
+        }
+
+        public void setConnTimeout(long connTimeout)
+        {
+            this.connTimeout = connTimeout;
+        }
+
+        public void setConnTimeout(long connTimeout, TimeUnit timeUnit)
+        {
+            this.setConnTimeout(timeUnit.toMillis(connTimeout));
+        }
+
+        public long getWriteTimeout()
+        {
+            return writeTimeout;
+        }
+
+        public void setWriteTimeout(long writeTimeout)
+        {
+            this.writeTimeout = writeTimeout;
+        }
+
+        public void setWriteTimeout(long writeTimeout, TimeUnit timeUnit)
+        {
+            this.setWriteTimeout(timeUnit.toMillis(writeTimeout));
+        }
+
+        public long getReadTimeout()
+        {
+            return readTimeout;
+        }
+
+        public void setReadTimeout(long readTimeout)
+        {
+            this.readTimeout = readTimeout;
+        }
+
+        public void setReadTimeout(long readTimeout, TimeUnit timeUnit)
+        {
+            this.setReadTimeout(timeUnit.toMillis(readTimeout));
+        }
+
+        public long getCallTimeout()
+        {
+            return callTimeout;
+        }
+
+        public void setCallTimeout(long callTimeout)
+        {
+            this.callTimeout = callTimeout;
+        }
+
+        public void setCallTimeout(long callTimeout, TimeUnit timeUnit)
+        {
+            this.setCallTimeout(timeUnit.toMillis(callTimeout));
+        }
+    }
+
+    private static final TimeoutKey DEFAULT_TIMEOUT_KEY = new TimeoutKey(30 * 1000, 60 * 1000, 60 * 1000);
+
+    private static final X509TrustManager X509_TRUST_MANAGER = new X509TrustManager()
+    {
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates,
+                String s) throws CertificateException
+        {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates,
+                String s) throws CertificateException
+        {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers()
+        {
+            return new X509Certificate[0];
+        }
+    };
 
     static class StreamBody extends RequestBody
     {
@@ -81,7 +214,7 @@ public class HttpUtil
 
 
     private static OkHttpClient _getClient(SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager,
-            boolean hasCookie)
+            boolean hasCookie, TimeoutKey timeoutKey)
     {
 
         try
@@ -89,28 +222,7 @@ public class HttpUtil
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
             if (x509TrustManager == null)
             {
-                x509TrustManager = new X509TrustManager()
-                {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] x509Certificates,
-                            String s) throws CertificateException
-                    {
-
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] x509Certificates,
-                            String s) throws CertificateException
-                    {
-
-                    }
-
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers()
-                    {
-                        return new X509Certificate[0];
-                    }
-                };
+                x509TrustManager = X509_TRUST_MANAGER;
             }
 
             if (sslSocketFactory == null)
@@ -120,9 +232,22 @@ public class HttpUtil
                 sslSocketFactory = sslContext.getSocketFactory();
             }
             builder.sslSocketFactory(sslSocketFactory, x509TrustManager);
-            builder.connectTimeout(SET_CONNECTION_TIMEOUT, TimeUnit.MILLISECONDS);
-            builder.readTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
-            builder.writeTimeout(SET_SOCKET_TIMEOUT, TimeUnit.MILLISECONDS);
+            if (timeoutKey.connTimeout != -1)
+            {
+                builder.connectTimeout(timeoutKey.connTimeout, TimeUnit.MILLISECONDS);
+            }
+            if (timeoutKey.readTimeout != -1)
+            {
+                builder.readTimeout(timeoutKey.readTimeout, TimeUnit.MILLISECONDS);
+            }
+            if (timeoutKey.writeTimeout != -1)
+            {
+                builder.writeTimeout(timeoutKey.writeTimeout, TimeUnit.MILLISECONDS);
+            }
+            if (timeoutKey.callTimeout != -1)
+            {
+                builder.callTimeout(timeoutKey.callTimeout, TimeUnit.MILLISECONDS);
+            }
 
             if (hasCookie)
             {
@@ -169,6 +294,16 @@ public class HttpUtil
     }
 
     /**
+     * 忽略证书验证。
+     *
+     * @return
+     */
+    public static synchronized OkHttpClient getClient(TimeoutKey timeoutKey)
+    {
+        return getClient(null, null, false, timeoutKey);
+    }
+
+    /**
      * 可以设置双向认证。
      *
      * @return
@@ -176,16 +311,19 @@ public class HttpUtil
     public static synchronized OkHttpClient getClient(SSLSocketFactory sslSocketFactory,
             X509TrustManager x509TrustManager, boolean hasCookie)
     {
+        return getClient(sslSocketFactory, x509TrustManager, hasCookie, DEFAULT_TIMEOUT_KEY);
+    }
 
-        if (sslSocketFactory == null)
-        {
-            if (defaultClient == null)
-            {
-                defaultClient = _getClient(null, x509TrustManager, hasCookie);
-            }
-            return defaultClient;
-        }
-        return _getClient(sslSocketFactory, x509TrustManager, hasCookie);
+
+    /**
+     * 可以设置双向认证。
+     *
+     * @return
+     */
+    public static synchronized OkHttpClient getClient(SSLSocketFactory sslSocketFactory,
+            X509TrustManager x509TrustManager, boolean hasCookie, TimeoutKey timeoutKey)
+    {
+        return _getClient(sslSocketFactory, x509TrustManager, hasCookie, timeoutKey);
     }
 
 
