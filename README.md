@@ -27,6 +27,7 @@
 1. 完善`@PathMapping`，被注解的函数可以返回false、从而不自行处理请求；
 2. 完善`MyBatisDao`，支持从Dao里获取对应的`MyBatisDao`，从而可以获取数据表名、配置；
 3. 支持`MyBatis`的`Cursor`；
+4. 完善工具类`HttpUtil`网络超时时间的设置；
 
 ### v1.2.113 2020/07/10
 1. 完善参数处理(`@Nece`与`@Unece`)，加入去除空白符选项；
