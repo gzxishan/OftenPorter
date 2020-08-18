@@ -138,6 +138,29 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         return url;
     }
 
+
+    public static String getRequestUrlWithQuery(OftenObject oftenObject, boolean http2Https)
+    {
+        HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
+        return getRequestUrlWithQuery(request, http2Https);
+    }
+
+    public static String getRequestUrlWithQuery(HttpServletRequest request, boolean http2Https)
+    {
+        String url = request.getRequestURL().toString();
+        if (http2Https && url.startsWith("http:"))
+        {
+            url = "https:" + url.substring(5);
+        }
+
+        String query = request.getQueryString();
+        if (query != null)
+        {
+            url += "?" + query;
+        }
+        return url;
+    }
+
     /**
      * 获得接口地址。见{@linkplain #getPortUrl(OftenObject, String, String, String, String, String, boolean)}。
      *
@@ -180,7 +203,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         StringBuilder stringBuilder = new StringBuilder();
-        String host=getHost(request,http2Https);
+        String host = getHost(request, http2Https);
 
         stringBuilder.append(host);
         stringBuilder.append(urlPrefix != null ? urlPrefix : OftenServlet.getUriPrefix(request));
@@ -306,7 +329,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public String getHost(boolean http2Https)
     {
         HttpServletRequest request = getOriginalRequest();
-        return getHost(request,http2Https);
+        return getHost(request, http2Https);
 
 //        String host;
 //        if (http2Https && request.getScheme().equals("http"))
