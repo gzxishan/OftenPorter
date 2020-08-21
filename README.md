@@ -3,9 +3,9 @@
 
 ##
 # 版本
-当前最新版本为  [**1.2.113**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
+当前最新版本为  [**1.2.119**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.2.113-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.119-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
@@ -24,6 +24,8 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.119 2020/08/21
 1. 完善`@PathMapping`，被注解的函数可以返回false、从而不自行处理请求；
 2. 完善`MyBatisDao`，支持从Dao里获取对应的`MyBatisDao`，从而可以获取数据表名、配置；
 3. 支持`MyBatis`的`Cursor`；
