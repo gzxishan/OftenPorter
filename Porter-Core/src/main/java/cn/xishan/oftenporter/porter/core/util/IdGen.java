@@ -60,7 +60,7 @@ public class IdGen implements Serializable
 
     private final long MIN_SECONDS = 30 * 365 * 24 * 3600;//大约30年
     private final Object KEY = new Object();
-    private char[] base;
+    private char[] base;//用于生成id的字符集合
     private int[] nums;
     private char[] idchars;
     private int dateindex, idindex;
@@ -669,6 +669,35 @@ public class IdGen implements Serializable
         Arrays.sort(chars);
         this.base = chars;
         setDatelen(this.datelen);
+    }
+
+    /**
+     * 生成指定长度的随机字符数组，字符范围为当前实例字符范围。
+     *
+     * @param length
+     * @return
+     */
+    public char[] randChars(int length)
+    {
+        IRand rand = iRandBuilder.build();
+        final int blen = base.length;
+        char[] cs = new char[length];
+        for (int i = 0; i < length; i++)
+        {
+            cs[i] = base[rand.nextInt(blen)];
+        }
+        return cs;
+    }
+
+    /**
+     * 见{@linkplain #randChars(int)}
+     *
+     * @param length
+     * @return
+     */
+    public String randString(int length)
+    {
+        return new String(randChars(length));
     }
 
     public synchronized String nextId()
