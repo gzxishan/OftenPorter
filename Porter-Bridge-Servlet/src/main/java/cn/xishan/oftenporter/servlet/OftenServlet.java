@@ -741,6 +741,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     @Override
     public void destroy()
     {
+        LOGGER.warn("destroy servlet...");
         destroyAll();
         super.destroy();
 //        WsMain.destroy();

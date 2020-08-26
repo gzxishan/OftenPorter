@@ -3,6 +3,8 @@ package cn.xishan.oftenporter.porter.core.init;
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.StateListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -11,6 +13,8 @@ import java.util.List;
  */
 class StateListenerForAll implements StateListener
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StateListenerForAll.class);
+
     private List<StateListener> stateListenerList;
 
     public StateListenerForAll(List<StateListener> stateListenerList)
@@ -78,6 +82,7 @@ class StateListenerForAll implements StateListener
     {
         for (StateListener stateListener : stateListenerList)
         {
+            LOGGER.info("beforeDestroy:{}", stateListenerList);
             stateListener.beforeDestroy();
         }
     }
@@ -87,6 +92,7 @@ class StateListenerForAll implements StateListener
     {
         for (int i = stateListenerList.size() - 1; i >= 0; i--)
         {
+            LOGGER.info("beforeDestroy:{}", stateListenerList.get(i));
             stateListenerList.get(i).afterDestroy();
         }
     }

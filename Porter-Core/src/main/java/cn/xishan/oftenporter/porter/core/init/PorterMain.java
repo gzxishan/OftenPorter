@@ -349,8 +349,8 @@ public final class PorterMain
         autoSetHandle.addAutoSetsForNotPorter(innerContextBridge.getContextAutoSetMap().values());
         autoSetHandle.addAutoSetsForNotPorter(new Object[]{argumentsFactory});
 
-        LOGGER.debug("add autoSet StateListener...");
         List<StateListener> stateListenerList = porterConf.getStateListenerList();
+        LOGGER.debug("add autoSet StateListener:size={}", stateListenerList.size());
         autoSetHandle.addAutoSetsForNotPorter(stateListenerList);
 
         LOGGER.debug("add autoSet for addAutoSetsForNotPorter...");
@@ -506,10 +506,10 @@ public final class PorterMain
      */
     public void destroyAll()
     {
+        LOGGER.info("[{}] destroyAll...", getBridgeLinker().currentName());
         synchronized (PorterMain.class)
         {
             checkInit();
-            LOGGER.debug("[{}] destroyAll...", getBridgeLinker().currentName());
             Iterator<Context> iterator = portExecutor.contextIterator();
             while (iterator.hasNext())
             {
@@ -518,7 +518,7 @@ public final class PorterMain
                 destroyOne(context);
             }
             portExecutor.clear();
-            LOGGER.debug("[{}] destroyAll end!", getBridgeLinker().currentName());
+            LOGGER.info("[{}] destroyAll end!", getBridgeLinker().currentName());
         }
     }
 
@@ -530,12 +530,12 @@ public final class PorterMain
         {
             String contextName = context.getName();
             StateListener stateListenerForAll = context.stateListenerForAll;
-            LOGGER.debug("Context [{}] beforeDestroy...", contextName);
+            LOGGER.info("Context [{}] beforeDestroy...", contextName);
             stateListenerForAll.beforeDestroy();
             IAutoSetterImpl autoSetter = (IAutoSetterImpl) context.contextPorter.getAutoSetter();
             autoSetter.onOtherDestroy();
             context.contextPorter.destroy();
-            LOGGER.debug("Context [{}] destroyed!", contextName);
+            LOGGER.info("Context [{}] destroyed!", contextName);
             stateListenerForAll.afterDestroy();
             if (portExecutor.contextSize() == 0)
             {
