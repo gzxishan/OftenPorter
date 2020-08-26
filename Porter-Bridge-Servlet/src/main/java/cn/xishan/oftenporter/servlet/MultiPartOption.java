@@ -1,9 +1,11 @@
 package cn.xishan.oftenporter.servlet;
 
+import java.io.File;
+
 /**
  * 上传的文件最后变成{@linkplain FilePart}对象。
  * <p>
- *     <strong>注意</strong>：使用{@linkplain IgnoreDefaultMultipart}来忽略该处理。
+ * <strong>注意</strong>：使用{@linkplain IgnoreDefaultMultipart}来忽略该处理。
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2017/4/15.
@@ -17,7 +19,7 @@ public class MultiPartOption
     /**
      * 是否解析json对象为参数,默认为false。
      */
-    public boolean decodeJsonParams=false;
+    public boolean decodeJsonParams = false;
 
     public MultiPartOption(String tempDir, int maxBytesEachFile, int totalBytes)
     {
@@ -25,7 +27,19 @@ public class MultiPartOption
         {
             tempDir = System.getProperty("java.io.tmpdir");
         }
-        this.tempDir = tempDir;
+        this.tempDir = tempDir.replace(File.separatorChar, '/');
+        try
+        {
+            File dir = new File(tempDir);
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         this.maxBytesEachFile = maxBytesEachFile;
         this.totalBytes = totalBytes;
     }

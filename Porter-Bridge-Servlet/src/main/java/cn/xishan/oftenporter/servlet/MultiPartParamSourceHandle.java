@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  另见{@linkplain MultiPartOption}。
+ * 另见{@linkplain MultiPartOption}。
+ *
  * @author Created by https://github.com/CLovinr on 2017/4/15.
  */
 class MultiPartParamSourceHandle extends PutParamSourceHandle
@@ -78,7 +79,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
         } else if (!ServletFileUpload.isMultipartContent(request) ||
                 porterFun.isAnnotationPresent(IgnoreDefaultMultipart.class) ||
                 porterClass.isAnnotationPresent(IgnoreDefaultMultipart.class)
-                )
+        )
         {
             return null;
         }
@@ -108,7 +109,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                 File tempFile;
                 if (fileItem.isInMemory())
                 {
-                    tempFile = File.createTempFile(OftenKeyUtil.randomUUID(), ".temp", new File(multiPartOption.tempDir));
+                    tempFile = new File(multiPartOption.tempDir + OftenKeyUtil.randomUUID() + ".temp");
                     FileTool.write2File(fileItem.getInputStream(), tempFile, true);
                 } else
                 {
