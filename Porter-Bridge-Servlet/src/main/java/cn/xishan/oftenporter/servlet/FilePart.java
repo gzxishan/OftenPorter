@@ -5,6 +5,8 @@ import cn.xishan.oftenporter.porter.core.util.FileTool;
 import java.io.File;
 
 /**
+ * 使用完成后需要调用{@linkplain #delete()}。
+ *
  * @author Created by https://github.com/CLovinr on 2017/4/15.
  */
 public class FilePart implements AutoCloseable
@@ -17,13 +19,15 @@ public class FilePart implements AutoCloseable
 
     public String[] originalNames;
     public File[] files;
+    private Object ref;
 
-    public FilePart(String[] originalNames, File[] files)
+    public FilePart(String[] originalNames, File[] files, Object ref)
     {
         this.originalName = originalNames[0];
         this.file = files[0];
         this.originalNames = originalNames;
         this.files = files;
+        this.ref = ref;
     }
 
     /**
@@ -37,6 +41,7 @@ public class FilePart implements AutoCloseable
     @Override
     public void close()
     {
+        ref = null;
         for (File file : files)
         {
             FileTool.delete(file);

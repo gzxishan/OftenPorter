@@ -109,7 +109,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                 File tempFile;
                 if (fileItem.isInMemory())
                 {
-                    tempFile = new File(multiPartOption.tempDir + OftenKeyUtil.randomUUID() + ".temp");
+                    tempFile = new File(multiPartOption.tempDir + "/" + OftenKeyUtil.randomUUID() + ".tmp");
                     FileTool.write2File(fileItem.getInputStream(), tempFile, true);
                 } else
                 {
@@ -123,13 +123,8 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                     origin = OftenKeyUtil.randomUUID();
                 }
 
-                List<Object[]> files = filesMap.get(name);
-                if (files == null)
-                {
-                    files = new ArrayList<>(2);
-                    filesMap.put(name, files);
-                }
-                files.add(new Object[]{origin, tempFile});
+                List<Object[]> files = filesMap.computeIfAbsent(name, k -> new ArrayList<>(2));
+                files.add(new Object[]{origin, tempFile, fileItem});//引用fileItem，防止文件被清理
             }
         }
 
@@ -138,15 +133,17 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             List<Object[]> filesList = entry.getValue();
             String[] origins = new String[filesList.size()];
             File[] files = new File[filesList.size()];
+            FileItem[] fileItems = new FileItem[filesList.size()];
 
             for (int i = 0; i < origins.length; i++)
             {
                 Object[] objs = filesList.get(i);
                 origins[i] = (String) objs[0];
                 files[i] = (File) objs[1];
+                fileItems[i] = (FileItem) objs[2];
             }
-
-            map.put(entry.getKey(), new FilePart(origins, files));
+            //引用fileItem，防止文件使用前就被清理
+            map.put(entry.getKey(), new FilePart(origins, files, fileItems));
         }
 
         ParamSource paramSource = new DefaultParamSource(map, oftenObject.getRequest());
