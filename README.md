@@ -24,7 +24,8 @@
 
 ## 发布记录
 ### v进行中
-1. 增加`IdGen`.`randChars()`
+1. 增加`IdGen`.`randChars()`；
+2. 修复`queryArrayContains`判断问题；
 
 ### v1.2.119 2020/08/21
 1. 完善`@PathMapping`，被注解的函数可以返回false、从而不自行处理请求；

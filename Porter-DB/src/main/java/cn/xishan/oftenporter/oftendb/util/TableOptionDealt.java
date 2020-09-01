@@ -123,7 +123,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
             return obj;
         }
 
-        if (tableOption.queryArray != null && queryArrayContains != null)
+        if (tableOption.queryArray != null && queryArrayContains.length > 0)
         {
             for (int i = 0; i < tableOption.queryArray.size(); i += 2)
             {
@@ -147,7 +147,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
             return obj;
         }
         Object order = tableOption.settings == null ? null : tableOption.settings.get("order");
-        if (order != null && orderContains != null)
+        if (order != null && orderContains.length>0)
         {
             if (order instanceof JSONArray)
             {
