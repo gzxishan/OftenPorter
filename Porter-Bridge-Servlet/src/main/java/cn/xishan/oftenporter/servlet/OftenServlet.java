@@ -320,11 +320,15 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             return;//已经初始化
         }
 //        WsMain.init(config.getServletContext());
+
+        ServletContext servletContext = config.getServletContext();
+        servletContext.setAttribute(StartupServlet.class.getName(), this);
+        servletContext.setAttribute(WrapperFilterManager.class.getName(), wrapperFilterManager);
+
         try
         {
             //检查mapping是否正确
-            ServletRegistration servletRegistration = config.getServletContext()
-                    .getServletRegistration(config.getServletName());
+            ServletRegistration servletRegistration = servletContext.getServletRegistration(config.getServletName());
             if (servletRegistration != null)
             {
                 for (String mapping : servletRegistration.getMappings())
@@ -469,8 +473,6 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         }
 
         porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
-        servletContext.setAttribute(StartupServlet.class.getName(), this);
-        servletContext.setAttribute(WrapperFilterManager.class.getName(), wrapperFilterManager);
 
         porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
