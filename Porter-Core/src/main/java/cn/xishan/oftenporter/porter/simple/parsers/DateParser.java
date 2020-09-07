@@ -109,6 +109,7 @@ public class DateParser extends TypeParser
             {
                 String theStr = String.valueOf(value).trim()
                         .replace("\"", "")
+                        .replace('/', '-')
                         .replaceAll("[\\s]{3,}", "")
                         .replaceAll("[\\s]{2}", " ");
 

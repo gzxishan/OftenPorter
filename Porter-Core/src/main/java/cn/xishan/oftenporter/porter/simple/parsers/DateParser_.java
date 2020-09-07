@@ -34,8 +34,13 @@ abstract class DateParser_ extends TypeParser
                 v = new Date((long) value);
             } else
             {
+                String theStr = String.valueOf(value).trim()
+                        .replace("\"", "")
+                        .replace('/', '-')
+                        .replaceAll("[\\s]{3,}", "")
+                        .replaceAll("[\\s]{2}", " ");
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-                v = simpleDateFormat.parse(String.valueOf(value));
+                v = simpleDateFormat.parse(theStr);
             }
 
             result = new ParseResult(v);
