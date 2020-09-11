@@ -207,7 +207,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             PortMethod method) throws IOException
     {
-        OftenServletResponse wresp = new OftenServletResponse(response);
+        OftenServletResponse wresp = new OftenServletResponse(request,response);
         doRequest(request, path, response, wresp, method);
     }
 

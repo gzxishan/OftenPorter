@@ -15,22 +15,30 @@ class HttpSessionConfigurator extends ServerEndpointConfig.Configurator
 {
 
     private ServerEndpointConfig.Configurator customer;
+    private static final ThreadLocal<HttpSession> SESSION_THREAD_LOCAL = new ThreadLocal<>();
 
     public HttpSessionConfigurator(ServerEndpointConfig.Configurator customer)
     {
         this.customer = customer;
     }
 
+    static void setSession(HttpSession session)
+    {
+        SESSION_THREAD_LOCAL.set(session);
+    }
+
     @Override
     public void modifyHandshake(ServerEndpointConfig sec,
             HandshakeRequest request, HandshakeResponse response)
     {
-        HttpSession httpSession = (HttpSession) request.getHttpSession();
+        HttpSession httpSession = SESSION_THREAD_LOCAL.get();
+        SESSION_THREAD_LOCAL.remove();
+
         BridgeData bridgeData = (BridgeData) httpSession.getAttribute(BridgeData.class.getName());
         httpSession.removeAttribute(BridgeData.class.getName());
 
         sec.getUserProperties().put(BridgeData.class.getName(), bridgeData.gotData());
-        sec.getUserProperties().put(HttpSession.class.getName(),httpSession);
+        sec.getUserProperties().put(HttpSession.class.getName(), httpSession);
         if (customer != null)
         {
             customer.modifyHandshake(sec, request, response);

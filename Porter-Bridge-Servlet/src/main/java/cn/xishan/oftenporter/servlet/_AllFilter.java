@@ -1,5 +1,7 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.servlet.websocket.IContainerResource;
+
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -15,7 +17,7 @@ public final class _AllFilter
 {
     private static final String KEY = "---Wrapper--Filter--Manager--";
 
-    static class RequestWrapper extends HttpServletRequestWrapper
+    static class RequestWrapper extends HttpServletRequestWrapper implements IContainerResource<HttpServletRequest>
     {
         private boolean hasDispatcher = false;
 
@@ -41,6 +43,12 @@ public final class _AllFilter
         public boolean isHasDispatcher()
         {
             return hasDispatcher;
+        }
+
+        @Override
+        public HttpServletRequest containerRes(HttpServletRequest res)
+        {
+            return (HttpServletRequest) super.getRequest();
         }
     }
 

@@ -17,6 +17,9 @@ import java.lang.annotation.*;
  * <pre>
  *     兼容性：基于jsr356。
  * </pre>
+ * <p>
+ * <strong>注意：</strong>包装后的request和response可能需要实现接口{@linkplain IContainerResource}，用于获取容器本身的对象。
+ * </p>
  *
  * @author Created by https://github.com/CLovinr on 2017/10/12.
  */

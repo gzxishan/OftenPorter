@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet.websocket;
 
+import cn.xishan.oftenporter.servlet.OftenServletResponse;
 import cn.xishan.oftenporter.servlet.StartupServlet;
 import cn.xishan.oftenporter.servlet._AllFilter;
 import org.slf4j.Logger;
@@ -45,11 +46,16 @@ public final class OftenWebSocketFilter extends _AllFilter.FilterX
         {
             //接入框架进行处理
             oftenServlet.service(request, response);
-//            if (request.getAttribute(BridgeData.class.getName()) == null)
-//            {//已经成功接入websocket
-//                return;
-//            }
+
+            if (request.getAttribute(OftenServletResponse.class.getName()) == null)
+            {//处理正常，连接未关闭
+                HttpSessionConfigurator.setSession(request.getSession());
+            }
+
+            request = IContainerResource.getOrigin(request);
+            response = IContainerResource.getOrigin(response);
         }
+
         chain.doFilter(request, response);
     }
 }

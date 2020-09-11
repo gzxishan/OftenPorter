@@ -41,7 +41,7 @@ public class ServletOftenObject extends OftenObject
     {
         this("", "", "", result);
         oftenRequest = new OftenServletRequest(request, path, response, PortMethod.valueOf(request.getMethod()));
-        oftenResponse = new OftenServletResponse(response);
+        oftenResponse = new OftenServletResponse(request,response);
         paramSource = new DefaultParamSource(oftenRequest);
         paramSource.setUrlResult(result);
     }

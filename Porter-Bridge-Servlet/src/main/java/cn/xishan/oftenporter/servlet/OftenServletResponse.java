@@ -4,12 +4,14 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.local.LocalResponse;
+import cn.xishan.oftenporter.servlet.websocket.IContainerResource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
@@ -19,7 +21,7 @@ public class OftenServletResponse extends LocalResponse
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(OftenServletResponse.class);
 
-    static class HttpServletResponseWrapperImpl extends HttpServletResponseWrapper
+    private class HttpServletResponseWrapperImpl extends HttpServletResponseWrapper implements IContainerResource<HttpServletResponse>
     {
 
         int hasGotStreamType = 0;
@@ -33,6 +35,7 @@ public class OftenServletResponse extends LocalResponse
         public ServletOutputStream getOutputStream() throws IOException
         {
             hasGotStreamType = 1;
+            request.setAttribute(OftenServletResponse.class.getName(), "1");
             return super.getOutputStream();
         }
 
@@ -40,15 +43,24 @@ public class OftenServletResponse extends LocalResponse
         public PrintWriter getWriter() throws IOException
         {
             hasGotStreamType = 2;
+            request.setAttribute(OftenServletResponse.class.getName(), "2");
             return super.getWriter();
+        }
+
+        @Override
+        public HttpServletResponse containerRes(HttpServletResponse res)
+        {
+            return (HttpServletResponse) getResponse();
         }
     }
 
+    private HttpServletRequest request;
     private HttpServletResponseWrapperImpl response;
 
-    OftenServletResponse(HttpServletResponse response)
+    OftenServletResponse(HttpServletRequest request, HttpServletResponse response)
     {
         super(null);
+        this.request = request;
         this.response = new HttpServletResponseWrapperImpl(response);
     }
 
@@ -64,6 +76,7 @@ public class OftenServletResponse extends LocalResponse
             }
         } else
         {
+            request.setAttribute(OftenServletResponse.class.getName(), "0");
             try (PrintWriter printWriter = response.getWriter())
             {
                 response.hasGotStreamType = 2;
