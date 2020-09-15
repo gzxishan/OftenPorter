@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings.Order;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import com.sun.org.apache.bcel.internal.generic.RET;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -517,14 +518,27 @@ public class SqlUtil
         }
     }
 
+
     /**
      * @param tableNamePattern 为null表示导出所有的。
      * @param conn
-     * @param coverString 如“`”
+     * @param coverString      如“`”
      * @return
      */
     public static List<CreateTable> exportCreateTable(String tableNamePattern, Connection conn,
             String coverString)
+    {
+        return exportCreateTable(tableNamePattern, conn, coverString, true);
+    }
+
+    /**
+     * @param tableNamePattern 为null表示导出所有的。
+     * @param conn
+     * @param coverString      如“`”
+     * @return
+     */
+    public static List<CreateTable> exportCreateTable(String tableNamePattern, Connection conn,
+            String coverString, boolean closeConn)
     {
         try
         {
@@ -564,7 +578,10 @@ public class SqlUtil
             throw new DBException(e);
         } finally
         {
-            OftenTool.close(conn);
+            if (closeConn)
+            {
+                OftenTool.close(conn);
+            }
         }
 
 

@@ -410,6 +410,7 @@ public class IdGen implements Serializable
                     sleep = 1;
                 }
             }
+
             if (sleep > 0)
             {
                 try
@@ -421,6 +422,7 @@ public class IdGen implements Serializable
                 }
                 t = System.currentTimeMillis();
             }
+
             long dtime = (t - fromTimeMillis) / (isSecond ? 1000 : 1);
             int blen = base.length;
             int dlen = isSecond ? datelen : datelen + 2;
@@ -429,6 +431,7 @@ public class IdGen implements Serializable
             {
                 cs[i] = base[0];
             }
+
             for (int i = 0, k = dlen - 1; i < dlen; i++, k--)
             {
                 int m = (int) (dtime % blen);

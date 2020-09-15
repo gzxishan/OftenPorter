@@ -33,7 +33,7 @@ public interface MyBatisDao
     <T> T mapper(Class<T> clazz);
 
     /**
-     * 如果开启了事务，则返回当前连接；否则返回新的连接对象。
+     * 如果开启了事务，则返回当前连接；否则返回新的连接对象，<strong>注意：</strong>此时需要手动关闭。
      *
      * @return
      */

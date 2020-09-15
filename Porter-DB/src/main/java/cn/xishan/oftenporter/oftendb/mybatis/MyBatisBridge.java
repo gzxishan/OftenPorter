@@ -97,6 +97,12 @@ public class MyBatisBridge
             }
             properties.setProperty(key, propertiesJson.getString(key));
         }
+
+        if (OftenTool.isEmpty(dsType))
+        {
+            throw new NullPointerException("expected dsType");
+        }
+
         return buildDataSource(dsType, properties);
     }
 
@@ -116,6 +122,12 @@ public class MyBatisBridge
      */
     public static DataSource buildDataSource(String dataSourceClass, Properties properties)
     {
+
+        if (OftenTool.isEmpty(dataSourceClass))
+        {
+            throw new NullPointerException("expected dataSourceClass");
+        }
+
         try
         {
             Class<?> clazz = PackageUtil.newClass(dataSourceClass, null);
