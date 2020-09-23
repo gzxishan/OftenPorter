@@ -70,6 +70,7 @@ public class IdGen implements Serializable
     private long lastTime;
     private IRandBuilder iRandBuilder;
     private long fromTimeMillis;
+    private String netMac;
 
     /**
      * 日期长度为7、随机长度为4.
@@ -306,6 +307,17 @@ public class IdGen implements Serializable
         return idGen;
     }
 
+    public String getNetMacContent()
+    {
+        return netMac;
+    }
+
+    public static String getNetMacContent(char[] chars)
+    {
+        chars = dealBase(chars);
+        return buildNetMac(chars);
+    }
+
     private static final String NET_MAC;
 
     static
@@ -329,7 +341,7 @@ public class IdGen implements Serializable
     }
 
     /**
-     * 根据可用网卡中的最大mac地址生成,8个字符长度
+     * 根据可用网卡中的最大mac地址生成,8个字符长度，使用默认字符集。
      *
      * @return
      */
@@ -651,7 +663,7 @@ public class IdGen implements Serializable
         this.datelen = datelen;
     }
 
-    public synchronized void setBase(char[] chars)
+    private static char[] dealBase(char[] chars)
     {
         Set<Character> set = new HashSet<>();
         for (char c : chars)
@@ -670,8 +682,14 @@ public class IdGen implements Serializable
             chars[i++] = c;
         }
         Arrays.sort(chars);
-        this.base = chars;
+        return chars;
+    }
+
+    public synchronized void setBase(char[] chars)
+    {
+        this.base = dealBase(chars);
         setDatelen(this.datelen);
+        this.netMac = buildNetMac(this.base);
     }
 
     /**
