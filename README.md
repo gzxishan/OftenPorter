@@ -3,9 +3,9 @@
 
 ##
 # 版本
-当前最新版本为  [**1.2.128**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
+当前最新版本为  [**1.2.131**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.2.128-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.131-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
@@ -24,6 +24,8 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；
 2. 完善IdGen；
 3. 增加`ServletUtils`；
