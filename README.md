@@ -24,6 +24,9 @@
 
 ## 发布记录
 ### v进行中
+1. 完善`SqlUtil`；
+2. 完善IdGen；
+3. 增加`ServletUtils`；
 
 ### v1.2.128 2020/09/14
 1. 增加`IdGen`.`randChars()`；
