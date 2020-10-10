@@ -24,6 +24,7 @@
 
 ## 发布记录
 ### v进行中
+1. 增加`TypeTo`.`parseParameter`；
 
 ### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；

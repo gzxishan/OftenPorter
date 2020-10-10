@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheOne;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
@@ -12,13 +13,17 @@ import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -32,9 +37,11 @@ import java.util.*;
 public class TypeTo
 {
 
+    private Map<String, IArgumentsFactory.IArgsHandle> handleMap = new ConcurrentHashMap<>();
     private final Logger LOGGER;
     private InnerContextBridge innerContextBridge;
     private PortUtil portUtil;
+    private DefaultArgumentsFactory argumentsFactory;
 
     /**
      * @param innerContextBridge
@@ -42,6 +49,7 @@ public class TypeTo
     public TypeTo(InnerContextBridge innerContextBridge)
     {
         this.innerContextBridge = innerContextBridge;
+        this.argumentsFactory = new DefaultArgumentsFactory();
         LOGGER = LogUtil.logger(TypeTo.class);
         portUtil = new PortUtil();
     }
@@ -119,6 +127,32 @@ public class TypeTo
         }
     }
 
+    public <T> T parseParameter(Class<?> realClass, Method method, int argIndex,
+            OftenObject oftenObject) throws RuntimeException
+    {
+        String key = method + "@AT@ " + argIndex + "@OF@ " + realClass.getName();
+
+        try
+        {
+            IArgumentsFactory.IArgsHandle argsHandle = handleMap.get(key);
+            if (argsHandle == null)
+            {
+                argsHandle = argumentsFactory
+                        .newIArgsHandle(realClass, method, new int[]{argIndex},
+                                innerContextBridge.innerBridge.globalParserStore);
+                handleMap.put(key, argsHandle);
+            }
+            Object[] result = argsHandle.getInvokeArgs(oftenObject, null, method, null);
+            return (T) result[0];
+        } catch (RuntimeException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public <T> T parse(Class<T> clazz, final JSONObject jsonObject) throws RuntimeException
     {
@@ -126,6 +160,7 @@ public class TypeTo
         {
             return null;
         }
+
         ParamSource paramSource = new ParamSource()
         {
             @Override

@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.local.porter;
 
 import cn.xishan.oftenporter.porter.core.annotation.param.BindEntities;
 import cn.xishan.oftenporter.porter.core.annotation.param.MixinParseFrom;
+import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.sysset.TypeTo;
 import cn.xishan.oftenporter.porter.core.annotation.*;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -62,11 +64,23 @@ public class HelloPorter extends SuperSetPorter
     private static TypeTo typeTo;
 
     @PortIn(value = "say", nece = {"name", "age"})
-    public Object say(OftenObject oftenObject)
+    public Object say(OftenObject oftenObject) throws Exception
     {
-        Assert.assertEquals(AspectHandle.class,oftenObject.getRequestData("aspect-handle"));
+        oftenObject.url().setParam("start", "2020-05-28T18:30:38.000Z");
+        Date start = typeTo
+                .parseParameter(getClass(), HelloPorter.class.getDeclaredMethod("testParseParameter", Date.class), 0,
+                        oftenObject);
+        this.testParseParameter(start);
+
+
+        Assert.assertEquals(AspectHandle.class, oftenObject.getRequestData("aspect-handle"));
         int age = (int) oftenObject._fn[1];
         return oftenObject._fn[0] + "+" + age;
+    }
+
+    private void testParseParameter(@Nece("start") Date start)
+    {
+        LOGGER.info("start:{}", start);
     }
 
     @PortIn(tiedType = TiedType.METHOD, nece = {"sex"}, method = PortMethod.POST)
@@ -104,7 +118,7 @@ public class HelloPorter extends SuperSetPorter
         try
         {
             proxyUnit.test();
-            LOGGER.debug("{},{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3,autoSetObj4, globalSet);
+            LOGGER.debug("{},{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3, autoSetObj4, globalSet);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("name", "TypeTo转换");
             jsonObject.put("myAge", "19");

@@ -10,6 +10,7 @@ import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
+import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
@@ -168,12 +169,12 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
         private ArgDealt[] argHandles;
         private Set<Class> types;
+        private int[] argsIndex;
 
-        public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+        //argsIndex可选择指定的参数
+        public IArgsHandleImpl(@MayNull PorterOfFun porterOfFun, Class realClass, Method method,
+                TypeParserStore typeParserStore, int[] argsIndex) throws Exception
         {
-            Class realClass = porterOfFun.getPorter().getClazz();
-
-            Method method = porterOfFun.getMethod();
             Annotation[][] methodAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
 
@@ -181,9 +182,23 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             List<ArgDealt> argHandleList = new ArrayList<>();
 
             Class[] realMethodArgTypes = AnnoUtil.Advance.getParameterRealTypes(realClass, method);
-            this.types = new HashSet<>(realMethodArgTypes.length);
-            for (int i = 0; i < realMethodArgTypes.length; i++)
+
+            if (argsIndex == null)
             {
+                this.types = new HashSet<>(realMethodArgTypes.length);
+                argsIndex = new int[realMethodArgTypes.length];
+                for (int i = 0; i < argsIndex.length; i++)
+                {
+                    argsIndex[i] = i;
+                }
+            }else{
+                this.types = new HashSet<>(argsIndex.length);
+            }
+            this.argsIndex = argsIndex;
+
+            for (int k = 0; k < argsIndex.length; k++)
+            {
+                int i = argsIndex[k];
                 Class<?> paramType = realMethodArgTypes[i];
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
@@ -196,9 +211,20 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             this.argHandles = argHandleList.toArray(new ArgDealt[0]);
         }
 
-        public abstract ArgDealt newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+        public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+        {
+            this(porterOfFun, porterOfFun.getPorter().getClazz(), porterOfFun.getMethod(), typeParserStore, null);
+        }
+
+        public abstract ArgDealt newHandle(AnnotationDealt annotationDealt, @MayNull PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
+
+        @Override
+        public int[] getArgsIndex()
+        {
+            return argsIndex;
+        }
 
         @Override
         public boolean hasParameterType(OftenObject oftenObject, PorterOfFun fun, Method method, Class<?> type)
@@ -211,32 +237,41 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         {
             Map<String, Object> map;
             PorterOfFun.ArgData argData = fun == null ? null : fun.getArgData(oftenObject);
-            if (args.length == 0 && argData == null)
+            if (OftenTool.isEmptyOf(args) && argData == null)
             {
                 map = new HashMap<>(1);
             } else
             {
                 map = new HashMap<>(6);
-                for (Object arg : args)
+
+                if (args != null)
                 {
-                    if (arg != null)
+                    for (Object arg : args)
                     {
-                        if (arg instanceof FunParam)
+                        if (arg != null)
                         {
-                            FunParam funParam = (FunParam) arg;
-                            map.put(funParam.getName(), funParam.getValue());
-                        } else
-                        {
-                            map.put(PortUtil.getRealClass(arg).getName(), arg);
+                            if (arg instanceof FunParam)
+                            {
+                                FunParam funParam = (FunParam) arg;
+                                map.put(funParam.getName(), funParam.getValue());
+                            } else
+                            {
+                                map.put(PortUtil.getRealClass(arg).getName(), arg);
+                            }
                         }
                     }
                 }
+
                 if (argData != null)
                 {
                     map.putAll(argData.getDataMap());
                 }
             }
-            map.put(PorterOfFun.class.getName(), fun);
+
+            if (fun != null)
+            {
+                map.put(PorterOfFun.class.getName(), fun);
+            }
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
@@ -260,13 +295,19 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     public static class IArgsHandleImpl2 extends IArgsHandleImpl
     {
 
+        public IArgsHandleImpl2(Class realClass, Method method,
+                TypeParserStore typeParserStore, int[] argsIndex) throws Exception
+        {
+            super(null, realClass, method, typeParserStore, argsIndex);
+        }
+
         public IArgsHandleImpl2(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
         {
             super(porterOfFun, typeParserStore);
         }
 
         @Override
-        public ArgDealt newHandle(AnnotationDealt annotationDealt, PorterOfFun porterOfFun,
+        public ArgDealt newHandle(AnnotationDealt annotationDealt, @MayNull PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
                 Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception
         {
@@ -288,7 +329,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
             ArgDealt argHandle;
 
-            if (AnnoUtil.isOneOfAnnotationsPresent(paramRealType, BindEntityDealt.class))
+            if (porterOfFun != null && AnnoUtil.isOneOfAnnotationsPresent(paramRealType, BindEntityDealt.class))
             {
                 argHandle = new BindEntityDealtArgDealt(paramRealType, porterOfFun);
             } else
@@ -311,8 +352,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     name = paramName;
                 }
 
-                InNames.Name theName = porterOfFun.getPorter()
-                        .getName(annotationDealt, name, paramRealType, _parse, neceUnece);
+                InNames.Name theName = Porter
+                        .getName(annotationDealt, name, paramRealType, _parse, neceUnece, typeParserStore);
                 if (nece != null)
                 {
                     argHandle = new NeceArgDealt(theName, paramRealType.getName(), typeParserStore);
@@ -330,6 +371,13 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
     public DefaultArgumentsFactory()
     {
+    }
+
+    public IArgsHandleImpl newIArgsHandle(Class realType, Method method, int[] argsIndex,
+            TypeParserStore typeParserStore) throws Exception
+    {
+        IArgsHandleImpl handle = new IArgsHandleImpl2(realType, method, typeParserStore, argsIndex);
+        return handle;
     }
 
     public IArgsHandleImpl newIArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception

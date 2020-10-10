@@ -165,7 +165,7 @@ public final class Porter
     Porter[] mixins;
 
     OftenEntities oftenEntities;
-    private TypeParserStore typeParserStore;
+    //private TypeParserStore _typeParserStore;
 
     private AutoSetHandle autoSetHandle;
     private OftenContextInfo contextInfo;
@@ -174,7 +174,7 @@ public final class Porter
     {
         this.clazz = clazz;
         this.finalPorter = this;
-        this.typeParserStore = autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore;
+        //this._typeParserStore = autoSetHandle.getInnerContextBridge().innerBridge.globalParserStore;
         LOGGER = LogUtil.logger(Porter.class);
         this.autoSetHandle = autoSetHandle;
         this.contextInfo = autoSetHandle.getOftenContextInfo();
@@ -302,10 +302,9 @@ public final class Porter
         return porterOfFun;
     }
 
-    public void dealInNames(TypeParserStore typeParserStore)
+    public void dealInNames(@MayNull TypeParserStore typeParserStore)
     {
         //处理dealtFor
-
         if (oftenEntities != null)
         {
             for (One one : oftenEntities.ones)
@@ -364,21 +363,22 @@ public final class Porter
     {
         for (InNames.Name name : names)
         {
-            dealName(name);
+            dealName(name, typeParserStore);
         }
     }
 
-    public InNames.Name getName(AnnotationDealt annotationDealt, String varName, Class<?> type, _Parse parse,
-            _NeceUnece neceUnece) throws ClassNotFoundException
+    public static InNames.Name getName(AnnotationDealt annotationDealt, String varName, Class<?> type, _Parse parse,
+            _NeceUnece neceUnece, TypeParserStore typeParserStore) throws ClassNotFoundException
     {
-        InNames.Name theName = OftenEntitiesDeal.getName(annotationDealt, neceUnece, varName, type, typeParserStore, false);
+        InNames.Name theName = OftenEntitiesDeal
+                .getName(annotationDealt, neceUnece, varName, type, typeParserStore, false);
         SthUtil.bindTypeParse(InNames.temp(theName), parse, typeParserStore, null,
                 BackableSeek.SeekType.NotAdd_NotBind);
-        dealName(theName);
+        dealName(theName, typeParserStore);
         return theName;
     }
 
-    private void dealName(InNames.Name name)
+    private static void dealName(InNames.Name name, TypeParserStore typeParserStore)
     {
         if (name.typeParserId == null)
         {
@@ -397,7 +397,7 @@ public final class Porter
         autoSetHandle = null;
     }
 
-    public void initArgsHandle(IArgumentsFactory iArgumentsFactory) throws Exception
+    public void initArgsHandle(IArgumentsFactory iArgumentsFactory, TypeParserStore typeParserStore) throws Exception
     {
         for (PorterOfFun fun : childrenWithMethod.values())
         {

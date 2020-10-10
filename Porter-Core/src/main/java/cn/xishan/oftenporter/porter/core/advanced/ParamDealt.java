@@ -16,7 +16,7 @@ public interface ParamDealt
     /**
      * 参数处理错误的原因。
      */
-    public interface FailedReason
+    interface FailedReason
     {
         JSONObject toJSON();
 
@@ -28,7 +28,8 @@ public interface ParamDealt
      *
      * @param names           参数名称
      * @param values          用于放参数值
-     * @param isNecessary     是否是必须参数，可以通过{@linkplain InNames.Name#getNece()}.{@linkplain _Nece#isNece(OftenObject)}
+     * @param isNecessary     是否是必须参数，可以通过{@linkplain InNames.Name#getNeceUnece()}.
+     * {@linkplain _Nece#isNece(OftenObject)}
      *                        来判断是否最终为必需参数。
      * @param paramSource     参数原
      * @param typeParserStore 类型转换store

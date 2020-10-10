@@ -2,16 +2,17 @@ package cn.xishan.oftenporter.porter.core.advanced;
 
 
 import cn.xishan.oftenporter.porter.core.ContextPorter;
-import cn.xishan.oftenporter.porter.core.annotation.*;
+import cn.xishan.oftenporter.porter.core.annotation.MixinOnly;
+import cn.xishan.oftenporter.porter.core.annotation.MixinTo;
+import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
-import cn.xishan.oftenporter.porter.core.annotation.deal._Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
-import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.sth.One;
 import cn.xishan.oftenporter.porter.core.base.InNames;
-import cn.xishan.oftenporter.porter.core.base.ParamSource;
+import cn.xishan.oftenporter.porter.core.base.InNames.Name;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.SeekPackages;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
@@ -24,8 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
-
-import cn.xishan.oftenporter.porter.core.base.InNames.Name;
 
 /**
  * 接口处理的工具类。
@@ -395,6 +394,7 @@ public class PortUtil
                 {
                     value = paramSource.getParam(optionKey);
                 }
+
                 if (value == null)
                 {
                     value = paramSource.getParam(one.clazz.getName());

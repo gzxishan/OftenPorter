@@ -41,6 +41,12 @@ public interface IArgumentsFactory
          */
         Object[] getInvokeArgs(OftenObject oftenObject, PorterOfFun fun, Method method, Object[] args);
 
+        /**
+         * 获取实际参数在函数形参列表中的索引。
+         * @return
+         */
+        int[] getArgsIndex();
+
         boolean hasParameterType(OftenObject oftenObject, PorterOfFun fun, Method method, Class<?> type);
     }
 

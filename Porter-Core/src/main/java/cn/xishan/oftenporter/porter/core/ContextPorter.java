@@ -450,7 +450,8 @@ public class ContextPorter implements IOtherStartDestroy
         {
             while (iterator.hasNext())
             {
-                iterator.next().initArgsHandle(autoSetHandle.getArgumentsFactory());
+                iterator.next().initArgsHandle(autoSetHandle.getArgumentsFactory(),
+                        innerContextBridge.innerBridge.globalParserStore);
             }
         } catch (Exception e)
         {
