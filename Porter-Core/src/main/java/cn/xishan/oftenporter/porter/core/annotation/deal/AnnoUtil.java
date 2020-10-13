@@ -1930,7 +1930,7 @@ public class AnnoUtil
         {
             if (genericType instanceof Class)
             {
-                return (Class<?>) genericType;
+                return ProxyUtil.unwrapProxyForGeneric((Class<?>) genericType);
             }
             realClass = ProxyUtil.unwrapProxyForGeneric(realClass);
 

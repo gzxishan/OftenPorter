@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.util.proxy;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.param.TYPE;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import net.sf.cglib.proxy.Callback;
@@ -64,13 +66,22 @@ public class ProxyUtil
     public static Class unwrapProxyForGeneric(Class clazz)
     {
         //clazz = PortUtil.getRealClass(clazz);
+
+        Class c;
         if (CGLIB_NAME_PATTERN.matcher(clazz.getName()).find())
         {
-            return clazz.getSuperclass();
+            c = clazz.getSuperclass();
         } else
         {
-            return clazz;
+            c = clazz;
         }
+
+        TYPE type = AnnoUtil.getAnnotation(c, TYPE.class);
+        if (type != null)
+        {
+            c = type.value();
+        }
+        return c;
     }
 
     public static Object getRealObject(Object object)
