@@ -639,13 +639,25 @@ public class OftenTool
         if (cause == null)
         {
             cause = throwable;
-        }
-        Throwable thr = unwrapThrowable(cause);
-        cause = thr.getCause();
-        if (cause == null)
+        } else if (cause != throwable)
         {
-            cause = thr;
+            Throwable thr = unwrapThrowable(cause);
+            cause = thr.getCause();
+            if (cause == null)
+            {
+                cause = thr;
+            }
         }
+
+        if (cause instanceof InvocationTargetException)
+        {
+            Throwable thr = ((InvocationTargetException) cause).getTargetException();
+            if (thr != null)
+            {
+                cause = thr;
+            }
+        }
+
         return cause;
     }
 
