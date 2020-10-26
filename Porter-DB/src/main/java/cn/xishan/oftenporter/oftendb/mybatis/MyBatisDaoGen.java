@@ -304,19 +304,6 @@ class MyBatisDaoGen implements AutoSetGen
         return result;
     }
 
-    interface __MyBatisDaoProxy__
-    {
-
-        @PortStart
-        default void onStart() throws Exception
-        {
-            MyBatisDaoImpl myBatisDao = (MyBatisDaoImpl) MyBatisDao.getMyBatisDao(this);
-            myBatisDao.onBindAlias();
-            myBatisDao.onParse();
-        }
-    }
-
-
     static Object doProxy(MyBatisDaoImpl myBatisDao, Class<?> type, String source, boolean wrapDaoThrowable)
     {
         //代理dao后可支持重新加载mybatis文件、支持事务控制等。

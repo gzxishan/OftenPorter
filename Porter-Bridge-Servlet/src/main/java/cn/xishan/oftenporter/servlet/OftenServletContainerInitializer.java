@@ -152,9 +152,6 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                     }
                 }
 
-                BridgeServlet.this.startOne(porterConf);
-//                bindOftenServlet(porterConf.getOftenContextName(), new RealServlet(BridgeServlet.this, initializer));
-
                 String urlPattern = "/" + porterConf.getOftenContextName() + "/*";
                 ServletContext servletContext = getServletContext();
                 HttpServlet httpServlet = new RealServlet(BridgeServlet.this, initializer);
@@ -173,6 +170,9 @@ public final class OftenServletContainerInitializer implements ServletContainerI
                         servletPath.regServlet(BridgeServlet.this);
                     }
                 }
+
+                BridgeServlet.this.startOne(porterConf);
+//                bindOftenServlet(porterConf.getOftenContextName(), new RealServlet(BridgeServlet.this, initializer));
             }
 
             @Override

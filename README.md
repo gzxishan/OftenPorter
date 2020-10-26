@@ -28,6 +28,7 @@
 2. 增加`TYPE`注解；
 3. 完善`OftenTool`.`getCause`，支持`InvocationTargetException`异常的处理；
 4. 增加`OftenServletRequest`.`getPathFromURLWithQuery`；
+5. 修复`__MyBatisDaoProxy__`在jetty embed下无法访问的问题；
 
 ### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；
