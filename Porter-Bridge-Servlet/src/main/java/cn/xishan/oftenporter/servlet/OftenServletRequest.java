@@ -243,7 +243,18 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         }
     }
 
+
+    public static String getPathFromURLWithQuery(CharSequence url)
+    {
+        return getPathFromURL(url, true);
+    }
+
     public static String getPathFromURL(CharSequence url)
+    {
+        return getPathFromURL(url, false);
+    }
+
+    public static String getPathFromURL(CharSequence url, boolean withQuery)
     {
         if (url == null)
         {
@@ -251,10 +262,13 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         }
         String host = getHostFromURL(url);
         String path = url.subSequence(host.length(), url.length()).toString();
-        int index = path.lastIndexOf("?");
-        if (index >= 0)
+        if (!withQuery)
         {
-            path = path.substring(0, index);
+            int index = path.lastIndexOf("?");
+            if (index >= 0)
+            {
+                path = path.substring(0, index);
+            }
         }
         return path;
     }

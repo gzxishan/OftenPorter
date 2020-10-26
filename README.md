@@ -27,6 +27,7 @@
 1. 增加`TypeTo`.`parseParameter`；
 2. 增加`TYPE`注解；
 3. 完善`OftenTool`.`getCause`，支持`InvocationTargetException`异常的处理；
+4. 增加`OftenServletRequest`.`getPathFromURLWithQuery`；
 
 ### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；
