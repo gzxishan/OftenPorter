@@ -7,7 +7,6 @@ import cn.xishan.oftenporter.oftendb.db.DBException;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings;
 import cn.xishan.oftenporter.oftendb.db.QuerySettings.Order;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
-import com.sun.org.apache.bcel.internal.generic.RET;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
