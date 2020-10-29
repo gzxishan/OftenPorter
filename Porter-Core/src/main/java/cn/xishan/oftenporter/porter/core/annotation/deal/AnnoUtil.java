@@ -135,7 +135,7 @@ public class AnnoUtil
         List<DynamicAnnotationImprovableWrap> allDynamicList = new ArrayList<>();
         try
         {
-            String path = "META-INF/cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable";
+            String path = "META-INF/" + IDynamicAnnotationImprovable.class.getName();
             List<String> dynamicNames = ResourceUtil.getAbsoluteResourcesString(path, "utf-8");
 
             for (String _classNames : dynamicNames)
@@ -147,6 +147,7 @@ public class AnnoUtil
                 String[] classNames = OftenStrUtil.split(_classNames.trim(), "\n");
                 for (String className : classNames)
                 {
+                    LOGGER.debug("new IDynamicAnnotationImprovable:{}", className);
                     DynamicAnnotationImprovableWrap dynamic = new DynamicAnnotationImprovableWrap(
                             className);
                     Set<String> supports = dynamic.supportClassNames();

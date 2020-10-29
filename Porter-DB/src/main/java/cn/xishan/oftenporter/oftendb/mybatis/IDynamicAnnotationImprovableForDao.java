@@ -4,6 +4,8 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.advanced.IDynamicAnnotationImprovable;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
@@ -17,6 +19,8 @@ import java.util.Set;
 public class IDynamicAnnotationImprovableForDao extends IDynamicAnnotationImprovable.Adapter
 {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IDynamicAnnotationImprovableForDao.class);
+
     @Override
     public <A extends Annotation> Result<InvocationHandler, A> getAnnotation(Class<?> clazz, Class<A> annotationType)
     {
@@ -27,6 +31,8 @@ public class IDynamicAnnotationImprovableForDao extends IDynamicAnnotationImprov
         MyBatisMapper myBatisMapper = AnnoUtil.getAnnotation(clazz, MyBatisMapper.class);
         if (myBatisMapper != null)
         {
+            LOGGER.debug("mapper:class={},annotation={},{}", clazz, annotationType, myBatisMapper);
+
             InvocationHandler invocationHandler = (proxy, method, args) -> {
                 if (method.getName().equals("gen"))
                 {
