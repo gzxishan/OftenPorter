@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.porter.local;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.DefaultReturnFactory;
+import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetObjForAspectOfNormal;
@@ -75,6 +76,7 @@ public class TestLocalMain
         properties.setProperty("isTest", String.valueOf(true));
         properties.setProperty("bridgeName", "P1");
         properties.setProperty("ref-bridgeName", "ref-#{bridgeName}-#{isTest}");
+        properties.setProperty("change", "a");
         porterConf.getConfigData().putAll(properties);
 
         //porterConf.setEnableTiedNameDefault(false);
@@ -141,8 +143,9 @@ public class TestLocalMain
             handle.next();
         });
 
+        IConfigData configData = porterConf.getConfigData();
         IAutoSetter autoSetter = localMain.startOne(porterConf);
-
+        configData.set("change", "b");
 
         int n = 10 * 10000;
         final int threads = Runtime.getRuntime().availableProcessors();

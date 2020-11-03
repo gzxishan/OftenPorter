@@ -100,6 +100,7 @@ class AutoSetHandleWorkedInstance
                         .doProxyOrNew(objectMayNull, objectClass, autoSetHandle);//用于通用的切面操作而进行代理设置
             }
         }
+
         if (doAutoSet && objectMayNull != null)
         {
             objectMayNull = autoSetHandle.doAutoSetForCurrent(false, objectMayNull, objectMayNull);//递归：设置被设置的变量。

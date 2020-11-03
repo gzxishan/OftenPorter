@@ -80,7 +80,7 @@ public class HelloPorter extends SuperSetPorter
 
     private void testParseParameter(@Nece("start") Date start)
     {
-        LOGGER.info("start:{}", start);
+        //LOGGER.info("start:{}", start);
     }
 
     @PortIn(tiedType = TiedType.METHOD, nece = {"sex"}, method = PortMethod.POST)

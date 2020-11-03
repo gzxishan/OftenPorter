@@ -2,9 +2,14 @@ package cn.xishan.oftenporter.porter.core.annotation;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
-import cn.xishan.oftenporter.porter.core.init.PorterConf;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 
 import java.lang.annotation.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 /**
  * 获取属性值,见{@linkplain IConfigData}。
@@ -80,4 +85,66 @@ public @interface Property
     String defaultVal() default "";
 
     Choice choice() default Choice.Default;
+
+    /**
+     * 当属性值变化时调用，形参（String attr,Type newValue,Type oldValue）
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    @Documented
+    @AspectOperationOfNormal(handle = OnChangeHandle.class)
+    @interface OnChange
+    {
+        /**
+         * 配置属性名。
+         *
+         * @return
+         */
+        String value();
+    }
+
+    class OnChangeHandle extends AspectOperationOfNormal.HandleAdapter<OnChange>
+    {
+        @Override
+        public boolean init(OnChange current, IConfigData configData, Object originObject, Class originClass,
+                Method originMethod) throws Exception
+        {
+
+            if (originObject == null && !Modifier.isStatic(originMethod.getModifiers()))
+            {
+                return false;
+            }
+
+            if (originMethod.getParameterCount() != 3 ||
+                    !String.class.equals(AnnoUtil.Advance.getRealTypeOfMethodParameter(originClass, originMethod, 0))
+                    || !AnnoUtil.Advance.getRealTypeOfMethodParameter(originClass, originMethod, 1)
+                    .equals(AnnoUtil.Advance.getRealTypeOfMethodParameter(originClass, originMethod, 2)))
+            {
+                throw new InitException("method parameter list is illegal");
+            }
+
+            Class type = AnnoUtil.Advance.getRealTypeOfMethodParameter(originClass, originMethod, 1);
+            configData.addOnValueChange(type, (IConfigData.OnValueChange) (attr, newValue, oldValue) -> {
+                originMethod.setAccessible(true);
+                originMethod.invoke(originObject, new Object[]{attr, newValue, oldValue});
+            }, current.value());
+
+            return true;
+        }
+
+        @Override
+        public boolean preInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
+                AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked,
+                Object lastReturn) throws Exception
+        {
+            return true;
+        }
+
+        @Override
+        public Object doInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
+                AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Throwable
+        {
+            return invoker.invoke(args);
+        }
+    }
 }

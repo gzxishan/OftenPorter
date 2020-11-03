@@ -327,6 +327,7 @@ public class AutoSetObjForAspectOfNormal
         {
             return objectMayNull;
         }
+
         if (hasProxy(objectMayNull))
         {
             return objectMayNull;
@@ -375,7 +376,6 @@ public class AutoSetObjForAspectOfNormal
                 }
 
                 String mkey = method.toString();
-
                 List<Object> list = methodHanldeCache.get(mkey);
 
                 if (list == null)
@@ -435,47 +435,11 @@ public class AutoSetObjForAspectOfNormal
             seekedObjectSet.add(objectMayNull);
         }
 
+        Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
+
+        Object objectForInit = objectMayNull;
         if (!methodTypeMap.isEmpty())
         {
-            IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
-
-            Map<Method, AspectOperationOfNormal.Handle[]> aspectHandleMap = new HashMap<>();
-            for (Map.Entry<Method, List<Object>> entry : methodTypeMap.entrySet())
-            {
-                List<Object> annotationList = entry.getValue();
-                List<AspectOperationOfNormal.Handle> handles = new ArrayList<>(annotationList.size());
-
-                for (int i = 0; i < annotationList.size(); i++)
-                {
-                    AspectOperationOfNormal.Handle handle;
-                    Annotation annotation = null;
-                    Object handleObject = annotationList.get(i);
-
-                    if (handleObject != null && handleObject.getClass().isArray())
-                    {
-                        Annotation[] annotations = (Annotation[]) handleObject;
-                        annotation = annotations[0];
-                        AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotations[1];
-
-                        handle = OftenTool.newObject(aspectOperationOfNormal.handle());
-                    } else
-                    {
-                        handle = (AspectOperationOfNormal.Handle) handleObject;
-                    }
-
-                    if (handle.init(annotation, configData, objectMayNull, clazz, entry.getKey()))
-                    {
-                        autoSetHandle.addAutoSetsForNotPorter(new Object[]{handle});
-                        handles.add(handle);
-                    }
-                }
-                if (handles.size() > 0)
-                {
-                    aspectHandleMap.put(entry.getKey(), handles.toArray(new AspectOperationOfNormal.Handle[0]));
-                }
-
-            }
-
             MethodInterceptorImpl methodInterceptor = new MethodInterceptorImpl(objectMayNull, aspectHandleMap);
             Callback[] callbacks = new Callback[]{NoOp.INSTANCE, methodInterceptor};
 
@@ -509,6 +473,54 @@ public class AutoSetObjForAspectOfNormal
         } else if (objectMayNull == null)
         {
             objectMayNull = OftenTool.newObjectMayNull(objectClass);
+        }
+
+        if (objectForInit == null)
+        {
+            objectForInit = objectMayNull;
+        }
+
+
+        if (!methodTypeMap.isEmpty())
+        {
+            IConfigData configData = autoSetHandle.getContextObject(IConfigData.class);
+
+            for (Map.Entry<Method, List<Object>> entry : methodTypeMap.entrySet())
+            {
+                List<Object> annotationList = entry.getValue();
+                List<AspectOperationOfNormal.Handle> handles = new ArrayList<>(annotationList.size());
+
+                for (int i = 0; i < annotationList.size(); i++)
+                {
+                    AspectOperationOfNormal.Handle handle;
+                    Annotation annotation = null;
+                    Object handleObject = annotationList.get(i);
+
+                    if (handleObject != null && handleObject.getClass().isArray())
+                    {
+                        Annotation[] annotations = (Annotation[]) handleObject;
+                        annotation = annotations[0];
+                        AspectOperationOfNormal aspectOperationOfNormal = (AspectOperationOfNormal) annotations[1];
+
+                        handle = OftenTool.newObject(aspectOperationOfNormal.handle());
+                    } else
+                    {
+                        handle = (AspectOperationOfNormal.Handle) handleObject;
+                    }
+
+                    if (handle.init(annotation, configData, objectForInit, clazz, entry.getKey()))
+                    {
+                        autoSetHandle.addAutoSetsForNotPorter(new Object[]{handle});
+                        handles.add(handle);
+                    }
+                }
+                if (handles.size() > 0)
+                {
+                    aspectHandleMap.put(entry.getKey(), handles.toArray(new AspectOperationOfNormal.Handle[0]));
+                }
+
+            }
+
         }
 
         return objectMayNull;

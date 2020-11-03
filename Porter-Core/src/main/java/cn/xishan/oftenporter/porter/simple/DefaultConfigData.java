@@ -14,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,6 +75,22 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         }
     }
 
+    static class Wrapper
+    {
+        final Class type;
+        final OnValueChange change;
+        final String[] attrs;
+
+        public Wrapper(Class type, OnValueChange change, String[] attrs)
+        {
+            this.type = type;
+            this.change = change;
+            this.attrs = attrs;
+        }
+    }
+
+    private List<Wrapper> wrappers = new Vector<>();
+    private Map<String, Integer> attrCount = new Hashtable<>();
     private Properties properties;
     //private Map<String, Object> data = new ConcurrentHashMap<>();
 
@@ -81,6 +100,100 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         if (properties != null)
         {
             this.properties.putAll(properties);
+        }
+    }
+
+    @Override
+    public synchronized <T> void addOnValueChange(Class<T> type, OnValueChange<T> change, String... attrs)
+    {
+        if (type == null)
+        {
+            throw new NullPointerException("expected type");
+        } else if (change == null)
+        {
+            throw new NullPointerException("expected change listener");
+        }
+
+        if (OftenTool.notEmptyOf(attrs))
+        {
+            for (String attr : attrs)
+            {
+                if (attrCount.containsKey(attr))
+                {
+                    attrCount.put(attr, attrCount.get(attr) + 1);
+                } else
+                {
+                    attrCount.put(attr, 1);
+                }
+            }
+
+            wrappers.add(new Wrapper(type, change, attrs));
+        }
+    }
+
+    @Override
+    public synchronized void removeOnValueChange(OnValueChange change)
+    {
+        Iterator<Wrapper> iterator = wrappers.iterator();
+        while (iterator.hasNext())
+        {
+            Wrapper wrapper = iterator.next();
+            if (wrapper.change == change)
+            {
+                for (String attr : wrapper.attrs)
+                {
+                    if (attrCount.containsKey(attr))
+                    {
+                        int count = attrCount.get(attr);
+                        if (--count <= 0)
+                        {
+                            attrCount.remove(attr);
+                        }
+                    }
+                }
+
+                iterator.remove();
+            }
+        }
+    }
+
+    private void onChange(Properties newProps, Properties oldProps)
+    {
+        if (wrappers.size() == 0)
+        {
+            return;
+        }
+
+        JSONObject newConfig = new JSONObject();
+        for (Map.Entry entry : newProps.entrySet())
+        {
+            newConfig.put(String.valueOf(entry.getKey()), entry.getValue());
+        }
+
+        JSONObject oldConfig = new JSONObject();
+        for (Map.Entry entry : oldProps.entrySet())
+        {
+            oldConfig.put(String.valueOf(entry.getKey()), entry.getValue());
+        }
+
+        for (Wrapper wrapper : wrappers)
+        {
+            for (String attr : wrapper.attrs)
+            {
+                try
+                {
+                    Object oldValue = OftenTool.getObjectAttr(wrapper.type, oldConfig, attr, null);
+                    Object newValue = OftenTool.getObjectAttr(wrapper.type, newConfig, attr, null);
+                    if (!OftenTool.isEqual(newValue, oldValue))
+                    {
+                        wrapper.change.onChange(attr, newValue, oldValue);
+                    }
+                } catch (Exception e)
+                {
+                    LOGGER.warn("error for:change={},attr={},type={}", wrapper.change, attr, wrapper.type);
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -345,19 +458,56 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     @Override
     public <T> T set(String key, Object object)
     {
+        Properties old = null;
+        if (attrCount.containsKey(key))
+        {
+            old = new Properties();
+            old.putAll(properties);
+        }
+
         Object rs = properties.put(key, object);
+
+        if (old != null)
+        {
+            onChange(properties, old);
+        }
+
         return (T) rs;
     }
 
     @Override
     public <T> T remove(String key)
     {
-        return (T) properties.remove(key);
+        Properties old = null;
+        if (attrCount.containsKey(key))
+        {
+            old = new Properties();
+            old.putAll(properties);
+        }
+
+        T t = (T) properties.remove(key);
+
+        if (old != null)
+        {
+            onChange(properties, old);
+        }
+        return t;
     }
 
     @Override
     public void putAll(Map<?, ?> map)
     {
+        Properties old = null;
+        for (Object key : map.keySet())
+        {
+            if (attrCount.containsKey(String.valueOf(key)))
+            {
+                old = new Properties();
+                old.putAll(properties);
+                break;
+            }
+        }
+
         if (properties.size() > 0)
         {
             HashMap map2 = new HashMap();
@@ -366,6 +516,11 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             map = map2;
         }
         properties.putAll(map);
+
+        if (old != null)
+        {
+            onChange(properties, old);
+        }
     }
 
     @Override
@@ -430,9 +585,45 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             }
         }
 
-        LOGGER.debug("get prop:name={},property={},value={}", name, property,rs);
+        LOGGER.debug("get prop:name={},property={},value={}", name, property, rs);
+
+        if (target instanceof Field)
+        {
+            WeakReference<Field> fieldRef = new WeakReference<>((Field) target);
+            WeakReference<Object> objRef = new WeakReference<>(object);
+
+            addOnValueChange((Class<Object>) fieldRealType, (attr, newValue, oldValue) -> {
+                try
+                {
+                    Field f = fieldRef.get();
+                    Object obj = objRef.get();
+
+                    if (f == null || obj == null && !Modifier.isStatic(f.getModifiers()))
+                    {
+                        LOGGER.info("field is released:attr={},new={},old={}", attr, newValue, oldValue);
+                    } else
+                    {
+                        f.set(obj, newValue);
+                    }
+                } catch (Exception e)
+                {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }, keys);
+        }
 
         return rs;
+    }
+
+    @Override
+    public Object getValue(Object object, Object target, Class<?> realType, String key, Object defaultValue)
+    {
+        Object value = getProperty(realType, key, null, Property.Choice.Default);
+        if (OftenTool.isNullOrEmptyCharSequence(value))
+        {
+            value = defaultValue;
+        }
+        return value;
     }
 
     private Object getProperty(Class<?> fieldRealType, String key, String defaultVal, Property.Choice choice)

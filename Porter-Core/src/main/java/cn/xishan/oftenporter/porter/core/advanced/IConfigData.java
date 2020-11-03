@@ -25,6 +25,15 @@ import java.util.Set;
  */
 public interface IConfigData
 {
+    interface OnValueChange<T>
+    {
+        void onChange(String attr, T newValue, T oldValue) throws Exception;
+    }
+
+    <T> void addOnValueChange(Class<T> type, OnValueChange<T> change, String... attrs);
+
+    void removeOnValueChange(OnValueChange change);
+
     boolean contains(String key);
 
     long getLong(String key);
@@ -117,4 +126,14 @@ public interface IConfigData
      * @return
      */
     Object getValue(@MayNull @MayProxyObject Object object, Object target, Class<?> realType, Property property);
+
+    /**
+     * @param object
+     * @param target   Method或Field
+     * @param realType
+     * @param key
+     * @return
+     */
+    Object getValue(@MayNull @MayProxyObject Object object, Object target, Class<?> realType, String key,
+            Object defaultValue);
 }
