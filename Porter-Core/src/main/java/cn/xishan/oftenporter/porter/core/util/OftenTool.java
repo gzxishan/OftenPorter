@@ -974,4 +974,243 @@ public class OftenTool
         return defaultNameValues.toJSON();
     }
 
+
+    public static int getObjectAttrInt(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrInt(jsonObject, attr, 0);
+    }
+
+    public static int getObjectAttrInt(JSONObject jsonObject, String attr, int defaultValue)
+    {
+        Integer value = getObjectAttr(Integer.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+
+    public static long getObjectAttrLong(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrLong(jsonObject, attr, 0);
+    }
+
+    public static long getObjectAttrLong(JSONObject jsonObject, String attr, long defaultValue)
+    {
+        Long value = getObjectAttr(Long.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static float getObjectAttrFloat(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrFloat(jsonObject, attr, 0f);
+    }
+
+    public static float getObjectAttrFloat(JSONObject jsonObject, String attr, float defaultValue)
+    {
+        Float value = getObjectAttr(Float.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static double getObjectAttrDouble(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrDouble(jsonObject, attr, 0d);
+    }
+
+    public static double getObjectAttrDouble(JSONObject jsonObject, String attr, double defaultValue)
+    {
+        Double value = getObjectAttr(Double.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static short getObjectAttrShort(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrShort(jsonObject, attr, (short) 0);
+    }
+
+    public static short getObjectAttrShort(JSONObject jsonObject, String attr, short defaultValue)
+    {
+        Short value = getObjectAttr(Short.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static byte getObjectAttrByte(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrByte(jsonObject, attr, (byte) 0);
+    }
+
+    public static byte getObjectAttrByte(JSONObject jsonObject, String attr, byte defaultValue)
+    {
+        Byte value = getObjectAttr(Byte.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static boolean getObjectAttrBoolean(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrBoolean(jsonObject, attr, false);
+    }
+
+    public static boolean getObjectAttrBoolean(JSONObject jsonObject, String attr, boolean defaultValue)
+    {
+        Boolean value = getObjectAttr(Boolean.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static Date getObjectAttrDate(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrDate(jsonObject, attr, null);
+    }
+
+    public static Date getObjectAttrDate(JSONObject jsonObject, String attr, Date defaultValue)
+    {
+        Date value = getObjectAttr(Date.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static String getObjectAttrString(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrString(jsonObject, attr, null);
+    }
+
+    /**
+     * 注意：空字符串也会返回null
+     *
+     * @param jsonObject
+     * @param attr
+     * @param defaultValue
+     * @return
+     */
+    public static String getObjectAttrString(JSONObject jsonObject, String attr, String defaultValue)
+    {
+        String value = getObjectAttr(String.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+
+        if ("".equals(value))
+        {
+            value = null;
+        }
+
+        return value;
+    }
+
+    public static JSONObject getObjectAttrJSON(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrJSON(jsonObject, attr, null);
+    }
+
+
+    public static JSONObject getObjectAttrJSON(JSONObject jsonObject, String attr, JSONObject defaultValue)
+    {
+        JSONObject value = getObjectAttr(JSONObject.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+
+    public static JSONArray getObjectAttrArray(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttrArray(jsonObject, attr, null);
+    }
+
+    public static JSONArray getObjectAttrArray(JSONObject jsonObject, String attr, JSONArray defaultValue)
+    {
+        JSONArray value = getObjectAttr(JSONArray.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    public static Object getObjectAttr(JSONObject jsonObject, String attr)
+    {
+        return getObjectAttr(jsonObject, attr, null);
+    }
+
+    public static Object getObjectAttr(JSONObject jsonObject, String attr, Object defaultValue)
+    {
+        Object value = getObjectAttr(Object.class, jsonObject, attr, null);
+        if (value == null)
+        {
+            value = defaultValue;
+        }
+        return value;
+    }
+
+    /**
+     * 注意：空字符串不会返回null
+     *
+     * @param type
+     * @param jsonObject
+     * @param attr       "rs"、"rs.total"等
+     * @param <T>
+     * @return
+     */
+    public static <T> T getObjectAttr(Class<T> type, JSONObject jsonObject, String attr, T defaultValue)
+    {
+        if (jsonObject == null || OftenTool.isEmpty(attr))
+        {
+            return null;
+        }
+
+        String[] attrs = OftenStrUtil.split(attr, ".");
+
+        JSONObject currentJson = jsonObject;
+
+        Object result = null;
+        for (int i = 0; i < attrs.length && currentJson != null; i++)
+        {
+            if (i == attrs.length - 1)
+            {
+                result = currentJson.getObject(attrs[i], type);
+                break;
+            } else
+            {
+                currentJson = currentJson.getJSONObject(attrs[i]);
+            }
+        }
+
+        if (result == null)
+        {
+            result = defaultValue;
+        }
+
+        return (T) result;
+    }
+
 }

@@ -1,9 +1,12 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -139,5 +142,33 @@ public class OftenToolTest
         Assert.assertTrue(OftenTool.isAssignable(Object.class, Object.class));
         Assert.assertTrue(OftenTool.isAssignable(ArrayList.class, Collection.class));
         Assert.assertTrue(OftenTool.isAssignableForOneOf(String[].class, Object[].class));
+    }
+
+    @Test
+    public void testGetObjectAttr()
+    {
+        JSONObject jsonObject = JSON.parseObject("{" +
+                "a:{" +
+                "b:{c:'C',d:100,e:true,f:null,g:'',date:'2020-11-03'}" +
+                "}," +
+                "x:[]," +
+                "y:{}" +
+                "}");
+
+        Assert.assertEquals(100, OftenTool.getObjectAttrInt(jsonObject, "a.b.d"));
+        Assert.assertEquals("C", OftenTool.getObjectAttrString(jsonObject, "a.b.c"));
+        Assert.assertTrue(OftenTool.getObjectAttrBoolean(jsonObject, "a.b.e"));
+        Assert.assertNull(OftenTool.getObjectAttr(jsonObject, "a.e.d"));
+        Assert.assertNull(OftenTool.getObjectAttr(jsonObject, "a.b.f"));
+
+        Assert.assertNull(OftenTool.getObjectAttrString(jsonObject, "a.b.g"));
+        Assert.assertEquals("", OftenTool.getObjectAttr(jsonObject, "a.b.g"));
+        Assert.assertEquals("2020-11-03",
+                new SimpleDateFormat("yyyy-MM-dd").format(OftenTool.getObjectAttrDate(jsonObject, "a.b.date")));
+
+
+        OftenTool.getObjectAttrArray(jsonObject, "x");
+        OftenTool.getObjectAttrJSON(jsonObject, "y");
+
     }
 }
