@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.2.142</version>
+        <version>1.2.143</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

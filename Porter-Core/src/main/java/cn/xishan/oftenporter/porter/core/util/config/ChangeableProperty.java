@@ -32,18 +32,20 @@ public class ChangeableProperty<T>
         return value;
     }
 
-    public void addListener(OnChange<T> change)
+    public ChangeableProperty<T> addListener(OnChange<T> change)
     {
         changeList.add(change);
+        return this;
     }
 
-    public void removeListener(OnChange<T> change)
+    public ChangeableProperty<T> removeListener(OnChange<T> change)
     {
         changeList.remove(change);
+        return this;
     }
 
 
-    public void submitChange(T newValue)
+    public ChangeableProperty<T> submitChange(T newValue)
     {
         T value = getValue();
         if (!OftenTool.isEqual(newValue, value))
@@ -59,6 +61,7 @@ public class ChangeableProperty<T>
                 }
             }
         }
+        return this;
     }
 
 }

@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.servlet;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import javax.servlet.ServletContext;
@@ -11,7 +12,7 @@ import java.net.URL;
  */
 public class ServletUtils
 {
-    public static File getResourcesRootDir(ServletContext servletContext)
+    public static File getResourcesRootDir(@MayNull ServletContext servletContext)
     {
         File file = null;
         URL url = Thread.currentThread().getContextClassLoader().getResource("");
@@ -33,7 +34,7 @@ public class ServletUtils
         if (file == null || !file.exists())
         {
             file = new File("src/main/resources/");//idea社区版
-            if (!file.exists())
+            if (!file.exists() && servletContext != null)
             {
                 file = new File(servletContext.getRealPath("/WEB-INF/classes/"));
             }
