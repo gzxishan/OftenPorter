@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -36,9 +37,38 @@ public class ConfigChangeable
         onConfigDataChangeForValue.add(type, change, attrs);
     }
 
-    public void removeOnConfigValueChange(OnConfigValueChange change)
+
+    public <T> ChangeableProperty<T> getConfigValueProperty(Class<T> type, String attr, T currentValue)
     {
-        onConfigDataChangeForValue.remove(change);
+        return getConfigValueProperty(type, attr, currentValue, null);
+    }
+
+    public <T> ChangeableProperty<T> getConfigValueProperty(Class<T> type, String attr, T currentValue, T defaultValue)
+    {
+        ChangeablePropertyWrapper<T> wrapper = new ChangeablePropertyWrapper<T>(currentValue, defaultValue)
+        {
+            @Override
+            public void release()
+            {
+                super.release();
+                removeOnConfigValueChange(this);
+            }
+
+            @Override
+            protected void onChangeFinished(T newValue, T oldValue)
+            {
+                //通知其他监听器
+                onConfigDataChangeForValue.changeForChangeableProperty(attr, newValue, oldValue);
+            }
+        };
+
+        addOnConfigValueChange(type, wrapper, attr);
+        return wrapper;
+    }
+
+    public void removeOnConfigValueChange(OnConfigValueChange listener)
+    {
+        onConfigDataChangeForValue.remove(listener);
     }
 
     public void addOnConfigDataChangeListener(OnConfigDataChange onConfigChange)
@@ -46,9 +76,17 @@ public class ConfigChangeable
         configDataChanges.add(onConfigChange);
     }
 
-    public void removeOnConfigDataChangeListener(OnConfigDataChange onConfigChange)
+    public void removeOnConfigDataChangeListener(OnConfigDataChange listener)
     {
-        configDataChanges.remove(onConfigChange);
+        Iterator iterator = configDataChanges.iterator();
+        while (iterator.hasNext())
+        {
+            Object object = iterator.next();
+            if (object == listener)
+            {
+                iterator.remove();
+            }
+        }
     }
 
     public void submitChange(JSONObject newConfig, JSONObject oldConfig)

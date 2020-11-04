@@ -17,7 +17,7 @@ public class ChangeablePropertyTest
 
         boolean[] rs = {false};
         property.addListener((property1, newValue, oldValue) -> rs[0] = OftenTool.notEqual(newValue, oldValue));
-        property.submitChange("b");
+        property.submitValue("b");
 
         assertTrue(rs[0]);
     }

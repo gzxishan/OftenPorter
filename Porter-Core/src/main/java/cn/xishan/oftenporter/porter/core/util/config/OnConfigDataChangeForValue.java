@@ -50,7 +50,7 @@ class OnConfigDataChangeForValue implements OnConfigDataChange
         }
     }
 
-    public void remove(OnConfigValueChange change)
+    public void remove(Object change)
     {
         Iterator<Wrapper> iterator = wrappers.iterator();
         while (iterator.hasNext())
@@ -72,9 +72,9 @@ class OnConfigDataChangeForValue implements OnConfigDataChange
             {
                 try
                 {
-                    Object oldValue = OftenTool.getObjectAttr(wrapper.type, oldConfig, attr, null);
                     Object newValue = OftenTool.getObjectAttr(wrapper.type, newConfig, attr, null);
-                    if (!OftenTool.isEqual(newValue, oldValue))
+                    Object oldValue = OftenTool.getObjectAttr(wrapper.type, oldConfig, attr, null);
+                    if (OftenTool.notEqual(newValue, oldValue))
                     {
                         wrapper.change.onChange(attr, newValue, oldValue, newConfig, oldConfig);
                     }
@@ -82,6 +82,31 @@ class OnConfigDataChangeForValue implements OnConfigDataChange
                 {
                     LOGGER.warn("error for:change={},attr={},type={}", wrapper.change, attr, wrapper.type);
                     LOGGER.warn(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    void changeForChangeableProperty(String attrName, Object newValue, Object oldValue)
+    {
+        if (OftenTool.notEqual(newValue, oldValue))
+        {
+            for (Wrapper wrapper : wrappers)
+            {
+                for (String attr : wrapper.attrs)
+                {
+                    if (attr.equals(attrName) /*&& wrapper.change instanceof ChangeablePropertyWrapper*/)
+                    {
+                        try
+                        {
+
+                            wrapper.change.onChange(attr, newValue, oldValue, null, null);
+                        } catch (Exception e)
+                        {
+                            LOGGER.warn("error for:change={},attr={},type={}", wrapper.change, attr, wrapper.type);
+                            LOGGER.warn(e.getMessage(), e);
+                        }
+                    }
                 }
             }
         }

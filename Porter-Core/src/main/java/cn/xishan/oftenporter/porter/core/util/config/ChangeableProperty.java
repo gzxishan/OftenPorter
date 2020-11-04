@@ -19,12 +19,19 @@ public class ChangeableProperty<T>
         void onChange(ChangeableProperty<T> property, T newValue, T oldValue);
     }
 
-    private T value;
+    protected T value;
+    protected T defaultValue;
     private List<OnChange<T>> changeList = new Vector<>();
 
     public ChangeableProperty(T value)
     {
         this.value = value;
+    }
+
+    public ChangeableProperty(T value, T defaultValue)
+    {
+        this.value = value == null ? defaultValue : value;
+        this.defaultValue = defaultValue;
     }
 
     public T getValue()
@@ -45,23 +52,43 @@ public class ChangeableProperty<T>
     }
 
 
-    public ChangeableProperty<T> submitChange(T newValue)
+    protected void onChangeFinished(T newValue, T oldValue)
     {
-        T value = getValue();
-        if (!OftenTool.isEqual(newValue, value))
+
+    }
+
+    public ChangeableProperty<T> submitValue(T newValue)
+    {
+        if (newValue == null)
         {
+            newValue = defaultValue;
+        }
+
+        T oldValue = getValue();
+        if (OftenTool.notEqual(newValue, oldValue))
+        {
+            this.value = newValue;
             for (OnChange<T> change : changeList)
             {
                 try
                 {
-                    change.onChange(this, newValue, value);
+                    change.onChange(this, newValue, oldValue);
                 } catch (Exception e)
                 {
                     LOGGER.warn(e.getMessage(), e);
                 }
             }
+            onChangeFinished(newValue, oldValue);
         }
         return this;
+    }
+
+    /**
+     * 释放该属性。
+     */
+    public void release()
+    {
+        value = null;
     }
 
 }
