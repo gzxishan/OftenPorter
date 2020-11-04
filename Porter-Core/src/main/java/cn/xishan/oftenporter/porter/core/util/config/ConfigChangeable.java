@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * @author Created by https://github.com/CLovinr on 2020-11-04.
@@ -14,7 +14,7 @@ public class ConfigChangeable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigChangeable.class);
 
-    private Set<OnConfigDataChange> configDataChanges = new LinkedHashSet<>();
+    private List<OnConfigDataChange> configDataChanges = new Vector<>();
     private OnConfigDataChangeForValue onConfigDataChangeForValue;
 
     public ConfigChangeable()

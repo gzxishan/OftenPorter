@@ -33,6 +33,7 @@
 7. 增加@`Property`.`OnChange`;
 8. 完善`IConfigData`；
 9. 增加`ConfigChangeable`；
+10. 增加`ChangeableProperty`；
 
 ### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；

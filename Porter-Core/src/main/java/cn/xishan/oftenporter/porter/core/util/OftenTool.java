@@ -524,6 +524,18 @@ public class OftenTool
 
 
     /**
+     * 见{@linkplain #isEqual(Object, Object)}
+     *
+     * @param obj1
+     * @param obj2
+     * @return
+     */
+    public static boolean notEqual(Object obj1, Object obj2)
+    {
+        return !isEqual(obj1, obj2);
+    }
+
+    /**
      * obj1和obj2都为null或者obj1不为null且obj1.equals(obj2)返回true时，结果为true；否则返回false。
      *
      * @param obj1
