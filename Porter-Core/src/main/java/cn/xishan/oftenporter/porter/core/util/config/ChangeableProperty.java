@@ -10,7 +10,7 @@ import java.util.Vector;
 /**
  * @author Created by https://github.com/CLovinr on 2020-11-04.
  */
-public class ChangeableProperty<T>
+public class ChangeableProperty<T> implements AutoCloseable
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeableProperty.class);
 
@@ -89,6 +89,13 @@ public class ChangeableProperty<T>
     public void release()
     {
         value = null;
+        defaultValue = null;
+        changeList.clear();
     }
 
+    @Override
+    public void close()
+    {
+        release();
+    }
 }

@@ -99,7 +99,6 @@ class OnConfigDataChangeForValue implements OnConfigDataChange
                     {
                         try
                         {
-
                             wrapper.change.onChange(attr, newValue, oldValue, null, null);
                         } catch (Exception e)
                         {

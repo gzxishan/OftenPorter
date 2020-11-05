@@ -37,6 +37,10 @@ public class ConfigChangeable
         onConfigDataChangeForValue.add(type, change, attrs);
     }
 
+    public void removeOnConfigValueChange(OnConfigValueChange listener)
+    {
+        onConfigDataChangeForValue.remove(listener);
+    }
 
     public <T> ChangeableProperty<T> getConfigValueProperty(Class<T> type, String attr, T currentValue)
     {
@@ -61,15 +65,10 @@ public class ConfigChangeable
                 onConfigDataChangeForValue.changeForChangeableProperty(attr, newValue, oldValue);
             }
         };
-
-        addOnConfigValueChange(type, wrapper, attr);
+        onConfigDataChangeForValue.add(type, wrapper, new String[]{attr});
         return wrapper;
     }
 
-    public void removeOnConfigValueChange(OnConfigValueChange listener)
-    {
-        onConfigDataChangeForValue.remove(listener);
-    }
 
     public void addOnConfigDataChangeListener(OnConfigDataChange onConfigChange)
     {
