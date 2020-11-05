@@ -34,6 +34,7 @@
 8. 完善`IConfigData`；
 9. 增加`ConfigChangeable`；
 10. 增加`ChangeableProperty`；
+11. 增加`OftenTool`.`setObjectAttr`；
 
 ### v1.2.131 2020/10/07
 1. 完善`SqlUtil`；

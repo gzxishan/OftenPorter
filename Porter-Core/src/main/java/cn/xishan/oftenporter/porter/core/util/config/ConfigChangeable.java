@@ -49,7 +49,7 @@ public class ConfigChangeable
 
     public <T> ChangeableProperty<T> getConfigValueProperty(Class<T> type, String attr, T currentValue, T defaultValue)
     {
-        ChangeablePropertyWrapper<T> wrapper = new ChangeablePropertyWrapper<T>(currentValue, defaultValue)
+        ChangeablePropertyWrapper<T> wrapper = new ChangeablePropertyWrapper<T>(attr,currentValue, defaultValue)
         {
             @Override
             public void release()

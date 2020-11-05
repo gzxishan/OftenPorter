@@ -161,7 +161,7 @@ public class OftenToolTest
         Assert.assertNull(OftenTool.getObjectAttr(jsonObject, "a.e.d"));
         Assert.assertNull(OftenTool.getObjectAttr(jsonObject, "a.b.f"));
 
-        Assert.assertNull(OftenTool.getObjectAttrString(jsonObject, "a.b.g"));
+        Assert.assertEquals("",OftenTool.getObjectAttrString(jsonObject, "a.b.g"));
         Assert.assertEquals("", OftenTool.getObjectAttr(jsonObject, "a.b.g"));
         Assert.assertEquals("2020-11-03",
                 new SimpleDateFormat("yyyy-MM-dd").format(OftenTool.getObjectAttrDate(jsonObject, "a.b.date")));
@@ -169,6 +169,21 @@ public class OftenToolTest
 
         OftenTool.getObjectAttrArray(jsonObject, "x");
         OftenTool.getObjectAttrJSON(jsonObject, "y");
+
+        jsonObject = JSON.parseObject("{a:{b:'C'},'a.b':'C2'}");
+        Assert.assertEquals("C", OftenTool.getObjectAttrString(jsonObject, "a.b"));
+
+        Object pre = OftenTool.setObjectAttr(jsonObject, "a.b", "B");
+        Assert.assertEquals("C", pre);
+        Assert.assertEquals("B", OftenTool.getObjectAttrString(jsonObject, "a.b"));
+        Assert.assertEquals("C2", jsonObject.get("a.b"));
+
+        jsonObject = JSON.parseObject("{'a.b':'C2'}");
+        Assert.assertNull(OftenTool.getObjectAttrString(jsonObject, "a.b"));
+
+        OftenTool.setObjectAttr(jsonObject, "c.d", "B");
+        Assert.assertEquals("B", OftenTool.getObjectAttrString(jsonObject, "c.d"));
+        Assert.assertNull(jsonObject.get("c.d"));
 
     }
 }

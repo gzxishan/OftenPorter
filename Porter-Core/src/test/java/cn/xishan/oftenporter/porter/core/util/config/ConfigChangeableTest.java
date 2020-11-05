@@ -48,11 +48,11 @@ public class ConfigChangeableTest
                 false, false
         };
         configChangeable.getConfigValueProperty(String.class, "h", null).addListener(
-                (property, newValue, oldValue) -> rs2[0] = "H".equals(newValue));
+                (property,attr, newValue, oldValue) -> rs2[0] = "H".equals(newValue));
 
 
         configChangeable.getConfigValueProperty(String.class, "h", null).addListener(
-                (property, newValue, oldValue) -> rs2[1] = "H".equals(newValue))
+                (property,attr, newValue, oldValue) -> rs2[1] = "H".equals(newValue))
                 .submitValue("H");
 
         assertTrue(rs2[0]);

@@ -16,22 +16,35 @@ public class ChangeableProperty<T> implements AutoCloseable
 
     public interface OnChange<T>
     {
-        void onChange(ChangeableProperty<T> property, T newValue, T oldValue);
+        void onChange(ChangeableProperty<T> property, String attr, T newValue, T oldValue);
     }
 
     protected T value;
     protected T defaultValue;
     private List<OnChange<T>> changeList = new Vector<>();
+    private String attr;
 
     public ChangeableProperty(T value)
     {
+        this(null, value);
+    }
+
+    public ChangeableProperty(String attr, T value)
+    {
+        this.attr = attr;
         this.value = value;
     }
 
-    public ChangeableProperty(T value, T defaultValue)
+    public ChangeableProperty(String attr, T value, T defaultValue)
     {
+        this.attr = attr;
         this.value = value == null ? defaultValue : value;
         this.defaultValue = defaultValue;
+    }
+
+    public String getAttr()
+    {
+        return attr;
     }
 
     public T getValue()
@@ -72,7 +85,7 @@ public class ChangeableProperty<T> implements AutoCloseable
             {
                 try
                 {
-                    change.onChange(this, newValue, oldValue);
+                    change.onChange(this, attr, newValue, oldValue);
                 } catch (Exception e)
                 {
                     LOGGER.warn(e.getMessage(), e);

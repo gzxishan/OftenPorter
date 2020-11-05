@@ -1113,25 +1113,13 @@ public class OftenTool
         return getObjectAttrString(jsonObject, attr, null);
     }
 
-    /**
-     * 注意：空字符串也会返回null
-     *
-     * @param jsonObject
-     * @param attr
-     * @param defaultValue
-     * @return
-     */
+
     public static String getObjectAttrString(JSONObject jsonObject, String attr, String defaultValue)
     {
         String value = getObjectAttr(String.class, jsonObject, attr, null);
         if (value == null)
         {
             value = defaultValue;
-        }
-
-        if ("".equals(value))
-        {
-            value = null;
         }
 
         return value;
@@ -1185,11 +1173,11 @@ public class OftenTool
     }
 
     /**
-     * 注意：空字符串不会返回null
+     * 获取对象深层属性。
      *
      * @param type
      * @param jsonObject
-     * @param attr       "rs"、"rs.total"等
+     * @param attr       "rs"、"rs.total"等。注意：若有{a:{b:'C'},'a.b':'C2'}，获取'a.b'得到的是'C'；{'a.b':'C2'}获取到的是null。
      * @param <T>
      * @return
      */
@@ -1200,11 +1188,9 @@ public class OftenTool
             return null;
         }
 
-        String[] attrs = OftenStrUtil.split(attr, ".");
-
-        JSONObject currentJson = jsonObject;
-
         Object result = null;
+        String[] attrs = OftenStrUtil.split(attr, ".");
+        JSONObject currentJson = jsonObject;
         for (int i = 0; i < attrs.length && currentJson != null; i++)
         {
             if (i == attrs.length - 1)
@@ -1223,6 +1209,43 @@ public class OftenTool
         }
 
         return (T) result;
+    }
+
+    /**
+     * 设置深层属性。
+     *
+     * @param jsonObject
+     * @param attr       "rs"、"rs.total"等
+     * @param value
+     * @return 返回原来的属性
+     */
+    public static Object setObjectAttr(JSONObject jsonObject, String attr, Object value)
+    {
+        if (jsonObject == null)
+        {
+            throw new NullPointerException("jsonObject is null");
+        }
+
+        String[] attrs = OftenStrUtil.split(attr, ".");
+        JSONObject currentJson = jsonObject;
+        for (int i = 0; i < attrs.length; i++)
+        {
+            if (i == attrs.length - 1)
+            {
+                return currentJson.put(attrs[i], value);
+            } else
+            {
+                JSONObject json = currentJson.getJSONObject(attrs[i]);
+                if (json == null)
+                {
+                    json = new JSONObject();
+                    currentJson.put(attrs[i], json);
+                }
+                currentJson = json;
+            }
+        }
+
+        return null;
     }
 
 }

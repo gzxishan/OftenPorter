@@ -6,9 +6,9 @@ package cn.xishan.oftenporter.porter.core.util.config;
 class ChangeablePropertyWrapper<T> extends ChangeableProperty<T> implements OnConfigValueChange<T>
 {
 
-    public ChangeablePropertyWrapper(T value, T defaultValue)
+    public ChangeablePropertyWrapper(String attr, T value, T defaultValue)
     {
-        super(value, defaultValue);
+        super(attr, value, defaultValue);
     }
 
     @Override
