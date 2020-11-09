@@ -48,7 +48,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
         public BindEntityDealtArgDealt(Class realType, PorterOfFun porterOfFun)
         {
-            key = realType.getName();
+            key = porterOfFun.getPath() + "@" + realType.getName();
             porterOfFun.putExtraEntity(key, realType);
         }
 
@@ -191,7 +191,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 {
                     argsIndex[i] = i;
                 }
-            }else{
+            } else
+            {
                 this.types = new HashSet<>(argsIndex.length);
             }
             this.argsIndex = argsIndex;
