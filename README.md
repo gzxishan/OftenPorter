@@ -26,6 +26,7 @@
 ### v进行中
 1. 完善`BindEntityDealt`的处理；
 2. 增加`IConfigData`.`JSONObject getJSONByKeyPrefix(String keyPrefix, boolean withPrefix)`；
+3. 完善`FilePart`临时文件的清理；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

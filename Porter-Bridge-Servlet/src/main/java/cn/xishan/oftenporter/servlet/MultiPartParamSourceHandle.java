@@ -128,22 +128,29 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             }
         }
 
-        for (Map.Entry<String, List<Object[]>> entry : filesMap.entrySet())
+        if (!filesMap.isEmpty())
         {
-            List<Object[]> filesList = entry.getValue();
-            String[] origins = new String[filesList.size()];
-            File[] files = new File[filesList.size()];
-            FileItem[] fileItems = new FileItem[filesList.size()];
-
-            for (int i = 0; i < origins.length; i++)
+            List<FilePart> fileParts = new ArrayList<>();
+            for (Map.Entry<String, List<Object[]>> entry : filesMap.entrySet())
             {
-                Object[] objs = filesList.get(i);
-                origins[i] = (String) objs[0];
-                files[i] = (File) objs[1];
-                fileItems[i] = (FileItem) objs[2];
+                List<Object[]> filesList = entry.getValue();
+                String[] origins = new String[filesList.size()];
+                File[] files = new File[filesList.size()];
+                FileItem[] fileItems = new FileItem[filesList.size()];
+
+                for (int i = 0; i < origins.length; i++)
+                {
+                    Object[] objs = filesList.get(i);
+                    origins[i] = (String) objs[0];
+                    files[i] = (File) objs[1];
+                    fileItems[i] = (FileItem) objs[2];
+                }
+                //引用fileItem，防止文件使用前就被清理
+                FilePart filePart=new FilePart(origins, files, fileItems);
+                map.put(entry.getKey(), filePart);
+                fileParts.add(filePart);
             }
-            //引用fileItem，防止文件使用前就被清理
-            map.put(entry.getKey(), new FilePart(origins, files, fileItems));
+            FilePart.bindData(oftenObject,fileParts);
         }
 
         ParamSource paramSource = new DefaultParamSource(map, oftenObject.getRequest());

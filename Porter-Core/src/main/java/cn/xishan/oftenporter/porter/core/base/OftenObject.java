@@ -112,6 +112,11 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
         {
             stack.pop();
         }
+        if (requestDataMap != null)
+        {
+            requestDataMap.clear();
+            requestDataMap = null;
+        }
     }
 
     public abstract OftenRequest getRequest();
