@@ -87,9 +87,21 @@ public interface IConfigData
      * 从key前缀获取json对象。
      *
      * @param keyPrefix
+     * @return 返回的对象不含key前缀。
+     */
+    default JSONObject getJSONByKeyPrefix(String keyPrefix)
+    {
+        return getJSONByKeyPrefix(keyPrefix, false);
+    }
+
+    /**
+     * 从key前缀获取json对象。
+     *
+     * @param keyPrefix  获取指定key前缀的参数，组成一个json对象
+     * @param withPrefix 返回对象的key是否包含keyPrefix
      * @return
      */
-    JSONObject getJSONByKeyPrefix(String keyPrefix);
+    JSONObject getJSONByKeyPrefix(String keyPrefix, boolean withPrefix);
 
     /**
      * @param key

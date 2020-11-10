@@ -204,20 +204,34 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     }
 
     @Override
-    public JSONObject getJSONByKeyPrefix(String keyPrefix)
+    public JSONObject getJSONByKeyPrefix(String keyPrefix, boolean withPrefix)
     {
         JSONObject jsonObject = new JSONObject();
         for (String propName : propertyNames())
         {
             if (propName.startsWith(keyPrefix))
             {
-                jsonObject.put(propName.substring(keyPrefix.length()), get(propName));
+                if (withPrefix)
+                {
+                    jsonObject.put(propName, get(propName));
+                } else
+                {
+                    jsonObject.put(propName.substring(keyPrefix.length()), get(propName));
+                }
             }
         }
         return jsonObject;
     }
 
+    /**
+     * @return 不含key前缀。
+     */
     public static JSONObject getJSONByKeyPrefix(Properties properties, String keyPrefix)
+    {
+        return getJSONByKeyPrefix(properties, keyPrefix, false);
+    }
+
+    public static JSONObject getJSONByKeyPrefix(Properties properties, String keyPrefix, boolean withPrefix)
     {
         IAttrGetter getter = new IAttrGetter()
         {
@@ -227,17 +241,24 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 return (T) properties.get(name);
             }
         };
-        return getJSONByKeyPrefix(getter, properties.stringPropertyNames(), keyPrefix);
+        return getJSONByKeyPrefix(getter, properties.stringPropertyNames(), keyPrefix, withPrefix);
     }
 
-    private static JSONObject getJSONByKeyPrefix(IAttrGetter getter, Set<String> names, String keyPrefix)
+    private static JSONObject getJSONByKeyPrefix(IAttrGetter getter, Set<String> names, String keyPrefix,
+            boolean withPrefix)
     {
         JSONObject jsonObject = new JSONObject();
         for (String propName : names)
         {
             if (propName.startsWith(keyPrefix))
             {
-                jsonObject.put(propName.substring(keyPrefix.length()), getter.get(propName));
+                if (withPrefix)
+                {
+                    jsonObject.put(propName, getter.get(propName));
+                } else
+                {
+                    jsonObject.put(propName.substring(keyPrefix.length()), getter.get(propName));
+                }
             }
         }
         return jsonObject;
