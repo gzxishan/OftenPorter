@@ -10,18 +10,14 @@ import java.util.Vector;
 /**
  * @author Created by https://github.com/CLovinr on 2020-11-04.
  */
-public class ChangeableProperty<T> implements AutoCloseable
+public class ChangeableProperty<T> implements AutoCloseable, OnPropertyChange<T>
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeableProperty.class);
 
-    public interface OnChange<T>
-    {
-        void onChange(ChangeableProperty<T> property, String attr, T newValue, T oldValue);
-    }
 
     protected T value;
     protected T defaultValue;
-    private List<OnChange<T>> changeList = new Vector<>();
+    private List<OnPropertyChange<T>> changeList = new Vector<>();
     private String attr;
 
     public ChangeableProperty(T value)
@@ -52,13 +48,13 @@ public class ChangeableProperty<T> implements AutoCloseable
         return value;
     }
 
-    public ChangeableProperty<T> addListener(OnChange<T> change)
+    public ChangeableProperty<T> addListener(OnPropertyChange<T> change)
     {
         changeList.add(change);
         return this;
     }
 
-    public ChangeableProperty<T> removeListener(OnChange<T> change)
+    public ChangeableProperty<T> removeListener(OnPropertyChange<T> change)
     {
         changeList.remove(change);
         return this;
@@ -81,14 +77,17 @@ public class ChangeableProperty<T> implements AutoCloseable
         if (OftenTool.notEqual(newValue, oldValue))
         {
             this.value = newValue;
-            for (OnChange<T> change : changeList)
+            for (OnPropertyChange<T> change : changeList)
             {
-                try
+                if (change != this)
                 {
-                    change.onChange(this, attr, newValue, oldValue);
-                } catch (Exception e)
-                {
-                    LOGGER.warn(e.getMessage(), e);
+                    try
+                    {
+                        change.onChange(this, attr, newValue, oldValue);
+                    } catch (Exception e)
+                    {
+                        LOGGER.warn(e.getMessage(), e);
+                    }
                 }
             }
             onChangeFinished(newValue, oldValue);
@@ -110,5 +109,11 @@ public class ChangeableProperty<T> implements AutoCloseable
     public void close()
     {
         release();
+    }
+
+    @Override
+    public void onChange(ChangeableProperty<T> property, String attr, T newValue, T oldValue)
+    {
+        this.submitValue(newValue);
     }
 }
