@@ -11,7 +11,6 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
 
 import javax.sql.DataSource;
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.util.*;
 
@@ -141,7 +140,7 @@ public class MyBatisOption implements Cloneable
     public List<Interceptor> interceptors;
 
     /**
-     * 用于添加静态函数到mybatis中。通过${java::keyName.staticFunName(args)}调用,且只支持在mapper文件中调用。
+     * 用于添加静态函数到mybatis中。通过@java::keyName.staticFunName(args)调用,且只支持在mapper文件中调用。
      */
     public Map<String, Class<?>> javaFuns;
 

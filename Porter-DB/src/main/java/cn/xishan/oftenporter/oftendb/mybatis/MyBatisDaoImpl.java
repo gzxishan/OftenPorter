@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.db.DBException;
-import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -12,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
 
 /**
  * @author Created by https://github.com/CLovinr on 2017/11/28.
@@ -119,6 +119,28 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public String getTableName()
     {
         return myBatis == null ? null : myBatis.getTableName();
+    }
+
+    @Override
+    public String[] getTableColumns(String tableName)
+    {
+        Set<String> set = myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getCachedTableColumns(tableName);
+        return set == null ? null : set.toArray(new String[0]);
+    }
+
+
+    @Override
+    public boolean existsTable(String tableName)
+    {
+        Set<String> set = myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getCachedTableColumns(tableName);
+        return set != null;
+    }
+
+    @Override
+    public boolean existsTableColumn(String tableName, String columnName)
+    {
+        Set<String> set = myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getCachedTableColumns(tableName);
+        return set != null && set.contains(columnName);
     }
 
     @Override

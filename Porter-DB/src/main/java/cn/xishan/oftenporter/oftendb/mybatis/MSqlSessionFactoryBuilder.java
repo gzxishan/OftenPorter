@@ -278,7 +278,8 @@ class MSqlSessionFactoryBuilder
         }
     }
 
-    private void buildDataSource(){
+    private void buildDataSource()
+    {
 
     }
 
@@ -518,6 +519,11 @@ class MSqlSessionFactoryBuilder
             }
         }
         return columnsSet == null ? Collections.emptySet() : columnsSet;
+    }
+
+    public Set<String> getCachedTableColumns(String tableName)
+    {
+        return tableColumnsMap.get(tableName);
     }
 
     public synchronized void addListener(BuilderListener builderListener)

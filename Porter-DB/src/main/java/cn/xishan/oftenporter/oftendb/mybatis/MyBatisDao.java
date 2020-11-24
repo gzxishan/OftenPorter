@@ -80,6 +80,25 @@ public interface MyBatisDao
     String getTableName();
 
     /**
+     * 判断被扫描的表中是否包含指定表名。
+     *
+     * @param tableName
+     * @return
+     */
+    boolean existsTable(String tableName);
+
+    /**
+     * 判断被扫描的某表中是否包含指定列名。
+     *
+     * @param tableName
+     * @param columnName
+     * @return
+     */
+    boolean existsTableColumn(String tableName, String columnName);
+
+    String[] getTableColumns(String tableName);
+
+    /**
      * 参数来源为：{@linkplain MyBatisMapper#params()}，{@linkplain MyBatisParams}，xml里的&lt;!--$json:{}--&gt;
      *
      * @return

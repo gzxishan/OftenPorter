@@ -145,7 +145,7 @@ class MyBatisDaoGen implements AutoSetGen
         {
 
             StringBuilder stringBuilder = new StringBuilder();
-            String key = "${java::";
+            String key = "@java::";
             while (true)
             {
                 int index = xml.indexOf(key);
@@ -167,7 +167,7 @@ class MyBatisDaoGen implements AutoSetGen
                 {
                     throw new RuntimeException("not found java fun 'java::" + name + "'");
                 }
-                stringBuilder.append(xml, 0, index + 2);
+                stringBuilder.append(xml, 0, index);
                 stringBuilder.append("@").append(className).append("@");
                 xml = xml.substring(index2 + 1);
             }
