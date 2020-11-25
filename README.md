@@ -28,6 +28,8 @@
 2. 增加`IConfigData`.`JSONObject getJSONByKeyPrefix(String keyPrefix, boolean withPrefix)`；
 3. 完善`FilePart`临时文件的清理；
 4. 完善`MyBatisDao`；
+5. 修复`Property`在某些机器上设置静态参数时错误的问题；
+6. 优化`DefaultConfigData`.`addOnValueChange`；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

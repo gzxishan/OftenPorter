@@ -893,20 +893,6 @@ public class AutoSetHandle
         for (int i = 0; i < fields.length; i++)
         {
             Field f = fields[i];
-            Class fieldRealType = null;
-            f.setAccessible(true);
-            Property property = AnnoUtil.getAnnotation(f, Property.class);
-            if (property != null)
-            {
-                fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
-                Object value = configData.getValue(currentObject, f, fieldRealType, property);
-                if (value != null)
-                {
-                    f.set(currentObject, value);
-                }
-                doAutoSetPut(f, value, fieldRealType);
-                continue;
-            }
 
             if (Modifier.isStatic(f.getModifiers()))
             {
@@ -920,6 +906,21 @@ public class AutoSetHandle
                 {
                     continue;
                 }
+            }
+
+            Class fieldRealType = null;
+            f.setAccessible(true);
+            Property property = AnnoUtil.getAnnotation(f, Property.class);
+            if (property != null)
+            {
+                fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
+                Object value = configData.getValue(currentObject, f, fieldRealType, property);
+                if (value != null)
+                {
+                    f.set(currentObject, value);
+                }
+                doAutoSetPut(f, value, fieldRealType);
+                continue;
             }
 
             _AutoSet autoSet = annotationDealt.autoSet(currentObjectClass, f);

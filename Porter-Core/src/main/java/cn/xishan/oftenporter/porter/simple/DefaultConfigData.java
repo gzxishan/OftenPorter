@@ -89,10 +89,10 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         }
     }
 
-    private List<Wrapper> wrappers = new Vector<>();
-    private Map<String, Integer> attrCount = new Hashtable<>();
+    //private List<Wrapper> wrappers = new Vector<>();
+    private Map<String, List<Wrapper>> attr2Wrappers = new Hashtable<>();
+    private Map<String, Integer> attr2Count = new Hashtable<>();
     private Properties properties;
-    //private Map<String, Object> data = new ConcurrentHashMap<>();
 
     public DefaultConfigData(Properties properties)
     {
@@ -116,85 +116,126 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (OftenTool.notEmptyOf(attrs))
         {
+            Wrapper wrapper = new Wrapper(type, change, attrs);
+
             for (String attr : attrs)
             {
-                if (attrCount.containsKey(attr))
+                if (OftenTool.notEmpty(attr))
                 {
-                    attrCount.put(attr, attrCount.get(attr) + 1);
-                } else
-                {
-                    attrCount.put(attr, 1);
+                    List<Wrapper> list = attr2Wrappers.computeIfAbsent(attr, k -> new Vector<>());
+                    list.add(wrapper);
+
+                    if (attr2Count.containsKey(attr))
+                    {
+                        attr2Count.put(attr, attr2Count.get(attr) + 1);
+                    } else
+                    {
+                        attr2Count.put(attr, 1);
+                    }
                 }
             }
 
-            wrappers.add(new Wrapper(type, change, attrs));
         }
     }
 
     @Override
     public synchronized void removeOnValueChange(OnValueChange change)
     {
-        Iterator<Wrapper> iterator = wrappers.iterator();
-        while (iterator.hasNext())
+        Iterator<List<Wrapper>> it1 = attr2Wrappers.values().iterator();
+        while (it1.hasNext())
         {
-            Wrapper wrapper = iterator.next();
-            if (wrapper.change == change)
+            List<Wrapper> list = it1.next();
+            Iterator<Wrapper> iterator = list.iterator();
+            while (iterator.hasNext())
             {
-                for (String attr : wrapper.attrs)
+                Wrapper wrapper = iterator.next();
+                if (wrapper.change == change)
                 {
-                    if (attrCount.containsKey(attr))
+                    for (String attr : wrapper.attrs)
                     {
-                        int count = attrCount.get(attr);
-                        if (--count <= 0)
+                        if (attr2Count.containsKey(attr))
                         {
-                            attrCount.remove(attr);
+                            int count = attr2Count.get(attr);
+                            if (--count <= 0)
+                            {
+                                attr2Count.remove(attr);
+                            }
                         }
                     }
-                }
 
-                iterator.remove();
+                    iterator.remove();
+                }
+            }
+            if (list.isEmpty())
+            {
+                it1.remove();
             }
         }
+
     }
 
-    private void onChange(Properties newProps, Properties oldProps)
+    private void onChange(Properties newProps, Properties oldProps, Set<String> changeKeys)
     {
-        if (wrappers.size() == 0)
+        if (attr2Wrappers.size() == 0)
         {
             return;
+        }
+
+        boolean addKey = false;
+        if (changeKeys == null)
+        {
+            addKey = true;
+            changeKeys = new HashSet<>();
         }
 
         JSONObject newConfig = new JSONObject();
         for (Map.Entry entry : newProps.entrySet())
         {
-            newConfig.put(String.valueOf(entry.getKey()), entry.getValue());
+            String key = String.valueOf(entry.getKey());
+            if (addKey)
+            {
+                changeKeys.add(key);
+            }
+
+            newConfig.put(key, entry.getValue());
         }
 
         JSONObject oldConfig = new JSONObject();
         for (Map.Entry entry : oldProps.entrySet())
         {
-            oldConfig.put(String.valueOf(entry.getKey()), entry.getValue());
+            String key = String.valueOf(entry.getKey());
+            if (addKey)
+            {
+                changeKeys.add(key);
+            }
+            oldConfig.put(key, entry.getValue());
         }
 
-        for (Wrapper wrapper : wrappers)
+        for (String attr : changeKeys)
         {
-            for (String attr : wrapper.attrs)
+            List<Wrapper> wrappers = attr2Wrappers.get(attr);
+            if (wrappers != null)
             {
-                try
+                for (Wrapper wrapper : wrappers)
                 {
-                    Object oldValue = OftenTool.getObjectAttr(wrapper.type, oldConfig, attr, null);
-                    Object newValue = OftenTool.getObjectAttr(wrapper.type, newConfig, attr, null);
-                    if (!OftenTool.isEqual(newValue, oldValue))
+                    try
                     {
-                        wrapper.change.onChange(attr, newValue, oldValue);
+
+                        Object oldValue = oldConfig.getObject(attr, wrapper.type);
+                        Object newValue = newConfig.getObject(attr, wrapper.type);
+                        if (!OftenTool.isEqual(newValue, oldValue))
+                        {
+                            wrapper.change.onChange(attr, newValue, oldValue);
+                        }
+                    } catch (Exception e)
+                    {
+                        LOGGER.warn("error for:change={},attr={},type={}", wrapper.change, attr, wrapper.type);
+                        LOGGER.warn(e.getMessage(), e);
                     }
-                } catch (Exception e)
-                {
-                    LOGGER.warn("error for:change={},attr={},type={}", wrapper.change, attr, wrapper.type);
-                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         }
+
     }
 
     @Override
@@ -476,11 +517,18 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         return JSON.parseArray(String.valueOf(value));
     }
 
+    public static <T> Set<T> asSet(T... elems)
+    {
+        Set<T> set = new HashSet<>();
+        OftenTool.addAll(set, elems);
+        return set;
+    }
+
     @Override
     public <T> T set(String key, Object object)
     {
         Properties old = null;
-        if (attrCount.containsKey(key))
+        if (attr2Count.containsKey(key))
         {
             old = new Properties();
             old.putAll(properties);
@@ -490,7 +538,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (old != null)
         {
-            onChange(properties, old);
+            onChange(properties, old, asSet(key));
         }
 
         return (T) rs;
@@ -500,7 +548,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     public <T> T remove(String key)
     {
         Properties old = null;
-        if (attrCount.containsKey(key))
+        if (attr2Count.containsKey(key))
         {
             old = new Properties();
             old.putAll(properties);
@@ -510,7 +558,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (old != null)
         {
-            onChange(properties, old);
+            onChange(properties, old, asSet(key));
         }
         return t;
     }
@@ -519,13 +567,19 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     public void putAll(Map<?, ?> map)
     {
         Properties old = null;
+        Set<String> set = null;
         for (Object key : map.keySet())
         {
-            if (attrCount.containsKey(String.valueOf(key)))
+            String keyStr = String.valueOf(key);
+            if (attr2Count.containsKey(keyStr))
             {
-                old = new Properties();
-                old.putAll(properties);
-                break;
+                if (old == null)
+                {
+                    old = new Properties();
+                    old.putAll(properties);
+                    set = new HashSet<>();
+                }
+                set.add(keyStr);
             }
         }
 
@@ -540,7 +594,8 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (old != null)
         {
-            onChange(properties, old);
+
+            onChange(properties, old, set);
         }
     }
 
