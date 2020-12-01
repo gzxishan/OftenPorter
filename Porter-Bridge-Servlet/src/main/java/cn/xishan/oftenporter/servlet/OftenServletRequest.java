@@ -80,7 +80,6 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     @Override
     public Map<String, Object> getParameterMap()
     {
-
         if (super.params == null)
         {
             super.params = new HashMap<>();
@@ -92,7 +91,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
                 {
                     String name = e.nextElement();
                     Object value = getParameter(name);
-                    if (OftenTool.isNullOrEmptyCharSequence(value))
+                    if (OftenTool.notNullAndEmptyCharSequence(value))
                     {
                         params.put(name, value);
                     }

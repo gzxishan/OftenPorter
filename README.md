@@ -30,6 +30,7 @@
 4. 完善`MyBatisDao`；
 5. 修复`Property`在某些机器上设置静态参数时错误的问题；
 6. 优化`DefaultConfigData`.`addOnValueChange`；
+7. 修复`OftenServletRequest`参数处理bug；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；
