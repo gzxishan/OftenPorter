@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -7,23 +8,26 @@ import static org.junit.Assert.*;
 /**
  * Created by https://github.com/CLovinr on 2017/8/17.
  */
-public class BytesToolTest {
+public class BytesToolTest
+{
 
 
     @Test
-    public void testToSignShort(){
-        int n = Integer.parseInt("1000000000000001",2);
-        assertEquals(-1,BytesTool.toSignShort(n));
-        assertEquals(110,BytesTool.toSignShort(110));
+    public void testToSignShort()
+    {
+        int n = Integer.parseInt("1000000000000001", 2);
+        assertEquals(-1, BytesTool.toSignShort(n));
+        assertEquals(110, BytesTool.toSignShort(110));
         byte[] bs = new byte[2];
-        BytesTool.writeShortLittleEndian(bs,0,-110);
-        assertEquals(-110,BytesTool.toJavaSignShort(BytesTool.readUnShortLittleEndian(bs,0)));
+        BytesTool.writeShortLittleEndian(bs, 0, -110);
+        assertEquals(-110, BytesTool.toJavaSignShort(BytesTool.readUnShortLittleEndian(bs, 0)));
 
     }
 
 
     @Test
-    public void testInt() {
+    public void testInt()
+    {
         int n = 0x89_9a_ab_bc;
         byte[] bs = new byte[4];
 
@@ -46,7 +50,8 @@ public class BytesToolTest {
 
 
     @Test
-    public void testLong() {
+    public void testLong()
+    {
         long n = 0x89_9a_ab_bc_12345678L;
         byte[] bs = new byte[8];
 
@@ -68,8 +73,9 @@ public class BytesToolTest {
     }
 
     @Test
-    public void testShort() {
-        int n =  0x89_12;
+    public void testShort()
+    {
+        int n = 0x89_12;
         byte[] bs = new byte[2];
 
         //大端测试
@@ -86,6 +92,18 @@ public class BytesToolTest {
         BytesTool.writeShortLittleEndian(bs, 0, n);
         assertEquals("1289", BytesTool.toHex(bs));
         assertEquals(n, BytesTool.readUnShortLittleEndian(bs, 0));
+
+    }
+
+    @Test
+    public void testHex()
+    {
+        IdGen idGen = IdGen.getDefault(System.currentTimeMillis());
+        for (int i = 0; i < 10; i++)
+        {
+            String origin = idGen.nextId();
+            Assert.assertEquals(origin, new String(BytesTool.hexToByte(BytesTool.toHex(origin.getBytes()))));
+        }
 
     }
 

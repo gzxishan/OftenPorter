@@ -131,7 +131,7 @@ public class BytesTool {
         int index, n;
         for (int i = 0; i < bs.length; i++) {
             index = i << 1;
-            n = Integer.parseInt(str.substring(index, index + 1), 16);
+            n = Integer.parseInt(str.substring(index, index + 2), 16);
             bs[i] = (byte) n;
         }
         return bs;
