@@ -1,7 +1,13 @@
 package cn.xishan.oftenporter.porter.core.annotation.deal;
 
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.config.ChangeableProperty;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.function.Function;
 
 /**
  * @author Created by https://github.com/CLovinr on 2018/7/5.
@@ -11,7 +17,24 @@ public class AnnoUtilTest
 
     abstract class A<T>
     {
+        public ChangeableProperty<String> property;
+        public ChangeableProperty<T> property2;
+        Function<String, Integer> function;
 
+        public void fun1(ChangeableProperty<String> property)
+        {
+
+        }
+
+        public void fun2(ChangeableProperty<T> property)
+        {
+
+        }
+
+        public void fun3(Function<String, Integer> function)
+        {
+
+        }
     }
 
     class ClassB
@@ -24,6 +47,67 @@ public class AnnoUtilTest
 
     }
 
+    static Field getField(Class clazz, String field)
+    {
+        try
+        {
+            return clazz.getDeclaredField(field);
+        } catch (Exception e)
+        {
+            try
+            {
+                return clazz.getField(field);
+            } catch (Exception e2)
+            {
+            }
+            return null;
+        }
+    }
+
+    static Method getMethod(Class clazz, String name)
+    {
+        try
+        {
+            Method[] methods = OftenTool.getAllMethods(clazz);
+            for (Method method : methods)
+            {
+                if (method.getName().equals(name))
+                {
+                    return method;
+                }
+            }
+            return null;
+        } catch (Exception e)
+        {
+            return null;
+        }
+    }
+
+    @Test
+    public void testRealTypeInField()
+    {
+        Assert.assertEquals(String.class,
+                AnnoUtil.Advance.getRealTypeInField(A.class, getField(A.class, "property")));
+
+        Assert.assertEquals(Integer.class,
+                AnnoUtil.Advance.getRealTypeInField(A.class, getField(A.class, "function"), 1));
+
+        Assert.assertEquals(ClassB.class,
+                AnnoUtil.Advance.getRealTypeInField(ClassA.class, getField(ClassA.class, "property2")));
+    }
+
+    @Test
+    public void testRealTypeInMethodParameter()
+    {
+        Assert.assertEquals(String.class,
+                AnnoUtil.Advance.getRealTypeInMethodParameter(A.class, getMethod(A.class, "fun1"), 0));
+
+        Assert.assertEquals(ClassB.class,
+                AnnoUtil.Advance.getRealTypeInMethodParameter(ClassA.class, getMethod(ClassA.class, "fun2"), 0));
+
+        Assert.assertEquals(Integer.class,
+                AnnoUtil.Advance.getRealTypeInMethodParameter(A.class, getMethod(A.class, "fun3"), 0, 1));
+    }
 
     @Test
     public void testGetDirectGenericRealTypeAt1()

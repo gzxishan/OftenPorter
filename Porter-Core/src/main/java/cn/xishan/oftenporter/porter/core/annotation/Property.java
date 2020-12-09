@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
+import cn.xishan.oftenporter.porter.core.util.config.ChangeableProperty;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 
 import java.lang.annotation.*;
@@ -14,10 +15,11 @@ import java.lang.reflect.Modifier;
 /**
  * 获取属性值,见{@linkplain IConfigData}。
  * <p>
- * 支持的类型同{@linkplain IConfigData},当配置文件中不存在对应的属性时、从{@linkplain IConfigData#get(String)}途径获取。
+ * 支持的类型同{@linkplain IConfigData},当配置文件中不存在对应的属性时、从{@linkplain IConfigData#get(String)}途径获取；支持
+ * {@linkplain ChangeableProperty}。
  * </p>
  * <p>
- * 支持该注解的地方：{@linkplain PortStart},{@linkplain PortDestroy},{@linkplain SetOk},{@linkplain AutoSet}
+ * 支持该注解的函数：{@linkplain PortStart},{@linkplain PortDestroy},{@linkplain SetOk}
  * </p>
  *
  * @author Created by https://github.com/CLovinr on 2018-07-20.

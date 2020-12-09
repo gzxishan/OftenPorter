@@ -1961,6 +1961,7 @@ public class AnnoUtil
             {
                 realType = realClass.getGenericSuperclass();
             }
+
             Class<?> rt = null;
             if (genericType != null && realType instanceof ParameterizedType)
             {
@@ -1993,12 +1994,58 @@ public class AnnoUtil
                     {
                         rt = (Class<?>) upperBounds[0];
                     }
-                } else if (sourceType.equals(Class.class) && types.length == 1 && types[0] instanceof Class)
+                } else if (sourceType != null && sourceType
+                        .equals(Class.class) && types.length == 1 && types[0] instanceof Class)
                 {
                     rt = (Class<?>) types[0];
                 }
             }
             return rt;
+        }
+
+
+        public static Class<?> getRealTypeInField(Class<?> realClass, Field field)
+        {
+            return getRealTypeInField(realClass, field, 0);
+        }
+
+        /**
+         * 可获取成员变量上声明的泛型实际类型.如：ObjectType&lt;String,Integer&gt; type;可获取String或Integer类。
+         *
+         * @param realClass 实际子类
+         * @param field     声明变量
+         * @param index     泛型参数索引
+         * @return
+         */
+        public static Class<?> getRealTypeInField(Class<?> realClass, Field field, int index)
+        {
+            CacheKey cacheKey = new CacheKey(realClass, "getRealTypeInField-" + index, field);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+
+            Class type;
+            Type genericType = field.getGenericType();
+            if (genericType instanceof ParameterizedType)
+            {
+                ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                genericType = parameterizedType.getActualTypeArguments()[index];
+                type = getRealType(field.getDeclaringClass(), realClass, null, genericType);
+            } else
+            {
+                type = null;
+            }
+
+            cacheKey.setCache(type);
+            return type;
         }
 
         /**
@@ -2050,6 +2097,53 @@ public class AnnoUtil
                 types[i] = paramType;
             }
             return types;
+        }
+
+        public static Class<?> getRealTypeInMethodParameter(Class<?> realClass, Method method, int argIndex)
+        {
+            return getRealTypeInMethodParameter(realClass, method, argIndex, 0);
+        }
+
+        /**
+         * 可获取函数参数上声明的泛型实际类型。如：ObjectType&lt;String,Integer&gt; type，可获取String或Integer类。
+         *
+         * @param realClass 实际子类
+         * @param method    函数
+         * @param argIndex  参数索引
+         * @param typeIndex 参数泛型索引
+         * @return
+         */
+        public static Class<?> getRealTypeInMethodParameter(Class<?> realClass, Method method, int argIndex,
+                int typeIndex)
+        {
+            CacheKey cacheKey = new CacheKey(realClass,
+                    "getRealTypeOfMethodInParameter-" + argIndex + "-" + typeIndex, method);
+            Object cache = cacheKey.getCache();
+            if (cache != null)
+            {
+                if (cache == NULL)
+                {
+                    return null;
+                } else
+                {
+                    return (Class<?>) cache;
+                }
+            }
+
+            Class type;
+            Type genericType = method.getGenericParameterTypes()[argIndex];
+            if (genericType instanceof ParameterizedType)
+            {
+                ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                genericType = parameterizedType.getActualTypeArguments()[typeIndex];
+                type = getRealType(method.getDeclaringClass(), realClass, null, genericType);
+            } else
+            {
+                type = null;
+            }
+
+            cacheKey.setCache(type);
+            return type;
         }
 
         /**

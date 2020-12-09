@@ -32,6 +32,7 @@
 6. 优化`DefaultConfigData`.`addOnValueChange`；
 7. 修复`OftenServletRequest`参数处理bug；
 8. 修复`BytesTool`.`hexToByte`的bug；
+9. 完善`@Property`注解，支持`ChangeableProperty`；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

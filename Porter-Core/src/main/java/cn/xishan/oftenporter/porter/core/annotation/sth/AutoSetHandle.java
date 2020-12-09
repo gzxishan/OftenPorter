@@ -914,7 +914,7 @@ public class AutoSetHandle
             if (property != null)
             {
                 fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
-                Object value = configData.getValue(currentObject, f, fieldRealType, property);
+                Object value = configData.getValue(currentObject, currentObjectClass, f,null, fieldRealType, property);
                 if (value != null)
                 {
                     f.set(currentObject, value);

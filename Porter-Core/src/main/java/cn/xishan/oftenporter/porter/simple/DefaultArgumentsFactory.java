@@ -422,7 +422,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 Property property = AnnoUtil.getAnnotation(parameter, Property.class);
                 if (property != null)
                 {
-                    Object value = configData.getValue(object, method, realType, property);
+                    Object value = configData.getValue(object,currentClass, method,i, realType, property);
                     args[i] = value;
                     continue;//为property参数，继续处理下一个
                 }

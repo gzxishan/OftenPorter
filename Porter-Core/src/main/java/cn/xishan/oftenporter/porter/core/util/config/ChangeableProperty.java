@@ -43,6 +43,11 @@ public class ChangeableProperty<T> implements AutoCloseable, OnPropertyChange<T>
         return attr;
     }
 
+    public void setAttr(String attr)
+    {
+        this.attr = attr;
+    }
+
     public T getValue()
     {
         return value;
@@ -50,7 +55,16 @@ public class ChangeableProperty<T> implements AutoCloseable, OnPropertyChange<T>
 
     public ChangeableProperty<T> addListener(OnPropertyChange<T> change)
     {
+        return addListener(false, change);
+    }
+
+    public ChangeableProperty<T> addListener(boolean trigger, OnPropertyChange<T> change)
+    {
         changeList.add(change);
+        if (trigger)
+        {
+            change.onChange(this, getAttr(), getValue(), null);
+        }
         return this;
     }
 

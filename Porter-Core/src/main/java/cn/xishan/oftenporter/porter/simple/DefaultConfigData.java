@@ -2,10 +2,12 @@ package cn.xishan.oftenporter.porter.simple;
 
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.config.ChangeableProperty;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -611,8 +614,14 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     }
 
     @Override
-    public Object getValue(Object object, Object target, Class<?> fieldRealType, Property property)
+    public Object getValue(Object object, Class currentObjectClass, Object target, Integer paramIndex,
+            Class<?> fieldRealType, Property property)
     {
+        if (!(target instanceof Field || target instanceof Method))
+        {
+            throw new IllegalArgumentException("expected field or method for target parameter");
+        }
+
         String name = property.name();
         if (OftenTool.isEmpty(name))
         {
@@ -641,9 +650,26 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         {
             defaultVal = null;
         }
+
         Object rs = null;
+        boolean isChangeableProperty = false;
+        if (OftenTool.subclassOf(fieldRealType, ChangeableProperty.class) == 0)
+        {
+            isChangeableProperty = true;
+            if (target instanceof Field)
+            {
+                fieldRealType = AnnoUtil.Advance.getRealTypeInField(currentObjectClass, (Field) target);
+            } else
+            {
+                fieldRealType = AnnoUtil.Advance
+                        .getRealTypeInMethodParameter(currentObjectClass, (Method) target, paramIndex);
+            }
+        }
+
+        String attrText = null;
         if (keys.length == 1)
         {
+            attrText = keys[0];
             rs = getProperty(fieldRealType, keys[0], defaultVal, choice);
         } else
         {
@@ -652,53 +678,125 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 rs = getProperty(fieldRealType, key, null, choice);
                 if (OftenTool.isNullOrEmptyCharSequence(rs))
                 {
+                    attrText = key;
                     break;
                 }
             }
+
             if (OftenTool.notEmptyOf(keys) && OftenTool.notEmpty(defaultVal))
             {
+                attrText = keys[0];
                 rs = getProperty(fieldRealType, keys[0], defaultVal, choice);
             }
         }
 
         LOGGER.debug("get prop:name={},property={},value={}", name, property, rs);
 
-        if (target instanceof Field)
+        if (isChangeableProperty)
         {
-            WeakReference<Field> fieldRef = new WeakReference<>((Field) target);
-            WeakReference<Object> objRef = new WeakReference<>(object);
-
-            addOnValueChange((Class<Object>) fieldRealType, (attr, newValue, oldValue) -> {
+            OnValueChange[] onValueChanges = new OnValueChange[1];
+            ChangeableProperty<Object> changeableProperty = new ChangeableProperty<Object>(attrText, rs)
+            {
+                @Override
+                public void release()
+                {
+                    removeOnValueChange(onValueChanges[0]);
+                    super.release();
+                }
+            };
+            onValueChanges[0] = (attr, newValue, oldValue) -> {
                 try
                 {
-                    Field f = fieldRef.get();
-                    Object obj = objRef.get();
-
-                    if (f == null || obj == null && !Modifier.isStatic(f.getModifiers()))
-                    {
-                        LOGGER.info("field is released:attr={},new={},old={}", attr, newValue, oldValue);
-                    } else
-                    {
-                        f.set(obj, newValue);
-                    }
+                    changeableProperty.setAttr(attr);
+                    changeableProperty.submitValue(newValue);
                 } catch (Exception e)
                 {
                     LOGGER.warn(e.getMessage(), e);
                 }
-            }, keys);
+            };
+            addOnValueChange((Class<Object>) fieldRealType, onValueChanges[0], keys);
+            rs = changeableProperty;
+        } else
+        {
+            if (target instanceof Field)
+            {
+                WeakReference<Field> fieldRef = new WeakReference<>((Field) target);
+                WeakReference<Object> objRef = new WeakReference<>(object);
+
+                addOnValueChange((Class<Object>) fieldRealType, (attr, newValue, oldValue) -> {
+                    try
+                    {
+                        Field f = fieldRef.get();
+                        Object obj = objRef.get();
+
+                        if (f == null || obj == null && !Modifier.isStatic(f.getModifiers()))
+                        {
+                            LOGGER.info("field is released:attr={},new={},old={}", attr, newValue, oldValue);
+                        } else
+                        {
+                            f.set(obj, newValue);
+                        }
+                    } catch (Exception e)
+                    {
+                        LOGGER.warn(e.getMessage(), e);
+                    }
+                }, keys);
+            }
         }
 
         return rs;
     }
 
     @Override
-    public Object getValue(Object object, Object target, Class<?> realType, String key, Object defaultValue)
+    public Object getValue(Object object, Class currentObjectClass, Object target, Integer paramIndex,
+            Class<?> realType, String key, Object defaultValue)
     {
+        boolean isChangeableProperty = false;
+        if (OftenTool.subclassOf(realType, ChangeableProperty.class) == 0)
+        {
+            isChangeableProperty = true;
+            if (target instanceof Field)
+            {
+                realType = AnnoUtil.Advance.getRealTypeInField(currentObjectClass, (Field) target);
+            } else
+            {
+                realType = AnnoUtil.Advance
+                        .getRealTypeInMethodParameter(currentObjectClass, (Method) target, paramIndex);
+            }
+        }
+
         Object value = getProperty(realType, key, null, Property.Choice.Default);
         if (OftenTool.isNullOrEmptyCharSequence(value))
         {
             value = defaultValue;
         }
+
+        if (isChangeableProperty)
+        {
+            OnValueChange[] onValueChanges = new OnValueChange[1];
+            ChangeableProperty<Object> changeableProperty = new ChangeableProperty<Object>(key, value)
+            {
+                @Override
+                public void release()
+                {
+                    removeOnValueChange(onValueChanges[0]);
+                    super.release();
+                }
+            };
+            onValueChanges[0] = (attr, newValue, oldValue) -> {
+                try
+                {
+                    changeableProperty.submitValue(newValue);
+                } catch (Exception e)
+                {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            };
+            addOnValueChange((Class<Object>) realType, onValueChanges[0], key);
+            value = changeableProperty;
+        }
+
+
         return value;
     }
 

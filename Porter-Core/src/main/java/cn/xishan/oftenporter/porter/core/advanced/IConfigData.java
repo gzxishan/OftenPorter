@@ -1,9 +1,6 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
-import cn.xishan.oftenporter.porter.core.annotation.AutoSet;
-import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.annotation.MayProxyObject;
-import cn.xishan.oftenporter.porter.core.annotation.Property;
+import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.init.DealSharpProperties;
 import cn.xishan.oftenporter.porter.simple.DefaultConfigData;
@@ -132,20 +129,24 @@ public interface IConfigData
 
     /**
      * @param object
-     * @param target   Method或Field
+     * @param target     Method或Field
+     * @param paramIndex 当target为method时，用来表示参数索引
      * @param realType
      * @param property
      * @return
+     * @
      */
-    Object getValue(@MayNull @MayProxyObject Object object, Object target, Class<?> realType, Property property);
+    Object getValue(@MayNull @MayProxyObject Object object, @NotNull Class currentObjectClass, Object target,
+            Integer paramIndex, Class<?> realType, Property property);
 
     /**
      * @param object
-     * @param target   Method或Field
+     * @param target     Method或Field
+     * @param paramIndex 当target为method时，用来表示参数索引
      * @param realType
      * @param key
      * @return
      */
-    Object getValue(@MayNull @MayProxyObject Object object, Object target, Class<?> realType, String key,
-            Object defaultValue);
+    Object getValue(@MayNull @MayProxyObject Object object, @NotNull Class currentObjectClass, Object target,
+            Integer paramIndex, Class<?> realType, String key, Object defaultValue);
 }
