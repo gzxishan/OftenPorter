@@ -1,21 +1,21 @@
 package cn.xishan.oftenporter.porter.core.annotation.sth;
 
+import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
 import cn.xishan.oftenporter.porter.core.advanced.IAutoSetListener;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
+import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSet.SetOk;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._AutoSet;
 import cn.xishan.oftenporter.porter.core.annotation.deal._SyncPorterOption;
-import cn.xishan.oftenporter.porter.core.advanced.IArgumentsFactory;
-import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenContextInfo;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.exception.AutoSetException;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.init.*;
-import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.sysset.*;
 import cn.xishan.oftenporter.porter.core.util.LogUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -23,7 +23,10 @@ import cn.xishan.oftenporter.porter.core.util.PackageUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultArgumentsFactory;
 import org.slf4j.Logger;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -260,7 +263,8 @@ public class AutoSetHandle
             this.args = args;
         }
 
-        private void doAutoSetSeek(List<String> packages, List<String> classStrs, List<Class<?>> classes,
+        private void doAutoSetSeek(Collection<String> packages, Collection<String> classStrs,
+                Collection<Class<?>> classes,
                 ClassLoader classLoader)
         {
             if ((packages == null || packages.size() == 0) && (classStrs == null || classStrs.size() == 0) &&
@@ -273,23 +277,21 @@ public class AutoSetHandle
                 LOGGER.debug("*****StaticAutoSet******");
                 if (packages != null)
                 {
-                    for (int k = 0; k < packages.size(); k++)
+                    for (String packageStr : packages)
                     {
-                        String packageStr = packages.get(k);
                         LOGGER.debug("扫描包：{}", packageStr);
-                        List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
-                        for (int i = 0; i < classeses.size(); i++)
+                        List<String> pkgClasses = PackageUtil.getClassName(packageStr, classLoader);
+                        for (int i = 0; i < pkgClasses.size(); i++)
                         {
-                            Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
+                            Class<?> clazz = PackageUtil.newClass(pkgClasses.get(i), classLoader);
                             doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
                 if (classes != null)
                 {
-                    for (int k = 0; k < classes.size(); k++)
+                    for (Class<?> clazz : classes)
                     {
-                        Class<?> clazz = classes.get(k);
                         doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                     }
                 }
@@ -322,7 +324,8 @@ public class AutoSetHandle
         @Override
         public void handle()
         {
-            this.doAutoSetSeek((List) args[0], (List) args[1], (List) args[2], (ClassLoader) args[3]);
+            this.doAutoSetSeek((Collection<String>) args[0], (Collection) args[1], (Collection) args[2],
+                    (ClassLoader) args[3]);
         }
     }
 
@@ -380,6 +383,8 @@ public class AutoSetHandle
     private boolean useCache;
     private Map<Class, List<Object>> setOkOrPortInitCacheMap;
     private Map<Class, Method[]> startsCacheMap, destroysCacheMap;
+    //已经添加了的
+    private Set<Class> addedAutoSetStaticClasses = new HashSet<>();
 
     /////////////////////////////////
 
@@ -565,7 +570,8 @@ public class AutoSetHandle
         iHandles_notporter.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
-    public synchronized void addStaticAutoSet(List<String> packages, List<String> classStrs, List<Class> classes,
+    public synchronized void addStaticAutoSet(Collection<String> packages, Collection<String> classStrs,
+            Collection<Class> classes,
             ClassLoader classLoader)
     {
         if (OftenTool.isEmptyOf(packages) && OftenTool.isEmptyOf(classStrs) && OftenTool
@@ -655,10 +661,20 @@ public class AutoSetHandle
             {
                 iHandles_notporter.get(i).handle();
             }
+
+            iHandles_notporter.clear();
+
             for (int i = 0; i < iHandles_porter.size(); i++)
             {
                 iHandles_porter.get(i).handle();
             }
+
+            //再执行一篇，可能添加了AutoSetStatic
+            for (int i = 0; i < iHandles_notporter.size(); i++)
+            {
+                iHandles_notporter.get(i).handle();
+            }
+
             workedInstance.clear();
 //            workedInstance = null;
         } catch (AutoSetException e)
@@ -671,6 +687,7 @@ public class AutoSetHandle
         {
             iHandles_notporter.clear();
             iHandles_porter.clear();
+            addedAutoSetStaticClasses.clear();
         }
     }
 
@@ -846,9 +863,28 @@ public class AutoSetHandle
 
     //每个对象或被autoset的都会调用此函数
     private Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Porter porter, @MayNull Object finalObject,
-            Class<?> currentObjectClass,
-            @MayNull Object currentObject, RangeType rangeType) throws Exception
+            Class<?> currentObjectClass, @MayNull Object currentObject, RangeType rangeType) throws Exception
     {
+
+        //处理AutoSetStatic
+        List<AutoSetStatic> autoSetStatics = AnnoUtil.getAnnotationsWithSuper(currentObjectClass, AutoSetStatic.class);
+        for (AutoSetStatic autoSetStatic : autoSetStatics)
+        {
+            Set<Class> set = new HashSet<>();
+            for (Class clazz : autoSetStatic.value())
+            {
+                if (!addedAutoSetStaticClasses.contains(clazz))
+                {
+                    addedAutoSetStaticClasses.add(clazz);
+                    set.add(clazz);
+                }
+            }
+            if (set.size() > 0)
+            {
+                addStaticAutoSet(null, null, set, null);
+            }
+        }
+
         finalObject = mayGetProxyObject(finalObject);
         currentObject = mayGetProxyObject(currentObject);
         if (currentObject != null && autoSetDealtSet
@@ -863,7 +899,15 @@ public class AutoSetHandle
             autoSetDealtSet.add(currentObject);
         }
 
-        AutoSetHandleWorkedInstance.Result result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
+        AutoSetHandleWorkedInstance.Result result;
+        if (currentObject == null)
+        {
+            result = workedInstance.workInstance(currentObjectClass, this, false);
+        } else
+        {
+            result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
+        }
+
         currentObject = result.object;
         if (result.isWorked)
         {
@@ -914,7 +958,7 @@ public class AutoSetHandle
             if (property != null)
             {
                 fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
-                Object value = configData.getValue(currentObject, currentObjectClass, f,null, fieldRealType, property);
+                Object value = configData.getValue(currentObject, currentObjectClass, f, null, fieldRealType, property);
                 if (value != null)
                 {
                     f.set(currentObject, value);
@@ -937,6 +981,7 @@ public class AutoSetHandle
                     }
                     workedInstance.doAutoSet(value, this);
                 }
+
                 if (fieldRealType == null)
                 {
                     fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型

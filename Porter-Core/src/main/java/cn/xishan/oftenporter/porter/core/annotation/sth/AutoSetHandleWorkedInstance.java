@@ -41,7 +41,7 @@ class AutoSetHandleWorkedInstance
         boolean isWorked = false;
         if (object != null)
         {
-            if (PortUtil.willIgnoreAdvanced(PortUtil.getRealClass(object)))
+            if (!(object instanceof Class) && PortUtil.willIgnoreAdvanced(PortUtil.getRealClass(object)))
             {
                 isWorked = true;
             } else
@@ -68,7 +68,11 @@ class AutoSetHandleWorkedInstance
                     }
                 }
             }
-            object = mayProxyAndDoAutoSet(object, null, autoSetHandle, doProxy, false);
+
+            if (!(object instanceof Class))
+            {
+                object = mayProxyAndDoAutoSet(object, null, autoSetHandle, doProxy, false);
+            }
         }
         return new Result(isWorked, object);
     }
