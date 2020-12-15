@@ -307,7 +307,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 //        }
 //    }
 
-    private static final Pattern PROTO_PATTERN = Pattern.compile("^([^:]+:)([\\s\\S]*)");
+    private static final Pattern PROTO_PATTERN = Pattern.compile("^([^:]+:)(/+[\\s\\S]+)");
 
     /**
      * 返回格式包含：协议、地址、端口。会尝试从host头获取host内容、从X-FORWARDED-PROTO头判断是否为https协议。
