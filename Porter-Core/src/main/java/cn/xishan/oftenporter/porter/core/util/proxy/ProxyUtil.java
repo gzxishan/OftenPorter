@@ -96,7 +96,7 @@ public class ProxyUtil
                 Object methodInterceptor = field.get(object);
                 field = methodInterceptor.getClass().getDeclaredField("originRef");
                 field.setAccessible(true);
-                WeakReference reference = (WeakReference) field.get(object);
+                WeakReference reference = (WeakReference) field.get(methodInterceptor);
                 object = reference.get();
             } else if (object instanceof IOftenProxy)
             {
@@ -202,9 +202,8 @@ public class ProxyUtil
         return enhancer;
     }
 
-
     /**
-     * 复制成员变量值（除了static但包括final类型）,变量以src中的变量为准。
+     * 复制成员变量值（忽略static类型，包括final类型、覆盖目标对象变量）,变量以src中的变量为准。
      *
      * @param src
      * @param target
@@ -213,7 +212,23 @@ public class ProxyUtil
      */
     public static void initFieldsValue(Object src, Object target, boolean fromSrc2target) throws Exception
     {
-        if (src != null && target != null)
+        initFieldsValue(src, target, fromSrc2target, false, true);
+    }
+
+    /**
+     * 复制成员变量值（除了static）,变量以src中的变量为准。
+     *
+     * @param src
+     * @param target
+     * @param fromSrc2target true表示从src复制到target；false表示从target复制到src。
+     * @param ignoreNotNull  是否忽略被设置对象中的非null变量。
+     * @param includeFinal   是否包含final字段。
+     * @throws Exception
+     */
+    public static void initFieldsValue(Object src, Object target, boolean fromSrc2target, boolean ignoreNotNull,
+            boolean includeFinal) throws Exception
+    {
+        if (src != null && target != null && src != target)
         {
             if (LOGGER.isDebugEnabled())
             {
@@ -227,14 +242,22 @@ public class ProxyUtil
                             src.getClass() + "@" + src.hashCode());
                 }
             }
+
             Field[] fields = OftenTool.getAllFields(src.getClass());
             for (Field field : fields)
             {
-                if (Modifier.isStatic(field.getModifiers()))
+                if (Modifier.isStatic(field.getModifiers()) || field.getName().startsWith("CGLIB$") ||
+                        includeFinal && Modifier.isFinal(field.getModifiers()))
                 {
                     continue;
                 }
+
                 field.setAccessible(true);
+                if (ignoreNotNull && field.get(target) != null)
+                {
+                    continue;
+                }
+
                 if (fromSrc2target)
                 {
                     field.set(target, field.get(src));

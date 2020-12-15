@@ -129,12 +129,9 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 
     public static String getRequestUrl(HttpServletRequest request, boolean http2Https)
     {
-        String url = request.getRequestURL().toString();
-        if (http2Https && url.startsWith("http:"))
-        {
-            url = "https:" + url.substring(5);
-        }
-        return url;
+        String host = getHost(request, http2Https);
+        String path = getPath(request);
+        return host + path;
     }
 
 
@@ -146,11 +143,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 
     public static String getRequestUrlWithQuery(HttpServletRequest request, boolean http2Https)
     {
-        String url = request.getRequestURL().toString();
-        if (http2Https && url.startsWith("http:"))
-        {
-            url = "https:" + url.substring(5);
-        }
+        String url = getRequestUrl(request, http2Https);
 
         String query = request.getQueryString();
         if (query != null)
@@ -272,6 +265,9 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         return path;
     }
 
+
+    private static final Pattern HOST_PATTERN = Pattern.compile("^([^:]+:/+)([^/]+)");
+
     /**
      * 得到host，包含协议。如http://localhost:8080/hello得到的是http://localhost:8080
      *
@@ -280,19 +276,23 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      */
     public static String getHostFromURL(CharSequence url, boolean http2Https)
     {
-        Matcher matcher = PATTERN_HOST_PORT.matcher(url);
+        Matcher matcher = HOST_PATTERN.matcher(url);
+        String host;
         if (matcher.find())
         {
-            String host = matcher.group();
-            if (http2Https && host.startsWith("http:"))
+            if (http2Https && matcher.group(1).equals("http://"))
             {
-                host = "https:" + host.substring(5);
+                host = "https://" + matcher.group(2);
+            } else
+            {
+                host = matcher.group(1) + matcher.group(2);
             }
-            return host;
         } else
         {
-            return "";
+            host = "";
         }
+
+        return host;
     }
 
 
@@ -307,13 +307,29 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 //        }
 //    }
 
+    private static final Pattern PROTO_PATTERN = Pattern.compile("^([^:]+:)([\\s\\S]*)");
+
     /**
-     * @return
+     * 返回格式包含：协议、地址、端口。会尝试从host头获取host内容、从X-FORWARDED-PROTO头判断是否为https协议。
      */
     public static String getHost(HttpServletRequest request, boolean isHttp2Https)
     {
-        String url = getRequestUrl(request, isHttp2Https);
-        String host = getHostFromURL(url);
+        String hostHeader = request.getHeader("Host");
+        String host;
+        if (OftenTool.isEmpty(hostHeader))
+        {
+            String url = request.getRequestURL().toString();
+            host = getHostFromURL(url);
+        } else
+        {
+            host = hostHeader;
+        }
+
+        if (!isHttp2Https && "https".equals(request.getHeader("X-FORWARDED-PROTO")))
+        {
+            isHttp2Https = true;
+        }
+
         if (isHttp2Https && host.endsWith(":443"))
         {
             host = host.substring(0, host.length() - 4);
@@ -321,6 +337,19 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         {
             host = host.substring(0, host.length() - 3);
         }
+
+        Matcher matcher = PROTO_PATTERN.matcher(host);
+        if (matcher.find())
+        {
+            if (isHttp2Https && matcher.group(1).equals("http:"))
+            {
+                host = "https:" + matcher.group(2);
+            }
+        } else
+        {
+            host = (isHttp2Https ? "https://" : "http://") + host;
+        }
+
         return host;
 //
 //        String host = (isHttp2Https ? "https" : request.getScheme()) + "://" + request.getServerName() + getPort(
