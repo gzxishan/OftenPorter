@@ -21,6 +21,15 @@ public interface IAutoSetter
     void forInstance(Object[] objects) throws AutoSetException;
 
     /**
+     * 对实例进行注入处理（包括静态变量）。
+     *
+     * @param object
+     * @return 可能是代理后的对象
+     * @throws AutoSetException
+     */
+    Object forInstanceMayProxy(Object object) throws AutoSetException;
+
+    /**
      * 对类的静态变量进行注入处理。
      *
      * @param classes

@@ -13,6 +13,7 @@ import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
+import cn.xishan.oftenporter.porter.core.util.LogMethodInvoke;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import cn.xishan.oftenporter.porter.local.porter.Article;
 import cn.xishan.oftenporter.porter.local.porter.User;
@@ -44,6 +45,7 @@ import static org.junit.Assert.*;
  */
 public class TestLocalMain
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestLocalMain.class);
 
     interface Listener
     {
@@ -210,8 +212,18 @@ public class TestLocalMain
                             }
                         }
                 });
+
+                Object origin = new ForInstanceMayProxyObj();
+                Object toString = autoSetter.forInstanceMayProxy(origin);
+                toString.toString();
+
+                assertNotEquals(origin, toString);
+
                 localMain.destroyAll();
                 executorService.shutdown();
+            } catch (Exception e)
+            {
+                LOGGER.error(e.getMessage(), e);
             } finally
             {
                 assertEquals(My2Porter.class, getClass(autoSetterList, 0));
@@ -224,6 +236,16 @@ public class TestLocalMain
         });
 
 
+    }
+
+    static class ForInstanceMayProxyObj
+    {
+        @LogMethodInvoke
+        @Override
+        public String toString()
+        {
+            return super.toString();
+        }
     }
 
     private Class getClass(List<Object> list, int index)

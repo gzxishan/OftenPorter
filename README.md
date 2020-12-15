@@ -34,6 +34,7 @@
 8. 修复`BytesTool`.`hexToByte`的bug；
 9. 完善`@Property`注解，支持`ChangeableProperty`；
 10. 完善：任何地方都支持`@AutoSetStatic`；
+11.完善`IAutoSetter`，增加`Object forInstanceMayProxy(Object object)`；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

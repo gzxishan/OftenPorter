@@ -48,6 +48,15 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     }
 
     @Override
+    public Object forInstanceMayProxy(Object object) throws AutoSetException
+    {
+        Object result = autoSetHandle.doAutoSetMayProxy(object);
+        autoSetHandle.invokeSetOk(oftenObject);
+        invokeStart();
+        return result;
+    }
+
+    @Override
     public void forClass(Class[] classes) throws AutoSetException
     {
         autoSetHandle.addStaticAutoSet(null, null, Arrays.asList(classes),

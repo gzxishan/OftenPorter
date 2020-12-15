@@ -473,11 +473,14 @@ public class AutoSetHandle
     {
         try
         {
-            _PortInited[] portIniteds = this.portIniteds.toArray(new _PortInited[0]);
-            Arrays.sort(portIniteds);
-            for (_PortInited portInited : portIniteds)
+            if (portIniteds != null)
             {
-                portInited.invoke(oftenObject, iConfigData);
+                _PortInited[] portIniteds = this.portIniteds.toArray(new _PortInited[0]);
+                Arrays.sort(portIniteds);
+                for (_PortInited portInited : portIniteds)
+                {
+                    portInited.invoke(oftenObject, iConfigData);
+                }
             }
         } catch (Exception e)
         {
@@ -652,11 +655,29 @@ public class AutoSetHandle
     }
 
 
+    public Object doAutoSetMayProxy(Object object)
+    {
+        try
+        {
+            return doAutoSetForCurrent(true, object, object);
+        } catch (AutoSetException e)
+        {
+            throw e;
+        } catch (Exception e)
+        {
+            throw new AutoSetException(e);
+        } finally
+        {
+            workedInstance.clear();
+            addedAutoSetStaticClasses.clear();
+        }
+    }
+
+
     public synchronized void doAutoSetNormal() throws AutoSetException
     {
         try
         {
-//            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
             for (int i = 0; i < iHandles_notporter.size(); i++)
             {
                 iHandles_notporter.get(i).handle();
@@ -675,8 +696,6 @@ public class AutoSetHandle
                 iHandles_notporter.get(i).handle();
             }
 
-            workedInstance.clear();
-//            workedInstance = null;
         } catch (AutoSetException e)
         {
             throw e;
@@ -685,6 +704,7 @@ public class AutoSetHandle
             throw new AutoSetException(e);
         } finally
         {
+            workedInstance.clear();
             iHandles_notporter.clear();
             iHandles_porter.clear();
             addedAutoSetStaticClasses.clear();
@@ -700,8 +720,6 @@ public class AutoSetHandle
             {
                 iHandlesForAutoSetThat.get(i).handle();
             }
-            workedInstance.clear();
-//            workedInstance = null;
         } catch (AutoSetException e)
         {
             throw e;
@@ -710,6 +728,7 @@ public class AutoSetHandle
             throw new AutoSetException(e);
         } finally
         {
+            workedInstance.clear();
             iHandlesForAutoSetThat.clear();
         }
     }
@@ -816,8 +835,7 @@ public class AutoSetHandle
             Object currentObject) throws Exception
     {
         return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject),
-                currentObject,
-                RangeType.ALL);
+                currentObject,RangeType.ALL);
     }
 
     private Object mayGetProxyObject(Object object)
