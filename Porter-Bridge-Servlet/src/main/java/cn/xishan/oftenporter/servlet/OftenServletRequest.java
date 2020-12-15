@@ -130,8 +130,8 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
     public static String getRequestUrl(HttpServletRequest request, boolean http2Https)
     {
         String host = getHost(request, http2Https);
-        String path = getPath(request);
-        return host + path;
+        String uri = request.getRequestURI();
+        return host + uri;
     }
 
 

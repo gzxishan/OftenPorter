@@ -924,9 +924,9 @@ public class AutoSetHandle
         } else
         {
             result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
+            currentObject = result.object;
         }
 
-        currentObject = result.object;
         if (result.isWorked)
         {
             return currentObject;//已经递归扫描过该实例

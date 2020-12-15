@@ -16,6 +16,8 @@ import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -30,6 +32,8 @@ import java.util.*;
  */
 public class DefaultArgumentsFactory implements IArgumentsFactory
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultArgumentsFactory.class);
+
     public interface ArgDealt
     {
         /**
@@ -422,7 +426,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 Property property = AnnoUtil.getAnnotation(parameter, Property.class);
                 if (property != null)
                 {
-                    Object value = configData.getValue(object,currentClass, method,i, realType, property);
+                    Object value = configData.getValue(object, currentClass, method, i, realType, property);
                     args[i] = value;
                     continue;//为property参数，继续处理下一个
                 }
@@ -439,8 +443,15 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             }
             args[i] = obj;
         }
-        method.setAccessible(true);
-        return method.invoke(object, args);
+        try
+        {
+            method.setAccessible(true);
+            return method.invoke(object, args);
+        } catch (Exception e)
+        {
+            LOGGER.warn("invoke method failed: method={},object={},args={}", method, object, args);
+            throw e;
+        }
     }
 
 }
