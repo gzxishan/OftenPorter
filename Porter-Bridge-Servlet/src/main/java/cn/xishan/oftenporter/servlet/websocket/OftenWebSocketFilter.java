@@ -42,18 +42,30 @@ public final class OftenWebSocketFilter extends _AllFilter.FilterX
     {
         StartupServlet oftenServlet = (StartupServlet) request.getServletContext()
                 .getAttribute(StartupServlet.class.getName());
+
+        boolean isWebSocket = false;
         if (oftenServlet != null && WebSocketHandle.isWebSocket(request))
         {
+            isWebSocket = true;
             //接入框架进行处理
             oftenServlet.service(request, response);
 
-            if (request.getAttribute(OftenServletResponse.class.getName()) == null)
-            {//处理正常，连接未关闭
-                HttpSessionConfigurator.setSession(request.getSession());
+            if (!response.isCommitted())
+            {
+                if (request.getAttribute(OftenServletResponse.class.getName()) == null)
+                {//处理正常，连接未关闭
+                    HttpSessionConfigurator.setSession(request.getSession());
+                }
+
+                request = IContainerResource.getOrigin(request);
+                response = IContainerResource.getOrigin(response);
             }
 
-            request = IContainerResource.getOrigin(request);
-            response = IContainerResource.getOrigin(response);
+        }
+
+        if (isWebSocket && response.isCommitted())
+        {
+            return;
         }
 
         chain.doFilter(request, response);

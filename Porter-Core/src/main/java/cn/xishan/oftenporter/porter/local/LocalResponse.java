@@ -46,14 +46,16 @@ public class LocalResponse implements OftenResponse, CloseListener.CloseHandle
             throw new IOException("already closed!");
         }
         closed = true;
-        if (closeListener != null)
+        try
         {
-            closeListener.onClose(object, this);
-        } else
+            if (closeListener != null)
+            {
+                closeListener.onClose(object, this);
+            }
+        }finally
         {
             doClose(object);
         }
-
     }
 
 

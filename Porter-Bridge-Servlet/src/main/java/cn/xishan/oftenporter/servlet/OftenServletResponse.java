@@ -74,6 +74,12 @@ public class OftenServletResponse extends LocalResponse
                 LOGGER.warn("already invoked:HttpServletResponse.{}",
                         response.hasGotStreamType == 1 ? "getOutputStream()" : "getWriter()");
             }
+        } else if (response.isCommitted())
+        {
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn("already committed");
+            }
         } else
         {
             request.setAttribute(OftenServletResponse.class.getName(), "0");
@@ -92,11 +98,9 @@ public class OftenServletResponse extends LocalResponse
         String ctype = response.getContentType();
         if (OftenTool.isEmpty(ctype))
         {
-
             if (object != null && ((object instanceof JResponse) || (object instanceof JSONObject) ||
                     (object instanceof JSONArray) || (object instanceof JSONHeader)))
             {
-
                 response.setContentType(ContentType.APP_JSON.getType());
             } else
             {
