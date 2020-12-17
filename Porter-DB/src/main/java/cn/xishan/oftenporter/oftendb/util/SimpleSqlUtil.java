@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
  * <li>$substr:name,$notsubstr:name：匹配包含或不包含某字符串。【为空会忽略条件】</li>
  * <li>$starts:name,$notstarts:name,匹配以或不以某字符串开头。【为空会忽略条件】</li>
  * <li>$ends:name,$notends:name：匹配以或不以某字符串结尾。【为空会忽略条件】</li>
- * <li>$in:name,$nin:name,$iin:name,$inin:name：值为数组或list，匹配在或不在指定列表中，
- * 注意当提供的数组或list为空时:'$in:name'变成'$false','$nin:name':'$true','$iin:'与'$inin:'会忽略。</li>
+ * <li>$in:name,$nin:name,$iin:name,$inin:name：值为数组或Collection，匹配在或不在指定集合中，
+ * 注意当提供的数组或Collection为空时:'$in:name'变成'$false','$nin:name':'$true','$iin:'与'$inin:'会忽略。</li>
  * <li>$ignull:+其他，当值为空时忽略条件</li>
  * <li><strong>$d:</strong>+其他，表示值为date，会对时区进行处理，若值为字符串则会转换为Date，此标记应放在最前面。</li>
  * <li>$or[：或开始,</li>
@@ -670,9 +670,9 @@ public class SimpleSqlUtil
                         Object[] array = null;
                         if (value != null)
                         {
-                            if (value instanceof List)
+                            if (value instanceof Collection)
                             {
-                                array = ((List) value).toArray(OftenTool.EMPTY_OBJECT_ARRAY);
+                                array = ((Collection) value).toArray(OftenTool.EMPTY_OBJECT_ARRAY);
                             } else if (value.getClass().isArray())
                             {
                                 array = (Object[]) value;
@@ -681,6 +681,7 @@ public class SimpleSqlUtil
                                 array = new Object[]{value};
                             }
                         }
+
                         if (array == null || array.length == 0)
                         {
                             if (type.equals("$iin:") || type.equals("$inin:"))

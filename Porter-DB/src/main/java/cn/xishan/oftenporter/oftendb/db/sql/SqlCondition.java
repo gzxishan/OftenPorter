@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class SqlCondition extends Condition
@@ -290,13 +291,13 @@ public class SqlCondition extends Condition
         {
             StringBuilder sBuilder = new StringBuilder("(");
             if (cUnit.getParam2() != null && cUnit.getParam2().getClass().isArray() || cUnit
-                    .getParam2() instanceof List)
+                    .getParam2() instanceof Collection)
             {
                 Object[] objects;
-                if (cUnit.getParam2() instanceof List)
+                if (cUnit.getParam2() instanceof Collection)
                 {
-                    List list = (List) cUnit.getParam2();
-                    objects = list.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
+                    Collection collection = (Collection) cUnit.getParam2();
+                    objects = collection.toArray(OftenTool.EMPTY_OBJECT_ARRAY);
                 } else
                 {
                     objects = (Object[]) cUnit.getParam2();
