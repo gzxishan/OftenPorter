@@ -5,9 +5,9 @@ import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.*;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
-import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.annotation.sth.CacheOne;
-import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.InnerContextBridge;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
@@ -21,8 +21,10 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -125,6 +127,13 @@ public class TypeTo
         {
             throw new RuntimeException(e);
         }
+    }
+
+    public IArgumentsFactory.IArgsHandle newArgsHandle(Class<?> realClass, Method method) throws Exception
+    {
+        IArgumentsFactory.IArgsHandle argsHandle = argumentsFactory
+                .newIArgsHandle(realClass, method, null, innerContextBridge.innerBridge.globalParserStore);
+        return argsHandle;
     }
 
     public <T> T parseParameter(Class<?> realClass, Method method, int argIndex,

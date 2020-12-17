@@ -1,5 +1,6 @@
 package cn.xishan.oftenporter.porter.core.advanced;
 
+import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.annotation.param.Nece;
 import cn.xishan.oftenporter.porter.core.annotation.param.Unece;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
@@ -39,15 +40,16 @@ public interface IArgumentsFactory
          * @param args        支持{@linkplain FunParam}
          * @return
          */
-        Object[] getInvokeArgs(OftenObject oftenObject, PorterOfFun fun, Method method, Object[] args);
+        Object[] getInvokeArgs(OftenObject oftenObject, @MayNull PorterOfFun fun, Method method, Object[] args);
 
         /**
          * 获取实际参数在函数形参列表中的索引。
+         *
          * @return
          */
         int[] getArgsIndex();
 
-        boolean hasParameterType(OftenObject oftenObject, PorterOfFun fun, Method method, Class<?> type);
+        boolean hasParameterType(OftenObject oftenObject, @MayNull PorterOfFun fun, Method method, Class<?> type);
     }
 
     /**

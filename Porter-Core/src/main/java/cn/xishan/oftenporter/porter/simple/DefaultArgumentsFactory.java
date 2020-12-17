@@ -378,7 +378,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
     }
 
-    public IArgsHandleImpl newIArgsHandle(Class realType, Method method, int[] argsIndex,
+    public IArgsHandleImpl newIArgsHandle(Class realType, Method method, @MayNull int[] argsIndex,
             TypeParserStore typeParserStore) throws Exception
     {
         IArgsHandleImpl handle = new IArgsHandleImpl2(realType, method, typeParserStore, argsIndex);
