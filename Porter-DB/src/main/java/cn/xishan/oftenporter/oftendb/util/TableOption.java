@@ -99,7 +99,7 @@ public class TableOption
 
         if (OftenTool.notEmptyOf(queryArray))
         {
-            JSONArray  newArray = new JSONArray(queryArray.size());
+            JSONArray newArray = new JSONArray(queryArray.size());
             for (int i = 0; i < queryArray.size(); i++)
             {
                 JSONObject item = queryArray.getJSONObject(i);
@@ -147,6 +147,16 @@ public class TableOption
         return this;
     }
 
+    public Integer getLimit()
+    {
+        return settings != null ? settings.getInteger("limit") : null;
+    }
+
+    public Integer getSkip()
+    {
+        return settings != null ? settings.getInteger("skip") : null;
+    }
+
     public JSONArray getOrder()
     {
         if (settings == null)
@@ -159,7 +169,6 @@ public class TableOption
     }
 
     /**
-     *
      * @param key
      * @param order 1表示升序，-1表示降序，其他表示忽略
      * @return

@@ -3,10 +3,9 @@ package cn.xishan.oftenporter.oftendb.util;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlCondition;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlUtil;
-import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
@@ -89,6 +88,15 @@ public class SimpleSqlUtil
          */
         public String order;
 
+        public String limit;
+
+        public String skip;
+
+        /**
+         * 完整的limit子句，如：OFFSET 15；LIMIT 20 OFFSET 5
+         */
+        public String slimit;
+
         public Map<String, Object> getQuery()
         {
             return query;
@@ -138,6 +146,36 @@ public class SimpleSqlUtil
         {
             this.order = order;
         }
+
+        public String getLimit()
+        {
+            return limit;
+        }
+
+        public void setLimit(String limit)
+        {
+            this.limit = limit;
+        }
+
+        public String getSkip()
+        {
+            return skip;
+        }
+
+        public void setSkip(String skip)
+        {
+            this.skip = skip;
+        }
+
+        public String getSlimit()
+        {
+            return slimit;
+        }
+
+        public void setSlimit(String slimit)
+        {
+            this.slimit = slimit;
+        }
     }
 
     private String columnCoverString = "`";
@@ -171,12 +209,8 @@ public class SimpleSqlUtil
 
     public SQLPart from(TableOption tableOption)
     {
-        List order = null;
-        if (tableOption.settings != null)
-        {
-            order = tableOption.settings.getJSONArray("order");
-        }
-        return from(tableOption.query, tableOption.queryArray, order);
+        return from(tableOption.query, tableOption.queryArray, tableOption.getOrder(),
+                tableOption.getSkip(), tableOption.getLimit());
     }
 
     /**
@@ -295,6 +329,17 @@ public class SimpleSqlUtil
      */
     public SQLPart from(Map query, JSONArray queryArray, List order)
     {
+        return from(query, queryArray, order, null, null);
+    }
+
+    /**
+     * @param query
+     * @param queryArray 见{@linkplain TableOption#queryArray}
+     * @param order
+     * @return
+     */
+    public SQLPart from(Map query, JSONArray queryArray, List order, Integer skip, Integer limit)
+    {
         if (query == null)
         {
             query = new HashMap();
@@ -317,6 +362,28 @@ public class SimpleSqlUtil
         sqlPart.nowhere = noWhere;
         sqlPart.order = orderStr;
         sqlPart.noorder = noOrderStr;
+
+        String skipStr = "";
+        String limitStr = "";
+        String slimitStr = "";
+        if (skip != null && limit != null)
+        {
+            skipStr = String.valueOf(skip);
+            limitStr = String.valueOf(limit);
+            slimitStr = "LIMIT " + skip + " OFFSET " + limit;
+        } else if (skip != null)
+        {
+            skipStr = String.valueOf(skip);
+            slimitStr = "OFFSET " + limit;
+        } else
+        {
+            limitStr = String.valueOf(limit);
+            slimitStr = "LIMIT " + limit;
+        }
+
+        sqlPart.limit = limitStr;
+        sqlPart.skip = skipStr;
+        sqlPart.slimit = slimitStr;
         // sqlPart.limit = noOrderStr[1];
         return sqlPart;
     }
