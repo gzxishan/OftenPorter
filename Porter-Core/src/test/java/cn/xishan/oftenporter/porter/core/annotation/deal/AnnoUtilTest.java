@@ -7,6 +7,10 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -39,6 +43,10 @@ public class AnnoUtilTest
 
     class ClassB
     {
+        public Map sameMethod1(String a, int b, Boolean c)
+        {
+            return null;
+        }
 
     }
 
@@ -68,7 +76,17 @@ public class AnnoUtilTest
     {
         try
         {
-            Method[] methods = OftenTool.getAllMethods(clazz);
+            //先获取此类定义的函数
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods)
+            {
+                if (method.getName().equals(name))
+                {
+                    return method;
+                }
+            }
+
+            methods = OftenTool.getAllMethods(clazz);
             for (Method method : methods)
             {
                 if (method.getName().equals(name))
@@ -164,9 +182,24 @@ public class AnnoUtilTest
         Assert.assertEquals(ClassD.class, AnnoUtil.Advance.getDirectGenericRealTypeAt(ClassE.class, 2));
     }
 
-    class SubB extends ClassB
+    interface InterfaceB
     {
+        List sameMethod2(String a, int b, Boolean c);
+    }
 
+    class SubB extends ClassB implements InterfaceB
+    {
+        @Override
+        public HashMap sameMethod1(String a, int b, Boolean c)
+        {
+            return null;
+        }
+
+        @Override
+        public ArrayList sameMethod2(String a, int b, Boolean c)
+        {
+            return null;
+        }
     }
 
     class SubB2 extends ClassB
@@ -182,6 +215,20 @@ public class AnnoUtilTest
     class ClassF2 extends A<SubB> implements IC<SubB2>
     {
 
+    }
+
+    @Test
+    public void testGetSameMethod()
+    {
+        Assert.assertNotNull(AnnoUtil.Advance.getSameMethodOfParent(ClassB.class,
+                getMethod(SubB.class, "sameMethod1")));
+        Assert.assertNotNull(AnnoUtil.Advance.getSameMethodOfChild(SubB.class,
+                getMethod(ClassB.class, "sameMethod1")));
+
+        Assert.assertNotNull(AnnoUtil.Advance.getSameMethodOfParent(InterfaceB.class,
+                getMethod(SubB.class, "sameMethod2")));
+        Assert.assertNotNull(AnnoUtil.Advance.getSameMethodOfChild(SubB.class,
+                getMethod(InterfaceB.class, "sameMethod2")));
     }
 
     @Test

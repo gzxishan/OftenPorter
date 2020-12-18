@@ -1523,6 +1523,93 @@ public class AnnoUtil
             return as;
         }
 
+        /**
+         * 获取父类或父接口的重载函数。
+         *
+         * @param parentClass 父类或父接口
+         * @param referMethod 子类或子接口函数
+         * @return
+         */
+        public static Method getSameMethodOfParent(Class parentClass, Method referMethod)
+        {
+            return getSameMethod(parentClass, referMethod, true, -1);
+        }
+
+        /**
+         * 获取子类或子接口重载函数。
+         *
+         * @param childClass  子类或子接口
+         * @param referMethod 父类或父接口函数
+         * @return
+         */
+        public static Method getSameMethodOfChild(Class childClass, Method referMethod)
+        {
+            return getSameMethod(childClass, referMethod, false, 1);
+        }
+
+        /**
+         * 从clazz中获取与referMethod结构一致的函数（函数名、形参列表、返回值均一致）。
+         *
+         * @param clazz       将从此类或接口、或者其父类或接口中获取
+         * @param referMethod 参考函数
+         * @param recursive   是否递归获取
+         * @param returnType  0表示返回值类型必须相等，-1表示返回值可以是参考函数返回值的父类型，1表示返回值可以是参考函数的子类型
+         * @return
+         */
+        public static Method getSameMethod(Class clazz, Method referMethod, boolean recursive, int returnType)
+        {
+            Method result = null;
+            if (referMethod.getDeclaringClass() == clazz)
+            {
+                result = referMethod;
+            } else if (clazz != null)
+            {
+                try
+                {
+                    Method method = clazz.getDeclaredMethod(referMethod.getName(), referMethod.getParameterTypes());
+                    if (returnType == 0)
+                    {
+                        if (method.getReturnType() == referMethod.getReturnType())
+                        {
+                            result = method;
+                        }
+                    } else if (returnType < 0)
+                    {
+                        if (OftenTool.isAssignable(referMethod.getReturnType(), method.getReturnType()))
+                        {
+                            result = method;
+                        }
+                    } else if (returnType > 0)
+                    {
+                        if (OftenTool.isAssignable(method.getReturnType(), referMethod.getReturnType()))
+                        {
+                            result = method;
+                        }
+                    }
+                } catch (NoSuchMethodException e)
+                {
+                }
+
+                if (result == null && recursive)
+                {
+                    result = getSameMethod(clazz.getSuperclass(), referMethod, recursive, returnType);
+                    if (result == null)
+                    {
+                        Class[] interfaces = clazz.getInterfaces();
+                        for (Class iclass : interfaces)
+                        {
+                            result = getSameMethod(iclass, referMethod, recursive, returnType);
+                            if (result != null)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
         public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType)
         {
             Worked worked = hasWorked(clazz, annotationType);

@@ -37,6 +37,7 @@
 11. 完善`IAutoSetter`，增加`Object forInstanceMayProxy(Object object)`；
 12. 完善`OftenServletRequest`.`getHost`；
 13. 完善`TypeTo`，加入`IArgumentsFactory.IArgsHandle newArgsHandle(Class<?> realClass, Method method)`；
+14. `AnnoUtil`增加`getSameMethod`函数；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；
