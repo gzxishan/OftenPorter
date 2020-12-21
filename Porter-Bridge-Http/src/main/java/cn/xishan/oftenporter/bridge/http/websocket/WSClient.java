@@ -130,17 +130,17 @@ public class WSClient
         return (T) session.getUserProperties().remove(key);
     }
 
-    public final <T> T putAttribute(Class<?> clazzKey, Object vlaue)
+    public final <T> T putAttribute(Class<?> clazzKey, Object value)
     {
-        return putAttribute(clazzKey.getName(), vlaue);
+        return putAttribute(clazzKey.getName(), value);
     }
 
     /**
      * @return 返回上一次的属性。
      */
-    public final <T> T putAttribute(String key, Object vlaue)
+    public final <T> T putAttribute(String key, Object value)
     {
-        return (T) session.getUserProperties().put(key, vlaue);
+        return (T) session.getUserProperties().put(key, value);
     }
 
     public final <T> T getAttribute(Class<?> clazzKey)
