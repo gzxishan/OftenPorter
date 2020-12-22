@@ -423,7 +423,6 @@ class MSqlSessionFactoryBuilder
         if (initSqls != null)
         {
             String[] sqls = initSqls;
-            initSqls = null;
 
             try (Connection connection = dataSource.getConnection())
             {
