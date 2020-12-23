@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.PortDestroy;
 import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.AutoSetException;
@@ -81,6 +82,10 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     {
         for (Method method : starts)
         {
+            if(AnnotationDealt.isNullInstance(method,object)){
+                continue;
+            }
+
             PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
             otherStartList.add(new ContextPorter.OtherStartDestroy(object, method, portStart.order()));
         }
@@ -91,6 +96,10 @@ class IAutoSetterImpl implements IAutoSetter, IOtherStartDestroy
     {
         for (Method method : destroys)
         {
+            if(AnnotationDealt.isNullInstance(method,object)){
+                continue;
+            }
+
             PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
             otherDestroyList.add(new ContextPorter.OtherStartDestroy(object, method, portDestroy.order()));
         }

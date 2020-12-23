@@ -7,6 +7,7 @@ import cn.xishan.oftenporter.porter.core.advanced.OnPorterAddListener;
 import cn.xishan.oftenporter.porter.core.advanced.PortUtil;
 import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnotationDealt;
 import cn.xishan.oftenporter.porter.core.annotation.deal._MixinPorter;
 import cn.xishan.oftenporter.porter.core.annotation.deal._PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.sth.AutoSetHandle;
@@ -42,6 +43,11 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : starts)
         {
+            if (AnnotationDealt.isNullInstance(method, object))
+            {
+                continue;
+            }
+
             PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
             otherStartList.add(new OtherStartDestroy(object, method, portStart.order()));
         }
@@ -52,6 +58,11 @@ public class ContextPorter implements IOtherStartDestroy
     {
         for (Method method : destroys)
         {
+            if (AnnotationDealt.isNullInstance(method, object))
+            {
+                continue;
+            }
+
             PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
             otherDestroyList.add(new OtherStartDestroy(object, method, portDestroy.order()));
         }
@@ -68,6 +79,21 @@ public class ContextPorter implements IOtherStartDestroy
             this.object = object;
             this.method = method;
             this.order = order;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            OtherStartDestroy that = (OtherStartDestroy) o;
+            return Objects.equals(object, that.object) && Objects.equals(method, that.method);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(object, method);
         }
 
         @Override

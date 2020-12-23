@@ -113,7 +113,7 @@ public abstract class PorterOfFun extends IExtraEntitySupport.ExtraEntitySupport
             @Override
             public Object getObject()
             {
-                return objectGetter.getObject();
+                return objectGetter == null ? null : objectGetter.getObject();
             }
         };
         return porterOfFun;

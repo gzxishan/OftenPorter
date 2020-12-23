@@ -39,17 +39,24 @@ public class SthDeal
             List<_PortDestroy> portDestroys,
             AnnotationDealt annotationDealt)
     {
-        _PortStart portStart = annotationDealt.portStart(method, objectGetter);
-        if (portStart != null)
+        if (AnnotationDealt.isNullInstanceOfStartDestroy(method, objectGetter))
         {
-            portStarts.add(portStart);
-        }
-        _PortDestroy portDestroy = annotationDealt.portDestroy(method, objectGetter);
-        if (portDestroy != null)
+            return false;
+        } else
         {
-            portDestroys.add(portDestroy);
+            _PortStart portStart = annotationDealt.portStart(method, objectGetter);
+            if (portStart != null)
+            {
+                portStarts.add(portStart);
+            }
+
+            _PortDestroy portDestroy = annotationDealt.portDestroy(method, objectGetter);
+            if (portDestroy != null)
+            {
+                portDestroys.add(portDestroy);
+            }
+            return portStart != null || portDestroy != null;
         }
-        return portStart != null || portDestroy != null;
     }
 
 
