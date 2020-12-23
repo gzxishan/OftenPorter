@@ -1,6 +1,8 @@
 package cn.xishan.oftenporter.porter.core.util;
 
 
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
+import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultNameValues;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -899,12 +901,24 @@ public class OftenTool
     }
 
     /**
-     * 得到所有访问类型的函数（包括父类的）。
+     * 得到所有访问类型的函数（包括父类的，但不包括重载情况下的父类函数）。
      *
      * @param clazz
      * @return
      */
     public static synchronized Method[] getAllMethods(Class<?> clazz)
+    {
+        return getAllMethods(clazz, false);
+    }
+
+    /**
+     * 得到所有访问类型的函数（包括父类的）。
+     *
+     * @param clazz
+     * @param containsOverride 是否包含被重载的父类函数
+     * @return
+     */
+    public static synchronized Method[] getAllMethods(Class<?> clazz, boolean containsOverride)
     {
         Method[] methods = allMethodsCache == null ? null : allMethodsCache.get(clazz);
         if (methods == null)
@@ -913,9 +927,28 @@ public class OftenTool
             {
                 return clazz.getMethods();
             }
+
             Set<Method> set = new HashSet<>();
-            getAllMethods(clazz, set);
-            methods = set.toArray(new Method[0]);
+            loadAllMethods(clazz, set);
+
+            if (containsOverride)
+            {
+                methods = set.toArray(new Method[0]);
+            } else
+            {
+                List<Method> methodList = new ArrayList<>(set.size());
+                //过滤重载方法
+                for (Method method : set)
+                {
+                    Method m = AnnoUtil.Advance.getSameMethodOfChild(clazz, method);
+                    if (m == null || m == method || !set.contains(m))
+                    {//存在重载的子类
+                        methodList.add(method);
+                    }
+                }
+                methods = methodList.toArray(new Method[0]);
+            }
+
             if (allMethodsCache != null)
             {
                 allMethodsCache.put(clazz, methods);
@@ -927,12 +960,12 @@ public class OftenTool
         return methods;
     }
 
-    private static void getAllMethods(Class<?> clazz, Set<Method> set)
+    private static void loadAllMethods(Class<?> clazz, Set<Method> set)
     {
         Class<?> superClass = clazz.getSuperclass();
         if (superClass != null)
         {
-            getAllMethods(superClass, set);//获取父类声明的函数
+            loadAllMethods(superClass, set);//获取父类声明的函数
         }
         addAll(set, clazz.getMethods());
         addAll(set, clazz.getDeclaredMethods());

@@ -38,6 +38,8 @@
 12. 完善`OftenServletRequest`.`getHost`；
 13. 完善`TypeTo`，加入`IArgumentsFactory.IArgsHandle newArgsHandle(Class<?> realClass, Method method)`；
 14. `AnnoUtil`增加`getSameMethod`函数；
+15. 增加注解`AdvancedAnnotation.EnableCache`;
+16. 完善`OftenTool.getAllMethods`；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

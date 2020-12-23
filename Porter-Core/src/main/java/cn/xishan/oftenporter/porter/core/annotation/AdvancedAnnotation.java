@@ -39,4 +39,20 @@ public @interface AdvancedAnnotation
     boolean enableCache() default true;
 
     Class<? extends Handle> handle() default Handle.class;
+
+    /**
+     *  是否缓存注解
+     */
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD, ElementType.TYPE})
+    @Inherited
+    @Documented
+    @AdvancedAnnotation
+    @interface EnableCache
+    {
+        /**
+         * 是否开启缓存，默认true。
+         */
+        boolean enable() default true;
+    }
 }

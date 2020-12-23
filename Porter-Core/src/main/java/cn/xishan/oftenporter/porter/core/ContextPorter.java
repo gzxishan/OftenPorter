@@ -113,6 +113,42 @@ public class ContextPorter implements IOtherStartDestroy
         }
     }
 
+    static class ObjectClassKey
+    {
+        final Object object;
+        final Class clazz;
+
+        public ObjectClassKey(Object object, Class clazz)
+        {
+            this.object = object;
+            this.clazz = clazz;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ObjectClassKey that = (ObjectClassKey) o;
+            return Objects.equals(object, that.object) && Objects.equals(clazz, that.clazz);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(object, clazz);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ObjectClassKey{" +
+                    "object=" + object +
+                    ", clazz=" + clazz +
+                    '}';
+        }
+    }
+
     public static final class SrcPorter
     {
         Class<?> clazz;
@@ -212,7 +248,7 @@ public class ContextPorter implements IOtherStartDestroy
     private PorterConf porterConf;
     private IListenerAdder<OnPorterAddListener> listenerAdder;
 
-    private Map<Class, SrcPorter> class_porterMap;
+    private Map<ObjectClassKey, SrcPorter> class_porterMap;
     private Map<Class, Set<_MixinPorter>> mixinToMap;//key为被混入的接口。
 
 
@@ -247,7 +283,7 @@ public class ContextPorter implements IOtherStartDestroy
             OftenContextInfo contextInfo = autoSetHandle.getOftenContextInfo();
             //添加接口
             LOGGER.debug("添加接口开始:{}**********************[", contextInfo.getContextName());
-            for (Map.Entry<Class, SrcPorter> entry : class_porterMap.entrySet())
+            for (Map.Entry<ObjectClassKey, SrcPorter> entry : class_porterMap.entrySet())
             {
                 SrcPorter porter = entry.getValue();
                 addPorter(porter, autoSetHandle, sthDeal, portIniterList);
@@ -379,7 +415,7 @@ public class ContextPorter implements IOtherStartDestroy
             LOGGER.debug("will add porter:{}({})", clazz, objectPorter);
             SrcPorter srcPorter = new SrcPorter(clazz, objectPorter);
             srcPorter.classTiedfix = classTiedfix;
-            class_porterMap.put(clazz, srcPorter);
+            class_porterMap.put(new ObjectClassKey(objectPorter, clazz), srcPorter);
             //addPorter(clazz, objectPorter, autoSetHandle, sthDeal, portIniterList);
         } else if (!isMixinTo(clazz, objectPorter))
         {

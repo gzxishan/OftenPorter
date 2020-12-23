@@ -2533,9 +2533,47 @@ public class AnnoUtil
     {
         String target;
         Object annotationType;
+        boolean enable = true;
+        static final ThreadLocal<Object> ENABLE_CACHE_THREAD_LOCAL = new ThreadLocal<>();
 
         public CacheKey(Object target, String tag, Object... array)
         {
+            AdvancedAnnotation.EnableCache enableCache = null;
+            if (target instanceof Method)
+            {
+
+                if (ENABLE_CACHE_THREAD_LOCAL.get() != target)
+                {
+                    try
+                    {
+                        ENABLE_CACHE_THREAD_LOCAL.set(target);
+                        enableCache = getAnnotation((Method) target, AdvancedAnnotation.EnableCache.class);
+                    } finally
+                    {
+                        ENABLE_CACHE_THREAD_LOCAL.remove();
+                    }
+                }
+
+            } else if (!(target instanceof Class))
+            {
+                if (ENABLE_CACHE_THREAD_LOCAL.get() != target)
+                {
+                    try
+                    {
+                        ENABLE_CACHE_THREAD_LOCAL.set(target);
+                        enableCache = getAnnotation(target.getClass(), AdvancedAnnotation.EnableCache.class);
+                    } finally
+                    {
+                        ENABLE_CACHE_THREAD_LOCAL.remove();
+                    }
+                }
+            }
+
+            if (enableCache != null)
+            {
+                this.enable = enableCache.enable();
+            }
+
             this.target = target.toString();
             StringBuilder builder = new StringBuilder();
             for (Object obj : array)
@@ -2592,11 +2630,14 @@ public class AnnoUtil
 
         <T> T setCache(T obj)
         {
-//            if (LOGGER.isDebugEnabled())
+            if (enable)
+            {
+                //if (LOGGER.isDebugEnabled())
 //            {
 //                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
 //            }
-            annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
+                annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
+            }
             return obj;
         }
     }
