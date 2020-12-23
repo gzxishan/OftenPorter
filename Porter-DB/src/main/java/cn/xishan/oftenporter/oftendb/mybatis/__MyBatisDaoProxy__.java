@@ -7,7 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.PortStart;
  */
 public interface __MyBatisDaoProxy__
 {
-    @PortStart
+    @PortStart(order = 110)
     default void onStart() throws Exception
     {
         MyBatisDaoImpl myBatisDao = (MyBatisDaoImpl) MyBatisDao.getMyBatisDao(this);
