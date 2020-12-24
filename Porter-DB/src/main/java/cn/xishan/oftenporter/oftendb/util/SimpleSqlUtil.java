@@ -370,15 +370,15 @@ public class SimpleSqlUtil
         {
             skipStr = String.valueOf(skip);
             limitStr = String.valueOf(limit);
-            slimitStr = "LIMIT " + skip + " OFFSET " + limit;
+            slimitStr = "LIMIT " + limitStr + " OFFSET " + skipStr;
         } else if (skip != null)
         {
             skipStr = String.valueOf(skip);
-            slimitStr = "OFFSET " + limit;
-        } else
+            slimitStr = "OFFSET " + skipStr;
+        } else if (limit != null)
         {
             limitStr = String.valueOf(limit);
-            slimitStr = "LIMIT " + limit;
+            slimitStr = "LIMIT " + limitStr;
         }
 
         sqlPart.limit = limitStr;
