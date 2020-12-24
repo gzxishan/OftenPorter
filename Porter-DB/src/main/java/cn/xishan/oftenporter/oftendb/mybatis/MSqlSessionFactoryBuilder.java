@@ -62,7 +62,7 @@ class MSqlSessionFactoryBuilder
     private JSONObject dataSourceConf;
     private String dataSourceProperPrefix;
     private DataSource dataSourceObject;
-    private String[] initSqls;
+    private String[] theInitSqls;
     private List<Interceptor> interceptors;
     private MyBatisOption.IMybatisStateListener mybatisStateListener;
     private MyBatisOption.IConnectionBridge connectionBridge;
@@ -84,6 +84,12 @@ class MSqlSessionFactoryBuilder
             OftenTool.close(watchService);
             watchService = null;
         }
+    }
+
+
+    public String[] getInitSqls()
+    {
+        return theInitSqls;
     }
 
     //检测文件修改
@@ -256,7 +262,7 @@ class MSqlSessionFactoryBuilder
     {
         this.metaDataTableColumnsToLowercase = myBatisOption.metaDataTableColumnsToLowercase;
         this.dataSourceObject = myBatisOption.dataSourceObject;
-        this.initSqls = myBatisOption.initSqls;
+        this.theInitSqls = myBatisOption.initSqls;
         if (dataSourceObject == null)
         {
             this.dataSourceConf = myBatisOption.dataSource;
@@ -419,25 +425,6 @@ class MSqlSessionFactoryBuilder
 
         builder.dataSource(dataSource);
         Environment environment = builder.build();
-
-        if (initSqls != null)
-        {
-            String[] sqls = initSqls;
-
-            try (Connection connection = dataSource.getConnection())
-            {
-                for (String sql : sqls)
-                {
-                    LOGGER.debug("init sql={}", sql);
-                    PreparedStatement ps = connection.prepareStatement(sql);
-                    ps.execute();
-                    ps.close();
-                }
-            } catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
 
 
         configuration.setEnvironment(environment);

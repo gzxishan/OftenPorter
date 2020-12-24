@@ -40,6 +40,7 @@
 14. `AnnoUtil`增加`getSameMethod`函数；
 15. 增加注解`AdvancedAnnotation.EnableCache`;
 16. 完善`OftenTool.getAllMethods`；
+17. 完善`MyBatisOption.initSqls`，在每次获取连接时会执行；
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

@@ -5,6 +5,8 @@ import cn.xishan.oftenporter.oftendb.annotation.tx.Readonly;
 import cn.xishan.oftenporter.oftendb.db.ConnectionWrapper;
 import cn.xishan.oftenporter.oftendb.db.sql.IConnection;
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
@@ -13,6 +15,8 @@ import java.sql.*;
  */
 class ConnectionWrap extends ConnectionWrapper implements IConnection
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWrap.class);
+
     protected SqlSession sqlSession;
     private int queryTimeoutSeconds = -1;
     private int transactionCount = 0;
@@ -34,6 +38,23 @@ class ConnectionWrap extends ConnectionWrapper implements IConnection
         this.sqlSession = sqlSession;
         this.iConnectionBridge = iConnectionBridge;
         this.thread = Thread.currentThread();
+
+        String[] initSqls = builder.getInitSqls();
+        if (initSqls != null)
+        {
+
+            try (Statement statement = getOriginConnection().createStatement())
+            {
+                for (String sql : initSqls)
+                {
+                    LOGGER.debug("init sql={}", sql);
+                    statement.execute(sql);
+                }
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public Thread getThread()

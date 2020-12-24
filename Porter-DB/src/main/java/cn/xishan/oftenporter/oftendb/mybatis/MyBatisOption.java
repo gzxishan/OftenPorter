@@ -6,6 +6,7 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
+import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
@@ -148,6 +149,9 @@ public class MyBatisOption implements Cloneable
 
     public IConnectionBridge iConnectionBridge;
 
+    /**
+     * 建立连接时执行
+     */
     public String[] initSqls;
 
     /**
@@ -229,6 +233,41 @@ public class MyBatisOption implements Cloneable
         try
         {
             MyBatisOption myBatisOption = (MyBatisOption) super.clone();
+            if (myBatisOption.javaFuns != null)
+            {
+                Map<String, Class<?>> map = myBatisOption.javaFuns;
+                myBatisOption.javaFuns = new HashMap<>();
+                myBatisOption.javaFuns.putAll(map);
+            }
+
+            if (myBatisOption.interceptors != null)
+            {
+                List<Interceptor> list = myBatisOption.interceptors;
+                myBatisOption.interceptors = new ArrayList<>();
+                myBatisOption.interceptors.addAll(list);
+            }
+
+            if (myBatisOption.initSqls != null)
+            {
+                List<String> list = new ArrayList<>(myBatisOption.initSqls.length);
+                OftenTool.addAll(list, myBatisOption.initSqls);
+                myBatisOption.initSqls = list.toArray(new String[0]);
+            }
+
+            if (myBatisOption.rootDirSet != null)
+            {
+                Set<String> set = myBatisOption.rootDirSet;
+                myBatisOption.rootDirSet = new HashSet<>();
+                myBatisOption.rootDirSet.addAll(set);
+            }
+
+            if (myBatisOption.dataSource != null)
+            {
+                JSONObject json = myBatisOption.dataSource;
+                myBatisOption.dataSource = new JSONObject();
+                myBatisOption.dataSource.putAll(json);
+            }
+
             return myBatisOption;
         } catch (CloneNotSupportedException e)
         {

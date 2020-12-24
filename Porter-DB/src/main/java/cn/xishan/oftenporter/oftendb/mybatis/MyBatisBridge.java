@@ -152,15 +152,15 @@ public class MyBatisBridge
         if (myBatisOption == null)
         {
             throw new NullPointerException(MyBatisOption.class.getSimpleName() + " is null!");
-        }
-        if (myBatisOption.dataSourceObject == null && OftenTool
+        } else if (myBatisOption.dataSourceObject == null && OftenTool
                 .isEmpty(myBatisOption.dataSourceProperPrefix) && OftenTool.isEmptyOf(myBatisOption.dataSource))
         {
             throw new IllegalArgumentException("dataSource is empty!");
         }
+
         try
         {
-
+            myBatisOption = myBatisOption.clone();
             byte[] configData = FileTool.getData(configStream, 1024);
             MSqlSessionFactoryBuilder mSqlSessionFactoryBuilder = new MSqlSessionFactoryBuilder(
                     myBatisOption, configData);
