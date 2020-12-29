@@ -136,7 +136,7 @@ public class DealSharpProperties
                 if (propOne != null && propOne.getPropKey().equals(properName))
                 {
                     throw new RuntimeException(
-                            "can not set property of " + properName + " with value \"" + valueString + "\"");
+                            "can not set property of \"" + properName + "\" with value \"" + valueString + "\",prop name eq value attr name");
                 } else if (propOne != null)
                 {
                     containsVar.add(properName);
