@@ -60,20 +60,20 @@ class Invocation4Dao extends InvocationHandlerWithCommon
         }
     }
 
-    private void mayClose(ConnectionWrap connectionWrap, boolean notClose) throws SQLException
+    private void mayClose(ConnFinalWrap connFinalWrap, boolean notClose) throws SQLException
     {
-        if (connectionWrap == null)
+        if (connFinalWrap == null)
         {
             return;
         }
-        if (connectionWrap.getAutoCommit())
+        if (connFinalWrap.getAutoCommit())
         {//未开启事务，则关闭
             if (!notClose)
             {
-                connectionWrap.close();
+                connFinalWrap.close();
             }
             TransactionDBHandle.__removeConnection__(source);
-        } else if (connectionWrap.isBridgeConnection() && connectionWrap.decRefCount())
+        } else if (connFinalWrap.isBridgeConnection() && connFinalWrap.decRefCount())
         {//没有引用了，则移除
             TransactionDBHandle.__removeConnection__(source);
         }
@@ -82,17 +82,17 @@ class Invocation4Dao extends InvocationHandlerWithCommon
     @Override
     public Object invokeOther(Object proxy, Method method, Object[] args) throws Throwable
     {
-        ConnectionWrap connectionWrap = MyBatisBridge.__openConnection(source, false);
+        ConnFinalWrap connFinalWrap = MyBatisBridge.__openConnection(source, false);
         boolean isInvokeError = true;
         try
         {
-            Object dao = myBatisDao.getMapperDao(connectionWrap.getSqlSession(), type);
+            Object dao = myBatisDao.getMapperDao(connFinalWrap.getSqlSession(), type);
             Object rs = method.invoke(dao, args);
             isInvokeError = false;
-            mayClose(connectionWrap, rs instanceof Cursor);
-            if (rs instanceof Cursor && connectionWrap.getAutoCommit())
+            mayClose(connFinalWrap, rs instanceof Cursor);
+            if (rs instanceof Cursor && connFinalWrap.getAutoCommit())
             {
-                rs = new CursorWrap(connectionWrap, (Cursor) rs);
+                rs = new CursorWrap(connFinalWrap, (Cursor) rs);
             }
 
             return rs;
@@ -101,7 +101,7 @@ class Invocation4Dao extends InvocationHandlerWithCommon
         {
             if (isInvokeError)
             {
-                mayClose(connectionWrap, false);
+                mayClose(connFinalWrap, false);
             }
             throw throwable;
         }

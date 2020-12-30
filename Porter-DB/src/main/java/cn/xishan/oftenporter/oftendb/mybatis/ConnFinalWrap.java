@@ -13,9 +13,10 @@ import java.sql.*;
 /**
  * @author Created by https://github.com/CLovinr on 2017/12/6.
  */
-class ConnectionWrap extends ConnectionWrapper implements IConnection
+class ConnFinalWrap extends ConnectionWrapper implements IConnection
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWrap.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnFinalWrap.class);
+
 
     protected SqlSession sqlSession;
     private int queryTimeoutSeconds = -1;
@@ -28,7 +29,7 @@ class ConnectionWrap extends ConnectionWrapper implements IConnection
     private int refCount = 1;
     private Thread thread;
 
-    public ConnectionWrap(MSqlSessionFactoryBuilder builder, SqlSession sqlSession,
+    public ConnFinalWrap(MSqlSessionFactoryBuilder builder, SqlSession sqlSession,
             MyBatisOption.IConnectionBridge iConnectionBridge,
             Connection bridgeConnection)
     {
@@ -86,7 +87,7 @@ class ConnectionWrap extends ConnectionWrapper implements IConnection
     /**
      * 增加引用次数
      */
-    public ConnectionWrap incRefCount()
+    public ConnFinalWrap incRefCount()
     {
         this.refCount++;
         return this;
@@ -236,6 +237,7 @@ class ConnectionWrap extends ConnectionWrapper implements IConnection
     {
         return settings(super.prepareCall(sql));
     }
+
 
     @Override
     public void close() throws SQLException

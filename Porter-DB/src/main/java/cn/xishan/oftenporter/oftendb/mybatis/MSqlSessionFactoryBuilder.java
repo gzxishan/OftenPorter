@@ -274,6 +274,7 @@ class MSqlSessionFactoryBuilder
         this.interceptors = myBatisOption.interceptors;
         this.mybatisStateListener = myBatisOption.mybatisStateListener;
         this.connectionBridge = myBatisOption.iConnectionBridge;
+
         if (myBatisOption.javaFuns != null)
         {
             methodMap = new HashMap<>();
@@ -281,6 +282,11 @@ class MSqlSessionFactoryBuilder
             {
                 methodMap.put(entry.getKey(), entry.getValue().getName());
             }
+        }
+
+        if (this.connectionBridge != null)
+        {
+            this.connectionBridge.onGotWrapper(MyBatisDao::wrapperConnection);
         }
     }
 

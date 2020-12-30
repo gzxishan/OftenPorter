@@ -6,7 +6,6 @@ import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
-import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.ibatis.plugin.Interceptor;
@@ -46,6 +45,11 @@ public class MyBatisOption implements Cloneable
         void onReloadFailed(Throwable throwable);
     }
 
+    public interface IConnectionWrapper
+    {
+        Connection wrap(Connection connection);
+    }
+
     /**
      * 用于与其他框架集成。
      */
@@ -62,6 +66,8 @@ public class MyBatisOption implements Cloneable
         void closeConnection(DataSource dataSource, Connection connection);
 
         DataSource onDataSourceChanged(@MayNull DataSource last, DataSource dataSource);
+
+        void onGotWrapper(IConnectionWrapper wrapper);
     }
 
     public static final String DEFAULT_SOURCE = "default";

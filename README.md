@@ -41,6 +41,7 @@
 15. 增加注解`AdvancedAnnotation.EnableCache`;
 16. 完善`OftenTool.getAllMethods`；
 17. 完善`MyBatisOption.initSqls`，在每次获取连接时会执行；
+18. 增加MyBatisDao.`static void onCurrentTSConnectionClosed(Consumer<Void> consumer)`;
 
 ### v1.2.150 2020/11/06
 1. 增加`TypeTo`.`parseParameter`；

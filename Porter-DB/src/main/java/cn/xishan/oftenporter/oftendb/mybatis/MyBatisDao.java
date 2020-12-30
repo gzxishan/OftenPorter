@@ -2,6 +2,7 @@ package cn.xishan.oftenporter.oftendb.mybatis;
 
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisMapper;
 import cn.xishan.oftenporter.oftendb.annotation.MyBatisParams;
+import cn.xishan.oftenporter.oftendb.db.ConnectionWrapper;
 import cn.xishan.oftenporter.porter.core.annotation.AutoSetDefaultDealt;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -9,6 +10,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.function.Consumer;
 
 
 /**
@@ -110,5 +112,30 @@ public interface MyBatisDao
         Invocation4Dao invocationHandler = (Invocation4Dao) ProxyUtil
                 .getInvocationHandler(proxyDao);
         return invocationHandler.getMyBatisDao();
+    }
+
+    /**
+     * 当前数据库连接关闭后回调，若当前没有连接则立即调用。
+     *
+     * @param consumer
+     */
+    static void onCurrentTSConnectionClosed(Consumer<Void> consumer)
+    {
+        ConnectionWrapper.onCurrentTSConnectionClosed(consumer);
+    }
+
+    /**
+     * 包装连接，用于更好地支持{@linkplain #onCurrentTSConnectionClosed(Consumer)}
+     *
+     * @param connection
+     * @return
+     */
+    static Connection wrapperConnection(Connection connection)
+    {
+        if (!(connection instanceof ConnectionWrapper))
+        {
+            connection = new ConnectionWrapper(connection);
+        }
+        return connection;
     }
 }

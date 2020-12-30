@@ -1,29 +1,73 @@
 package cn.xishan.oftenporter.oftendb.db;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.ref.WeakReference;
 import java.sql.*;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 /**
  * @author Created by https://github.com/CLovinr on 2019-01-16.
  */
 public class ConnectionWrapper implements Connection
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnectionWrapper.class);
+
+    private static final AtomicLong count = new AtomicLong();
+    private final String ID;
+
+    static final ThreadLocal<Map<String, List<Consumer>>> ON_CONNECTION_CLOSED_LOCAL = new ThreadLocal<>();
+    static final ThreadLocal<WeakReference<ConnectionWrapper>> CONN_FINAL_WRAP_THREAD_LOCAL = new ThreadLocal<>();
 
     protected Connection connection;
 
     public ConnectionWrapper(Connection connection)
     {
+        this.ID = String.valueOf(count.getAndIncrement());
         this.connection = connection;
+        if (!(connection instanceof ConnectionWrapper))
+        {
+            CONN_FINAL_WRAP_THREAD_LOCAL.set(new WeakReference<>(this));
+        }
+    }
+
+    public static void onCurrentTSConnectionClosed(Consumer<Void> consumer)
+    {
+        WeakReference<ConnectionWrapper> ref = CONN_FINAL_WRAP_THREAD_LOCAL.get();
+        ConnectionWrapper wrapper;
+        if (ref != null && (wrapper = ref.get()) != null)
+        {
+            Map<String, List<Consumer>> map = ON_CONNECTION_CLOSED_LOCAL.get();
+            if (map == null)
+            {
+                map = new HashMap<>();
+                ON_CONNECTION_CLOSED_LOCAL.set(map);
+            }
+
+            if (!map.containsKey(wrapper.ID))
+            {
+                map.put(wrapper.ID, new ArrayList<>(1));
+            }
+
+            map.get(wrapper.ID).add(consumer);
+        } else
+        {
+            consumer.accept(null);
+        }
     }
 
     public Connection getOriginConnection()
     {
-        if(connection instanceof ConnectionWrapper){
+        if (connection instanceof ConnectionWrapper)
+        {
             return ((ConnectionWrapper) connection).getOriginConnection();
-        }else{
+        } else
+        {
             return connection;
         }
     }
@@ -79,7 +123,42 @@ public class ConnectionWrapper implements Connection
     @Override
     public void close() throws SQLException
     {
-        connection.close();
+        try
+        {
+            connection.close();
+
+        } finally
+        {
+            WeakReference<ConnectionWrapper> ref = CONN_FINAL_WRAP_THREAD_LOCAL.get();
+            if (ref != null && ref.get() == this)
+            {
+                CONN_FINAL_WRAP_THREAD_LOCAL.remove();
+            }
+
+            Map<String, List<Consumer>> map = ON_CONNECTION_CLOSED_LOCAL.get();
+            if (map != null)
+            {
+                if (map.containsKey(ID))
+                {
+                    List<Consumer> list = map.remove(ID);
+                    for (Consumer consumer : list)
+                    {
+                        try
+                        {
+                            consumer.accept(null);
+                        } catch (Exception e)
+                        {
+                            LOGGER.warn(e.getMessage(), e);
+                        }
+                    }
+                }
+
+                if (map.isEmpty())
+                {
+                    CONN_FINAL_WRAP_THREAD_LOCAL.remove();
+                }
+            }
+        }
     }
 
     @Override

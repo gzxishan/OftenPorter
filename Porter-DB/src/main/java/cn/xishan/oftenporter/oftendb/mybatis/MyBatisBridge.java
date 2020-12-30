@@ -189,7 +189,7 @@ public class MyBatisBridge
      * @throws SQLException
      */
     @KeepFromProguard
-    static ConnectionWrap __openConnection(String source, boolean isDirect) throws SQLException
+    static ConnFinalWrap __openConnection(String source, boolean isDirect) throws SQLException
     {
         return __openConnection(source, true, isDirect);
     }
@@ -200,9 +200,9 @@ public class MyBatisBridge
      * @return
      */
     @KeepFromProguard
-    static ConnectionWrap __openConnection(String source, boolean openNew, boolean isDirect) throws SQLException
+    static ConnFinalWrap __openConnection(String source, boolean openNew, boolean isDirect) throws SQLException
     {
-        ConnectionWrap connection = (ConnectionWrap) TransactionDBHandle.__getConnection__(source);
+        ConnFinalWrap connection = (ConnFinalWrap) TransactionDBHandle.__getConnection__(source);
         if (connection != null && (connection.isNotSameThread() || connection.isClosed()))
         {
             if (connection.isNotSameThread())
@@ -236,7 +236,7 @@ public class MyBatisBridge
         return sqlSession;
     }
 
-    static ConnectionWrap __openNewConnection__(String source, boolean isDirect)
+    static ConnFinalWrap __openNewConnection__(String source, boolean isDirect)
     {
         MybatisConfig.MOption mOption = getMOption(source);
         MSqlSessionFactoryBuilder builder = mOption.mSqlSessionFactoryBuilder;
@@ -286,7 +286,7 @@ public class MyBatisBridge
         {
             sqlSession = sqlSessionFactory.openSession(true);
         }
-        ConnectionWrap connection = new ConnectionWrap(builder, sqlSession, iConnectionBridge, bridgeConnection)
+        ConnFinalWrap connection = new ConnFinalWrap(builder, sqlSession, iConnectionBridge, bridgeConnection)
         {
             @Override
             public void close() throws SQLException
