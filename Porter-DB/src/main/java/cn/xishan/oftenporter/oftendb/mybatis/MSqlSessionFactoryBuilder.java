@@ -19,7 +19,6 @@ import java.io.File;
 import java.nio.file.*;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -465,44 +464,23 @@ class MSqlSessionFactoryBuilder
             {
                 DatabaseMetaData metaData = connection.getMetaData();
                 Set<String> set = new HashSet<>();
-                ResultSet rs = metaData.getColumns(null, metaData.getUserName(), tableName, "%");
-                boolean has = false;
-                if (!rs.next())
+                ResultSet rs = metaData.getColumns(connection.getCatalog(), metaData.getUserName(), tableName, "%");
+                while (rs.next())
                 {
-                    rs.close();
-                    rs = metaData.getColumns(null, "%", tableName, "%");
-                    if (!rs.next())
+                    String colName = rs.getString("COLUMN_NAME");
+                    if (metaDataTableColumnsToLowercase != null)
                     {
-                        rs.close();
-                        rs = metaData.getColumns(null, null, tableName, "%");
-                        has = rs.next();
-                    } else
-                    {
-                        has = true;
-                    }
-                } else
-                {
-                    has = true;
-                }
-
-                if (has)
-                {
-                    do
-                    {
-                        String colName = rs.getString("COLUMN_NAME");
-                        if (metaDataTableColumnsToLowercase != null)
+                        if (metaDataTableColumnsToLowercase)
                         {
-                            if (metaDataTableColumnsToLowercase)
-                            {
-                                colName = colName.toLowerCase();
-                            } else
-                            {
-                                colName = colName.toUpperCase();
-                            }
+                            colName = colName.toLowerCase();
+                        } else
+                        {
+                            colName = colName.toUpperCase();
                         }
-                        set.add(colName);
-                    } while (rs.next());
+                    }
+                    set.add(colName);
                 }
+                rs.close();
                 tableColumnsMap.put(tableName, set);
                 columnsSet = set;
             } catch (Exception e)

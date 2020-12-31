@@ -484,7 +484,7 @@ public class SqlUtil
     {
         try
         {
-            return exportCreateTable(tableNamePattern,
+            return exportCreateTable(dbname, tableNamePattern,
                     "jdbc:sql://" + host + "/" + dbname + "?user=" + URLEncoder
                             .encode(mysqlUser, "utf-8") + "&password=" + URLEncoder.encode(mysqlPassword, "utf-8"),
                     "com.sql.jdbc.Driver", coverString);
@@ -500,14 +500,15 @@ public class SqlUtil
      * @param driverClass
      * @return
      */
-    public static List<CreateTable> exportCreateTable(String tableNamePattern, String connectionUrl, String driverClass,
+    public static List<CreateTable> exportCreateTable(String schemaPattern, String tableNamePattern,
+            String connectionUrl, String driverClass,
             String coverString)
     {
         try
         {
             Class.forName(driverClass);
             Connection conn = DriverManager.getConnection(connectionUrl);
-            return exportCreateTable(tableNamePattern, conn, coverString);
+            return exportCreateTable(schemaPattern, tableNamePattern, conn, coverString);
         } catch (RuntimeException e)
         {
             throw e;
@@ -524,10 +525,10 @@ public class SqlUtil
      * @param coverString      如“`”
      * @return
      */
-    public static List<CreateTable> exportCreateTable(String tableNamePattern, Connection conn,
+    public static List<CreateTable> exportCreateTable(String schemaPattern, String tableNamePattern, Connection conn,
             String coverString)
     {
-        return exportCreateTable(tableNamePattern, conn, coverString, true);
+        return exportCreateTable(schemaPattern, tableNamePattern, conn, coverString, true);
     }
 
     /**
@@ -536,14 +537,15 @@ public class SqlUtil
      * @param coverString      如“`”
      * @return
      */
-    public static List<CreateTable> exportCreateTable(String tableNamePattern, Connection conn,
+    public static List<CreateTable> exportCreateTable(String schemaPattern, String tableNamePattern, Connection conn,
             String coverString, boolean closeConn)
     {
         try
         {
             DatabaseMetaData metaData = conn.getMetaData();
             ResultSet tables = metaData
-                    .getTables(null, "%", tableNamePattern == null ? "%" : tableNamePattern, new String[]{"TABLE"});
+                    .getTables(conn.getCatalog(), schemaPattern == metaData.getUserName() ? "%" : schemaPattern,
+                            tableNamePattern == null ? "%" : tableNamePattern, new String[]{"TABLE"});
 
             List<CreateTable> list = new ArrayList<>();
 

@@ -10,7 +10,7 @@ import java.util.List;
 public class SqlUtilTest
 {
     public static void main(String[] args){
-        List<SqlUtil.CreateTable> list = SqlUtil.exportCreateTable("xs_global_user","jdbc:sql://localhost:3306/xs_global?user=root&password=123456","com.sql.jdbc.Driver","`");
+        List<SqlUtil.CreateTable> list = SqlUtil.exportCreateTable("xs_global","xs_global_user","jdbc:sql://localhost:3306/xs_global?user=root&password=123456","com.sql.jdbc.Driver","`");
         LogUtil.printErrPos(list);
     }
 }
