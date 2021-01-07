@@ -8,6 +8,7 @@ import cn.xishan.oftenporter.porter.core.annotation.MayNull;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.exception.InitException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.PolyfillUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     {
         try
         {
-            __openConnection = MyBatisBridge.class.getDeclaredMethod("__openConnection", String.class,boolean.class);
+            __openConnection = MyBatisBridge.class.getDeclaredMethod("__openConnection", String.class, boolean.class);
             __openConnection.setAccessible(true);
         } catch (NoSuchMethodException e)
         {
@@ -48,9 +49,9 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     }
 
     //!!!!!!:防止获取已经过时的连接，记得清楚、同时获取时判断是否已经closed
-    private static final ThreadLocal<Map<String, IConnection>> threadLocal = ThreadLocal.withInitial(
+    private static final ThreadLocal<Map<String, IConnection>> threadLocal = PolyfillUtils.withInitial(
             () -> new ConcurrentHashMap<>(1));
-    private static final ThreadLocal<Stack<SavePointHolder>> savePointStackThreadLocal = ThreadLocal
+    private static final ThreadLocal<Stack<SavePointHolder>> savePointStackThreadLocal = PolyfillUtils
             .withInitial(Stack::new);
 
     public static IConnection __getConnection__(String source)
@@ -70,7 +71,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
 
     @Override
     public boolean init(TransactionDB current, IConfigData configData, @MayNull Object originObject,
-            Class originClass,Method originMethod) throws Exception
+            Class originClass, Method originMethod) throws Exception
     {
         this.transactionDB = current;
         if ("mybatis".equals(transactionDB.type()))
@@ -100,7 +101,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
             if ("mybatis".equals(transactionDB.type()))
             {
                 LOGGER.debug("open source({}) for mybatis...", source);
-                Object rs = __openConnection.invoke(null, source,false);
+                Object rs = __openConnection.invoke(null, source, false);
                 LOGGER.debug("opened source({}) for mybatis:{}", source, rs);
             }
 

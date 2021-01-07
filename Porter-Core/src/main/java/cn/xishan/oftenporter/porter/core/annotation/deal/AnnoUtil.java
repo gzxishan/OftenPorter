@@ -7,10 +7,7 @@ import cn.xishan.oftenporter.porter.core.annotation.*;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
-import cn.xishan.oftenporter.porter.core.util.LogUtil;
-import cn.xishan.oftenporter.porter.core.util.OftenTool;
-import cn.xishan.oftenporter.porter.core.util.ResourceUtil;
-import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
+import cn.xishan.oftenporter.porter.core.util.*;
 import cn.xishan.oftenporter.porter.core.util.proxy.InvocationHandlerWithCommon;
 import cn.xishan.oftenporter.porter.core.util.proxy.ProxyUtil;
 import org.slf4j.Logger;
@@ -38,7 +35,7 @@ public class AnnoUtil
     private static Method javaGetAnnotations;
     private static final Object NULL = new Object();
     //防止死循环
-    private static final ThreadLocal<Set<String>> threadLocalForLoop = ThreadLocal.withInitial(
+    private static final ThreadLocal<Set<String>> threadLocalForLoop = PolyfillUtils.withInitial(
             () -> {
                 Set<String> set = ConcurrentHashMap.newKeySet();
                 return set;

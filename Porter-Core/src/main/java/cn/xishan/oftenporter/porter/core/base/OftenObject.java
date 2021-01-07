@@ -7,13 +7,17 @@ import cn.xishan.oftenporter.porter.core.advanced.IListenerAdder;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
 import cn.xishan.oftenporter.porter.core.annotation.sth.SyncPorterThrowsImpl;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeCallback;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeName;
+import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
+import cn.xishan.oftenporter.porter.core.bridge.Delivery;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.sysset.IAutoVarGetter;
-import cn.xishan.oftenporter.porter.core.bridge.*;
 import cn.xishan.oftenporter.porter.core.sysset.PorterNotInnerSync;
 import cn.xishan.oftenporter.porter.core.sysset.PorterSync;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
+import cn.xishan.oftenporter.porter.core.util.PolyfillUtils;
 import cn.xishan.oftenporter.porter.simple.DefaultListenerAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,9 +84,9 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
 
     private Map<String, Object> requestDataMap = null;
 
-    protected static final ThreadLocal<Stack<WeakReference<OftenObject>>> threadLocal = ThreadLocal
+    protected static final ThreadLocal<Stack<WeakReference<OftenObject>>> threadLocal = PolyfillUtils
             .withInitial(Stack::new);
-    private static final ThreadLocal<Map<String, Object>> threadLocalOfRequestData = ThreadLocal
+    private static final ThreadLocal<Map<String, Object>> threadLocalOfRequestData = PolyfillUtils
             .withInitial(HashMap::new);
 
     public OftenObject()
