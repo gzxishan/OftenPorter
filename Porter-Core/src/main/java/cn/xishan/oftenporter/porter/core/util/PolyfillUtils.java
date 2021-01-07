@@ -7,7 +7,7 @@ import java.util.function.Supplier;
  */
 public class PolyfillUtils
 {
-    public static <T> ThreadLocal<T> withInitial(Supplier<? extends T> supplier)
+    public static <T> ThreadLocal<T> ThreadLocal_withInitial(Supplier<? extends T> supplier)
     {
         ThreadLocal<T> threadLocal = new ThreadLocal<T>()
         {
@@ -18,6 +18,10 @@ public class PolyfillUtils
                 if (t == null)
                 {
                     t = supplier.get();
+                    if (t != null)
+                    {
+                        this.set(t);
+                    }
                 }
                 return t;
             }

@@ -85,9 +85,9 @@ public abstract class OftenObject implements IListenerAdder<OftenObject.IFinalLi
     private Map<String, Object> requestDataMap = null;
 
     protected static final ThreadLocal<Stack<WeakReference<OftenObject>>> threadLocal = PolyfillUtils
-            .withInitial(Stack::new);
+            .ThreadLocal_withInitial(Stack::new);
     private static final ThreadLocal<Map<String, Object>> threadLocalOfRequestData = PolyfillUtils
-            .withInitial(HashMap::new);
+            .ThreadLocal_withInitial(HashMap::new);
 
     public OftenObject()
     {

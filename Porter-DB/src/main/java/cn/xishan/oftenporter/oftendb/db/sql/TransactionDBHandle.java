@@ -49,10 +49,10 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     }
 
     //!!!!!!:防止获取已经过时的连接，记得清楚、同时获取时判断是否已经closed
-    private static final ThreadLocal<Map<String, IConnection>> threadLocal = PolyfillUtils.withInitial(
+    private static final ThreadLocal<Map<String, IConnection>> threadLocal = PolyfillUtils.ThreadLocal_withInitial(
             () -> new ConcurrentHashMap<>(1));
     private static final ThreadLocal<Stack<SavePointHolder>> savePointStackThreadLocal = PolyfillUtils
-            .withInitial(Stack::new);
+            .ThreadLocal_withInitial(Stack::new);
 
     public static IConnection __getConnection__(String source)
     {

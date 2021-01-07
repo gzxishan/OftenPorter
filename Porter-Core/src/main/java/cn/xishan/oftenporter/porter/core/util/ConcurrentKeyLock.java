@@ -96,7 +96,7 @@ public class ConcurrentKeyLock<K> implements AutoCloseable
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConcurrentKeyLock.class);
-    private static final ThreadLocal<Map<Object, LockInfo>> local = PolyfillUtils.withInitial(() -> new HashMap<>(5));
+    private static final ThreadLocal<Map<Object, LockInfo>> local = PolyfillUtils.ThreadLocal_withInitial(() -> new HashMap<>(5));
 
     private final ConcurrentMap<K, LockInfo> map = new ConcurrentHashMap<>();
     private AtomicLong acquireCount = new AtomicLong(0), releaseCount = new AtomicLong(0);

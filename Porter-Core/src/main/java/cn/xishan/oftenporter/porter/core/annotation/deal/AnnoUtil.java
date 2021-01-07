@@ -35,7 +35,7 @@ public class AnnoUtil
     private static Method javaGetAnnotations;
     private static final Object NULL = new Object();
     //防止死循环
-    private static final ThreadLocal<Set<String>> threadLocalForLoop = PolyfillUtils.withInitial(
+    private static final ThreadLocal<Set<String>> threadLocalForLoop = PolyfillUtils.ThreadLocal_withInitial(
             () -> {
                 Set<String> set = ConcurrentHashMap.newKeySet();
                 return set;
