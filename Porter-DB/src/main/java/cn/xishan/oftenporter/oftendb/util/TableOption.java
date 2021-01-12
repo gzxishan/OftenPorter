@@ -222,7 +222,7 @@ public class TableOption
             backKeys = new HashSet<>(5);
         }
         backKeys.add(key);
-        return this.add2QueryArray(key, value);
+        return this.replaceQueryValue(key, value);
     }
 
     public TableOption removeQueryOfBack(String key)
@@ -318,6 +318,7 @@ public class TableOption
             query.put(key, value);
             replaced = true;
         }
+
         if (queryArray != null)
         {
             for (int i = 0; i < queryArray.size(); i++)
@@ -330,6 +331,7 @@ public class TableOption
                 }
             }
         }
+
         if (!replaced)
         {
             add2QueryArray(key, value);
