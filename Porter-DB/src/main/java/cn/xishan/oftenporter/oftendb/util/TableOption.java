@@ -10,8 +10,7 @@ import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 支持@{@linkplain TableOptionFilter}，另见:{@linkplain SimpleSqlUtil}
@@ -40,6 +39,8 @@ public class TableOption
     @Unece
     public JSONObject settings;
 
+    private Set<String> backKeys;
+
     private static IHandle iHandle;
 
     public static IHandle getDefaultHandle()
@@ -67,6 +68,11 @@ public class TableOption
     {
         this.query = query;
         this.settings = settings;
+    }
+
+    public Set<String> getBackKeys()
+    {
+        return backKeys == null ? Collections.emptySet() : Collections.unmodifiableSet(backKeys);
     }
 
     /**
@@ -198,6 +204,35 @@ public class TableOption
             orderArray.add(order);
         }
         return this;
+    }
+
+    /**
+     * 添加back参数，名称不含“$$”前缀（且此前缀不允许前端传递）、但使用时需要加上，如“query.$$name”。另见:{@linkplain SimpleSqlUtil},
+     * {@linkplain SimpleSqlUtil#toQueryArray(Object...)}.
+     *
+     * @param key   不含“$$”前缀
+     * @param value
+     * @return
+     */
+    public TableOption add2QueryArrayOfBack(String key, Object value)
+    {
+        key = "$$" + key;
+        if (backKeys == null)
+        {
+            backKeys = new HashSet<>(5);
+        }
+        backKeys.add(key);
+        return this.add2QueryArray(key, value);
+    }
+
+    public TableOption removeQueryOfBack(String key)
+    {
+        key = "$$" + key;
+        if (backKeys != null)
+        {
+            backKeys.remove(key);
+        }
+        return this.removeQuery(key);
     }
 
     /**

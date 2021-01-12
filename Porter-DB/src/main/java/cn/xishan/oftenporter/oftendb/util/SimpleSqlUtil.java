@@ -3,6 +3,7 @@ package cn.xishan.oftenporter.oftendb.util;
 import cn.xishan.oftenporter.oftendb.db.*;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlCondition;
 import cn.xishan.oftenporter.oftendb.db.sql.SqlUtil;
+import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -210,7 +211,7 @@ public class SimpleSqlUtil
     public SQLPart from(TableOption tableOption)
     {
         return from(tableOption.query, tableOption.queryArray, tableOption.getOrder(),
-                tableOption.getSkip(), tableOption.getLimit());
+                tableOption.getSkip(), tableOption.getLimit(), tableOption.getBackKeys());
     }
 
     /**
@@ -219,9 +220,14 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
+    public SQLPart fromNameValues(Map query, List order, Set<String> backKeys, Object... nameValues)
+    {
+        return from(query, toQueryArray(nameValues), order, backKeys);
+    }
+
     public SQLPart fromNameValues(Map query, List order, Object... nameValues)
     {
-        return from(query, toQueryArray(nameValues), order);
+        return fromNameValues(query, order, (Set<String>) null, nameValues);
     }
 
     /**
@@ -327,10 +333,16 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
+    public SQLPart from(Map query, JSONArray queryArray, List order, Set<String> backKeys)
+    {
+        return from(query, queryArray, order, null, null, backKeys);
+    }
+
     public SQLPart from(Map query, JSONArray queryArray, List order)
     {
-        return from(query, queryArray, order, null, null);
+        return from(query, queryArray, order, null);
     }
+
 
     /**
      * @param query
@@ -338,7 +350,7 @@ public class SimpleSqlUtil
      * @param order
      * @return
      */
-    public SQLPart from(Map query, JSONArray queryArray, List order, Integer skip, Integer limit)
+    public SQLPart from(Map query, JSONArray queryArray, List order, Integer skip, Integer limit, Set<String> backKeys)
     {
         if (query == null)
         {
@@ -347,7 +359,7 @@ public class SimpleSqlUtil
         {
             query = new HashMap(query);
         }
-        String noWhere = toNoWhereStr(queryArray, query);
+        String noWhere = toNoWhereStr(queryArray, query, backKeys);
         String noOrderStr = toNoOrderStr(order);
         String orderStr = "";
         if (!noOrderStr.equals(""))
@@ -477,12 +489,13 @@ public class SimpleSqlUtil
      * @param queryArray 见{@linkplain TableOption#queryArray}
      * @return
      */
-    public String toNoWhereStr(JSONArray queryArray, Map<String, Object> forQuery)
+    public String toNoWhereStr(JSONArray queryArray, Map<String, Object> forQuery, Set<String> backKeys)
     {
         if (forQuery == null)
         {
             throw new NullPointerException("forQuery param is null!");
         }
+
         queryArray = getQueryArray(forQuery, queryArray);
         if (queryArray.size() == 0)
         {
@@ -579,6 +592,10 @@ public class SimpleSqlUtil
                 }
                 k--;
                 continue;
+            } else if (name.startsWith("$$") && (backKeys == null || !backKeys.contains(name)))
+            {
+                LOGGER.warn("not allowed key:{}", name);
+                throw new OftenCallException(ResultCode.PARAM_DEAL_EXCEPTION, "not allowed:" + name);
             }
 
             boolean willAddName = true;

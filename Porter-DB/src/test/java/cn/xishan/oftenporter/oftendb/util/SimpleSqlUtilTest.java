@@ -11,11 +11,14 @@ import org.slf4j.LoggerFactory;
 public class SimpleSqlUtilTest
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleSqlUtilTest.class);
+
     @Test
-    public void test1(){
+    public void test1()
+    {
         SimpleSqlUtil simpleSqlUtil = new SimpleSqlUtil();
-        SimpleSqlUtil.SQLPart sqlPart = simpleSqlUtil.fromNameValues(null,null,"$or[","$true","$false","$or]");
-        LOGGER.debug("where:{}",sqlPart.nowhere);
-        Assert.assertEquals("(TRUE OR FALSE )",sqlPart.nowhere);
+        SimpleSqlUtil.SQLPart sqlPart = simpleSqlUtil
+                .fromNameValues(null, null, null, "$or[", "$true", "$false", "$or]");
+        LOGGER.debug("where:{}", sqlPart.nowhere);
+        Assert.assertEquals("(TRUE OR FALSE )", sqlPart.nowhere);
     }
 }

@@ -147,7 +147,7 @@ class TableOptionDealt implements BindEntityDealt.IHandle<TableOption>
             return obj;
         }
         Object order = tableOption.settings == null ? null : tableOption.settings.get("order");
-        if (order != null && orderContains.length>0)
+        if (order != null && orderContains.length > 0)
         {
             if (order instanceof JSONArray)
             {

@@ -24,6 +24,7 @@
 
 ## 发布记录
 ### v进行中
+1. 增加`TableOption.add2QueryArrayOfBack`；
 
 ### v1.2.186 2021/01/04
 1. 完善`BindEntityDealt`的处理；
