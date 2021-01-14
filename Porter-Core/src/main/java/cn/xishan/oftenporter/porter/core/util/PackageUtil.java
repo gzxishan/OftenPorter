@@ -378,10 +378,10 @@ public class PackageUtil
             //LogUtil.printLnPos(url);
             if (type.equals("file"))
             {
-                fileNames = getClassNameByFile(packageName, URLDecoder.decode(url.getFile(), ENCODING), childPackage);
+                fileNames = getClassNameByFile(packageName, url.getFile(), childPackage);
             } else if (type.equals("jar"))
             {
-                fileNames = getClassNameByJar(URLDecoder.decode(url.getFile(), ENCODING), childPackage);
+                fileNames = getClassNameByJar(url.getFile(), childPackage);
             }
         } else
         {

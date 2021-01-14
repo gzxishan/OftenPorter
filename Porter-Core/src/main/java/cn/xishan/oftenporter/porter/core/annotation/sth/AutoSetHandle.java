@@ -279,13 +279,14 @@ public class AutoSetHandle
                 {
                     for (String packageStr : packages)
                     {
-                        LOGGER.debug("扫描包：{}", packageStr);
+                        LOGGER.debug("【扫描包开始：{}", packageStr);
                         List<String> pkgClasses = PackageUtil.getClassName(packageStr, classLoader);
                         for (int i = 0; i < pkgClasses.size(); i++)
                         {
                             Class<?> clazz = PackageUtil.newClass(pkgClasses.get(i), classLoader);
                             doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
+                        LOGGER.debug("扫描包结束：{}】", packageStr);
                     }
                 }
                 if (classes != null)
@@ -588,7 +589,7 @@ public class AutoSetHandle
     private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
     {
         LOGGER.debug("*****autoSetSeek******");
-        LOGGER.debug("扫描包：{}", packageStr);
+        LOGGER.debug("【扫描包开始：{}", packageStr);
         List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
         for (int i = 0; i < classeses.size(); i++)
         {
@@ -600,6 +601,7 @@ public class AutoSetHandle
                 doAutoSetForCurrent(true, null, object, clazz, object, RangeType.INSTANCE);
             }
         }
+        LOGGER.debug("扫描包结束：{}】", packageStr);
     }
 
 
