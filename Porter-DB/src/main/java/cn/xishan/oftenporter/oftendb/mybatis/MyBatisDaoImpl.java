@@ -133,7 +133,7 @@ class MyBatisDaoImpl implements MyBatisDao, MSqlSessionFactoryBuilder.BuilderLis
     public boolean existsTable(String tableName)
     {
         Set<String> set = myBatisDaoGen.moption().mSqlSessionFactoryBuilder.getCachedTableColumns(tableName);
-        return set != null;
+        return set != null && set.size() > 0;
     }
 
     @Override

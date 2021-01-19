@@ -26,6 +26,7 @@
 ### v进行中
 1. 增加`TableOption.add2QueryArrayOfBack`；
 2. 修复`PackageUtil.getClassName`Url解码导致扫描不到的问题bug；
+3. 修复`MyBatisDaoImpl.existsTable`bug；
 
 ### v1.2.186 2021/01/04
 1. 完善`BindEntityDealt`的处理；
