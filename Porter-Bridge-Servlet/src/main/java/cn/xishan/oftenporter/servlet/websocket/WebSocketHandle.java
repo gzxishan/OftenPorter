@@ -108,10 +108,26 @@ public class WebSocketHandle extends AspectOperationOfPortIn.HandleAdapter<WebSo
         ServerEndpointConfig.Builder builder = ServerEndpointConfig.Builder.create(ProgrammaticServer.class, this.path);
         if (webSocketOption != null)
         {
-            builder.encoders(Arrays.asList(webSocketOption.getEncoders()));
-            builder.decoders(Arrays.asList(webSocketOption.getDecoders()));
-            builder.subprotocols(Arrays.asList(webSocketOption.getSubprotocols()));
-            builder.extensions(Arrays.asList(webSocketOption.getExtensions()));
+            if (webSocketOption.getEncoders() != null)
+            {
+                builder.encoders(Arrays.asList(webSocketOption.getEncoders()));
+            }
+
+            if (webSocketOption.getDecoders() != null)
+            {
+                builder.decoders(Arrays.asList(webSocketOption.getDecoders()));
+            }
+
+            if (webSocketOption.getSubprotocols() != null)
+            {
+                builder.subprotocols(Arrays.asList(webSocketOption.getSubprotocols()));
+            }
+
+            if (webSocketOption.getExtensions() != null)
+            {
+                builder.extensions(Arrays.asList(webSocketOption.getExtensions()));
+            }
+
             builder.configurator(new HttpSessionConfigurator(webSocketOption.getConfigurator()));
         } else
         {

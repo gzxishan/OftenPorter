@@ -62,7 +62,7 @@ public class ProgrammaticServer extends Endpoint
         WebSocket webSocket = bridgeData.webSocket;
 
         WSConfig wsConfig = bridgeData.wsConfig;
-        doInvoke(session, WebSocket.Type.ON_OPEN, true, null);
+        doInvoke(session, WebSocket.Type.ON_OPEN, true, endpointConfig);
 
         int maxBinaryBuffer = wsConfig.getMaxBinaryBuffer();
         if (maxBinaryBuffer > 0)

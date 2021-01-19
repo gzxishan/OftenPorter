@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.servlet.websocket.WebSocket.Type;
 
 import javax.servlet.http.HttpSession;
 import javax.websocket.CloseReason;
+import javax.websocket.EndpointConfig;
 import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public final class WS
      * <ol>
      * <li>{@linkplain Type#ON_CONFIG}:{@linkplain WSConfig}</li>
      * <li>{@linkplain Type#ON_CONNECTING}:{@linkplain Connecting}</li>
-     * <li>{@linkplain Type#ON_OPEN}:null</li>
+     * <li>{@linkplain Type#ON_OPEN}:{@linkplain EndpointConfig}</li>
      * <li>{@linkplain Type#ON_MESSAGE}:String</li>
      * <li>{@linkplain Type#ON_ERROR}:Throwable</li>
      * <li>{@linkplain Type#ON_CLOSE}:{@linkplain CloseReason}</li>
