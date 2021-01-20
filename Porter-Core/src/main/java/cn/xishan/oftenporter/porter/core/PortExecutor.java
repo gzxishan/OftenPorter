@@ -1287,12 +1287,6 @@ public final class PortExecutor
                 }
             }
 
-            if (!oftenObject.isInnerRequest() && responseHandle != null && responseHandle
-                    .hasDoneWrite(oftenObject, porterOfFun, object))
-            {
-                return false;
-            }
-
             if (serverName != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
             {
                 JSONObject rs = ((JResponse) object).toJSON();
@@ -1300,7 +1294,14 @@ public final class PortExecutor
                 object = rs;
             }
 
-            oftenObject.getResponse().write(object);
+            if (!oftenObject.isInnerRequest() && responseHandle != null && responseHandle
+                    .hasDoneWrite(oftenObject, porterOfFun, object))
+            {
+                return false;
+            }else{
+                oftenObject.getResponse().write(object);
+            }
+
         } catch (Throwable e)
         {
             Logger logger = logger(oftenObject);
