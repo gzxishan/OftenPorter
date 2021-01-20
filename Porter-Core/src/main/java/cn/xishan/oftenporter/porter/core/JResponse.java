@@ -238,6 +238,7 @@ public class JResponse
             jsonResponse.setDescription(desc);
             jsonResponse.setResult(result);
             jsonResponse.setExtra(extra);
+            jsonResponse.setServerName(jsonObject.getString(SERVER_NAME_FIELD));
             return jsonResponse;
         } catch (Exception e)
         {
