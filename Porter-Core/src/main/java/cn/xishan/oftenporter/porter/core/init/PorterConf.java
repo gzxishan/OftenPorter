@@ -59,6 +59,7 @@ public class PorterConf
     private boolean enableIDynamicAnnotationImprovable = true;
     private Map<Class, ResponseHandle> responseHandleMap;
     private ResponseHandle defaultResponseHandle;
+    private String serverName;
 
     private List<AutoSetObjForAspectOfNormal.AdvancedHandle> advancedHandleList;
 
@@ -83,6 +84,16 @@ public class PorterConf
         classLoader = Thread.currentThread().getContextClassLoader();
         responseHandleMap = new HashMap<>();
         advancedHandleList = new ArrayList<>();
+    }
+
+    public String getServerName()
+    {
+        return serverName;
+    }
+
+    public void setServerName(String serverName)
+    {
+        this.serverName = serverName;
     }
 
     /**

@@ -45,6 +45,7 @@ public final class PortExecutor
     private DeliveryBuilder deliveryBuilder;
     private PortUtil portUtil;
     private Map<String, One> extraEntityOneMap = new HashMap<>();
+    private String serverName;
 
     public PortExecutor(BridgeName bridgeName, BridgeLinker bridgeLinker, UrlDecoder urlDecoder,
             boolean responseWhenException)
@@ -56,6 +57,16 @@ public final class PortExecutor
         this.urlDecoder = urlDecoder;
         this.responseWhenException = responseWhenException;
         deliveryBuilder = DeliveryBuilder.getBuilder(true, bridgeLinker);
+    }
+
+    public String getServerName()
+    {
+        return serverName;
+    }
+
+    public void setServerName(String serverName)
+    {
+        this.serverName = serverName;
     }
 
     public BridgeName getBridgeName()
@@ -369,7 +380,8 @@ public final class PortExecutor
         if (responseWhenException)
         {
             JResponse jResponse = new JResponse(ResultCode.NOT_AVAILABLE);
-            jResponse.setDescription("method=" + request.getMethod().name() + ",path=" + request.getPath());
+            jResponse.setDescription("method=" + request.getMethod().name() + ",path=" + request
+                    .getPath() + ",serverName=" + serverName);
             doFinalWriteOf404(request, response, jResponse);
         }
         close(response);
@@ -383,7 +395,8 @@ public final class PortExecutor
         {
             JResponse jResponse = new JResponse(ResultCode.EXCEPTION);
             jResponse.setDescription(
-                    "method=" + request.getMethod().name() + ",path=" + request.getPath() + ",msg=" + msg);
+                    "method=" + request.getMethod().name() + ",path=" + request
+                            .getPath() + ",msg=" + msg + ",serverName=" + serverName);
             doFinalWriteOf404(request, response, jResponse);
         }
         close(response);
@@ -1193,12 +1206,14 @@ public final class PortExecutor
             jResponse = toJResponse(reason, oftenObject);
             LOGGER.warn("{}:{}", oftenObject.url(), jResponse);
         }
+
         if (responseWhenException)
         {
             if (jResponse == null)
             {
                 jResponse = toJResponse(reason, oftenObject);
             }
+
             if (doWriteAndWillClose(oftenObject, porterOfFun, jResponse))
             {
                 close(oftenObject);
@@ -1277,6 +1292,14 @@ public final class PortExecutor
             {
                 return false;
             }
+
+            if (serverName != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
+            {
+                JSONObject rs = ((JResponse) object).toJSON();
+                rs.put("serverName", serverName);
+                object = rs;
+            }
+
             oftenObject.getResponse().write(object);
         } catch (Throwable e)
         {

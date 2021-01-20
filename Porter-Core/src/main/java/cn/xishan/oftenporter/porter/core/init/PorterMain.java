@@ -302,6 +302,11 @@ public final class PorterMain
 
         PorterConf porterConf = bridge.porterConf();
 
+        if (porterConf.getServerName() != null)
+        {
+            portExecutor.setServerName(porterConf.getServerName());
+        }
+
         LOGGER.debug("deal #{propName}...");
         DealSharpProperties.dealProperties(porterConf.getConfigData());
         LOGGER.debug("deal #{propName} finished");
