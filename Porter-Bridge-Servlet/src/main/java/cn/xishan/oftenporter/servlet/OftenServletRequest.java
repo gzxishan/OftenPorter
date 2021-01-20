@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.bridge.BridgeRequest;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
 
     private WeakReference<HttpServletRequest> request;
     private WeakReference<HttpServletResponse> response;
+    private String encoding;
 
     /**
      * @param request
@@ -35,12 +38,13 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
      * @param method
      */
     OftenServletRequest(HttpServletRequest request, String path,
-            HttpServletResponse response, PortMethod method)
+            HttpServletResponse response, PortMethod method, String encoding)
     {
         super(null, method, OftenTool.notEmpty(path) ? path : OftenServlet.getOftenPath(request),
                 false);
         this.request = new WeakReference<>(request);
         this.response = new WeakReference<>(response);
+        this.encoding = encoding;
     }
 
     @Override
@@ -84,6 +88,36 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         return request.startAsync(request, response.get());
     }
 
+//    private boolean hasParsedQuery = false;
+//    //解决post请求时，表单参数类型，body参数为空，query参数未被解析的问题
+//    private void parseQueryParams()
+//    {
+//        if (!hasParsedQuery)
+//        {
+//            hasParsedQuery = true;
+//
+//            if (super.params == null)
+//            {
+//                super.params = new HashMap<>();
+//            }
+//
+//            HttpServletRequest request = getOriginalRequest();
+//            if (request != null)
+//            {
+//                String query = request.getQueryString();
+//                if (query != null)
+//                {
+//                    try
+//                    {
+//                        super.params.putAll(BodyParamSourceHandle.fromEncoding(query, encoding));
+//                    } catch (UnsupportedEncodingException e)
+//                    {
+//                        throw new OftenCallException(e);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public Map<String, Object> getParameterMap()
@@ -94,6 +128,7 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
             HttpServletRequest request = getOriginalRequest();
             if (request != null)
             {
+//                parseQueryParams();
                 Enumeration<String> e = request.getParameterNames();
                 while (e.hasMoreElements())
                 {
@@ -118,6 +153,13 @@ public final class OftenServletRequest extends BridgeRequest// implements IAttri
         {
             value = request.getParameter(name);
         }
+
+//        if (OftenTool.isNullOrEmptyCharSequence(value))
+//        {
+//            parseQueryParams();
+//            value = super.params.get(name);
+//        }
+
         return value;
     }
 

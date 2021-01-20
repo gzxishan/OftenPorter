@@ -40,8 +40,9 @@ public class ServletOftenObject extends OftenObject
             UrlDecoder.Result result)
     {
         this("", "", "", result);
-        oftenRequest = new OftenServletRequest(request, path, response, PortMethod.valueOf(request.getMethod()));
-        oftenResponse = new OftenServletResponse(request,response);
+        oftenRequest = new OftenServletRequest(request, path, response, PortMethod.valueOf(request.getMethod()),
+                "utf-8");
+        oftenResponse = new OftenServletResponse(request, response);
         paramSource = new DefaultParamSource(oftenRequest);
         paramSource.setUrlResult(result);
     }

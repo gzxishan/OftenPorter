@@ -12,12 +12,14 @@ import java.lang.reflect.Method;
 class RealCallback implements MethodInterceptor
 {
 
-    private WeakReference<Object> targetRef;
+    private Object targetRef;
+    private boolean useRef;
     private IInvocationable invocationable;
 
-    public RealCallback(Object target, IInvocationable invocationable)
+    public RealCallback(boolean useRef, Object target, IInvocationable invocationable)
     {
-        this.targetRef = new WeakReference<>(target);
+        this.useRef = useRef;
+        this.targetRef = useRef ? new WeakReference<>(target) : target;
         this.invocationable = invocationable;
     }
 
@@ -30,10 +32,10 @@ class RealCallback implements MethodInterceptor
 
     public Object getTarget()
     {
-        Object object = targetRef.get();
+        Object object = useRef ? ((WeakReference) targetRef).get() : targetRef;
         if (object == null)
         {
-            throw new RuntimeException("object is null in WeakReference");
+            throw new RuntimeException("object is null" + (useRef ? " in WeakReference" : ""));
         } else
         {
             return object;

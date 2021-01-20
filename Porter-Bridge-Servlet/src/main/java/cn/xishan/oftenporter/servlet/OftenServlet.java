@@ -59,9 +59,9 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     @Property(value = "op.servlet.cors.http2https", defaultVal = "false")
     private Boolean isHttp2Https;
     /**
-     * 是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+     * 是否添加put参数处理,见{@linkplain BodyParamSourceHandle PutParamSourceHandle}。
      */
-    protected boolean addPutDealt = true;
+    protected boolean addBodyParamsDealt = true;
 
     private WrapperFilterManager wrapperFilterManager = new WrapperFilterManager()
     {
@@ -207,7 +207,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
     public void doRequest(HttpServletRequest request, @MayNull String path, HttpServletResponse response,
             PortMethod method) throws IOException
     {
-        OftenServletResponse wresp = new OftenServletResponse(request,response);
+        OftenServletResponse wresp = new OftenServletResponse(request, response);
         doRequest(request, path, response, wresp, method);
     }
 
@@ -236,7 +236,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
 //            request = requestWrapper;
 //        }
 
-        OftenServletRequest wreq = new OftenServletRequest(request, path, response, method);
+        OftenServletRequest wreq = new OftenServletRequest(request, path, response, method, urlEncoding);
         if (wreq.getPath().startsWith("/="))
         {
             wreq.setRequestPath(":" + wreq.getPath().substring(2));
@@ -658,11 +658,11 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         if (multiPartOption != null)
         {
             porterConf.getParamSourceHandleManager()
-                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption, addPutDealt), PortMethod.POST,
+                    .addByMethod(new MultiPartParamSourceHandle(multiPartOption), PortMethod.POST,
                             PortMethod.PUT);
-        } else if (addPutDealt)
+        } else if (addBodyParamsDealt)
         {
-            PutParamSourceHandle.addPutDealt(porterConf);
+            BodyParamSourceHandle.addBodyDealt(porterConf);
         }
         for (OftenServerStateListener serverStateListener : getOftenServerStateListener(
                 getServletConfig().getServletContext()))

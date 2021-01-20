@@ -7,6 +7,7 @@ package cn.xishan.oftenporter.servlet;
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.ParamSourceHandle;
 import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
@@ -16,8 +17,6 @@ import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +26,7 @@ import java.util.regex.Pattern;
  *
  * @author ZhuiFeng
  */
-public class PutParamSourceHandle implements ParamSourceHandle
+public class BodyParamSourceHandle implements ParamSourceHandle
 {
 
     /**
@@ -35,7 +34,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
      */
     private static final Pattern ENCODE_PATTERN = Pattern.compile("charset=([^;]+)");
 
-    public static void addPutDealt(PorterConf porterConf)
+    public static void addBodyDealt(PorterConf porterConf)
     {
         porterConf.addStateListener(new StateListener.Adapter()
         {
@@ -43,9 +42,13 @@ public class PutParamSourceHandle implements ParamSourceHandle
             public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
                     ParamSourceHandleManager paramSourceHandleManager)
             {
-                paramSourceHandleManager.addByMethod(new PutParamSourceHandle(), PortMethod.PUT);
+                paramSourceHandleManager.addByMethod(new BodyParamSourceHandle(), PortMethod.PUT, PortMethod.POST);
             }
         });
+    }
+
+    public BodyParamSourceHandle()
+    {
     }
 
     /**
@@ -75,6 +78,21 @@ public class PutParamSourceHandle implements ParamSourceHandle
         return encode;
     }
 
+    protected void addQueryParams(HttpServletRequest request, Map paramsMap, String encoding)
+    {
+        String query = request.getQueryString();
+        if (query != null)
+        {
+            try
+            {
+                paramsMap.putAll(fromEncoding(query, encoding));
+            } catch (UnsupportedEncodingException e)
+            {
+                throw new OftenCallException(e);
+            }
+        }
+    }
+
     @Override
     public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
@@ -83,14 +101,15 @@ public class PutParamSourceHandle implements ParamSourceHandle
         String ctype = request.getContentType();
         if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
         {
-            String encode = getEncode(ctype);
+            String encoding = getEncode(ctype);
 
             String body = FileTool.getString(request.getInputStream());
             if (body == null)
             {
                 return null;
             }
-            Map paramsMap = fromEncoding(body, encode);
+            Map paramsMap = fromEncoding(body, encoding);
+            addQueryParams(request, paramsMap, encoding);
             ParamSource paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
             return paramSource;
         }
@@ -99,6 +118,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
 
     /**
      * 见{@linkplain OftenStrUtil#fromEncoding(String, String)}
+     *
      * @param encodingContent
      * @param encoding
      * @return
@@ -107,7 +127,7 @@ public class PutParamSourceHandle implements ParamSourceHandle
     public static Map<String, String> fromEncoding(String encodingContent,
             String encoding) throws UnsupportedEncodingException
     {
-        return OftenStrUtil.fromEncoding(encodingContent,encoding);
+        return OftenStrUtil.fromEncoding(encodingContent, encoding);
     }
 
 }

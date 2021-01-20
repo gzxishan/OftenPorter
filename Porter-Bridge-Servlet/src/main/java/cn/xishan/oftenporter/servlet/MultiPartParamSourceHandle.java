@@ -1,7 +1,6 @@
 package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
-import cn.xishan.oftenporter.porter.core.base.PortMethod;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.OftenKeyUtil;
@@ -27,16 +26,14 @@ import java.util.Map;
  *
  * @author Created by https://github.com/CLovinr on 2017/4/15.
  */
-class MultiPartParamSourceHandle extends PutParamSourceHandle
+class MultiPartParamSourceHandle extends BodyParamSourceHandle
 {
     private MultiPartOption multiPartOption;
     private DiskFileItemFactory factory;
-    private boolean dealNormalPut;
 
-    public MultiPartParamSourceHandle(MultiPartOption multiPartOption, boolean dealNormalPut)
+    public MultiPartParamSourceHandle(MultiPartOption multiPartOption)
     {
         this.multiPartOption = multiPartOption;
-        this.dealNormalPut = dealNormalPut;
         factory = new DiskFileItemFactory();
         if (multiPartOption.tempDir != null)
         {
@@ -49,7 +46,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
     public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
         ParamSource paramSource = _get(oftenObject, porterClass, porterFun);
-        if (paramSource == null && dealNormalPut && oftenObject.getRequest().getMethod() == PortMethod.PUT)
+        if (paramSource == null)
         {
             paramSource = super.get(oftenObject, porterClass, porterFun);
         }
@@ -90,6 +87,12 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
         Map<String, Object> map = new HashMap<>();
         Map<String, List<Object[]>> filesMap = new HashMap<>(2);
 
+        String encoding = request.getCharacterEncoding();
+        if (OftenTool.isEmpty(encoding))
+        {
+            encoding = "utf-8";
+        }
+
         List<FileItem> list = upload.parseRequest(request);
         for (FileItem fileItem : list)
         {
@@ -97,11 +100,7 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
             Object value;
             if (fileItem.isFormField())
             {
-                String encoding = request.getCharacterEncoding();
-                if (OftenTool.isEmpty(encoding))
-                {
-                    encoding = "utf-8";
-                }
+
                 value = fileItem.getString(encoding);
                 map.put(name, value);
             } else
@@ -146,13 +145,14 @@ class MultiPartParamSourceHandle extends PutParamSourceHandle
                     fileItems[i] = (FileItem) objs[2];
                 }
                 //引用fileItem，防止文件使用前就被清理
-                FilePart filePart=new FilePart(origins, files, fileItems);
+                FilePart filePart = new FilePart(origins, files, fileItems);
                 map.put(entry.getKey(), filePart);
                 fileParts.add(filePart);
             }
-            FilePart.bindData(oftenObject,fileParts);
+            FilePart.bindData(oftenObject, fileParts);
         }
 
+        addQueryParams(request, map, encoding);
         ParamSource paramSource = new DefaultParamSource(map, oftenObject.getRequest());
 
         return paramSource;

@@ -32,14 +32,14 @@ public interface OftenInitializer
         String getBridgeName();
 
         /**
-         * 设置是否添加put参数处理,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+         * 设置是否添加put参数处理,见{@linkplain BodyParamSourceHandle}。
          */
-        void setDoPUT(boolean willDo);
+        void setDealBodyParams(boolean willDo);
 
         /**
-         * 是否添加put参数处理,默认为false,见{@linkplain PutParamSourceHandle PutParamSourceHandle}。
+         * 是否添加put参数处理,默认为false,见{@linkplain BodyParamSourceHandle}。
          */
-        boolean isDoPUT();
+        boolean isDealBodyParams();
 
         /**
          * 设置multipart form表单的处理选项,见{@linkplain MultiPartParamSourceHandle}

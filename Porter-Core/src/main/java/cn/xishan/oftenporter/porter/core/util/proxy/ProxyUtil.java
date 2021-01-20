@@ -114,7 +114,7 @@ public class ProxyUtil
     }
 
     /**
-     * 另见{@linkplain #proxyObject(Object, boolean, Class[], IMethodFilter, IInvocationable, ICGLIBSettable)}
+     * 另见{@linkplain #proxyObject(Object, boolean, boolean, Class[], IMethodFilter, IInvocationable, ICGLIBSettable)}
      *
      * @param proxyObject
      * @return
@@ -143,6 +143,12 @@ public class ProxyUtil
         return iInvocationable;
     }
 
+    public static Object proxyObject(Object object, boolean useCache, Class[] interfaces,
+            IMethodFilter methodFilter, IInvocationable invocationable, ICGLIBSettable settable) throws Exception
+    {
+        return proxyObject(object, useCache, true, interfaces, methodFilter, invocationable, settable);
+    }
+
     /**
      * @param object
      * @param useCache
@@ -152,15 +158,22 @@ public class ProxyUtil
      * @return
      * @throws Exception
      */
-    public static Object proxyObject(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
-            IInvocationable invocationable, ICGLIBSettable settable) throws Exception
+    public static Object proxyObject(Object object, boolean useCache, boolean useRef, Class[] interfaces,
+            IMethodFilter methodFilter, IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
-        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable, settable);
+        Enhancer enhancer = proxySetting(object, useCache, useRef, interfaces, methodFilter, invocationable, settable);
         Object proxyObject = enhancer.create();
         initFieldsValue(object, proxyObject, true);
         return proxyObject;
     }
 
+    public static Class proxyClass(Object object, boolean useCache, Class[] interfaces,
+            IMethodFilter methodFilter,
+            IInvocationable invocationable, ICGLIBSettable settable) throws Exception
+    {
+        return proxyClass(object, useCache, true, interfaces, methodFilter, invocationable, settable);
+    }
+
     /**
      * @param object
      * @param useCache
@@ -170,18 +183,19 @@ public class ProxyUtil
      * @return
      * @throws Exception
      */
-    public static Class proxyClass(Object object, boolean useCache, Class[] interfaces, IMethodFilter methodFilter,
+    public static Class proxyClass(Object object, boolean useCache, boolean useRef, Class[] interfaces,
+            IMethodFilter methodFilter,
             IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
-        Enhancer enhancer = proxySetting(object, useCache, interfaces, methodFilter, invocationable, settable);
+        Enhancer enhancer = proxySetting(object, useCache, useRef, interfaces, methodFilter, invocationable, settable);
         return enhancer.createClass();
     }
 
-    private static Enhancer proxySetting(Object object, boolean useCache, Class[] interfaces,
+    private static Enhancer proxySetting(Object object, boolean useCache, boolean useRef, Class[] interfaces,
             IMethodFilter methodFilter, IInvocationable invocationable, ICGLIBSettable settable) throws Exception
     {
         Callback[] callbacks =
-                new Callback[]{NoOp.INSTANCE, new RealCallback(object, invocationable)};
+                new Callback[]{NoOp.INSTANCE, new RealCallback(useRef, object, invocationable)};
 
         Enhancer enhancer = new Enhancer();
         enhancer.setCallbacks(callbacks);

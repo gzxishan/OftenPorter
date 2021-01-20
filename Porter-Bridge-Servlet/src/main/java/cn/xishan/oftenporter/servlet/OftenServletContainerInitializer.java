@@ -259,19 +259,19 @@ public final class OftenServletContainerInitializer implements ServletContainerI
         }
 
         @Override
-        public void setDoPUT(boolean willDo)
+        public void setDealBodyParams(boolean willDo)
         {
             if (isStarted)
             {
                 return;
             }
-            super.addPutDealt = willDo;
+            super.addBodyParamsDealt = willDo;
         }
 
         @Override
-        public boolean isDoPUT()
+        public boolean isDealBodyParams()
         {
-            return addPutDealt;
+            return addBodyParamsDealt;
         }
     }
 
