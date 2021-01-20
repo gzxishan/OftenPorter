@@ -63,6 +63,8 @@ public class JResponse
      */
     public static final String RESULT_FIELD = "rs", EXTRA_FIELD = "extra";
     public static final String DESCRIPTION_FIELD = "desc";
+    public static final String SERVER_NAME_FIELD = "sn";
+
     //public static final String REQUEST_URI_FIELD = "uri";
 
 
@@ -71,6 +73,7 @@ public class JResponse
     private Object result, extra;
     private Throwable exCause;
     private boolean dealIObject = true;
+    private String serverName;
 
     public JResponse(ResultCode code)
     {
@@ -97,6 +100,16 @@ public class JResponse
     public JResponse()
     {
 
+    }
+
+    public String getServerName()
+    {
+        return serverName;
+    }
+
+    public void setServerName(String serverName)
+    {
+        this.serverName = serverName;
     }
 
     public boolean isDealIObject()
@@ -391,6 +404,7 @@ public class JResponse
             json.put(CODE_NAME_FIELD, ((ResultCode) code).name());
         }
         json.put(DESCRIPTION_FIELD, description);
+        json.put(SERVER_NAME_FIELD, serverName);
 
         Object result = this.result;
         Object extra = this.extra;

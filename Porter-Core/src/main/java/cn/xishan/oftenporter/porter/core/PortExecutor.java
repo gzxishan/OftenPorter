@@ -1289,16 +1289,15 @@ public final class PortExecutor
 
             if (serverName != null && object instanceof JResponse && ((JResponse) object).isNotSuccess())
             {
-                JSONObject rs = ((JResponse) object).toJSON();
-                rs.put("serverName", serverName);
-                object = rs;
+                ((JResponse) object).setServerName(serverName);
             }
 
             if (!oftenObject.isInnerRequest() && responseHandle != null && responseHandle
                     .hasDoneWrite(oftenObject, porterOfFun, object))
             {
                 return false;
-            }else{
+            } else
+            {
                 oftenObject.getResponse().write(object);
             }
 
