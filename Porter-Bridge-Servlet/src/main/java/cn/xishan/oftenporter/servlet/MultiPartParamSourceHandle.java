@@ -60,6 +60,7 @@ class MultiPartParamSourceHandle extends BodyParamSourceHandle
         {
             return null;
         }
+
         HttpServletRequest request = (HttpServletRequest) originalRequest;
         if (ContentType.APP_JSON.name().equals(request.getContentType()))
         {

@@ -6,7 +6,10 @@ package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.ParamSourceHandle;
-import cn.xishan.oftenporter.porter.core.base.*;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
+import cn.xishan.oftenporter.porter.core.base.ParamSource;
+import cn.xishan.oftenporter.porter.core.base.PortMethod;
+import cn.xishan.oftenporter.porter.core.base.StateListener;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.init.InitParamSource;
 import cn.xishan.oftenporter.porter.core.init.PorterConf;
@@ -97,23 +100,26 @@ public class BodyParamSourceHandle implements ParamSourceHandle
     public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
     {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
-
-        String ctype = request.getContentType();
-        if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
+        ParamSource paramSource = null;
+        if (request != null)
         {
-            String encoding = getEncode(ctype);
-
-            String body = FileTool.getString(request.getInputStream());
-            if (body == null)
+            String ctype = request.getContentType();
+            if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
             {
-                return null;
+                String encoding = getEncode(ctype);
+
+                String body = FileTool.getString(request.getInputStream());
+                if (body == null)
+                {
+                    return null;
+                }
+                Map paramsMap = fromEncoding(body, encoding);
+                addQueryParams(request, paramsMap, encoding);
+                paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
             }
-            Map paramsMap = fromEncoding(body, encoding);
-            addQueryParams(request, paramsMap, encoding);
-            ParamSource paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
-            return paramSource;
         }
-        return null;
+
+        return paramSource;
     }
 
     /**
