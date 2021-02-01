@@ -53,6 +53,22 @@ public class ChangeableProperty<T> implements AutoCloseable, OnPropertyChange<T>
         return value;
     }
 
+    public T getValue(T defaultValue)
+    {
+        T v = getValue();
+        if (v == null)
+        {
+            v = defaultValue;
+        }
+        return v;
+    }
+
+    public ChangeableProperty<T> setDefaultValue(T t)
+    {
+        this.defaultValue = t;
+        return this;
+    }
+
     public ChangeableProperty<T> addListener(OnPropertyChange<T> change)
     {
         return addListener(false, change);
