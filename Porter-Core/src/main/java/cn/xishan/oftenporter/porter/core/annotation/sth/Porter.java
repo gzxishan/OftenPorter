@@ -401,7 +401,7 @@ public final class Porter
     {
         for (PorterOfFun fun : childrenWithMethod.values())
         {
-            iArgumentsFactory.initArgsHandle(fun, typeParserStore);
+            iArgumentsFactory.initArgsHandle(autoSetHandle.getConfigData(), fun, typeParserStore);
         }
     }
 

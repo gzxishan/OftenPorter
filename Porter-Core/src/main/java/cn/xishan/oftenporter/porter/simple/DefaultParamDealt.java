@@ -3,14 +3,18 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.advanced.TypeParserStore;
+import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.annotation.deal._NeceUnece;
 import cn.xishan.oftenporter.porter.core.base.InNames.Name;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
+import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -20,12 +24,61 @@ import java.util.Map;
 public class DefaultParamDealt implements ParamDealt
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultParamDealt.class);
+    public static final ParamSource EMPTY_PARAM_SOURCE = new ParamSource()
+    {
+        @Override
+        public void setUrlResult(UrlDecoder.Result result)
+        {
+
+        }
+
+        @Override
+        public <T> T getParam(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public <T> T getNeceParam(String name, String errmsgOfEmpty)
+        {
+            return null;
+        }
+
+        @Override
+        public <T> T getNeceParam(String name)
+        {
+            return null;
+        }
+
+        @Override
+        public void putNewParams(Map<String, ?> newParams)
+        {
+
+        }
+
+        @Override
+        public Enumeration<String> paramNames()
+        {
+            return new EnumerationImpl<String>(Collections.emptyList());
+        }
+
+        @Override
+        public Enumeration<Map.Entry<String, Object>> params()
+        {
+            return new EnumerationImpl<Map.Entry<String, Object>>(Collections.emptyList());
+        }
+    };
 
     @Override
     public FailedReason deal(OftenObject oftenObject, Name[] names, Object[] values, boolean isNecessary,
             ParamSource paramSource,
             TypeParserStore typeParserStore, String namePrefix)
     {
+        if (paramSource == null)
+        {
+            paramSource = EMPTY_PARAM_SOURCE;
+        }
+
         for (int i = 0; i < names.length; i++)
         {
             Name name = names[i];
@@ -58,6 +111,11 @@ public class DefaultParamDealt implements ParamDealt
     public static Object getParam(OftenObject oftenObject, String namePrefix, Name theName, ParamSource paramSource,
             ITypeParser typeParser, Object dealt)
     {
+        if (paramSource == null)
+        {
+            paramSource = EMPTY_PARAM_SOURCE;
+        }
+
         String name = namePrefix == null ? theName.varName : namePrefix + theName.varName;
         Object v = paramSource.getParam(name);
         if (v == null)
@@ -71,7 +129,8 @@ public class DefaultParamDealt implements ParamDealt
                 LOGGER.warn(e.getMessage(), e);
                 return DefaultFailedReason.parseOftenEntitiesException(e.getMessage());
             }
-            if(v instanceof FailedReason){
+            if (v instanceof FailedReason)
+            {
                 return v;
             }
         }
@@ -129,7 +188,7 @@ public class DefaultParamDealt implements ParamDealt
             }
         }
 
-        v=theName.dealString(v);
+        v = theName.dealString(v);
 
         if ((v instanceof CharSequence) && v.equals(""))
         {

@@ -38,17 +38,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @AspectOperationOfNormal.IgnoreAspect
 public class TypeTo
 {
+    private final Logger LOGGER;
 
     private Map<String, IArgumentsFactory.IArgsHandle> handleMap = new ConcurrentHashMap<>();
-    private final Logger LOGGER;
     private InnerContextBridge innerContextBridge;
     private PortUtil portUtil;
-    private DefaultArgumentsFactory argumentsFactory;
+    private IArgumentsFactory argumentsFactory;
+    private IConfigData configData;
 
     /**
      * @param innerContextBridge
      */
-    public TypeTo(InnerContextBridge innerContextBridge)
+    public TypeTo(InnerContextBridge innerContextBridge, IConfigData configData)
     {
         this.innerContextBridge = innerContextBridge;
         this.argumentsFactory = new DefaultArgumentsFactory();
@@ -132,7 +133,7 @@ public class TypeTo
     public IArgumentsFactory.IArgsHandle newArgsHandle(Class<?> realClass, Method method) throws Exception
     {
         IArgumentsFactory.IArgsHandle argsHandle = argumentsFactory
-                .newIArgsHandle(realClass, method, null, innerContextBridge.innerBridge.globalParserStore);
+                .newIArgsHandle(configData, realClass, method, null, innerContextBridge.innerBridge.globalParserStore);
         return argsHandle;
     }
 
@@ -147,7 +148,7 @@ public class TypeTo
             if (argsHandle == null)
             {
                 argsHandle = argumentsFactory
-                        .newIArgsHandle(realClass, method, new int[]{argIndex},
+                        .newIArgsHandle(configData, realClass, method, new int[]{argIndex},
                                 innerContextBridge.innerBridge.globalParserStore);
                 handleMap.put(key, argsHandle);
             }

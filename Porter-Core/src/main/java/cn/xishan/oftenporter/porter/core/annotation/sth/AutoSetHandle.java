@@ -837,7 +837,7 @@ public class AutoSetHandle
             Object currentObject) throws Exception
     {
         return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject),
-                currentObject,RangeType.ALL);
+                currentObject, RangeType.ALL);
     }
 
     private Object mayGetProxyObject(Object object)
@@ -1426,7 +1426,7 @@ public class AutoSetHandle
             sysset = iConfigData;
         } else if (typeName.equals(TypeTo.class.getName()))
         {
-            sysset = new TypeTo(innerContextBridge);
+            sysset = new TypeTo(innerContextBridge, getConfigData());
         } else if (typeName.equals(PorterData.class.getName()))
         {
             sysset = porterData;

@@ -23,6 +23,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -42,34 +43,101 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
          * @param optionArgMap 提供的可选参数
          * @return
          */
-        Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap);
+        Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap);
+
+        Class getArgType();
     }
 
     public static class BindEntityDealtArgDealt implements ArgDealt
     {
 
         private String key;
+        private Class argType;
 
-        public BindEntityDealtArgDealt(Class realType, PorterOfFun porterOfFun)
+        public BindEntityDealtArgDealt(Class argType, PorterOfFun porterOfFun)
         {
-            key = porterOfFun.getPath() + "@" + realType.getName();
-            porterOfFun.putExtraEntity(key, realType);
+            key = porterOfFun.getPath() + "@" + argType.getName();
+            porterOfFun.putExtraEntity(key, argType);
+            argType = argType;
         }
 
         @Override
-        public Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
+        public Class getArgType()
+        {
+            return argType;
+        }
+
+        @Override
+        public Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
         {
             return oftenObject.extraEntity(key);
         }
     }
 
-    public static class WObjectArgDealt implements ArgDealt
+    public static class IConfigDataArgDealt implements ArgDealt
+    {
+        @Override
+        public final Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
+        {
+            return configData;
+        }
+
+        @Override
+        public Class getArgType()
+        {
+            return IConfigData.class;
+        }
+    }
+
+    public static class OftenObjectArgDealt implements ArgDealt
     {
 
         @Override
-        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
         {
             return oftenObject;
+        }
+
+        @Override
+        public Class getArgType()
+        {
+            return OftenObject.class;
+        }
+    }
+
+    public static class PropertyArgDealt implements ArgDealt
+    {
+        private Class currentClass;
+        private Class argType;
+        private Integer paramIndex;
+        private Property property;
+
+        public PropertyArgDealt(Class currentClass, Class argType, Integer paramIndex,
+                Property property)
+        {
+            this.currentClass = currentClass;
+            this.argType = argType;
+            this.paramIndex = paramIndex;
+            this.property = property;
+        }
+
+        @Override
+        public Class getArgType()
+        {
+            return argType;
+        }
+
+        @Override
+        public final Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
+        {
+            Object value = configData == null ? null : configData
+                    .getValue(null, currentClass, method, paramIndex, argType, property);
+            return value;
         }
     }
 
@@ -78,12 +146,20 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
+        private Class argType;
 
-        public NeceArgDealt(InNames.Name name, String className, TypeParserStore typeParserStore)
+        public NeceArgDealt(InNames.Name name, String className, Class argType, TypeParserStore typeParserStore)
         {
             this.name = name;
             this.className = className;
             this.typeParserStore = typeParserStore;
+            this.argType = argType;
+        }
+
+        @Override
+        public Class getArgType()
+        {
+            return argType;
         }
 
         private final Object get(Map<String, Object> optionArgMap)
@@ -104,7 +180,8 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
             if (OftenTool.isNullOrEmptyCharSequence(v))
@@ -128,12 +205,20 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         private InNames.Name name;
         private String className;
         private TypeParserStore typeParserStore;
+        private Class argType;
 
-        public UneceArgDealt(InNames.Name name, String className, TypeParserStore typeParserStore)
+        public UneceArgDealt(InNames.Name name, String className, Class argType, TypeParserStore typeParserStore)
         {
             this.name = name;
             this.className = className;
             this.typeParserStore = typeParserStore;
+            this.argType = argType;
+        }
+
+        @Override
+        public Class getArgType()
+        {
+            return argType;
         }
 
         private final Object get(Map<String, Object> optionArgMap)
@@ -154,13 +239,15 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
         }
 
         @Override
-        public final Object getArg(OftenObject oftenObject, Method method, Map<String, Object> optionArgMap)
+        public final Object getArg(@MayNull IConfigData configData, OftenObject oftenObject, Method method,
+                Map<String, Object> optionArgMap)
         {
             Object v = get(optionArgMap);
             if (OftenTool.isNullOrEmptyCharSequence(v))
             {
-                v = DefaultParamDealt.getParam(oftenObject, name, oftenObject.getParamSource(),
-                        typeParserStore.byId(name.typeParserId), name.getDealt());
+                v = DefaultParamDealt
+                        .getParam(oftenObject, name, oftenObject == null ? null : oftenObject.getParamSource(),
+                                typeParserStore.byId(name.typeParserId), name.getDealt());
             }
 
             v = name.dealString(v);
@@ -171,14 +258,18 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
 
     protected static abstract class IArgsHandleImpl implements IArgsHandle
     {
+        protected IConfigData configData;
         private ArgDealt[] argHandles;
         private Set<Class> types;
         private int[] argsIndex;
 
         //argsIndex可选择指定的参数
-        public IArgsHandleImpl(@MayNull PorterOfFun porterOfFun, Class realClass, Method method,
+        public IArgsHandleImpl(@MayNull IConfigData configData, @MayNull PorterOfFun porterOfFun, Class realClass,
+                Method method,
                 TypeParserStore typeParserStore, int[] argsIndex) throws Exception
         {
+            this.configData = configData;
+
             Annotation[][] methodAnnotations = method.getParameterAnnotations();
             Parameter[] parameters = method.getParameters();
 
@@ -208,22 +299,25 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 this.types.add(paramType);
                 Annotation[] paramAnnotations = methodAnnotations[i];
                 String paramName = parameters[i].getName();
-                ArgDealt argHandle = newHandle(annotationDealt, porterOfFun, typeParserStore, paramType, paramName,
-                        paramAnnotations);
+                ArgDealt argHandle = newHandle(annotationDealt, porterOfFun, typeParserStore, realClass,
+                        paramType, paramName, i, paramAnnotations);
                 argHandleList.add(argHandle);
             }
             annotationDealt.clearCache();
             this.argHandles = argHandleList.toArray(new ArgDealt[0]);
         }
 
-        public IArgsHandleImpl(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+        public IArgsHandleImpl(@MayNull IConfigData configData, PorterOfFun porterOfFun,
+                TypeParserStore typeParserStore) throws Exception
         {
-            this(porterOfFun, porterOfFun.getPorter().getClazz(), porterOfFun.getMethod(), typeParserStore, null);
+            this(configData, porterOfFun, porterOfFun.getPorter().getClazz(), porterOfFun.getMethod(), typeParserStore,
+                    null);
         }
 
         public abstract ArgDealt newHandle(AnnotationDealt annotationDealt, @MayNull PorterOfFun porterOfFun,
                 TypeParserStore typeParserStore,
-                Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception;
+                Class realClass, Class<?> paramRealType, String paramName, int paramIndex,
+                Annotation[] paramAnnotations) throws Exception;
 
         @Override
         public int[] getArgsIndex()
@@ -277,10 +371,11 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
             {
                 map.put(PorterOfFun.class.getName(), fun);
             }
+
             Object[] newArgs = new Object[argHandles.length];
             for (int i = 0; i < newArgs.length; i++)
             {
-                Object value = argHandles[i].getArg(oftenObject, method, map);
+                Object value = argHandles[i].getArg(configData, oftenObject, method, map);
                 if (value instanceof ParamDealt.FailedReason)
                 {
                     ParamDealt.FailedReason failedReason = (ParamDealt.FailedReason) value;
@@ -290,6 +385,19 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                     throw new OftenCallException(jResponse);
                 } else
                 {
+                    if (value == null)
+                    {
+                        Class argType = argHandles[i].getArgType();
+                        for (Object o : map.values())
+                        {
+                            if (OftenTool.isAssignable(o, argType))
+                            {
+                                value = o;
+                                break;
+                            }
+                        }
+                    }
+
                     newArgs[i] = value;
                 }
             }
@@ -300,26 +408,37 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     public static class IArgsHandleImpl2 extends IArgsHandleImpl
     {
 
-        public IArgsHandleImpl2(Class realClass, Method method,
-                TypeParserStore typeParserStore, int[] argsIndex) throws Exception
+        public IArgsHandleImpl2(@MayNull IConfigData configData, Class realClass, Method method,
+                int[] argsIndex, TypeParserStore typeParserStore) throws Exception
         {
-            super(null, realClass, method, typeParserStore, argsIndex);
+            super(configData, null, realClass, method, typeParserStore, argsIndex);
         }
 
-        public IArgsHandleImpl2(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+        public IArgsHandleImpl2(@MayNull IConfigData configData, PorterOfFun porterOfFun,
+                TypeParserStore typeParserStore) throws Exception
         {
-            super(porterOfFun, typeParserStore);
+            super(configData, porterOfFun, typeParserStore);
         }
 
         @Override
         public ArgDealt newHandle(AnnotationDealt annotationDealt, @MayNull PorterOfFun porterOfFun,
-                TypeParserStore typeParserStore,
-                Class<?> paramRealType, String paramName, Annotation[] paramAnnotations) throws Exception
+                TypeParserStore typeParserStore, Class realClass, Class<?> paramRealType, String paramName,
+                int paramIndex, Annotation[] paramAnnotations) throws Exception
         {
             if (paramRealType.equals(OftenObject.class))
             {
-                return new WObjectArgDealt();
+                return new OftenObjectArgDealt();
+            } else if (paramRealType.equals(IConfigData.class))
+            {
+                return new IConfigDataArgDealt();
             }
+
+            Property property = AnnoUtil.getAnnotation(paramAnnotations, Property.class);
+            if (property != null)
+            {
+                return new PropertyArgDealt(realClass, paramRealType, paramIndex, property);
+            }
+
             _NeceUnece neceUnece;
             _Nece nece = annotationDealt.nece(AnnoUtil.getAnnotation(paramAnnotations, Nece.class), paramName);
             _Unece unece = null;
@@ -346,6 +465,7 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                 {
                     _parse = annotationDealt.genParse(parse);
                 }
+
                 if (nece != null)
                 {
                     name = nece.getVarName();
@@ -361,10 +481,10 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
                         .getName(annotationDealt, name, paramRealType, _parse, neceUnece, typeParserStore);
                 if (nece != null)
                 {
-                    argHandle = new NeceArgDealt(theName, paramRealType.getName(), typeParserStore);
+                    argHandle = new NeceArgDealt(theName, paramRealType.getName(), paramRealType, typeParserStore);
                 } else
                 {
-                    argHandle = new UneceArgDealt(theName, paramRealType.getName(), typeParserStore);
+                    argHandle = new UneceArgDealt(theName, paramRealType.getName(), paramRealType, typeParserStore);
                 }
             }
 
@@ -378,26 +498,34 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
     }
 
-    public IArgsHandleImpl newIArgsHandle(Class realType, Method method, @MayNull int[] argsIndex,
+
+    @Override
+    public IArgsHandle newIArgsHandle(@MayNull IConfigData configData, PorterOfFun porterOfFun,
             TypeParserStore typeParserStore) throws Exception
     {
-        IArgsHandleImpl handle = new IArgsHandleImpl2(realType, method, typeParserStore, argsIndex);
-        return handle;
-    }
-
-    public IArgsHandleImpl newIArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
-    {
-        IArgsHandleImpl handle = new IArgsHandleImpl2(porterOfFun, typeParserStore);
+        IArgsHandleImpl handle = new IArgsHandleImpl2(configData, porterOfFun, typeParserStore);
         return handle;
     }
 
     @Override
-    public final void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception
+    public IArgsHandle newIArgsHandle(@MayNull IConfigData configData, Class realType, Method method,
+            @MayNull int[] argsIndex,
+            TypeParserStore typeParserStore) throws Exception
     {
-        IArgsHandle iArgsHandle = newIArgsHandle(porterOfFun, typeParserStore);
+        IArgsHandleImpl handle = new IArgsHandleImpl2(configData, realType, method, argsIndex, typeParserStore);
+        return handle;
+    }
+
+    @Override
+    public final void initArgsHandle(@MayNull IConfigData configData, PorterOfFun porterOfFun,
+            TypeParserStore typeParserStore) throws Exception
+    {
+        IArgsHandle iArgsHandle = newIArgsHandle(configData, porterOfFun, typeParserStore);
         porterOfFun.setArgsHandle(iArgsHandle);
     }
 
+
+    private static final Map<String, IArgsHandle> DEFAULT_ARGS_HANDLE = new ConcurrentHashMap<>();
 
     /**
      * 形参支持{@linkplain Property}注解。
@@ -414,35 +542,57 @@ public class DefaultArgumentsFactory implements IArgumentsFactory
     {
         Class currentClass = object == null ? method.getDeclaringClass() : ProxyUtil.unwrapProxyForGeneric(object);
 
-        Parameter[] parameters = method.getParameters();
-        Object[] args = new Object[parameters.length];
+        String key = currentClass.getSimpleName() + "@" + method.toString();
+        IArgsHandle argsHandle = DEFAULT_ARGS_HANDLE.get(key);
 
-        for (int i = 0; i < parameters.length; i++)
+        if (argsHandle == null && configData != null)
         {
-            Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
-            if (configData != null)
+            IArgumentsFactory argumentsFactory = configData.get(IArgumentsFactory.class.getName());
+            TypeParserStore typeParserStore = configData.get(TypeParserStore.class.getName());
+            if (argumentsFactory != null)
             {
-                Parameter parameter = parameters[i];
-                Property property = AnnoUtil.getAnnotation(parameter, Property.class);
-                if (property != null)
-                {
-                    Object value = configData.getValue(object, currentClass, method, i, realType, property);
-                    args[i] = value;
-                    continue;//为property参数，继续处理下一个
-                }
+                argsHandle = argumentsFactory.newIArgsHandle(configData, currentClass, method, null, typeParserStore);
+                DEFAULT_ARGS_HANDLE.put(key, argsHandle);
             }
-
-            Object obj = null;
-            for (Object o : optionArgs)
-            {
-                if (OftenTool.isAssignable(o, realType))
-                {
-                    obj = o;
-                    break;
-                }
-            }
-            args[i] = obj;
         }
+
+        Object[] args;
+        if (argsHandle != null)
+        {
+            args = argsHandle.getInvokeArgs(null, null, method, optionArgs);
+        } else
+        {
+            Parameter[] parameters = method.getParameters();
+            args = new Object[parameters.length];
+
+            for (int i = 0; i < parameters.length; i++)
+            {
+                Class realType = AnnoUtil.Advance.getRealTypeOfMethodParameter(currentClass, method, i);
+                if (configData != null)
+                {
+                    Parameter parameter = parameters[i];
+                    Property property = AnnoUtil.getAnnotation(parameter, Property.class);
+                    if (property != null)
+                    {
+                        Object value = configData.getValue(object, currentClass, method, i, realType, property);
+                        args[i] = value;
+                        continue;//为property参数，继续处理下一个
+                    }
+                }
+
+                Object obj = null;
+                for (Object o : optionArgs)
+                {
+                    if (OftenTool.isAssignable(o, realType))
+                    {
+                        obj = o;
+                        break;
+                    }
+                }
+                args[i] = obj;
+            }
+        }
+
         try
         {
             method.setAccessible(true);

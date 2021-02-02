@@ -22,9 +22,11 @@ public final class _Nece extends _NeceUnece
 
     public boolean isNece(OftenObject oftenObject)
     {
-        if(toUnece&& oftenObject !=null&&isIn(oftenObject)){
+        if (toUnece && oftenObject != null && isIn(oftenObject))
+        {
             return false;
-        }else{
+        } else
+        {
             return true;
         }
     }

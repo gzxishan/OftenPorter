@@ -58,6 +58,13 @@ public interface IArgumentsFactory
      * @param porterOfFun
      * @return
      */
-    void initArgsHandle(PorterOfFun porterOfFun, TypeParserStore typeParserStore) throws Exception;
+    void initArgsHandle(@MayNull IConfigData configData, PorterOfFun porterOfFun,
+            TypeParserStore typeParserStore) throws Exception;
+
+    IArgsHandle newIArgsHandle(@MayNull IConfigData configData, Class realType, Method method, @MayNull int[] argsIndex,
+            TypeParserStore typeParserStore) throws Exception;
+
+    IArgsHandle newIArgsHandle(@MayNull IConfigData configData, PorterOfFun porterOfFun,
+            TypeParserStore typeParserStore) throws Exception;
 
 }

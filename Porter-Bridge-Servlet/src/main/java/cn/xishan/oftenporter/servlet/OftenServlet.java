@@ -473,7 +473,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         }
 
         porterConf.setArgumentsFactory(new DefaultServletArgumentsFactory());
-
+        porterConf.addStaticAutoSetClasses(DefaultServletArgumentsFactory.class);
         porterConf.addContextAutoSet(ServletContext.class, servletContext);
         porterConf.addContextAutoSet(SERVLET_NAME_NAME, getServletConfig().getServletName());
         porterConf.addContextAutoSet(StartupServlet.class, this);

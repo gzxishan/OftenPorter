@@ -333,6 +333,9 @@ public final class PorterMain
             argumentsFactory = defaultArgumentsFactory;
         }
 
+        porterConf.getConfigData().set(IArgumentsFactory.class.getName(), argumentsFactory);
+        porterConf.getConfigData()
+                .set(TypeParserStore.class.getName(), innerContextBridge.innerBridge.globalParserStore);
 
         AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal = null;
         if (porterConf.isEnableAspectOfNormal())
