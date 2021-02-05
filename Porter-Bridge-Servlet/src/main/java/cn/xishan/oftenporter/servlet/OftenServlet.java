@@ -606,7 +606,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             }
 
             if (method == PortMethod.GET && Arrays
-                    .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) > 0)
+                    .binarySearch(skipResources, OftenStrUtil.getSuffix(request.getRequestURI())) >= 0)
             {
                 setCors(response, corsAccess, method, "*");
                 return CorsType.Pass;
