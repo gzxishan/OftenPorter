@@ -83,10 +83,14 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         final Class type;
         final OnValueChange change;
         final String[] attrs;
+        final Object defaultVal;
+        final Property.Choice choice;
 
-        public Wrapper(Class type, OnValueChange change, String[] attrs)
+        public Wrapper(Class type, Object defaultVal, Property.Choice choice, OnValueChange change, String[] attrs)
         {
             this.type = type;
+            this.defaultVal = defaultVal;
+            this.choice = choice;
             this.change = change;
             this.attrs = attrs;
         }
@@ -107,7 +111,8 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     }
 
     @Override
-    public synchronized <T> void addOnValueChange(Class<T> type, OnValueChange<T> change, String... attrs)
+    public synchronized <T> void addOnValueChange(Class<T> type, T defaultVal, Property.Choice choice,
+            OnValueChange<T> change, String... attrs)
     {
         if (type == null)
         {
@@ -119,7 +124,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (OftenTool.notEmptyOf(attrs))
         {
-            Wrapper wrapper = new Wrapper(type, change, attrs);
+            Wrapper wrapper = new Wrapper(type, defaultVal, choice, change, attrs);
 
             for (String attr : attrs)
             {
@@ -190,6 +195,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             addKey = true;
             changeKeys = new HashSet<>();
         }
+        DefaultConfigData oldData = new DefaultConfigData(oldProps);
 
         JSONObject newConfig = new JSONObject();
         for (Map.Entry entry : newProps.entrySet())
@@ -223,9 +229,11 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 {
                     try
                     {
+                        Object oldValue = oldData.getProperty(wrapper.type, attr, wrapper.defaultVal, wrapper.choice);
+                        Object newValue = this.getProperty(wrapper.type, attr, wrapper.defaultVal, wrapper.choice);
 
-                        Object oldValue = oldConfig.getObject(attr, wrapper.type);
-                        Object newValue = newConfig.getObject(attr, wrapper.type);
+//                        Object oldValue = oldConfig.getObject(attr, wrapper.type);
+//                        Object newValue = newConfig.getObject(attr, wrapper.type);
                         if (!OftenTool.isEqual(newValue, oldValue))
                         {
                             wrapper.change.onChange(attr, newValue, oldValue);
@@ -437,6 +445,31 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
     public String[] getStrings(String key, String defaultValue)
     {
         String str = getString(key, defaultValue);
+        return toStrings(str);
+    }
+
+
+    @Override
+    public Set<String> getStringSet(String key)
+    {
+        return getStringSet(key, null);
+    }
+
+    @Override
+    public Set<String> getStringSet(String key, String defaultValue)
+    {
+        String[] strs = getStrings(key, defaultValue);
+        Set<String> set = null;
+        if (strs != null)
+        {
+            set = new HashSet<>(strs.length);
+            OftenTool.addAll(set, strs);
+        }
+        return set;
+    }
+
+    private String[] toStrings(String str)
+    {
         if (OftenTool.isEmpty(str))
         {
             return null;
@@ -597,7 +630,6 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
 
         if (old != null)
         {
-
             onChange(properties, old, set);
         }
     }
@@ -714,7 +746,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                     LOGGER.warn(e.getMessage(), e);
                 }
             };
-            addOnValueChange((Class<Object>) fieldRealType, onValueChanges[0], keys);
+            addOnValueChange((Class<Object>) fieldRealType, defaultVal, choice, onValueChanges[0], keys);
             rs = changeableProperty;
         } else
         {
@@ -723,7 +755,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 WeakReference<Field> fieldRef = new WeakReference<>((Field) target);
                 WeakReference<Object> objRef = new WeakReference<>(object);
 
-                addOnValueChange((Class<Object>) fieldRealType, (attr, newValue, oldValue) -> {
+                addOnValueChange((Class<Object>) fieldRealType, defaultVal, choice, (attr, newValue, oldValue) -> {
                     try
                     {
                         Field f = fieldRef.get();
@@ -792,7 +824,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                     LOGGER.warn(e.getMessage(), e);
                 }
             };
-            addOnValueChange((Class<Object>) realType, onValueChanges[0], key);
+            addOnValueChange((Class<Object>) realType, defaultValue, null, onValueChanges[0], key);
             value = changeableProperty;
         }
 
@@ -800,7 +832,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         return value;
     }
 
-    private Object getProperty(Class<?> fieldRealType, String key, String defaultVal, Property.Choice choice)
+    private Object getProperty(Class<?> fieldRealType, String key, Object defaultVal, Property.Choice choice)
     {
         Object rs;
         if (fieldRealType.equals(int.class) || fieldRealType.equals(Integer.class))
@@ -811,7 +843,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             rs = getLong(key, defaultVal == null ? 0 : TypeUtils.castToLong(defaultVal));
         } else if (fieldRealType.equals(boolean.class) || fieldRealType.equals(Boolean.class))
         {
-            rs = getBoolean(key, defaultVal == null ? false : TypeUtils.castToBoolean(defaultVal));
+            rs = getBoolean(key, defaultVal != null && TypeUtils.castToBoolean(defaultVal));
         } else if (fieldRealType.equals(float.class) || fieldRealType.equals(Float.class))
         {
             rs = getFloat(key, defaultVal == null ? 0 : TypeUtils.castToFloat(defaultVal));
@@ -820,10 +852,13 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             rs = getDouble(key, defaultVal == null ? 0 : TypeUtils.castToDouble(defaultVal));
         } else if (fieldRealType.equals(String.class))
         {
-            rs = getString(key, defaultVal);
+            rs = getString(key, defaultVal == null ? null : defaultVal.toString());
         } else if (fieldRealType.equals(String[].class))
         {
-            rs = getStrings(key, defaultVal);
+            rs = getStrings(key, defaultVal == null ? null : defaultVal.toString());
+        } else if (fieldRealType.equals(Set.class))
+        {
+            rs = getStringSet(key, defaultVal == null ? null : defaultVal.toString());
         } else if (fieldRealType.equals(Date.class))
         {
             rs = getDate(key, defaultVal == null ? null : TypeUtils.castToDate(defaultVal));
@@ -835,14 +870,14 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                 json = getJSONByKeyPrefix(key);
                 if (json.isEmpty() && defaultVal != null)
                 {
-                    json = JSON.parseObject(defaultVal);
+                    json = toJSON(defaultVal);
                 }
             } else
             {
                 json = getJSON(key);
                 if (json == null && defaultVal != null)
                 {
-                    json = JSON.parseObject(defaultVal);
+                    json = toJSON(defaultVal);
                 }
             }
             rs = json;
@@ -868,14 +903,14 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
                     }
                 } else
                 {
-                    jsonArray = JSON.parseArray(defaultVal);
+                    jsonArray = toArray(defaultVal);
                 }
             } else
             {
                 jsonArray = getJSONArray(key);
                 if (jsonArray == null && defaultVal != null)
                 {
-                    jsonArray = JSON.parseArray(defaultVal);
+                    jsonArray = toArray(defaultVal);
                 }
             }
             rs = jsonArray;
@@ -884,7 +919,7 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
             rs = get(key);
         }
 
-        if (rs != null)
+        if (rs != null && choice != null)
         {
             switch (choice)
             {
@@ -899,6 +934,39 @@ public class DefaultConfigData implements IConfigData, IAttrGetter
         }
 
         return rs;
+    }
+
+    private JSONObject toJSON(Object value)
+    {
+        JSONObject json = null;
+        if (value instanceof JSONObject)
+        {
+            json = (JSONObject) value;
+        } else if (value instanceof Map)
+        {
+            json = new JSONObject((Map) value);
+        } else if (value != null)
+        {
+            json = JSON.parseObject(String.valueOf(value));
+        }
+        return json;
+    }
+
+    private JSONArray toArray(Object value)
+    {
+        JSONArray array = null;
+        if (value instanceof JSONArray)
+        {
+            array = (JSONArray) value;
+        } else if (value instanceof Collection)
+        {
+            array = new JSONArray();
+            array.addAll((Collection) value);
+        } else if (value != null)
+        {
+            array = JSON.parseArray(String.valueOf(value));
+        }
+        return array;
     }
 
     private Object choiceFile(Property.Choice choice, Object rs, Class realType)

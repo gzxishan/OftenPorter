@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.oftendb.db.sql;
 
 import cn.xishan.oftenporter.oftendb.annotation.TransactionDB;
+import cn.xishan.oftenporter.oftendb.annotation.tx.Isolation;
 import cn.xishan.oftenporter.oftendb.mybatis.MyBatisBridge;
 import cn.xishan.oftenporter.porter.core.advanced.IConfigData;
 import cn.xishan.oftenporter.porter.core.annotation.AspectOperationOfNormal;
@@ -28,6 +29,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
 
     private TransactionDB transactionDB;
     private String source;
+    private boolean hasTransaction = false;
 
     private static final Method __openConnection;
 
@@ -82,6 +84,7 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
             throw new RuntimeException("unknown type:" + transactionDB.type());
         }
         this.source = transactionDB.dbSource();
+        this.hasTransaction = current.level() != Isolation.TRANSACTION_NONE;
         return configData.getBoolean("enableTransactionJDBC", true);
     }
 
@@ -90,51 +93,62 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
             AspectOperationOfNormal.Invoker invoker, Object[] args, boolean hasInvoked,
             Object lastReturn) throws Exception
     {
-        IConnection iConnection = threadLocal.get().get(source);
-        if (transactionDB.setSavePoint())
+        if (hasTransaction)
         {
-            SavePointHolder savePointHolder = new SavePointHolder();
-            savePointStackThreadLocal.get().push(savePointHolder);
-        }
-        if (iConnection == null || iConnection.willStartTransactionOk())
-        {
-            if ("mybatis".equals(transactionDB.type()))
+            IConnection iConnection = threadLocal.get().get(source);
+            if (transactionDB.setSavePoint())
             {
-                LOGGER.debug("open source({}) for mybatis...", source);
-                Object rs = __openConnection.invoke(null, source, false);
-                LOGGER.debug("opened source({}) for mybatis:{}", source, rs);
+                SavePointHolder savePointHolder = new SavePointHolder();
+                savePointStackThreadLocal.get().push(savePointHolder);
             }
 
-            if (LOGGER.isDebugEnabled())
+            if (iConnection == null || iConnection.willStartTransactionOk())
             {
-                LOGGER.debug("start transaction:source={},queryTimeoutSeconds={},readonly={},level={},method={}.{}",
-                        source, transactionDB.queryTimeoutSeconds(), transactionDB.readonly(),
-                        transactionDB.level(), originMethod.getDeclaringClass().getName(), originMethod.getName());
-            }
-            iConnection = threadLocal.get().get(source);
-            if (transactionDB.queryTimeoutSeconds() != -1)
-            {
-                iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
-            }
-            Connection connection = iConnection.getConnection();
-            connection.setAutoCommit(false);
-            iConnection.startTransactionOk();
-            if (LOGGER.isDebugEnabled())
-            {
-                LOGGER.debug("start transaction ok:source={},method={}", source, originMethod.getName());
-            }
-        }
+                if ("mybatis".equals(transactionDB.type()))
+                {
+                    LOGGER.debug("open source({}) for mybatis...", source);
+                    Object rs = __openConnection.invoke(null, source, false);
+                    LOGGER.debug("opened source({}) for mybatis:{}", source, rs);
+                }
 
-        iConnection.setReadonly(transactionDB.readonly());
-        iConnection.setLevel(transactionDB.level());
-        iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("start transaction:source={},queryTimeoutSeconds={},readonly={},level={},method={}.{}",
+                            source, transactionDB.queryTimeoutSeconds(), transactionDB.readonly(),
+                            transactionDB.level(), originMethod.getDeclaringClass().getName(), originMethod.getName());
+                }
+                iConnection = threadLocal.get().get(source);
+                if (transactionDB.queryTimeoutSeconds() != -1)
+                {
+                    iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
+                }
 
-        if (transactionDB.setSavePoint())
-        {
-            Connection connection = iConnection.getConnection();
-            SavePointHolder savePointHolder = savePointStackThreadLocal.get().peek();
-            Savepoint savepoint = connection.setSavepoint(originMethod.getName() + "-SavePoint");
-            savePointHolder.savepoint = savepoint;
+                Connection connection = iConnection.getConnection();
+                if (iConnection.alreadyOpenTransaction())
+                {//已经开启了事务
+                    LOGGER.debug("on existing transaction:source={},method={}", source, originMethod.getName());
+                } else
+                {
+                    connection.setAutoCommit(false);
+                    if (LOGGER.isDebugEnabled())
+                    {
+                        LOGGER.debug("start transaction ok:source={},method={}", source, originMethod.getName());
+                    }
+                }
+                iConnection.startTransactionOk();
+            }
+
+            iConnection.setReadonly(transactionDB.readonly());
+            iConnection.setLevel(transactionDB.level());
+            iConnection.setQueryTimeoutSeconds(transactionDB.queryTimeoutSeconds());
+
+            if (transactionDB.setSavePoint())
+            {
+                Connection connection = iConnection.getConnection();
+                SavePointHolder savePointHolder = savePointStackThreadLocal.get().peek();
+                Savepoint savepoint = connection.setSavepoint(originMethod.getName() + "-SavePoint");
+                savePointHolder.savepoint = savepoint;
+            }
         }
         return false;
     }
@@ -153,7 +167,17 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
             __removeConnection__(transactionDB.dbSource());
             iConnection.doCommit();
             LOGGER.debug("commit-ok transaction:source={},method={}", source, originMethod.getName());
+        } else if (iConnection != null && iConnection.finishedUntilAlreadyOpenTransaction())
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("return back... on existing transaction:source={},method={}.{}", source,
+                        originMethod.getDeclaringClass().getName(), originMethod.getName());
+            }
+            __removeConnection__(transactionDB.dbSource());
+            LOGGER.debug("return back ok on existing transaction:source={},method={}", source, originMethod.getName());
         }
+
         if (transactionDB.setSavePoint())
         {
             savePointStackThreadLocal.get().pop();
@@ -164,7 +188,10 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     public Object afterInvoke(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, Object lastReturn) throws Exception
     {
-        checkCommit(originMethod);
+        if (hasTransaction)
+        {
+            checkCommit(originMethod);
+        }
         return lastReturn;
     }
 
@@ -173,39 +200,41 @@ public class TransactionDBHandle extends AspectOperationOfNormal.HandleAdapter<T
     public void onException(OftenObject oftenObject, boolean isTop, Object originObject, Method originMethod,
             AspectOperationOfNormal.Invoker invoker, Object[] args, Throwable throwable) throws Throwable
     {
-
-        IConnection iConnection = threadLocal.get().get(transactionDB.dbSource());
-        if (iConnection != null)
+        if (hasTransaction)
         {
-            boolean needRollback = true;
-            if (transactionDB.setSavePoint())
+            IConnection iConnection = threadLocal.get().get(transactionDB.dbSource());
+            if (iConnection != null)
             {
-                SavePointHolder savePointHolder = savePointStackThreadLocal.get().pop();
-                if (savePointHolder.savepoint != null)
+                boolean needRollback = true;
+                if (transactionDB.setSavePoint())
+                {
+                    SavePointHolder savePointHolder = savePointStackThreadLocal.get().pop();
+                    if (savePointHolder.savepoint != null)
+                    {
+                        if (LOGGER.isDebugEnabled())
+                        {
+                            LOGGER.debug("rollback savePoint... transaction:source={},method={}.{},errmsg={}", source,
+                                    originMethod.getDeclaringClass().getName(), originMethod.getName(),
+                                    OftenTool.getCause(throwable).toString());
+                        }
+                        needRollback = iConnection.doRollback(savePointHolder.savepoint);
+                        LOGGER.debug("rollback savePoint ok!");
+                    }
+                }
+
+                if (needRollback)
                 {
                     if (LOGGER.isDebugEnabled())
                     {
-                        LOGGER.debug("rollback savePoint... transaction:source={},method={}.{},errmsg={}", source,
+                        LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
                                 originMethod.getDeclaringClass().getName(), originMethod.getName(),
                                 OftenTool.getCause(throwable).toString());
                     }
-                    needRollback = iConnection.doRollback(savePointHolder.savepoint);
-                    LOGGER.debug("rollback savePoint ok!");
-                }
-            }
 
-            if (needRollback)
-            {
-                if (LOGGER.isDebugEnabled())
-                {
-                    LOGGER.debug("rollback... transaction:source={},method={}.{},errmsg={}", source,
-                            originMethod.getDeclaringClass().getName(), originMethod.getName(),
-                            OftenTool.getCause(throwable).toString());
+                    __removeConnection__(transactionDB.dbSource());
+                    iConnection.doRollback();
+                    LOGGER.debug("rollback-finished transaction:source={},method={}", source, originMethod.getName());
                 }
-
-                __removeConnection__(transactionDB.dbSource());
-                iConnection.doRollback();
-                LOGGER.debug("rollback-finished transaction:source={},method={}", source, originMethod.getName());
             }
         }
     }

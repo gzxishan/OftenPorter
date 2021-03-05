@@ -28,6 +28,7 @@ class ConnFinalWrap extends ConnectionWrapper implements IConnection
     private MSqlSessionFactoryBuilder builder;
     private int refCount = 1;
     private Thread thread;
+    private boolean hasAlreadyOpenTransaction = false;
 
     public ConnFinalWrap(MSqlSessionFactoryBuilder builder, SqlSession sqlSession,
             MyBatisOption.IConnectionBridge iConnectionBridge,
@@ -56,6 +57,25 @@ class ConnFinalWrap extends ConnectionWrapper implements IConnection
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @Override
+    public boolean alreadyOpenTransaction() throws SQLException
+    {
+        if (transactionCount == 0 && !connection.getAutoCommit() || hasAlreadyOpenTransaction)
+        {
+            hasAlreadyOpenTransaction = true;
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean finishedUntilAlreadyOpenTransaction()
+    {
+        return hasAlreadyOpenTransaction && transactionCount <= 1;
     }
 
     public Thread getThread()
@@ -143,11 +163,12 @@ class ConnFinalWrap extends ConnectionWrapper implements IConnection
     {
         if (transactionCount == 1)
         {
-            return true;
+            return !hasAlreadyOpenTransaction;
         } else if (transactionCount > 1)
         {
             transactionCount--;
         }
+
         return false;
     }
 

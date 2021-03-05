@@ -61,7 +61,7 @@ public class OftenStrUtil
             index = string.indexOf('=');
             if (index != -1)
             {
-                paramsMap.put(string.substring(0, index),
+                paramsMap.put(URLDecoder.decode(string.substring(0, index), encoding),
                         URLDecoder.decode(string.substring(index + 1), encoding));
             }
         }

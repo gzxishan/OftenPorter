@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -46,6 +47,7 @@ public class ParserUtilTest
         assertEquals(JSONObjectParser.class, ParserUtil.getTypeParser(JSONObject.class));
         assertEquals(StringParser.class, ParserUtil.getTypeParser(String.class));
         assertEquals(StringArrayParser.class, ParserUtil.getTypeParser(String[].class));
+        assertEquals(StringSetParser.class, ParserUtil.getTypeParser(Set.class));
         assertEquals(JSON2MapParser.class, ParserUtil.getTypeParser(Map.class));
         assertEquals(DateParser.class, ParserUtil.getTypeParser(Date.class));
 

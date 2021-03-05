@@ -101,7 +101,6 @@ class MultiPartParamSourceHandle extends BodyParamSourceHandle
             Object value;
             if (fileItem.isFormField())
             {
-
                 value = fileItem.getString(encoding);
                 map.put(name, value);
             } else

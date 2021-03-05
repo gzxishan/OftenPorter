@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/8.
@@ -90,6 +91,9 @@ public class ParserUtil
             } else if (type == String[].class)
             {
                 clazz = StringArrayParser.class;
+            } else if (type == Set.class)
+            {
+                clazz = StringSetParser.class;
             } else if (type == Map.class)
             {
                 clazz = JSON2MapParser.class;

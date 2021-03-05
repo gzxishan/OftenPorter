@@ -27,7 +27,14 @@ public interface IConfigData
         void onChange(String attr, T newValue, T oldValue) throws Exception;
     }
 
-    <T> void addOnValueChange(Class<T> type, OnValueChange<T> change, String... attrs);
+    default <T> void addOnValueChange(Class<T> type, OnValueChange<T> change, String... attrs)
+    {
+        addOnValueChange(type, null, null, change, attrs);
+    }
+
+    <T> void addOnValueChange(Class<T> type, T defaultVal, Property.Choice choice, OnValueChange<T> change,
+            String... attrs);
+
 
     void removeOnValueChange(OnValueChange change);
 
@@ -60,6 +67,10 @@ public interface IConfigData
     String[] getStrings(String key);
 
     String[] getStrings(String key, String defaultValue);
+
+    Set<String> getStringSet(String key);
+
+    Set<String> getStringSet(String key, String defaultValue);
 
     Date getDate(String key);
 

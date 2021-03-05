@@ -29,12 +29,22 @@ public interface IConnection
 
     void startTransactionOk();
 
+    /**
+     * 传入框架的连接已经开启了事务
+     * @return
+     * @throws SQLException
+     */
+    boolean alreadyOpenTransaction() throws SQLException;
+
+    boolean finishedUntilAlreadyOpenTransaction();
+
     boolean willCommit();
 
     void doCommit() throws SQLException;
 
     /**
      * 返回事务是否结束。
+     *
      * @param savepoint
      * @return
      * @throws SQLException
