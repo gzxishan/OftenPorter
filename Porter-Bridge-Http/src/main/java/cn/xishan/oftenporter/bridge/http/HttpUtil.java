@@ -14,10 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 import okio.BufferedSink;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -271,6 +268,11 @@ public class HttpUtil
             } else
             {
                 builder.cookieJar(CookieJar.NO_COOKIES);
+            }
+
+            if (x509TrustManager == X509_TRUST_MANAGER)
+            {
+                builder.hostnameVerifier((s, sslSession) -> true);
             }
 
             OkHttpClient okHttpClient = builder.build();
