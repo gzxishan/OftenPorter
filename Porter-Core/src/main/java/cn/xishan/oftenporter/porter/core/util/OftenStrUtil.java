@@ -43,10 +43,31 @@ public class OftenStrUtil
     }
 
     /**
+     * 解析地址查询参数。
+     *
+     * @param url      如果存在“?”，则去后面的内容进行解析；如果存在“#”，则去掉“#”及后面的内容。
+     * @param encoding 字符编码，如utf-8
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static Map<String, String> decodeQueryParams(String url, String encoding) throws UnsupportedEncodingException
+    {
+        int index = url.lastIndexOf("?");
+        String params = index >= 0 ? url.substring(index + 1) : url;
+        index = url.lastIndexOf("#");
+        if (index >= 0)
+        {
+            params = params.substring(0, index);
+        }
+
+        return fromEncoding(params, encoding);
+    }
+
+    /**
      * 将“name1=value1&name2=value2”转换成map,且采用有序map。另见{@linkplain #toEncoding(String, Object...)}
      *
      * @param encodingContent
-     * @param encoding
+     * @param encoding        字符编码，如utf-8
      * @return
      * @throws UnsupportedEncodingException
      */

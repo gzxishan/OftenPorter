@@ -32,6 +32,7 @@
 6. 增加`StringSetParser`参数处理；
 7. 修复`OftenStrUtil.fromEncoding`参数名未decode的问题；
 8. 完善事务处理；
+9. 增加`OftenStrUtil`.`decodeQueryParams`；
 
 ### v1.2.186 2021/01/04
 1. 完善`BindEntityDealt`的处理；
