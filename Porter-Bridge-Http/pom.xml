@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.xishankeji</groupId>
         <artifactId>OftenPorter</artifactId>
-        <version>1.2.214</version>
+        <version>1.2.215</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -22,7 +22,8 @@
 
     <properties>
         <project.Java_Websocket.version>1.3.9</project.Java_Websocket.version>
-        <project.okhttp.version>3.12.1</project.okhttp.version>
+<!--        <project.okhttp.version>3.12.1</project.okhttp.version>-->
+        <project.okhttp.version>3.14.9</project.okhttp.version>
     </properties>
 
 

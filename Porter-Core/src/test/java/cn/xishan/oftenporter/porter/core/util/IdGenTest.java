@@ -25,8 +25,8 @@ public class IdGenTest
     @Test
     public void test()
     {
-        IdGen idGen = new IdGen(FROM_TIME_MILLIS,8, "oHmKnp".toCharArray(), true);
-        int N = 100*10000;
+        IdGen idGen = new IdGen(FROM_TIME_MILLIS, 8, "oHmKnp".toCharArray(), true);
+        int N = 100 * 10000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
         idGen.nextIds(ids, N);
@@ -35,14 +35,14 @@ public class IdGenTest
 //			String id = ids.get(i);
 //			System.out.println(i+":"+id);
 //		}
-        System.out.println("total=" + total + "ms,speed=" + (N*1000/total)+"/s");
+        System.out.println("total=" + total + "ms,speed=" + (N * 1000 / total) + "/s");
     }
 
     @Test
     public void testSecure()
     {
-        IdGen idGen = IdGen.getSecureRand(FROM_TIME_MILLIS,7, 8, 4, "oHmKnp".toCharArray(), true);
-        int N = 100*10000;
+        IdGen idGen = IdGen.getSecureRand(FROM_TIME_MILLIS, 7, 8, 4, "oHmKnp".toCharArray(), true);
+        int N = 100 * 10000;
         List<String> ids = new ArrayList<>(N);
         long t = System.nanoTime();
         idGen.nextIds(ids, N);
@@ -73,7 +73,7 @@ public class IdGenTest
 
         Random random = new Random();
         long t = System.nanoTime();
-        int N = 100*10000;
+        int N = 100 * 10000;
         for (int i = 0; i < N; i++)
         {
             int add = random.nextBoolean() ? random.nextInt() : -random.nextInt();
@@ -88,15 +88,16 @@ public class IdGenTest
     {
         IdGen idGen = IdGen.getDefault(FROM_TIME_MILLIS);
         String id = idGen.nextId();
-        LogUtil.printPosLn(id.length()+":"+id);
+        LogUtil.printPosLn(id.length() + ":" + id);
         long t = System.nanoTime();
-        int N = 100*10000;
+        int N = 100 * 10000;
         for (int i = 0; i < N; i++)
         {
-            Assert.assertTrue(idGen.nextId().length() == 21);
+            Assert.assertEquals(21, idGen.nextId().length());
+            Assert.assertEquals(21 - 6, idGen.nextId(false).length());
         }
         float total = (System.nanoTime() - t) * 1.0f / 1000000000 * 1000;
-        System.out.printf("testDefault:%fms,min-date-len=%d\n",total,idGen.getMinDateLen());
+        System.out.printf("testDefault:%fms,min-date-len=%d\n", total, idGen.getMinDateLen());
 
     }
 }

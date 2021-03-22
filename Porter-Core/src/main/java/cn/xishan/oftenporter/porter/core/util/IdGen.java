@@ -176,8 +176,9 @@ public class IdGen implements Serializable
             throw new IllegalArgumentException("fromTimeMillis should not great than current time millis!");
         } else if (datelen < 0)
         {
-            throw new IllegalArgumentException("datelen should be positive");
+            throw new IllegalArgumentException("datelen should not be negative");
         }
+
         this.datelen = datelen;
         this.setBase(DEFAULT_BASE);
         len += randlen;
@@ -621,11 +622,16 @@ public class IdGen implements Serializable
         return new String(cs);
     }
 
-    public synchronized void nextIds(List<String> list, int count)
+    public void nextIds(List<String> list, int count)
+    {
+        nextIds(list, count, true);
+    }
+
+    public synchronized void nextIds(List<String> list, int count, boolean withTime)
     {
         for (int i = 0; i < count; i++)
         {
-            list.add(nextId());
+            list.add(nextId(withTime));
         }
     }
 
@@ -723,6 +729,11 @@ public class IdGen implements Serializable
 
     public synchronized String nextId()
     {
+        return nextId(true);
+    }
+
+    public synchronized String nextId(boolean withTime)
+    {
         final int blen = base.length;
         final int len = randlen;
         IRand rand = iRandBuilder.build();
@@ -731,6 +742,7 @@ public class IdGen implements Serializable
         {
             nums[ni] += rand.nextInt(blen);
         }
+
         for (int i = nums.length - 1; i > 0; i--)
         {
             if (nums[i] >= blen)
@@ -739,6 +751,7 @@ public class IdGen implements Serializable
                 nums[i] -= blen;
             }
         }
+
         if (nums[0] >= blen)
         {//最高位数值溢出、增加时间
             int length = nums.length - randlen;
@@ -746,13 +759,26 @@ public class IdGen implements Serializable
             {
                 nums[i] = 0;
             }
-            initTime();
+
+            if (withTime)
+            {
+                initTime();
+            }
         }
+
         for (int i = 0, ci = idindex; i < nums.length; i++, ci++)
         {
             idchars[ci] = base[nums[i]];
         }
-        String id = new String(idchars);
+
+        String id;
+        if (withTime)
+        {
+            id = new String(idchars);
+        } else
+        {
+            id = new String(idchars, idindex, idchars.length - idindex);
+        }
         return id;
     }
 }

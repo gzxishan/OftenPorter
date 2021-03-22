@@ -6,7 +6,7 @@
 
     <!--****************引入子页面、变量设置***************-->
     <!--$json:{
-    tableName:'test'
+    tableName:'test_ts'
     }-->
     <!--$path:./include/base.xml-->
 

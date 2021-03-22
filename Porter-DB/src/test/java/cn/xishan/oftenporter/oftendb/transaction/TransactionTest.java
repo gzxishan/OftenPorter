@@ -76,11 +76,11 @@ public class TransactionTest
         bridge.request(new BridgeRequest(PortMethod.GET, "/T1/Test/testOk")
                 .addParam("entity1", entity1)
                 .addParam("entity2", entity2), lResponse -> {
-                    assertTrue(testUnit.contains("1"));
-                    assertTrue(testUnit.contains("2"));
-                });
-        assertTrue(OftenObject.current()==null);
-        testPorter.testOk(entity1,entity2);
+            assertTrue(testUnit.contains("1"));
+            assertTrue(testUnit.contains("2"));
+        });
+        assertNull(OftenObject.current());
+        testPorter.testOk(entity1, entity2);
         assertTrue(testUnit.contains("1"));
         assertTrue(testUnit.contains("2"));
 
@@ -92,11 +92,12 @@ public class TransactionTest
             assertFalse(testUnit.contains("1"));
             assertFalse(testUnit.contains("2"));
         });
-        assertTrue(OftenObject.current()==null);
+        assertTrue(OftenObject.current() == null);
         try
         {
-            testPorter.testFail(entity1,entity2);
-        }catch (Exception e){
+            testPorter.testFail(entity1, entity2);
+        } catch (Exception e)
+        {
 
         }
         assertFalse(testUnit.contains("1"));
@@ -110,8 +111,8 @@ public class TransactionTest
             assertTrue(testUnit.contains("1"));
             assertTrue(testUnit.contains("2"));
         });
-        assertTrue(OftenObject.current()==null);
-        testPorter.testOk2(entity1,entity2);
+        assertTrue(OftenObject.current() == null);
+        testPorter.testOk2(entity1, entity2);
         assertTrue(testUnit.contains("1"));
         assertTrue(testUnit.contains("2"));
 
@@ -123,11 +124,12 @@ public class TransactionTest
             assertFalse(testUnit.contains("1"));
             assertFalse(testUnit.contains("2"));
         });
-        assertTrue(OftenObject.current()==null);
+        assertTrue(OftenObject.current() == null);
         try
         {
-            testPorter.testFail2(entity1,entity2);
-        }catch (Exception e){
+            testPorter.testFail2(entity1, entity2);
+        } catch (Exception e)
+        {
 
         }
         assertFalse(testUnit.contains("1"));
@@ -141,8 +143,8 @@ public class TransactionTest
             assertTrue(testUnit.contains("1"));
             assertTrue(testUnit.contains("2"));
         });
-        assertTrue(OftenObject.current()==null);
-        testPorter.testOkPoint(entity1,entity2);
+        assertTrue(OftenObject.current() == null);
+        testPorter.testOkPoint(entity1, entity2);
         assertTrue(testUnit.contains("1"));
         assertTrue(testUnit.contains("2"));
 
@@ -156,11 +158,12 @@ public class TransactionTest
             assertFalse(testUnit.contains("2"));
             assertTrue(testUnit.contains("3"));
         });
-        assertTrue(OftenObject.current()==null);
+        assertTrue(OftenObject.current() == null);
         try
         {
-            testPorter.testFailPoint(entity1,entity2,entity3);
-        }catch (Exception e){
+            testPorter.testFailPoint(entity1, entity2, entity3);
+        } catch (Exception e)
+        {
 
         }
         assertTrue(testUnit.contains("1"));
