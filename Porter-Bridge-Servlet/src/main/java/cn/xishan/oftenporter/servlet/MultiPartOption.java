@@ -16,10 +16,6 @@ public class MultiPartOption
     public int cacheSize = 1024 * 5;
     public int maxBytesEachFile;
     public int totalBytes;
-    /**
-     * 是否解析json对象为参数,默认为false。
-     */
-    public boolean decodeJsonParams = false;
 
     public MultiPartOption(String tempDir, int maxBytesEachFile, int totalBytes)
     {

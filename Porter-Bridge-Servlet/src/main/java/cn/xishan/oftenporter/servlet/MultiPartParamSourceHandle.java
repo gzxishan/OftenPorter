@@ -62,19 +62,7 @@ class MultiPartParamSourceHandle extends BodyParamSourceHandle
         }
 
         HttpServletRequest request = (HttpServletRequest) originalRequest;
-        if (ContentType.APP_JSON.name().equals(request.getContentType()))
-        {
-            if (multiPartOption.decodeJsonParams)
-            {
-                JSONObject jsonObject = JSON.parseObject(
-                        FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
-                ParamSource paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
-                return paramSource;
-            } else
-            {
-                return null;
-            }
-        } else if (!ServletFileUpload.isMultipartContent(request) ||
+        if (!ServletFileUpload.isMultipartContent(request) ||
                 porterFun.isAnnotationPresent(IgnoreDefaultMultipart.class) ||
                 porterClass.isAnnotationPresent(IgnoreDefaultMultipart.class)
         )

@@ -4,10 +4,7 @@ import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
 
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by https://github.com/CLovinr on 2016/9/2.
@@ -20,7 +17,7 @@ class DefaultUrlResult implements UrlDecoder.Result
 
     public DefaultUrlResult(Map<String, Object> params, String contextName, String classTied, String funTied)
     {
-        this.params = params;
+        this.params = params == null ? new HashMap<>() : params;
         this.contextName = contextName;
         this.classTied = classTied;
         this.funTied = funTied;

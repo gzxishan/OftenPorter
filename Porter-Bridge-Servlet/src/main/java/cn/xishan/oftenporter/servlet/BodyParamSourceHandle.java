@@ -16,6 +16,8 @@ import cn.xishan.oftenporter.porter.core.init.PorterConf;
 import cn.xishan.oftenporter.porter.core.util.FileTool;
 import cn.xishan.oftenporter.porter.core.util.OftenStrUtil;
 import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -37,6 +39,7 @@ public class BodyParamSourceHandle implements ParamSourceHandle
      */
     private static final Pattern ENCODE_PATTERN = Pattern.compile("charset=([^;]+)");
 
+
     public static void addBodyDealt(PorterConf porterConf)
     {
         porterConf.addStateListener(new StateListener.Adapter()
@@ -50,8 +53,23 @@ public class BodyParamSourceHandle implements ParamSourceHandle
         });
     }
 
+    /**
+     * 是否解析json对象为参数,默认为true。
+     */
+    private boolean decodeJsonParams = true;
+
     public BodyParamSourceHandle()
     {
+    }
+
+    public boolean isDecodeJsonParams()
+    {
+        return decodeJsonParams;
+    }
+
+    public void setDecodeJsonParams(boolean decodeJsonParams)
+    {
+        this.decodeJsonParams = decodeJsonParams;
     }
 
     /**
@@ -69,6 +87,7 @@ public class BodyParamSourceHandle implements ParamSourceHandle
         {
             return "utf-8";
         }
+
         String encode;
         Matcher matcher = ENCODE_PATTERN.matcher(contentType);
         if (matcher.find())
@@ -116,6 +135,14 @@ public class BodyParamSourceHandle implements ParamSourceHandle
                 Map paramsMap = fromEncoding(body, encoding);
                 addQueryParams(request, paramsMap, encoding);
                 paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
+            } else if (decodeJsonParams && ctype != null && ctype
+                    .contains(ContentType.APP_JSON.getType()) && !(porterFun
+                    .isAnnotationPresent(IgnoreDefaultJsonDecode.class) ||
+                    porterClass.isAnnotationPresent(IgnoreDefaultJsonDecode.class)))
+            {
+                JSONObject jsonObject = JSON.parseObject(
+                        FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
+                paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
             }
         }
 

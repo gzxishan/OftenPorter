@@ -58,6 +58,8 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
 
     @Property(value = "op.servlet.cors.http2https", defaultVal = "false")
     private Boolean isHttp2Https;
+
+
     /**
      * 是否添加put参数处理,见{@linkplain BodyParamSourceHandle PutParamSourceHandle}。
      */
@@ -664,6 +666,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         {
             BodyParamSourceHandle.addBodyDealt(porterConf);
         }
+
         for (OftenServerStateListener serverStateListener : getOftenServerStateListener(
                 getServletConfig().getServletContext()))
         {

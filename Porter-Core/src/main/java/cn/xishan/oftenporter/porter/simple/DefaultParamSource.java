@@ -4,9 +4,9 @@ package cn.xishan.oftenporter.porter.simple;
 import cn.xishan.oftenporter.porter.core.JResponse;
 import cn.xishan.oftenporter.porter.core.ResultCode;
 import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
-import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.advanced.UrlDecoder;
 import cn.xishan.oftenporter.porter.core.base.OftenRequest;
+import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.exception.OftenCallException;
 import cn.xishan.oftenporter.porter.core.util.EnumerationImpl;
 import cn.xishan.oftenporter.porter.core.util.OftenTool;
@@ -61,10 +61,12 @@ public class DefaultParamSource implements ParamSource
         {
             rs = request.getParameter(name);
         }
+
         if (OftenTool.isNullOrEmptyCharSequence(rs))
         {
             rs = null;
         }
+
         return (T) rs;
     }
 
