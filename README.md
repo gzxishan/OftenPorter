@@ -3,9 +3,9 @@
 
 ##
 # 版本
-当前最新版本为  [**1.2.186**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
+当前最新版本为  [**1.2.217**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.2.186-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.217-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
@@ -24,6 +24,8 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.217 2021/03/26
 1. 增加`TableOption.add2QueryArrayOfBack`；
 2. 修复`PackageUtil.getClassName`Url解码导致扫描不到的问题bug；
 3. 修复`MyBatisDaoImpl.existsTable`bug；
