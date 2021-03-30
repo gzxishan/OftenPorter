@@ -6,6 +6,7 @@ package cn.xishan.oftenporter.servlet;
 
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.ParamSourceHandle;
+import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.ParamSource;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
@@ -31,8 +32,7 @@ import java.util.regex.Pattern;
  *
  * @author ZhuiFeng
  */
-public class BodyParamSourceHandle implements ParamSourceHandle
-{
+public class BodyParamSourceHandle implements ParamSourceHandle {
 
     /**
      *
@@ -40,14 +40,11 @@ public class BodyParamSourceHandle implements ParamSourceHandle
     private static final Pattern ENCODE_PATTERN = Pattern.compile("charset=([^;]+)");
 
 
-    public static void addBodyDealt(PorterConf porterConf)
-    {
-        porterConf.addStateListener(new StateListener.Adapter()
-        {
+    public static void addBodyDealt(PorterConf porterConf) {
+        porterConf.addStateListener(new StateListener.Adapter() {
             @Override
             public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
-                    ParamSourceHandleManager paramSourceHandleManager)
-            {
+                    ParamSourceHandleManager paramSourceHandleManager) {
                 paramSourceHandleManager.addByMethod(new BodyParamSourceHandle(), PortMethod.PUT, PortMethod.POST);
             }
         });
@@ -58,17 +55,14 @@ public class BodyParamSourceHandle implements ParamSourceHandle
      */
     private boolean decodeJsonParams = true;
 
-    public BodyParamSourceHandle()
-    {
+    public BodyParamSourceHandle() {
     }
 
-    public boolean isDecodeJsonParams()
-    {
+    public boolean isDecodeJsonParams() {
         return decodeJsonParams;
     }
 
-    public void setDecodeJsonParams(boolean decodeJsonParams)
-    {
+    public void setDecodeJsonParams(boolean decodeJsonParams) {
         this.decodeJsonParams = decodeJsonParams;
     }
 
@@ -78,71 +72,73 @@ public class BodyParamSourceHandle implements ParamSourceHandle
      * @param contentType
      * @return
      */
-    private String getEncode(String contentType)
-    {
-        if (contentType != null)
-        {
+    private String getEncode(String contentType) {
+        if (contentType != null) {
             contentType = contentType.toLowerCase();
-        } else
-        {
+        } else {
             return "utf-8";
         }
 
         String encode;
         Matcher matcher = ENCODE_PATTERN.matcher(contentType);
-        if (matcher.find())
-        {
+        if (matcher.find()) {
             encode = matcher.group(1);
-        } else
-        {
+        } else {
             encode = "utf-8";
         }
         return encode;
     }
 
-    protected void addQueryParams(HttpServletRequest request, Map paramsMap, String encoding)
-    {
+    protected void addQueryParams(HttpServletRequest request, Map paramsMap, String encoding) {
         String query = request.getQueryString();
-        if (query != null)
-        {
-            try
-            {
+        if (query != null) {
+            try {
                 paramsMap.putAll(fromEncoding(query, encoding));
-            } catch (UnsupportedEncodingException e)
-            {
+            } catch (UnsupportedEncodingException e) {
                 throw new OftenCallException(e);
             }
         }
     }
 
     @Override
-    public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception
-    {
+    public ParamSource get(OftenObject oftenObject, Class<?> porterClass, Method porterFun) throws Exception {
         HttpServletRequest request = oftenObject.getRequest().getOriginalRequest();
         ParamSource paramSource = null;
-        if (request != null)
-        {
+        if (request != null) {
             String ctype = request.getContentType();
-            if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType()))
-            {
+            if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType())) {
                 String encoding = getEncode(ctype);
 
                 String body = FileTool.getString(request.getInputStream());
-                if (body == null)
-                {
+                if (body == null) {
                     return null;
                 }
                 Map paramsMap = fromEncoding(body, encoding);
                 addQueryParams(request, paramsMap, encoding);
                 paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
-            } else if (decodeJsonParams && ctype != null && ctype
-                    .contains(ContentType.APP_JSON.getType()) && !(porterFun
-                    .isAnnotationPresent(IgnoreDefaultJsonDecode.class) ||
-                    porterClass.isAnnotationPresent(IgnoreDefaultJsonDecode.class)))
-            {
-                JSONObject jsonObject = JSON.parseObject(
-                        FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
-                paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
+            } else if (decodeJsonParams) {
+                JsonDecodeOption decodeOption = AnnoUtil.getAnnotation(porterFun, porterClass, JsonDecodeOption.class);
+                boolean decodeJson = false;
+                if (decodeOption == null) {
+                    decodeJson = ctype.contains(ContentType.APP_JSON.getType());
+                } else {
+                    switch (decodeOption.decodeType()) {
+                        case Ignore:
+                            break;
+                        case Force:
+                            decodeJson = true;
+                            break;
+                        case Auto:
+                            decodeJson = ContentType.APP_JSON.getType().equals(ctype);
+                            break;
+                    }
+                }
+
+                if (decodeJson) {
+                    JSONObject jsonObject = JSON.parseObject(
+                            FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
+                    paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
+                }
             }
         }
 
@@ -158,8 +154,7 @@ public class BodyParamSourceHandle implements ParamSourceHandle
      * @throws UnsupportedEncodingException
      */
     public static Map<String, String> fromEncoding(String encodingContent,
-            String encoding) throws UnsupportedEncodingException
-    {
+            String encoding) throws UnsupportedEncodingException {
         return OftenStrUtil.fromEncoding(encodingContent, encoding);
     }
 

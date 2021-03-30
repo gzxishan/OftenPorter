@@ -24,6 +24,7 @@
 
 ## 发布记录
 ### v进行中
+1. 加入`@JsonDecodeOption`注解；
 
 ### v1.2.217 2021/03/26
 1. 增加`TableOption.add2QueryArrayOfBack`；
