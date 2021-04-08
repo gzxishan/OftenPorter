@@ -591,9 +591,9 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
         if (OftenTool.notEmpty(origin) && !origin.equals((host = OftenServletRequest
                 .getHost(request, isHttp2Https))))
         {//跨域请求
-            if (LOGGER.isWarnEnabled())
+            if (LOGGER.isInfoEnabled())
             {
-                LOGGER.warn("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
+                LOGGER.info("method={},origin={},host={},uri={}", method, origin, host, request.getRequestURI());
             }
 
             CorsAccess corsAccess = customerCorsAccess != null ? customerCorsAccess : AnnoUtil
@@ -631,6 +631,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
             {
                 return CorsType.Customer;//自定义跨域设置。
             }
+
             for (PortMethod m : corsAccess.allowMethods())
             {
                 if (m == method)
@@ -651,6 +652,7 @@ abstract class OftenServlet extends HttpServlet implements CommonMain
                 return CorsType.NotPass;//禁止跨域
             }
         }
+
         return CorsType.Pass;
     }
 
