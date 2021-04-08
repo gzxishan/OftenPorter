@@ -37,8 +37,7 @@ import java.util.Random;
 @BindEntities({User.class})
 @Mixin({HelloMixinPorter.class})
 @MixinParseFrom({MinxParseTest.class})
-public class HelloPorter extends SuperSetPorter
-{
+public class HelloPorter extends SuperSetPorter {
     private static final Logger LOGGER = LoggerFactory.getLogger(HelloPorter.class);
 
 
@@ -64,12 +63,11 @@ public class HelloPorter extends SuperSetPorter
     private static TypeTo typeTo;
 
     @PortIn(value = "say", nece = {"name", "age"})
-    public Object say(OftenObject oftenObject) throws Exception
-    {
+    public Object say(OftenObject oftenObject) throws Exception {
         oftenObject.url().setParam("start", "2020-05-28T18:30:38.000Z");
-        Date start = typeTo
-                .parseParameter(getClass(), HelloPorter.class.getDeclaredMethod("testParseParameter", Date.class), 0,
-                        oftenObject);
+        Date start =
+                typeTo.parseParameter(getClass(), HelloPorter.class.getDeclaredMethod("testParseParameter", Date.class),
+                        0, oftenObject);
         this.testParseParameter(start);
 
 
@@ -78,22 +76,23 @@ public class HelloPorter extends SuperSetPorter
         return oftenObject._fn[0] + "+" + age;
     }
 
-    private void testParseParameter(@Nece("start") Date start)
-    {
+    private void testParseParameter(@Nece("start") Date start) {
         //LOGGER.info("start:{}", start);
     }
 
     @PortIn(tiedType = TiedType.METHOD, nece = {"sex"}, method = PortMethod.POST)
     @Parse(paramNames = "sex", parser = IntParser.class)
-    public Object sayHelloPost(OftenObject oftenObject)
-    {
+    public Object sayHelloPost(OftenObject oftenObject) {
         int sex = (int) oftenObject._fn[0];
         return oftenObject.funTied() + ":" + sex;
     }
 
     @PortIn(tiedType = TiedType.METHOD, nece = {"sex"})
-    public Object sayHello(OftenObject oftenObject)
-    {
+    public Object sayHello(OftenObject oftenObject,
+            @Nece(varName = "requestData", requestData = true) String requestData) {
+        Assert.assertEquals("requestData", requestData);
+        Assert.assertNull(oftenObject.getParamSource().getParam("requestData"));
+
         String sex = (String) oftenObject._fn[0];
         return oftenObject.funTied() + "=" + sex;
     }
@@ -101,11 +100,12 @@ public class HelloPorter extends SuperSetPorter
     @PortIn("parseObject")
     @Parse(paramNames = "myAge", parser = IntParser.class)
     @BindEntities({Article.class})
-    public Object parseObject(OftenObject oftenObject)
-    {
+    public Object parseObject(OftenObject oftenObject) {
         Article article = oftenObject.fentity(0);
         User user = oftenObject.centity(0);
         // LOGGER.debug("{}\n{}", article, user);
+        Assert.assertEquals("requestData", article.requestData);
+        Assert.assertNull(oftenObject.getParamSource().getParam("requestData"));
 
         return random.nextBoolean() ? user : article;
     }
@@ -113,10 +113,8 @@ public class HelloPorter extends SuperSetPorter
 
     @PortStart
     @LogMethodInvoke
-    public void onStart()
-    {
-        try
-        {
+    public void onStart() {
+        try {
             proxyUnit.test();
             LOGGER.debug("{},{},{},{},{}", autoSetObj, autoSetObj2, autoSetObj3, autoSetObj4, globalSet);
             JSONObject jsonObject = new JSONObject();
@@ -132,16 +130,14 @@ public class HelloPorter extends SuperSetPorter
             Person person = typeTo.parse(Person.class, jsonObject);
 
             LOGGER.debug("{},{}", user, person);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LogUtil.printErrPosLn(e);
         }
 
     }
 
     @PortDestroy
-    public void onDestroy()
-    {
+    public void onDestroy() {
         LOGGER.debug("");
     }
 

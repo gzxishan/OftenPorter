@@ -43,23 +43,19 @@ import static org.junit.Assert.*;
 /**
  * Created by https://github.com/CLovinr on 2016/9/4.
  */
-public class TestLocalMain
-{
+public class TestLocalMain {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestLocalMain.class);
 
-    interface Listener
-    {
+    interface Listener {
         void onEnd(long totalDTime, int n);
     }
 
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         new TestLocalMain().main();
     }
 
     @Test
-    public void main()
-    {
+    public void main() {
         PropertyConfigurator.configure(getClass().getResourceAsStream("/log4j.properties"));
         final LocalMain localMain = new LocalMain(true, new BridgeName("P1"), "utf-8");
         PorterConf porterConf = localMain.newPorterConf();
@@ -67,8 +63,7 @@ public class TestLocalMain
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter");
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".porter3");
         porterConf.getSeekPackages().addPackages(getClass().getPackage().getName() + ".mixin");
-        porterConf.getSeekPackages().addClassPorter(My2Porter.class)
-                .addObjectPorter(new MyPorter("Hello MyPorter!"));
+        porterConf.getSeekPackages().addClassPorter(My2Porter.class).addObjectPorter(new MyPorter("Hello MyPorter!"));
 
 
         porterConf.addNormalAspectAdvancedHandle(
@@ -85,63 +80,54 @@ public class TestLocalMain
         porterConf.addContextAutoSet("globalName", "全局对象");
         porterConf.addContextAutoSet(new ProxyUnit(new Random()));
 
-        porterConf.setDefaultReturnFactory(new DefaultReturnFactory()
-        {
+        porterConf.setDefaultReturnFactory(new DefaultReturnFactory() {
             @Override
             public Object getVoidReturn(OftenObject oftenObject, Object finalPorterObject, Object handleObject,
-                    Object handleMethod)
-            {
+                    Object handleMethod) {
                 return Void.TYPE;
             }
 
             @Override
             public Object getNullReturn(OftenObject oftenObject, Object finalPorterObject, Object handleObject,
-                    Object handleMethod)
-            {
+                    Object handleMethod) {
                 return "null-return";
             }
 
             @Override
             public Object getExReturn(OftenObject oftenObject, Object finalPorterObject, Object handleObject,
-                    Object handleMethod, Throwable throwable) throws Throwable
-            {
+                    Object handleMethod, Throwable throwable) throws Throwable {
                 throw throwable;
             }
         });
 
         final Logger logger = LoggerFactory.getLogger(getClass());
 
-        porterConf.addStateListener(new StateListener.Adapter()
-        {
+        porterConf.addStateListener(new StateListener.Adapter() {
             @Override
             public void beforeSeek(InitParamSource initParamSource, PorterConf porterConf,
-                    ParamSourceHandleManager paramSourceHandleManager)
-            {
+                    ParamSourceHandleManager paramSourceHandleManager) {
                 initParamSource.putInitParameter("debug", true);
                 logger.debug("");
             }
 
             @Override
-            public void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager)
-            {
+            public void afterSeek(InitParamSource initParamSource, ParamSourceHandleManager paramSourceHandleManager) {
                 logger.debug("");
             }
 
             @Override
-            public void beforeDestroy()
-            {
+            public void beforeDestroy() {
                 logger.debug("");
             }
 
             @Override
-            public void afterDestroy()
-            {
+            public void afterDestroy() {
                 logger.debug("");
             }
         });
 
-        porterConf.addContextCheck((wObject, type, handle) ->
-        {
+        porterConf.addContextCheck((oftenObject, type, handle) -> {
+            oftenObject.putRequestData("requestData", "requestData");
             handle.next();
         });
 
@@ -152,8 +138,7 @@ public class TestLocalMain
         int n = 10 * 10000;
         final int threads = Runtime.getRuntime().availableProcessors();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(threads, r ->
-        {
+        ExecutorService executorService = Executors.newFixedThreadPool(threads, r -> {
             Thread thread = new Thread(r);
             thread.setDaemon(false);
             return thread;
@@ -162,8 +147,7 @@ public class TestLocalMain
 
         //多线程下测试
         // final long time = System.nanoTime();
-        exe(executorService, n, localMain.getBridgeLinker().currentBridge(), (totalDtime, N) ->
-        {
+        exe(executorService, n, localMain.getBridgeLinker().currentBridge(), (totalDtime, N) -> {
 
             logger.debug("******************世界你好，中国你好********************");
             logger.debug("threads={},n={}:total={}ms,average={}ms", threads, N, 1.0f * totalDtime,
@@ -172,46 +156,36 @@ public class TestLocalMain
 
             logger.debug("**************AutoSet delay test******************");
             localMain.getBridgeLinker().currentBridge()
-                    .request(new BridgeRequest(PortMethod.GET, "/Local-1/Delay/test"),
-                            lResponse -> logger.debug("{}", lResponse));
+                     .request(new BridgeRequest(PortMethod.GET, "/Local-1/Delay/test"),
+                             lResponse -> logger.debug("{}", lResponse));
 
-            try
-            {
+            try {
                 hotTest(logger, localMain);
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
 
             List<Object> autoSetterList = new ArrayList<>();
-            String[] destroyResult = new String[]{
-                    "init"
-            };
-            try
-            {
+            String[] destroyResult = new String[]{"init"};
+            try {
                 //手动注入测试
-                autoSetter.forInstance(new Object[]{
-                        new Object()
-                        {
-                            @AutoSet
-                            My2Porter my2Porter;
-                            @AutoSet
-                            ProxyUnit proxyUnit;
+                autoSetter.forInstance(new Object[]{new Object() {
+                    @AutoSet
+                    My2Porter my2Porter;
+                    @AutoSet
+                    ProxyUnit proxyUnit;
 
-                            @AutoSet.SetOk
-                            public void setOk()
-                            {
-                                autoSetterList.add(my2Porter);
-                                autoSetterList.add(proxyUnit);
-                            }
+                    @AutoSet.SetOk
+                    public void setOk() {
+                        autoSetterList.add(my2Porter);
+                        autoSetterList.add(proxyUnit);
+                    }
 
-                            @PortDestroy
-                            public void onDestroy()
-                            {
-                                destroyResult[0] = "destroy-ok";
-                            }
-                        }
-                });
+                    @PortDestroy
+                    public void onDestroy() {
+                        destroyResult[0] = "destroy-ok";
+                    }
+                }});
 
                 Object origin = new ForInstanceMayProxyObj();
                 Object toString = autoSetter.forInstanceMayProxy(origin);
@@ -221,11 +195,9 @@ public class TestLocalMain
 
                 localMain.destroyAll();
                 executorService.shutdown();
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-            } finally
-            {
+            } finally {
                 assertEquals(My2Porter.class, getClass(autoSetterList, 0));
                 assertEquals(ProxyUnit.class, getClass(autoSetterList, 1));
                 assertEquals("destroy-ok", destroyResult[0]);
@@ -238,36 +210,29 @@ public class TestLocalMain
 
     }
 
-    static class ForInstanceMayProxyObj
-    {
+    static class ForInstanceMayProxyObj {
         @LogMethodInvoke
         @Override
-        public String toString()
-        {
+        public String toString() {
             return super.toString();
         }
     }
 
-    private Class getClass(List<Object> list, int index)
-    {
+    private Class getClass(List<Object> list, int index) {
         Object obj = null;
-        if (index < list.size())
-        {
+        if (index < list.size()) {
             obj = list.get(index);
         }
         return obj == null ? null : ProxyUtil.unwrapProxyForGeneric(obj);
     }
 
-    private void hotTest(final Logger logger, CommonMain commonMain) throws Exception
-    {
+    private void hotTest(final Logger logger, CommonMain commonMain) throws Exception {
         logger.debug("热部署测试...");
-        File dir = new File(System.getProperty(
-                "user.home") + File.separator + "porter-core" + File.separator + "test" + File.separator);
-        if (!dir.exists())
-        {
+        File dir = new File(System.getProperty("user.home") + File.separator + "porter-core" + File.separator + "test" +
+                File.separator);
+        if (!dir.exists()) {
             boolean rs = dir.mkdirs();
-            if (!rs)
-            {
+            if (!rs) {
                 throw new IOException("mkdirs failed:" + dir.getAbsolutePath());
             }
         }
@@ -280,8 +245,7 @@ public class TestLocalMain
         conf.getSeekPackages().addPackages("cn.xishan.oftenporter.porter.local.hot");
         conf.setOftenContextName("hot-test");
         commonMain.startOne(conf);
-        commonMain.getBridgeLinker().currentBridge().request(
-                new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
+        commonMain.getBridgeLinker().currentBridge().request(new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
                 lResponse -> logger.debug(lResponse.toString()));
         commonMain.destroyOne("hot-test");
         //////////////////////////////////////
@@ -291,43 +255,40 @@ public class TestLocalMain
         conf.getSeekPackages().addPackages("cn.xishan.oftenporter.porter.local.hot");
         conf.setContextName("hot-test");
         commonMain.startOne(conf);
-        commonMain.getBridgeLinker().currentBridge()
-                .request(new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
-                        lResponse -> logger.debug(lResponse.toString()));
+        commonMain.getBridgeLinker().currentBridge().request(new BridgeRequest(PortMethod.GET, "/hot-test/Hot/show"),
+                lResponse -> logger.debug(lResponse.toString()));
     }
 
-    private void exe(final ExecutorService executorService, final int n, final IBridge bridge, final Listener listener)
-    {
+    private void exe(final ExecutorService executorService, final int n, final IBridge bridge,
+            final Listener listener) {
 
         final AtomicInteger count = new AtomicInteger(0);
         final AtomicLong dtime = new AtomicLong(0);
 
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
 
-            if (executorService == null)
-            {
-                bridge.request(
-                        new BridgeRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明")
-                                .addParam("age", "22")
-                                .addParam("myAge", 22),
+            if (executorService == null) {
+                bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明")
+                                                                                      .addParam("age", "22")
+                                                                                      .addParam("myAge", 22),
                         lResponse -> assertEquals("小明+22", lResponse.getResponse()));
-            } else
-            {
-                executorService.execute(() ->
-                {
+            } else {
+                executorService.execute(() -> {
                     long time = System.currentTimeMillis();
 
                     bridge.request(
                             new BridgeRequest(PortMethod.GET, "/Local-1/Hello/parseObject").addParam("title", "转换成对象")
-                                    .addParam("comments", "['c1','c2']")
-                                    .addParam("content", "this is content!")
-                                    .addParam("time", String.valueOf(System.currentTimeMillis()))
-                                    .addParam("name", "小傻").addParam("myAge", "18"),
-                            lResponse ->
-                                    assertTrue(
-                                            lResponse.getResponse() instanceof User || lResponse
-                                                    .getResponse() instanceof Article));
+                                                                                           .addParam("comments",
+                                                                                                   "['c1','c2']")
+                                                                                           .addParam("content",
+                                                                                                   "this is content!")
+                                                                                           .addParam("time",
+                                                                                                   String.valueOf(
+                                                                                                           System.currentTimeMillis()))
+                                                                                           .addParam("name", "小傻")
+                                                                                           .addParam("myAge", "18"),
+                            lResponse -> assertTrue(lResponse.getResponse() instanceof User ||
+                                    lResponse.getResponse() instanceof Article));
 
                     bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/helloMixin"),
                             lResponse -> assertEquals("Mixin!", lResponse.getResponse()));
@@ -338,32 +299,33 @@ public class TestLocalMain
                             lResponse -> assertEquals("MixinTo!", lResponse.getResponse()));
 
                     bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/say").addParam("name", "小明")
-                                    .addParam("age", "22")
-                                    .addParam("myAge", 22),
+                                                                                          .addParam("age", "22")
+                                                                                          .addParam("myAge", 22),
                             lResponse -> assertEquals("小明+22", lResponse.getResponse()));
 
                     bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/").addParam("sex", "男")
-                            .addParam("name", "name2")
-                            .addParam("myAge", 10), lResponse -> assertEquals("=男", lResponse.getResponse()));
+                                                                                       .addParam("name", "name2")
+                                                                                       .addParam("myAge", 10),
+                            lResponse -> assertEquals("=男", lResponse.getResponse()));
 
 
-                    bridge.request(
-                            new BridgeRequest(PortMethod.GET, "/Local-1/Hello").setMethod(PortMethod.POST)
-                                    .addParam("name", "name3")
-                                    .addParam("myAge", 10).addParam("sex", "0"),
+                    bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello").setMethod(PortMethod.POST)
+                                                                                      .addParam("name", "name3")
+                                                                                      .addParam("myAge", 10)
+                                                                                      .addParam("sex", "0"),
                             lResponse -> assertEquals(":0", lResponse.getResponse()));
 
                     bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/Hello/hihihi").setMethod(PortMethod.POST)
-                                    .addParam("name", "name4")
-                                    .addParam("myAge", 10).addParam("sex", "0"),
+                                                                                             .addParam("name", "name4")
+                                                                                             .addParam("myAge", 10)
+                                                                                             .addParam("sex", "0"),
                             lResponse -> assertEquals("hihihi:0", lResponse.getResponse()));
 
                     bridge.request(new BridgeRequest(PortMethod.GET, "/Local-1/My2/hello"),
                             lResponse -> assertEquals("My2Porter", lResponse.getResponse()));
 
                     dtime.addAndGet(System.currentTimeMillis() - time);
-                    if (count.incrementAndGet() == n)
-                    {
+                    if (count.incrementAndGet() == n) {
                         listener.onEnd(dtime.get(), n);
                         executorService.shutdown();
                     }
@@ -373,17 +335,13 @@ public class TestLocalMain
 
         }
 
-        if (executorService != null)
-        {
+        if (executorService != null) {
 
-            try
-            {
-                while (!executorService.isTerminated())
-                {
+            try {
+                while (!executorService.isTerminated()) {
                     Thread.sleep(500);
                 }
-            } catch (InterruptedException e)
-            {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
 
             }

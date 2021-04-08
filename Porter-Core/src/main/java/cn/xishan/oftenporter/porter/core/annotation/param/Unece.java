@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.annotation.*;
 
@@ -10,12 +11,10 @@ import java.lang.annotation.*;
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,ElementType.TYPE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Inherited
 @Documented
-//@Repeatable(Uneces.class)
-public @interface Unece
-{
+public @interface Unece {
     /**
      * 如果与{@linkplain #varName()}都为空，表示使用变量的名称。
      *
@@ -30,18 +29,25 @@ public @interface Unece
      */
     String varName() default "";
 
+    /**
+     * 是否调用{@linkplain OftenObject#getRequestData(String)}获取数据
+     */
+    boolean requestData() default false;
+
 
     /**
      * 是否执行trim()操作
+     *
      * @return
      */
     boolean trim() default true;
 
     /**
      * 是否删除所有空白符
+     *
      * @return
      */
-    boolean clearBlank()default false;
+    boolean clearBlank() default false;
 
     /**
      * 删除字符的正则表达式

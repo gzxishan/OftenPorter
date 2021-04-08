@@ -30,14 +30,12 @@ import java.util.regex.Pattern;
  * 接口处理的工具类。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public class PortUtil
-{
+public class PortUtil {
     private static final String TIED_ACCEPTED = "^[a-zA-Z0-9%_.$&=\\-]+$";
     private static final Pattern TIED_NAME_PATTERN = Pattern.compile(TIED_ACCEPTED);
     private final Logger LOGGER;
 
-    public PortUtil()
-    {
+    public PortUtil() {
         LOGGER = LogUtil.logger(PortUtil.class);
     }
 
@@ -47,15 +45,12 @@ public class PortUtil
      * @param clazz
      * @return
      */
-    public static final boolean willIgnoreAdvanced(Class clazz)
-    {
+    public static final boolean willIgnoreAdvanced(Class clazz) {
         Package pkg = clazz.getPackage();
         String pkgName = pkg != null ? pkg.getName() : null;
-        if (pkgName != null && (pkgName.startsWith("java.") || pkgName.startsWith("javax.") || clazz.isPrimitive()))
-        {
+        if (pkgName != null && (pkgName.startsWith("java.") || pkgName.startsWith("javax.") || clazz.isPrimitive())) {
             return true;
-        } else
-        {
+        } else {
             return false;
         }
     }
@@ -68,30 +63,23 @@ public class PortUtil
      * @return
      */
     public static String[] tieds(PortIn portIn, Class<?> clazz, SeekPackages.Tiedfix classTiedfix,
-            boolean enableDefaultValue)
-    {
+            boolean enableDefaultValue) {
         String[] names = tieds(portIn);
-        for (int i = 0; i < names.length; i++)
-        {
+        for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            if (OftenTool.isEmpty(name))
-            {
-                if (!enableDefaultValue)
-                {
+            if (OftenTool.isEmpty(name)) {
+                if (!enableDefaultValue) {
                     throw new InitException("default value is not enable for " + clazz);
                 }
                 name = tiedIgnorePortIn(clazz);
             }
-            if (classTiedfix != null)
-            {
-                if (classTiedfix.getPrefix() != null && (!classTiedfix.isCheckExists() || !name
-                        .startsWith(classTiedfix.getPrefix())))
-                {
+            if (classTiedfix != null) {
+                if (classTiedfix.getPrefix() != null &&
+                        (!classTiedfix.isCheckExists() || !name.startsWith(classTiedfix.getPrefix()))) {
                     name = classTiedfix.getPrefix() + name;
                 }
-                if (classTiedfix.getSuffix() != null && (!classTiedfix.isCheckExists() || !name
-                        .endsWith(classTiedfix.getSuffix())))
-                {
+                if (classTiedfix.getSuffix() != null &&
+                        (!classTiedfix.isCheckExists() || !name.endsWith(classTiedfix.getSuffix()))) {
                     name += classTiedfix.getSuffix();
                 }
             }
@@ -100,29 +88,27 @@ public class PortUtil
         return names;
     }
 
-    public static Class<?> getRealClass(Object object)
-    {
-//        if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
-//        {
-//            AutoSetObjForAspectOfNormal.IOPProxy iopProxy =
-//                    (AutoSetObjForAspectOfNormal.IOPProxy) object;
-//            return iopProxy.get_R_e_a_l_C_l_a_s_s();
-//        } else
-//        {
-//            return object.getClass();
-//        }
+    public static Class<?> getRealClass(Object object) {
+        //        if (object instanceof AutoSetObjForAspectOfNormal.IOPProxy)
+        //        {
+        //            AutoSetObjForAspectOfNormal.IOPProxy iopProxy =
+        //                    (AutoSetObjForAspectOfNormal.IOPProxy) object;
+        //            return iopProxy.get_R_e_a_l_C_l_a_s_s();
+        //        } else
+        //        {
+        //            return object.getClass();
+        //        }
         return getRealClass(object.getClass());
     }
 
-    public static Class<?> getRealClass(Class mayProxyChildClass)
-    {
-//        if (OftenTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
-//        {
-//            return mayProxyChildClass.getSuperclass();
-//        } else
-//        {
-//            return mayProxyChildClass;
-//        }
+    public static Class<?> getRealClass(Class mayProxyChildClass) {
+        //        if (OftenTool.isAssignable(mayProxyChildClass, AutoSetObjForAspectOfNormal.IOPProxy.class))
+        //        {
+        //            return mayProxyChildClass.getSuperclass();
+        //        } else
+        //        {
+        //            return mayProxyChildClass;
+        //        }
         return ProxyUtil.unwrapProxyForGeneric(mayProxyChildClass);
     }
 
@@ -134,26 +120,20 @@ public class PortUtil
      * @return
      */
     public static String[] tieds(ContextPorter.SrcPorter srcPorter, PortIn portIn, Method method,
-            boolean enableDefaultValue)
-    {
+            boolean enableDefaultValue) {
         String[] names = tieds(portIn);
-        for (int i = 0; i < names.length; i++)
-        {
+        for (int i = 0; i < names.length; i++) {
             String name = names[i];
-            if (OftenTool.isEmpty(name))
-            {
-                if (!enableDefaultValue)
-                {
+            if (OftenTool.isEmpty(name)) {
+                if (!enableDefaultValue) {
                     throw new InitException("default value is not enable for " + method);
                 }
                 name = method.getName();
             }
-            if (OftenTool.notEmpty(srcPorter.getFunTiedPrefix()))
-            {
+            if (OftenTool.notEmpty(srcPorter.getFunTiedPrefix())) {
                 name = srcPorter.getFunTiedPrefix() + name;
             }
-            if (OftenTool.notEmpty(srcPorter.getFunTiedSuffix()))
-            {
+            if (OftenTool.notEmpty(srcPorter.getFunTiedSuffix())) {
                 name = name + srcPorter.getFunTiedSuffix();
             }
             names[i] = checkTied(name);
@@ -161,24 +141,19 @@ public class PortUtil
         return names;
     }
 
-    private static String tied(PortIn portIn)
-    {
+    private static String tied(PortIn portIn) {
         String name = portIn.value();
-        if (OftenTool.isEmpty(name))
-        {
+        if (OftenTool.isEmpty(name)) {
             name = portIn.tied();
         }
         return name;
     }
 
-    private static String[] tieds(PortIn portIn)
-    {
+    private static String[] tieds(PortIn portIn) {
         String[] tieds = portIn.tieds();
-        if (tieds.length == 0)
-        {
+        if (tieds.length == 0) {
             String name = portIn.value();
-            if (OftenTool.isEmpty(name))
-            {
+            if (OftenTool.isEmpty(name)) {
                 name = portIn.tied();
             }
             tieds = new String[]{name};
@@ -186,32 +161,26 @@ public class PortUtil
         return tieds;
     }
 
-    public static String tied(Unece unece, Field field, boolean enableDefaultValue)
-    {
+    public static String tied(Unece unece, Field field, boolean enableDefaultValue) {
         String name = unece.value();
         String varName = unece.varName();
         return getTied(unece, name, varName, field, enableDefaultValue);
     }
 
     private static String getTied(Object neceOrUnece, String name, String varName, Field field,
-            boolean enableDefaultValue)
-    {
-        if (OftenTool.isEmptyOfAll(name, varName))
-        {
-            if (!enableDefaultValue)
-            {
+            boolean enableDefaultValue) {
+        if (OftenTool.isEmptyOfAll(name, varName)) {
+            if (!enableDefaultValue) {
                 throw new InitException("default value is not enable for " + neceOrUnece + " in field '" + field + "'");
             }
             name = field.getName();
-        } else if (OftenTool.isEmpty(name))
-        {
+        } else if (OftenTool.isEmpty(name)) {
             name = varName;
         }
         return name;
     }
 
-    public static String tied(Nece nece, Field field, boolean enableDefaultValue)
-    {
+    public static String tied(Nece nece, Field field, boolean enableDefaultValue) {
         String name = nece.value();
         String varName = nece.varName();
         return getTied(nece, name, varName, field, enableDefaultValue);
@@ -224,45 +193,35 @@ public class PortUtil
      * @param clazz
      * @return
      */
-    public static String tied(PortIn portIn, Class<?> clazz, boolean enableDefaultValue)
-    {
+    public static String tied(PortIn portIn, Class<?> clazz, boolean enableDefaultValue) {
         String name = tied(portIn);
-        if (OftenTool.isEmpty(name))
-        {
-            if (!enableDefaultValue)
-            {
+        if (OftenTool.isEmpty(name)) {
+            if (!enableDefaultValue) {
                 throw new InitException("default value is not enable for " + clazz);
             }
             return tiedIgnorePortIn(clazz);
-        } else
-        {
+        } else {
             return checkTied(name);
         }
     }
 
-    public static String tied(Class<?> clazz)
-    {
+    public static String tied(Class<?> clazz) {
         PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
         String tiedName = portIn != null ? tied(portIn) : null;
-        if (OftenTool.isEmpty(tiedName))
-        {
+        if (OftenTool.isEmpty(tiedName)) {
             tiedName = tiedIgnorePortIn(clazz);
         }
         return tiedName;
     }
 
-    public static String tiedIgnorePortIn(Class<?> clazz)
-    {
+    public static String tiedIgnorePortIn(Class<?> clazz) {
         String className = clazz.getSimpleName();
-        if (className.endsWith("WPort"))
-        {
+        if (className.endsWith("WPort")) {
             className = className.substring(0, className.length() - 4);
-        } else if (className.endsWith("Porter"))
-        {
+        } else if (className.endsWith("Porter")) {
             className = className.substring(0, className.length() - 6);
         }
-        if (className.equals(""))
-        {
+        if (className.equals("")) {
             className = clazz.getSimpleName();
         }
         return checkTied(className);
@@ -275,11 +234,9 @@ public class PortUtil
      * @param clazz 要判断的类。
      * @return
      */
-    public static boolean isJustPortInClass(Class<?> clazz)
-    {
-        return !Modifier.isAbstract(clazz.getModifiers()) && AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, PortIn.class) && !AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, MixinOnly.class) && getMixinTos(clazz).length == 0;
+    public static boolean isJustPortInClass(Class<?> clazz) {
+        return !Modifier.isAbstract(clazz.getModifiers()) && AnnoUtil.isOneOfAnnotationsPresent(clazz, PortIn.class) &&
+                !AnnoUtil.isOneOfAnnotationsPresent(clazz, MixinOnly.class) && getMixinTos(clazz).length == 0;
     }
 
     /**
@@ -288,8 +245,7 @@ public class PortUtil
      * @param clazz
      * @return
      */
-    public static boolean isPorter(Class clazz)
-    {
+    public static boolean isPorter(Class clazz) {
         return isJustPortInClass(clazz) || isMixinPortClass(clazz);
     }
 
@@ -299,28 +255,24 @@ public class PortUtil
      * @param clazz 要判断的类。
      * @return
      */
-    public static boolean isMixinPortClass(Class<?> clazz)
-    {
+    public static boolean isMixinPortClass(Class<?> clazz) {
 
-        return !Modifier.isAbstract(clazz.getModifiers()) && (AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class) || getMixinTos(clazz).length > 0);
+        return !Modifier.isAbstract(clazz.getModifiers()) &&
+                (AnnoUtil.isOneOfAnnotationsPresent(clazz, PortIn.class, MixinOnly.class) ||
+                        getMixinTos(clazz).length > 0);
     }
 
-    public static MixinTo[] getMixinTos(Class<?> clazz)
-    {
+    public static MixinTo[] getMixinTos(Class<?> clazz) {
         MixinTo[] mixinTos = AnnoUtil.getRepeatableAnnotations(clazz, MixinTo.class);
         return mixinTos;
     }
 
 
-    public static boolean enableMixinByMixinTo(Class<?> clazz)
-    {
+    public static boolean enableMixinByMixinTo(Class<?> clazz) {
         MixinTo[] mixinTos = getMixinTos(clazz);
         boolean enable = true;
-        for (MixinTo mixinTo : mixinTos)
-        {
-            if (!mixinTo.enableMixin())
-            {
+        for (MixinTo mixinTo : mixinTos) {
+            if (!mixinTo.enableMixin()) {
                 enable = false;
                 break;
             }
@@ -334,28 +286,22 @@ public class PortUtil
      * @param name
      * @return
      */
-    public static void checkName(String name) throws RuntimeException
-    {
+    public static void checkName(String name) throws RuntimeException {
         checkTied(name);
     }
 
-    private static String checkTied(String tiedName)
-    {
-        if (!TIED_NAME_PATTERN.matcher(tiedName).find())
-        {
+    private static String checkTied(String tiedName) {
+        if (!TIED_NAME_PATTERN.matcher(tiedName).find()) {
             throw new RuntimeException("Illegal value '" + tiedName + "'(accepted-pattern:" + TIED_ACCEPTED + ")");
         }
         return tiedName;
     }
 
 
-    public static Object[] newArray(Name[] names)
-    {
-        if (names.length == 0)
-        {
+    public static Object[] newArray(Name[] names) {
+        if (names.length == 0) {
             return OftenTool.EMPTY_OBJECT_ARRAY;
-        } else
-        {
+        } else {
             return new Object[names.length];
         }
     }
@@ -366,13 +312,9 @@ public class PortUtil
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
     public Object paramDealOne(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
-            String optionKey,
-            ParamSource paramSource,
-            TypeParserStore currentTypeParserStore)
-    {
+            String optionKey, ParamSource paramSource, TypeParserStore currentTypeParserStore) {
         return paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one, optionKey, paramSource,
-                currentTypeParserStore,
-                "");
+                currentTypeParserStore, "");
     }
 
     /**
@@ -380,48 +322,37 @@ public class PortUtil
      * 返回{@linkplain ParamDealt.FailedReason}表示失败，否则成功。
      */
     private Object paramDealOne(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
-            String optionKey,
-            ParamSource paramSource,
-            TypeParserStore currentTypeParserStore, String namePrefix)
-    {
+            String optionKey, ParamSource paramSource, TypeParserStore currentTypeParserStore, String namePrefix) {
         Object obj;
-        try
-        {
+        try {
 
             {
                 Object value = null;
-                if (OftenTool.notEmpty(optionKey))
-                {
+                if (OftenTool.notEmpty(optionKey)) {
                     value = paramSource.getParam(optionKey);
                 }
 
-                if (value == null)
-                {
+                if (value == null) {
                     value = paramSource.getParam(one.clazz.getName());
                 }
 
-                if (value != null && OftenTool.isAssignable(value.getClass(), one.clazz))
-                {
+                if (value != null && OftenTool.isAssignable(value.getClass(), one.clazz)) {
                     Name[] neces = one.inNames.nece;
                     //判断必须值
-                    for (int i = 0; i < neces.length; i++)
-                    {
+                    for (int i = 0; i < neces.length; i++) {
                         Field f = one.neceObjFields[i];
-                        if (neces[i].isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(f.get(value)))
-                        {
-                            value = DefaultFailedReason
-                                    .lackNecessaryParams("Lack necessary params!", neces[i].varName);
+                        if (neces[i].isNece(oftenObject) && OftenTool.isNullOrEmptyCharSequence(f.get(value))) {
+                            value = DefaultFailedReason.lackNecessaryParams("Lack necessary params!", neces[i].varName);
                             break;
                         }
                     }
 
-                    if (!(value instanceof ParamDealt.FailedReason))
-                    {
+                    if (!(value instanceof ParamDealt.FailedReason)) {
                         //转换内嵌对象
-                        Object fieldObject = parseInnerOnes(oftenObject, ignoreTypeParser, paramDealt, one, paramSource,
-                                value, currentTypeParserStore, namePrefix);//见DefaultParamDealt.getParam
-                        if (fieldObject instanceof ParamDealt.FailedReason)
-                        {
+                        Object fieldObject =
+                                parseInnerOnes(oftenObject, ignoreTypeParser, paramDealt, one, paramSource, value,
+                                        currentTypeParserStore, namePrefix);//见DefaultParamDealt.getParam
+                        if (fieldObject instanceof ParamDealt.FailedReason) {
                             value = fieldObject;
                         }
                     }
@@ -432,21 +363,18 @@ public class PortUtil
 
             Object[] neces = PortUtil.newArray(one.inNames.nece);
             Object[] uneces = PortUtil.newArray(one.inNames.unece);
-            Object reason = paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, uneces,
-                    paramSource, currentTypeParserStore, namePrefix);
-            if (reason == null)
-            {
+            Object reason =
+                    paramDeal(oftenObject, ignoreTypeParser, paramDealt, one.inNames, neces, uneces, paramSource,
+                            currentTypeParserStore, namePrefix);
+            if (reason == null) {
                 Object object = OftenTool.newObject(one.clazz);
 
-                for (int k = 0; k < neces.length; k++)
-                {
+                for (int k = 0; k < neces.length; k++) {
                     one.neceObjFields[k].set(object, neces[k]);
                 }
 
-                for (int k = 0; k < uneces.length; k++)
-                {
-                    if (uneces[k] != null)
-                    {
+                for (int k = 0; k < uneces.length; k++) {
+                    if (uneces[k] != null) {
                         one.unneceObjFields[k].set(object, uneces[k]);
                     }
                 }
@@ -455,16 +383,13 @@ public class PortUtil
                 //转换内嵌对象
                 Object fieldObject = parseInnerOnes(oftenObject, ignoreTypeParser, paramDealt, one, paramSource, object,
                         currentTypeParserStore, namePrefix);
-                if (fieldObject instanceof ParamDealt.FailedReason)
-                {
+                if (fieldObject instanceof ParamDealt.FailedReason) {
                     obj = fieldObject;
                 }
-            } else
-            {
+            } else {
                 obj = reason;
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
             obj = DefaultFailedReason.parseOftenEntitiesException(OftenTool.getMessage(e));
         }
@@ -472,22 +397,19 @@ public class PortUtil
     }
 
     private Object parseInnerOnes(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt, One one,
-            ParamSource paramSource, Object object,
-            TypeParserStore currentTypeParserStore, String namePrefix) throws Exception
-    {
+            ParamSource paramSource, Object object, TypeParserStore currentTypeParserStore, String namePrefix)
+            throws Exception {
         Object obj = null;
         //转换内嵌对象
-        for (int i = 0; i < one.jsonObjFields.length; i++)
-        {
+        for (int i = 0; i < one.jsonObjFields.length; i++) {
 
-            Object fieldObject = paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i], null,
-                    paramSource, currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
-            if (fieldObject instanceof ParamDealt.FailedReason)
-            {
+            Object fieldObject =
+                    paramDealOne(oftenObject, ignoreTypeParser, paramDealt, one.jsonObjOnes[i], null, paramSource,
+                            currentTypeParserStore, namePrefix + one.jsonObjVarnames[i] + ".");
+            if (fieldObject instanceof ParamDealt.FailedReason) {
                 obj = fieldObject;
                 break;
-            } else
-            {
+            } else {
                 one.jsonObjFields[i].set(object, fieldObject);
             }
         }
@@ -500,12 +422,8 @@ public class PortUtil
      * @return 返回null表示转换成功，否则表示失败。
      */
     public ParamDealt.FailedReason paramDeal(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt,
-            InNames inNames,
-            Object[] nece,
-            Object[] unece,
-            ParamSource paramSource,
-            TypeParserStore currentTypeParserStore)
-    {
+            InNames inNames, Object[] nece, Object[] unece, ParamSource paramSource,
+            TypeParserStore currentTypeParserStore) {
         return paramDeal(oftenObject, ignoreTypeParser, paramDealt, inNames, nece, unece, paramSource,
                 currentTypeParserStore, "");
     }
@@ -517,47 +435,60 @@ public class PortUtil
      * @return 返回null表示转换成功，否则表示失败。
      */
     private ParamDealt.FailedReason paramDeal(OftenObject oftenObject, boolean ignoreTypeParser, ParamDealt paramDealt,
-            InNames inNames,
-            Object[] nece,
-            Object[] unece,
-            ParamSource paramSource,
-            TypeParserStore currentTypeParserStore, String namePrefix)
-    {
+            InNames inNames, Object[] nece, Object[] unece, ParamSource paramSource,
+            TypeParserStore currentTypeParserStore, String namePrefix) {
         ParamDealt.FailedReason reason = null;
-        try
-        {
-            if (ignoreTypeParser)
-            {
+        try {
+            if (ignoreTypeParser) {
                 Name[] names = inNames.nece;
-                for (int i = 0; i < nece.length; i++)
-                {
-                    if (names[i].isNece(oftenObject))
-                    {
-                        nece[i] = paramSource.getNeceParam(namePrefix + names[i].varName);
-                    } else
-                    {
-                        nece[i] = paramSource.getParam(namePrefix + names[i].varName);
+                for (int i = 0; i < nece.length; i++) {
+                    Name name = names[i];
+                    Object v;
+                    if (name.isNece(oftenObject)) {
+                        if (name.isRequestData()) {
+                            v = oftenObject == null ? null : oftenObject.getRequestData(namePrefix + name.varName);
+                            if (OftenTool.isNullOrEmptyCharSequence(v)) {
+                                v = DefaultFailedReason
+                                        .lackNecessaryParams("Lack necessary  data!", namePrefix + name.varName);
+                            }
+                        } else {
+                            v = paramSource.getNeceParam(namePrefix + name.varName);
+                        }
+                    } else {
+                        if (name.isRequestData()) {
+                            v = oftenObject == null ? null : oftenObject.getRequestData(namePrefix + name.varName);
+                        } else {
+                            v = paramSource.getParam(namePrefix + name.varName);
+                        }
                     }
-                    nece[i] = names[i].dealString(nece[i]);
+
+                    nece[i] = name.dealString(v);
                 }
 
                 names = inNames.unece;
-                for (int i = 0; i < unece.length; i++)
-                {
-                    unece[i] = names[i].dealString(paramSource.getParam(namePrefix + names[i].varName));
+                for (int i = 0; i < unece.length; i++) {
+                    Name name = names[i];
+                    Object v;
+                    if (name.isRequestData()) {
+                        v = oftenObject == null ? null : oftenObject.getRequestData((namePrefix + name.varName));
+                    } else {
+                        v = paramSource.getParam(namePrefix + name.varName);
+                    }
+
+                    unece[i] = name.dealString(v);
                 }
-            } else
-            {
-                reason = paramDealt.deal(oftenObject, inNames.nece, nece, true, paramSource,
-                        currentTypeParserStore, namePrefix);
-                if (reason == null)
-                {
-                    reason = paramDealt.deal(oftenObject, inNames.unece, unece, false,
-                            paramSource, currentTypeParserStore, namePrefix);
+
+            } else {
+                reason = paramDealt
+                        .deal(oftenObject, inNames.nece, nece, true, paramSource, currentTypeParserStore, namePrefix);
+
+                if (reason == null) {
+                    reason = paramDealt
+                            .deal(oftenObject, inNames.unece, unece, false, paramSource, currentTypeParserStore,
+                                    namePrefix);
                 }
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
             reason = DefaultFailedReason.parseOftenEntitiesException(OftenTool.getMessage(e));
         }

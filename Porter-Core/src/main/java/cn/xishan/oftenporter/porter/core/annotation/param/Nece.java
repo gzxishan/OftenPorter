@@ -1,6 +1,7 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.base.OftenObject;
 import cn.xishan.oftenporter.porter.core.base.PortMethod;
 
 import java.lang.annotation.*;
@@ -14,7 +15,6 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Inherited
 @Documented
-//@Repeatable(Neces.class)
 public @interface Nece
 {
     /**
@@ -30,6 +30,11 @@ public @interface Nece
      * @return
      */
     String varName() default "";
+
+    /**
+     * 是否调用{@linkplain OftenObject#getRequestData(String)}获取数据
+     */
+    boolean requestData() default false;
 
     /**
      * 转换为非必需参数。

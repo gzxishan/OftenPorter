@@ -7,69 +7,60 @@ import java.util.regex.Pattern;
 /**
  * @author Created by https://github.com/CLovinr on 2018-11-06.
  */
-public class _NeceUnece
-{
+public class _NeceUnece {
     String varName;
     boolean isTrim;
     boolean clearBlank;
     String deleteRegex;
+    boolean requestData;
 
-    public _NeceUnece()
-    {
+    public _NeceUnece() {
     }
 
-    public _NeceUnece(String varName)
-    {
+    public _NeceUnece(String varName) {
         this.varName = varName;
     }
 
 
-    public boolean isTrim()
-    {
+    public boolean isTrim() {
         return isTrim;
     }
 
-    public boolean isClearBlank()
-    {
+    public boolean isClearBlank() {
         return clearBlank;
     }
 
-    public String getDeleteRegex()
-    {
+
+    public boolean isRequestData() {
+        return requestData;
+    }
+
+    public String getDeleteRegex() {
         return deleteRegex;
     }
 
-    void setDeleteRegex(String deleteRegex)
-    {
-        if (OftenTool.isEmpty(deleteRegex))
-        {
+    void setDeleteRegex(String deleteRegex) {
+        if (OftenTool.isEmpty(deleteRegex)) {
             this.deleteRegex = null;
-        } else
-        {
+        } else {
             Pattern.compile(deleteRegex);
             this.deleteRegex = deleteRegex;
         }
     }
 
-    public String getVarName()
-    {
+    public String getVarName() {
         return varName;
     }
 
-    public Object dealString(Object v)
-    {
-        if (v instanceof CharSequence)
-        {
-            if (clearBlank)
-            {
+    public Object dealString(Object v) {
+        if (v instanceof CharSequence) {
+            if (clearBlank) {
                 v = String.valueOf(v).replaceAll("[\\s]", "");
-            } else if (isTrim)
-            {
+            } else if (isTrim) {
                 v = String.valueOf(v).trim();
             }
 
-            if (deleteRegex != null)
-            {
+            if (deleteRegex != null) {
                 v = String.valueOf(v).replaceAll(deleteRegex, "");
             }
         }

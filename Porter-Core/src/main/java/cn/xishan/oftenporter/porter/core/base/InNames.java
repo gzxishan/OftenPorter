@@ -20,17 +20,16 @@ import java.util.regex.Pattern;
  * 用于存储参数的名称
  * Created by https://github.com/CLovinr on 2016/7/24.
  */
-public class InNames
-{
-    public static final InNames EMPTY = InNames
-            .fromStringArray(OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY);
+public class InNames {
+    public static final InNames EMPTY =
+            InNames.fromStringArray(OftenTool.EMPTY_STRING_ARRAY, OftenTool.EMPTY_STRING_ARRAY,
+                    OftenTool.EMPTY_STRING_ARRAY);
 
     private static final ITypeParserOption NULL_TYPE_PARSER_OPTION = () -> null;
     private static final ITypeParserOption EMPTY_TYPE_PARSER_OPTION = () -> "";
 
 
-    public static class Name
-    {
+    public static class Name {
         /**
          * 变量名,用于获取源参数
          */
@@ -54,106 +53,84 @@ public class InNames
         static final Pattern VAR_NAME_CONF_PATTERN = Pattern.compile("^\\(([\\w\\W]*)(?!\\\\)\\)");
         static final Pattern VAR_NAME_DEFAULT_PATTERN = Pattern.compile("^\\[([\\w\\W]*)(?!\\\\)\\]");
 
-        public Name(String varNameWithConfig, BackableSeek backableSeek)
-        {
+        public Name(String varNameWithConfig, BackableSeek backableSeek) {
             this(varNameWithConfig);
             this.typeParserId = backableSeek.getTypeId(varName);
         }
 
-        public Name(String varName, String typeId)
-        {
+        public Name(String varName, String typeId) {
             this(varName);
             this.typeParserId = typeId;
         }
 
-        public Name(String str)
-        {
+        public Name(String str) {
             str = str.trim();
             Matcher matcher = VAR_NAME_PATTERN.matcher(str);
-            if (!matcher.find())
-            {
+            if (!matcher.find()) {
                 throw new RuntimeException("illegal var name");
             }
             this.varName = matcher.group(1);
             str = str.substring(matcher.end()).trim();
 
-            if (str.startsWith("("))
-            {
+            if (str.startsWith("(")) {
                 str = findConf(str);
                 findDefault(str);
-            } else
-            {
+            } else {
                 str = findDefault(str);
                 findConf(str);
             }
         }
 
-        private String findConf(String str)
-        {
+        private String findConf(String str) {
             Matcher matcher = VAR_NAME_CONF_PATTERN.matcher(str);
-            if (matcher.find())
-            {
-                String varConfig = matcher.group(1).trim()
-                        .replaceAll("\\\\\\(", "(")
-                        .replaceAll("\\\\\\)", ")");
-                if (varConfig.equals(""))
-                {
+            if (matcher.find()) {
+                String varConfig = matcher.group(1).trim().replaceAll("\\\\\\(", "(").replaceAll("\\\\\\)", ")");
+                if (varConfig.equals("")) {
                     this.parserOption = EMPTY_TYPE_PARSER_OPTION;
-                } else
-                {
+                } else {
                     this.parserOption = () -> varConfig;
                 }
                 str = str.substring(matcher.end()).trim();
-            } else
-            {
+            } else {
                 this.parserOption = NULL_TYPE_PARSER_OPTION;
             }
             return str;
         }
 
-        private String findDefault(String str)
-        {
+        private String findDefault(String str) {
             Matcher matcher = VAR_NAME_DEFAULT_PATTERN.matcher(str);
-            if (matcher.find())
-            {
-                this.defaultValue = matcher.group(1).trim()
-                        .replaceAll("\\\\\\[", "[")
-                        .replaceAll("\\\\\\]", "]");
+            if (matcher.find()) {
+                this.defaultValue = matcher.group(1).trim().replaceAll("\\\\\\[", "[").replaceAll("\\\\\\]", "]");
                 str = str.substring(matcher.end()).trim();
             }
             return str;
         }
 
 
-        public static String removeConfig(String varName)
-        {
+        public static String removeConfig(String varName) {
             Matcher matcher = VAR_NAME_PATTERN.matcher(varName);
-            if (!matcher.find())
-            {
+            if (!matcher.find()) {
                 throw new RuntimeException("illegal var name");
             }
             varName = matcher.group(1);
             return varName;
         }
 
-        public Class getType()
-        {
+        public Class getType() {
             return type;
         }
 
-        public Object getTypeObject(OftenObject oftenObject, ParamSource paramSource) throws Exception
-        {
+        public Object getTypeObject(OftenObject oftenObject, ParamSource paramSource) throws Exception {
             Object v = null;
-            if (type != null && !PortUtil.willIgnoreAdvanced(type) && !OftenTool.isAssignable(type, CharSequence.class))
-            {
-                v = paramSource.getParam(type.getName());//
-                if (v != null && OftenTool.notEmptyOf(typeNeces))
-                {
-                    for (int i = 0; i < this.typeNeces.length; i++)
-                    {
-                        if (this.typeNeces[i].isNece(oftenObject) && OftenTool
-                                .isNullOrEmptyCharSequence(this.typeNeceFields[i].get(v)))
-                        {
+            if (type != null && !PortUtil.willIgnoreAdvanced(type) &&
+                    !OftenTool.isAssignable(type, CharSequence.class)) {
+                v = paramSource.getParam(type.getName());
+
+                //检查必须成员变量
+                if (v != null && OftenTool.notEmptyOf(typeNeces)) {
+                    for (int i = 0; i < this.typeNeces.length; i++) {
+                        if (this.typeNeces[i].isNece(oftenObject) &&
+                                OftenTool.isNullOrEmptyCharSequence(this.typeNeceFields[i].get(v))) {
                             String typeVarName = this.typeNeces[i].getVarName();
                             v = DefaultFailedReason
                                     .lackNecessaryParams("Lack necessary params for " + varName + "." + typeVarName,
@@ -166,20 +143,16 @@ public class InNames
             return v;
         }
 
-        public void setType(AnnotationDealt annotationDealt, Class type, _NeceUnece neceUnece)
-        {
+        public void setType(AnnotationDealt annotationDealt, Class type, _NeceUnece neceUnece) {
             this.type = type;
             this.neceUnece = neceUnece;
-            if (!(neceUnece instanceof _Nece) && type != null && !PortUtil.willIgnoreAdvanced(type))
-            {
+            if (!(neceUnece instanceof _Nece) && type != null && !PortUtil.willIgnoreAdvanced(type)) {
                 Field[] fieds = OftenTool.getAllFields(type);
                 List<_Nece> neceList = new ArrayList<>();
                 List<Field> fieldList = new ArrayList<>();
-                for (Field f : fieds)
-                {
+                for (Field f : fieds) {
                     _Nece fNece = annotationDealt.nece(f);
-                    if (fNece != null)
-                    {
+                    if (fNece != null) {
                         neceList.add(fNece);
                         f.setAccessible(true);
                         fieldList.add(f);
@@ -187,53 +160,46 @@ public class InNames
                 }
                 this.typeNeces = neceList.toArray(new _Nece[0]);
                 this.typeNeceFields = fieldList.toArray(new Field[0]);
-            } else
-            {
+            } else {
                 this.typeNeces = null;
                 this.typeNeceFields = null;
             }
         }
 
-        public boolean isNece(OftenObject oftenObject)
-        {
-            if (neceUnece instanceof _Nece && ((_Nece) neceUnece).isNece(oftenObject))
-            {
+        public boolean isNece(OftenObject oftenObject) {
+            if (neceUnece instanceof _Nece && ((_Nece) neceUnece).isNece(oftenObject)) {
                 return true;
-            } else
-            {
+            } else {
                 return false;
             }
         }
 
-        public Object dealString(Object v)
-        {
+        public Object dealString(Object v) {
             return neceUnece == null ? v : neceUnece.dealString(v);
         }
 
-        public _NeceUnece getNeceUnece()
-        {
+        public _NeceUnece getNeceUnece() {
             return neceUnece;
         }
 
-        public ITypeParserOption getParserOption()
-        {
+        public boolean isRequestData() {
+            return neceUnece != null && neceUnece.isRequestData();
+        }
+
+        public ITypeParserOption getParserOption() {
             return parserOption;
         }
 
-        public String getDefaultValue()
-        {
+        public String getDefaultValue() {
             return defaultValue;
         }
 
-        public <D> D getDealt()
-        {
+        public <D> D getDealt() {
             return (D) dealt;
         }
 
-        public void doDealtFor(ITypeParser typeParser)
-        {
-            if (parserOption != NULL_TYPE_PARSER_OPTION && parserOption != EMPTY_TYPE_PARSER_OPTION)
-            {
+        public void doDealtFor(ITypeParser typeParser) {
+            if (parserOption != NULL_TYPE_PARSER_OPTION && parserOption != EMPTY_TYPE_PARSER_OPTION) {
                 dealt = typeParser.initFor(parserOption);
                 parserOption = null;
             }
@@ -254,8 +220,7 @@ public class InNames
     public final Name[] inner;
 
 
-    public InNames(Name[] nece, Name[] unece, Name[] inner)
-    {
+    public InNames(Name[] nece, Name[] unece, Name[] inner) {
         this.nece = nece;
         //this.neceDeals = neceDeals == null || neceDeals.length == 0 ? null : neceDeals;
         this.unece = unece;
@@ -266,26 +231,21 @@ public class InNames
     private static final Name[] EMPTY_NAME = new Name[0];
 
 
-    public static InNames temp(Name name)
-    {
+    public static InNames temp(Name name) {
         return new InNames(new Name[]{name}, EMPTY_NAME, EMPTY_NAME);
     }
 
 
-    public static InNames fromStringArray(String[] nece, String[] unece, String[] inner)
-    {
+    public static InNames fromStringArray(String[] nece, String[] unece, String[] inner) {
         return new InNames(toNames(nece), toNames(unece), toNames(inner));
     }
 
-    private static Name[] toNames(String[] strs)
-    {
-        if (strs == null)
-        {
+    private static Name[] toNames(String[] strs) {
+        if (strs == null) {
             return EMPTY_NAME;
         }
         Name[] names = new Name[strs.length];
-        for (int i = 0; i < names.length; i++)
-        {
+        for (int i = 0; i < names.length; i++) {
             names[i] = new Name(strs[i]);
         }
         return names;

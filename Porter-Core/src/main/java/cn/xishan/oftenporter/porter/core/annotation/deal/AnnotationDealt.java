@@ -29,8 +29,7 @@ import java.util.*;
  */
 @PortIn
 @MixinOnly
-public final class AnnotationDealt
-{
+public final class AnnotationDealt {
     private boolean enableDefaultValue;
     private final Logger LOGGER;
     private Map<Class, Method[]> destroyMethodsMap;
@@ -41,8 +40,7 @@ public final class AnnotationDealt
     private static final _PortDestroy PORT_DESTROY_EMPTY = new _PortDestroy();
     private static final _PortStart PORT_START_EMPTY = new _PortStart();
 
-    private AnnotationDealt(boolean enableDefaultValue)
-    {
+    private AnnotationDealt(boolean enableDefaultValue) {
         this.enableDefaultValue = enableDefaultValue;
         LOGGER = LogUtil.logger(AnnotationDealt.class);
         clearCache();
@@ -51,33 +49,26 @@ public final class AnnotationDealt
     /**
      * @param enableDefaultValue 是否允许{@linkplain PortIn#value()}取默认值。
      */
-    public static AnnotationDealt newInstance(boolean enableDefaultValue)
-    {
+    public static AnnotationDealt newInstance(boolean enableDefaultValue) {
         return new AnnotationDealt(enableDefaultValue);
     }
 
-    public void clearCache()
-    {
+    public void clearCache() {
         destroyMethodsMap = new HashMap<>();
         startMethodsMap = new HashMap<>();
         destroyMap = new HashMap<>();
         startMap = new HashMap<>();
     }
 
-    public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter)
-
-    {
+    public _SyncPorterOption syncPorterOption(Field field, PorterParamGetterImpl porterParamGetter) {
         PorterSyncOption option = AnnoUtil.getAnnotation(field, PorterSyncOption.class);
-        if (option != null)
-        {
+        if (option != null) {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
             String context = option.context().equals("") ? porterParamGetter.getContext() : option.context();
             String classTied;
-            if (!PorterSyncOption.class.equals(option.porter()))
-            {
+            if (!PorterSyncOption.class.equals(option.porter())) {
                 classTied = PortUtil.tied(option.porter());
-            } else
-            {
+            } else {
                 classTied = option.classTied().equals("") ? porterParamGetter.getClassTied() : option.classTied();
             }
 
@@ -88,8 +79,7 @@ public final class AnnotationDealt
 
             syncPorterOption.method = option.method();
             return syncPorterOption;
-        } else
-        {
+        } else {
             _SyncPorterOption syncPorterOption = new _SyncPorterOption(porterParamGetter);
 
             String context = porterParamGetter.getContext();
@@ -106,59 +96,46 @@ public final class AnnotationDealt
     }
 
 
-    public _AutoSet autoSet(Class declaredClass, Field field)
-    {
+    public _AutoSet autoSet(Class declaredClass, Field field) {
         _AutoSet autoSet = autoSet(field);
-        if (autoSet != null)
-        {
+        if (autoSet != null) {
             autoSet.willRecursive = !PortUtil.willIgnoreAdvanced(declaredClass);
         }
         return autoSet;
     }
 
-    private _AutoSet autoSet(Field field)
-    {
+    private _AutoSet autoSet(Field field) {
         AutoSet autoSet = AnnoUtil.getAnnotation(field, AutoSet.class);
-        if (autoSet == null)
-        {
-            try
-            {
+        if (autoSet == null) {
+            try {
                 Class.forName("javax.annotation.Resource");
                 Resource resource = AnnoUtil.getAnnotation(field, Resource.class);
-                if (resource != null)
-                {
+                if (resource != null) {
                     LOGGER.debug("new autoset from @Resource={},field={}", resource, field);
                     _AutoSet _autoSet = new _AutoSet();
                     _autoSet.willRecursive = false;
                     _autoSet.value = resource.name();
                     _autoSet.nullAble = true;
-                    if (!resource.type().equals(Object.class))
-                    {
+                    if (!resource.type().equals(Object.class)) {
                         _autoSet.classValue = resource.type();
                     }
-                    if (!resource.shareable())
-                    {
+                    if (!resource.shareable()) {
                         _autoSet.range = AutoSet.Range.New;
-                    } else if (resource.authenticationType() == Resource.AuthenticationType.CONTAINER)
-                    {
+                    } else if (resource.authenticationType() == Resource.AuthenticationType.CONTAINER) {
                         _autoSet.range = AutoSet.Range.Global;
-                    } else if (resource.authenticationType() == Resource.AuthenticationType.APPLICATION)
-                    {
+                    } else if (resource.authenticationType() == Resource.AuthenticationType.APPLICATION) {
                         _autoSet.range = AutoSet.Range.Context;
                     }
                     return _autoSet;
                 }
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             }
 
-            try
-            {
+            try {
                 AutoSetToThatForMixin autoSetToThatForMixin =
                         AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
-                if (autoSetToThatForMixin != null)
-                {
+                if (autoSetToThatForMixin != null) {
                     _AutoSet _autoSet = new _AutoSet();
                     _autoSet.willRecursive = true;
                     _autoSet.value = "";
@@ -166,8 +143,7 @@ public final class AnnotationDealt
                     _autoSet.range = AutoSet.Range.Context;
                     return _autoSet;
                 }
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             }
 
@@ -185,33 +161,28 @@ public final class AnnotationDealt
         return _autoSet;
     }
 
-    public _Nece nece(Field field)
-    {
+    public _Nece nece(Field field) {
         Nece nece = AnnoUtil.getAnnotation(field, Nece.class);
-        if (nece == null)
-        {
+        if (nece == null) {
             return null;
         }
         return nece(nece, field.getName());
     }
 
-    public _Nece nece(Nece nece, String fieldName)
-    {
-        if (nece == null)
-        {
+    public _Nece nece(Nece nece, String fieldName) {
+        if (nece == null) {
             return null;
         }
         _Nece _nece = new _Nece();
-        if (OftenTool.isEmptyOfAll(nece.value(), nece.varName()))
-        {
+        if (OftenTool.isEmptyOfAll(nece.value(), nece.varName())) {
             _nece.varName = fieldName;
-        } else if (OftenTool.notEmpty(nece.value()))
-        {
+        } else if (OftenTool.notEmpty(nece.value())) {
             _nece.varName = nece.value();
-        } else
-        {
+        } else {
             _nece.varName = nece.varName();
         }
+
+        _nece.requestData = nece.requestData();
         _nece.toUnece = nece.toUnece();
         _nece.forMethods = nece.forMethods();
         _nece.forClassTieds = nece.forClassTieds();
@@ -225,42 +196,36 @@ public final class AnnotationDealt
         return _nece;
     }
 
-    public _Unece unNece(Field field)
-    {
+    public _Unece unNece(Field field) {
         Unece unece = AnnoUtil.getAnnotation(field, Unece.class);
-        if (unece == null)
-        {
+        if (unece == null) {
             return null;
         }
         return unNece(unece, field.getName());
     }
 
-    public _Unece unNece(Unece unece, String fieldName)
-    {
-        if (unece == null)
-        {
+    public _Unece unNece(Unece unece, String fieldName) {
+        if (unece == null) {
             return null;
         }
+
         _Unece _unece = new _Unece();
         _unece.isTrim = unece.trim();
         _unece.clearBlank = unece.clearBlank();
+        _unece.requestData = unece.requestData();
         _unece.setDeleteRegex(unece.deleteRegex());
 
-        if (OftenTool.isEmptyOfAll(unece.value(), unece.varName()))
-        {
+        if (OftenTool.isEmptyOfAll(unece.value(), unece.varName())) {
             _unece.varName = fieldName;
-        } else if (OftenTool.notEmpty(unece.value()))
-        {
+        } else if (OftenTool.notEmpty(unece.value())) {
             _unece.varName = unece.value();
-        } else
-        {
+        } else {
             _unece.varName = unece.varName();
         }
         return _unece;
     }
 
-    public _BindEntities bindEntities(Class<?> porterClass, Method method)
-    {
+    public _BindEntities bindEntities(Class<?> porterClass, Method method) {
         List<Class> classList = new ArrayList<>();
 
         OnPorterEntities onPorterEntities = AnnoUtil.getAnnotation(porterClass, OnPorterEntities.class);
@@ -268,56 +233,44 @@ public final class AnnotationDealt
         BindEntities bindEntities = AnnoUtil.getAnnotation(method, BindEntities.class);
         FromPorterEntities fromPorterEntities = AnnoUtil.getAnnotation(method, FromPorterEntities.class);
 
-        if (bindEntities != null)
-        {
+        if (bindEntities != null) {
             OftenTool.addAll(classList, bindEntities.value());
         }
 
-        if (fromPorterEntities != null)
-        {
-            if (onPorterEntities == null)
-            {
+        if (fromPorterEntities != null) {
+            if (onPorterEntities == null) {
 
-                if (fromPorterEntities.value().length > 0)
-                {
+                if (fromPorterEntities.value().length > 0) {
                     LOGGER.warn("need @{}.{} in [{}] for method with @", BindEntities.class.getSimpleName(),
-                            OnPorterEntities.class.getSimpleName(),
-                            porterClass.getName(), FromPorterEntities.class.getSimpleName());
+                            OnPorterEntities.class.getSimpleName(), porterClass.getName(),
+                            FromPorterEntities.class.getSimpleName());
                 }
-            } else
-            {
+            } else {
                 Class<?>[] fclasses = fromPorterEntities.value();
                 Class<?>[] pclasses = onPorterEntities.value();
-                for (int i = 0; i < fclasses.length; i++)
-                {
+                for (int i = 0; i < fclasses.length; i++) {
                     int index = -1;
                     int n = Integer.MAX_VALUE;
                     //寻找最亲的
-                    for (int k = 0; k < pclasses.length; k++)
-                    {
+                    for (int k = 0; k < pclasses.length; k++) {
                         int _n = OftenTool.subclassOf(pclasses[k], fclasses[i]);
-                        if (_n >= 0 && _n < n)
-                        {
+                        if (_n >= 0 && _n < n) {
                             n = _n;
                             index = k;
                         }
                     }
-                    if (index == -1)
-                    {
-                        throw new InitException(
-                                "not found [" + fclasses[i].getName() + "] in @" + OnPorterEntities.class
-                                        .getSimpleName() + " in [" + porterClass
-                                        .getName() + "] for method with @" + FromPorterEntities.class.getSimpleName());
-                    } else
-                    {
+                    if (index == -1) {
+                        throw new InitException("not found [" + fclasses[i].getName() + "] in @" +
+                                OnPorterEntities.class.getSimpleName() + " in [" + porterClass.getName() +
+                                "] for method with @" + FromPorterEntities.class.getSimpleName());
+                    } else {
                         classList.add(pclasses[i]);
                     }
                 }
             }
         }
 
-        if (classList.size() == 0)
-        {
+        if (classList.size() == 0) {
             return null;
         }
         _BindEntities _bindEntities = newBindEntities(classList.toArray(new Class[0]), method);
@@ -326,26 +279,20 @@ public final class AnnotationDealt
     }
 
 
-    private _BindEntities newBindEntities(Class<?>[] _classes, Method method)
-    {
+    private _BindEntities newBindEntities(Class<?>[] _classes, Method method) {
         _BindEntities.CLASS[] classes = new _BindEntities.CLASS[_classes.length];
-        for (int i = 0; i < classes.length; i++)
-        {
+        for (int i = 0; i < classes.length; i++) {
             Class<?> clazz = _classes[i];
             BindEntityDealt bindEntityDealt = AnnoUtil.getAnnotation(clazz, BindEntityDealt.class);
-            if (bindEntityDealt != null)
-            {
+            if (bindEntityDealt != null) {
                 Class<? extends BindEntityDealt.IHandle> handleClass = bindEntityDealt.handle();
-                try
-                {
+                try {
                     classes[i] = new _BindEntities.CLASS(clazz, method, bindEntityDealt.option(),
                             OftenTool.newObject(handleClass));
-                } catch (Exception e)
-                {
+                } catch (Exception e) {
                     throw new InitException(e);
                 }
-            } else
-            {
+            } else {
                 classes[i] = new _BindEntities.CLASS(clazz);
             }
         }
@@ -355,20 +302,17 @@ public final class AnnotationDealt
         return _bindEntities;
     }
 
-    public _BindEntities bindEntity(Class<?> entityClass, Class clazz, Method method)
-    {
+    public _BindEntities bindEntity(Class<?> entityClass, Class clazz, Method method) {
         _BindEntities _bindEntities1 = clazz == null ? null : bindEntities(clazz);
         _BindEntities _bindEntities2 = method == null ? null : bindEntities(entityClass, method);
 
         Set<_BindEntities.CLASS> set = new HashSet<>();
 
-        if (_bindEntities1 != null)
-        {
+        if (_bindEntities1 != null) {
             OftenTool.addAll(set, _bindEntities1.value);
         }
 
-        if (_bindEntities2 != null)
-        {
+        if (_bindEntities2 != null) {
             OftenTool.addAll(set, _bindEntities2.value);
         }
 
@@ -377,39 +321,32 @@ public final class AnnotationDealt
         return bindEntities;
     }
 
-    public _BindEntities bindEntity(Class<?> entityClass, Method method)
-    {
+    public _BindEntities bindEntity(Class<?> entityClass, Method method) {
         _BindEntities _bindEntities = newBindEntities(new Class[]{entityClass}, method);
         return _bindEntities;
     }
 
-    public _BindEntities bindEntities(Class<?> clazz)
-    {
+    public _BindEntities bindEntities(Class<?> clazz) {
         BindEntities bindEntities = AnnoUtil.getAnnotation(clazz, BindEntities.class);
-        if (bindEntities == null)
-        {
+        if (bindEntities == null) {
             return null;
         }
         _BindEntities _bindEntities = newBindEntities(bindEntities.value(), null);
         return _bindEntities;
     }
 
-    public _Parse[] parses(Method method)
-    {
+    public _Parse[] parses(Method method) {
         return to_parses(AnnoUtil.getRepeatableAnnotations(method, Parse.class));
     }
 
-    public _Parse[] parses(Class<?> clazz)
-    {
+    public _Parse[] parses(Class<?> clazz) {
         return to_parses(AnnoUtil.getRepeatableAnnotations(clazz, Parse.class));
     }
 
 
-    public _Parse[] parses(Field field)
-    {
+    public _Parse[] parses(Field field) {
         Parse parse = AnnoUtil.getAnnotation(field, Parse.class);
-        if (parse == null)
-        {
+        if (parse == null) {
             return EMPTY_PARSES;
         }
         return to_parses(new Parse[]{parse});
@@ -417,23 +354,19 @@ public final class AnnotationDealt
 
     private static final _Parse[] EMPTY_PARSES = new _Parse[0];
 
-    private _Parse[] to_parses(Parse[] parses)
-    {
-        if (parses.length == 0)
-        {
+    private _Parse[] to_parses(Parse[] parses) {
+        if (parses.length == 0) {
             return EMPTY_PARSES;
         }
         _Parse[] _ps = new _Parse[parses.length];
-        for (int i = 0; i < _ps.length; i++)
-        {
+        for (int i = 0; i < _ps.length; i++) {
             _ps[i] = genParse(parses[i]);
         }
 
         return _ps;
     }
 
-    public _Parse genParse(Parse parse)
-    {
+    public _Parse genParse(Parse parse) {
         _Parse _p = new _Parse();
         _p.paramNames = parse.paramNames();
         _p.parserName = parse.parserName();
@@ -441,51 +374,41 @@ public final class AnnotationDealt
         return _p;
     }
 
-    public static boolean isNullInstance(Method method, @MayNull Object object)
-    {
-        if (!Modifier.isStatic(method.getModifiers()) && object == null)
-        {
+    public static boolean isNullInstance(Method method, @MayNull Object object) {
+        if (!Modifier.isStatic(method.getModifiers()) && object == null) {
             return true;
-        } else
-        {
+        } else {
             return false;
         }
     }
 
-    public static boolean isNullInstanceOfStartDestroy(Method method, @MayNull ObjectGetter objectGetter)
-    {
-        if (!Modifier.isStatic(method.getModifiers()) && (objectGetter == null || objectGetter.getObject() == null))
-        {
+    public static boolean isNullInstanceOfStartDestroy(Method method, @MayNull ObjectGetter objectGetter) {
+        if (!Modifier.isStatic(method.getModifiers()) && (objectGetter == null || objectGetter.getObject() == null)) {
             return true;
-        } else
-        {
+        } else {
             return false;
         }
     }
 
-    public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter)
-    {
+    public _PortDestroy portDestroy(Method method, @MayNull ObjectGetter objectGetter) {
         //boolean isNullInstance = isNullInstanceOfStartDestroy(method, objectGetter);
         String mkey = method.toString();// + "::" + isNullInstance;
         _PortDestroy _portDestroy = destroyMap.get(mkey);
-        if (_portDestroy == PORT_DESTROY_EMPTY)
-        {
+        if (_portDestroy == PORT_DESTROY_EMPTY) {
             return null;
-        } else if (_portDestroy == null)
-        {
-//            if (isNullInstance)
-//            {
-////            if (LOGGER.isWarnEnabled())
-////            {
-////                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
-////            }
-//                destroyMap.put(mkey, PORT_DESTROY_EMPTY);
-//                return null;
-//            }
+        } else if (_portDestroy == null) {
+            //            if (isNullInstance)
+            //            {
+            ////            if (LOGGER.isWarnEnabled())
+            ////            {
+            ////                LOGGER.warn("ignore {} for no instance:{}", PortDestroy.class.getSimpleName(), method);
+            ////            }
+            //                destroyMap.put(mkey, PORT_DESTROY_EMPTY);
+            //                return null;
+            //            }
 
             PortDestroy portDestroy = AnnoUtil.getAnnotation(method, PortDestroy.class);
-            if (portDestroy == null)
-            {
+            if (portDestroy == null) {
                 destroyMap.put(mkey, PORT_DESTROY_EMPTY);
                 return null;
             }
@@ -499,29 +422,25 @@ public final class AnnotationDealt
     }
 
 
-    public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter)
-    {
+    public _PortStart portStart(Method method, @MayNull ObjectGetter objectGetter) {
         //boolean isNullInstance = isNullInstanceOfStartDestroy(method, objectGetter);
         String mkey = method.toString();// + "::" + isNullInstance;
         _PortStart _portStart = startMap.get(mkey);
-        if (_portStart == PORT_START_EMPTY)
-        {
+        if (_portStart == PORT_START_EMPTY) {
             return null;
-        } else if (_portStart == null)
-        {
-//            if (isNullInstance)
-//            {
-////            if (LOGGER.isWarnEnabled())
-////            {
-////                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
-////            }
-//                startMap.put(mkey, PORT_START_EMPTY);
-//                return null;
-//            }
+        } else if (_portStart == null) {
+            //            if (isNullInstance)
+            //            {
+            ////            if (LOGGER.isWarnEnabled())
+            ////            {
+            ////                LOGGER.warn("ignore {} for no instance:{}", PortStart.class.getSimpleName(), method);
+            ////            }
+            //                startMap.put(mkey, PORT_START_EMPTY);
+            //                return null;
+            //            }
 
             PortStart portStart = AnnoUtil.getAnnotation(method, PortStart.class);
-            if (portStart == null)
-            {
+            if (portStart == null) {
                 startMap.put(mkey, PORT_START_EMPTY);
                 return null;
             }
@@ -534,22 +453,17 @@ public final class AnnotationDealt
         return _portStart;
     }
 
-    public Method[] getPortStart(Object object, Class objectClass)
-    {
+    public Method[] getPortStart(Object object, Class objectClass) {
         objectClass = PortUtil.getRealClass(objectClass);
         Method[] methods = startMethodsMap.get(objectClass);
-        if (methods == null)
-        {
+        if (methods == null) {
             ObjectGetter objectGetter = () -> object;
             methods = OftenTool.getAllPublicMethods(objectClass);
             List<_PortStart> list = new ArrayList<>();
-            for (Method method : methods)
-            {
-                if (!Modifier.isAbstract(method.getModifiers()))
-                {
+            for (Method method : methods) {
+                if (!Modifier.isAbstract(method.getModifiers())) {
                     _PortStart portStart = portStart(method, objectGetter);
-                    if (portStart != null)
-                    {
+                    if (portStart != null) {
                         list.add(portStart);
                     }
                 }
@@ -558,8 +472,7 @@ public final class AnnotationDealt
             _PortStart[] portStarts = list.toArray(new _PortStart[0]);
             Arrays.sort(portStarts);
             methods = new Method[portStarts.length];
-            for (int i = 0; i < portStarts.length; i++)
-            {
+            for (int i = 0; i < portStarts.length; i++) {
                 methods[i] = portStarts[i].porterOfFun.getMethod();
             }
 
@@ -569,25 +482,20 @@ public final class AnnotationDealt
         return methods;
     }
 
-    public Method[] getPortDestroy(Object object, Class objectClass)
-    {
+    public Method[] getPortDestroy(Object object, Class objectClass) {
         objectClass = PortUtil.getRealClass(objectClass);
 
         Method[] methods = destroyMethodsMap.get(objectClass);
 
-        if (methods == null)
-        {
+        if (methods == null) {
 
             ObjectGetter objectGetter = () -> object;
             methods = OftenTool.getAllMethods(objectClass);
             List<_PortDestroy> list = new ArrayList<>();
-            for (Method method : methods)
-            {
-                if (!Modifier.isAbstract(method.getModifiers()))
-                {
+            for (Method method : methods) {
+                if (!Modifier.isAbstract(method.getModifiers())) {
                     _PortDestroy portDestroy = portDestroy(method, objectGetter);
-                    if (portDestroy != null)
-                    {
+                    if (portDestroy != null) {
                         list.add(portDestroy);
                     }
                 }
@@ -595,8 +503,7 @@ public final class AnnotationDealt
             _PortDestroy[] portDestroys = list.toArray(new _PortDestroy[0]);
             Arrays.sort(portDestroys);
             methods = new Method[portDestroys.length];
-            for (int i = 0; i < portDestroys.length; i++)
-            {
+            for (int i = 0; i < portDestroys.length; i++) {
                 methods[i] = portDestroys[i].porterOfFun.getMethod();
             }
 
@@ -605,53 +512,41 @@ public final class AnnotationDealt
         return methods;
     }
 
-    public _PortOut portOut(Class<?> classPorter, OutType defaultPoutType)
-    {
+    public _PortOut portOut(Class<?> classPorter, OutType defaultPoutType) {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(classPorter, PortOut.class);
-        if (portOut == null && defaultPoutType != null)
-        {
+        if (portOut == null && defaultPoutType != null) {
             _portOut.outType = defaultPoutType;
-        } else if (portOut != null)
-        {
+        } else if (portOut != null) {
             _portOut.outType = portOut.value();
-        } else
-        {
+        } else {
             _portOut.outType = OutType.AUTO;
         }
         return _portOut;
     }
 
-    public _PortOut portOut(Porter classPorter, Method method)
-    {
+    public _PortOut portOut(Porter classPorter, Method method) {
         _PortOut _portOut = new _PortOut();
         PortOut portOut = AnnoUtil.getAnnotation(method, PortOut.class);
 
-        if (portOut != null)
-        {
+        if (portOut != null) {
             _portOut.outType = portOut.value();
-        } else
-        {
-            if (method.getReturnType().equals(Void.TYPE))
-            {
+        } else {
+            if (method.getReturnType().equals(Void.TYPE)) {
                 _portOut.outType = OutType.VoidReturn;
-            } else
-            {
+            } else {
                 _portOut.outType = classPorter.getPortOut().outType;
             }
         }
         return _portOut;
     }
 
-    public _PortIn portIn(Porter forFinalPorter, Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean isMixin)
-    {
+    public _PortIn portIn(Porter forFinalPorter, Class<?> clazz, SeekPackages.Tiedfix classTiedfix, boolean isMixin) {
         PortIn portIn = AnnoUtil.getAnnotation(clazz, PortIn.class);
-        if (portIn == null && isMixin)
-        {
+        if (portIn == null && isMixin) {
             portIn = AnnoUtil.getAnnotation(AnnotationDealt.class, PortIn.class);
-        } else if (portIn == null || (!isMixin && (AnnoUtil
-                .isOneOfAnnotationsPresent(clazz, MixinOnly.class) || PortUtil.getMixinTos(clazz).length > 0)))
-        {
+        } else if (portIn == null || (!isMixin && (AnnoUtil.isOneOfAnnotationsPresent(clazz, MixinOnly.class) ||
+                PortUtil.getMixinTos(clazz).length > 0))) {
             return null;
         }
         _PortIn _portIn = new _PortIn(portIn.portFunType(), null, portIn.ignoredFunTieds(), portIn.enableMixinTo());
@@ -661,44 +556,36 @@ public final class AnnotationDealt
         _portIn.checks = portIn.checks();
         _portIn.checksForWholeClass = portIn.checksForWholeClass();
         _portIn.setResponseLoggerLevel(portIn.responseLoggerLevel());
-        if (OftenTool.isEmpty(_portIn.responseLoggerLevel()) && forFinalPorter != null)
-        {
+        if (OftenTool.isEmpty(_portIn.responseLoggerLevel()) && forFinalPorter != null) {
             _portIn.setResponseLoggerLevel(forFinalPorter.getPortIn().responseLoggerLevel());
         }
         _portIn.setTiedType(portIn.tiedType());
         _portIn.ignoreTypeParser = portIn.ignoreTypeParser();
         _portIn.toPorterKey = portIn.toPorterKey();
-        if (_portIn.toPorterKey.equals(PortIn.class))
-        {
+        if (_portIn.toPorterKey.equals(PortIn.class)) {
             _portIn.toPorterKey = clazz;
         }
         return _portIn;
     }
 
-    public _PortIn portIn(ContextPorter.SrcPorter srcPorter, Porter porter, Method method)
-    {
+    public _PortIn portIn(ContextPorter.SrcPorter srcPorter, Porter porter, Method method) {
         _PortIn class_PortIn = porter.getPortIn();
         _PortIn _portInOfMethod = null;
         PortIn portIn = AnnoUtil.getAnnotation(method, PortIn.class);
-        if (portIn != null)
-        {
+        if (portIn != null) {
             PortFunType portFunType = PortFunType.type(class_PortIn.getPortFunType(), portIn.portFunType());
             _portInOfMethod = new _PortIn(portFunType, portIn.aspectOfClassPosition(), portIn.ignoredFunTieds(),
                     portIn.enableMixinTo());
             _portInOfMethod.setTiedType(TiedType.typeForFun(class_PortIn.getTiedType(), portIn.tiedType()));
-            if (OftenTool.isEmpty(portIn.responseLoggerLevel()))
-            {
+            if (OftenTool.isEmpty(portIn.responseLoggerLevel())) {
                 _portInOfMethod.setResponseLoggerLevel(class_PortIn.responseLoggerLevel());
-            } else
-            {
+            } else {
                 _portInOfMethod.setResponseLoggerLevel(portIn.responseLoggerLevel());
             }
 
-            if (_portInOfMethod.getTiedType().isMethodTied())
-            {
+            if (_portInOfMethod.getTiedType().isMethodTied()) {
                 _portInOfMethod.tiedNames = new String[]{""};
-            } else
-            {
+            } else {
                 _portInOfMethod.tiedNames = PortUtil.tieds(srcPorter, portIn, method, enableDefaultValue);
             }
 
@@ -707,20 +594,16 @@ public final class AnnotationDealt
             _portInOfMethod.checks = portIn.checks();
             _portInOfMethod.methods = AnnoUtil.methods(class_PortIn.getMethods()[0], portIn);
             _portInOfMethod.ignoreTypeParser = portIn.ignoreTypeParser();
-            if (porter.getObj() instanceof IFun)
-            {
+            if (porter.getObj() instanceof IFun) {
                 IFun iFun = (IFun) porter.getObj();
-                if (!_portInOfMethod.getTiedType().isMethodTied())
-                {
+                if (!_portInOfMethod.getTiedType().isMethodTied()) {
                     String[] tieds = iFun.tieds(porter, method, _portInOfMethod);
 
-                    if (tieds == null)
-                    {
+                    if (tieds == null) {
                         throw new InitException("tieds is null:fun=" + iFun);
                     }
 
-                    for (String tied : tieds)
-                    {
+                    for (String tied : tieds) {
                         PortUtil.checkName(tied);
                     }
                     _portInOfMethod.tiedNames = tieds;
@@ -730,22 +613,18 @@ public final class AnnotationDealt
         return _portInOfMethod;
     }
 
-    public void setClassTiedName(_PortIn portIn, String tiedName)
-    {
+    public void setClassTiedName(_PortIn portIn, String tiedName) {
         portIn.setTiedNames(new String[]{tiedName});
     }
 
-    public void setTiedType(_PortIn portIn, TiedType tiedType)
-    {
-        if (tiedType == null)
-        {
+    public void setTiedType(_PortIn portIn, TiedType tiedType) {
+        if (tiedType == null) {
             return;
         }
         portIn.setTiedType(tiedType);
     }
 
-    public void setMethods(_PortIn portIn, PortMethod[] portMethods)
-    {
+    public void setMethods(_PortIn portIn, PortMethod[] portMethods) {
         portIn.methods = portMethods;
     }
 }
