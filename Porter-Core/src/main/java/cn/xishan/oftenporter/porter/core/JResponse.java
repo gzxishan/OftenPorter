@@ -21,37 +21,31 @@ import java.util.Set;
  *
  * @author Administrator
  */
-public class JResponse
-{
+public class JResponse {
 
     /**
      * 自定义返回的对象。
      */
-    public interface IObject
-    {
+    public interface IObject {
         Object toCustomObject();
     }
 
-    public static class JResponseFormatException extends RuntimeException
-    {
+    public static class JResponseFormatException extends RuntimeException {
 
         /**
          *
          */
         private static final long serialVersionUID = 1L;
 
-        public JResponseFormatException()
-        {
+        public JResponseFormatException() {
 
         }
 
-        public JResponseFormatException(String info)
-        {
+        public JResponseFormatException(String info) {
             super(info);
         }
 
-        public JResponseFormatException(Throwable throwable)
-        {
+        public JResponseFormatException(Throwable throwable) {
             super(throwable);
         }
 
@@ -65,6 +59,12 @@ public class JResponse
     public static final String DESCRIPTION_FIELD = "desc";
     public static final String SERVER_NAME_FIELD = "sn";
 
+    /**
+     * 签名字段。签名字段：{@linkplain #RESULT_FIELD}、{@linkplain #CODE_FIELD}、{@linkplain #DESCRIPTION_FIELD}、
+     * {@linkplain #SERVER_NAME_FIELD}、{@linkplain #EXTRA_FIELD}
+     */
+    public static final String SIGN_FIELD = "sign";
+
     //public static final String REQUEST_URI_FIELD = "uri";
 
 
@@ -74,61 +74,50 @@ public class JResponse
     private Throwable exCause;
     private boolean dealIObject = true;
     private String serverName;
+    private JSONObject sign;
 
-    public JResponse(ResultCode code)
-    {
+    public JResponse(ResultCode code) {
         setCode(code);
     }
 
-    public JResponse(int code)
-    {
+    public JResponse(int code) {
         setCode(code);
     }
 
-    public JResponse(ResultCode code, String description)
-    {
+    public JResponse(ResultCode code, String description) {
         setCode(code);
         setDescription(description);
     }
 
-    public JResponse(int code, String description)
-    {
+    public JResponse(int code, String description) {
         setCode(code);
         setDescription(description);
     }
 
-    public JResponse()
-    {
+    public JResponse() {
 
     }
 
-    public String getServerName()
-    {
+    public String getServerName() {
         return serverName;
     }
 
-    public void setServerName(String serverName)
-    {
+    public void setServerName(String serverName) {
         this.serverName = serverName;
     }
 
-    public boolean isDealIObject()
-    {
+    public boolean isDealIObject() {
         return dealIObject;
     }
 
-    public void setDealIObject(boolean dealIObject)
-    {
+    public void setDealIObject(boolean dealIObject) {
         this.dealIObject = dealIObject;
     }
 
-    private static String getString(JSONObject jsonObject, String name)
-    {
-        if (jsonObject.containsKey(name))
-        {
+    private static String getString(JSONObject jsonObject, String name) {
+        if (jsonObject.containsKey(name)) {
             return jsonObject.getString(name);
-        } else
-        {
+        } else {
             return null;
         }
     }
@@ -138,11 +127,9 @@ public class JResponse
      *
      * @param exCause
      */
-    public void setExCause(Throwable exCause)
-    {
+    public void setExCause(Throwable exCause) {
         Throwable cause = exCause.getCause();
-        if (cause == null)
-        {
+        if (cause == null) {
             cause = exCause;
         }
         this.exCause = cause;
@@ -151,47 +138,38 @@ public class JResponse
     /**
      * 得到异常原因
      */
-    public Throwable getExCause()
-    {
+    public Throwable getExCause() {
         return exCause;
     }
 
 
-    private static Object getResult(JSONObject jsonObject)
-    {
+    private static Object getResult(JSONObject jsonObject) {
         Object result = null;
-        if (jsonObject.containsKey(RESULT_FIELD))
-        {
+        if (jsonObject.containsKey(RESULT_FIELD)) {
             result = jsonObject.get(RESULT_FIELD);
-            if (result instanceof String && ("true".equals(result) || "false".equals(result)))
-            {
+            if (result instanceof String && ("true".equals(result) || "false".equals(result))) {
                 result = Boolean.parseBoolean(result.toString());
             }
         }
         return result;
     }
 
-    private static Object getExtra(JSONObject jsonObject)
-    {
+    private static Object getExtra(JSONObject jsonObject) {
         Object result = null;
-        if (jsonObject.containsKey(EXTRA_FIELD))
-        {
+        if (jsonObject.containsKey(EXTRA_FIELD)) {
             result = jsonObject.get(EXTRA_FIELD);
-            if (result instanceof String && ("true".equals(result) || "false".equals(result)))
-            {
+            if (result instanceof String && ("true".equals(result) || "false".equals(result))) {
                 result = Boolean.parseBoolean(result.toString());
             }
         }
         return result;
     }
 
-    public Object getExtra()
-    {
+    public Object getExtra() {
         return extra;
     }
 
-    public void setExtra(Object extra)
-    {
+    public void setExtra(Object extra) {
         this.extra = extra;
     }
 
@@ -202,8 +180,7 @@ public class JResponse
      * @return
      * @throws JResponseFormatException
      */
-    public static JResponse fromJSON(String json) throws JResponseFormatException
-    {
+    public static JResponse fromJSON(String json) throws JResponseFormatException {
         JSONObject jsonObject = JSON.parseObject(json);
         return fromJSONObject(jsonObject);
     }
@@ -215,10 +192,8 @@ public class JResponse
      * @return
      * @throws JResponseFormatException
      */
-    public static JResponse fromJSONObject(JSONObject jsonObject) throws JResponseFormatException
-    {
-        try
-        {
+    public static JResponse fromJSONObject(JSONObject jsonObject) throws JResponseFormatException {
+        try {
             int code = jsonObject.getIntValue(CODE_FIELD);
             String desc = getString(jsonObject, DESCRIPTION_FIELD);
 
@@ -228,20 +203,18 @@ public class JResponse
             ResultCode resultCode = ResultCode.toResponseCode(code);
 
             JResponse jsonResponse = new JResponse();
-            if (resultCode == null)
-            {
+            if (resultCode == null) {
                 jsonResponse.setCode(code);
-            } else
-            {
+            } else {
                 jsonResponse.setCode(resultCode);
             }
             jsonResponse.setDescription(desc);
             jsonResponse.setResult(result);
             jsonResponse.setExtra(extra);
             jsonResponse.setServerName(jsonObject.getString(SERVER_NAME_FIELD));
+            jsonResponse.setSign(jsonObject.getJSONObject(SIGN_FIELD));
             return jsonResponse;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new JResponseFormatException(e);
         }
     }
@@ -251,13 +224,11 @@ public class JResponse
      *
      * @param code
      */
-    public void setCode(ResultCode code)
-    {
+    public void setCode(ResultCode code) {
         this.code = code;
     }
 
-    public void setCode(int code)
-    {
+    public void setCode(int code) {
         this.code = code;
     }
 
@@ -266,14 +237,20 @@ public class JResponse
      *
      * @param description
      */
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getDescription()
-    {
+    public String getDescription() {
         return description;
+    }
+
+    public JSONObject getSign() {
+        return sign;
+    }
+
+    public void setSign(JSONObject sign) {
+        this.sign = sign;
     }
 
     /**
@@ -281,19 +258,15 @@ public class JResponse
      *
      * @param result
      */
-    public void setResult(Object result)
-    {
+    public void setResult(Object result) {
         this.result = result;
     }
 
 
-    public int getIntCode()
-    {
-        if (code instanceof ResultCode)
-        {
+    public int getIntCode() {
+        if (code instanceof ResultCode) {
             return ((ResultCode) code).toCode();
-        } else
-        {
+        } else {
             return (int) code;
         }
     }
@@ -304,8 +277,7 @@ public class JResponse
      * @param <T>
      * @return
      */
-    public <T> T getResult()
-    {
+    public <T> T getResult() {
         _throwExCause();
         return (T) result;
     }
@@ -315,71 +287,58 @@ public class JResponse
      *
      * @return
      */
-    public JSONObject resultJSON()
-    {
+    public JSONObject resultJSON() {
         JSONObject json = getResult();
         return json;
     }
 
-    public boolean resultBoolean()
-    {
+    public boolean resultBoolean() {
         boolean is = getResult();
         return is;
     }
 
-    public int resultInt()
-    {
+    public int resultInt() {
         int n = getResult();
         return n;
     }
 
-    public long resultLong()
-    {
+    public long resultLong() {
         long l = getResult();
         return l;
     }
 
-    public String resultString()
-    {
+    public String resultString() {
         String str = getResult();
         return str;
     }
 
-    public JSONArray resultJSONArray()
-    {
+    public JSONArray resultJSONArray() {
         JSONArray jsonArray = getResult();
         return jsonArray;
     }
 
-    public boolean isSuccess()
-    {
+    public boolean isSuccess() {
         return getIntCode() == ResultCode.SUCCESS.toCode();
     }
 
-    public boolean isNotSuccess()
-    {
+    public boolean isNotSuccess() {
         return getIntCode() != ResultCode.SUCCESS.toCode();
     }
 
     /**
      * 如果异常信息不为空，则抛出。
      */
-    public void throwExCause()
-    {
+    public void throwExCause() {
         _throwExCause();
     }
 
 
-    private final void _throwExCause()
-    {
-        if (exCause != null)
-        {
+    private final void _throwExCause() {
+        if (exCause != null) {
             RuntimeException runtimeException;
-            if (exCause instanceof RuntimeException)
-            {
+            if (exCause instanceof RuntimeException) {
                 runtimeException = (RuntimeException) exCause;
-            } else
-            {
+            } else {
                 throw new RuntimeException(exCause);
             }
             throw runtimeException;
@@ -388,20 +347,17 @@ public class JResponse
 
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return toJSON().toString();
     }
 
     /**
      * 转换为json
      */
-    public JSONObject toJSON()
-    {
+    public JSONObject toJSON() {
         JSONObject json = new JSONObject(5);
         json.put(CODE_FIELD, getIntCode());
-        if (code instanceof ResultCode)
-        {
+        if (code instanceof ResultCode) {
             json.put(CODE_NAME_FIELD, ((ResultCode) code).name());
         }
         json.put(DESCRIPTION_FIELD, description);
@@ -409,59 +365,51 @@ public class JResponse
 
         Object result = this.result;
         Object extra = this.extra;
-        if (isDealIObject())
-        {
+        if (isDealIObject()) {
             result = dealIObject(result);
             extra = dealIObject(extra);
         }
 
-        if (result != null)
-        {
+        if (result != null) {
             json.put(RESULT_FIELD, result);
         }
 
-        if (extra != null)
-        {
-            if (extra instanceof Map || extra instanceof Collection)
-            {
+        if (extra != null) {
+            if (extra instanceof Map || extra instanceof Collection) {
                 json.put(EXTRA_FIELD, extra);
-            } else
-            {
+            } else {
                 json.put(EXTRA_FIELD, String.valueOf(extra));
             }
+        }
+
+        if (sign != null) {
+            json.put(SIGN_FIELD, sign);
         }
 
 
         return json;
     }
 
-    private Object dealIObject(Object obj)
-    {
-        if (obj == null)
-        {
+    private Object dealIObject(Object obj) {
+        if (obj == null) {
             return null;
         }
 
-        if (obj instanceof IObject)
-        {
+        if (obj instanceof IObject) {
             obj = ((IObject) obj).toCustomObject();
-        } else if (obj instanceof Collection && !(obj instanceof JSONArray))
-        {
+        } else if (obj instanceof Collection && !(obj instanceof JSONArray)) {
             Collection collection = (Collection) obj;
             JSONArray array = new JSONArray(collection.size());
             obj = array;
-            for (Object item : collection)
-            {
+            for (Object item : collection) {
                 array.add(dealIObject(item));
             }
-        } else if (obj instanceof Map && !(obj instanceof JSONObject))
-        {
+        } else if (obj instanceof Map && !(obj instanceof JSONObject)) {
             Map map = (Map) obj;
             JSONObject jsonObject = new JSONObject(map.size());
             obj = jsonObject;
             Set<Map.Entry> set = map.entrySet();
-            for (Map.Entry entry : set)
-            {
+            for (Map.Entry entry : set) {
                 jsonObject.put(String.valueOf(entry.getKey()), dealIObject(entry.getValue()));
             }
         }
@@ -469,27 +417,22 @@ public class JResponse
     }
 
 
-    public static JResponse success()
-    {
+    public static JResponse success() {
         return JResponse.success(null);
     }
 
-    public static JResponse success(Object result)
-    {
+    public static JResponse success(Object result) {
         JResponse jResponse = new JResponse(ResultCode.SUCCESS);
         jResponse.setResult(result);
         return jResponse;
     }
 
-    public static JResponse failed(String desc)
-    {
+    public static JResponse failed(String desc) {
         return failed(ResultCode.OK_BUT_FAILED, desc);
     }
 
-    public static JResponse failed(ResultCode code, String desc)
-    {
-        if (code == ResultCode.SUCCESS || code == ResultCode.OK)
-        {
+    public static JResponse failed(ResultCode code, String desc) {
+        if (code == ResultCode.SUCCESS || code == ResultCode.OK) {
             throw new IllegalArgumentException("illegal code:" + code);
         }
         JResponse jResponse = new JResponse(code);
