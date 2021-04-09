@@ -60,8 +60,7 @@ public class JResponse {
     public static final String SERVER_NAME_FIELD = "sn";
 
     /**
-     * 签名字段。签名字段：{@linkplain #RESULT_FIELD}、{@linkplain #CODE_FIELD}、{@linkplain #DESCRIPTION_FIELD}、
-     * {@linkplain #SERVER_NAME_FIELD}、{@linkplain #EXTRA_FIELD}
+     * 签名字段。
      */
     public static final String SIGN_FIELD = "sign";
 
