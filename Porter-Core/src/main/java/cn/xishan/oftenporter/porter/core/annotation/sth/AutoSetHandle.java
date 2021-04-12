@@ -32,28 +32,23 @@ import java.util.*;
 /**
  * @author Created by https://github.com/CLovinr on 2017/1/7.
  */
-public class AutoSetHandle
-{
+public class AutoSetHandle {
 
-    public static class _SetOkObject implements Comparable<_SetOkObject>
-    {
+    public static class _SetOkObject implements Comparable<_SetOkObject> {
         private final Object obj;
         public final Method method;
         public final int priority;
         Logger logger;
 
-        public _SetOkObject(Object obj, _SetOkObject ref)
-        {
+        public _SetOkObject(Object obj, _SetOkObject ref) {
             this.obj = obj;
             this.method = ref.method;
             this.priority = ref.priority;
             this.logger = ref.logger;
         }
 
-        public _SetOkObject(Object obj, Method method, int priority, Logger logger)
-        {
-            if (method != null)
-            {
+        public _SetOkObject(Object obj, Method method, int priority, Logger logger) {
+            if (method != null) {
                 method.setAccessible(true);
             }
             this.obj = obj;
@@ -63,48 +58,39 @@ public class AutoSetHandle
         }
 
         @Override
-        public int compareTo(_SetOkObject o)
-        {
+        public int compareTo(_SetOkObject o) {
             int n = o.priority - priority;
-            if (n == 0)
-            {
+            if (n == 0) {
                 return 0;
-            } else if (n > 0)
-            {
+            } else if (n > 0) {
                 return 1;
-            } else
-            {
+            } else {
                 return -1;
             }
         }
 
-        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception
-        {
+        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception {
             logger.debug("invoke @SetOk:{}", method);
             method.setAccessible(true);
             DefaultArgumentsFactory.invokeWithArgs(configData, obj, method, oftenObject, configData);
         }
     }
 
-    public static class _PortInited implements Comparable<_PortInited>
-    {
+    public static class _PortInited implements Comparable<_PortInited> {
         private final Object obj;
         public final Method method;
         public final int order;
         Logger logger;
 
-        public _PortInited(Object obj, _PortInited ref)
-        {
+        public _PortInited(Object obj, _PortInited ref) {
             this.obj = obj;
             this.method = ref.method;
             this.order = ref.order;
             this.logger = ref.logger;
         }
 
-        public _PortInited(Object obj, Method method, int order, Logger logger)
-        {
-            if (method != null)
-            {
+        public _PortInited(Object obj, Method method, int order, Logger logger) {
+            if (method != null) {
                 method.setAccessible(true);
             }
             this.obj = obj;
@@ -114,31 +100,25 @@ public class AutoSetHandle
         }
 
         @Override
-        public int compareTo(_PortInited o)
-        {
+        public int compareTo(_PortInited o) {
             int n = this.order - o.order;
-            if (n == 0)
-            {
+            if (n == 0) {
                 return 0;
-            } else if (n > 0)
-            {
+            } else if (n > 0) {
                 return 1;
-            } else
-            {
+            } else {
                 return -1;
             }
         }
 
-        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception
-        {
+        public void invoke(OftenObject oftenObject, IConfigData configData) throws Exception {
             logger.debug("invoke @PortInited:{}", method);
             method.setAccessible(true);
             DefaultArgumentsFactory.invokeWithArgs(configData, obj, method, oftenObject, configData);
         }
     }
 
-    enum RangeType
-    {
+    enum RangeType {
         /**
          * 只针对static类型的成员。
          */
@@ -153,58 +133,46 @@ public class AutoSetHandle
         ALL
     }
 
-    private interface IHandle
-    {
+    private interface IHandle {
         void handle() throws Exception;
     }
 
     /**
      * 处理{@linkplain AutoSetToThatForMixin}和{@linkplain AutoSetThatForMixin}
      */
-    private class Handle_doAutoSetThatOfMixin implements IHandle
-    {
+    private class Handle_doAutoSetThatOfMixin implements IHandle {
         Object[] args;
 
-        public Handle_doAutoSetThatOfMixin(Object... args)
-        {
+        public Handle_doAutoSetThatOfMixin(Object... args) {
             this.args = args;
         }
 
-        private void doAutoSetThatOfMixin(Object obj1, Object obj2) throws AutoSetException
-        {
-            try
-            {
+        private void doAutoSetThatOfMixin(Object obj1, Object obj2) throws AutoSetException {
+            try {
                 _doAutoSetThatOfMixin(obj1, obj2);
                 _doAutoSetThatOfMixin(obj2, obj1);
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new AutoSetException(e);
             }
         }
 
         @Override
-        public void handle() throws AutoSetException
-        {
+        public void handle() throws AutoSetException {
             this.doAutoSetThatOfMixin(args[0], args[1]);
         }
     }
 
-    private class Handle_doAutoSetsForNotPorter implements IHandle
-    {
+    private class Handle_doAutoSetsForNotPorter implements IHandle {
 
         private Object[] objects;
 
-        public Handle_doAutoSetsForNotPorter(Object[] objects)
-        {
+        public Handle_doAutoSetsForNotPorter(Object[] objects) {
             this.objects = objects;
         }
 
-        private void doAutoSetsForNotPorter(Object[] objects) throws Exception
-        {
-            for (Object obj : objects)
-            {
-                if (obj == null)
-                {
+        private void doAutoSetsForNotPorter(Object[] objects) throws Exception {
+            for (Object obj : objects) {
+                if (obj == null) {
                     continue;
                 }
                 doAutoSetForCurrent(false, obj, obj);
@@ -212,135 +180,106 @@ public class AutoSetHandle
         }
 
         @Override
-        public void handle() throws Exception
-        {
+        public void handle() throws Exception {
             this.doAutoSetsForNotPorter(objects);
         }
     }
 
-    private class Handle_doAutoSetSeek implements IHandle
-    {
+    private class Handle_doAutoSetSeek implements IHandle {
 
         Object[] args;
 
-        public Handle_doAutoSetSeek(Object... args)
-        {
+        public Handle_doAutoSetSeek(Object... args) {
             this.args = args;
         }
 
-        private void doAutoSetSeek(List<String> packages, ClassLoader classLoader)
-        {
-            if (packages == null)
-            {
+        private void doAutoSetSeek(List<String> packages, ClassLoader classLoader) {
+            if (packages == null) {
                 return;
             }
-            try
-            {
-                for (int i = 0; i < packages.size(); i++)
-                {
+            try {
+                for (int i = 0; i < packages.size(); i++) {
                     AutoSetHandle.this.doAutoSetSeek(packages.get(i), classLoader);
                 }
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public void handle()
-        {
+        public void handle() {
             this.doAutoSetSeek((List) args[0], (ClassLoader) args[1]);
         }
     }
 
-    private class Handle_doStaticAutoSet implements IHandle
-    {
+    private class Handle_doStaticAutoSet implements IHandle {
 
         Object[] args;
 
-        public Handle_doStaticAutoSet(Object... args)
-        {
+        public Handle_doStaticAutoSet(Object... args) {
             this.args = args;
         }
 
         private void doAutoSetSeek(Collection<String> packages, Collection<String> classStrs,
                 Collection<Class<?>> classes,
-                ClassLoader classLoader)
-        {
+                ClassLoader classLoader) {
             if ((packages == null || packages.size() == 0) && (classStrs == null || classStrs.size() == 0) &&
-                    (classes == null || classes.size() == 0))
-            {
+                    (classes == null || classes.size() == 0)) {
                 return;
             }
-            try
-            {
+            try {
                 LOGGER.debug("*****StaticAutoSet******");
-                if (packages != null)
-                {
-                    for (String packageStr : packages)
-                    {
+                if (packages != null) {
+                    for (String packageStr : packages) {
                         LOGGER.debug("【扫描包开始：{}", packageStr);
                         List<String> pkgClasses = PackageUtil.getClassName(packageStr, classLoader);
-                        for (int i = 0; i < pkgClasses.size(); i++)
-                        {
+                        for (int i = 0; i < pkgClasses.size(); i++) {
                             Class<?> clazz = PackageUtil.newClass(pkgClasses.get(i), classLoader);
                             doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
                         LOGGER.debug("扫描包结束：{}】", packageStr);
                     }
                 }
-                if (classes != null)
-                {
-                    for (Class<?> clazz : classes)
-                    {
+                if (classes != null) {
+                    for (Class<?> clazz : classes) {
                         doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                     }
                 }
 
-                if (classStrs != null)
-                {
-                    for (String clazzStr : classStrs)
-                    {
+                if (classStrs != null) {
+                    for (String clazzStr : classStrs) {
                         Class<?> clazz = null;
-                        try
-                        {
+                        try {
                             clazz = PackageUtil.newClass(clazzStr, classLoader);
-                        } catch (Exception e)
-                        {
+                        } catch (Exception e) {
                             LOGGER.error(e.getMessage(), e);
                         }
-                        if (clazz != null)
-                        {
+                        if (clazz != null) {
                             doAutoSetForCurrent(false, null, null, clazz, null, RangeType.STATIC);
                         }
                     }
                 }
 
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public void handle()
-        {
+        public void handle() {
             this.doAutoSetSeek((Collection<String>) args[0], (Collection) args[1], (Collection) args[2],
                     (ClassLoader) args[3]);
         }
     }
 
-    private class Handle_doAutoSetForPorter implements IHandle
-    {
+    private class Handle_doAutoSetForPorter implements IHandle {
         Object[] args;
 
-        public Handle_doAutoSetForPorter(Object... args)
-        {
+        public Handle_doAutoSetForPorter(Object... args) {
             this.args = args;
         }
 
-        private void doAutoSetForPorter(Porter porter) throws Exception
-        {
+        private void doAutoSetForPorter(Porter porter) throws Exception {
             Object obj = doAutoSetForCurrent(true, porter, porter.getFinalPorterObject(), porter.getClazz(),
                     porter.getObj(),
                     RangeType.ALL);
@@ -348,8 +287,7 @@ public class AutoSetHandle
         }
 
         @Override
-        public void handle() throws Exception
-        {
+        public void handle() throws Exception {
             this.doAutoSetForPorter((Porter) args[0]);
         }
     }
@@ -392,8 +330,7 @@ public class AutoSetHandle
     private AutoSetHandle(PorterConf porterConf, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge, CheckerBuilder checkerBuilder,
             Delivery thisDelivery, PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal,
-            String contextName)
-    {
+            String contextName) {
         this.porterConf = porterConf;
         this.iConfigData = porterConf.getConfigData();
         this.argumentsFactory = argumentsFactory;
@@ -406,88 +343,68 @@ public class AutoSetHandle
         LOGGER = LogUtil.logger(AutoSetHandle.class);
     }
 
-    public boolean isUseCache()
-    {
+    public boolean isUseCache() {
         return useCache;
     }
 
-    public void setUseCache(boolean useCache)
-    {
+    public void setUseCache(boolean useCache) {
         this.useCache = useCache;
-        if (useCache)
-        {
-            if (setOkOrPortInitCacheMap == null)
-            {
+        if (useCache) {
+            if (setOkOrPortInitCacheMap == null) {
                 setOkOrPortInitCacheMap = new HashMap<>();
             }
-            if (startsCacheMap == null)
-            {
+            if (startsCacheMap == null) {
                 startsCacheMap = new HashMap<>();
             }
-            if (destroysCacheMap == null)
-            {
+            if (destroysCacheMap == null) {
                 destroysCacheMap = new HashMap<>();
             }
         }
     }
 
-    public void clearCache()
-    {
-        if (setOkOrPortInitCacheMap != null)
-        {
+    public void clearCache() {
+        if (setOkOrPortInitCacheMap != null) {
             setOkOrPortInitCacheMap.clear();
             setOkOrPortInitCacheMap = null;
         }
-        if (startsCacheMap != null)
-        {
+        if (startsCacheMap != null) {
             startsCacheMap.clear();
             startsCacheMap = null;
         }
-        if (destroysCacheMap != null)
-        {
+        if (destroysCacheMap != null) {
             destroysCacheMap.clear();
             destroysCacheMap = null;
         }
     }
 
-    public IAutoVarGetter getAutoVarGetter()
-    {
+    public IAutoVarGetter getAutoVarGetter() {
         return autoVarGetter;
     }
 
-    public IConfigData getConfigData()
-    {
+    public IConfigData getConfigData() {
         return iConfigData;
     }
 
-    public void setAutoVarGetter(IAutoVarGetter autoVarGetter)
-    {
+    public void setAutoVarGetter(IAutoVarGetter autoVarGetter) {
         this.autoVarGetter = autoVarGetter;
     }
 
-    public void setAutoSetter(IAutoSetter autoSetter)
-    {
+    public void setAutoSetter(IAutoSetter autoSetter) {
         this.autoSetter = autoSetter;
     }
 
-    public void invokePortInited(OftenObject oftenObject)
-    {
-        try
-        {
-            if (portIniteds != null)
-            {
+    public void invokePortInited(OftenObject oftenObject) {
+        try {
+            if (portIniteds != null) {
                 _PortInited[] portIniteds = this.portIniteds.toArray(new _PortInited[0]);
                 Arrays.sort(portIniteds);
-                for (_PortInited portInited : portIniteds)
-                {
+                for (_PortInited portInited : portIniteds) {
                     portInited.invoke(oftenObject, iConfigData);
                 }
             }
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally
-        {
+        } finally {
             this.portIniteds = null;
         }
     }
@@ -495,29 +412,25 @@ public class AutoSetHandle
     /**
      * 调用所有的{@linkplain SetOk SetOk}函数。
      */
-    public synchronized void invokeSetOk(OftenObject oftenObject)
-    {
+    public synchronized void invokeSetOk(OftenObject oftenObject) {
 
         _SetOkObject[] setOkObjects = this.setOkObjects.toArray(new _SetOkObject[0]);
         Arrays.sort(setOkObjects);
         //先清理、再调用setOk函数
         this.setOkObjects.clear();
-//            this.porterMap = null;
-//            this.proxyObjectMap = null;
+        //            this.porterMap = null;
+        //            this.proxyObjectMap = null;
         this.iHandles_notporter.clear();
         this.iHandles_porter.clear();
         this.iHandlesForAutoSetThat = null;
         this.innerContextBridge.annotationDealt.clearCache();
         autoSetDealtSet.clear();
-//            autoSetDealtSet = null;
+        //            autoSetDealtSet = null;
 
-        for (_SetOkObject setOkObject : setOkObjects)
-        {
-            try
-            {
+        for (_SetOkObject setOkObject : setOkObjects) {
+            try {
                 setOkObject.invoke(oftenObject, iConfigData);
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
@@ -526,77 +439,63 @@ public class AutoSetHandle
     public static AutoSetHandle newInstance(PorterConf porterConf, IArgumentsFactory argumentsFactory,
             InnerContextBridge innerContextBridge, CheckerBuilder checkerBuilder,
             Delivery thisDelivery,
-            PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName)
-    {
+            PorterData porterData, AutoSetObjForAspectOfNormal autoSetObjForAspectOfNormal, String currentContextName) {
         return new AutoSetHandle(porterConf, argumentsFactory, innerContextBridge, checkerBuilder, thisDelivery,
                 porterData,
                 autoSetObjForAspectOfNormal, currentContextName);
     }
 
 
-    public <T> T getContextObject(Class<?> key)
-    {
+    public <T> T getContextObject(Class<?> key) {
         return getContextObject(key.getName());
     }
 
-    public <T> T getContextObject(String key)
-    {
+    public <T> T getContextObject(String key) {
         return (T) innerContextBridge.getContextSet(key);
     }
 
-    public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy)
-    {
+    public void setIOtherStartDestroy(IOtherStartDestroy iOtherStartDestroy) {
         this.iOtherStartDestroy = iOtherStartDestroy;
     }
 
-    public IOtherStartDestroy getOtherStartDestroy()
-    {
+    public IOtherStartDestroy getOtherStartDestroy() {
         return iOtherStartDestroy;
     }
 
-    public InnerContextBridge getInnerContextBridge()
-    {
+    public InnerContextBridge getInnerContextBridge() {
         return innerContextBridge;
     }
 
-    public IArgumentsFactory getArgumentsFactory()
-    {
+    public IArgumentsFactory getArgumentsFactory() {
         return argumentsFactory;
     }
 
-    public OftenContextInfo getOftenContextInfo()
-    {
+    public OftenContextInfo getOftenContextInfo() {
         return oftenContextInfo;
     }
 
-    public synchronized void addAutoSetSeekPackages(List<String> packages, ClassLoader classLoader)
-    {
+    public synchronized void addAutoSetSeekPackages(List<String> packages, ClassLoader classLoader) {
         iHandles_notporter.add(new Handle_doAutoSetSeek(packages, classLoader));
     }
 
     public synchronized void addStaticAutoSet(Collection<String> packages, Collection<String> classStrs,
             Collection<Class> classes,
-            ClassLoader classLoader)
-    {
+            ClassLoader classLoader) {
         if (OftenTool.isEmptyOf(packages) && OftenTool.isEmptyOf(classStrs) && OftenTool
-                .isEmptyOf(classes))
-        {
+                .isEmptyOf(classes)) {
             return;
         }
         iHandles_notporter.add(new Handle_doStaticAutoSet(packages, classStrs, classes, classLoader));
     }
 
-    private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception
-    {
+    private void doAutoSetSeek(String packageStr, ClassLoader classLoader) throws Exception {
         LOGGER.debug("*****autoSetSeek******");
         LOGGER.debug("【扫描包开始：{}", packageStr);
         List<String> classeses = PackageUtil.getClassName(packageStr, classLoader);
-        for (int i = 0; i < classeses.size(); i++)
-        {
+        for (int i = 0; i < classeses.size(); i++) {
             Class<?> clazz = PackageUtil.newClass(classeses.get(i), classLoader);
             doAutoSetForCurrent(true, null, null, clazz, null, RangeType.STATIC);
-            if (clazz.isAnnotationPresent(AutoSetSeek.class))
-            {
+            if (clazz.isAnnotationPresent(AutoSetSeek.class)) {
                 Object object = clazz.newInstance();
                 doAutoSetForCurrent(true, null, object, clazz, object, RangeType.INSTANCE);
             }
@@ -605,21 +504,17 @@ public class AutoSetHandle
     }
 
 
-    public synchronized void addAutoSetsForNotPorter(Collection objects)
-    {
+    public synchronized void addAutoSetsForNotPorter(Collection objects) {
         addAutoSetsForNotPorter(objects.toArray(OftenTool.EMPTY_OBJECT_ARRAY));
     }
 
-    public synchronized void addAutoSetsForNotPorter(Object[] objects)
-    {
+    public synchronized void addAutoSetsForNotPorter(Object[] objects) {
         iHandles_notporter.add(new Handle_doAutoSetsForNotPorter(objects));
     }
 
-    synchronized Object addAutoSetForPorter(Porter porter) throws Exception
-    {
+    synchronized Object addAutoSetForPorter(Porter porter) throws Exception {
         Object porterObject = porter.getObj();
-        if (porterObject == null)
-        {
+        if (porterObject == null) {
             porterObject = workedInstance.newAndProxy(porter.getClazz(), this);
         }
         iHandles_porter.add(new Handle_doAutoSetForPorter(porter));
@@ -628,20 +523,16 @@ public class AutoSetHandle
 
         List<PortIn.ContextSet> contextSets = AnnoUtil
                 .getAnnotationsWithSuper(porter.getClazz(), PortIn.ContextSet.class);
-        for (PortIn.ContextSet contextSet : contextSets)
-        {
-            if (OftenTool.isEmpty(contextSet.value()))
-            {
-                if (LOGGER.isWarnEnabled())
-                {
+        for (PortIn.ContextSet contextSet : contextSets) {
+            if (OftenTool.isEmpty(contextSet.value())) {
+                if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("@{} value of {} is empty!", PortIn.ContextSet.class.getSimpleName(),
                             porter.getClazz());
                 }
                 continue;
             }
             Object last = innerContextBridge.putContextSet(contextSet.value(), porterObject);
-            if (last != null && LOGGER.isWarnEnabled())
-            {
+            if (last != null && LOGGER.isWarnEnabled()) {
                 LOGGER.warn("override by @{}:key={},newValue={},oldValue={}", PortIn.ContextSet.class.getSimpleName(),
                         contextSet.value(),
                         porter.getObj(), last);
@@ -651,61 +542,47 @@ public class AutoSetHandle
         return porterObject;
     }
 
-    public synchronized void addAutoSetThatOfMixin(Object porter1, Object porter2)
-    {
+    public synchronized void addAutoSetThatOfMixin(Object porter1, Object porter2) {
         iHandlesForAutoSetThat.add(new Handle_doAutoSetThatOfMixin(porter1, porter2));
     }
 
 
-    public Object doAutoSetMayProxy(Object object)
-    {
-        try
-        {
+    public Object doAutoSetMayProxy(Object object) {
+        try {
             return doAutoSetForCurrent(true, object, object);
-        } catch (AutoSetException e)
-        {
+        } catch (AutoSetException e) {
             throw e;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new AutoSetException(e);
-        } finally
-        {
+        } finally {
             workedInstance.clear();
             addedAutoSetStaticClasses.clear();
         }
     }
 
 
-    public synchronized void doAutoSetNormal() throws AutoSetException
-    {
-        try
-        {
-            for (int i = 0; i < iHandles_notporter.size(); i++)
-            {
+    public synchronized void doAutoSetNormal() throws AutoSetException {
+        try {
+            for (int i = 0; i < iHandles_notporter.size(); i++) {
                 iHandles_notporter.get(i).handle();
             }
 
             iHandles_notporter.clear();
 
-            for (int i = 0; i < iHandles_porter.size(); i++)
-            {
+            for (int i = 0; i < iHandles_porter.size(); i++) {
                 iHandles_porter.get(i).handle();
             }
 
             //再执行一篇，可能添加了AutoSetStatic
-            for (int i = 0; i < iHandles_notporter.size(); i++)
-            {
+            for (int i = 0; i < iHandles_notporter.size(); i++) {
                 iHandles_notporter.get(i).handle();
             }
 
-        } catch (AutoSetException e)
-        {
+        } catch (AutoSetException e) {
             throw e;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new AutoSetException(e);
-        } finally
-        {
+        } finally {
             workedInstance.clear();
             iHandles_notporter.clear();
             iHandles_porter.clear();
@@ -713,59 +590,46 @@ public class AutoSetHandle
         }
     }
 
-    public synchronized void doAutoSetThat() throws AutoSetException
-    {
-        try
-        {
-//            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
-            for (int i = 0; i < iHandlesForAutoSetThat.size(); i++)
-            {
+    public synchronized void doAutoSetThat() throws AutoSetException {
+        try {
+            //            workedInstance = new AutoSetHandleWorkedInstance(autoSetObjForAspectOfNormal);
+            for (int i = 0; i < iHandlesForAutoSetThat.size(); i++) {
                 iHandlesForAutoSetThat.get(i).handle();
             }
-        } catch (AutoSetException e)
-        {
+        } catch (AutoSetException e) {
             throw e;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new AutoSetException(e);
-        } finally
-        {
+        } finally {
             workedInstance.clear();
             iHandlesForAutoSetThat.clear();
         }
     }
 
-    private void _doAutoSetThatOfMixin(Object objectForGet, Object objectForSet) throws Exception
-    {
+    private void _doAutoSetThatOfMixin(Object objectForGet, Object objectForSet) throws Exception {
         objectForGet = mayGetProxyObject(objectForGet);
         objectForSet = mayGetProxyObject(objectForSet);
 
         Map<String, Field> fromGet = new HashMap<>();
 
         Field[] fieldsGet = OftenTool.getAllFields(PortUtil.getRealClass(objectForGet));
-        for (Field field : fieldsGet)
-        {
+        for (Field field : fieldsGet) {
             AutoSetToThatForMixin autoSetToThatForMixin = AnnoUtil.getAnnotation(field, AutoSetToThatForMixin.class);
-            if (autoSetToThatForMixin == null)
-            {
+            if (autoSetToThatForMixin == null) {
                 continue;
             }
             String key;
-            if (autoSetToThatForMixin.key().equals("") && autoSetToThatForMixin.value().equals(AutoSet.class))
-            {
-//                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
-//                        .getSimpleName() + " is empty  for field '" + field + "'");
+            if (autoSetToThatForMixin.key().equals("") && autoSetToThatForMixin.value().equals(AutoSet.class)) {
+                //                throw new InitException("the key of annotation " + AutoSetToThatForMixin.class
+                //                        .getSimpleName() + " is empty  for field '" + field + "'");
                 key = AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), field).getName();
-            } else if (OftenTool.notEmpty(autoSetToThatForMixin.key()))
-            {
+            } else if (OftenTool.notEmpty(autoSetToThatForMixin.key())) {
                 key = autoSetToThatForMixin.key();
-            } else
-            {
+            } else {
                 key = autoSetToThatForMixin.value().getName();
             }
 
-            if (fromGet.containsKey(key))
-            {
+            if (fromGet.containsKey(key)) {
                 LOGGER.warn("already exists key '{}', current field is [{}],last field is [{}]", field,
                         fromGet.get(key));
             }
@@ -773,59 +637,47 @@ public class AutoSetHandle
         }
 
         Field[] fields = OftenTool.getAllFields(PortUtil.getRealClass(objectForSet));
-        for (Field field : fields)
-        {
+        for (Field field : fields) {
             AutoSetThatForMixin autoSetThatForMixin = AnnoUtil.getAnnotation(field, AutoSetThatForMixin.class);
-            if (autoSetThatForMixin == null)
-            {
+            if (autoSetThatForMixin == null) {
                 continue;
             }
             field.setAccessible(true);
-            if (field.get(objectForSet) != null)
-            {//忽略不为null的
+            if (field.get(objectForSet) != null) {//忽略不为null的
                 continue;
             }
 
             Object value;
-            if (autoSetThatForMixin.value().equals(AutoSet.class) && autoSetThatForMixin.key().equals(""))
-            {
+            if (autoSetThatForMixin.value().equals(AutoSet.class) && autoSetThatForMixin.key().equals("")) {
                 value = objectForGet;
-            } else
-            {
+            } else {
                 String key = autoSetThatForMixin.key().equals("") ? autoSetThatForMixin.value()
                         .getName() : autoSetThatForMixin.key();
                 Field getField = fromGet.get(key);
-                if (getField == null && autoSetThatForMixin.searchChild())
-                {
+                if (getField == null && autoSetThatForMixin.searchChild()) {
                     //尝试查找子类型
                     Class type = AnnoUtil.Advance.getRealTypeOfField(objectForSet.getClass(), field);
-                    for (Field f : fromGet.values())
-                    {
+                    for (Field f : fromGet.values()) {
                         if (OftenTool
-                                .isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type))
-                        {
+                                .isAssignable(AnnoUtil.Advance.getRealTypeOfField(objectForGet.getClass(), f), type)) {
                             getField = f;
                             break;
                         }
                     }
                 }
 
-                if (getField == null)
-                {
+                if (getField == null) {
                     value = null;
-                } else
-                {
+                } else {
                     getField.setAccessible(true);
                     value = getField.get(objectForGet);
                 }
-                if (value == null && autoSetThatForMixin.required())
-                {
+                if (value == null && autoSetThatForMixin.required()) {
                     throw new InitException("need transfer field from '" + objectForGet
                             .getClass() + "' with key '" + key + "' to set field '" + field + "'");
                 }
             }
-            if (value == null || !OftenTool.isAssignable(value.getClass(), field.getType()))
-            {//忽略非继承关系的。
+            if (value == null || !OftenTool.isAssignable(value.getClass(), field.getType())) {//忽略非继承关系的。
                 continue;
             }
             field.set(objectForSet, value);
@@ -834,47 +686,36 @@ public class AutoSetHandle
     }
 
     Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Object finalObject,
-            Object currentObject) throws Exception
-    {
+            Object currentObject) throws Exception {
         return doAutoSetForCurrent(doProxyCurrent, null, finalObject, PortUtil.getRealClass(currentObject),
                 currentObject, RangeType.ALL);
     }
 
-    private Object mayGetProxyObject(Object object)
-    {
-        if (object != null)
-        {
+    private Object mayGetProxyObject(Object object) {
+        if (object != null) {
             Object obj = proxyObjectMap.get(object);
-            if (obj != null)
-            {
+            if (obj != null) {
                 object = obj;
             }
         }
         return object;
     }
 
-    void putProxyObject(Object origin, Object proxy)
-    {
-        if (origin != null)
-        {
+    void putProxyObject(Object origin, Object proxy) {
+        if (origin != null) {
             proxyObjectMap.put(origin, proxy);
         }
     }
 
-    private void doAutoSetPut(Field field, Object obj, Class realType)
-    {
-        if (obj != null)
-        {
+    private void doAutoSetPut(Field field, Object obj, Class realType) {
+        if (obj != null) {
             AutoSet.Put put = AnnoUtil.getAnnotation(field, AutoSet.Put.class);
-            if (put != null)
-            {
+            if (put != null) {
                 //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
                 String name = put.name().equals("") ? realType.getName() : put.name();
-                if (put.range() == AutoSet.Range.Global)
-                {
+                if (put.range() == AutoSet.Range.Global) {
                     innerContextBridge.innerBridge.putGlobalSet(name, obj);
-                } else
-                {
+                } else {
                     innerContextBridge.putContextSet(name, obj);
                 }
             }
@@ -883,24 +724,19 @@ public class AutoSetHandle
 
     //每个对象或被autoset的都会调用此函数
     private Object doAutoSetForCurrent(boolean doProxyCurrent, @MayNull Porter porter, @MayNull Object finalObject,
-            Class<?> currentObjectClass, @MayNull Object currentObject, RangeType rangeType) throws Exception
-    {
+            Class<?> currentObjectClass, @MayNull Object currentObject, RangeType rangeType) throws Exception {
 
         //处理AutoSetStatic
         List<AutoSetStatic> autoSetStatics = AnnoUtil.getAnnotationsWithSuper(currentObjectClass, AutoSetStatic.class);
-        for (AutoSetStatic autoSetStatic : autoSetStatics)
-        {
+        for (AutoSetStatic autoSetStatic : autoSetStatics) {
             Set<Class> set = new HashSet<>();
-            for (Class clazz : autoSetStatic.value())
-            {
-                if (!addedAutoSetStaticClasses.contains(clazz))
-                {
+            for (Class clazz : autoSetStatic.value()) {
+                if (!addedAutoSetStaticClasses.contains(clazz)) {
                     addedAutoSetStaticClasses.add(clazz);
                     set.add(clazz);
                 }
             }
-            if (set.size() > 0)
-            {
+            if (set.size() > 0) {
                 addStaticAutoSet(null, null, set, null);
             }
         }
@@ -908,40 +744,32 @@ public class AutoSetHandle
         finalObject = mayGetProxyObject(finalObject);
         currentObject = mayGetProxyObject(currentObject);
         if (currentObject != null && autoSetDealtSet
-                .contains(currentObject) || currentObject == null && autoSetDealtSet.contains(currentObjectClass))
-        {
+                .contains(currentObject) || currentObject == null && autoSetDealtSet.contains(currentObjectClass)) {
             LOGGER.debug("already do autoset of:class={},object={}", currentObjectClass, currentObject);
             return currentObject;
         }
         autoSetDealtSet.add(currentObjectClass);
-        if (currentObject != null)
-        {
+        if (currentObject != null) {
             autoSetDealtSet.add(currentObject);
         }
 
         AutoSetHandleWorkedInstance.Result result;
-        if (currentObject == null)
-        {
+        if (currentObject == null) {
             result = workedInstance.workInstance(currentObjectClass, this, false);
-        } else
-        {
+        } else {
             result = workedInstance.workInstance(currentObject, this, doProxyCurrent);
             currentObject = result.object;
         }
 
-        if (result.isWorked)
-        {
+        if (result.isWorked) {
             return currentObject;//已经递归扫描过该实例
         }
 
-        try
-        {
+        try {
             porterConf.seekImporter(new Class[]{currentObjectClass});
-        } catch (AutoSetException | InitException e)
-        {
+        } catch (AutoSetException | InitException e) {
             throw e;
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             LOGGER.warn("seek importer failed:class={},ex={}", currentObjectClass, e.getMessage());
             LOGGER.error(e.getMessage(), e);
         }
@@ -954,20 +782,15 @@ public class AutoSetHandle
         LOGGER.debug("autoSetSeek:class={},instance={},{}", currentObjectClass.getName(), currentObject,
                 currentObject == null ? "" : currentObject.hashCode());
         RuntimeException thr = null;
-        for (int i = 0; i < fields.length; i++)
-        {
+        for (int i = 0; i < fields.length; i++) {
             Field f = fields[i];
 
-            if (Modifier.isStatic(f.getModifiers()))
-            {
-                if (rangeType == RangeType.INSTANCE)
-                {
+            if (Modifier.isStatic(f.getModifiers())) {
+                if (rangeType == RangeType.INSTANCE) {
                     continue;
                 }
-            } else
-            {
-                if (rangeType == RangeType.STATIC)
-                {
+            } else {
+                if (rangeType == RangeType.STATIC) {
                     continue;
                 }
             }
@@ -975,12 +798,10 @@ public class AutoSetHandle
             Class fieldRealType = null;
             f.setAccessible(true);
             Property property = AnnoUtil.getAnnotation(f, Property.class);
-            if (property != null)
-            {
+            if (property != null) {
                 fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 Object value = configData.getValue(currentObject, currentObjectClass, f, null, fieldRealType, property);
-                if (value != null)
-                {
+                if (value != null) {
                     f.set(currentObject, value);
                 }
                 doAutoSetPut(f, value, fieldRealType);
@@ -988,22 +809,18 @@ public class AutoSetHandle
             }
 
             _AutoSet autoSet = annotationDealt.autoSet(currentObjectClass, f);
-            if (autoSet == null)
-            {
+            if (autoSet == null) {
                 Object value = f.get(currentObject);
-                if (value != null && f.isAnnotationPresent(AutoSetSeek.class))
-                {
+                if (value != null && f.isAnnotationPresent(AutoSetSeek.class)) {
                     Object newValue = workedInstance.doProxy(value, this);
-                    if (newValue != value)
-                    {
+                    if (newValue != value) {
                         f.set(currentObject, newValue);
                         value = newValue;
                     }
                     workedInstance.doAutoSet(value, this);
                 }
 
-                if (fieldRealType == null)
-                {
+                if (fieldRealType == null) {
                     fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
                 doAutoSetPut(f, value, fieldRealType);
@@ -1011,51 +828,41 @@ public class AutoSetHandle
             }
 
 
-            try
-            {
-                if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet))
-                {
+            try {
+                if (isDefaultAutoSetObject(f, porter, finalObject, currentObjectClass, currentObject, autoSet)) {
                     continue;
                 }
                 Object value = f.get(currentObject);
-                if (fieldRealType == null)
-                {
+                if (fieldRealType == null) {
                     fieldRealType = AnnoUtil.Advance.getRealTypeOfField(currentObjectClass, f);//支持泛型变量获取到正确的类型
                 }
 
                 String keyName;
                 Class<?> mayNew = null;
                 Class<?> classClass = autoSet.classValue();
-                if (classClass.equals(AutoSet.class))
-                {
+                if (classClass.equals(AutoSet.class)) {
                     keyName = autoSet.value();
-                } else
-                {
+                } else {
                     keyName = classClass.getName();
                     mayNew = classClass;
                 }
-                if ("".equals(keyName))
-                {
+                if ("".equals(keyName)) {
                     keyName = fieldRealType.getName();
                 }
-                if (mayNew == null)
-                {
+                if (mayNew == null) {
                     mayNew = fieldRealType;
                 }
 
-                if (value != null)
-                {
+                if (value != null) {
                     LOGGER.debug("ignore field [{}] for it's not null:{}", f, value);
                     //！！！忽略了非null的成员
-                } else
-                {
+                } else {
                     value = getFieldObject(currentObject, currentObjectClass, keyName, f, mayNew, autoSet);
                 }
 
                 value = doAutoSetDefaultDealt(autoSet, finalObject, currentObjectClass, currentObject, f, value);
 
-                if (value == null && !autoSet.nullAble())
-                {
+                if (value == null && !autoSet.nullAble()) {
                     thr = new RuntimeException(String.format("AutoSet:could not set [%s] with null!", f));
                     break;
                 }
@@ -1065,99 +872,77 @@ public class AutoSetHandle
                 IAutoSetListener.Will lastWill = new IAutoSetListener.Will(willSet);
                 lastWill.optionValue = value;
 
-                for (IAutoSetListener listener : innerContextBridge.autoSetListeners)
-                {
+                for (IAutoSetListener listener : innerContextBridge.autoSetListeners) {
                     lastWill.willSet = willSet;
                     lastWill.optionValue = value;
                     IAutoSetListener.Will will = listener.willSet(autoSet, currentObjectClass, currentObject, f,
                             fieldRealType, lastWill);
                     boolean b = will == null || will.willSet;
                     willSet = willSet && b;
-                    if (will != null && will.optionValue != null)
-                    {
+                    if (will != null && will.optionValue != null) {
                         value = will.optionValue;
                     }
                 }
                 value = workedInstance.doProxy(value, this);
                 saveFieldObject(keyName, value, autoSet);
                 doAutoSetPut(f, value, fieldRealType);
-                if (willSet)
-                {
+                if (willSet) {
                     f.set(currentObject, value);//设置变量
-                    if (autoSet.willRecursive())
-                    {
+                    if (autoSet.willRecursive()) {
                         workedInstance.doAutoSet(value, this);//递归设置
                     }
-                    if (LOGGER.isDebugEnabled())
-                    {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("AutoSet:[{}] with [{}],realType=[{}]", f, value, fieldRealType);
                     }
-                } else
-                {
-                    if (LOGGER.isDebugEnabled())
-                    {
+                } else {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("ignore AutoSet:[{}] ignored value [{}],realType=[{}]", f, value, fieldRealType);
                     }
                 }
 
-            } catch (AutoSetException | InitException e)
-            {
+            } catch (AutoSetException | InitException e) {
                 throw e;
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.warn("AutoSet failed for [{}]({}),ex={}", f, autoSet.range(), e.getMessage());
                 LOGGER.error(e.getMessage(), e);
             }
 
         }
-        if (thr != null)
-        {
+        if (thr != null) {
             throw thr;
-        } else
-        {
-            if (useCache)
-            {
+        } else {
+            if (useCache) {
                 List<Object> list = setOkOrPortInitCacheMap.get(currentObjectClass);
-                if (list != null)
-                {
-                    for (Object setOkOrInit : list)
-                    {
-                        if (setOkOrInit instanceof _SetOkObject)
-                        {
+                if (list != null) {
+                    for (Object setOkOrInit : list) {
+                        if (setOkOrInit instanceof _SetOkObject) {
                             _SetOkObject setOkObject = (_SetOkObject) setOkOrInit;
                             this.setOkObjects.add(new _SetOkObject(currentObject, setOkObject));
-                        } else
-                        {
+                        } else {
                             _PortInited portInited = (_PortInited) setOkOrInit;
                             this.portIniteds.add(new _PortInited(currentObject, portInited));
                         }
                     }
-                } else
-                {
+                } else {
                     list = new ArrayList<>(2);
                     Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
-                    for (Method method : methods)
-                    {
+                    for (Method method : methods) {
                         Object setOkOrInit = addSetOkAndPorterInitedMethod(currentObject, method);
-                        if (setOkOrInit != null)
-                        {
+                        if (setOkOrInit != null) {
                             list.add(setOkOrInit);
                         }
                     }
                     setOkOrPortInitCacheMap.put(currentObjectClass, list);
                 }
-            } else
-            {
+            } else {
                 Method[] methods = OftenTool.getAllPublicMethods(currentObjectClass);
-                for (Method method : methods)
-                {
+                for (Method method : methods) {
                     addSetOkAndPorterInitedMethod(currentObject, method);
                 }
             }
 
 
-            if (porter == null && !PortUtil.isPorter(currentObjectClass))
-            {
+            if (porter == null && !PortUtil.isPorter(currentObjectClass)) {
                 addOtherStartDestroy(currentObject, currentObjectClass);
             }
         }
@@ -1165,52 +950,40 @@ public class AutoSetHandle
     }
 
     private Object getFieldObject(Object currentObject, Class currentObjectClass, String keyName, Field field,
-            Class<?> mayNew, _AutoSet autoSet) throws Exception
-    {
+            Class<?> mayNew, _AutoSet autoSet) throws Exception {
         Object value = null;
 
         {//先获取
-            switch (autoSet.range())
-            {
-                case Global:
-                {
+            switch (autoSet.range()) {
+                case Global: {
                     value = innerContextBridge.innerBridge.getGlobalSet(keyName);
-                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
-                    {
+                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew)) {
                         value = workedInstance.newAndProxy(mayNew, this);
-                        if (value == null)
-                        {
+                        if (value == null) {
                             LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                         }
                     }
                 }
                 break;
-                case Context:
-                {
+                case Context: {
                     value = innerContextBridge.getContextSet(keyName);
-                    if (value == null)
-                    {
+                    if (value == null) {
                         Porter thePorter = porterMap.get(mayNew);
-                        if (thePorter != null)
-                        {
+                        if (thePorter != null) {
                             value = thePorter.getObj();
                         }
                     }
-                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew))
-                    {
+                    if (value == null && !OftenTool.isInterfaceOrAbstract(mayNew)) {
                         value = workedInstance.newAndProxy(mayNew, this);
-                        if (value == null)
-                        {
+                        if (value == null) {
                             LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                         }
                     }
                 }
                 break;
-                case New:
-                {
+                case New: {
                     value = workedInstance.newAndProxy(mayNew, this);
-                    if (value == null)
-                    {
+                    if (value == null) {
                         LOGGER.debug("there is no zero-args constructor:{}", mayNew);
                     }
                 }
@@ -1218,16 +991,13 @@ public class AutoSetHandle
             }
         }
 
-        if (value == null)
-        {//再生成
+        if (value == null) {//再生成
             value = doAutoSetGen(autoSet, currentObjectClass, currentObject, field);
         }
 
 
-        if (value == null)
-        {
-            if (!autoSet.nullAble())
-            {
+        if (value == null) {
+            if (!autoSet.nullAble()) {
                 throw new RuntimeException(String.format("AutoSet:could not set [%s] with null!", field));
             }
         }
@@ -1235,14 +1005,11 @@ public class AutoSetHandle
         return value;
     }
 
-    private void saveFieldObject(String keyName, Object value, _AutoSet autoSet)
-    {
-        if (autoSet.isWillSave() && value != null && autoSet.notNullPut())
-        {
+    private void saveFieldObject(String keyName, Object value, _AutoSet autoSet) {
+        if (autoSet.isWillSave() && value != null && autoSet.notNullPut()) {
             //Map<String, Object> contextAutoSet = innerContextBridge.contextAutoSet;
             //Map<String, Object> globalAutoSet = innerContextBridge.innerBridge.globalAutoSet;
-            switch (autoSet.range())
-            {
+            switch (autoSet.range()) {
                 case Global:
                     innerContextBridge.innerBridge.putGlobalSet(keyName, value);
                     break;
@@ -1256,28 +1023,21 @@ public class AutoSetHandle
     }
 
 
-    private Object addSetOkAndPorterInitedMethod(Object currentObject, Method method)
-    {
+    private Object addSetOkAndPorterInitedMethod(Object currentObject, Method method) {
         SetOk setOk = AnnoUtil.getAnnotation(method, SetOk.class);
         PortInited portInited;
         Object setOkOrInit = null;
-        if (setOk != null)
-        {
-            if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
-            {
-                LOGGER.warn("ignore SetOk method for no instance:method={}", method);
-            } else
-            {
+        if (setOk != null) {
+            if (currentObject == null && !Modifier.isStatic(method.getModifiers())) {
+                LOGGER.info("ignore SetOk method for no instance:method={}", method);
+            } else {
                 setOkOrInit = new _SetOkObject(currentObject, method, setOk.priority(), LOGGER);
                 setOkObjects.add((_SetOkObject) setOkOrInit);
             }
-        } else if ((portInited = AnnoUtil.getAnnotation(method, PortInited.class)) != null)
-        {
-            if (currentObject == null && !Modifier.isStatic(method.getModifiers()))
-            {
-                LOGGER.warn("ignore PortInited method for no instance:method={}", method);
-            } else
-            {
+        } else if ((portInited = AnnoUtil.getAnnotation(method, PortInited.class)) != null) {
+            if (currentObject == null && !Modifier.isStatic(method.getModifiers())) {
+                LOGGER.info("ignore PortInited method for no instance:method={}", method);
+            } else {
                 setOkOrInit = new _PortInited(currentObject, method, portInited.order(), LOGGER);
                 portIniteds.add((_PortInited) setOkOrInit);
             }
@@ -1298,25 +1058,20 @@ public class AutoSetHandle
      * @throws IllegalAccessException
      */
     private Object doAutoSetGen(_AutoSet autoSet, Class<?> currentObjectClass, Object currentObject,
-            Field field) throws Exception
-    {
+            Field field) throws Exception {
         Class<? extends AutoSetGen> genClass = autoSet.gen();
         String option = autoSet.option();
-        if (genClass.equals(AutoSetGen.class))
-        {
+        if (genClass.equals(AutoSetGen.class)) {
             AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.
                     getAutoSetDefaultDealt(field, currentObjectClass);
-            if (autoSetDefaultDealt != null)
-            {
+            if (autoSetDefaultDealt != null) {
                 genClass = autoSetDefaultDealt.gen();
-                if ("".equals(option))
-                {
+                if ("".equals(option)) {
                     option = autoSetDefaultDealt.option();
                 }
             }
         }
-        if (genClass.equals(AutoSetGen.class))
-        {
+        if (genClass.equals(AutoSetGen.class)) {
             return null;
         }
 
@@ -1328,23 +1083,17 @@ public class AutoSetHandle
         return value;
     }
 
-    private void addOtherStartDestroy(@MayNull Object object, Class objectClass)
-    {
-        if (iOtherStartDestroy != null)
-        {
-            if (iOtherStartDestroy.hasOtherStart())
-            {
+    private void addOtherStartDestroy(@MayNull Object object, Class objectClass) {
+        if (iOtherStartDestroy != null) {
+            if (iOtherStartDestroy.hasOtherStart()) {
                 Method[] starts = null;
-                if (useCache)
-                {
+                if (useCache) {
                     starts = startsCacheMap.get(objectClass);
                 }
 
-                if (starts == null)
-                {
+                if (starts == null) {
                     starts = innerContextBridge.annotationDealt.getPortStart(object, objectClass);
-                    if (useCache)
-                    {
+                    if (useCache) {
                         startsCacheMap.put(objectClass, starts);
                     }
                 }
@@ -1353,16 +1102,13 @@ public class AutoSetHandle
             Method[] destroys = null;
 
 
-            if (useCache)
-            {
+            if (useCache) {
                 destroys = destroysCacheMap.get(objectClass);
             }
 
-            if (destroys == null)
-            {
+            if (destroys == null) {
                 destroys = innerContextBridge.annotationDealt.getPortDestroy(object, objectClass);
-                if (useCache)
-                {
+                if (useCache) {
                     destroysCacheMap.put(objectClass, destroys);
                 }
             }
@@ -1374,25 +1120,20 @@ public class AutoSetHandle
     private Object doAutoSetDefaultDealt(_AutoSet autoSet, @MayNull Object finalObject, Class<?> currentObjectClass,
             Object currentObject,
             Field field,
-            Object value) throws Exception
-    {
+            Object value) throws Exception {
         Class<? extends AutoSetDealt> autoSetDealtClass = autoSet.dealt();
         String option = autoSet.option();
-        if (autoSetDealtClass.equals(AutoSetDealt.class))
-        {
+        if (autoSetDealtClass.equals(AutoSetDealt.class)) {
             AutoSetDefaultDealt autoSetDefaultDealt = AnnoUtil.
                     getAutoSetDefaultDealt(field, currentObjectClass);
-            if (autoSetDefaultDealt != null)
-            {
+            if (autoSetDefaultDealt != null) {
                 autoSetDealtClass = autoSetDefaultDealt.dealt();
-                if ("".equals(option))
-                {
+                if ("".equals(option)) {
                     option = autoSetDefaultDealt.option();
                 }
             }
         }
-        if (autoSetDealtClass.equals(AutoSetDealt.class))
-        {
+        if (autoSetDealtClass.equals(AutoSetDealt.class)) {
             return value;
         }
         AutoSetDealt autoSetDealt = OftenTool.newObject(autoSetDealtClass);
@@ -1407,52 +1148,39 @@ public class AutoSetHandle
      * 是否是默认工具类。
      */
     private boolean isDefaultAutoSetObject(Field f, Porter porter, Object finalObject, Class<?> currentObjectClass,
-            @MayNull Object currentObject, _AutoSet autoSet) throws Exception
-
-    {
+            @MayNull Object currentObject, _AutoSet autoSet) throws Exception {
         Object sysset = null;
         String typeName = f.getType().getName();
-        if (typeName.equals(IAutoVarGetter.class.getName()))
-        {
+        if (typeName.equals(IAutoVarGetter.class.getName())) {
             sysset = autoVarGetter;
-        } else if (typeName.equals(IAutoSetter.class.getName()))
-        {
+        } else if (typeName.equals(IAutoSetter.class.getName())) {
             sysset = autoSetter;
-        } else if (typeName.equals(CheckerBuilder.class.getName()))
-        {
+        } else if (typeName.equals(CheckerBuilder.class.getName())) {
             sysset = checkerBuilder;
-        } else if (typeName.equals(IConfigData.class.getName()))
-        {
+        } else if (typeName.equals(IConfigData.class.getName())) {
             sysset = iConfigData;
-        } else if (typeName.equals(TypeTo.class.getName()))
-        {
+        } else if (typeName.equals(TypeTo.class.getName())) {
             sysset = new TypeTo(innerContextBridge, getConfigData());
-        } else if (typeName.equals(PorterData.class.getName()))
-        {
+        } else if (typeName.equals(PorterData.class.getName())) {
             sysset = porterData;
-        } else if (typeName.equals(Logger.class.getName()))
-        {
+        } else if (typeName.equals(Logger.class.getName())) {
             sysset = LogUtil.logger(currentObjectClass);
         } else if (typeName.equals(PorterSync.class.getName())
                 || typeName.equals(PorterNotInnerSync.class.getName())
-                || typeName.equals(PorterThrowsSync.class.getName()))
-        {
+                || typeName.equals(PorterThrowsSync.class.getName())) {
             boolean isInner = !typeName.equals(PorterNotInnerSync.class.getName());
 
             PorterParamGetterImpl porterParamGetter = new PorterParamGetterImpl();
             porterParamGetter.setContext(getOftenContextInfo().getContextName());
 
-            if (porter == null)
-            {
+            if (porter == null) {
                 LOGGER.debug("auto set {} in not porter[{}]",
                         (isInner ? PorterSync.class : PorterNotInnerSync.class).getSimpleName(), currentObjectClass);
                 //throw new FatalInitException(PorterSync.class.getSimpleName() + "just allowed in porter!");
-                if (!f.isAnnotationPresent(PorterSyncOption.class) && finalObject != null)
-                {
+                if (!f.isAnnotationPresent(PorterSyncOption.class) && finalObject != null) {
                     porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(finalObject)));
                 }
-            } else
-            {
+            } else {
                 porterParamGetter.setClassTied(PortUtil.tied(PortUtil.getRealClass(porter.getFinalPorterObject())));
             }
 
@@ -1461,22 +1189,17 @@ public class AutoSetHandle
 
             porterParamGetter.check();
             sysset = new SyncPorterImpl(syncPorterOption, isInner);
-            if (typeName.equals(PorterThrowsSync.class.getName()))
-            {
+            if (typeName.equals(PorterThrowsSync.class.getName())) {
                 sysset = new SyncPorterThrowsImpl((SyncPorterImpl) sysset);
             }
-        } else if (typeName.equals(Delivery.class.getName()))
-        {
+        } else if (typeName.equals(Delivery.class.getName())) {
             String pName = autoSet.value();
             Delivery delivery;
-            if (OftenTool.isEmpty(pName))
-            {
+            if (OftenTool.isEmpty(pName)) {
                 delivery = thisDelivery;
-            } else
-            {
+            } else {
                 CommonMain commonMain = PorterMain.getMain(pName);
-                if (commonMain == null)
-                {
+                if (commonMain == null) {
                     throw new Error(
                             String.format("%s object is null for %s[%s]!", AutoSet.class.getSimpleName(), f, pName));
                 }
@@ -1486,8 +1209,7 @@ public class AutoSetHandle
             sysset = delivery;
         }
         //sysset = dealtAutoSet(autoSet, object, f, sysset);
-        if (sysset != null)
-        {
+        if (sysset != null) {
             f.set(currentObject, sysset);
             LOGGER.debug("AutoSet [{}] with default object [{}]", f, sysset);
             sysset = doAutoSetForCurrent(true, sysset, sysset);//递归：设置被设置的变量。
