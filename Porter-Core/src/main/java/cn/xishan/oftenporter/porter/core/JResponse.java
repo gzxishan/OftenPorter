@@ -439,4 +439,13 @@ public class JResponse {
         return jResponse;
     }
 
+    public static JResponse failed(int code, String desc) {
+        if (code == ResultCode.SUCCESS.toCode()) {
+            throw new IllegalArgumentException("illegal code:" + code);
+        }
+        JResponse jResponse = new JResponse(code);
+        jResponse.setDescription(desc);
+        return jResponse;
+    }
+
 }
