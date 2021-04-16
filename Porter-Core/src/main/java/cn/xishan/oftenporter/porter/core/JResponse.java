@@ -411,7 +411,10 @@ public class JResponse {
             for (Map.Entry entry : set) {
                 jsonObject.put(String.valueOf(entry.getKey()), dealIObject(entry.getValue()));
             }
+        } else if (obj instanceof JResponse) {
+            obj = ((JResponse) obj).toJSON();
         }
+
         return obj;
     }
 
