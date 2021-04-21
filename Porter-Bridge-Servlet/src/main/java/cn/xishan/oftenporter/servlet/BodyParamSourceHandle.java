@@ -1,9 +1,5 @@
 package cn.xishan.oftenporter.servlet;
 
-/**
- * @author Created by https://github.com/CLovinr on 2017/6/4.
- */
-
 import cn.xishan.oftenporter.porter.core.ParamSourceHandleManager;
 import cn.xishan.oftenporter.porter.core.advanced.ParamSourceHandle;
 import cn.xishan.oftenporter.porter.core.annotation.deal.AnnoUtil;
@@ -28,9 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * put方法的，用于解析application/x-www-form-urlencoded的方法体
- *
- * @author ZhuiFeng
+ * 用于解析application/x-www-form-urlencoded的方法体
  */
 public class BodyParamSourceHandle implements ParamSourceHandle {
 
@@ -106,13 +100,13 @@ public class BodyParamSourceHandle implements ParamSourceHandle {
         ParamSource paramSource = null;
         if (request != null) {
             String ctype = request.getContentType();
-            if (ctype != null && ctype.contains(ContentType.APP_FORM_URLENCODED.getType())) {
-                String encoding = getEncode(ctype);
+            if (ctype == null) {
+                return null;
+            }
 
-                String body = FileTool.getString(request.getInputStream());
-                if (body == null) {
-                    return null;
-                }
+            if (ctype.contains(ContentType.APP_FORM_URLENCODED.getType())) {
+                String encoding = getEncode(ctype);
+                String body = FileTool.getString(request.getInputStream(), 2048, encoding);
                 Map paramsMap = fromEncoding(body, encoding);
                 addQueryParams(request, paramsMap, encoding);
                 paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());

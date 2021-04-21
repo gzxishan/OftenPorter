@@ -14,7 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 简单的地址解析器:/contextName/classTied[/**=name1=value1&name2=value2][/funTied][=*=参数][?name1=value1&name2=value2]
+ * 简单的地址解析器:/contextName/classTied[/***encode(name1=necode(value1)&name2=necode(value2))
+ * ][/funTied][***参数][?name1=value1&name2=value2]
  * <p>
  * 其中funTied可以包括“/”的字符,如:/often/Hello/util/base.js解析的funTied为util/base.js。
  * </p>
@@ -25,10 +26,12 @@ public class DefaultUrlDecoder implements UrlDecoder {
     private final Logger LOGGER = LogUtil.logger(DefaultUrlDecoder.class);
 
     public static final String STAR_PARAM_KEY = "=*=";
-    public static final String STAR_PARAM2 = "**=";
+    public static final String STAR_PARAM_KEY2 = "***";
+
+    public static final String MIDDLE_PARAM = "***";
 
 
-    private static final Pattern STAR_PARAM2_PATTERN = Pattern.compile("/\\*\\*=([^/\\?#]*)");
+    private static final Pattern MIDDLE_PARAM_PATTERN = Pattern.compile("/(\\*\\*[=*])([^/?#]*)");
 
 
     public DefaultUrlDecoder(String encoding) {
@@ -42,10 +45,12 @@ public class DefaultUrlDecoder implements UrlDecoder {
         }
         String queryStr = "";
         String queryStr2 = "";
+        boolean isQuery2Encode = false;
 
-        Matcher matcher = STAR_PARAM2_PATTERN.matcher(path);
+        Matcher matcher = MIDDLE_PARAM_PATTERN.matcher(path);
         if (matcher.find()) {
-            queryStr2 = matcher.group(1);
+            queryStr2 = matcher.group(2);
+            isQuery2Encode = MIDDLE_PARAM.equals(matcher.group(1));
             path = path.substring(0, matcher.start()) + path.substring(matcher.end());
         }
 
@@ -60,10 +65,20 @@ public class DefaultUrlDecoder implements UrlDecoder {
 
         int starParamIndex = tiedPath.indexOf(STAR_PARAM_KEY);
         String starParam = null;
+        String starKey = null;
         if (starParamIndex > 0) {
             starParam = tiedPath.substring(starParamIndex + STAR_PARAM_KEY.length());
             tiedPath = tiedPath.substring(0, starParamIndex);
+            starKey = STAR_PARAM_KEY;
+        } else {
+            starParamIndex = tiedPath.indexOf(STAR_PARAM_KEY2);
+            if (starParamIndex > 0) {
+                starParam = tiedPath.substring(starParamIndex + STAR_PARAM_KEY2.length());
+                tiedPath = tiedPath.substring(0, starParamIndex);
+                starKey = STAR_PARAM_KEY2;
+            }
         }
+
 
         int forwardSlash = tiedPath.indexOf('/', 1);
         String contextName, classTied, funTied;
@@ -97,6 +112,13 @@ public class DefaultUrlDecoder implements UrlDecoder {
 
         //先处理queryStr2，低优先级
         if (OftenTool.notEmpty(queryStr2)) {
+            if (isQuery2Encode) {
+                try {
+                    queryStr2 = URLDecoder.decode(queryStr2, encoding);
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             params = decodeParam(queryStr2, encoding);
         } else {
             params = new HashMap<>(0);
@@ -111,7 +133,7 @@ public class DefaultUrlDecoder implements UrlDecoder {
             params.putAll(map);
         }
         if (starParam != null) {
-            params.put(STAR_PARAM_KEY, starParam);
+            params.put(starKey, starParam);
         }
         DefaultUrlResult result = new DefaultUrlResult(params, contextName, classTied, funTied);
         return result;
@@ -137,7 +159,7 @@ public class DefaultUrlDecoder implements UrlDecoder {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.debug(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
         return params;
     }

@@ -8,14 +8,14 @@ import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * 用于获取参数的源。
  * Created by https://github.com/CLovinr on 2016/7/23.
  */
-public interface ParamSource
-{
+public interface ParamSource {
 
     void setUrlResult(UrlDecoder.Result result);
 
@@ -58,56 +58,56 @@ public interface ParamSource
      */
     Enumeration<Map.Entry<String, Object>> params();
 
+    default Map<String, Object> paramsMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        Enumeration<Map.Entry<String, Object>> e = params();
+        while (e.hasMoreElements()) {
+            Map.Entry<String, Object> entry = e.nextElement();
+            map.put(entry.getKey(), entry.getValue());
+        }
+        return map;
+    }
 
-    public static ParamSource fromMap(Map<String, Object> params)
-    {
+
+    public static ParamSource fromMap(Map<String, Object> params) {
         Map<String, Object> finalParams = Collections.unmodifiableMap(params);
-        ParamSource paramSource = new ParamSource()
-        {
+        ParamSource paramSource = new ParamSource() {
             @Override
-            public void setUrlResult(UrlDecoder.Result result)
-            {
+            public void setUrlResult(UrlDecoder.Result result) {
                 throw new OftenCallException("not support!");
             }
 
             @Override
-            public <T> T getParam(String name)
-            {
+            public <T> T getParam(String name) {
                 T t = (T) finalParams.get(name);
-                if (OftenTool.isNullOrEmptyCharSequence(t))
-                {
+                if (OftenTool.isNullOrEmptyCharSequence(t)) {
                     t = null;
                 }
                 return t;
             }
 
             @Override
-            public <T> T getNeceParam(String name, String errmsgOfEmpty)
-            {
+            public <T> T getNeceParam(String name, String errmsgOfEmpty) {
                 return DefaultParamSource.getNeceParamUtil(this, name, errmsgOfEmpty);
             }
 
             @Override
-            public <T> T getNeceParam(String name)
-            {
+            public <T> T getNeceParam(String name) {
                 return DefaultParamSource.getNeceParamUtil(this, name);
             }
 
             @Override
-            public void putNewParams(Map<String, ?> newParams)
-            {
+            public void putNewParams(Map<String, ?> newParams) {
                 throw new OftenCallException("not support!");
             }
 
             @Override
-            public Enumeration<String> paramNames()
-            {
+            public Enumeration<String> paramNames() {
                 return new EnumerationImpl<String>(finalParams.keySet());
             }
 
             @Override
-            public Enumeration<Map.Entry<String, Object>> params()
-            {
+            public Enumeration<Map.Entry<String, Object>> params() {
                 return new EnumerationImpl<Map.Entry<String, Object>>(finalParams.entrySet());
             }
         };
