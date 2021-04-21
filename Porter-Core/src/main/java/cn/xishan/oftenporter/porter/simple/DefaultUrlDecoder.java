@@ -20,53 +20,47 @@ import java.util.regex.Pattern;
  * </p>
  * Created by https://github.com/CLovinr on 2016/9/2.
  */
-public class DefaultUrlDecoder implements UrlDecoder
-{
+public class DefaultUrlDecoder implements UrlDecoder {
     private String encoding;
     private final Logger LOGGER = LogUtil.logger(DefaultUrlDecoder.class);
 
     public static final String STAR_PARAM_KEY = "=*=";
+    public static final String STAR_PARAM2 = "**=";
+
 
     private static final Pattern STAR_PARAM2_PATTERN = Pattern.compile("/\\*\\*=([^/\\?#]*)");
 
 
-    public DefaultUrlDecoder(String encoding)
-    {
+    public DefaultUrlDecoder(String encoding) {
         this.encoding = encoding;
     }
 
     @Override
-    public Result decode(String path)
-    {
-        if (!path.startsWith("/"))
-        {
+    public Result decode(String path) {
+        if (!path.startsWith("/")) {
             return null;
         }
         String queryStr = "";
         String queryStr2 = "";
 
         Matcher matcher = STAR_PARAM2_PATTERN.matcher(path);
-        if (matcher.find())
-        {
+        if (matcher.find()) {
             queryStr2 = matcher.group(1);
             path = path.substring(0, matcher.start()) + path.substring(matcher.end());
         }
 
         int queryIndex = path.indexOf('?');
         String tiedPath;
-        if (queryIndex == -1)
-        {
+        if (queryIndex == -1) {
             tiedPath = path;
-        } else
-        {
+        } else {
             tiedPath = path.substring(0, queryIndex);
             queryStr = path.substring(queryIndex + 1);
         }
 
         int starParamIndex = tiedPath.indexOf(STAR_PARAM_KEY);
         String starParam = null;
-        if (starParamIndex > 0)
-        {
+        if (starParamIndex > 0) {
             starParam = tiedPath.substring(starParamIndex + STAR_PARAM_KEY.length());
             tiedPath = tiedPath.substring(0, starParamIndex);
         }
@@ -74,58 +68,49 @@ public class DefaultUrlDecoder implements UrlDecoder
         int forwardSlash = tiedPath.indexOf('/', 1);
         String contextName, classTied, funTied;
 
-        if (forwardSlash == -1)
-        {
+        if (forwardSlash == -1) {
             return null;
-        } else
-        {
+        } else {
             contextName = tiedPath.substring(1, forwardSlash);
         }
         tiedPath = tiedPath.substring(forwardSlash);
 
         forwardSlash = tiedPath.indexOf('/', 1);
-        if (forwardSlash == -1)
-        {
+        if (forwardSlash == -1) {
             classTied = tiedPath.substring(1);
             funTied = "";
-        } else
-        {
+        } else {
             classTied = tiedPath.substring(1, forwardSlash);
-//            try
-//            {
-//                funTied = URLDecoder.decode(tiedPath.substring(forwardSlash + 1), encoding);
-//            } catch (UnsupportedEncodingException e)
-//            {
-//                LOGGER.warn(e.getMessage(), e);
-//                return null;
-//            }
-            funTied=tiedPath.substring(forwardSlash + 1);
+            //            try
+            //            {
+            //                funTied = URLDecoder.decode(tiedPath.substring(forwardSlash + 1), encoding);
+            //            } catch (UnsupportedEncodingException e)
+            //            {
+            //                LOGGER.warn(e.getMessage(), e);
+            //                return null;
+            //            }
+            funTied = tiedPath.substring(forwardSlash + 1);
         }
 
 
         Map<String, Object> params;
 
         //先处理queryStr2，低优先级
-        if (OftenTool.notEmpty(queryStr2))
-        {
+        if (OftenTool.notEmpty(queryStr2)) {
             params = decodeParam(queryStr2, encoding);
-        } else
-        {
+        } else {
             params = new HashMap<>(0);
         }
 
-        if (OftenTool.notEmpty(queryStr))
-        {
+        if (OftenTool.notEmpty(queryStr)) {
             int sharpIndex = queryStr.indexOf("#");
-            if (sharpIndex == -1)
-            {
+            if (sharpIndex == -1) {
                 sharpIndex = queryStr.length();
             }
             Map<String, Object> map = decodeParam(queryStr.substring(0, sharpIndex), encoding);
             params.putAll(map);
         }
-        if (starParam != null)
-        {
+        if (starParam != null) {
             params.put(STAR_PARAM_KEY, starParam);
         }
         DefaultUrlResult result = new DefaultUrlResult(params, contextName, classTied, funTied);
@@ -139,31 +124,25 @@ public class DefaultUrlDecoder implements UrlDecoder
      * @param urlEncoding 编码那个是
      * @return 解析的map。
      */
-    public Map<String, Object> decodeParam(String content, String urlEncoding)
-    {
+    public Map<String, Object> decodeParam(String content, String urlEncoding) {
         Map<String, Object> params;
         params = new HashMap<>();
         String[] strs = OftenStrUtil.split(content, "&");
-        try
-        {
-            for (String string : strs)
-            {
+        try {
+            for (String string : strs) {
                 int index = string.indexOf('=');
-                if (index != -1)
-                {
+                if (index != -1) {
                     params.put(URLDecoder.decode(string.substring(0, index), urlEncoding),
                             URLDecoder.decode(string.substring(index + 1), urlEncoding));
                 }
             }
-        } catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             LOGGER.debug(e.getMessage(), e);
         }
         return params;
     }
 
-    public static Result newResult(Map<String, Object> params, String contextName, String classTied, String funTied)
-    {
+    public static Result newResult(Map<String, Object> params, String contextName, String classTied, String funTied) {
         return new DefaultUrlResult(params, contextName, classTied, funTied);
     }
 
