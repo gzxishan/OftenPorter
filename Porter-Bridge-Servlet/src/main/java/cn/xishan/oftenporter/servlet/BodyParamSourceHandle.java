@@ -16,6 +16,7 @@ import cn.xishan.oftenporter.porter.simple.DefaultParamSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
@@ -105,11 +106,14 @@ public class BodyParamSourceHandle implements ParamSourceHandle {
             }
 
             if (ctype.contains(ContentType.APP_FORM_URLENCODED.getType())) {
-                String encoding = getEncode(ctype);
-                String body = FileTool.getString(request.getInputStream(), 2048, encoding);
-                Map paramsMap = fromEncoding(body, encoding);
-                addQueryParams(request, paramsMap, encoding);
-                paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
+                ServletInputStream inputStream = request.getInputStream();
+                if (!inputStream.isFinished()) {
+                    String encoding = getEncode(ctype);
+                    String body = FileTool.getString(inputStream, 2048, encoding);
+                    Map paramsMap = fromEncoding(body, encoding);
+                    addQueryParams(request, paramsMap, encoding);
+                    paramSource = new DefaultParamSource(paramsMap, oftenObject.getRequest());
+                }
             } else if (decodeJsonParams) {
                 JsonDecodeOption decodeOption = AnnoUtil.getAnnotation(porterFun, porterClass, JsonDecodeOption.class);
                 boolean decodeJson = false;
@@ -129,9 +133,12 @@ public class BodyParamSourceHandle implements ParamSourceHandle {
                 }
 
                 if (decodeJson) {
-                    JSONObject jsonObject = JSON.parseObject(
-                            FileTool.getString(request.getInputStream(), 1024, request.getCharacterEncoding()));
-                    paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
+                    ServletInputStream inputStream = request.getInputStream();
+                    if (!inputStream.isFinished()) {
+                        JSONObject jsonObject = JSON.parseObject(
+                                FileTool.getString(inputStream, 1024, request.getCharacterEncoding()));
+                        paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
+                    }
                 }
             }
         }
