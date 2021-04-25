@@ -107,7 +107,7 @@ public class BodyParamSourceHandle implements ParamSourceHandle {
 
             if (ctype.contains(ContentType.APP_FORM_URLENCODED.getType())) {
                 ServletInputStream inputStream = request.getInputStream();
-                if (!inputStream.isFinished()) {
+                if (!OftenServletRequest.IS_FINISHED_SUPPORT || !inputStream.isFinished()) {
                     String encoding = getEncode(ctype);
                     String body = FileTool.getString(inputStream, 2048, encoding);
                     Map paramsMap = fromEncoding(body, encoding);
@@ -134,7 +134,7 @@ public class BodyParamSourceHandle implements ParamSourceHandle {
 
                 if (decodeJson) {
                     ServletInputStream inputStream = request.getInputStream();
-                    if (!inputStream.isFinished()) {
+                    if (!OftenServletRequest.IS_FINISHED_SUPPORT || !inputStream.isFinished()) {
                         JSONObject jsonObject = JSON.parseObject(
                                 FileTool.getString(inputStream, 1024, request.getCharacterEncoding()));
                         paramSource = new DefaultParamSource(jsonObject, oftenObject.getRequest());
