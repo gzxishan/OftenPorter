@@ -842,7 +842,13 @@ public final class PortExecutor {
             if (ps == null && isName) {//2/2.确保通过类绑定名未查找到参数源时，通过方法名查找
                 handle = context.paramSourceHandleManager.fromMethod(oftenObject.getRequest().getMethod());
                 if (handle != null) {
-                    ps = handle.get(oftenObject, classPort.getClazz(), funPort.getMethod());
+                    try {
+                        ps = handle.get(oftenObject, classPort.getClazz(), funPort.getMethod());
+                    } catch (Exception e) {
+                        Logger LOGGER = logger(oftenObject);
+                        LOGGER.warn("get param source error:url={},err={}", result, OftenTool.getMessage(e));
+                        throw e;
+                    }
                 }
             }
 
