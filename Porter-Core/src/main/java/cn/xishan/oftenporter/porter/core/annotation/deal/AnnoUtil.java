@@ -23,8 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Created by https://github.com/CLovinr on 2018-09-29.
  */
-public class AnnoUtil
-{
+public class AnnoUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnoUtil.class);
     private static final AdvancedAnnotation DEFAULT_ADVANCED_ANNOTATION = AdvancedAnnotation.class.getAnnotation(
             AdvancedAnnotation.class);
@@ -53,29 +52,23 @@ public class AnnoUtil
     private static final String DYNAMIC_ANNOTATION_IMPROVABLES_STRING;
 
 
-    private static void putCacheLog()
-    {
+    private static void putCacheLog() {
         String from = null;
-        if (LOGGER.isInfoEnabled() && (from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null)
-        {
+        if (LOGGER.isInfoEnabled() && (from = LogUtil.getCodePosExceptNames(EXCEPT_CLASS_NAMES)) != null) {
             // LOGGER.debug("invoke from:\n\t\t{}", from);
             Integer count = cacheCount.get(from);
-            if (count == null)
-            {
+            if (count == null) {
                 count = 0;
             }
             cacheCount.put(from, count + 1);
         }
     }
 
-    private static String findMaxValueKey(Map<String, Integer> map)
-    {
+    private static String findMaxValueKey(Map<String, Integer> map) {
         String key = null;
         int max = Integer.MIN_VALUE;
-        for (Map.Entry<String, Integer> entry : map.entrySet())
-        {
-            if (entry.getValue() > max)
-            {
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            if (entry.getValue() > max) {
                 key = entry.getKey();
                 max = entry.getValue();
             }
@@ -84,19 +77,14 @@ public class AnnoUtil
     }
 
 
-    public static void clearCache()
-    {
-        if (LOGGER.isInfoEnabled())
-        {
+    public static void clearCache() {
+        if (LOGGER.isInfoEnabled()) {
             List<String> strs = new ArrayList<>(cacheCount.size());
-            while (true)
-            {
+            while (true) {
                 String key = findMaxValueKey(cacheCount);
-                if (key == null)
-                {
+                if (key == null) {
                     break;
-                } else
-                {
+                } else {
                     int count = cacheCount.remove(key);
                     strs.add(count + ":" + key);
                 }
@@ -108,21 +96,17 @@ public class AnnoUtil
         initCache();
     }
 
-    private static void initCache()
-    {
+    private static void initCache() {
         annotationCache = new ConcurrentHashMap<>();
         cacheCount = new HashMap<>();
     }
 
-    static
-    {
+    static {
         initCache();
-        try
-        {
+        try {
             javaGetAnnotations = AnnotatedElement.class.getMethod("getAnnotationsByType", Class.class);
             javaGetAnnotations.setAccessible(true);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
         }
 
@@ -130,41 +114,32 @@ public class AnnoUtil
         List<IDynamicAnnotationImprovable> porterDynamicList = new ArrayList<>();
         List<IDynamicAnnotationImprovable> aspectDynamicList = new ArrayList<>();
         List<DynamicAnnotationImprovableWrap> allDynamicList = new ArrayList<>();
-        try
-        {
+        try {
             String path = "META-INF/" + IDynamicAnnotationImprovable.class.getName();
             List<String> dynamicNames = ResourceUtil.getAbsoluteResourcesString(path, "utf-8");
 
-            for (String _classNames : dynamicNames)
-            {
-                if (OftenTool.isEmpty(_classNames))
-                {
+            for (String _classNames : dynamicNames) {
+                if (OftenTool.isEmpty(_classNames)) {
                     continue;
                 }
                 String[] classNames = OftenStrUtil.split(_classNames.trim(), "\n");
-                for (String className : classNames)
-                {
+                for (String className : classNames) {
                     LOGGER.debug("new IDynamicAnnotationImprovable:{}", className);
                     DynamicAnnotationImprovableWrap dynamic = new DynamicAnnotationImprovableWrap(
                             className);
                     Set<String> supports = dynamic.supportClassNames();
-                    if (supports != null)
-                    {
-                        for (String support : supports)
-                        {
+                    if (supports != null) {
+                        for (String support : supports) {
                             support = support == null ? null : support.trim();
-                            if (OftenTool.isEmpty(support))
-                            {
+                            if (OftenTool.isEmpty(support)) {
                                 continue;
                             }
-                            if ("*".equals(support))
-                            {
+                            if ("*".equals(support)) {
                                 allDynamicList.add(dynamic);
                                 continue;
                             }
                             List<DynamicAnnotationImprovableWrap> list = classDynamicListMap.get(support);
-                            if (list == null)
-                            {
+                            if (list == null) {
                                 list = new ArrayList<>();
                                 classDynamicListMap.put(support, list);
                             }
@@ -172,20 +147,17 @@ public class AnnoUtil
                         }
                     }
 
-                    if (dynamic.supportPorter())
-                    {
+                    if (dynamic.supportPorter()) {
                         porterDynamicList.add(dynamic);
                     }
-                    if (dynamic.supportAspect())
-                    {
+                    if (dynamic.supportAspect()) {
                         aspectDynamicList.add(dynamic);
                     }
                 }
             }
             classDynamicArrayMap = new HashMap<>();
             DynamicAnnotationImprovableWrap[] dynamics;
-            for (Map.Entry<String, List<DynamicAnnotationImprovableWrap>> entry : classDynamicListMap.entrySet())
-            {
+            for (Map.Entry<String, List<DynamicAnnotationImprovableWrap>> entry : classDynamicListMap.entrySet()) {
                 List<DynamicAnnotationImprovableWrap> list = entry.getValue();
                 list.addAll(allDynamicList);
                 dynamics = list.toArray(new DynamicAnnotationImprovableWrap[0]);
@@ -199,8 +171,7 @@ public class AnnoUtil
             dynamics = aspectDynamicList.toArray(new DynamicAnnotationImprovableWrap[0]);
             Arrays.sort(dynamics);
             aspectDynamicArray = dynamics;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
         DYNAMIC_ANNOTATION_IMPROVABLES_STRING = AnnoUtil.class.getName() +
@@ -212,23 +183,18 @@ public class AnnoUtil
      *
      * @param iAnnotationConfigable 为null时表示清除默认的。
      */
-    public static synchronized void setDefaultConfigable(IAnnotationConfigable iAnnotationConfigable)
-    {
-        if (iAnnotationConfigable == null)
-        {
+    public static synchronized void setDefaultConfigable(IAnnotationConfigable iAnnotationConfigable) {
+        if (iAnnotationConfigable == null) {
             defaultConfigable = null;
-        } else
-        {
+        } else {
             Configable configable = new Configable(iAnnotationConfigable);
             defaultConfigable = configable;
         }
     }
 
-    public static synchronized void popAnnotationConfigable()
-    {
+    public static synchronized void popAnnotationConfigable() {
         Stack stack = threadLocal.get();
-        if (stack != null && !stack.isEmpty())
-        {
+        if (stack != null && !stack.isEmpty()) {
             stack.pop();
         }
     }
@@ -238,15 +204,12 @@ public class AnnoUtil
      *
      * @param iAnnotationConfigable
      */
-    public static synchronized void pushAnnotationConfigable(IAnnotationConfigable iAnnotationConfigable)
-    {
-        if (iAnnotationConfigable == null)
-        {
+    public static synchronized void pushAnnotationConfigable(IAnnotationConfigable iAnnotationConfigable) {
+        if (iAnnotationConfigable == null) {
             throw new NullPointerException();
         }
         Stack<Configable> stack = threadLocal.get();
-        if (stack == null)
-        {
+        if (stack == null) {
             stack = new Stack<>();
             threadLocal.set(stack);
         }
@@ -255,55 +218,42 @@ public class AnnoUtil
     }
 
 
-    private static <A extends Annotation> A[] proxyAnnotationForAttr(A[] as)
-    {
-        for (int i = 0; i < as.length; i++)
-        {
+    private static <A extends Annotation> A[] proxyAnnotationForAttr(A[] as) {
+        for (int i = 0; i < as.length; i++) {
             as[i] = proxyAnnotationForAttr(as[i]);
         }
         return as;
     }
 
-    private static <A extends Annotation> A proxyAnnotationForAttr(A t)
-    {
-        if (t instanceof _Dynamic_Annotation_Str_Attrs_)
-        {
+    private static <A extends Annotation> A proxyAnnotationForAttr(A t) {
+        if (t instanceof _Dynamic_Annotation_Str_Attrs_) {
             LOGGER.debug("already proxyed:{}->{}", t.annotationType(), t);
             return t;
-        } else if (t == null)
-        {
+        } else if (t == null) {
             return t;
         }
         Stack<Configable> stack = threadLocal.get();
         Configable configable = stack == null || stack.isEmpty() ? null : stack.peek();
-        if (configable == null)
-        {
-            synchronized (AnnoUtil.class)
-            {
+        if (configable == null) {
+            synchronized (AnnoUtil.class) {
                 configable = defaultConfigable;
             }
         }
-        if (configable != null)
-        {
+        if (configable != null) {
             CacheKey cacheKey = new CacheKey(t.annotationType(), "proxyAnnotationForAttr");
             Object cache = cacheKey.getCache();
             int existsStringMethod = 0;
-            if (cache != null && cache != NULL)
-            {
+            if (cache != null && cache != NULL) {
                 existsStringMethod = (int) cache;
             }
 
-            if (existsStringMethod == -1)
-            {
+            if (existsStringMethod == -1) {
                 return t;
-            } else
-            {
+            } else {
                 Method[] methods = OftenTool.getAllMethods(t.annotationType());
                 boolean has = false;
-                for (Method method : methods)
-                {
-                    if (String.class.equals(method.getReturnType()) || String[].class.equals(method.getReturnType()))
-                    {
+                for (Method method : methods) {
+                    if (String.class.equals(method.getReturnType()) || String[].class.equals(method.getReturnType())) {
                         has = true;
                         break;
                     }
@@ -311,8 +261,7 @@ public class AnnoUtil
                 existsStringMethod = has ? 1 : -1;
             }
             cacheKey.setCache(existsStringMethod);
-            if (existsStringMethod == -1)
-            {
+            if (existsStringMethod == -1) {
                 return t;
             }
             //只代理含有String或String[]的注解。
@@ -326,73 +275,60 @@ public class AnnoUtil
     }
 
 
-    public static boolean isAllOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)
-    {
+    public static boolean isAllOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses) {
         return isAnnotationPresent(true, clazz, annotationClasses);
     }
 
-    public static boolean isAllOfAnnotationsPresent(Method method, Class<?>... annotationClasses)
-    {
+    public static boolean isAllOfAnnotationsPresent(Method method, Class<?>... annotationClasses) {
         return isAnnotationPresent(true, method, annotationClasses);
     }
 
-    public static boolean isAllOfAnnotationsPresent(Field field, Class<?>... annotationClasses)
-    {
+    public static boolean isAllOfAnnotationsPresent(Field field, Class<?>... annotationClasses) {
         return isAnnotationPresent(true, field, annotationClasses);
     }
 
-    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Method method, Class<?>... annotationClasses)
-    {
+    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Method method, Class<?>... annotationClasses) {
         return isOneOfAnnotationsPresent(clazz, annotationClasses) || isOneOfAnnotationsPresent(method,
                 annotationClasses);
     }
 
-    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses)
-    {
+    public static boolean isOneOfAnnotationsPresent(Class<?> clazz, Class<?>... annotationClasses) {
         return isAnnotationPresent(false, clazz, annotationClasses);
     }
 
 
-    public static boolean isOneOfAnnotationsPresent(Method method, Class<?>... annotationClasses)
-    {
+    public static boolean isOneOfAnnotationsPresent(Method method, Class<?>... annotationClasses) {
         return isAnnotationPresent(false, method, annotationClasses);
     }
 
-    public static boolean isOneOfAnnotationsPresent(Field field, Class<?>... annotationClasses)
-    {
+    public static boolean isOneOfAnnotationsPresent(Field field, Class<?>... annotationClasses) {
         return isAnnotationPresent(false, field, annotationClasses);
     }
 
-    private static boolean isAnnotationPresent(boolean isAll, Class<?> clazz, Class<?>... annotationClasses)
-    {
+    private static boolean isAnnotationPresent(boolean isAll, Class<?> clazz, Class<?>... annotationClasses) {
         CacheKey cacheKey = new CacheKey(clazz, "isAnnotationPresent-Class", annotationClasses);
         Object cache = cacheKey.getCache();
-        if (cache != null && cache != NULL)
-        {
+        if (cache != null && cache != NULL) {
             return (boolean) cache;
         }
         boolean rs = NoCache.isAnnotationPresent(isAll, clazz, annotationClasses);
         return cacheKey.setCache(rs);
     }
 
-    private static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses)
-    {
+    private static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses) {
         CacheKey cacheKey = new CacheKey(method, "isAnnotationPresent-Method" + isAll, annotationClasses);
         Object cache = cacheKey.getCache();
-        if (cache != null && cache != NULL)
-        {
+        if (cache != null && cache != NULL) {
             return (boolean) cache;
         }
         boolean rs = NoCache.isAnnotationPresent(isAll, method, annotationClasses);
         return rs;
     }
 
-    private static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
-    {
+    private static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses) {
         CacheKey cacheKey = new CacheKey(field, "isAnnotationPresent-Field" + isAll, annotationClasses);
         Object cache = cacheKey.getCache();
-        if (cache != null && cache != NULL)
-        {
+        if (cache != null && cache != NULL) {
             return (boolean) cache;
         }
         boolean rs = NoCache.isAnnotationPresent(isAll, field, annotationClasses);
@@ -405,37 +341,28 @@ public class AnnoUtil
      * @param clazz
      * @return
      */
-    public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz)
-    {
+    public static AutoSetDefaultDealt getAutoSetDefaultDealt(Class<?> clazz) {
         CacheKey cacheKey = new CacheKey(clazz, "AutoSetDefaultDealt");
         Object cache = cacheKey.getCache();
-        if (cache != null)
-        {
-            if (cache == NULL)
-            {
+        if (cache != null) {
+            if (cache == NULL) {
                 return null;
-            } else
-            {
+            } else {
                 return (AutoSetDefaultDealt) cache;
             }
         }
 
         AutoSetDefaultDealt autoSetDefaultDealt = getAnnotation(clazz, AutoSetDefaultDealt.class);
-        if (autoSetDefaultDealt == null)
-        {
+        if (autoSetDefaultDealt == null) {
             autoSetDefaultDealt = Advance.getAnnotation(clazz, AutoSetDefaultDealt.class);
         }
-        if (autoSetDefaultDealt == null)
-        {
+        if (autoSetDefaultDealt == null) {
             Annotation[] annotations = NoCache.getAnnotations(clazz);
-            for (Annotation annotation : annotations)
-            {
+            for (Annotation annotation : annotations) {
                 AutoSetDefaultDealt _autoSetDefaultDealt =
                         NoCache.getAnnotation(annotation.annotationType(), AutoSetDefaultDealt.class);
-                if (_autoSetDefaultDealt != null)
-                {
-                    if (autoSetDefaultDealt != null && LOGGER.isDebugEnabled())
-                    {
+                if (_autoSetDefaultDealt != null) {
+                    if (autoSetDefaultDealt != null && LOGGER.isDebugEnabled()) {
                         LOGGER.warn("ignore {} of {} by {}", AutoSetDefaultDealt.class.getSimpleName(),
                                 autoSetDefaultDealt.annotationType(), _autoSetDefaultDealt.annotationType());
                     }
@@ -453,95 +380,75 @@ public class AnnoUtil
      * @param currentClass 实际的子类
      * @return
      */
-    public static AutoSetDefaultDealt getAutoSetDefaultDealt(Field field, Class<?> currentClass)
-    {
+    public static AutoSetDefaultDealt getAutoSetDefaultDealt(Field field, Class<?> currentClass) {
         Class type = Advance.getRealTypeOfField(currentClass, field);
         return getAutoSetDefaultDealt(type);
     }
 
-    private static class _AdvancedAnnotation
-    {
+    private static class _AdvancedAnnotation {
         AdvancedAnnotation advancedAnnotation;
         AdvancedAnnotation.Handle handle;
 
-        public _AdvancedAnnotation(AdvancedAnnotation advancedAnnotation)
-        {
+        public _AdvancedAnnotation(AdvancedAnnotation advancedAnnotation) {
             this.advancedAnnotation = advancedAnnotation;
         }
 
-        boolean enableCache()
-        {
+        boolean enableCache() {
             return advancedAnnotation.enableCache();
         }
 
         private final <A extends Annotation> A gotAnnotation(@MayNull Class clazz, @MayNull Method method,
-                @MayNull Parameter parameter, @MayNull Field field, A annotation)
-        {
-            if (handle == null)
-            {
+                @MayNull Parameter parameter, @MayNull Field field, A annotation) {
+            if (handle == null) {
                 return annotation;
-            } else
-            {
+            } else {
                 return (A) handle.onGotAnnotation(clazz, method, parameter, field, annotation);
             }
         }
 
-        final <A extends Annotation> A onGotAnnotation(Class clazz, A annotation)
-        {
+        final <A extends Annotation> A onGotAnnotation(Class clazz, A annotation) {
             return gotAnnotation(clazz, null, null, null, annotation);
         }
 
-        final <A extends Annotation> A onGotAnnotation(Method method, A annotation)
-        {
+        final <A extends Annotation> A onGotAnnotation(Method method, A annotation) {
             return gotAnnotation(null, method, null, null, annotation);
         }
 
-        final <A extends Annotation> A onGotAnnotation(Parameter parameter, A annotation)
-        {
+        final <A extends Annotation> A onGotAnnotation(Parameter parameter, A annotation) {
             return gotAnnotation(null, null, parameter, null, annotation);
         }
 
-        final <A extends Annotation> A onGotAnnotation(Field field, A annotation)
-        {
+        final <A extends Annotation> A onGotAnnotation(Field field, A annotation) {
             return gotAnnotation(null, null, null, field, annotation);
         }
 
-        final <A extends Annotation> A onGotAnnotation(A annotation)
-        {
+        final <A extends Annotation> A onGotAnnotation(A annotation) {
             return gotAnnotation(null, null, null, null, annotation);
         }
 
-        public boolean enableAdvancedAnnotation()
-        {
+        public boolean enableAdvancedAnnotation() {
             return advancedAnnotation.enableAdvancedAnnotation();
         }
     }
 
-    private static final <A extends Annotation> _AdvancedAnnotation getAdvancedAnnotation(Class<A> annotationClass)
-    {
+    private static final <A extends Annotation> _AdvancedAnnotation getAdvancedAnnotation(Class<A> annotationClass) {
         CacheKey cacheKey = new CacheKey(annotationClass, "getAdvancedAnnotation");
         Object cache = cacheKey.getCache();
         _AdvancedAnnotation _advancedAnnotation = null;
-        if (cache != null)
-        {
+        if (cache != null) {
             _advancedAnnotation = (_AdvancedAnnotation) cache;
         }
-        if (_advancedAnnotation == null)
-        {
+        if (_advancedAnnotation == null) {
             AdvancedAnnotation advancedAnnotation = annotationClass.getAnnotation(AdvancedAnnotation.class);
-            if (advancedAnnotation == null)
-            {
+            if (advancedAnnotation == null) {
                 advancedAnnotation = DEFAULT_ADVANCED_ANNOTATION;
             }
             _advancedAnnotation = new _AdvancedAnnotation(advancedAnnotation);
-            if (!advancedAnnotation.handle().equals(AdvancedAnnotation.Handle.class))
-            {
-                try
-                {
+            if (!advancedAnnotation.handle().equals(AdvancedAnnotation.Handle.class)) {
+                try {
                     AdvancedAnnotation.Handle handle = OftenTool.newObject(advancedAnnotation.handle());
                     _advancedAnnotation.handle = handle;
-                } catch (Throwable e)
-                {
+                } catch (Throwable e) {
                     e = OftenTool.getCause(e);
                     LOGGER.warn(e.getMessage(), e);
                 }
@@ -552,21 +459,16 @@ public class AnnoUtil
         return cacheKey.setCache(_advancedAnnotation);
     }
 
-    public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(annotationClass, "getAnnotation[]", annotations);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A) cache;
                 }
             }
@@ -584,26 +486,20 @@ public class AnnoUtil
      * @param <A>
      * @return
      */
-    public static <A extends Annotation> A getAnnotation(Object object, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Object object, Class<A> annotationClass) {
         return getAnnotation(PortUtil.getRealClass(object), annotationClass);
     }
 
-    public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(clazz, "getAnnotation", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A) cache;
                 }
             }
@@ -611,37 +507,30 @@ public class AnnoUtil
 
 
         A a = NoCache.getAnnotation(clazz, annotationClass);
-        if (a == null && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (a == null && advancedAnnotation.enableAdvancedAnnotation()) {
             a = Advance.getAnnotation(clazz, annotationClass);
         }
         a = advancedAnnotation.onGotAnnotation(clazz, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
-    public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(field, "getAnnotation", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A) cache;
                 }
             }
         }
 
         A a = NoCache.getAnnotation(field, annotationClass);
-        if (a == null && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (a == null && advancedAnnotation.enableAdvancedAnnotation()) {
             a = Advance.getAnnotation(field, annotationClass);
         }
         a = advancedAnnotation.onGotAnnotation(field, a);
@@ -655,11 +544,20 @@ public class AnnoUtil
      * @param <A>
      * @return
      */
-    public static <A extends Annotation> A getAnnotation(Method method, Class clazz, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Method method, Object object, Class<A> annotationClass) {
+        return getAnnotation(method, PortUtil.getRealClass(object), annotationClass);
+    }
+
+    /**
+     * 首先在函数上找，如果不存在则从类上找。
+     *
+     * @param annotationClass 待获取的注解。
+     * @param <A>
+     * @return
+     */
+    public static <A extends Annotation> A getAnnotation(Method method, Class clazz, Class<A> annotationClass) {
         A a = getAnnotation(method, annotationClass);
-        if (a == null)
-        {
+        if (a == null) {
             a = getAnnotation(clazz, annotationClass);
         }
         return a;
@@ -672,96 +570,87 @@ public class AnnoUtil
      * @param <A>
      * @return
      */
-    public static <A extends Annotation> A getAnnotation(Field field, Class clazz, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Field field, Object object, Class<A> annotationClass) {
+        return getAnnotation(field, PortUtil.getRealClass(object), annotationClass);
+    }
+
+    /**
+     * 首先在成员变量上找，如果不存在则从类上找。
+     *
+     * @param annotationClass 待获取的注解。
+     * @param <A>
+     * @return
+     */
+    public static <A extends Annotation> A getAnnotation(Field field, Class clazz, Class<A> annotationClass) {
         A a = getAnnotation(field, annotationClass);
-        if (a == null)
-        {
+        if (a == null) {
             a = getAnnotation(clazz, annotationClass);
         }
         return a;
     }
 
-    public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(method, "getAnnotation", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A) cache;
                 }
             }
         }
         A a = NoCache.getAnnotation(method, annotationClass);
-        if (a == null && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (a == null && advancedAnnotation.enableAdvancedAnnotation()) {
             a = Advance.getAnnotation(method, annotationClass);
         }
         a = advancedAnnotation.onGotAnnotation(method, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
-    public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(parameter, "getAnnotation", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A) cache;
                 }
             }
         }
 
         A a = NoCache.getAnnotation(parameter, annotationClass);
-        if (a == null && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (a == null && advancedAnnotation.enableAdvancedAnnotation()) {
             a = Advance.getAnnotation(parameter, annotationClass);
         }
         a = advancedAnnotation.onGotAnnotation(parameter, a);
         return cacheKey == null ? a : cacheKey.setCache(a);
     }
 
-    public static Annotation[] getAnnotations(Class clazz)
-    {
+    public static Annotation[] getAnnotations(Class clazz) {
         CacheKey cacheKey = new CacheKey(clazz, "getAnnotations");
         Object cache = cacheKey.getCache();
-        if (cache != null && cache != NULL)
-        {
+        if (cache != null && cache != NULL) {
             return (Annotation[]) cache;
         }
         Annotation[] as = NoCache.getAnnotations(clazz);
         return cacheKey.setCache(as);
     }
 
-    public static Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
-    {
+    public static Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter) {
         CacheKey cacheKey = new CacheKey(porter.getClazz(), "aspect-portin");
         Object cache = cacheKey.getCache();
-        if (cache != null)
-        {
-            if (cache == NULL)
-            {
+        if (cache != null) {
+            if (cache == NULL) {
                 return null;
-            } else
-            {
+            } else {
                 return (Annotation[]) cache;
             }
         }
@@ -769,17 +658,13 @@ public class AnnoUtil
         return cacheKey.setCache(as);
     }
 
-    public static Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun)
-    {
+    public static Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun) {
         CacheKey cacheKey = new CacheKey(porterOfFun.getMethod(), "aspect-portfun");
         Object cache = cacheKey.getCache();
-        if (cache != null)
-        {
-            if (cache == NULL)
-            {
+        if (cache != null) {
+            if (cache == NULL) {
                 return null;
-            } else
-            {
+            } else {
                 return (Annotation[]) cache;
             }
         }
@@ -793,17 +678,13 @@ public class AnnoUtil
      * @param annotation
      * @return
      */
-    public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation)
-    {
+    public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation) {
         CacheKey cacheKey = new CacheKey(annotation.annotationType(), "AspectOperationOfNormal");
         Object cache = cacheKey.getCache();
-        if (cache != null)
-        {
-            if (cache == NULL)
-            {
+        if (cache != null) {
+            if (cache == NULL) {
                 return null;
-            } else
-            {
+            } else {
                 return (AspectOperationOfNormal) cache;
             }
         }
@@ -816,30 +697,24 @@ public class AnnoUtil
      * @param annotation
      * @return
      */
-    public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation)
-    {
+    public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation) {
         CacheKey cacheKey = new CacheKey(annotation.annotationType(), "AspectOperationOfPortIn");
 
         Object cache = cacheKey.getCache();
-        if (cache != null)
-        {
-            if (cache == NULL)
-            {
+        if (cache != null) {
+            if (cache == NULL) {
                 return null;
-            } else
-            {
+            } else {
                 return (AspectOperationOfPortIn) cache;
             }
         }
         return cacheKey.setCache(Advance.getAspectOperationOfPortIn(annotation));
     }
 
-    public static Annotation[] getAnnotations(Method method)
-    {
+    public static Annotation[] getAnnotations(Method method) {
         CacheKey cacheKey = new CacheKey(method, "getAnnotations");
         Object cache = cacheKey.getCache();
-        if (cache != null && cache != NULL)
-        {
+        if (cache != null && cache != NULL) {
             return (Annotation[]) cache;
         }
         return cacheKey.setCache(NoCache.getAnnotations(method));
@@ -853,104 +728,81 @@ public class AnnoUtil
      * @param <A>
      * @return
      */
-    public static <A extends Annotation> List<A> getAnnotationsWithSuper(Class<?> clazz, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> List<A> getAnnotationsWithSuper(Class<?> clazz, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(clazz, "getAnnotationsWithSuper", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (List<A>) cache;
                 }
             }
         }
         List<A> list = NoCache.getAnnotationsWithSuper(clazz, annotationClass);
-        for (int i = 0; i < list.size(); i++)
-        {
+        for (int i = 0; i < list.size(); i++) {
             A a = list.get(i);
             A a2 = advancedAnnotation.onGotAnnotation(clazz, a);
-            if (a2 != a)
-            {
+            if (a2 != a) {
                 list.set(i, a2);
             }
         }
         return cacheKey == null ? list : cacheKey.setCache(list);
     }
 
-    public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(clazz, "getRepeatableAnnotations", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A[]) cache;
                 }
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(clazz, annotationClass);
-        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation()) {
             as = Advance.getRepeatableAnnotations(clazz, annotationClass);
         }
-        for (int i = 0; i < as.length; i++)
-        {
+        for (int i = 0; i < as.length; i++) {
             A a = as[i];
             A a2 = advancedAnnotation.onGotAnnotation(clazz, a);
-            if (a2 != a)
-            {
+            if (a2 != a) {
                 as[i] = a2;
             }
         }
         return cacheKey == null ? as : cacheKey.setCache(as);
     }
 
-    public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(field, "getRepeatableAnnotations", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A[]) cache;
                 }
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(field, annotationClass);
-        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation()) {
             as = Advance.getRepeatableAnnotations(field, annotationClass);
         }
-        for (int i = 0; i < as.length; i++)
-        {
+        for (int i = 0; i < as.length; i++) {
             A a = as[i];
             A a2 = advancedAnnotation.onGotAnnotation(field, a);
-            if (a2 != a)
-            {
+            if (a2 != a) {
                 as[i] = a2;
             }
         }
@@ -958,62 +810,48 @@ public class AnnoUtil
     }
 
 
-    public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass)
-    {
+    public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass) {
         _AdvancedAnnotation advancedAnnotation = getAdvancedAnnotation(annotationClass);
         CacheKey cacheKey = null;
-        if (advancedAnnotation.enableCache())
-        {
+        if (advancedAnnotation.enableCache()) {
             cacheKey = new CacheKey(method, "getRepeatableAnnotations", annotationClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (A[]) cache;
                 }
             }
         }
         A[] as = NoCache.getRepeatableAnnotations(method, annotationClass);
-        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation())
-        {
+        if (OftenTool.isEmptyOf(as) && advancedAnnotation.enableAdvancedAnnotation()) {
             as = Advance.getRepeatableAnnotations(method, annotationClass);
         }
-        for (int i = 0; i < as.length; i++)
-        {
+        for (int i = 0; i < as.length; i++) {
             A a = as[i];
             A a2 = advancedAnnotation.onGotAnnotation(method, a);
-            if (a2 != a)
-            {
+            if (a2 != a) {
                 as[i] = a2;
             }
         }
         return cacheKey == null ? null : cacheKey.setCache(as);
     }
 
-    static PortMethod[] methods(PortMethod classMethod, PortIn funPorterIn)
-    {
+    static PortMethod[] methods(PortMethod classMethod, PortIn funPorterIn) {
         return methods(classMethod, funPorterIn.method(), funPorterIn.methods());
     }
 
-    public static PortMethod[] methods(PortMethod classMethod, PortMethod funMethod, PortMethod[] funMethods)
-    {
+    public static PortMethod[] methods(PortMethod classMethod, PortMethod funMethod, PortMethod[] funMethods) {
         PortMethod[] portMethods = funMethods;
-        if (portMethods.length == 0)
-        {
+        if (portMethods.length == 0) {
             portMethods = new PortMethod[]{funMethod};
         }
-        for (int i = 0; i < portMethods.length; i++)
-        {
+        for (int i = 0; i < portMethods.length; i++) {
             PortMethod method = portMethods[i];
-            if (classMethod == PortMethod.DEFAULT && method == PortMethod.DEFAULT)
-            {
+            if (classMethod == PortMethod.DEFAULT && method == PortMethod.DEFAULT) {
                 method = PortMethod.GET;
-            } else if (method == PortMethod.DEFAULT)
-            {
+            } else if (method == PortMethod.DEFAULT) {
                 method = classMethod;
             }
             portMethods[i] = method;
@@ -1021,38 +859,29 @@ public class AnnoUtil
         return portMethods;
     }
 
-    public static class NoCache
-    {
-        public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass)
-        {
-            for (Annotation annotation : annotations)
-            {
-                if (annotation.annotationType().equals(annotationClass))
-                {
+    public static class NoCache {
+        public static <A extends Annotation> A getAnnotation(Annotation[] annotations, Class<A> annotationClass) {
+            for (Annotation annotation : annotations) {
+                if (annotation.annotationType().equals(annotationClass)) {
                     return proxyAnnotationForAttr((A) annotation);
                 }
             }
             return null;
         }
 
-        public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationClass) {
             return _getAnnotation(clazz, annotationClass, true);
         }
 
         private static <A extends Annotation> A _getAnnotation(Class<?> clazz, Class<A> annotationClass,
-                boolean willProxy)
-        {
+                boolean willProxy) {
             A t = clazz.getAnnotation(annotationClass);
             if (t == null && Modifier.isInterface(clazz.getModifiers()) && annotationClass
-                    .isAnnotationPresent(Inherited.class))
-            {
+                    .isAnnotationPresent(Inherited.class)) {
                 Class<?>[] ins = clazz.getInterfaces();
-                for (Class<?> inClass : ins)
-                {
+                for (Class<?> inClass : ins) {
                     t = _getAnnotation(inClass, annotationClass, willProxy);//递归调用
-                    if (t != null)
-                    {
+                    if (t != null) {
                         return t;//已经代理过
                     }
                 }
@@ -1060,13 +889,12 @@ public class AnnoUtil
             return willProxy ? proxyAnnotationForAttr(t) : t;
         }
 
-        public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationClass) {
             return _getAnnotation(field, annotationClass, true);
         }
 
-        private static <A extends Annotation> A _getAnnotation(Field field, Class<A> annotationClass, boolean willProxy)
-        {
+        private static <A extends Annotation> A _getAnnotation(Field field, Class<A> annotationClass,
+                boolean willProxy) {
             A t = field.getAnnotation(annotationClass);
             return willProxy ? proxyAnnotationForAttr(t) : t;
         }
@@ -1079,18 +907,15 @@ public class AnnoUtil
          * @param <A>
          * @return
          */
-        public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationClass) {
             return _getAnnotation(method, annotationClass, true);
         }
 
         private static <A extends Annotation> A _getAnnotation(Method method, Class<A> annotationClass,
-                boolean willProxy)
-        {
+                boolean willProxy) {
             boolean isInherited = annotationClass.isAnnotationPresent(Inherited.class);
             A t = getAnnotation(method.getDeclaringClass(), method, annotationClass, isInherited);
-            if (t == null && isInherited && Modifier.isInterface(method.getDeclaringClass().getModifiers()))
-            {
+            if (t == null && isInherited && Modifier.isInterface(method.getDeclaringClass().getModifiers())) {
                 t = getAnnotationForFromInterface(method, annotationClass);
             }
             t = willProxy ? proxyAnnotationForAttr(t) : t;
@@ -1099,21 +924,16 @@ public class AnnoUtil
 
         private static <A extends Annotation> A getAnnotation(Class childClass, Method method,
                 Class<A> annotationClass,
-                boolean seekSuper)
-        {
+                boolean seekSuper) {
             A t = method.getAnnotation(annotationClass);
-            if (t == null && seekSuper)
-            {
+            if (t == null && seekSuper) {
 
                 Class<?> superClass = childClass.getSuperclass();
-                while (superClass != null)
-                {
+                while (superClass != null) {
                     Method superMethod = Advance.getSuperMethod(childClass, method, superClass, false);
-                    if (superMethod != null)
-                    {
+                    if (superMethod != null) {
                         t = superMethod.getAnnotation(annotationClass);
-                        if (t != null)
-                        {
+                        if (t != null) {
                             break;
                         }
                     }
@@ -1123,29 +943,23 @@ public class AnnoUtil
             return t;
         }
 
-        private static <A extends Annotation> A getAnnotationForFromInterface(Method method, Class<A> annotationClass)
-        {
+        private static <A extends Annotation> A getAnnotationForFromInterface(Method method, Class<A> annotationClass) {
             Class<?> clazz = method.getDeclaringClass();
             Class[] is = clazz.getInterfaces();
-            for (Class c : is)
-            {
+            for (Class c : is) {
                 Method m = null;
-                try
-                {
+                try {
                     m = c.getDeclaredMethod(method.getName(), method.getParameterTypes());
-                } catch (NoSuchMethodException e)
-                {
+                } catch (NoSuchMethodException e) {
                 }
-                if (m != null)
-                {
+                if (m != null) {
                     return m.getAnnotation(annotationClass);
                 }
             }
             return null;
         }
 
-        public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationClass) {
             A t = parameter.getAnnotation(annotationClass);
             return proxyAnnotationForAttr(t);
         }
@@ -1156,8 +970,7 @@ public class AnnoUtil
          * @param clazz
          * @return
          */
-        public static Annotation[] getAnnotations(Class clazz)
-        {
+        public static Annotation[] getAnnotations(Class clazz) {
             List<Annotation> list = new ArrayList<>();
             getAnnotations(clazz, list, new HashSet<>());
             Annotation[] as = list.toArray(new Annotation[0]);
@@ -1165,18 +978,14 @@ public class AnnoUtil
         }
 
 
-        private static void getAnnotations(Class clazz, List<Annotation> list, Set<Class> typeSet)
-        {
-            if (clazz == null)
-            {
+        private static void getAnnotations(Class clazz, List<Annotation> list, Set<Class> typeSet) {
+            if (clazz == null) {
                 return;
             }
             Annotation[] as = clazz.getAnnotations();
-            for (Annotation annotation : as)
-            {
+            for (Annotation annotation : as) {
                 if (!typeSet.contains(annotation.annotationType()) && annotation.annotationType()
-                        .isAnnotationPresent(Inherited.class))
-                {
+                        .isAnnotationPresent(Inherited.class)) {
                     list.add(annotation);
                     typeSet.add(annotation.annotationType());
                 }
@@ -1190,30 +999,24 @@ public class AnnoUtil
          * @param method
          * @return
          */
-        public static Annotation[] getAnnotations(Method method)
-        {
+        public static Annotation[] getAnnotations(Method method) {
             Set<Class> typeSet = new HashSet<>();
             Annotation[] as = method.getAnnotations();
             List<Annotation> list = new ArrayList<>();
             OftenTool.addAll(list, as);
-            for (Annotation annotation : as)
-            {
+            for (Annotation annotation : as) {
                 typeSet.add(annotation.annotationType());
             }
 
             Class childClass = method.getDeclaringClass();
             Class<?> superClass = childClass.getSuperclass();
-            while (superClass != null)
-            {
+            while (superClass != null) {
                 Method superMethod = Advance.getSuperMethod(childClass, method, superClass, false);
-                if (superMethod != null)
-                {
+                if (superMethod != null) {
                     as = superMethod.getAnnotations();
-                    for (Annotation annotation : as)
-                    {
+                    for (Annotation annotation : as) {
                         if (!typeSet.contains(annotation.annotationType()) && annotation.annotationType()
-                                .isAnnotationPresent(Inherited.class))
-                        {
+                                .isAnnotationPresent(Inherited.class)) {
                             list.add(annotation);
                             typeSet.add(annotation.annotationType());
                         }
@@ -1234,138 +1037,105 @@ public class AnnoUtil
          * @param <A>
          * @return
          */
-        public static <A extends Annotation> List<A> getAnnotationsWithSuper(Class<?> clazz, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> List<A> getAnnotationsWithSuper(Class<?> clazz, Class<A> annotationClass) {
             ArrayList<A> arrayList = new ArrayList<>();
             Class<?> c = clazz;
-            while (true)
-            {
+            while (true) {
                 A t = proxyAnnotationForAttr(c.getDeclaredAnnotation(annotationClass));
-                if (t != null)
-                {
+                if (t != null) {
                     arrayList.add(t);
                 }
                 c = c.getSuperclass();
-                if (c == null || c.equals(Object.class))
-                {
+                if (c == null || c.equals(Object.class)) {
                     break;
                 }
             }
             return arrayList;
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationClass) {
             return getAnnotationsOfProxy(clazz, annotationClass);
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationClass) {
             return getAnnotationsOfProxy(field, annotationClass);
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationClass) {
             return getAnnotationsOfProxy(method, annotationClass);
         }
 
-        private static <A extends Annotation> A[] getAnnotationsOfProxy(Object obj, Class<A> annotationClass)
-        {
+        private static <A extends Annotation> A[] getAnnotationsOfProxy(Object obj, Class<A> annotationClass) {
             A[] as = getAnnotationsByType(obj, annotationClass);
             return proxyAnnotationForAttr(as);
         }
 
-        private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass)
-        {
+        private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass) {
             return getAnnotationsByType(obj, annotationClass, annotationClass.isAnnotationPresent(Inherited.class));
         }
 
         private static <A extends Annotation> A[] getAnnotationsByType(Object obj, Class<A> annotationClass,
-                boolean seekSuper)
-        {
-            try
-            {
+                boolean seekSuper) {
+            try {
                 A[] as;
-                if (javaGetAnnotations != null)
-                {
+                if (javaGetAnnotations != null) {
                     as = (A[]) javaGetAnnotations.invoke(obj, annotationClass);
-                    if (as.length == 0 && seekSuper)
-                    {
-                        if (obj instanceof Method)
-                        {
+                    if (as.length == 0 && seekSuper) {
+                        if (obj instanceof Method) {
                             Method method = (Method) obj;
                             Class<?> superclass = method.getDeclaringClass().getSuperclass();
-                            if (superclass != null)
-                            {
-                                try
-                                {
+                            if (superclass != null) {
+                                try {
                                     method = superclass.getMethod(method.getName(), method.getParameterTypes());
                                     as = getAnnotationsByType(method, annotationClass, seekSuper);
-                                } catch (NoSuchMethodException e)
-                                {
+                                } catch (NoSuchMethodException e) {
                                 }
                             }
-                        } else if (Modifier.isInterface(((Class) obj).getModifiers()))
-                        {
+                        } else if (Modifier.isInterface(((Class) obj).getModifiers())) {
                             Class[] interfaces = ((Class) obj).getInterfaces();
-                            for (Class c : interfaces)
-                            {
+                            for (Class c : interfaces) {
                                 as = getAnnotationsByType(c, annotationClass, seekSuper);
                             }
                         }
                     }
-                } else
-                {
-                    try
-                    {
+                } else {
+                    try {
                         Class<? extends Annotation> annosClass = (Class<? extends Annotation>) Class
                                 .forName(annotationClass.getName() + "s");
                         Annotation annos;
-                        if (obj instanceof Class)
-                        {
+                        if (obj instanceof Class) {
                             annos = getAnnotation((Class) obj, annosClass);
-                        } else if (obj instanceof Method)
-                        {
+                        } else if (obj instanceof Method) {
                             annos = getAnnotation((Method) obj, annosClass);
-                        } else
-                        {//Field
+                        } else {//Field
                             annos = getAnnotation((Field) obj, annosClass);
                         }
-                        if (annos != null)
-                        {
+                        if (annos != null) {
                             Method valueMethod = annosClass.getDeclaredMethod("value");
                             as = (A[]) valueMethod.invoke(annos);
-                        } else
-                        {
+                        } else {
                             as = (A[]) Array.newInstance(annotationClass, 0);
                         }
-                    } catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         LOGGER.warn(e.getMessage(), e);
                         A a = null;
-                        if (obj instanceof Class)
-                        {
+                        if (obj instanceof Class) {
                             a = getAnnotation((Class) obj, annotationClass);
-                        } else if (obj instanceof Method)
-                        {
+                        } else if (obj instanceof Method) {
                             a = getAnnotation((Method) obj, annotationClass);
-                        } else
-                        {//Field
+                        } else {//Field
                             a = getAnnotation((Field) obj, annotationClass);
                         }
-                        if (a == null)
-                        {
+                        if (a == null) {
                             as = (A[]) Array.newInstance(annotationClass, 0);
-                        } else
-                        {
+                        } else {
                             as = (A[]) Array.newInstance(annotationClass, 1);
                             as[0] = a;
                         }
                     }
                 }
                 return as;
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
                 return (A[]) Array.newInstance(annotationClass, 0);
             }
@@ -1373,23 +1143,17 @@ public class AnnoUtil
 
 
         public static boolean isAnnotationPresent(boolean isAll, Class<?> clazz,
-                Class<?>... annotationClasses)
-        {
+                Class<?>... annotationClasses) {
             boolean rs;
             outer:
-            do
-            {
-                for (Class c : annotationClasses)
-                {
-                    if (_getAnnotation(clazz, c, false) != null)
-                    {
-                        if (!isAll)
-                        {
+            do {
+                for (Class c : annotationClasses) {
+                    if (_getAnnotation(clazz, c, false) != null) {
+                        if (!isAll) {
                             rs = true;
                             break outer;
                         }
-                    } else if (isAll)
-                    {
+                    } else if (isAll) {
                         rs = false;
                         break outer;
                     }
@@ -1399,24 +1163,18 @@ public class AnnoUtil
             return rs;
         }
 
-        public static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses)
-        {
+        public static boolean isAnnotationPresent(boolean isAll, Method method, Class<?>... annotationClasses) {
             boolean rs;
             outer:
-            do
-            {
-                for (Class c : annotationClasses)
-                {
+            do {
+                for (Class c : annotationClasses) {
                     Annotation t = _getAnnotation(method, c, false);
-                    if (t != null)
-                    {
-                        if (!isAll)
-                        {
+                    if (t != null) {
+                        if (!isAll) {
                             rs = true;
                             break outer;
                         }
-                    } else if (isAll)
-                    {
+                    } else if (isAll) {
                         rs = false;
                         break outer;
                     }
@@ -1426,24 +1184,18 @@ public class AnnoUtil
             return rs;
         }
 
-        public static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses)
-        {
+        public static boolean isAnnotationPresent(boolean isAll, Field field, Class<?>... annotationClasses) {
             boolean rs;
             outer:
-            do
-            {
-                for (Class c : annotationClasses)
-                {
+            do {
+                for (Class c : annotationClasses) {
                     Annotation t = _getAnnotation(field, c, false);
-                    if (t != null)
-                    {
-                        if (!isAll)
-                        {
+                    if (t != null) {
+                        if (!isAll) {
                             rs = true;
                             break outer;
                         }
-                    } else if (isAll)
-                    {
+                    } else if (isAll) {
                         rs = false;
                         break outer;
                     }
@@ -1457,23 +1209,19 @@ public class AnnoUtil
     /**
      * 用于获取注解的高级选项,见{@linkplain IDynamicAnnotationImprovable}
      */
-    public static class Advance
-    {
-        public static void addDeny(String className)
-        {
+    public static class Advance {
+        public static void addDeny(String className) {
             DynamicAnnotationImprovableWrap.addDeny(className);
         }
 
-        public static void addWhite(String className)
-        {
+        public static void addWhite(String className) {
             DynamicAnnotationImprovableWrap.addWhite(className);
         }
 
         /**
          * 代理指定的注解，使得注解字串内容支持参数。
          */
-        public static <A extends Annotation> A doProxyForDynamicAttr(A a)
-        {
+        public static <A extends Annotation> A doProxyForDynamicAttr(A a) {
             return proxyAnnotationForAttr(a);
         }
 
@@ -1483,11 +1231,9 @@ public class AnnoUtil
          * @param objects
          * @return
          */
-        static Worked hasWorked(Object... objects)
-        {
+        static Worked hasWorked(Object... objects) {
             StringBuilder builder = new StringBuilder();
-            for (Object obj : objects)
-            {
+            for (Object obj : objects) {
                 builder.append(obj).append("___");
             }
             builder.append(DYNAMIC_ANNOTATION_IMPROVABLES_STRING);
@@ -1498,8 +1244,7 @@ public class AnnoUtil
         }
 
         private static <A extends Annotation> A newProxyAnnotation(IDynamicAnnotationImprovable.Result<?, A> result,
-                InvocationHandler invocationHandler)
-        {
+                InvocationHandler invocationHandler) {
             Class<A> annotationClass = result.appendAnnotation;
             AnnoUtilDynamicHandler handler = new AnnoUtilDynamicHandler(invocationHandler, annotationClass,
                     result.willHandleCommonMethods());
@@ -1510,11 +1255,9 @@ public class AnnoUtil
             return proxyAnnotationForAttr(a);
         }
 
-        private static <A extends Annotation> IDynamicAnnotationImprovable[] getDynamic(Class<A> annotationType)
-        {
+        private static <A extends Annotation> IDynamicAnnotationImprovable[] getDynamic(Class<A> annotationType) {
             IDynamicAnnotationImprovable[] as = classDynamicArrayMap.get(annotationType.getName());
-            if (as == null)
-            {
+            if (as == null) {
                 as = DYNAMIC_EMPTY;
             }
             return as;
@@ -1527,8 +1270,7 @@ public class AnnoUtil
          * @param referMethod 子类或子接口函数
          * @return
          */
-        public static Method getSameMethodOfParent(Class parentClass, Method referMethod)
-        {
+        public static Method getSameMethodOfParent(Class parentClass, Method referMethod) {
             return getSameMethod(parentClass, referMethod, true, -1);
         }
 
@@ -1539,8 +1281,7 @@ public class AnnoUtil
          * @param referMethod 父类或父接口函数
          * @return
          */
-        public static Method getSameMethodOfChild(Class childClass, Method referMethod)
-        {
+        public static Method getSameMethodOfChild(Class childClass, Method referMethod) {
             return getSameMethod(childClass, referMethod, false, 1);
         }
 
@@ -1553,51 +1294,36 @@ public class AnnoUtil
          * @param returnType  0表示返回值类型必须相等，-1表示返回值可以是参考函数返回值的父类型，1表示返回值可以是参考函数的子类型
          * @return
          */
-        public static Method getSameMethod(Class clazz, Method referMethod, boolean recursive, int returnType)
-        {
+        public static Method getSameMethod(Class clazz, Method referMethod, boolean recursive, int returnType) {
             Method result = null;
-            if (referMethod.getDeclaringClass() == clazz)
-            {
+            if (referMethod.getDeclaringClass() == clazz) {
                 result = referMethod;
-            } else if (clazz != null)
-            {
-                try
-                {
+            } else if (clazz != null) {
+                try {
                     Method method = clazz.getDeclaredMethod(referMethod.getName(), referMethod.getParameterTypes());
-                    if (returnType == 0)
-                    {
-                        if (method.getReturnType() == referMethod.getReturnType())
-                        {
+                    if (returnType == 0) {
+                        if (method.getReturnType() == referMethod.getReturnType()) {
                             result = method;
                         }
-                    } else if (returnType < 0)
-                    {
-                        if (OftenTool.isAssignable(referMethod.getReturnType(), method.getReturnType()))
-                        {
+                    } else if (returnType < 0) {
+                        if (OftenTool.isAssignable(referMethod.getReturnType(), method.getReturnType())) {
                             result = method;
                         }
-                    } else if (returnType > 0)
-                    {
-                        if (OftenTool.isAssignable(method.getReturnType(), referMethod.getReturnType()))
-                        {
+                    } else if (returnType > 0) {
+                        if (OftenTool.isAssignable(method.getReturnType(), referMethod.getReturnType())) {
                             result = method;
                         }
                     }
-                } catch (NoSuchMethodException e)
-                {
+                } catch (NoSuchMethodException e) {
                 }
 
-                if (result == null && recursive)
-                {
+                if (result == null && recursive) {
                     result = getSameMethod(clazz.getSuperclass(), referMethod, recursive, returnType);
-                    if (result == null)
-                    {
+                    if (result == null) {
                         Class[] interfaces = clazz.getInterfaces();
-                        for (Class iclass : interfaces)
-                        {
+                        for (Class iclass : interfaces) {
                             result = getSameMethod(iclass, referMethod, recursive, returnType);
-                            if (result != null)
-                            {
+                            if (result != null) {
                                 break;
                             }
                         }
@@ -1607,23 +1333,18 @@ public class AnnoUtil
             return result;
         }
 
-        public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A getAnnotation(Class<?> clazz, Class<A> annotationType) {
             Worked worked = hasWorked(clazz, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
             Annotation annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
                         iDynamicAnnotationImprovable.getAnnotation(clazz, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     annotationResult = newProxyAnnotation(result, result.t);
-                    if (LOGGER.isDebugEnabled())
-                    {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                 iDynamicAnnotationImprovable);
                     }
@@ -1634,23 +1355,18 @@ public class AnnoUtil
             return (A) annotationResult;
         }
 
-        public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A getAnnotation(Field field, Class<A> annotationType) {
             Worked worked = hasWorked(field, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
             Annotation annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
                         iDynamicAnnotationImprovable.getAnnotation(field, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     annotationResult = newProxyAnnotation(result, result.t);
-                    if (LOGGER.isDebugEnabled())
-                    {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                 iDynamicAnnotationImprovable);
                     }
@@ -1661,23 +1377,18 @@ public class AnnoUtil
             return (A) annotationResult;
         }
 
-        public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A getAnnotation(Method method, Class<A> annotationType) {
             Worked worked = hasWorked(method, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
             Annotation annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
                         iDynamicAnnotationImprovable.getAnnotation(method, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     annotationResult = newProxyAnnotation(result, result.t);
-                    if (LOGGER.isDebugEnabled())
-                    {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                 iDynamicAnnotationImprovable);
                     }
@@ -1688,23 +1399,18 @@ public class AnnoUtil
             return (A) annotationResult;
         }
 
-        public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A getAnnotation(Parameter parameter, Class<A> annotationType) {
             Worked worked = hasWorked(parameter, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
             Annotation annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler, A> result =
                         iDynamicAnnotationImprovable.getAnnotation(parameter, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     annotationResult = newProxyAnnotation(result, result.t);
-                    if (LOGGER.isDebugEnabled())
-                    {
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                 iDynamicAnnotationImprovable);
                     }
@@ -1715,31 +1421,24 @@ public class AnnoUtil
             return (A) annotationResult;
         }
 
-        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter)
-        {
+        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(Porter porter) {
             Worked worked = hasWorked(porter);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             Annotation[] annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : porterDynamicArray)
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : porterDynamicArray) {
                 annotationResult = iDynamicAnnotationImprovable.getAnnotationsForAspectOperationOfPortIn(porter);
-                if (annotationResult != null)
-                {
+                if (annotationResult != null) {
                     break;
                 }
             }
-            if (annotationResult == null)
-            {
+            if (annotationResult == null) {
                 annotationResult = porter.getClazz().getDeclaredAnnotations();
             }
-            if (annotationResult != null)
-            {
-                for (int i = 0; i < annotationResult.length; i++)
-                {
+            if (annotationResult != null) {
+                for (int i = 0; i < annotationResult.length; i++) {
                     Annotation annotation = annotationResult[i];
                     annotationResult[i] = doProxyForDynamicAttr(annotation);
                 }
@@ -1748,30 +1447,23 @@ public class AnnoUtil
             return annotationResult;
         }
 
-        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun)
-        {
+        public static Annotation[] getAnnotationsForAspectOperationOfPortIn(PorterOfFun porterOfFun) {
             Worked worked = hasWorked(porterOfFun);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
             Annotation[] annotationResult = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : porterDynamicArray)
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : porterDynamicArray) {
                 annotationResult = iDynamicAnnotationImprovable.getAnnotationsForAspectOperationOfPortIn(porterOfFun);
-                if (annotationResult != null)
-                {
+                if (annotationResult != null) {
                     break;
                 }
             }
-            if (annotationResult == null)
-            {
+            if (annotationResult == null) {
                 annotationResult = porterOfFun.getMethod().getDeclaredAnnotations();
             }
-            if (annotationResult != null)
-            {
-                for (int i = 0; i < annotationResult.length; i++)
-                {
+            if (annotationResult != null) {
+                for (int i = 0; i < annotationResult.length; i++) {
                     Annotation annotation = annotationResult[i];
                     annotationResult[i] = doProxyForDynamicAttr(annotation);
                 }
@@ -1786,29 +1478,23 @@ public class AnnoUtil
          * @param annotation
          * @return
          */
-        public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation)
-        {
+        public static AspectOperationOfNormal getAspectOperationOfNormal(Annotation annotation) {
             Worked worked = hasWorked(AspectOperationOfNormal.class, annotation);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             Class<? extends Annotation> atype = annotation.annotationType();
             AspectOperationOfNormal aspectOperationOfNormal = AnnoUtil
                     .getAnnotation(atype, AspectOperationOfNormal.class);
-            if (aspectOperationOfNormal == null)
-            {
-                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : aspectDynamicArray)
-                {
+            if (aspectOperationOfNormal == null) {
+                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : aspectDynamicArray) {
                     IDynamicAnnotationImprovable.Result<InvocationHandler, AspectOperationOfNormal> result =
                             iDynamicAnnotationImprovable
                                     .getAspectOperationOfNormal(annotation);
-                    if (result != null)
-                    {
+                    if (result != null) {
                         aspectOperationOfNormal = newProxyAnnotation(result, result.t);
-                        if (LOGGER.isDebugEnabled())
-                        {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("get @{} from {}", AspectOperationOfNormal.class.getSimpleName(),
                                     iDynamicAnnotationImprovable);
                         }
@@ -1826,28 +1512,22 @@ public class AnnoUtil
          * @param annotation
          * @return
          */
-        public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation)
-        {
+        public static AspectOperationOfPortIn getAspectOperationOfPortIn(Annotation annotation) {
             Worked worked = hasWorked(AspectOperationOfPortIn.class, annotation);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             Class<? extends Annotation> atype = annotation.annotationType();
             AspectOperationOfPortIn aspectOperationOfPortIn = AnnoUtil
                     .getAnnotation(atype, AspectOperationOfPortIn.class);
-            if (aspectOperationOfPortIn == null)
-            {
-                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : aspectDynamicArray)
-                {
+            if (aspectOperationOfPortIn == null) {
+                for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : aspectDynamicArray) {
                     IDynamicAnnotationImprovable.Result<InvocationHandler, AspectOperationOfPortIn> result =
                             iDynamicAnnotationImprovable.getAspectOperationOfPortIn(annotation);
-                    if (result != null)
-                    {
+                    if (result != null) {
                         aspectOperationOfPortIn = newProxyAnnotation(result, result.t);
-                        if (LOGGER.isDebugEnabled())
-                        {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("get @{} from {}", AspectOperationOfPortIn.class.getSimpleName(),
                                     iDynamicAnnotationImprovable);
                         }
@@ -1887,73 +1567,57 @@ public class AnnoUtil
          */
         public static
         @NotNull
-        Class<?> getDirectGenericRealTypeAt(Class<?> realClass, int index)
-        {
-            if (index < 0)
-            {
+        Class<?> getDirectGenericRealTypeAt(Class<?> realClass, int index) {
+            if (index < 0) {
                 throw new IllegalArgumentException("negative index:" + index);
             }
-            if (index == 0)
-            {
+            if (index == 0) {
                 return realClass;
             }
             CacheKey cacheKey = new CacheKey(realClass, "getDirectGenericRealTypeAt-" + index, realClass);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
 
             List<Class<?>> typeList = getAllGenericRealClassType(realClass);
 
-            if (index > typeList.size())
-            {
+            if (index > typeList.size()) {
                 throw new RuntimeException("index out of bounds:" + index);
-            } else
-            {
+            } else {
                 Class<?> type = typeList.get(index - 1);
                 cacheKey.setCache(type);
                 return type;
             }
         }
 
-        private static List<Class<?>> getAllGenericRealClassType(Class<?> realClass)
-        {
+        private static List<Class<?>> getAllGenericRealClassType(Class<?> realClass) {
             realClass = ProxyUtil.unwrapProxyForGeneric(realClass);
             List<Class<?>> typeList = new ArrayList<>(4);
             Type superType = realClass.getGenericSuperclass();
-            if (superType != null)
-            {
+            if (superType != null) {
                 getAllTypesRecursiveForClass(typeList, false, superType);
             }
             getAllTypesRecursiveForClass(typeList, false, realClass.getGenericInterfaces());
             return typeList;
         }
 
-        private static void getAllTypesRecursiveForClass(List<Class<?>> typeList, boolean isLastGeneric, Type... types)
-        {
-            for (Type type : types)
-            {
-                if (type instanceof Class)
-                {
-                    if (isLastGeneric)
-                    {
+        private static void getAllTypesRecursiveForClass(List<Class<?>> typeList, boolean isLastGeneric,
+                Type... types) {
+            for (Type type : types) {
+                if (type instanceof Class) {
+                    if (isLastGeneric) {
                         typeList.add((Class) type);
                     }
-                } else if (type instanceof ParameterizedType)
-                {
+                } else if (type instanceof ParameterizedType) {
                     ParameterizedType parameterizedType = (ParameterizedType) type;
-                    if (isLastGeneric)
-                    {
+                    if (isLastGeneric) {
                         Type rawType = parameterizedType.getRawType();
-                        if (rawType instanceof Class)
-                        {
+                        if (rawType instanceof Class) {
                             typeList.add((Class) rawType);
                         }
                     }
@@ -1971,22 +1635,17 @@ public class AnnoUtil
          */
         public static
         @MayNull
-        Class<?> getDirectGenericRealTypeBySuperType(Class<?> realClass, Class<?> superClassOrInterface)
-        {
-            if (superClassOrInterface.equals(realClass))
-            {
+        Class<?> getDirectGenericRealTypeBySuperType(Class<?> realClass, Class<?> superClassOrInterface) {
+            if (superClassOrInterface.equals(realClass)) {
                 return realClass;
             }
             CacheKey cacheKey = new CacheKey(realClass, "getDirectGenericRealTypeByAssignable", realClass,
                     superClassOrInterface);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
@@ -1994,12 +1653,9 @@ public class AnnoUtil
             List<Class<?>> typeList = getAllGenericRealClassType(realClass);
 
             Class<?> type = null;
-            for (Class<?> clazz : typeList)
-            {
-                if (OftenTool.isAssignable(clazz, superClassOrInterface))
-                {
-                    if (type != null)
-                    {
+            for (Class<?> clazz : typeList) {
+                if (OftenTool.isAssignable(clazz, superClassOrInterface)) {
+                    if (type != null) {
                         throw new RuntimeException("too many child found:" + type + "," + clazz);
                     }
                     type = clazz;
@@ -2011,76 +1667,60 @@ public class AnnoUtil
 
 
         private static Class<?> getRealType(Class<?> declaringClass, Class<?> realClass, Class sourceType,
-                Type genericType)
-        {
-            if (genericType instanceof Class)
-            {
+                Type genericType) {
+            if (genericType instanceof Class) {
                 return ProxyUtil.unwrapProxyForGeneric((Class<?>) genericType);
             }
             realClass = ProxyUtil.unwrapProxyForGeneric(realClass);
 
             Type realType = null;
-            if (Modifier.isInterface(declaringClass.getModifiers()) && genericType instanceof TypeVariable)
-            {
+            if (Modifier.isInterface(declaringClass.getModifiers()) && genericType instanceof TypeVariable) {
                 TypeVariable typeVariable = (TypeVariable) genericType;
                 GenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();
-                if (genericDeclaration instanceof Class)
-                {
+                if (genericDeclaration instanceof Class) {
                     Type[] gis = realClass.getGenericInterfaces();
-                    for (Type type : gis)
-                    {
-                        if (type instanceof ParameterizedType)
-                        {
+                    for (Type type : gis) {
+                        if (type instanceof ParameterizedType) {
                             ParameterizedType parameterizedType = (ParameterizedType) type;
                             Type rawType = parameterizedType.getRawType();
-                            if (genericDeclaration.equals(rawType))
-                            {
+                            if (genericDeclaration.equals(rawType)) {
                                 realType = parameterizedType;
                                 break;
                             }
                         }
                     }
                 }
-            } else
-            {
+            } else {
                 realType = realClass.getGenericSuperclass();
             }
 
             Class<?> rt = null;
-            if (genericType != null && realType instanceof ParameterizedType)
-            {
+            if (genericType != null && realType instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) realType;
 
                 TypeVariable[] typeVariables = declaringClass.getTypeParameters();
-                for (int i = 0; i < typeVariables.length; i++)
-                {
+                for (int i = 0; i < typeVariables.length; i++) {
                     TypeVariable typeVariable = typeVariables[i];
-                    if (genericType.equals(typeVariable))
-                    {
+                    if (genericType.equals(typeVariable)) {
                         Type t = parameterizedType.getActualTypeArguments()[i];
-                        if (t instanceof Class)
-                        {
+                        if (t instanceof Class) {
                             rt = (Class) t;
                         }
                         break;
                     }
                 }
             }
-            if (rt == null && genericType instanceof ParameterizedType)
-            {
+            if (rt == null && genericType instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
                 Type[] types = parameterizedType.getActualTypeArguments();
-                if (types.length == 1 && types[0] instanceof WildcardType)
-                {
+                if (types.length == 1 && types[0] instanceof WildcardType) {
                     WildcardType wildcardType = (WildcardType) types[0];
                     Type[] upperBounds = wildcardType.getUpperBounds();
-                    if (upperBounds.length == 1 && upperBounds[0] instanceof Class)
-                    {
+                    if (upperBounds.length == 1 && upperBounds[0] instanceof Class) {
                         rt = (Class<?>) upperBounds[0];
                     }
                 } else if (sourceType != null && sourceType
-                        .equals(Class.class) && types.length == 1 && types[0] instanceof Class)
-                {
+                        .equals(Class.class) && types.length == 1 && types[0] instanceof Class) {
                     rt = (Class<?>) types[0];
                 }
             }
@@ -2088,8 +1728,7 @@ public class AnnoUtil
         }
 
 
-        public static Class<?> getRealTypeInField(Class<?> realClass, Field field)
-        {
+        public static Class<?> getRealTypeInField(Class<?> realClass, Field field) {
             return getRealTypeInField(realClass, field, 0);
         }
 
@@ -2101,30 +1740,24 @@ public class AnnoUtil
          * @param index     泛型参数索引
          * @return
          */
-        public static Class<?> getRealTypeInField(Class<?> realClass, Field field, int index)
-        {
+        public static Class<?> getRealTypeInField(Class<?> realClass, Field field, int index) {
             CacheKey cacheKey = new CacheKey(realClass, "getRealTypeInField-" + index, field);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
 
             Class type;
             Type genericType = field.getGenericType();
-            if (genericType instanceof ParameterizedType)
-            {
+            if (genericType instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
                 genericType = parameterizedType.getActualTypeArguments()[index];
                 type = getRealType(field.getDeclaringClass(), realClass, null, genericType);
-            } else
-            {
+            } else {
                 type = null;
             }
 
@@ -2139,24 +1772,19 @@ public class AnnoUtil
          * @param field     声明变量
          * @return
          */
-        public static Class<?> getRealTypeOfField(Class<?> realClass, Field field)
-        {
+        public static Class<?> getRealTypeOfField(Class<?> realClass, Field field) {
 
             CacheKey cacheKey = new CacheKey(realClass, "getRealTypeOfField", field);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
             Class type = getRealType(field.getDeclaringClass(), realClass, field.getType(), field.getGenericType());
-            if (type == null)
-            {
+            if (type == null) {
                 type = field.getType();
             }
             cacheKey.setCache(type);
@@ -2171,20 +1799,17 @@ public class AnnoUtil
          * @param method    方法
          * @return
          */
-        public static Class[] getParameterRealTypes(Class realClass, Method method)
-        {
+        public static Class[] getParameterRealTypes(Class realClass, Method method) {
             int argCount = method.getParameterCount();
             Class[] types = new Class[argCount];
-            for (int i = 0; i < argCount; i++)
-            {
+            for (int i = 0; i < argCount; i++) {
                 Class<?> paramType = AnnoUtil.Advance.getRealTypeOfMethodParameter(realClass, method, i);
                 types[i] = paramType;
             }
             return types;
         }
 
-        public static Class<?> getRealTypeInMethodParameter(Class<?> realClass, Method method, int argIndex)
-        {
+        public static Class<?> getRealTypeInMethodParameter(Class<?> realClass, Method method, int argIndex) {
             return getRealTypeInMethodParameter(realClass, method, argIndex, 0);
         }
 
@@ -2198,31 +1823,25 @@ public class AnnoUtil
          * @return
          */
         public static Class<?> getRealTypeInMethodParameter(Class<?> realClass, Method method, int argIndex,
-                int typeIndex)
-        {
+                int typeIndex) {
             CacheKey cacheKey = new CacheKey(realClass,
                     "getRealTypeOfMethodInParameter-" + argIndex + "-" + typeIndex, method);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
 
             Class type;
             Type genericType = method.getGenericParameterTypes()[argIndex];
-            if (genericType instanceof ParameterizedType)
-            {
+            if (genericType instanceof ParameterizedType) {
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
                 genericType = parameterizedType.getActualTypeArguments()[typeIndex];
                 type = getRealType(method.getDeclaringClass(), realClass, null, genericType);
-            } else
-            {
+            } else {
                 type = null;
             }
 
@@ -2238,25 +1857,20 @@ public class AnnoUtil
          * @param argIndex  参数索引
          * @return
          */
-        public static Class<?> getRealTypeOfMethodParameter(Class<?> realClass, Method method, int argIndex)
-        {
+        public static Class<?> getRealTypeOfMethodParameter(Class<?> realClass, Method method, int argIndex) {
 
             CacheKey cacheKey = new CacheKey(realClass, "getRealTypeOfMethodParameter-" + argIndex, method);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
             Class type = getRealType(method.getDeclaringClass(), realClass, method.getParameterTypes()[argIndex],
                     method.getGenericParameterTypes()[argIndex]);
-            if (type == null)
-            {
+            if (type == null) {
                 type = method.getParameterTypes()[argIndex];
             }
             cacheKey.setCache(type);
@@ -2270,54 +1884,43 @@ public class AnnoUtil
          * @param method    函数
          * @return
          */
-        public static Class<?> getRealTypeOfMethodReturn(Class<?> realClass, Method method)
-        {
+        public static Class<?> getRealTypeOfMethodReturn(Class<?> realClass, Method method) {
 
             CacheKey cacheKey = new CacheKey(realClass, "getRealTypeOfMethodReturn", method);
             Object cache = cacheKey.getCache();
-            if (cache != null)
-            {
-                if (cache == NULL)
-                {
+            if (cache != null) {
+                if (cache == NULL) {
                     return null;
-                } else
-                {
+                } else {
                     return (Class<?>) cache;
                 }
             }
             Class type = getRealType(method.getDeclaringClass(), realClass,
                     method.getReturnType(), method.getGenericReturnType());
-            if (type == null)
-            {
+            if (type == null) {
                 type = method.getReturnType();
             }
             cacheKey.setCache(type);
             return type;
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Class<?> clazz, Class<A> annotationType) {
             Worked worked = hasWorked("getRepeatableAnnotations:", clazz, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             A[] annos = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
                         iDynamicAnnotationImprovable.getRepeatableAnnotations(clazz, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     InvocationHandler[] handlers = result.t;
                     annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
-                    for (int i = 0; i < handlers.length; i++)
-                    {
+                    for (int i = 0; i < handlers.length; i++) {
                         A a = newProxyAnnotation(result, handlers[i]);
                         annos[i] = a;
-                        if (LOGGER.isDebugEnabled())
-                        {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                     iDynamicAnnotationImprovable);
                         }
@@ -2329,29 +1932,23 @@ public class AnnoUtil
             return annos;
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Field field, Class<A> annotationType) {
             Worked worked = hasWorked("getRepeatableAnnotations:", field, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             A[] annos = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
                         iDynamicAnnotationImprovable.getRepeatableAnnotations(field, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     InvocationHandler[] handlers = result.t;
                     annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
-                    for (int i = 0; i < handlers.length; i++)
-                    {
+                    for (int i = 0; i < handlers.length; i++) {
                         A a = newProxyAnnotation(result, handlers[i]);
                         annos[i] = a;
-                        if (LOGGER.isDebugEnabled())
-                        {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                     iDynamicAnnotationImprovable);
                         }
@@ -2363,29 +1960,23 @@ public class AnnoUtil
             return annos;
         }
 
-        public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationType)
-        {
+        public static <A extends Annotation> A[] getRepeatableAnnotations(Method method, Class<A> annotationType) {
             Worked worked = hasWorked("getRepeatableAnnotations:", method, annotationType);
-            if (worked.isWorked)
-            {
+            if (worked.isWorked) {
                 return null;
             }
 
             A[] annos = null;
-            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType))
-            {
+            for (IDynamicAnnotationImprovable iDynamicAnnotationImprovable : getDynamic(annotationType)) {
                 IDynamicAnnotationImprovable.Result<InvocationHandler[], A> result =
                         iDynamicAnnotationImprovable.getRepeatableAnnotations(method, annotationType);
-                if (result != null)
-                {
+                if (result != null) {
                     InvocationHandler[] handlers = result.t;
                     annos = (A[]) Array.newInstance(result.appendAnnotation, handlers.length);
-                    for (int i = 0; i < handlers.length; i++)
-                    {
+                    for (int i = 0; i < handlers.length; i++) {
                         A a = newProxyAnnotation(result, handlers[i]);
                         annos[i] = a;
-                        if (LOGGER.isDebugEnabled())
-                        {
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("get @{} from {}", annotationType.getSimpleName(),
                                     iDynamicAnnotationImprovable);
                         }
@@ -2403,66 +1994,52 @@ public class AnnoUtil
          * @param method
          * @return
          */
-        public static Method getSuperMethod(Class childClass, Method method, Class superClass, boolean recursive)
-        {
-            if (superClass == null)
-            {
+        public static Method getSuperMethod(Class childClass, Method method, Class superClass, boolean recursive) {
+            if (superClass == null) {
                 return null;
             }
             int n = method.getParameterCount();
             List<Class> parameters = new ArrayList<>(n);
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 parameters.add(getRealTypeOfMethodParameter(childClass, method, i));
             }
 
-            while (superClass != null)
-            {
+            while (superClass != null) {
 
                 Method[] superMethods = superClass.getMethods();
-                for (Method m : superMethods)
-                {
-                    if (!m.getName().equals(method.getName()))
-                    {
+                for (Method m : superMethods) {
+                    if (!m.getName().equals(method.getName())) {
                         continue;
                     }
                     if (!(Modifier.isStatic(m.getModifiers()) && Modifier.isStatic(method.getModifiers()) ||
-                            !Modifier.isStatic(m.getModifiers()) && !Modifier.isStatic(method.getModifiers())))
-                    {
+                            !Modifier.isStatic(m.getModifiers()) && !Modifier.isStatic(method.getModifiers()))) {
                         continue;
                     }
 
                     if (!(m.getReturnType() == Void.TYPE && method.getReturnType() == Void.TYPE ||
-                            m.getReturnType() != Void.TYPE && method.getReturnType() != Void.TYPE))
-                    {
+                            m.getReturnType() != Void.TYPE && method.getReturnType() != Void.TYPE)) {
                         continue;
                     }
-                    if (m.getParameterCount() != n)
-                    {
+                    if (m.getParameterCount() != n) {
                         continue;
                     }
-                    if (OftenTool.getAccessType(m) > OftenTool.getAccessType(method))
-                    {
+                    if (OftenTool.getAccessType(m) > OftenTool.getAccessType(method)) {
                         continue;
                     }
 
                     boolean is = true;
-                    for (int i = 0; i < n; i++)
-                    {
+                    for (int i = 0; i < n; i++) {
                         Class type = getRealTypeOfMethodParameter(childClass, m, i);
-                        if (!type.equals(parameters.get(i)))
-                        {
+                        if (!type.equals(parameters.get(i))) {
                             is = false;
                             break;
                         }
                     }
-                    if (is)
-                    {
+                    if (is) {
                         return m;
                     }
                 }
-                if (!recursive)
-                {
+                if (!recursive) {
                     break;
                 }
                 superClass = superClass.getSuperclass();
@@ -2477,121 +2054,98 @@ public class AnnoUtil
          * @param method
          * @return
          */
-        public static Method getSuperMethod(Method method)
-        {
+        public static Method getSuperMethod(Method method) {
             return getSuperMethod(method.getDeclaringClass(), method, method.getDeclaringClass().getSuperclass(), true);
         }
 
-        public static void removeDeny(String className)
-        {
+        public static void removeDeny(String className) {
             DynamicAnnotationImprovableWrap.removeDeny(className);
         }
 
-        public static void removeWhite(String className)
-        {
+        public static void removeWhite(String className) {
             DynamicAnnotationImprovableWrap.removeWhite(className);
         }
 
-        public static void setUseWhiteOrDeny(boolean useWhiteOrDeny)
-        {
+        public static void setUseWhiteOrDeny(boolean useWhiteOrDeny) {
             DynamicAnnotationImprovableWrap.setUseWhiteOrDeny(useWhiteOrDeny);
         }
 
     }
 
-    private static class Worked
-    {
+    private static class Worked {
         boolean isWorked;
         String key;
 
-        public Worked(boolean isWorked, String key)
-        {
+        public Worked(boolean isWorked, String key) {
             this.isWorked = isWorked;
             this.key = key;
         }
 
-        void reset()
-        {
+        void reset() {
             threadLocalForLoop.get().remove(key);
         }
     }
 
-    private static class Configable
-    {
+    private static class Configable {
         IAnnotationConfigable iAnnotationConfigable;
 
-        public Configable(IAnnotationConfigable iAnnotationConfigable)
-        {
+        public Configable(IAnnotationConfigable iAnnotationConfigable) {
             this.iAnnotationConfigable = iAnnotationConfigable;
         }
     }
 
-    private static class CacheKey
-    {
+    private static class CacheKey {
         String target;
         Object annotationType;
         boolean enable = true;
         static final ThreadLocal<Object> ENABLE_CACHE_THREAD_LOCAL = new ThreadLocal<>();
 
-        public CacheKey(Object target, String tag, Object... array)
-        {
+        public CacheKey(Object target, String tag, Object... array) {
             AdvancedAnnotation.EnableCache enableCache = null;
-            if (target instanceof Method)
-            {
+            if (target instanceof Method) {
 
-                if (ENABLE_CACHE_THREAD_LOCAL.get() != target)
-                {
-                    try
-                    {
+                if (ENABLE_CACHE_THREAD_LOCAL.get() != target) {
+                    try {
                         ENABLE_CACHE_THREAD_LOCAL.set(target);
                         enableCache = getAnnotation((Method) target, AdvancedAnnotation.EnableCache.class);
-                    } finally
-                    {
+                    } finally {
                         ENABLE_CACHE_THREAD_LOCAL.remove();
                     }
                 }
 
-            } else if (!(target instanceof Class))
-            {
-                if (ENABLE_CACHE_THREAD_LOCAL.get() != target)
-                {
-                    try
-                    {
+            } else if (!(target instanceof Class)) {
+                if (ENABLE_CACHE_THREAD_LOCAL.get() != target) {
+                    try {
                         ENABLE_CACHE_THREAD_LOCAL.set(target);
                         enableCache = getAnnotation(target.getClass(), AdvancedAnnotation.EnableCache.class);
-                    } finally
-                    {
+                    } finally {
                         ENABLE_CACHE_THREAD_LOCAL.remove();
                     }
                 }
             }
 
-            if (enableCache != null)
-            {
+            if (enableCache != null) {
                 this.enable = enableCache.enable();
             }
 
             this.target = target.toString();
             StringBuilder builder = new StringBuilder();
-            for (Object obj : array)
-            {
+            for (Object obj : array) {
                 builder.append(obj).append("---");
             }
             builder.append(tag);
             this.annotationType = builder.toString();
         }
 
-//        public CacheKey(Object target, Object annotationType)
-//        {
-//            this.targetRef = new WeakReference<>(target);
-//            this.annotationType = annotationType;
-//        }
+        //        public CacheKey(Object target, Object annotationType)
+        //        {
+        //            this.targetRef = new WeakReference<>(target);
+        //            this.annotationType = annotationType;
+        //        }
 
         @Override
-        public boolean equals(Object obj)
-        {
-            if (obj instanceof CacheKey)
-            {
+        public boolean equals(Object obj) {
+            if (obj instanceof CacheKey) {
                 CacheKey cacheKey = (CacheKey) obj;
                 return this.target.equals(cacheKey.target) && annotationType.equals(cacheKey.annotationType);
             }
@@ -2599,40 +2153,36 @@ public class AnnoUtil
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return target.hashCode();
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return target + ":" + annotationType;
         }
 
-        Object getCache()
-        {
+        Object getCache() {
             WeakReference weakReference = annotationCache.get(this);
             Object cache = weakReference == null ? null : weakReference.get();
-//            if (LOGGER.isDebugEnabled())
-//            {
-//                if (cache != null)
-//                {
-//                    LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" : cache);
-//                }
-//            }
+            //            if (LOGGER.isDebugEnabled())
+            //            {
+            //                if (cache != null)
+            //                {
+            //                    LOGGER.debug("hit cache:key=[{}],cache value=[{}]", this, cache == NULL ? "null" :
+            //                    cache);
+            //                }
+            //            }
             putCacheLog();
             return cache;
         }
 
-        <T> T setCache(T obj)
-        {
-            if (enable)
-            {
+        <T> T setCache(T obj) {
+            if (enable) {
                 //if (LOGGER.isDebugEnabled())
-//            {
-//                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
-//            }
+                //            {
+                //                LOGGER.debug("set cache:key=[{}],cache value=[{}]", this, obj == null ? "null" : obj);
+                //            }
                 annotationCache.put(this, new WeakReference<>(obj == null ? NULL : obj));
             }
             return obj;
@@ -2640,15 +2190,12 @@ public class AnnoUtil
     }
 
 
-    public static String getAutoSetName(Object object)
-    {
+    public static String getAutoSetName(Object object) {
         Class clazz = PortUtil.getRealClass(object);
         AutoSetName autoSetName = AnnoUtil.getAnnotation(clazz, AutoSetName.class);
-        if (autoSetName != null)
-        {
+        if (autoSetName != null) {
             return autoSetName.value();
-        } else
-        {
+        } else {
             return null;
         }
     }
