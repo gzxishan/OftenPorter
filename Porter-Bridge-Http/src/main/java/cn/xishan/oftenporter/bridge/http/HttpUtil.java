@@ -33,177 +33,143 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by 宇宙之灵 on 2015/9/12.
  */
-public class HttpUtil
-{
+public class HttpUtil {
 
-    public static class TimeoutKey implements Cloneable
-    {
+    public static class TimeoutKey implements Cloneable {
         private long connTimeout = -1;
         private long writeTimeout = -1;
         private long readTimeout = -1;
         private long callTimeout = -1;
 
-        public TimeoutKey()
-        {
+        public TimeoutKey() {
         }
 
-        public TimeoutKey(long connTimeout, long writeTimeout, long readTimeout)
-        {
+        public TimeoutKey(long connTimeout, long writeTimeout, long readTimeout) {
             this.connTimeout = connTimeout;
             this.writeTimeout = writeTimeout;
             this.readTimeout = readTimeout;
         }
 
         @Override
-        public TimeoutKey clone()
-        {
-            try
-            {
+        public TimeoutKey clone() {
+            try {
                 TimeoutKey timeoutKey = (TimeoutKey) super.clone();
                 return timeoutKey;
-            } catch (CloneNotSupportedException e)
-            {
+            } catch (CloneNotSupportedException e) {
                 throw new RuntimeException(e);
             }
         }
 
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             return (int) (connTimeout + writeTimeout + readTimeout + callTimeout);
         }
 
         @Override
-        public boolean equals(Object obj)
-        {
-            if (obj instanceof TimeoutKey)
-            {
+        public boolean equals(Object obj) {
+            if (obj instanceof TimeoutKey) {
                 TimeoutKey timeoutKey = (TimeoutKey) obj;
                 return this.connTimeout == timeoutKey.connTimeout && this.writeTimeout == timeoutKey.writeTimeout &&
                         this.readTimeout == timeoutKey.readTimeout && this.callTimeout == timeoutKey.callTimeout;
-            } else
-            {
+            } else {
                 return false;
             }
         }
 
-        public long getConnTimeout()
-        {
+        public long getConnTimeout() {
             return connTimeout;
         }
 
-        public void setConnTimeout(long connTimeout)
-        {
+        public void setConnTimeout(long connTimeout) {
             this.connTimeout = connTimeout;
         }
 
-        public void setConnTimeout(long connTimeout, TimeUnit timeUnit)
-        {
+        public void setConnTimeout(long connTimeout, TimeUnit timeUnit) {
             this.setConnTimeout(timeUnit.toMillis(connTimeout));
         }
 
-        public long getWriteTimeout()
-        {
+        public long getWriteTimeout() {
             return writeTimeout;
         }
 
-        public void setWriteTimeout(long writeTimeout)
-        {
+        public void setWriteTimeout(long writeTimeout) {
             this.writeTimeout = writeTimeout;
         }
 
-        public void setWriteTimeout(long writeTimeout, TimeUnit timeUnit)
-        {
+        public void setWriteTimeout(long writeTimeout, TimeUnit timeUnit) {
             this.setWriteTimeout(timeUnit.toMillis(writeTimeout));
         }
 
-        public long getReadTimeout()
-        {
+        public long getReadTimeout() {
             return readTimeout;
         }
 
-        public void setReadTimeout(long readTimeout)
-        {
+        public void setReadTimeout(long readTimeout) {
             this.readTimeout = readTimeout;
         }
 
-        public void setReadTimeout(long readTimeout, TimeUnit timeUnit)
-        {
+        public void setReadTimeout(long readTimeout, TimeUnit timeUnit) {
             this.setReadTimeout(timeUnit.toMillis(readTimeout));
         }
 
-        public long getCallTimeout()
-        {
+        public long getCallTimeout() {
             return callTimeout;
         }
 
-        public void setCallTimeout(long callTimeout)
-        {
+        public void setCallTimeout(long callTimeout) {
             this.callTimeout = callTimeout;
         }
 
-        public void setCallTimeout(long callTimeout, TimeUnit timeUnit)
-        {
+        public void setCallTimeout(long callTimeout, TimeUnit timeUnit) {
             this.setCallTimeout(timeUnit.toMillis(callTimeout));
         }
     }
 
     private static final TimeoutKey DEFAULT_TIMEOUT_KEY = new TimeoutKey(30 * 1000, 60 * 1000, 60 * 1000);
 
-    private static final X509TrustManager X509_TRUST_MANAGER = new X509TrustManager()
-    {
+    private static final X509TrustManager X509_TRUST_MANAGER = new X509TrustManager() {
         @Override
         public void checkClientTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException
-        {
+                String s) throws CertificateException {
 
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] x509Certificates,
-                String s) throws CertificateException
-        {
+                String s) throws CertificateException {
 
         }
 
         @Override
-        public X509Certificate[] getAcceptedIssuers()
-        {
+        public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
         }
     };
 
-    static class StreamBody extends RequestBody
-    {
+    static class StreamBody extends RequestBody {
 
         private MediaType mediaType;
         private InputStream inputStream;
 
-        public StreamBody(MediaType mediaType, InputStream inputStream)
-        {
+        public StreamBody(MediaType mediaType, InputStream inputStream) {
             this.mediaType = mediaType;
             this.inputStream = inputStream;
         }
 
         @Override
-        public MediaType contentType()
-        {
+        public MediaType contentType() {
             return mediaType;
         }
 
         @Override
-        public void writeTo(BufferedSink sink) throws IOException
-        {
-            try (InputStream in = this.inputStream)
-            {
+        public void writeTo(BufferedSink sink) throws IOException {
+            try (InputStream in = this.inputStream) {
                 byte[] buf = new byte[2048];
                 int n;
-                while ((n = in.read(buf)) != -1)
-                {
+                while ((n = in.read(buf)) != -1) {
                     sink.write(buf, 0, n);
                 }
-            } finally
-            {
+            } finally {
                 this.inputStream = null;
             }
         }
@@ -211,75 +177,60 @@ public class HttpUtil
 
 
     private static OkHttpClient _getClient(SSLSocketFactory sslSocketFactory, X509TrustManager x509TrustManager,
-            boolean hasCookie, TimeoutKey timeoutKey)
-    {
+            boolean hasCookie, TimeoutKey timeoutKey) {
 
-        try
-        {
+        try {
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            if (x509TrustManager == null)
-            {
+            if (x509TrustManager == null) {
                 x509TrustManager = X509_TRUST_MANAGER;
             }
 
-            if (sslSocketFactory == null)
-            {
+            if (sslSocketFactory == null) {
                 SSLContext sslContext = SSLContext.getInstance("TLS");
                 sslContext.init(null, new TrustManager[]{x509TrustManager}, new SecureRandom());
                 sslSocketFactory = sslContext.getSocketFactory();
             }
             builder.sslSocketFactory(sslSocketFactory, x509TrustManager);
-            if (timeoutKey.connTimeout != -1)
-            {
+            if (timeoutKey.connTimeout != -1) {
                 builder.connectTimeout(timeoutKey.connTimeout, TimeUnit.MILLISECONDS);
             }
-            if (timeoutKey.readTimeout != -1)
-            {
+            if (timeoutKey.readTimeout != -1) {
                 builder.readTimeout(timeoutKey.readTimeout, TimeUnit.MILLISECONDS);
             }
-            if (timeoutKey.writeTimeout != -1)
-            {
+            if (timeoutKey.writeTimeout != -1) {
                 builder.writeTimeout(timeoutKey.writeTimeout, TimeUnit.MILLISECONDS);
             }
-            if (timeoutKey.callTimeout != -1)
-            {
+            if (timeoutKey.callTimeout != -1) {
                 builder.callTimeout(timeoutKey.callTimeout, TimeUnit.MILLISECONDS);
             }
 
-            if (hasCookie)
-            {
-                builder.cookieJar(new CookieJar()
-                {
+            if (hasCookie) {
+                builder.cookieJar(new CookieJar() {
                     private final Map<HttpUrl, List<Cookie>> cookieStore = new ConcurrentHashMap<>();
 
                     @Override
-                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies)
-                    {
+                    public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
                         cookieStore.put(url, cookies);
                     }
 
                     @Override
-                    public List<Cookie> loadForRequest(HttpUrl url)
-                    {
+                    public List<Cookie> loadForRequest(HttpUrl url) {
                         List<Cookie> cookies = cookieStore.get(url);
                         return cookies != null ? cookies : Collections.emptyList();
                     }
                 });
-            } else
-            {
+            } else {
                 builder.cookieJar(CookieJar.NO_COOKIES);
             }
 
-            if (x509TrustManager == X509_TRUST_MANAGER)
-            {
+            if (x509TrustManager == X509_TRUST_MANAGER) {
                 builder.hostnameVerifier((s, sslSession) -> true);
             }
 
             OkHttpClient okHttpClient = builder.build();
 
             return okHttpClient;
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -290,8 +241,7 @@ public class HttpUtil
      *
      * @return
      */
-    public static synchronized OkHttpClient getClient()
-    {
+    public static synchronized OkHttpClient getClient() {
         return getClient(null, null, false);
     }
 
@@ -300,8 +250,7 @@ public class HttpUtil
      *
      * @return
      */
-    public static synchronized OkHttpClient getClient(TimeoutKey timeoutKey)
-    {
+    public static synchronized OkHttpClient getClient(TimeoutKey timeoutKey) {
         return getClient(null, null, false, timeoutKey);
     }
 
@@ -311,8 +260,7 @@ public class HttpUtil
      * @return
      */
     public static synchronized OkHttpClient getClient(SSLSocketFactory sslSocketFactory,
-            X509TrustManager x509TrustManager, boolean hasCookie)
-    {
+            X509TrustManager x509TrustManager, boolean hasCookie) {
         return getClient(sslSocketFactory, x509TrustManager, hasCookie, DEFAULT_TIMEOUT_KEY);
     }
 
@@ -323,8 +271,7 @@ public class HttpUtil
      * @return
      */
     public static synchronized OkHttpClient getClient(SSLSocketFactory sslSocketFactory,
-            X509TrustManager x509TrustManager, boolean hasCookie, TimeoutKey timeoutKey)
-    {
+            X509TrustManager x509TrustManager, boolean hasCookie, TimeoutKey timeoutKey) {
         return _getClient(sslSocketFactory, x509TrustManager, hasCookie, timeoutKey);
     }
 
@@ -335,10 +282,8 @@ public class HttpUtil
      * @param sb
      * @param c  要移除的字符
      */
-    private static void removeEndChar(StringBuilder sb, char c)
-    {
-        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == c)
-        {
+    private static void removeEndChar(StringBuilder sb, char c) {
+        if (sb.length() > 0 && sb.charAt(sb.length() - 1) == c) {
             sb.deleteCharAt(sb.length() - 1);
         }
     }
@@ -350,63 +295,49 @@ public class HttpUtil
      * @param nameValues 如name=123&age=12
      * @param afterSharp 是否放在#后面
      */
-    public static String addUrlParam(String url, String nameValues, boolean afterSharp)
-    {
+    public static String addUrlParam(String url, String nameValues, boolean afterSharp) {
         int index = url.lastIndexOf(afterSharp ? "#" : "?");
-        if (index == -1)
-        {
+        if (index == -1) {
             return url + (afterSharp ? "#" : "?") + nameValues;
-        } else
-        {
+        } else {
             return url + "&" + nameValues;
         }
     }
 
     private static void addUrlParams(StringBuilder stringBuilder, InNames.Name[] names,
-            Object[] values, String encoding) throws UnsupportedEncodingException
-    {
-        if (names == null || values == null)
-        {
+            Object[] values, String encoding) throws UnsupportedEncodingException {
+        if (names == null || values == null) {
             return;
         }
-        for (int i = 0; i < names.length; i++)
-        {
-            if (values[i] != null)
-            {
+        for (int i = 0; i < names.length; i++) {
+            if (values[i] != null) {
                 stringBuilder.append(URLEncoder.encode(names[i].varName, encoding)).append("=")
                         .append(URLEncoder.encode(values[i] + "", encoding)).append('&');
             }
         }
     }
 
-    private static String dealUrlParams(OftenObject oftenObject, String url) throws UnsupportedEncodingException
-    {
-        if (oftenObject == null || (oftenObject._fInNames == null && oftenObject._cInNames == null))
-        {
+    private static String dealUrlParams(OftenObject oftenObject, String url) throws UnsupportedEncodingException {
+        if (oftenObject == null || (oftenObject._fInNames == null && oftenObject._cInNames == null)) {
             return url;
         }
         StringBuilder stringBuilder = new StringBuilder();
         String encoding = "utf-8";
 
-        if (oftenObject._fInNames != null)
-        {
+        if (oftenObject._fInNames != null) {
             addUrlParams(stringBuilder, oftenObject._fInNames.nece, oftenObject._fn, encoding);
             addUrlParams(stringBuilder, oftenObject._fInNames.unece, oftenObject._fu, encoding);
         }
-        if (oftenObject._cInNames != null)
-        {
+        if (oftenObject._cInNames != null) {
             addUrlParams(stringBuilder, oftenObject._cInNames.nece, oftenObject._cn, encoding);
             addUrlParams(stringBuilder, oftenObject._cInNames.unece, oftenObject._cu, encoding);
         }
 
-        if (stringBuilder.length() > 0)
-        {
+        if (stringBuilder.length() > 0) {
             removeEndChar(stringBuilder, '&');
-            if (url.indexOf('?') == -1)
-            {
+            if (url.indexOf('?') == -1) {
                 url += "?" + stringBuilder;
-            } else
-            {
+            } else {
                 url += "&" + stringBuilder;
             }
         }
@@ -414,136 +345,105 @@ public class HttpUtil
     }
 
 
-    private static void addFormParams(FormBody.Builder builder, InNames.Name[] names, Object[] values)
-    {
-        if (names == null || values == null)
-        {
+    private static void addFormParams(FormBody.Builder builder, InNames.Name[] names, Object[] values) {
+        if (names == null || values == null) {
             return;
         }
-        for (int i = 0; i < names.length; i++)
-        {
-            if (values[i] != null)
-            {
+        for (int i = 0; i < names.length; i++) {
+            if (values[i] != null) {
                 builder.add(names[i].varName, String.valueOf(values[i]));
             }
         }
     }
 
-    private static RequestBody dealBodyParams(OftenObject oftenObject, RequestData requestData)
-    {
+    private static RequestBody dealBodyParams(OftenObject oftenObject, RequestData requestData) {
 
         RequestBody body;
 
-        if (requestData != null)
-        {
+        if (requestData != null) {
             MediaType mediaType = null;
-            if (requestData.getContentType() != null)
-            {
-                if (requestData.getEncoding() != null)
-                {
+            if (requestData.getContentType() != null) {
+                if (requestData.getEncoding() != null) {
                     mediaType = MediaType.parse(requestData.getContentType().getType() + ";charset=" + requestData
                             .getEncoding());
-                } else
-                {
+                } else {
                     mediaType = MediaType.parse(requestData.getContentType().getType());
                 }
             }
 
-            if (requestData.getBodyContent() != null)
-            {
+            if (requestData.getBodyContent() != null) {
                 Object content = requestData.getBodyContent();
 
 
-                if (content instanceof byte[])
-                {
+                if (content instanceof byte[]) {
                     byte[] bs = (byte[]) content;
                     body = RequestBody.create(mediaType, bs);
-                } else if (content instanceof InputStream)
-                {
+                } else if (content instanceof InputStream) {
                     body = new StreamBody(mediaType, (InputStream) content);
-                } else if (content instanceof File)
-                {
+                } else if (content instanceof File) {
                     File file = (File) content;
                     body = RequestBody.create(mediaType, file);
-                } else
-                {
+                } else {
                     String strContent = String.valueOf(content);
                     body = RequestBody.create(mediaType, strContent);
                 }
 
-            } else if (requestData.getContentType() == ContentType.MULTIPART_FORM)
-            {
+            } else if (requestData.getContentType() == ContentType.MULTIPART_FORM) {
                 MultipartBody.Builder builder = new MultipartBody.Builder();
                 builder.setType(mediaType);
                 Map<String, Object> params = requestData.getParams();
-                if (params != null)
-                {
-                    for (Map.Entry<String, Object> entry : params.entrySet())
-                    {
+                if (params != null) {
+                    for (Map.Entry<String, Object> entry : params.entrySet()) {
                         String name = entry.getKey();
                         Object value = entry.getValue();
-                        if (value == null)
-                        {
+                        if (value == null) {
                             continue;
                         }
-                        if (value instanceof File)
-                        {
+                        if (value instanceof File) {
                             File file = (File) value;
                             RequestBody fileBody = RequestBody
                                     .create(MediaType.parse(ResourceUtil.getMimeType(file.getName())), file);
                             builder.addFormDataPart(name, file.getName(), fileBody);
-                        } else
-                        {
+                        } else {
                             builder.addFormDataPart(name, String.valueOf(value));
                         }
                     }
                 }
                 body = builder.build();
-            } else if (requestData.getContentType() == ContentType.APP_FORM_URLENCODED)
-            {
+            } else if (requestData.getContentType() == ContentType.APP_FORM_URLENCODED) {
                 FormBody.Builder builder = new FormBody.Builder(mediaType.charset());
                 Map<String, Object> params = requestData.getParams();
-                if (params != null)
-                {
-                    for (Map.Entry<String, Object> entry : params.entrySet())
-                    {
+                if (params != null) {
+                    for (Map.Entry<String, Object> entry : params.entrySet()) {
                         String name = entry.getKey();
                         Object value = entry.getValue();
-                        if (value == null)
-                        {
+                        if (value == null) {
                             continue;
-                        } else
-                        {
+                        } else {
                             builder.add(name, String.valueOf(value));
                         }
 
                     }
                 }
                 body = builder.build();
-            } else
-            {
+            } else {
                 JSONObject jsonObject = new JSONObject();
 
                 Map<String, Object> params = requestData.getParams();
-                if (params != null)
-                {
+                if (params != null) {
                     jsonObject.putAll(params);
                 }
 
                 body = RequestBody.create(mediaType, jsonObject.toString());
             }
-        } else
-        {
+        } else {
             FormBody.Builder builder = new FormBody.Builder(Charset.forName("utf-8"));
-            if (oftenObject != null)
-            {
-                if (oftenObject._fInNames != null)
-                {
+            if (oftenObject != null) {
+                if (oftenObject._fInNames != null) {
                     addFormParams(builder, oftenObject._fInNames.nece, oftenObject._fn);
                     addFormParams(builder, oftenObject._fInNames.unece, oftenObject._fu);
                 }
-                if (oftenObject._cInNames != null)
-                {
+                if (oftenObject._cInNames != null) {
                     addFormParams(builder, oftenObject._cInNames.nece, oftenObject._cn);
                     addFormParams(builder, oftenObject._cInNames.unece, oftenObject._cu);
                 }
@@ -569,8 +469,7 @@ public class HttpUtil
      */
     public static Response request(@NotNull RequestData requestData, PortMethod method,
             @MayNull OkHttpClient okHttpClient,
-            String url, Callback callback) throws IOException
-    {
+            String url, Callback callback) throws IOException {
         return request(requestData == null ? null : new OftenObjectImpl(method, requestData), method, okHttpClient, url,
                 callback);
     }
@@ -587,57 +486,45 @@ public class HttpUtil
      * @throws IOException
      */
     public static Response request(@MayNull OftenObject oftenObject, PortMethod method,
-            @MayNull OkHttpClient okHttpClient, String url, Callback callback) throws IOException
-    {
-        if (okHttpClient == null)
-        {
+            @MayNull OkHttpClient okHttpClient, String url, Callback callback) throws IOException {
+        if (okHttpClient == null) {
             okHttpClient = getClient(null, null, false);
         }
         Response response = null;
-        try
-        {
+        try {
             RequestData requestData = null;
             Request.Builder builder = new Request.Builder();
-            if (oftenObject instanceof OftenObjectImpl)
-            {
+            if (oftenObject instanceof OftenObjectImpl) {
                 requestData = ((OftenObjectImpl) oftenObject).getRequestData();
                 Map<String, String> headers = requestData.getHeaders();
-                if (OftenTool.notEmptyOf(headers))
-                {
-                    for (Map.Entry<String, String> entry : headers.entrySet())
-                    {
+                if (OftenTool.notEmptyOf(headers)) {
+                    for (Map.Entry<String, String> entry : headers.entrySet()) {
                         builder.addHeader(entry.getKey(), entry.getValue());
                     }
                 }
             }
             Request request;
-            if (method == null)
-            {
+            if (method == null) {
                 method = PortMethod.GET;
             }
-            switch (method)
-            {
-                case PUT:
-                {
+            switch (method) {
+                case PUT: {
                     RequestBody requestBody = dealBodyParams(oftenObject, requestData);
                     request = builder.url(url).put(requestBody).build();
                 }
                 break;
-                case POST:
-                {
+                case POST: {
                     RequestBody requestBody = dealBodyParams(oftenObject, requestData);
                     request = builder.url(url).post(requestBody).build();
                 }
                 break;
-                case GET:
-                {
+                case GET: {
                     url = dealUrlParams(oftenObject, url);
                     request = builder.url(url).get().build();
                 }
 
                 break;
-                case DELETE:
-                {
+                case DELETE: {
                     url = dealUrlParams(oftenObject, url);
                     request = builder.url(url).delete().build();
                 }
@@ -645,15 +532,12 @@ public class HttpUtil
                 default:
                     throw new RuntimeException("not support:" + method);
             }
-            if (callback == null)
-            {
+            if (callback == null) {
                 response = okHttpClient.newCall(request).execute();
-            } else
-            {
+            } else {
                 okHttpClient.newCall(request).enqueue(callback);
             }
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
         }
 
@@ -661,8 +545,7 @@ public class HttpUtil
     }
 
     public static JResponse requestJResponse(@MayNull RequestData requestData, PortMethod method,
-            @MayNull OkHttpClient okHttpClient, String url, JRCallback jrCallback)
-    {
+            @MayNull OkHttpClient okHttpClient, String url, JRCallback jrCallback) {
         return requestJResponse(requestData == null ? null : new OftenObjectImpl(method, requestData), method,
                 okHttpClient,
                 url,
@@ -670,102 +553,78 @@ public class HttpUtil
     }
 
     public static String requestString(@MayNull RequestData requestData, PortMethod method,
-            @MayNull OkHttpClient okHttpClient, String url)
-    {
+            @MayNull OkHttpClient okHttpClient, String url) {
         ResponseBody responseBody = null;
         Response response = null;
-        try
-        {
+        try {
             response = request(requestData, method, okHttpClient, url, null);
             int code = response.code();
-            if (code == 200 || code == 201)
-            {
+            if (code == 200 || code == 201) {
                 responseBody = response.body();
                 return responseBody.string();
-            } else if (code == 204)
-            {
+            } else if (code == 204) {
                 return null;
-            } else
-            {
+            } else {
                 throw new OftenCallException("errcode=" + code + ",msg=" + response.message());
             }
-        } catch (OftenCallException e)
-        {
+        } catch (OftenCallException e) {
             throw e;
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             throw new OftenCallException(e);
-        } finally
-        {
+        } finally {
             OftenTool.close(responseBody);
             OftenTool.close(response);
         }
     }
 
     public static byte[] requestBytes(@MayNull RequestData requestData, PortMethod method,
-            @MayNull OkHttpClient okHttpClient, String url)
-    {
+            @MayNull OkHttpClient okHttpClient, String url) {
         ResponseBody responseBody = null;
         Response response = null;
-        try
-        {
+        try {
             response = request(requestData, method, okHttpClient, url, null);
             int code = response.code();
-            if (code == 200 || code == 201)
-            {
+            if (code == 200 || code == 201) {
                 responseBody = response.body();
                 return responseBody.bytes();
-            } else if (code == 204)
-            {
+            } else if (code == 204) {
                 return null;
-            } else
-            {
+            } else {
                 throw new OftenCallException("errcode=" + code + ",msg=" + response.message());
             }
-        } catch (OftenCallException e)
-        {
+        } catch (OftenCallException e) {
             throw e;
-        } catch (Throwable e)
-        {
+        } catch (Throwable e) {
             throw new OftenCallException(e);
-        } finally
-        {
+        } finally {
             OftenTool.close(responseBody);
             OftenTool.close(response);
         }
     }
 
-    private static JResponse toJResponse(Response response)
-    {
+    private static JResponse toJResponse(Response response) {
         JResponse jResponse;
         ResponseBody responseBody = null;
-        try
-        {
+        try {
             int code = response.code();
-            if (code == 200 || code == 201)
-            {
+            if (code == 200 || code == 201) {
                 responseBody = response.body();
                 String json = responseBody.string();
                 jResponse = JResponse.fromJSON(json);
-            } else if (code == 204)
-            {
+            } else if (code == 204) {
                 jResponse = new JResponse(ResultCode.SUCCESS);
-            } else
-            {
+            } else {
                 jResponse = new JResponse(code);
                 jResponse.setDescription(response.message());
             }
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             jResponse = onIOException(e);
-        } catch (JResponse.JResponseFormatException e)
-        {
+        } catch (JResponse.JResponseFormatException e) {
             jResponse = new JResponse();
-            jResponse.setCode(ResultCode.SERVER_EXCEPTION);
+            jResponse.setCode(ResultCode.PARAM_DEAL_EXCEPTION);
             jResponse.setDescription(e.toString());
             jResponse.setExCause(e);
-        } finally
-        {
+        } finally {
             OftenTool.close(responseBody);
             OftenTool.close(response);
         }
@@ -783,47 +642,37 @@ public class HttpUtil
      * @return
      */
     public static JResponse requestJResponse(@MayNull OftenObject oftenObject, PortMethod method,
-            @MayNull OkHttpClient okHttpClient, String url, final JRCallback jrCallback)
-    {
+            @MayNull OkHttpClient okHttpClient, String url, final JRCallback jrCallback) {
         JResponse jResponse = null;
-        try
-        {
+        try {
 
-            if (jrCallback == null)
-            {
+            if (jrCallback == null) {
                 Response response = request(oftenObject, method, okHttpClient, url, null);
                 jResponse = toJResponse(response);
-            } else
-            {
-                request(oftenObject, method, okHttpClient, url, new Callback()
-                {
+            } else {
+                request(oftenObject, method, okHttpClient, url, new Callback() {
                     @Override
-                    public void onFailure(Call call, IOException e)
-                    {
+                    public void onFailure(Call call, IOException e) {
                         jrCallback.onResult(onIOException(e));
                     }
 
                     @Override
-                    public void onResponse(Call call, Response response) throws IOException
-                    {
+                    public void onResponse(Call call, Response response) throws IOException {
                         jrCallback.onResult(toJResponse(response));
                     }
 
                 });
             }
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             jResponse = onIOException(e);
-            if (jrCallback != null)
-            {
+            if (jrCallback != null) {
                 jrCallback.onResult(jResponse);
             }
         }
         return jResponse;
     }
 
-    private static JResponse onIOException(IOException e)
-    {
+    private static JResponse onIOException(IOException e) {
         JResponse jResponse = new JResponse();
         jResponse.setCode(ResultCode.NET_EXCEPTION);
         jResponse.setDescription(e.toString());
