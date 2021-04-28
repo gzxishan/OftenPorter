@@ -5,9 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 响应结果的封装.
@@ -64,7 +62,21 @@ public class JResponse {
      */
     public static final String SIGN_FIELD = "sign";
 
-    //public static final String REQUEST_URI_FIELD = "uri";
+    private static final String[] KEEP_KEYS;
+
+    static {
+        List<String> list = new ArrayList<>();
+        list.add(CODE_FIELD);
+        list.add(CODE_NAME_FIELD);
+        list.add(RESULT_FIELD);
+        list.add(EXTRA_FIELD);
+        list.add(DESCRIPTION_FIELD);
+        list.add(SERVER_NAME_FIELD);
+        list.add(SIGN_FIELD);
+
+        KEEP_KEYS = list.toArray(new String[0]);
+        Arrays.sort(KEEP_KEYS);
+    }
 
 
     private Object code = ResultCode.Other;
@@ -74,6 +86,7 @@ public class JResponse {
     private boolean dealIObject = true;
     private String serverName;
     private JSONObject sign;
+    private Map<String, Object> customer;
 
     public JResponse(ResultCode code) {
         setCode(code);
@@ -95,6 +108,23 @@ public class JResponse {
 
     public JResponse() {
 
+    }
+
+    public Object putCustomerField(String key, Object value) {
+        if (Arrays.binarySearch(KEEP_KEYS, key) >= 0) {
+            throw new IllegalArgumentException("unexpected key:" + key);
+        }
+
+        Object last = null;
+        if (customer == null) {
+            customer = new HashMap<>();
+        }
+        last = customer.put(key, value);
+        return last;
+    }
+
+    public Object getCustomerField(String key) {
+        return customer != null ? customer.get(key) : null;
     }
 
     public String getServerName() {
@@ -194,12 +224,10 @@ public class JResponse {
     public static JResponse fromJSONObject(JSONObject jsonObject) throws JResponseFormatException {
         try {
             int code = jsonObject.getIntValue(CODE_FIELD);
+            ResultCode resultCode = ResultCode.toResponseCode(code);
             String desc = getString(jsonObject, DESCRIPTION_FIELD);
-
             Object result = getResult(jsonObject);
             Object extra = getExtra(jsonObject);
-
-            ResultCode resultCode = ResultCode.toResponseCode(code);
 
             JResponse jsonResponse = new JResponse();
             if (resultCode == null) {
@@ -212,6 +240,13 @@ public class JResponse {
             jsonResponse.setExtra(extra);
             jsonResponse.setServerName(jsonObject.getString(SERVER_NAME_FIELD));
             jsonResponse.setSign(jsonObject.getJSONObject(SIGN_FIELD));
+
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                if (Arrays.binarySearch(KEEP_KEYS, entry.getKey()) < 0) {
+                    jsonResponse.putCustomerField(entry.getKey(), entry.getValue());
+                }
+            }
+
             return jsonResponse;
         } catch (Exception e) {
             throw new JResponseFormatException(e);
@@ -354,7 +389,11 @@ public class JResponse {
      * 转换为json
      */
     public JSONObject toJSON() {
-        JSONObject json = new JSONObject(5);
+        JSONObject json = new JSONObject(5 + (customer == null ? 0 : customer.size()));
+        if (customer != null) {
+            json.putAll(customer);
+        }
+
         json.put(CODE_FIELD, getIntCode());
         if (code instanceof ResultCode) {
             json.put(CODE_NAME_FIELD, ((ResultCode) code).name());
