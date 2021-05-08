@@ -1,11 +1,10 @@
 package cn.xishan.oftenporter.porter.core.annotation.param;
 
+import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.annotation.NotNull;
-import cn.xishan.oftenporter.porter.core.annotation.PortIn;
 import cn.xishan.oftenporter.porter.core.annotation.PortStart;
 import cn.xishan.oftenporter.porter.core.annotation.sth.Porter;
 import cn.xishan.oftenporter.porter.core.annotation.sth.PorterOfFun;
-import cn.xishan.oftenporter.porter.core.advanced.ParamDealt;
 import cn.xishan.oftenporter.porter.core.base.OftenObject;
 
 import java.lang.annotation.*;
@@ -17,36 +16,35 @@ import java.lang.reflect.Method;
  *     <li>放在{@linkplain BindEntities}注解里；</li>
  *     <li>作为PortIn函数的形参；</li>
  * </ol>
+ *
  * @author Created by https://github.com/CLovinr on 2018/6/30.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
 @Documented
-public @interface BindEntityDealt
-{
+public @interface BindEntityDealt {
     /**
      * 每一个绑定对应一个此handle。
      *
      * @param <T>
      */
-    interface IHandle<T>
-    {
+    interface IHandle<T> {
         /**
          * 初始化,在接口开始({@linkplain PortStart})前调用。
          *
          * @param option
          * @param method 对应的接口函数
          */
-        void init(String option, Method method)throws Exception;
+        void init(String option, Method method) throws Exception;
 
         /**
          * 初始化,在接口开始({@linkplain PortStart})前调用。
          *
          * @param option
-         * @param clazz 对应的接口类
+         * @param clazz  对应的接口类
          */
-        void init(String option, Class<?> clazz)throws Exception;
+        void init(String option, Class<?> clazz) throws Exception;
 
         /**
          * 可以返回{@linkplain ParamDealt.FailedReason}.
@@ -55,7 +53,7 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(OftenObject oftenObject, Porter porter, @NotNull T object)throws Exception;
+        Object deal(OftenObject oftenObject, Porter porter, @NotNull T object) throws Exception;
 
         /**
          * * 可以返回{@linkplain ParamDealt.FailedReason}.
@@ -64,7 +62,30 @@ public @interface BindEntityDealt
          * @param object
          * @return 返回最终对象
          */
-        Object deal(OftenObject oftenObject, PorterOfFun fun, @NotNull T object)throws Exception;
+        Object deal(OftenObject oftenObject, PorterOfFun fun, @NotNull T object) throws Exception;
+    }
+
+    static class DefaultHandle implements IHandle {
+
+        @Override
+        public void init(String option, Method method) throws Exception {
+
+        }
+
+        @Override
+        public Object deal(OftenObject oftenObject, Porter porter, Object object) throws Exception {
+            return object;
+        }
+
+        @Override
+        public Object deal(OftenObject oftenObject, PorterOfFun fun, Object object) throws Exception {
+            return object;
+        }
+
+        @Override
+        public void init(String option, Class clazz) throws Exception {
+
+        }
     }
 
     /**
@@ -79,6 +100,6 @@ public @interface BindEntityDealt
      *
      * @return
      */
-    Class<? extends IHandle> handle();
+    Class<? extends IHandle> handle() default DefaultHandle.class;
 
 }

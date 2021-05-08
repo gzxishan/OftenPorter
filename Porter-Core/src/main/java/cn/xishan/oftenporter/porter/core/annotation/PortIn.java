@@ -5,6 +5,7 @@ import cn.xishan.oftenporter.porter.core.advanced.AspectPosition;
 import cn.xishan.oftenporter.porter.core.advanced.IPorter;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParser;
 import cn.xishan.oftenporter.porter.core.advanced.ITypeParserOption;
+import cn.xishan.oftenporter.porter.core.annotation.param.BindEntityDealt;
 import cn.xishan.oftenporter.porter.core.annotation.param.Parse;
 import cn.xishan.oftenporter.porter.core.base.*;
 import cn.xishan.oftenporter.porter.core.advanced.IAnnotationConfigable;
@@ -30,7 +31,8 @@ import java.lang.annotation.*;
  * <strong>声明参数的配置选项：</strong>{@linkplain #nece()}和{@linkplain #unece()}支持{@linkplain ITypeParserOption}
  * </li>
  * <li>
- * 参数处理见:{@linkplain Parse},{@linkplain ITypeParser},以及{@linkplain StringParser}、{@linkplain ObjectParser}等
+ * 参数处理见:{@linkplain BindEntityDealt},{@linkplain Parse},{@linkplain ITypeParser},以及{@linkplain StringParser}、
+ * {@linkplain ObjectParser}等
  * </li>
  * <li>
  * <strong> 配置参数</strong>见:{@linkplain IAnnotationConfigable},如@PortIn("${tiedName}")
@@ -47,8 +49,7 @@ import java.lang.annotation.*;
 @Inherited
 @Documented
 @AdvancedAnnotation(enableAdvancedAnnotation = true, enableCache = false)
-public @interface PortIn
-{
+public @interface PortIn {
 
     /**
      * 注解在PortIn类上，用于为当前接口实例添加绑定名称(另见{@linkplain PorterConf#addContextAutoSet(String, Object)})、可通过@
@@ -58,8 +59,7 @@ public @interface PortIn
     @Target({ElementType.TYPE})
     @Inherited
     @Documented
-    @interface ContextSet
-    {
+    @interface ContextSet {
         String value();
     }
 
