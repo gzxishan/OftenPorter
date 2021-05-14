@@ -3,9 +3,9 @@
 
 ##
 # 版本
-当前最新版本为  [**1.2.217**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
+当前最新版本为  [**1.2.235**](https://mvnrepository.com/artifact/com.xishankeji/Porter-Core)
 
-![Version](https://img.shields.io/badge/Version-1.2.217-brightgreen.svg)
+![Version](https://img.shields.io/badge/Version-1.2.235-brightgreen.svg)
 ![License](http://img.shields.io/:License-Apache2.0-blue.svg)
 ![JDK 1.8](https://img.shields.io/badge/JDK-1.8-green.svg)
 
@@ -24,6 +24,8 @@
 
 ## 发布记录
 ### v进行中
+
+### v1.2.235 2021/05/14
 1. 加入`@JsonDecodeOption`注解；
 2. `@Nece`与`@Unece`增`boolean requestData()`；
 3. `JResponse`增加`sign`属性；
