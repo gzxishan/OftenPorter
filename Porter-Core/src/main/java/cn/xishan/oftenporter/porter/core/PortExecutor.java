@@ -759,6 +759,9 @@ public final class PortExecutor {
             }
 
         } catch (Throwable e) {
+            Logger logger = logger(oftenObject);
+            logger.warn(e.getMessage(), e);
+
             Throwable ex = getCause(e);
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null) {
