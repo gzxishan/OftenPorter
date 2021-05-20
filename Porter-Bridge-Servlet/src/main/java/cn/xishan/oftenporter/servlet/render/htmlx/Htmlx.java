@@ -27,8 +27,7 @@ import java.util.Map;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @AspectOperationOfPortIn(handle = HtmlxHandle.class)
-public @interface Htmlx
-{
+public @interface Htmlx {
 
     /**
      * 是否为debug模式，当为(true,yes或1)时、每次都会加载模板。
@@ -60,11 +59,33 @@ public @interface Htmlx
     String file() default "";
 
     /**
-     * 使用{@linkplain #file()}的正则判断。
+     * 触发条件等于{@linkplain #file()}，但优先级更高。若以"/"开头且{@linkplain #isDispatcher()}为false，则会加上servlet上下文路径。
+     *
+     * @return
+     */
+    String dispatcher() default "";
+
+    /**
+     * 设置{@linkplain #dispatcher()}是否为服务器端重定向：true表示是，false表示进行客户端重定向。
+     *
+     * @return
+     */
+    boolean isDispatcher() default true;
+
+    /**
+     * 使用{@linkplain #file()}或{@linkplain #dispatcher()}的正则判断。
      *
      * @return
      */
     String filePattern() default "";
+
+
+    /**
+     * 是否对{@linkplain #isNotPattern()}的结果取反。
+     *
+     * @return
+     */
+    boolean isNotPattern() default false;
 
     /**
      * html文件的后缀名,当为通配符等情况、且匹配到不为该后缀名的请求时会忽略。

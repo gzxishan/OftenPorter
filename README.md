@@ -24,6 +24,7 @@
 
 ## 发布记录
 ### v进行中
+1. 完善`@Htmlx`，怎讲`dispatcher`属性；
 
 ### v1.2.235 2021/05/14
 1. 加入`@JsonDecodeOption`注解；

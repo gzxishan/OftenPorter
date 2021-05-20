@@ -20,8 +20,7 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD})
 @Documented
 @AspectOperationOfPortIn(handle = PathMappingHandle.class)
-public @interface PathMapping
-{
+public @interface PathMapping {
     /**
      * 实际访问的页面路径（规则同servlet）。
      *
@@ -32,7 +31,7 @@ public @interface PathMapping
     PortMethod[] method() default {PortMethod.GET};
 
     /**
-     * 对于同一个请求被多次匹配的情况，数值更小的会被执行。
+     * 对于同一个请求被多次匹配的情况，数值更小的会先被执行。
      *
      * @return
      */
