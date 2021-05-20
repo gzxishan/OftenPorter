@@ -759,10 +759,6 @@ public final class PortExecutor {
             }
 
         } catch (Throwable e) {
-            Logger logger = logger(oftenObject);
-            logger.warn(e.getMessage(), e);
-
-            Throwable ex = getCause(e);
             if (funPIn.getChecks().length == 0 && funPort.getPorter().getWholeClassCheckPassableGetter()
                     .getChecksForWholeClass().length == 0 && context.porterCheckPassables == null) {
                 AspectHandleOfPortInUtil.tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal,
@@ -770,7 +766,7 @@ public final class PortExecutor {
                 if (exReturnObject != null) {
                     dealtOfResponse(oftenObject, funPort, OutType.OBJECT, exReturnObject);
                 } else {
-                    exNotNull(oftenObject, funPort, oftenObject.getResponse(), ex, responseWhenException);
+                    exNotNull(oftenObject, funPort, oftenObject.getResponse(), e, responseWhenException);
                 }
             } else {
                 Object finalExReturnObject = exReturnObject;
@@ -779,7 +775,7 @@ public final class PortExecutor {
                         .setContext(context)
                         .setPorterOfFun(funPort)
                         .setObject(oftenObject)
-                        .withThrowable(result, ex)
+                        .withThrowable(result, e)
                         .setHandle(failedObject -> {
                             AspectHandleOfPortInUtil
                                     .tryDoHandle(AspectHandleOfPortInUtil.State.OnFinal, oftenObject, funPort,
@@ -799,9 +795,9 @@ public final class PortExecutor {
                                 failedObject = finalExReturnObject;
                             } else {
                                 JResponse jResponse = new JResponse(ResultCode.INVOKE_METHOD_EXCEPTION);
-                                jResponse.setDescription(OftenTool.getMessage(ex));
-                                jResponse.setExCause(ex);
-                                jResponse.setExtra(ex);
+                                jResponse.setDescription(OftenTool.getMessage(e));
+                                jResponse.setExCause(e);
+                                jResponse.setExtra(e);
                                 failedObject = jResponse;
                             }
                             dealtOfResponse(oftenObject, funPort, OutType.OBJECT, failedObject);
