@@ -4,12 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class FileTool
-{
+public class FileTool {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileTool.class);
 
     /**
@@ -18,20 +19,16 @@ public class FileTool
      * @return 不包含endChar
      * @throws IOException
      */
-    public static byte[] read(InputStream in, int endChar) throws IOException
-    {
+    public static byte[] read(InputStream in, int endChar) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         int c;
-        while ((c = in.read()) != -1)
-        {
-            if (c == endChar)
-            {
+        while ((c = in.read()) != -1) {
+            if (c == endChar) {
                 break;
             }
             bos.write(c);
         }
-        if (c != endChar)
-        {
+        if (c != endChar) {
             throw new IOException("illegal end! expect char " + ((char) endChar));
         }
         return bos.toByteArray();
@@ -46,18 +43,15 @@ public class FileTool
      * @param createIfNotExist
      * @throws IOException
      */
-    public static void write2File(String content, String encode, File file, boolean createIfNotExist) throws IOException
-    {
+    public static void write2File(String content, String encode, File file, boolean createIfNotExist)
+            throws IOException {
         write2File(new ByteArrayInputStream(content.getBytes(encode)), file, createIfNotExist);
     }
 
-    public static void write2Stream(String content, String encode, OutputStream os) throws IOException
-    {
-        try
-        {
+    public static void write2Stream(String content, String encode, OutputStream os) throws IOException {
+        try {
             in2out(new ByteArrayInputStream(content.getBytes(encode)), os, 2048);
-        } finally
-        {
+        } finally {
             OftenTool.close(os);
         }
     }
@@ -70,59 +64,45 @@ public class FileTool
      * @param createIfNotExist
      * @throws IOException
      */
-    public static void write2File(InputStream in, File file, boolean createIfNotExist) throws IOException
-    {
+    public static void write2File(InputStream in, File file, boolean createIfNotExist) throws IOException {
         FileOutputStream fos = null;
-        try
-        {
-            if (!file.exists() && createIfNotExist)
-            {
+        try {
+            if (!file.exists() && createIfNotExist) {
                 boolean rs = file.createNewFile();
-                if (!rs)
-                {
+                if (!rs) {
                     throw new IOException("create file failed:" + file.getAbsolutePath());
                 }
             }
             fos = new FileOutputStream(file);
             byte[] buf = new byte[2048];
             int n;
-            while ((n = in.read(buf)) != -1)
-            {
+            while ((n = in.read(buf)) != -1) {
                 fos.write(buf, 0, n);
             }
             fos.flush();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
-        } finally
-        {
+        } finally {
             OftenTool.close(fos);
             OftenTool.close(in);
         }
     }
 
-    public static String getString(File file)
-    {
-        try
-        {
+    public static String getString(File file) {
+        try {
             return getString(new FileInputStream(file));
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             return null;
         }
     }
 
-    public static void writeString(File file, String content)
-    {
-        try
-        {
-            if (!file.exists())
-            {
+    public static void writeString(File file, String content) {
+        try {
+            if (!file.exists()) {
                 file.createNewFile();
             }
             write2Stream(content, "utf-8", new FileOutputStream(file));
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -135,8 +115,7 @@ public class FileTool
      * @return
      * @throws IOException
      */
-    public static byte[] getData(File file, int bufSize) throws IOException
-    {
+    public static byte[] getData(File file, int bufSize) throws IOException {
         return getData(new FileInputStream(file), bufSize);
     }
 
@@ -148,71 +127,54 @@ public class FileTool
      * @return
      * @throws IOException
      */
-    public static byte[] getData(InputStream in, int bufSize) throws IOException
-    {
-        try
-        {
+    public static byte[] getData(InputStream in, int bufSize) throws IOException {
+        try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(in.available());
             byte[] buf = new byte[bufSize];
             int n;
-            while ((n = in.read(buf)) != -1)
-            {
+            while ((n = in.read(buf)) != -1) {
                 bos.write(buf, 0, n);
             }
             return bos.toByteArray();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
-        } finally
-        {
+        } finally {
             OftenTool.close(in);
         }
     }
 
-    public static String getString(File file, String encode) throws IOException
-    {
+    public static String getString(File file, String encode) throws IOException {
         return getString(file, 2048, encode);
     }
 
-    public static String getString(File file, int bufSize, String encode) throws IOException
-    {
+    public static String getString(File file, int bufSize, String encode) throws IOException {
         return getString(new FileInputStream(file), bufSize, encode);
     }
 
-    public static String getString(InputStream in, int bufSize, String encode) throws IOException
-    {
-        try
-        {
+    public static String getString(InputStream in, int bufSize, String encode) throws IOException {
+        try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(in.available());
             byte[] buf = new byte[bufSize];
             int n;
-            while ((n = in.read(buf)) != -1)
-            {
+            while ((n = in.read(buf)) != -1) {
                 bos.write(buf, 0, n);
             }
-            if (encode != null)
-            {
+            if (encode != null) {
                 return new String(bos.toByteArray(), encode);
-            } else
-            {
+            } else {
                 return new String(bos.toByteArray(), "utf-8");
             }
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
-        } finally
-        {
+        } finally {
             OftenTool.close(in);
         }
     }
 
-    public static String getString(InputStream in)
-    {
-        try
-        {
+    public static String getString(InputStream in) {
+        try {
             return getString(in, 2048, "utf-8");
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             return null;
         }
 
@@ -228,12 +190,9 @@ public class FileTool
      * @param createIfNotExists toFile不存在时是否创建
      * @throws IOException
      */
-    public static void file2file(File file, File toFile, int bufSize, boolean createIfNotExists) throws IOException
-    {
-        if (toFile.exists() || createIfNotExists && toFile.createNewFile())
-        {
-            try (FileOutputStream fos = new FileOutputStream(toFile))
-            {
+    public static void file2file(File file, File toFile, int bufSize, boolean createIfNotExists) throws IOException {
+        if (toFile.exists() || createIfNotExists && toFile.createNewFile()) {
+            try (FileOutputStream fos = new FileOutputStream(toFile)) {
                 file2out(file, fos, bufSize);
             }
         }
@@ -247,10 +206,8 @@ public class FileTool
      * @param bufSize
      * @throws IOException
      */
-    public static void file2out(File file, OutputStream os, int bufSize) throws IOException
-    {
-        try (FileInputStream fis = new FileInputStream(file))
-        {
+    public static void file2out(File file, OutputStream os, int bufSize) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
             in2out(fis, os, bufSize);
         }
     }
@@ -263,22 +220,17 @@ public class FileTool
      * @param bufSize
      * @throws IOException
      */
-    public static void in2out(InputStream in, OutputStream os, int bufSize) throws IOException
-    {
-        try
-        {
+    public static void in2out(InputStream in, OutputStream os, int bufSize) throws IOException {
+        try {
             byte[] buf = new byte[bufSize];
             int n;
-            while ((n = in.read(buf)) != -1)
-            {
+            while ((n = in.read(buf)) != -1) {
                 os.write(buf, 0, n);
             }
             os.flush();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             throw e;
-        } finally
-        {
+        } finally {
             OftenTool.close(os);
             OftenTool.close(in);
         }
@@ -290,8 +242,7 @@ public class FileTool
      * @return
      * @see #delete(File, boolean)
      */
-    public static boolean delete(File file)
-    {
+    public static boolean delete(File file) {
         return delete(file, true);
     }
 
@@ -302,31 +253,23 @@ public class FileTool
      * @param includeCurrentDir 如果当前文件为目录的话，是否删除该目录
      * @return
      */
-    public static boolean delete(File file, boolean includeCurrentDir)
-    {
-        if (file == null)
-        {
+    public static boolean delete(File file, boolean includeCurrentDir) {
+        if (file == null) {
             return false;
         }
-        if (file.isDirectory())
-        {
+        if (file.isDirectory()) {
             File[] files = file.listFiles();
-            if (files != null)
-            {
-                for (File f : files)
-                {
-                    if (!delete(f, true))
-                    {
+            if (files != null) {
+                for (File f : files) {
+                    if (!delete(f, true)) {
                         return false;
                     }
                 }
             }
-            if (includeCurrentDir)
-            {
+            if (includeCurrentDir) {
                 return file.delete();
             }
-        } else
-        {
+        } else {
             return file.delete();
         }
         return true;
@@ -338,20 +281,48 @@ public class FileTool
      * @param set
      * @param toDir
      */
-    public static void moveFiles(Set<File> set, File toDir) throws IOException
-    {
-        if (set == null)
-        {
+    public static void moveFiles(Set<File> set, File toDir) throws IOException {
+        if (set == null) {
             return;
         }
-        if (toDir.exists() && toDir.isDirectory())
-        {
+        if (toDir.exists() && toDir.isDirectory()) {
             Iterator<File> iterator = set.iterator();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 File file = iterator.next();
                 moveFile(file, toDir);
             }
+        }
+    }
+
+    /**
+     * 复制文件。
+     *
+     * @param srcFile
+     * @param targetFile
+     */
+    public static void copy(File srcFile, File targetFile) throws RuntimeException {
+        if (srcFile.isFile() && (targetFile.isFile() || !targetFile.exists())) {
+            try {
+                if (!targetFile.exists()) {
+                    targetFile.createNewFile();
+                }
+
+                Files.copy(srcFile.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.COPY_ATTRIBUTES);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (srcFile.isDirectory() && (targetFile.isDirectory() || !targetFile.exists())) {
+            if (!targetFile.exists()) {
+                targetFile.mkdir();
+            }
+
+            for (File f : srcFile.listFiles()) {
+                copy(f, new File(targetFile.getAbsolutePath() + File.separator + f.getName()));
+            }
+        } else {
+            throw new RuntimeException(String.format("file type not match:src=%s,target=%s", srcFile.getAbsolutePath(),
+                    targetFile.getAbsolutePath()));
         }
     }
 
@@ -361,16 +332,12 @@ public class FileTool
      * @param list
      * @param toDir
      */
-    public static void moveFiles(List<File> list, File toDir) throws IOException
-    {
-        if (list == null)
-        {
+    public static void moveFiles(List<File> list, File toDir) throws IOException {
+        if (list == null) {
             return;
         }
-        if (toDir.exists() && toDir.isDirectory())
-        {
-            for (int i = 0; i < list.size(); i++)
-            {
+        if (toDir.exists() && toDir.isDirectory()) {
+            for (int i = 0; i < list.size(); i++) {
                 File file = list.get(i);
                 moveFile(file, toDir);
             }
@@ -383,19 +350,15 @@ public class FileTool
      * @param file
      * @param toDir
      */
-    public static void moveFile(File file, File toDir) throws IOException
-    {
-        if (toDir.exists() && toDir.isDirectory() && file.exists() && !file.isDirectory())
-        {
+    public static void moveFile(File file, File toDir) throws IOException {
+        if (toDir.exists() && toDir.isDirectory() && file.exists() && !file.isDirectory()) {
             File desFile = new File(toDir.getPath() + File.separator + file.getName());
-            if (desFile.exists())
-            {
+            if (desFile.exists()) {
                 return;
             }
             FileTool.write2File(new FileInputStream(file), desFile, true);
             boolean rs = file.delete();
-            if (!rs)
-            {
+            if (!rs) {
                 LOGGER.warn("delete source file failed:{}", file);
             }
         }
