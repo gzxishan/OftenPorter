@@ -17,7 +17,7 @@
     <url>https://github.com/gzxishan/OftenPorter</url>
 
     <properties>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
         <project.jstl.version>1.2</project.jstl.version>
         <project.taglibs.version>1.1.2</project.taglibs.version>
         <!--        <project.jsoup.version>1.11.3</project.jsoup.version>-->
