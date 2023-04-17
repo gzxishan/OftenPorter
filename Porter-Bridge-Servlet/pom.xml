@@ -21,7 +21,7 @@
         <project.jstl.version>1.2</project.jstl.version>
         <project.taglibs.version>1.1.2</project.taglibs.version>
         <!--        <project.jsoup.version>1.11.3</project.jsoup.version>-->
-        <project.jsoup.version>1.13.1</project.jsoup.version>
+        <project.jsoup.version>1.15.3</project.jsoup.version>
     </properties>
 
     <dependencies>
